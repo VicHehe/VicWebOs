@@ -37,7 +37,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 18px;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 /* ========== HEADER ========== */
@@ -793,7 +794,6 @@ body {
     .calc-cuerpo {
         grid-template-columns: 1fr;
         gap: 14px;
-        overflow-y: auto;
     }
     .calc-columna-funciones {
         overflow: visible;
