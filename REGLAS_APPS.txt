@@ -12,10 +12,15 @@ GitHub como backend.
   REGLA 1 — DATOS EN JSON POR APP
 ================================================================
 
-Cada app guarda su información en archivos JSON ubicados en:
+Cada app guarda su información en archivos JSON ubicados
+dentro de su propia carpeta en /app.
 
-    app/{nombreHerramienta}.json           ← datos globales
-    app/{codigoUsuario}{nombreHerramienta}.json  ← datos por usuario
+ESTRUCTURA BASE:
+
+    app/
+      {nombreHerramienta}/
+        {nombreHerramienta}.json              ← datos globales
+        {codigoUsuario}{nombreHerramienta}.json  ← datos por usuario
 
 Una app puede usar:
     - UN SOLO JSON global
@@ -23,40 +28,39 @@ Una app puede usar:
     - AMBOS (global + por usuario)
 
 La estructura depende de las necesidades de cada app. Lo
-IMPORTANTE es respetar el patrón de nombres.
+IMPORTANTE es respetar el patrón de nombres y la carpeta.
 
 ----------------------------------------------------------------
   PATRÓN DE NOMBRES
 ----------------------------------------------------------------
 
 GLOBAL (toda la app, todos los usuarios):
-    app/{nombreHerramienta}.json
+    app/{nombreHerramienta}/{nombreHerramienta}.json
 
     Ejemplos:
-        app/twevan.json
-        app/calendario.json
-        app/galeria.json
-        app/chequera.json
+        app/twevan/twevan.json
+        app/calendario/calendario.json
+        app/galeria/galeria.json
+        app/chequera/chequera.json
 
 POR USUARIO (un archivo por cada cuenta):
-    app/{codigoUsuario}{nombreHerramienta}.json
+    app/{nombreHerramienta}/{codigoUsuario}{nombreHerramienta}.json
 
     Ejemplos (usuario 1234A):
-        app/1234Acalendario.json
-        app/1234Agaleria.json
-        app/1234Achequera.json
+        app/calendario/1234Acalendario.json
+        app/galeria/1234Agaleria.json
+        app/chequera/1234Achequera.json
 
     Ejemplos (usuario 5678B):
-        app/5678Bcalendario.json
-        app/5678Bgaleria.json
-        app/5678Bchequera.json
+        app/calendario/5678Bcalendario.json
+        app/galeria/5678Bgaleria.json
+        app/chequera/5678Bchequera.json
 
 REGLAS DEL PATRÓN:
     - codigoUsuario va PRIMERO, sin separador, seguido del
       nombre de la herramienta. Ej: 1234Agaleria.json
-    - Minúsculas y mayúsculas tal cual: el código conserva
-      su mayúscula (1234A), el nombre de la herramienta va
-      en minúsculas.
+    - El código conserva su mayúscula (1234A), el nombre de
+      la herramienta va en minúsculas.
     - El nombre de la herramienta debe coincidir con el "id"
       de la app en JsRutas.js (sin guiones bajos, tal cual).
 
@@ -74,11 +78,11 @@ POR USUARIO → cuando cada usuario tiene SUS propios datos.
         1234Alogros.json (sus logros)
 
 AMBOS → cuando parte es compartida y parte es personal.
-    Ej: app/quizatorio.json         (todos los quizzes)
-        app/1234Aquizatorio.json    (respuestas del usuario)
+    Ej: app/quizatorio/quizatorio.json        (todos los quizzes)
+        app/quizatorio/1234Aquizatorio.json   (respuestas usuario)
 
 ----------------------------------------------------------------
-  ESTRUCTURA INTERNA
+  ESTRUCTURA INTERNA DEL JSON
 ----------------------------------------------------------------
 
 El JSON debe contener un objeto con una propiedad "datos"
@@ -98,8 +102,6 @@ EJEMPLO DE ESTRUCTURA RECOMENDADA:
 REGLAS ADICIONALES:
     - Siempre escribir mediante ConfigBD.escribirArchivo().
     - Siempre leer mediante ConfigBD.leerArchivo().
-    - El nombre del archivo debe coincidir con el "id" de la
-      app en JsRutas.js.
     - No usar localStorage ni IndexedDB como fuente de verdad
       (solo como caché temporal si hace falta).
 
@@ -118,10 +120,10 @@ EXCEPCIÓN ÚNICA:
     es más simple mantenerlas dentro del propio archivo de
     cuentas que crear una carpeta solo para eso.
 
-Si una app necesita subir o guardar archivos binarios, se crea
-una carpeta específica con este formato:
+Los archivos binarios van dentro de la carpeta de la app,
+en subcarpetas por tipo:
 
-    app/{nombreHerramienta}({tipoDeArchivo})/{archivo}.{ext}
+    app/{nombreHerramienta}/{nombreHerramienta}({tipo})/{archivo}.{ext}
 
 TIPOS DE ARCHIVO PERMITIDOS:
     - imagen
@@ -130,13 +132,13 @@ TIPOS DE ARCHIVO PERMITIDOS:
     - documento  (pdf, docx, etc.)
 
 EJEMPLOS:
-    app/galeria(imagen)/foto_001.png
-    app/galeria(imagen)/foto_002.jpg
-    app/spotivic(audio)/cancion_luna.mp3
-    app/spotivic(audio)/podcast_ep01.ogg
-    app/editor_video(video)/clip_final.mp4
-    app/comics(imagen)/portada_comic_01.png
-    app/doxc_editor(documento)/contrato.pdf
+    app/galeria/galeria(imagen)/foto_001.png
+    app/galeria/galeria(imagen)/foto_002.jpg
+    app/spotivic/spotivic(audio)/cancion_luna.mp3
+    app/spotivic/spotivic(audio)/podcast_ep01.ogg
+    app/editor_video/editor_video(video)/clip_final.mp4
+    app/comics/comics(imagen)/portada_comic_01.png
+    app/doxc_editor/doxc_editor(documento)/contrato.pdf
 
 EN EL JSON DE LA APP:
     Se guarda SOLO la ruta relativa al archivo, nunca el
@@ -145,8 +147,8 @@ EN EL JSON DE LA APP:
     {
         "datos": {
             "fotos": [
-                { "id": "foto_001", "ruta": "app/galeria(imagen)/foto_001.png" },
-                { "id": "foto_002", "ruta": "app/galeria(imagen)/foto_002.jpg" }
+                { "id": "foto_001", "ruta": "app/galeria/galeria(imagen)/foto_001.png" },
+                { "id": "foto_002", "ruta": "app/galeria/galeria(imagen)/foto_002.jpg" }
             ]
         }
     }
@@ -163,82 +165,48 @@ REGLAS ADICIONALES:
       del repositorio para no acumular basura.
 
 ================================================================
-  REGLA 3 — ESTRUCTURA OBLIGATORIA DE CADA APP
+  REGLA 3 — ESTRUCTURA DE LAS HERRAMIENTAS
 ================================================================
 
-Toda app en herramientas/ DEBE tener esta estructura mínima:
+Toda herramienta vive en su propia carpeta dentro de
+/herramientas y tiene EXACTAMENTE esta estructura:
 
-    herramientas/{nombreHerramienta}/
-    ├── index.html        ← obligatorio
-    ├── style.css         ← obligatorio
-    └── script.js         ← obligatorio
-    └── ...agregados      ← opcionales
+    herramientas/
+      {nombreHerramienta}/
+        index.html      ← HTML
+        style.css       ← CSS
+        script.js       ← JavaScript
 
-----------------------------------------------------------------
-  NOMBRES OBLIGATORIOS
-----------------------------------------------------------------
+REGLAS:
+    - Los nombres son fijos: index.html, style.css, script.js
+    - No se permiten otros nombres.
+    - No se permiten subcarpetas adicionales (js/, css/, img/).
+      Si una herramienta necesita assets propios, van dentro
+      de la carpeta /app de esa herramienta (ver Regla 2).
+    - El archivo se referencia desde JsRutas.js así:
+        ruta: 'herramientas/{nombreHerramienta}/index.html'
+    - El id en JsRutas.js debe coincidir con el nombre de la
+      carpeta y con el nombre de los JSON en /app.
 
-- El HTML principal SIEMPRE se llama      index.html
-- Los estilos SIEMPRE van en              style.css
-- La lógica SIEMPRE va en                 script.js
+EJEMPLO — App "galeria":
+    herramientas/galeria/index.html
+    herramientas/galeria/style.css
+    herramientas/galeria/script.js
 
-NO se permiten nombres alternativos como:
-    ❌ stor-he.js
-    ❌ main.js
-    ❌ app.css
-    ❌ home.html
+    JsRutas.js:
+        {
+            id: 'galeria',
+            nombre: 'Galería',
+            icono: 'image',
+            ruta: 'herramientas/galeria/index.html',
+            descripcion: 'Tus fotos favoritas',
+            categoria: 'Creación y Recuerdos'
+        }
 
-----------------------------------------------------------------
-  ARCHIVOS AGREGADOS (opcionales)
-----------------------------------------------------------------
-
-Si la app necesita más archivos, se permiten con estos
-nombres SIEMPRE en minúsculas, con guiones bajos si son
-varias palabras:
-
-    herramientas/{nombre}/
-    ├── index.html
-    ├── style.css
-    ├── script.js
-    ├── utils.js              ← helpers
-    ├── api.js                ← llamadas al backend
-    ├── config.js             ← constantes
-    ├── modal_confirm.html    ← sub-páginas o templates
-    ├── assets/               ← carpeta de recursos
-    │   ├── icono.png
-    │   └── fuente.woff2
-    └── ...
-
-----------------------------------------------------------------
-  REGLAS PARA AGREGADOS
-----------------------------------------------------------------
-
-- Todo archivo JS adicional debe terminar en .js
-- Todo archivo CSS adicional debe terminar en .css
-- Todo HTML secundario debe terminar en .html
-- Los nombres en minúsculas, con guiones bajos (no guiones
-  medios, no mayúsculas)
-- Los assets (imágenes, fuentes, sonidos del propio motor de
-  la app, NO de datos del usuario) van en una subcarpeta
-  llamada assets/
-- NO cargar librerías externas dentro de la carpeta de la app.
-  Usar CDN siempre.
-
-----------------------------------------------------------------
-  POR QUÉ ESTA REGLA
-----------------------------------------------------------------
-
-1. Nombres predecibles → cualquiera puede abrir cualquier
-   app y saber dónde está el HTML, el CSS y el JS.
-
-2. index.html siempre → el navegador carga index.html por
-   defecto en cualquier carpeta, no hay que configurar nada.
-
-3. Sin ambigüedad → no hay "¿esto va en main.js o app.js?".
-   Es script.js y punto.
-
-4. Los "agregados" permiten apps complejas sin perder el
-   orden base.
+    Datos:
+        app/galeria/galeria.json
+        app/galeria/1234Agaleria.json
+        app/galeria/galeria(imagen)/foto_001.png
 
 ================================================================
   TABLA RESUMEN
@@ -246,44 +214,47 @@ varias palabras:
 
   TIPO DE DATO       → DÓNDE VA
   ------------------------------------------------------------
-  Texto, números,    → app/{nombre}.json          (global)
+  Código de app      → herramientas/{nombre}/
+                         index.html
+                         style.css
+                         script.js
+
+  Texto, números,    → app/{nombre}/{nombre}.json          (global)
   fechas, listas,      o
-  configuración        app/{codigo}{nombre}.json  (por usuario)
+  configuración        app/{nombre}/{codigo}{nombre}.json (por usuario)
 
   Foto de usuario    → cuenta.json (base64)  ← ÚNICA EXCEPCIÓN
 
-  Imágenes           → app/{nombre}(imagen)/archivo.png
+  Imágenes           → app/{nombre}/{nombre}(imagen)/archivo.png
                        (referencia en el JSON)
 
-  Videos             → app/{nombre}(video)/archivo.mp4
+  Videos             → app/{nombre}/{nombre}(video)/archivo.mp4
                        (referencia en el JSON)
 
-  Audios             → app/{nombre}(audio)/archivo.mp3
+  Audios             → app/{nombre}/{nombre}(audio)/archivo.mp3
                        (referencia en el JSON)
 
-  Documentos         → app/{nombre}(documento)/archivo.pdf
+  Documentos         → app/{nombre}/{nombre}(documento)/archivo.pdf
                        (referencia en el JSON)
-
-  Código de la app   → herramientas/{nombre}/
-                       ├── index.html
-                       ├── style.css
-                       ├── script.js
-                       └── (agregados)
 
 ================================================================
   API DISPONIBLE (recordatorio)
 ================================================================
 
 Para leer datos:
-    const data = await ConfigBD.leerArchivo('app/miapp.json');
+    const data = await ConfigBD.leerArchivo(
+        'app/galeria/galeria.json'
+    );
 
 Para escribir datos:
-    await ConfigBD.escribirArchivo('app/miapp.json', data);
+    await ConfigBD.escribirArchivo(
+        'app/galeria/galeria.json', data
+    );
 
 Para leer datos de un usuario:
     const codigo = cuentaActual.codigo; // ej: "1234A"
     const data = await ConfigBD.leerArchivo(
-        `app/${codigo}calendario.json`
+        `app/calendario/${codigo}calendario.json`
     );
 
 Para archivos binarios:
@@ -295,38 +266,36 @@ Para archivos binarios:
   EJEMPLO COMPLETO — App "galeria"
 ================================================================
 
-Estructura de la app en herramientas/:
-    herramientas/galeria/
-    ├── index.html
-    ├── style.css
-    └── script.js
+Estructura en el repositorio:
+    herramientas/galeria/index.html
+    herramientas/galeria/style.css
+    herramientas/galeria/script.js
 
-Estructura de los datos en app/:
-    app/galeria.json
-    app/1234Agaleria.json
-    app/5678Bgaleria.json
-    app/galeria(imagen)/foto_001.png
-    app/galeria(imagen)/foto_002.jpg
-    app/galeria(imagen)/foto_003.png
+    app/galeria/galeria.json
+    app/galeria/1234Agaleria.json
+    app/galeria/5678Bgaleria.json
+    app/galeria/galeria(imagen)/foto_001.png
+    app/galeria/galeria(imagen)/foto_002.jpg
+    app/galeria/galeria(imagen)/foto_003.png
 
-Contenido de app/galeria.json (índice global):
+Contenido de app/galeria/galeria.json (índice global):
     {
         "version": 1,
         "datos": {
             "fotosPublicas": [
-                { "id": "1", "ruta": "app/galeria(imagen)/foto_001.png", "titulo": "Atardecer" }
+                { "id": "1", "ruta": "app/galeria/galeria(imagen)/foto_001.png", "titulo": "Atardecer" }
             ]
         }
     }
 
-Contenido de app/1234Agaleria.json (galería personal):
+Contenido de app/galeria/1234Agaleria.json (galería personal):
     {
         "version": 1,
         "actualizado": "2025-01-15T10:30:00Z",
         "datos": {
             "fotos": [
-                { "id": "1", "ruta": "app/galeria(imagen)/foto_002.jpg", "titulo": "Playa" },
-                { "id": "2", "ruta": "app/galeria(imagen)/foto_003.png", "titulo": "Bosque" }
+                { "id": "1", "ruta": "app/galeria/galeria(imagen)/foto_002.jpg", "titulo": "Playa" },
+                { "id": "2", "ruta": "app/galeria/galeria(imagen)/foto_003.png", "titulo": "Bosque" }
             ]
         }
     }
@@ -335,19 +304,16 @@ Contenido de app/1234Agaleria.json (galería personal):
   EJEMPLO COMPLETO — App "chequera"
 ================================================================
 
-Estructura de la app en herramientas/:
-    herramientas/chequera/
-    ├── index.html
-    ├── style.css
-    ├── script.js
-    └── utils.js              ← agregado (opcional)
+Estructura en el repositorio:
+    herramientas/chequera/index.html
+    herramientas/chequera/style.css
+    herramientas/chequera/script.js
 
-Estructura de los datos en app/:
-    app/chequera.json
-    app/1234Achequera.json
-    app/5678Bchequera.json
+    app/chequera/chequera.json
+    app/chequera/1234Achequera.json
+    app/chequera/5678Bchequera.json
 
-Contenido de app/chequera.json (catálogo global de recompensas):
+Contenido de app/chequera/chequera.json (catálogo global):
     {
         "version": 1,
         "datos": {
@@ -358,7 +324,7 @@ Contenido de app/chequera.json (catálogo global de recompensas):
         }
     }
 
-Contenido de app/1234Achequera.json (monedas del usuario):
+Contenido de app/chequera/1234Achequera.json (monedas del usuario):
     {
         "version": 1,
         "actualizado": "2025-01-15T10:30:00Z",
@@ -372,26 +338,25 @@ Contenido de app/1234Achequera.json (monedas del usuario):
   POR QUÉ ESTAS REGLAS
 ================================================================
 
-1. Un JSON por app (o varios por usuario) → fácil de
-   sincronizar, fácil de versionar, fácil de compartir el
-   repo entre amigos. Cada usuario puede tener sus datos sin
-   pisar los de otros.
+1. Estructura fija de herramientas (index.html, style.css,
+   script.js) → cada app es autocontenida, sin ambigüedad,
+   sin dependencias de rutas raras.
 
-2. Patrón {codigo}{herramienta}.json → predecible, sin
+2. Carpeta por app en /app → todos los datos de una app
+   quedan juntos, fácil de auditar, fácil de borrar, fácil
+   de compartir.
+
+3. Patrón {codigo}{herramienta}.json → predecible, sin
    ambigüedad, cada app sabe exactamente dónde buscar los
    datos de cada usuario.
 
-3. Archivos binarios separados → los JSON se mantienen
-   pequeños y legibles, no se infla el repo con base64, y
-   GitHub puede manejar cada archivo individualmente.
+4. Archivos binarios separados por tipo → los JSON se
+   mantienen pequeños y legibles, no se infla el repo con
+   base64, y GitHub puede manejar cada archivo individualmente.
 
-4. Excepción única para cuenta.json → las fotos de perfil
+5. Excepción única para cuenta.json → las fotos de perfil
    son pequeñas y necesitan estar en el mismo archivo que
    la cuenta para simplificar la carga inicial.
-
-5. Nombres consistentes en apps → index.html, style.css y
-   script.js siempre. Cualquier persona puede abrir una app
-   y saber dónde está cada cosa.
 
 ================================================================
   FIN DEL DOCUMENTO
