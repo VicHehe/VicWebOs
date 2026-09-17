@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌸 My Silly Couple Page</title>
+    <!-- Favicon SVG (Lucide hexagon en morado) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238B5CF6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z'/></svg>">
+    <title>VicWebOs</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
@@ -13,63 +15,13 @@
 </head>
 <body>
 
-    <!-- ====== MODAL DE LOGIN / REGISTRO (oculto por defecto para ver el layout) ====== -->
-    <div id="loginOverlay" class="login-overlay" style="display:none;">
-        <div class="login-card">
-            <div class="login-header">
-                <div class="login-icon-wrap">
-                    <i data-lucide="flower-2" class="login-icon"></i>
-                </div>
-                <h2>My Silly Couple Page</h2>
-                <p>Para ti y para elle ✨</p>
-            </div>
-
-            <div id="loginForm" class="login-form">
-                <div id="loginOnlyFields" style="display:none;">
-                    <label for="loginCodigo">Código de acceso</label>
-                    <input type="password" id="loginCodigo" maxlength="4" inputmode="numeric" placeholder="1234">
-                </div>
-
-                <div id="registerFields">
-                    <label for="regNombre">Tu nombre</label>
-                    <input type="text" id="regNombre" placeholder="Ej: Nicolás">
-
-                    <label for="regPronombre">Pronombre</label>
-                    <select id="regPronombre">
-                        <option value="ella">Ella</option>
-                        <option value="el">El</option>
-                        <option value="elle">Elle</option>
-                    </select>
-
-                    <label for="regImagen">Tu foto (opcional)</label>
-                    <div class="file-input-wrapper">
-                        <input type="file" id="regImagen" accept="image/*">
-                        <label for="regImagen" class="file-input-label">
-                            <i data-lucide="camera"></i> Elegir foto
-                        </label>
-                        <span id="nombreArchivo" class="file-name">Ningún archivo seleccionado</span>
-                    </div>
-
-                    <label for="regCodigo">Crea tu código de acceso (4 dígitos)</label>
-                    <input type="password" id="regCodigo" maxlength="4" inputmode="numeric" placeholder="1234">
-                </div>
-
-                <div class="login-buttons">
-                    <button id="btnLogin" class="btn-primario">Iniciar sesión</button>
-                    <button id="btnRegistro" class="btn-secundario">Crear cuenta nueva</button>
-                </div>
-                <p id="loginMensaje" class="login-mensaje"></p>
-            </div>
-        </div>
-    </div>
-
     <!-- ====== APP PRINCIPAL ====== -->
     <div id="appPrincipal">
         <header class="app-header">
             <div class="header-left">
                 <div class="logo">
-                    <i data-lucide="flower-2" class="logo-icon"></i>
-                    <span class="logo-text">My Silly Couple Page</span>
+                    <i data-lucide="hexagon" class="logo-icon"></i>
+                    <span class="logo-text">VicWebOs</span>
                 </div>
             </div>
 
@@ -79,113 +31,32 @@
             </div>
 
             <div class="header-right">
-                <!-- Relojes y clima -->
-                <div class="relojes-header">
-                    <div class="reloj-mini">
-                        <span class="ciudad">🇨🇱 San Fernando</span>
-                        <span class="hora" id="horaSF">--:--:--</span>
+                <!-- Hora local y clima local (se llenan desde JS) -->
+                <div class="info-local">
+                    <div class="hora-local">
+                        <i data-lucide="clock" class="info-icon"></i>
+                        <span class="hora-texto" id="horaLocal">--:--:--</span>
                     </div>
-                    <div class="reloj-mini">
-                        <span class="ciudad">🇲🇽 Mexicali</span>
-                        <span class="hora" id="horaMexicali">--:--:--</span>
-                    </div>
-                    <div class="clima-header">
-                        <div class="clima-item">
-                            <i data-lucide="cloud-sun" class="clima-icon"></i>
-                            <span class="temp">--°C</span>
-                        </div>
-                        <div class="clima-item">
-                            <i data-lucide="cloud-sun" class="clima-icon"></i>
-                            <span class="temp">--°C</span>
-                        </div>
+                    <div class="clima-local">
+                        <i data-lucide="cloud-sun" class="info-icon"></i>
+                        <span class="temp" id="climaLocal">--°C</span>
                     </div>
                 </div>
 
-                <!-- Estados de ánimo de amigos -->
-                <div class="estados-amigos" title="Estados de ánimo de tus amigos">
-                    <span class="estado-amigo">😊</span>
-                    <span class="estado-amigo">😴</span>
-                    <span class="estado-amigo">😍</span>
-                </div>
-
-                <div class="avatar" title="Mi perfil">
+                <!-- Avatar + Configuración (unificado) -->
+                <button class="avatar-config" id="btnConfig" title="Configuración">
                     <i data-lucide="user" class="avatar-icon"></i>
-                </div>
-
-                <button class="btn-icon" title="Configuración">
-                    <i data-lucide="settings"></i>
-                </button>
-                <button class="btn-icon" title="Cerrar sesión">
-                    <i data-lucide="log-out"></i>
                 </button>
             </div>
         </header>
 
         <div class="app-body">
             <nav class="sidebar">
-                <div class="sidebar-nav">
-                    <!-- Item activo -->
-                    <button class="nav-item active">
-                        <i data-lucide="home" class="nav-icon"></i>
-                        Inicio
-                    </button>
-                    <button class="nav-item">
-                        <i data-lucide="phone" class="nav-icon"></i>
-                        SillyCalls
-                    </button>
-                    <button class="nav-item">
-                        <i data-lucide="link" class="nav-icon"></i>
-                        Accesos Directos
-                    </button>
-                    <button class="nav-item">
-                        <i data-lucide="calendar" class="nav-icon"></i>
-                        Calendario
-                    </button>
-                    <button class="nav-item">
-                        <i data-lucide="repeat" class="nav-icon"></i>
-                        Conversor
-                    </button>
-                    <button class="nav-item">
-                        <i data-lucide="file-text" class="nav-icon"></i>
-                        Doxc Editor
-                    </button>
-                    <button class="nav-item">
-                        <i data-lucide="target" class="nav-icon"></i>
-                        El Decididor
-                    </button>
-                    <button class="nav-item">
-                        <i data-lucide="flask-conical" class="nav-icon"></i>
-                        Quizatorio
-                    </button>
-                    <button class="nav-item">
-                        <i data-lucide="mail" class="nav-icon"></i>
-                        EVmail
-                    </button>
-                    <button class="nav-item">
-                        <i data-lucide="gamepad-2" class="nav-icon"></i>
-                        Fri-kki Zone
-                    </button>
-                </div>
-
-                <!-- Reproductor Spotivic en sidebar (oculto, sin lógica) -->
-                <div class="spotivic-sidebar" style="display:none;">
-                    <div class="spotivic-sidebar-contenido">
-                        <img class="sidebar-caratula" src="" alt="carátula">
-                        <div class="sidebar-info">
-                            <div class="sidebar-titulo">Sin título</div>
-                            <div class="sidebar-playlist">—</div>
-                        </div>
-                        <div class="sidebar-progreso">
-                            <span class="sidebar-tiempo">0:00</span>
-                            <input type="range" min="0" max="1000" value="0" class="sidebar-progress-bar">
-                            <span class="sidebar-tiempo">0:00</span>
-                        </div>
-                        <div class="sidebar-controles">
-                            <button class="sidebar-btn"><i data-lucide="skip-back"></i></button>
-                            <button class="sidebar-btn sidebar-btn-play"><i data-lucide="play"></i></button>
-                            <button class="sidebar-btn"><i data-lucide="skip-forward"></i></button>
-                            <button class="sidebar-btn"><i data-lucide="x"></i></button>
-                        </div>
+                <div class="sidebar-nav" id="sidebarNav">
+                    <!-- Se llena dinámicamente desde JsRutas.js (vacío por ahora) -->
+                    <div class="sidebar-empty">
+                        <i data-lucide="inbox"></i>
+                        <span>No hay herramientas disponibles</span>
                     </div>
                 </div>
             </nav>
@@ -194,7 +65,7 @@
                 <!-- Barra de pestañas -->
                 <div id="tabBar" class="tab-bar">
                     <span class="tab-empty-hint">
-                        <i data-lucide="flower-2"></i>
+                        <i data-lucide="hexagon"></i>
                         Abre una herramienta del menú
                     </span>
                 </div>
@@ -202,198 +73,130 @@
                 <!-- Contenedor de paneles -->
                 <div id="panelContainer" class="panel-container">
                     <div id="welcomeScreen" class="welcome-placeholder">
-                        <i data-lucide="flower-2" class="welcome-icon"></i>
-                        <h1>¡Bienvenide a My Silly Couple Page!</h1>
-                        <p>Selecciona una herramienta del menú para empezar.</p>
+                        <i data-lucide="hexagon" class="welcome-icon"></i>
+                        <h1>Bienvenide a VicWebOs</h1>
+                        <p>Sistema operativo web centrado en el uso personal o grupal de grupos de amistades.</p>
 
                         <div class="accesos-rapidos">
-                            <div class="acceso-item">
-                                <i data-lucide="phone" class="acceso-icon"></i>
-                                <span class="acceso-nombre">SillyCalls</span>
-                            </div>
-                            <div class="acceso-item">
-                                <i data-lucide="calendar" class="acceso-icon"></i>
-                                <span class="acceso-nombre">Calendario</span>
-                            </div>
-                            <div class="acceso-item">
-                                <i data-lucide="music" class="acceso-icon"></i>
-                                <span class="acceso-nombre">Spotivic</span>
-                            </div>
-                            <div class="acceso-item">
-                                <i data-lucide="image" class="acceso-icon"></i>
-                                <span class="acceso-nombre">Galería</span>
-                            </div>
-                            <div class="acceso-item">
-                                <i data-lucide="trophy" class="acceso-icon"></i>
-                                <span class="acceso-nombre">Logros</span>
-                            </div>
-                            <div class="acceso-item">
-                                <i data-lucide="sparkles" class="acceso-icon"></i>
-                                <span class="acceso-nombre">Mis OCs</span>
-                            </div>
+                            <!-- Se llena dinámicamente (por ahora placeholder) -->
                         </div>
 
-                        <button class="btn-ver-todas">
+                        <button class="btn-ver-todas" id="btnVerTodas">
                             <i data-lucide="layout-grid"></i>
                             Ver todas las herramientas
                         </button>
-
-                        <p class="frase-personalizada">
-                            ✨ Página compartida para el grupo más bodrio del world mundial mister worldwide todos épicos así mero ✨
-                        </p>
-
-                        <!-- Noticias (ejemplo visual) -->
-                        <div class="noticias-container">
-                            <div class="noticias-titulo">
-                                <i data-lucide="newspaper"></i>
-                                Noticias de la página
-                            </div>
-                            <div class="noticias-lista">
-                                <div class="noticia-item">
-                                    <span class="noticia-fecha">hace 5m</span>
-                                    <span class="noticia-desc">
-                                        <span class="noticia-tipo">🐦 Tweet</span>
-                                        Nicolás publicó: "Hoy es un buen día…"
-                                    </span>
-                                </div>
-                                <div class="noticia-item">
-                                    <span class="noticia-fecha">hace 1h</span>
-                                    <span class="noticia-desc">
-                                        <span class="noticia-tipo">🌸 Nuevo OC</span>
-                                        "Luna" fue creado por Nicolás
-                                    </span>
-                                </div>
-                                <div class="noticia-item">
-                                    <span class="noticia-fecha">hace 2h</span>
-                                    <span class="noticia-desc">
-                                        <span class="noticia-tipo">💭 Headcanon</span>
-                                        Nicolás headcanon sobre Luna: "Es noctámbula"
-                                    </span>
-                                </div>
-                                <div class="noticia-item">
-                                    <span class="noticia-fecha">hace 4h</span>
-                                    <span class="noticia-desc">
-                                        <span class="noticia-tipo">📊 Nueva encuesta</span>
-                                        "¿Cuál es el mejor OC?" por Nicolás
-                                    </span>
-                                </div>
-                                <div class="noticia-item">
-                                    <span class="noticia-fecha">hace 1d</span>
-                                    <span class="noticia-desc">
-                                        <span class="noticia-tipo">📚 Nuevo cómic</span>
-                                        "Aventuras en el bosque" por Nicolás
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </main>
         </div>
     </div>
 
-    <!-- ====== BURBUJA FLOTANTE SPOTIVIC (oculta) ====== -->
-    <div id="spotivic-burbuja" class="spotivic-burbuja" style="display:none;">
-        <div class="burbuja-contenido">
-            <img class="burbuja-caratula" src="" alt="carátula">
-            <div class="burbuja-info">
-                <div class="burbuja-titulo">Sin título</div>
-                <div class="burbuja-playlist">—</div>
-            </div>
-            <div class="burbuja-controles">
-                <button class="burbuja-btn burbuja-btn-play"><i data-lucide="play"></i></button>
-                <button class="burbuja-btn"><i data-lucide="x"></i></button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ====== MODAL CONFIGURACIÓN (oculto) ====== -->
-    <div id="configOverlay" class="config-overlay" style="display:none;">
-        <div class="config-card">
-            <div class="config-header">
-                <h2>Configuración</h2>
-                <button class="config-cerrar"><i data-lucide="x"></i></button>
-            </div>
-            <div class="config-body">
-                <div class="config-seccion">
-                    <h3><i data-lucide="user"></i> Mi perfil</h3>
-                    <div class="config-campo">
-                        <label>Nombre</label>
-                        <input type="text" value="Nicolás" readonly>
-                    </div>
-                    <div class="config-campo">
-                        <label>Código</label>
-                        <input type="text" value="1234" readonly>
-                    </div>
-                </div>
-
-                <div class="config-seccion">
-                    <h3><i data-lucide="palette"></i> Tema</h3>
-                    <div class="config-toggle">
-                        <span>Claro</span>
-                        <label class="switch">
-                            <input type="checkbox">
-                            <span class="slider"></span>
-                        </label>
-                        <span>Oscuro</span>
-                    </div>
-                </div>
-
-                <div class="config-seccion">
-                    <h3><i data-lucide="heart"></i> Mi estado de ánimo</h3>
-                    <div class="estado-animo-selector">
-                        <div class="estado-animo-item seleccionado"><span class="emoji">😊</span><span class="label">Feliz</span></div>
-                        <div class="estado-animo-item"><span class="emoji">😢</span><span class="label">Triste</span></div>
-                        <div class="estado-animo-item"><span class="emoji">😡</span><span class="label">Enojado</span></div>
-                        <div class="estado-animo-item"><span class="emoji">😍</span><span class="label">Enamorado</span></div>
-                        <div class="estado-animo-item"><span class="emoji">😴</span><span class="label">Cansado</span></div>
-                    </div>
-                </div>
-
-                <div class="config-botones">
-                    <button class="btn-primario">Guardar configuración</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ====== MODAL "VER TODAS" (oculto) ====== -->
+    <!-- ====== MODAL "VER TODAS" ====== -->
     <div id="modalTodas" class="modal-todas-overlay" style="display:none;">
         <div class="modal-todas-card">
             <div class="modal-todas-header">
                 <h2>Todas las herramientas</h2>
-                <button class="modal-todas-cerrar"><i data-lucide="x"></i></button>
+                <button class="modal-todas-cerrar" id="modalTodasCerrar">
+                    <i data-lucide="x"></i>
+                </button>
             </div>
-            <div class="modal-todas-body">
-                <div class="modal-categoria">
-                    <h3>Herramientas Prácticas</h3>
-                    <div class="modal-categoria-grid">
-                        <div class="modal-herramienta-item">
-                            <div class="item-superior">
-                                <i data-lucide="phone"></i>
-                                <span class="item-nombre">SillyCalls</span>
+            <div class="modal-todas-body" id="modalTodasBody">
+                <!-- Se llena dinámicamente desde JsRutas.js -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== MODAL CONFIGURACIÓN ====== -->
+    <div id="configOverlay" class="config-overlay" style="display:none;">
+        <div class="config-card">
+            <div class="config-header">
+                <h2>Configuración</h2>
+                <button class="config-cerrar" id="btnCerrarConfig">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="config-body">
+                <!-- Almacenamiento -->
+                <div class="config-seccion">
+                    <h3><i data-lucide="database"></i> Almacenamiento de datos</h3>
+                    <p class="config-ayuda">Elige dónde quieres guardar tu configuración.</p>
+
+                    <div class="storage-options">
+                        <label class="storage-option">
+                            <input type="radio" name="storage" value="local" checked>
+                            <div class="storage-card">
+                                <i data-lucide="hard-drive"></i>
+                                <div class="storage-info">
+                                    <span class="storage-nombre">Navegador (localStorage)</span>
+                                    <span class="storage-desc">Rápido y privado. Solo en este dispositivo.</span>
+                                </div>
                             </div>
-                            <small>Llamadas de audio y video en tiempo real</small>
-                        </div>
-                        <div class="modal-herramienta-item">
-                            <div class="item-superior">
-                                <i data-lucide="calendar"></i>
-                                <span class="item-nombre">Calendario Personal</span>
+                        </label>
+
+                        <label class="storage-option">
+                            <input type="radio" name="storage" value="github">
+                            <div class="storage-card">
+                                <i data-lucide="github"></i>
+                                <div class="storage-info">
+                                    <span class="storage-nombre">GitHub</span>
+                                    <span class="storage-desc">Sincroniza entre dispositivos. Compartible con amigos.</span>
+                                </div>
                             </div>
-                            <small>Planifica tus días con eventos</small>
-                        </div>
-                        <div class="modal-herramienta-item">
-                            <div class="item-superior">
-                                <i data-lucide="repeat"></i>
-                                <span class="item-nombre">Conversor</span>
+                        </label>
+
+                        <label class="storage-option">
+                            <input type="radio" name="storage" value="gdrive">
+                            <div class="storage-card">
+                                <i data-lucide="cloud"></i>
+                                <div class="storage-info">
+                                    <span class="storage-nombre">Google Drive</span>
+                                    <span class="storage-desc">Usa tu espacio de Drive. Sincronización automática.</span>
+                                </div>
                             </div>
-                            <small>CLP ↔ MXN con ejemplos reales</small>
-                        </div>
+                        </label>
+
+                        <label class="storage-option">
+                            <input type="radio" name="storage" value="other">
+                            <div class="storage-card">
+                                <i data-lucide="puzzle"></i>
+                                <div class="storage-info">
+                                    <span class="storage-nombre">Otra opción</span>
+                                    <span class="storage-desc">Dropbox, OneDrive, etc. (próximamente).</span>
+                                </div>
+                            </div>
+                        </label>
                     </div>
+                </div>
+
+                <!-- Campo para API Key de GitHub (se muestra si se elige GitHub) -->
+                <div class="config-seccion" id="githubConfig" style="display:none;">
+                    <h3><i data-lucide="key"></i> Configuración de GitHub</h3>
+                    <div class="config-campo">
+                        <label>Token de acceso personal (API Key)</label>
+                        <input type="password" id="githubToken" placeholder="ghp_...">
+                        <p class="config-ayuda">
+                            Puedes compartir este token con tus amigos para que todos usen el mismo repositorio.
+                        </p>
+                    </div>
+                    <div class="config-campo">
+                        <label>Repositorio (usuario/repo)</label>
+                        <input type="text" id="githubRepo" placeholder="tu-usuario/vicwebos-data">
+                    </div>
+                </div>
+
+                <div class="config-botones">
+                    <button class="btn-primario" id="btnGuardarConfig">
+                        <i data-lucide="save"></i>
+                        Guardar configuración
+                    </button>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Scripts -->
+    <script src="js/JsRutas.js"></script>
+    <script src="js/configuracion.js"></script>
 
     <!-- Inicializar iconos Lucide -->
     <script>lucide.createIcons();</script>
