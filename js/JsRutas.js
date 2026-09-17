@@ -1,7 +1,9 @@
 // ============================================================
 //  JsRutas.js — Catálogo de APPS
 //  Cada app tiene: espacio (int) y monedas (int).
-//  esBase: true → espacio/monedas ignorados (siempre instalada).
+//  esBase: true    → no se puede desinstalar
+//  esDefault: true → se instala automáticamente al crear cuenta
+//                    o se añade a cuentas viejas que no la tengan
 // ============================================================
 
 const RUTAS_HERRAMIENTAS = [
@@ -13,6 +15,18 @@ const RUTAS_HERRAMIENTAS = [
         descripcion: 'Tienda: descarga apps, temas y widgets.',
         categoria: 'Sistema',
         esBase: true,
+        espacio: 0,
+        monedas: 0
+    },
+    {
+        id: 'chequera',
+        nombre: 'Chequera',
+        icono: 'wallet',
+        ruta: 'herramientas/chequera/index.html',
+        descripcion: 'Aquí ves tus monedas, ganancias y gastos.',
+        categoria: 'Sistema',
+        esBase: true,
+        esDefault: true,
         espacio: 0,
         monedas: 0
     }
