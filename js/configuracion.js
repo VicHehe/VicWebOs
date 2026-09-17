@@ -1,5 +1,5 @@
 // ============================================================
-//  configuracion.js — Modal + navegación + Apps
+//  configuracion.js — Modal + navegación + Apps + Apariencia
 // ============================================================
 
 const CONFIG_KEY = 'vicwebos_config';
@@ -14,9 +14,8 @@ function cargarConfiguracion() {
 }
 
 function guardarConfiguracion(config) {
-    try {
-        localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
-    } catch (e) { console.warn(e); }
+    try { localStorage.setItem(CONFIG_KEY, JSON.stringify(config)); }
+    catch (e) { console.warn(e); }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -41,12 +40,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const panel = document.querySelector(`.config-panel[data-panel="${seccion}"]`);
             if (panel) panel.classList.add('active');
 
-            if (seccion === 'apps') renderAppsInstaladas();
+            if (seccion === 'apps')       renderAppsInstaladas();
+            if (seccion === 'apariencia') renderApariencia();
             if (seccion === 'bd' && typeof window.__actualizarUIBD === 'function') window.__actualizarUIBD();
         });
     });
 
-    // ---------- RENDER APPS ----------
+    // ---------- RENDER: APPS ----------
     function renderAppsInstaladas() {
         if (!appsLista) return;
 
@@ -60,7 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
             return;
         }
-
         if (!cuentaActual) {
             appsLista.innerHTML = `
                 <div class="config-empty" style="padding: 30px 12px;">
@@ -85,9 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const item = document.createElement('div');
             item.className = 'app-instalada-item';
             item.innerHTML = `
-                <div class="app-instalada-icono">
-                    <i data-lucide="${app.icono || 'circle'}"></i>
-                </div>
+                <div class="app-instalada-icono"><i data-lucide="${app.icono || 'circle'}"></i></div>
                 <div class="app-instalada-info">
                     <span class="app-instalada-nombre">${app.nombre}</span>
                     <span class="app-instalada-desc">${app.descripcion || ''}</span>
@@ -96,9 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ? '<span class="app-base-tag">Sistema</span>'
                     : `<button class="app-desinstalar" data-id="${app.id}" title="Desinstalar">
                         <i data-lucide="trash-2"></i>
-                       </button>`
-                }
-            `;
+                       </button>`}`;
             appsLista.appendChild(item);
         });
 
@@ -113,16 +108,124 @@ document.addEventListener('DOMContentLoaded', () => {
                         const s = document.getElementById('searchInput');
                         renderSidebar(s ? s.value : '');
                     }
-                } catch (e) {
-                    alert('❌ ' + e.message);
-                }
+                } catch (e) { alert('❌ ' + e.message); }
             });
         });
     }
 
+    // ---------- RENDER: APARIENCIA ----------
+    function renderApariencia() {
+        const temasCont   = document.getElementById('configTemasLista');
+        const widgetsCont = document.getElementById('configWidgetsLista');
+
+        if (!ConfigBD.estaConectado() || !cuentaActual) {
+            const html = `
+                <div class="config-empty" style="padding: 30px 12px;">
+                    <div class="config-empty-icon"><i data-lucide="user-circle"></i></div>
+                    <h4>Necesitas una cuenta</h4>
+                    <p>Crea una cuenta o entra con tu código.</p>
+                </div>`;
+            if (temasCont)   temasCont.innerHTML = html;
+            if (widgetsCont) widgetsCont.innerHTML = html;
+            lucide.createIcons();
+            return;
+        }
+
+        // --- Temas ---
+        if (temasCont) {
+            const catalogoTemas = typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : [];
+            const instalados = obtenerTemasInstalados();
+            const activo = obtenerTemaActivo();
+
+            if (instalados.length === 0) {
+                temasCont.innerHTML = `<p class="config-ayuda">No tienes temas instalados. Abre Stor-He.</p>`;
+            } else {
+                temasCont.innerHTML = '';
+                instalados.forEach(id => {
+                    const tema = catalogoTemas.find(t => t.id === id);
+                    if (!tema) return;
+                    const c = tema.colores || {};
+                    const item = document.createElement('label');
+                    item.className = 'config-tema-item' + (activo === id ? ' activo' : '');
+                    item.innerHTML = `
+                        <input type="radio" name="temaRadio" value="${id}" ${activo === id ? 'checked' : ''}>
+                        <div class="config-tema-mini" style="background:${c['--bg'] || '#fff'};">
+                            <div class="config-tema-mini-sidebar" style="background:${c['--bg-alt'] || '#eee'};"></div>
+                            <div class="config-tema-mini-content">
+                                <span class="config-tema-mini-dot" style="background:${c['--violet-500'] || '#8B5CF6'};"></span>
+                                <span class="config-tema-mini-dot" style="background:${c['--violet-300'] || '#C4B5FD'};"></span>
+                            </div>
+                        </div>
+                        <div class="config-tema-nombre">
+                            ${tema.nombre}
+                            ${activo === id ? '<span class="config-tema-check"><i data-lucide="check"></i></span>' : ''}
+                        </div>
+                    `;
+                    temasCont.appendChild(item);
+                });
+
+                lucide.createIcons();
+
+                temasCont.querySelectorAll('input[name="temaRadio"]').forEach(radio => {
+                    radio.addEventListener('change', async (e) => {
+                        try {
+                            await aplicarTema(e.target.value);
+                            renderApariencia();
+                            if (footerMsg) footerMsg.textContent = '✅ Tema por defecto actualizado';
+                        } catch (err) { alert('❌ ' + err.message); }
+                    });
+                });
+            }
+        }
+
+        // --- Widgets ---
+        if (widgetsCont) {
+            const catalogoW = typeof WIDGETS_DISPONIBLES !== 'undefined' ? WIDGETS_DISPONIBLES : [];
+            const instaladosW = obtenerWidgetsInstalados();
+            const activosW = obtenerWidgetsActivos();
+
+            if (instaladosW.length === 0) {
+                widgetsCont.innerHTML = `<p class="config-ayuda">No tienes widgets instalados. Abre Stor-He.</p>`;
+            } else {
+                widgetsCont.innerHTML = '';
+                instaladosW.forEach(id => {
+                    const w = catalogoW.find(x => x.id === id);
+                    if (!w) return;
+                    const activo = activosW.includes(id);
+                    const item = document.createElement('div');
+                    item.className = 'config-widget-item' + (activo ? ' activo' : '');
+                    item.innerHTML = `
+                        <div class="config-widget-icono"><i data-lucide="${w.icono || 'square'}"></i></div>
+                        <div class="config-widget-info">
+                            <span class="config-widget-nombre">${w.nombre}</span>
+                            <span class="config-widget-desc">${w.descripcion || ''}</span>
+                        </div>
+                        <button class="config-widget-toggle" data-id="${id}" data-activo="${activo}" title="${activo ? 'Desactivar' : 'Activar'}">
+                            <i data-lucide="${activo ? 'toggle-right' : 'toggle-left'}"></i>
+                        </button>
+                    `;
+                    widgetsCont.appendChild(item);
+                });
+
+                lucide.createIcons();
+
+                widgetsCont.querySelectorAll('.config-widget-toggle').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        const id = btn.dataset.id;
+                        const activo = btn.dataset.activo === 'true';
+                        try {
+                            if (activo) await desactivarWidget(id);
+                            else await activarWidget(id);
+                            renderApariencia();
+                        } catch (err) { alert('❌ ' + err.message); }
+                    });
+                });
+            }
+        }
+    }
+
     // ---------- ABRIR ----------
     btnConfig.addEventListener('click', () => {
-        // Reset a sección "cuenta"
         document.querySelectorAll('.config-nav-item').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.config-panel').forEach(p => p.classList.remove('active'));
         document.querySelector('.config-nav-item[data-section="cuenta"]')?.classList.add('active');
@@ -145,15 +248,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // ---------- GUARDAR ----------
     btnGuardarConfig.addEventListener('click', async () => {
         if (footerMsg) footerMsg.textContent = '✅ Cambios guardados';
-        setTimeout(() => {
-            if (footerMsg) footerMsg.textContent = '';
-        }, 900);
+        setTimeout(() => { if (footerMsg) footerMsg.textContent = ''; }, 900);
     });
+
+    // Exponer para que JsIndex pueda re-renderizar
+    window.__renderApariencia = renderApariencia;
 });
 
-// ============================================================
-//  ABRIR CONFIG DIRECTO
-// ============================================================
+// ---------- ABRIR CONFIG DIRECTO ----------
 function abrirConfigEnCuenta() {
     const btn = document.getElementById('btnConfig');
     if (btn) btn.click();
