@@ -1,6 +1,6 @@
 // ============================================================
-//  Widget: Dados
-//  Tira 2 dados, muestra la suma y un historial breve.
+//  Widget: Dados 3D
+//  Cubos CSS reales con perspectiva. Sin librerías externas.
 //  SIN estado persistente: al recargar, todo se resetea.
 // ============================================================
 
@@ -34,7 +34,7 @@ function aplicarTemaDelPadre() {
             if (val) document.documentElement.style.setProperty(v, val);
         });
     } catch (e) {
-        // iframe cross-origin o padre aún no listo → usar fallbacks del CSS
+        // iframe cross-origin o padre no listo → usar fallbacks del CSS
     }
 }
 
@@ -45,46 +45,70 @@ window.addEventListener('message', (e) => {
 });
 
 // ============================================================
-//  CARAS DEL DADO (SVG)
+//  CARAS DEL CUBO (rotaciones para mostrar cada número)
 // ============================================================
-// Coordenadas sobre viewBox 0 0 100 100. Radio = 9.
-const POSICIONES = {
-    C:  [50, 50],
-    TL: [25, 25],
-    TR: [75, 25],
-    ML: [25, 50],
-    MR: [75, 50],
-    BL: [25, 75],
-    BR: [75, 75]
+//  1 = frente,  6 = atrás
+//  2 = derecha, 5 = izquierda
+//  3 = arriba,  4 = abajo
+const ROTACIONES = {
+    1: { x: 0,   y: 0   },
+    2: { x: 0,   y: -90 },
+    3: { x: -90, y: 0   },
+    4: { x: 90,  y: 0   },
+    5: { x: 0,   y: 90  },
+    6: { x: 0,   y: 180 }
 };
 
-const CARAS = {
-    1: ['C'],
-    2: ['TL', 'BR'],
-    3: ['TL', 'C', 'BR'],
-    4: ['TL', 'TR', 'BL', 'BR'],
-    5: ['TL', 'TR', 'C', 'BL', 'BR'],
-    6: ['TL', 'TR', 'ML', 'MR', 'BL', 'BR']
-};
-
-function svgDeCara(n) {
-    const puntos = CARAS[n] || [];
-    const circulos = puntos.map(p => {
-        const [x, y] = POSICIONES[p];
-        return `<circle class="dot" cx="${x}" cy="${y}" r="9" />`;
-    }).join('');
-
-    return `
-        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            ${circulos}
-        </svg>
-    `;
+// Genera los puntos de una cara (HTML)
+function generarPuntos(n) {
+    return Array.from({ length: n }, () => '<span class="punto"></span>').join('');
 }
 
-function pintarDado(el, valor) {
-    if (!el) return;
-    el.dataset.cara = valor;
-    el.innerHTML = svgDeCara(valor);
+// Rellena todas las caras del cubo con sus puntos
+function inicializarCubo(cubo) {
+    if (!cubo) return;
+    const caras = {
+        'frente':    1,
+        'atras':     6,
+        'derecha':   2,
+        'izquierda': 5,
+        'arriba':    3,
+        'abajo':     4
+    };
+    cubo.querySelectorAll('.cara').forEach(cara => {
+        // Detectar la posición por clase
+        let n = 1;
+        for (const [clase, valor] of Object.entries(caras)) {
+            if (cara.classList.contains(clase)) { n = valor; break; }
+        }
+        cara.dataset.n = n;
+        cara.innerHTML = generarPuntos(n);
+    });
+}
+
+// Muestra una cara del cubo con una animación de giro
+function mostrarCara(cubo, n, conGiro = true) {
+    if (!cubo) return;
+    const r = ROTACIONES[n] || ROTACIONES[1];
+
+    if (!conGiro) {
+        cubo.style.transition = 'none';
+        cubo.style.transform = `rotateX(${r.x}deg) rotateY(${r.y}deg)`;
+        // Re-habilitar transición en el siguiente frame
+        requestAnimationFrame(() => {
+            cubo.style.transition = '';
+        });
+        return;
+    }
+
+    // Giros extra aleatorios para que se vea caótico
+    const girosX = 1 + Math.floor(Math.random() * 3); // 1-3 vueltas
+    const girosY = 1 + Math.floor(Math.random() * 3);
+
+    const x = r.x + 360 * girosX;
+    const y = r.y + 360 * girosY;
+
+    cubo.style.transform = `rotateX(${x}deg) rotateY(${y}deg)`;
 }
 
 // ============================================================
@@ -98,26 +122,29 @@ function tirar() {
     if (tirando) return;
     tirando = true;
 
-    const dados = document.querySelectorAll('.dado');
+    const cubos = Array.from(document.querySelectorAll('.cubo'));  // ← Array, no NodeList
     const btn = document.getElementById('dadosBtn');
     const sumaEl = document.getElementById('dadosSuma');
-    if (!dados.length) return;
+    if (!cubos.length) return;
 
     // Reset visual
     sumaEl.textContent = '—';
-    dados.forEach(d => {
-        d.classList.remove('resultado');
-        d.classList.add('rodando');
-    });
+    cubos.forEach(c => c.classList.add('rodando'));
     if (btn) btn.disabled = true;
 
     // Duración total del "ruedecito"
-    const DURACION = 700;
-    const INTERVALO = 60;
+    const DURACION = 900;
+    const INTERVALO = 90;
     const inicio = Date.now();
 
     const intervalo = setInterval(() => {
-        dados.forEach(d => pintarDado(d, randomCara()));
+        cubos.forEach(cubo => {
+            // Rotaciones aleatorias rápidas durante el "ruedecito"
+            const rx = Math.random() * 720 - 360;
+            const ry = Math.random() * 720 - 360;
+            cubo.style.transition = 'none';
+            cubo.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+        });
 
         if (Date.now() - inicio >= DURACION) {
             clearInterval(intervalo);
@@ -127,11 +154,13 @@ function tirar() {
 
     function finalizar() {
         // Resultado definitivo
-        const resultados = dados.map(() => randomCara());
-        dados.forEach((d, i) => {
-            d.classList.remove('rodando');
-            pintarDado(d, resultados[i]);
-            d.classList.add('resultado');
+        const resultados = cubos.map(() => randomCara());
+
+        cubos.forEach((cubo, i) => {
+            // Restaurar transición y aplicar rotación final
+            cubo.style.transition = '';
+            cubo.classList.remove('rodando');
+            mostrarCara(cubo, resultados[i]);
         });
 
         const suma = resultados.reduce((a, b) => a + b, 0);
@@ -155,7 +184,6 @@ function renderHistorial() {
         <span class="hist-item ${i === 0 ? 'nueva' : ''}">${n}</span>
     `).join('');
 
-    // Quitar el "nueva" después de un momento
     if (historial.length > 0) {
         setTimeout(() => {
             const primera = cont.querySelector('.hist-item.nueva');
@@ -170,11 +198,8 @@ function resetHistorial() {
     const sumaEl = document.getElementById('dadosSuma');
     if (sumaEl) sumaEl.textContent = '—';
 
-    const dados = document.querySelectorAll('.dado');
-    dados.forEach(d => {
-        d.classList.remove('resultado');
-        pintarDado(d, 1);
-    });
+    const cubos = Array.from(document.querySelectorAll('.cubo'));
+    cubos.forEach(cubo => mostrarCara(cubo, 1, false));
 }
 
 // ============================================================
@@ -183,8 +208,11 @@ function resetHistorial() {
 document.addEventListener('DOMContentLoaded', () => {
     aplicarTemaDelPadre();
 
-    // Estado inicial de los dados
-    document.querySelectorAll('.dado').forEach(d => pintarDado(d, 1));
+    // Inicializar caras de los dados
+    document.querySelectorAll('.cubo').forEach(cubo => {
+        inicializarCubo(cubo);
+        mostrarCara(cubo, 1, false);
+    });
 
     document.getElementById('dadosBtn')?.addEventListener('click', tirar);
     document.getElementById('dadosReset')?.addEventListener('click', resetHistorial);
