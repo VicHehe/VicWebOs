@@ -1,0 +1,311 @@
+================================================================
+  REGLAS PARA APPS DE VICWEBOS
+  Última actualización: 2025
+================================================================
+
+Estas reglas aplican a TODAS las apps que se desarrollen o
+integren en VicWebOs. Son de cumplimiento obligatorio para
+mantener consistencia, portabilidad y compatibilidad con
+GitHub como backend.
+
+================================================================
+  REGLA 1 — DATOS EN JSON POR APP
+================================================================
+
+Cada app guarda su información en archivos JSON ubicados en:
+
+    app/{nombreHerramienta}.json           ← datos globales
+    app/{codigoUsuario}{nombreHerramienta}.json  ← datos por usuario
+
+Una app puede usar:
+    - UN SOLO JSON global
+    - VARIOS JSON (uno por usuario)
+    - AMBOS (global + por usuario)
+
+La estructura depende de las necesidades de cada app. Lo
+IMPORTANTE es respetar el patrón de nombres.
+
+----------------------------------------------------------------
+  PATRÓN DE NOMBRES
+----------------------------------------------------------------
+
+GLOBAL (toda la app, todos los usuarios):
+    app/{nombreHerramienta}.json
+
+    Ejemplos:
+        app/twevan.json
+        app/calendario.json
+        app/galeria.json
+        app/chequera.json
+
+POR USUARIO (un archivo por cada cuenta):
+    app/{codigoUsuario}{nombreHerramienta}.json
+
+    Ejemplos (usuario 1234A):
+        app/1234Acalendario.json
+        app/1234Agaleria.json
+        app/1234Achequera.json
+
+    Ejemplos (usuario 5678B):
+        app/5678Bcalendario.json
+        app/5678Bgaleria.json
+        app/5678Bchequera.json
+
+REGLAS DEL PATRÓN:
+    - codigoUsuario va PRIMERO, sin separador, seguido del
+      nombre de la herramienta. Ej: 1234Agaleria.json
+    - Minúsculas y mayúsculas tal cual: el código conserva
+      su mayúscula (1234A), el nombre de la herramienta va
+      en minúsculas.
+    - El nombre de la herramienta debe coincidir con el "id"
+      de la app en JsRutas.js (sin guiones bajos, tal cual).
+
+----------------------------------------------------------------
+  CUÁNDO USAR CADA UNO
+----------------------------------------------------------------
+
+GLOBAL → cuando TODOS los usuarios comparten los datos.
+    Ej: twevan.json (red social entre OCs, todos ven todo)
+        encuestas.json (encuestas globales)
+
+POR USUARIO → cuando cada usuario tiene SUS propios datos.
+    Ej: 1234Acalendario.json (sus eventos)
+        1234Achequera.json (sus monedas)
+        1234Alogros.json (sus logros)
+
+AMBOS → cuando parte es compartida y parte es personal.
+    Ej: app/quizatorio.json         (todos los quizzes)
+        app/1234Aquizatorio.json    (respuestas del usuario)
+
+----------------------------------------------------------------
+  ESTRUCTURA INTERNA
+----------------------------------------------------------------
+
+El JSON debe contener un objeto con una propiedad "datos"
+(o el nombre que tenga sentido para la app) que almacene
+todo el estado.
+
+EJEMPLO DE ESTRUCTURA RECOMENDADA:
+
+    {
+        "version": 1,
+        "actualizado": "2025-01-15T10:30:00Z",
+        "datos": {
+            // Aquí va lo que la app necesite guardar
+        }
+    }
+
+REGLAS ADICIONALES:
+    - Siempre escribir mediante ConfigBD.escribirArchivo().
+    - Siempre leer mediante ConfigBD.leerArchivo().
+    - El nombre del archivo debe coincidir con el "id" de la
+      app en JsRutas.js.
+    - No usar localStorage ni IndexedDB como fuente de verdad
+      (solo como caché temporal si hace falta).
+
+================================================================
+  REGLA 2 — ARCHIVOS BINARIOS EN CARPETAS SEPARADAS
+================================================================
+
+REGLA GENERAL:
+    PROHIBIDO guardar imágenes, videos o audios embebidos
+    (base64, data-URI, blobs) dentro de los JSON.
+
+EXCEPCIÓN ÚNICA:
+    cuenta.json PUEDE contener la foto del usuario en base64
+    embebida. Es el ÚNICO archivo autorizado para hacerlo.
+    Razón: son fotos pequeñas (~15 KB tras redimensionar) y
+    es más simple mantenerlas dentro del propio archivo de
+    cuentas que crear una carpeta solo para eso.
+
+Si una app necesita subir o guardar archivos binarios, se crea
+una carpeta específica con este formato:
+
+    app/{nombreHerramienta}({tipoDeArchivo})/{archivo}.{ext}
+
+TIPOS DE ARCHIVO PERMITIDOS:
+    - imagen
+    - video
+    - audio
+    - documento  (pdf, docx, etc.)
+
+EJEMPLOS:
+    app/galeria(imagen)/foto_001.png
+    app/galeria(imagen)/foto_002.jpg
+    app/spotivic(audio)/cancion_luna.mp3
+    app/spotivic(audio)/podcast_ep01.ogg
+    app/editor_video(video)/clip_final.mp4
+    app/comics(imagen)/portada_comic_01.png
+    app/doxc_editor(documento)/contrato.pdf
+
+EN EL JSON DE LA APP:
+    Se guarda SOLO la ruta relativa al archivo, nunca el
+    contenido. Ejemplo:
+
+    {
+        "datos": {
+            "fotos": [
+                { "id": "foto_001", "ruta": "app/galeria(imagen)/foto_001.png" },
+                { "id": "foto_002", "ruta": "app/galeria(imagen)/foto_002.jpg" }
+            ]
+        }
+    }
+
+REGLAS ADICIONALES:
+    - Nombres de archivo sin espacios ni caracteres especiales.
+      Usar guiones bajos: foto_001.png, no "foto 001.png".
+    - Nombres en minúsculas siempre.
+    - Extensiones en minúsculas: .png, .jpg, .mp3, .mp4
+    - Un archivo = un recurso. No comprimir varios en uno.
+    - Si el archivo pesa más de 25 MB, considerar dividirlo
+      (límite de la API de GitHub por archivo).
+    - Si un archivo se borra lógicamente, se elimina también
+      del repositorio para no acumular basura.
+
+================================================================
+  TABLA RESUMEN
+================================================================
+
+  TIPO DE DATO       → DÓNDE VA
+  ------------------------------------------------------------
+  Texto, números,    → app/{nombre}.json          (global)
+  fechas, listas,      o
+  configuración        app/{codigo}{nombre}.json  (por usuario)
+
+  Foto de usuario    → cuenta.json (base64)  ← ÚNICA EXCEPCIÓN
+
+  Imágenes           → app/{nombre}(imagen)/archivo.png
+                       (referencia en el JSON)
+
+  Videos             → app/{nombre}(video)/archivo.mp4
+                       (referencia en el JSON)
+
+  Audios             → app/{nombre}(audio)/archivo.mp3
+                       (referencia en el JSON)
+
+  Documentos         → app/{nombre}(documento)/archivo.pdf
+                       (referencia en el JSON)
+
+================================================================
+  API DISPONIBLE (recordatorio)
+================================================================
+
+Para leer datos:
+    const data = await ConfigBD.leerArchivo('app/miapp.json');
+
+Para escribir datos:
+    await ConfigBD.escribirArchivo('app/miapp.json', data);
+
+Para leer datos de un usuario:
+    const codigo = cuentaActual.codigo; // ej: "1234A"
+    const data = await ConfigBD.leerArchivo(
+        `app/${codigo}calendario.json`
+    );
+
+Para archivos binarios:
+    - Se subirán vía la API de GitHub (contents API)
+    - Se leerán con la misma API y se mostrarán con blob URLs
+    - Nunca se guardan como base64 en el JSON (excepto cuenta.json)
+
+================================================================
+  EJEMPLO COMPLETO — App "galeria"
+================================================================
+
+Estructura en el repositorio:
+    app/galeria.json
+    app/1234Agaleria.json
+    app/5678Bgaleria.json
+    app/galeria(imagen)/foto_001.png
+    app/galeria(imagen)/foto_002.jpg
+    app/galeria(imagen)/foto_003.png
+
+Contenido de app/galeria.json (índice global):
+    {
+        "version": 1,
+        "datos": {
+            "fotosPublicas": [
+                { "id": "1", "ruta": "app/galeria(imagen)/foto_001.png", "titulo": "Atardecer" }
+            ]
+        }
+    }
+
+Contenido de app/1234Agaleria.json (galería personal):
+    {
+        "version": 1,
+        "actualizado": "2025-01-15T10:30:00Z",
+        "datos": {
+            "fotos": [
+                { "id": "1", "ruta": "app/galeria(imagen)/foto_002.jpg", "titulo": "Playa" },
+                { "id": "2", "ruta": "app/galeria(imagen)/foto_003.png", "titulo": "Bosque" }
+            ]
+        }
+    }
+
+Contenido de app/5678Bgaleria.json (galería de otro usuario):
+    {
+        "version": 1,
+        "actualizado": "2025-01-15T11:00:00Z",
+        "datos": {
+            "fotos": [
+                { "id": "1", "ruta": "app/galeria(imagen)/foto_001.png", "titulo": "Atardecer" }
+            ]
+        }
+    }
+
+================================================================
+  EJEMPLO COMPLETO — App "chequera"
+================================================================
+
+Estructura en el repositorio:
+    app/chequera.json
+    app/1234Achequera.json
+    app/5678Bchequera.json
+
+Contenido de app/chequera.json (catálogo global de recompensas):
+    {
+        "version": 1,
+        "datos": {
+            "recompensas": [
+                { "id": "r1", "nombre": "Fondo morado", "precio": 100 },
+                { "id": "r2", "nombre": "Sticker", "precio": 50 }
+            ]
+        }
+    }
+
+Contenido de app/1234Achequera.json (monedas del usuario):
+    {
+        "version": 1,
+        "actualizado": "2025-01-15T10:30:00Z",
+        "datos": {
+            "monedas": 250,
+            "canjeadas": ["r2"]
+        }
+    }
+
+================================================================
+  POR QUÉ ESTAS REGLAS
+================================================================
+
+1. Un JSON por app (o varios por usuario) → fácil de
+   sincronizar, fácil de versionar, fácil de compartir el
+   repo entre amigos. Cada usuario puede tener sus datos sin
+   pisar los de otros.
+
+2. Patrón {codigo}{herramienta}.json → predecible, sin
+   ambigüedad, cada app sabe exactamente dónde buscar los
+   datos de cada usuario.
+
+3. Archivos binarios separados → los JSON se mantienen
+   pequeños y legibles, no se infla el repo con base64, y
+   GitHub puede manejar cada archivo individualmente.
+
+4. Excepción única para cuenta.json → las fotos de perfil
+   son pequeñas y necesitan estar en el mismo archivo que
+   la cuenta para simplificar la carga inicial.
+
+5. Nombres consistentes → evita colisiones, problemas de
+   encoding, y hace el repo predecible.
+
+================================================================
+  FIN DEL DOCUMENTO
+================================================================
