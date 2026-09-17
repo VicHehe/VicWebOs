@@ -2,9 +2,44 @@
 //  Stor-He — Lógica
 //  Instalar/desinstalar apps, temas y widgets.
 //  Incluye validaciones de espacio y monedas + compra de espacio.
+//  Compatible con TODOS los temas (hereda variables CSS del padre).
 // ============================================================
 
 const API = () => window.parent.__vicwebos || null;
+const MENSAJE_TEMA = 'vicwebos_tema_cambio';
+
+// ============================================================
+//  TEMA: heredar variables CSS del padre
+// ============================================================
+function aplicarTemaDelPadre() {
+    try {
+        const rootPadre = window.parent.document.documentElement;
+        const stylePadre = getComputedStyle(rootPadre);
+        const vars = [
+            '--violet-50','--violet-100','--violet-200','--violet-300',
+            '--violet-400','--violet-500','--violet-600','--violet-700',
+            '--white','--bg','--bg-alt',
+            '--gray-50','--gray-100','--gray-200','--gray-300','--gray-400',
+            '--gray-500','--gray-600','--gray-700','--gray-800','--gray-900',
+            '--border','--text','--text-2','--text-3',
+            '--shadow-xs','--shadow-sm','--shadow-md','--shadow-lg','--shadow-xl',
+            '--accent-gradient','--accent-gradient-hover',
+            '--accent-shadow','--accent-shadow-hover',
+            '--accent-text-gradient',
+            '--r-sm','--r-md','--r-lg','--r-xl','--r-full'
+        ];
+        vars.forEach(v => {
+            const val = stylePadre.getPropertyValue(v).trim();
+            if (val) document.documentElement.style.setProperty(v, val);
+        });
+    } catch (e) { /* silencioso */ }
+}
+
+window.addEventListener('message', (e) => {
+    if (e.data && e.data.type === MENSAJE_TEMA) {
+        aplicarTemaDelPadre();
+    }
+});
 
 // ---------- TOAST ----------
 let toastTimeout = null;
@@ -409,6 +444,7 @@ function inicializarTabs() {
 
 // ---------- INIT ----------
 document.addEventListener('DOMContentLoaded', () => {
+    aplicarTemaDelPadre();
     inicializarTabs();
 
     document.addEventListener('click', (e) => {
