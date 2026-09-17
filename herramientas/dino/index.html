@@ -43,72 +43,78 @@
             </div>
         </div>
 
-        <div class="dn-canvas-wrapper" id="dnCanvasWrapper">
-            <canvas id="dnCanvas" width="900" height="260"></canvas>
+        <!-- Cuerpo: canvas (izq) + panel bonus vertical (der, solo PC) -->
+        <div class="dn-cuerpo">
 
-            <div class="dn-overlay" id="dnOverlayStart">
-                <div class="dn-overlay-card">
-                    <div class="dn-overlay-icono">
-                        <i data-lucide="play"></i>
+            <div class="dn-canvas-wrapper" id="dnCanvasWrapper">
+                <canvas id="dnCanvas" width="900" height="260"></canvas>
+
+                <div class="dn-overlay" id="dnOverlayStart">
+                    <div class="dn-overlay-card">
+                        <div class="dn-overlay-icono">
+                            <i data-lucide="play"></i>
+                        </div>
+                        <h2>¿Listo para correr?</h2>
+                        <p>Toca la pantalla o pulsa <kbd>Espacio</kbd> para saltar. Esquiva los cactus.</p>
+                        <button class="dn-btn-primario" id="dnBtnEmpezar">
+                            <i data-lucide="play"></i>
+                            Empezar
+                        </button>
                     </div>
-                    <h2>¿Listo para correr?</h2>
-                    <p>Toca la pantalla o pulsa <kbd>Espacio</kbd> para saltar. Esquiva los cactus.</p>
-                    <button class="dn-btn-primario" id="dnBtnEmpezar">
-                        <i data-lucide="play"></i>
-                        Empezar
-                    </button>
+                </div>
+
+                <div class="dn-overlay" id="dnOverlayGameOver" hidden>
+                    <div class="dn-overlay-card">
+                        <div class="dn-overlay-icono dn-overlay-icono-error">
+                            <i data-lucide="zap-off"></i>
+                        </div>
+                        <h2>¡Chocaste!</h2>
+                        <div class="dn-go-resumen">
+                            <div class="dn-go-fila">
+                                <span class="dn-go-label">Puntos</span>
+                                <span class="dn-go-valor" id="dnGoPuntos">0</span>
+                            </div>
+                            <div class="dn-go-fila dn-go-destacada">
+                                <span class="dn-go-label">
+                                    <i data-lucide="coins"></i>
+                                    Monedas ganadas
+                                </span>
+                                <span class="dn-go-valor dn-go-monedas" id="dnGoMonedas">+0</span>
+                            </div>
+                            <div class="dn-go-fila" id="dnGoRecordFila" hidden>
+                                <span class="dn-go-label">
+                                    <i data-lucide="trophy"></i>
+                                    ¡Nuevo récord!
+                                </span>
+                                <span class="dn-go-valor" id="dnGoRecord">0</span>
+                            </div>
+                        </div>
+                        <button class="dn-btn-primario" id="dnBtnReintentar">
+                            <i data-lucide="rotate-ccw"></i>
+                            Reintentar
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div class="dn-overlay" id="dnOverlayGameOver" hidden>
-                <div class="dn-overlay-card">
-                    <div class="dn-overlay-icono dn-overlay-icono-error">
-                        <i data-lucide="zap-off"></i>
-                    </div>
-                    <h2>¡Chocaste!</h2>
-                    <div class="dn-go-resumen">
-                        <div class="dn-go-fila">
-                            <span class="dn-go-label">Puntos</span>
-                            <span class="dn-go-valor" id="dnGoPuntos">0</span>
-                        </div>
-                        <div class="dn-go-fila dn-go-destacada">
-                            <span class="dn-go-label">
-                                <i data-lucide="coins"></i>
-                                Monedas ganadas
-                            </span>
-                            <span class="dn-go-valor dn-go-monedas" id="dnGoMonedas">+0</span>
-                        </div>
-                        <div class="dn-go-fila" id="dnGoRecordFila" hidden>
-                            <span class="dn-go-label">
-                                <i data-lucide="trophy"></i>
-                                ¡Nuevo récord!
-                            </span>
-                            <span class="dn-go-valor" id="dnGoRecord">0</span>
-                        </div>
-                    </div>
-                    <button class="dn-btn-primario" id="dnBtnReintentar">
-                        <i data-lucide="rotate-ccw"></i>
-                        Reintentar
-                    </button>
+            <div class="dn-progreso" id="dnProgreso">
+                <div class="dn-progreso-header">
+                    <span class="dn-progreso-label">
+                        <i data-lucide="sparkles"></i>
+                        Bonus
+                    </span>
+                    <span class="dn-progreso-meta" id="dnProgresoMeta">0 / 5000</span>
+                </div>
+                <div class="dn-progreso-barra">
+                    <div class="dn-progreso-fill" id="dnProgresoFill"></div>
+                    <div class="dn-progreso-marcas" id="dnProgresoMarcas"></div>
+                </div>
+                <div class="dn-progreso-info">
+                    <div>500 pts = <strong>5 monedas</strong></div>
+                    <div>5.000 pts = <strong>+25 extra</strong></div>
                 </div>
             </div>
-        </div>
 
-        <div class="dn-progreso">
-            <div class="dn-progreso-header">
-                <span class="dn-progreso-label">
-                    <i data-lucide="sparkles"></i>
-                    Próximo bonus en 5.000 pts
-                </span>
-                <span class="dn-progreso-meta" id="dnProgresoMeta">0 / 5000</span>
-            </div>
-            <div class="dn-progreso-barra">
-                <div class="dn-progreso-fill" id="dnProgresoFill" style="width:0%"></div>
-                <div class="dn-progreso-marcas" id="dnProgresoMarcas"></div>
-            </div>
-            <div class="dn-progreso-info">
-                500 pts = <strong>5 monedas</strong> · 5.000 pts = <strong>+25 extra</strong>
-            </div>
         </div>
 
     </div>
