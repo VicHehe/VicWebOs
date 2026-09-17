@@ -1,23 +1,15 @@
 ================================================================
-  REGLAS PARA APPS DE VICWEBOS
+  REGLAS PARA VICWEBOS
   Última actualización: 2026
 ================================================================
 
 IMPORTANTE — DOS REPOSITORIOS SEPARADOS:
 
   1) VicWebOs/         → REPO DE CÓDIGO (público o privado)
-                          Contiene el OS y las apps instalables.
-                          Se hostea en GitHub Pages / Vercel / etc.
-
   2) vicwebos-data/    → REPO DE DATOS (privado, uno por grupo)
-                          Contiene los datos del usuario/grupo.
-                          Se conecta desde VicWebOs con un token.
-
-El usuario solo ve UNA VicWebOs (el código), pero cada grupo
-puede tener su propio vicwebos-data con sus cuentas y datos.
 
 ================================================================
-  ESTRUCTURA GENERAL
+  ESTRUCTURA GENERAL DE REPOS
 ================================================================
 
 REPO DE CÓDIGO — VicWebOs/
@@ -27,13 +19,22 @@ REPO DE CÓDIGO — VicWebOs/
       README.md
       REGLAS_APPS.txt
       js/
-        JsRutas.js
+        JsRutas.js        ← catálogo de APPS
+        JsTemas.js        ← catálogo de TEMAS
+        JsWidgets.js      ← catálogo de WIDGETS
         ConfigBD.js
         Cuenta.js
         configuracion.js
         JsIndex.js
       herramientas/
-        {nombreHerramienta}/
+        {nombreApp}/
+          index.html
+          style.css
+          script.js
+      Temas/
+        {nombreTema}.css
+      Widgets/
+        {nombreWidget}/
           index.html
           style.css
           script.js
@@ -43,319 +44,131 @@ REPO DE DATOS — vicwebos-data/
       cuenta.json
       cuentaConfig.json
       app/
-        {nombreHerramienta}/
-          {nombreHerramienta}.json
-          {codigoUsuario}{nombreHerramienta}.json
-          {nombreHerramienta}(imagen)/
-          {nombreHerramienta}(audio)/
-          {nombreHerramienta}(video)/
-          {nombreHerramienta}(documento)/
-
-La carpeta /app SIEMPRE vive dentro de vicwebos-data/, nunca
-dentro del repo de código.
+        {nombreApp}/
+          {nombreApp}.json
+          {codigoUsuario}{nombreApp}.json
+          {nombreApp}(imagen)/
+          {nombreApp}(audio)/
+          {nombreApp}(video)/
+          {nombreApp}(documento)/
 
 ================================================================
   REGLA 1 — DATOS EN JSON POR APP
 ================================================================
 
-Cada app guarda su información en archivos JSON dentro de su
-propia carpeta en /app (dentro del repo de datos).
-
-    vicwebos-data/app/{nombreHerramienta}/
-      {nombreHerramienta}.json              ← datos globales
-      {codigoUsuario}{nombreHerramienta}.json  ← datos por usuario
-
-Una app puede usar:
-    - UN SOLO JSON global
-    - VARIOS JSON (uno por usuario)
-    - AMBOS (global + por usuario)
-
-----------------------------------------------------------------
-  PATRÓN DE NOMBRES
-----------------------------------------------------------------
-
-GLOBAL (toda la app, todos los usuarios):
-    app/{nombreHerramienta}/{nombreHerramienta}.json
-
-    Ejemplos:
-        app/twevan/twevan.json
-        app/calendario/calendario.json
-        app/galeria/galeria.json
-        app/chequera/chequera.json
-
-POR USUARIO (un archivo por cada cuenta):
-    app/{nombreHerramienta}/{codigoUsuario}{nombreHerramienta}.json
-
-    Ejemplos (usuario 1234A):
-        app/calendario/1234Acalendario.json
-        app/galeria/1234Agaleria.json
-        app/chequera/1234Achequera.json
-
-    Ejemplos (usuario 5678B):
-        app/calendario/5678Bcalendario.json
-        app/galeria/5678Bgaleria.json
-        app/chequera/5678Bchequera.json
-
-REGLAS DEL PATRÓN:
-    - codigoUsuario va PRIMERO, sin separador, seguido del
-      nombre de la herramienta. Ej: 1234Agaleria.json
-    - El código conserva su mayúscula (1234A), el nombre de
-      la herramienta va en minúsculas.
-    - El nombre de la herramienta debe coincidir con el "id"
-      de la app en JsRutas.js.
-
-----------------------------------------------------------------
-  CUÁNDO USAR CADA UNO
-----------------------------------------------------------------
-
-GLOBAL → cuando TODOS los usuarios comparten los datos.
-    Ej: twevan.json (red social entre OCs, todos ven todo)
-        encuestas.json (encuestas globales)
-
-POR USUARIO → cuando cada usuario tiene SUS propios datos.
-    Ej: 1234Acalendario.json (sus eventos)
-        1234Achequera.json (sus monedas)
-        1234Alogros.json (sus logros)
-
-AMBOS → cuando parte es compartida y parte es personal.
-    Ej: app/quizatorio/quizatorio.json        (todos los quizzes)
-        app/quizatorio/1234Aquizatorio.json   (respuestas usuario)
-
-----------------------------------------------------------------
-  ESTRUCTURA INTERNA DEL JSON
-----------------------------------------------------------------
-
-    {
-        "version": 1,
-        "actualizado": "2025-01-15T10:30:00Z",
-        "datos": {
-            // Aquí va lo que la app necesite guardar
-        }
-    }
-
-REGLAS ADICIONALES:
-    - Siempre escribir mediante ConfigBD.escribirArchivo().
-    - Siempre leer mediante ConfigBD.leerArchivo().
-    - No usar localStorage ni IndexedDB como fuente de verdad
-      (solo como caché temporal si hace falta).
+(Vive en vicwebos-data/app/{nombreApp}/ — ver documento
+original para detalles completos.)
 
 ================================================================
   REGLA 2 — ARCHIVOS BINARIOS EN CARPETAS SEPARADAS
 ================================================================
 
-REGLA GENERAL:
-    PROHIBIDO guardar imágenes, videos o audios embebidos
-    (base64, data-URI, blobs) dentro de los JSON.
-
-EXCEPCIÓN ÚNICA:
-    cuenta.json PUEDE contener la foto del usuario en base64
-    embebida. Es el ÚNICO archivo autorizado para hacerlo.
-    Razón: son fotos pequeñas (~15 KB tras redimensionar).
-
-Los archivos binarios van dentro de la carpeta de la app,
-en subcarpetas por tipo:
-
-    vicwebos-data/app/{nombreHerramienta}/{nombreHerramienta}({tipo})/{archivo}.{ext}
-
-TIPOS DE ARCHIVO PERMITIDOS:
-    - imagen
-    - video
-    - audio
-    - documento  (pdf, docx, etc.)
-
-EJEMPLOS:
-    app/galeria/galeria(imagen)/foto_001.png
-    app/galeria/galeria(imagen)/foto_002.jpg
-    app/spotivic/spotivic(audio)/cancion_luna.mp3
-    app/spotivic/spotivic(audio)/podcast_ep01.ogg
-    app/editor_video/editor_video(video)/clip_final.mp4
-    app/comics/comics(imagen)/portada_comic_01.png
-    app/doxc_editor/doxc_editor(documento)/contrato.pdf
-
-EN EL JSON DE LA APP:
-    Se guarda SOLO la ruta relativa al archivo, nunca el
-    contenido. Ejemplo:
-
-    {
-        "datos": {
-            "fotos": [
-                { "id": "foto_001", "ruta": "app/galeria/galeria(imagen)/foto_001.png" },
-                { "id": "foto_002", "ruta": "app/galeria/galeria(imagen)/foto_002.jpg" }
-            ]
-        }
-    }
-
-REGLAS ADICIONALES:
-    - Nombres de archivo sin espacios ni caracteres especiales.
-      Usar guiones bajos: foto_001.png, no "foto 001.png".
-    - Nombres y extensiones en minúsculas: .png, .jpg, .mp3, .mp4
-    - Un archivo = un recurso.
-    - Si pesa más de 25 MB, considerar dividirlo (límite GitHub).
+(Viven en vicwebos-data/app/{nombreApp}/{nombreApp}(tipo)/)
 
 ================================================================
-  REGLA 3 — ESTRUCTURA DE LAS HERRAMIENTAS
+  REGLA 3 — ESTRUCTURA DE LAS HERRAMIENTAS (APPS)
 ================================================================
 
-Toda herramienta vive en su propia carpeta dentro del repo
-de CÓDIGO, en /herramientas, con EXACTAMENTE esta estructura:
+Cada app vive en:
+    VicWebOs/herramientas/{nombreApp}/
+        index.html
+        style.css
+        script.js
 
-    VicWebOs/herramientas/{nombreHerramienta}/
-        index.html      ← HTML
-        style.css       ← CSS
-        script.js       ← JavaScript
+Registro: VicWebOs/js/JsRutas.js
+
+================================================================
+  REGLA 4 — TEMAS
+================================================================
+
+Cada tema vive en:
+    VicWebOs/Temas/{nombreTema}.css
+
+CARACTERÍSTICAS:
+    - UN ARCHIVO CSS por tema. Nada más.
+    - Se carga en index.html así:
+        <link rel="stylesheet" href="Temas/{nombre}.css" id="tema-activo">
+    - Para cambiar de tema, se intercambia el href del <link>
+      con id="tema-activo" (ver Cuenta.js → aplicarTema()).
+    - El tema puede sobreescribir CUALQUIER regla CSS del
+      style.css base: colores, tamaños, layout, tipografía,
+      sombras, animaciones, TODO.
+    - Como mínimo, todo tema debe definir las variables del
+      :root (--violet-XXX, --bg, --bg-alt, etc.) para no
+      romper la UI.
+    - Si un tema NO define el layout, hereda el del style.css
+      base automáticamente.
+
+TEMA BASE OBLIGATORIO:
+    Temas/violeta.css — fondo blanco, violeta clásico.
+    Es el default. Se carga siempre al iniciar VicWebOs si
+    no hay otro guardado en la cuenta.
 
 REGLAS:
+    - Nombre del archivo en minúsculas: violeta.css, no Violeta.CSS
+    - Sin subcarpetas dentro de Temas/
+    - Sin imágenes/iconos propios (si algún tema los necesita,
+      se suben al repo de datos y se referencian por URL completa)
+    - Registrar en JsTemas.js con:
+        { id, nombre, icono, descripcion, categoria, esBase, ruta }
+
+================================================================
+  REGLA 5 — WIDGETS
+================================================================
+
+Cada widget vive en:
+    VicWebOs/Widgets/{nombreWidget}/
+        index.html
+        style.css
+        script.js
+
+CARACTERÍSTICAS:
+    - Misma estructura que las apps (Regla 3)
+    - Los widgets se renderizan dentro de la welcomeScreen del
+      OS (o donde el usuario los coloque), no en pestañas.
+    - El padre comunica con el widget vía:
+        iframe.contentWindow.postMessage()  o
+        window.parent.__vicwebos.*
+    - Los datos del widget, si los necesita, van en:
+        vicwebos-data/app/{nombreWidget}/
+      con el mismo patrón que cualquier app (Regla 1).
+
+REGLAS:
+    - Nombre de carpeta en minúsculas con guiones: reloj-mundial
     - Nombres fijos: index.html, style.css, script.js
-    - No se permiten otros nombres ni subcarpetas dentro
-      de la carpeta de la herramienta.
-    - Si necesita assets propios, van en /app del repo de
-      datos (ver Regla 2).
-    - En JsRutas.js:
-        ruta: 'herramientas/{nombreHerramienta}/index.html'
-    - El id en JsRutas.js debe coincidir con:
-        · el nombre de la carpeta de la herramienta
-        · el nombre de los JSON en /app
-        · el nombre de las subcarpetas de binarios en /app
-
-EJEMPLO — App "galeria":
-
-  En el repo de CÓDIGO:
-    VicWebOs/herramientas/galeria/index.html
-    VicWebOs/herramientas/galeria/style.css
-    VicWebOs/herramientas/galeria/script.js
-
-  En el repo de DATOS:
-    vicwebos-data/app/galeria/galeria.json
-    vicwebos-data/app/galeria/1234Agaleria.json
-    vicwebos-data/app/galeria/galeria(imagen)/foto_001.png
-
-  En JsRutas.js:
-    {
-        id: 'galeria',
-        nombre: 'Galería',
-        icono: 'image',
-        ruta: 'herramientas/galeria/index.html',
-        descripcion: 'Tus fotos favoritas',
-        categoria: 'Creación y Recuerdos'
-    }
+    - Registrar en JsWidgets.js con:
+        { id, nombre, icono, descripcion, categoria, esBase, ruta }
 
 ================================================================
-  DÓNDE VA CADA COSA (resumen)
+  TABLA RESUMEN
 ================================================================
 
-  COSA                → REPO            → RUTA
-  ------------------------------------------------------------
-  Código de la app    → VicWebOs/       → herramientas/{n}/index.html
-                                                          style.css
-                                                          script.js
-
-  Registro de la app  → VicWebOs/       → js/JsRutas.js
-
-  Cuentas             → vicwebos-data/  → cuenta.json
-
-  Apps por usuario    → vicwebos-data/  → cuentaConfig.json
-  temas, tema activo,
-  widgets
-
-  Datos de una app    → vicwebos-data/  → app/{n}/{n}.json
-  (globales)                              app/{n}/{cod}{n}.json
-
-  Archivos binarios   → vicwebos-data/  → app/{n}/{n}(imagen)/...
-  de una app                              app/{n}/{n}(audio)/...
-                                          app/{n}/{n}(video)/...
-                                          app/{n}/{n}(documento)/...
+  TIPO          → DÓNDE VIVE                        → CATÁLOGO
+  ----------------------------------------------------------------
+  App           → herramientas/{nombre}/            → JsRutas.js
+  Tema          → Temas/{nombre}.css                → JsTemas.js
+  Widget        → Widgets/{nombre}/                 → JsWidgets.js
+  Datos de app  → vicwebos-data/app/{nombre}/       (repo datos)
 
 ================================================================
   API DISPONIBLE (recordatorio)
 ================================================================
 
-ConfigBD.leerArchivo() y ConfigBD.escribirArchivo() operan
-SIEMPRE sobre el repo de DATOS (vicwebos-data/). El path es
-relativo a la raíz de ese repo.
+En el shell (index.html + js/):
+    window.__vicwebos.obtenerCatalogo()   → apps
+    window.__vicwebos.obtenerTemas()      → temas
+    window.__vicwebos.obtenerWidgets()    → widgets
+    window.__vicwebos.aplicarTema(id)     → cambia tema
+    window.__vicwebos.instalarTema(id)
+    window.__vicwebos.instalarWidget(id)
+    ...
 
-Para leer datos globales de una app:
-    const data = await ConfigBD.leerArchivo(
-        'app/galeria/galeria.json'
-    );
+En apps/widgets (iframes):
+    window.parent.__vicwebos.*
 
-Para escribir datos globales:
-    await ConfigBD.escribirArchivo(
-        'app/galeria/galeria.json', data
-    );
-
-Para leer datos del usuario actual:
-    const codigo = cuentaActual.codigo; // ej: "1234A"
-    const data = await ConfigBD.leerArchivo(
-        `app/calendario/${codigo}calendario.json`
-    );
-
-Para archivos binarios:
-    - Se suben vía la API de GitHub (contents API) al repo
-      de datos.
-    - Se leen con la misma API y se muestran con blob URLs.
-    - Nunca se guardan como base64 en el JSON (excepto
-      cuenta.json).
-
-================================================================
-  EJEMPLO COMPLETO — App "chequera"
-================================================================
-
-Repo de CÓDIGO (VicWebOs):
-    herramientas/chequera/index.html
-    herramientas/chequera/style.css
-    herramientas/chequera/script.js
-
-Repo de DATOS (vicwebos-data):
-    cuenta.json
-    cuentaConfig.json
-    app/chequera/chequera.json
-    app/chequera/1234Achequera.json
-    app/chequera/5678Bchequera.json
-
-Contenido de app/chequera/chequera.json (catálogo global):
-    {
-        "version": 1,
-        "datos": {
-            "recompensas": [
-                { "id": "r1", "nombre": "Fondo morado", "precio": 100 },
-                { "id": "r2", "nombre": "Sticker", "precio": 50 }
-            ]
-        }
-    }
-
-Contenido de app/chequera/1234Achequera.json (monedas usuario):
-    {
-        "version": 1,
-        "actualizado": "2025-01-15T10:30:00Z",
-        "datos": {
-            "monedas": 250,
-            "canjeadas": ["r2"]
-        }
-    }
-
-================================================================
-  POR QUÉ ESTAS REGLAS
-================================================================
-
-1. Separación código/datos → el código se actualiza para
-   todos a la vez, los datos son privados de cada grupo.
-
-2. Estructura fija de herramientas → cada app es
-   autocontenida, sin ambigüedad, fácil de copiar a otra
-   VicWebOs.
-
-3. Carpeta por app en /app → todos los datos de una app
-   quedan juntos, fácil de auditar, fácil de borrar.
-
-4. Patrón {codigo}{herramienta}.json → predecible, sin
-   ambigüedad, cada app sabe dónde buscar los datos del
-   usuario.
-
-5. Archivos binarios separados por tipo → los JSON se
-   mantienen pequeños, GitHub maneja cada archivo mejor.
-
-6. Excepción única para cuenta.json → las fotos de perfil
-   son pequeñas y simplifica la carga inicial.
+En datos (JSON):
+    ConfigBD.leerArchivo(path)
+    ConfigBD.escribirArchivo(path, data)
 
 ================================================================
   FIN DEL DOCUMENTO
