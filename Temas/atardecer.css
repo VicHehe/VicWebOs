@@ -1,0 +1,25 @@
+/* ================================================
+   Tema: Atardecer
+   ================================================ */
+
+:root {
+    --violet-50:  #FFF7ED;
+    --violet-100: #FFEDD5;
+    --violet-200: #FED7AA;
+    --violet-300: #FDBA74;
+    --violet-400: #FB923C;
+    --violet-500: #F97316;
+    --violet-600: #EA580C;
+    --violet-700: #C2410C;
+
+    --bg:     #FFFBF5;
+    --bg-alt: #FFF7ED;
+
+    --shadow-glow: 0 0 0 4px rgba(249, 115, 22, 0.10);
+
+    --accent-gradient: linear-gradient(135deg, #F97316, #C2410C);
+    --accent-gradient-hover: linear-gradient(135deg, #F97316, #EA580C);
+    --accent-shadow: rgba(249, 115, 22, 0.28);
+    --accent-shadow-hover: rgba(249, 115, 22, 0.38);
+    --accent-text-gradient: linear-gradient(135deg, var(--gray-900), #EA580C);
+}
