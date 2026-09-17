@@ -1,6 +1,6 @@
 /* ================================================
    Dino — Estilos
-   Móvil: layout original intacto.
+   Móvil: layout original intacto (barra horizontal).
    PC: canvas + panel bonus vertical a la derecha.
    ================================================ */
 
@@ -202,7 +202,7 @@ body {
     image-rendering: pixelated;
 }
 
-/* ========== OVERLAY ========== */
+/* ========== OVERLAY (start / game over) ========== */
 .dn-overlay {
     position: absolute;
     inset: 0;
@@ -223,6 +223,7 @@ body {
     to   { opacity: 1; }
 }
 
+/* La card NO tiene scroll: crece y el overlay le da aire */
 .dn-overlay-card {
     background: var(--white, #FFFFFF);
     border-radius: var(--r-xl, 20px);
@@ -354,7 +355,7 @@ body {
 .dn-btn-primario:active { transform: translateY(0); }
 .dn-btn-primario [data-lucide] { width: 16px; height: 16px; }
 
-/* ========== PROGRESO (base, se usa en móvil horizontal) ========== */
+/* ========== PROGRESO (base = HORIZONTAL para móvil) ========== */
 .dn-progreso {
     flex-shrink: 0;
     display: flex;
@@ -394,6 +395,7 @@ body {
     font-variant-numeric: tabular-nums;
 }
 
+/* Barra: horizontal por defecto (móvil) */
 .dn-progreso-barra {
     position: relative;
     height: 12px;
@@ -403,6 +405,7 @@ body {
     overflow: hidden;
 }
 
+/* Fill: horizontal (móvil) */
 .dn-progreso-fill {
     position: absolute;
     top: 0;
@@ -415,6 +418,7 @@ body {
     box-shadow: 0 0 8px var(--accent-shadow, rgba(139,92,246,0.4));
 }
 
+/* Marcas: verticales (móvil) */
 .dn-progreso-marcas {
     position: absolute;
     inset: 0;
@@ -473,7 +477,7 @@ body {
 .dn-toast.info    { background: var(--violet-700, #6D28D9); }
 
 /* ================================================
-   PC (≥769px): 2 columnas con bonus vertical
+   PC (≥769px): 2 columnas con barra VERTICAL
    ================================================ */
 @media (min-width: 769px) {
     .dn-container {
@@ -493,8 +497,7 @@ body {
     .dn-hud-monedas .dn-hud-valor { font-size: 18px; }
     .dn-hud-icono { width: 16px; height: 16px; }
 
-    /* Grid con fila explícita de 1fr: crítico para que la
-       barra vertical reciba altura y no colapse. */
+    /* Grid con fila y columna explícitas */
     .dn-cuerpo {
         display: grid;
         grid-template-columns: minmax(0, 1fr) 220px;
@@ -503,16 +506,18 @@ body {
         min-height: 0;
     }
 
-    /* El canvas se estira al alto de la fila (por stretch implícito) */
     .dn-canvas-wrapper {
         min-height: 0;
         min-width: 0;
     }
 
-    /* Panel de progreso: contenedor vertical con altura completa */
+    /* Panel: flex column con altura 100% garantizada */
     .dn-progreso {
+        display: flex;
+        flex-direction: column;
         height: 100%;
         min-height: 0;
+        align-self: stretch;
         padding: 18px 16px;
         gap: 12px;
         overflow: hidden;
@@ -527,29 +532,36 @@ body {
     .dn-progreso-label { font-size: 11px; }
     .dn-progreso-meta { font-size: 12.5px; }
 
-    /* Barra vertical: ocupa todo el alto disponible */
+    /* Barra VERTICAL:
+       flex-basis: 0 + flex-grow: 1 = ocupa todo el alto sobrante.
+       min-height garantiza visibilidad incluso si algo raro pasa. */
     .dn-progreso-barra {
-        flex: 1 1 auto;
-        min-height: 0;
+        position: relative;
+        flex: 1 1 0;
         width: 100%;
         height: auto;
+        min-height: 120px;
         border-radius: 12px;
+        overflow: hidden;
     }
 
-    /* Fill: crece de abajo hacia arriba */
+    /* Fill VERTICAL: anclado al fondo, crece hacia arriba */
     .dn-progreso-fill {
-        top: auto;
-        bottom: 0;
+        position: absolute;
         left: 0;
         right: 0;
+        bottom: 0;
+        top: auto;
         width: 100%;
         height: var(--pct, 0%);
-        border-radius: 12px;
+        border-radius: 12px 12px 0 0;
         transition: height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 0 12px var(--accent-shadow, rgba(139,92,246,0.4));
     }
 
-    /* Marcas: líneas horizontales */
+    /* Marcas HORIZONTALES: líneas cruzando la barra de lado a lado */
     .dn-progreso-marca {
+        position: absolute;
         top: auto;
         left: 2px;
         right: 2px;
@@ -559,6 +571,7 @@ body {
         transform: none;
     }
 
+    /* Info al pie, sin shrink */
     .dn-progreso-info {
         text-align: left;
         font-size: 10.5px;
@@ -567,7 +580,7 @@ body {
     }
     .dn-progreso-info > div { margin: 2px 0; }
 
-    /* Overlay: aire a los lados sin forzar scroll */
+    /* Overlay: aire lateral para que la card no toque bordes del canvas */
     .dn-overlay {
         padding: 36px 44px;
     }
