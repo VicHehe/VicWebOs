@@ -111,5 +111,59 @@ const TEMAS_DISPONIBLES = [
             '--bg-alt':     '#1A1A2E',
             '--white':      '#1A1A2E'
         }
+    },
+    {
+        id: 'vapor',
+        nombre: 'Vapor',
+        icono: 'sunset',
+        descripcion: 'Fondo negro con paleta vaporwave. Nostalgia de los 80s.',
+        categoria: 'Especiales',
+        ruta: 'Temas/vapor.css',
+        espacio: 2,
+        monedas: 5,
+        colores: {
+            '--violet-100': '#2A1A44',
+            '--violet-300': '#C084FC',
+            '--violet-500': '#F472B6',
+            '--bg':         '#0A0510',
+            '--bg-alt':     '#150A22',
+            '--white':      '#0F0818'
+        }
+    },
+    {
+        id: 'consentido',
+        nombre: 'Consentido',
+        icono: 'heart',
+        descripcion: 'Colores chilenos cálidos. Para los que se consienten.',
+        categoria: 'Especiales',
+        ruta: 'Temas/consentido.css',
+        espacio: 2,
+        monedas: 18,
+        colores: {
+            '--violet-100': '#FFE4E4',
+            '--violet-300': '#FCA5A5',
+            '--violet-500': '#D52B1E',
+            '--bg':         '#FFFBF7',
+            '--bg-alt':     '#FFF5EE',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
+        id: 'dreams',
+        nombre: 'Dreams and Hopes',
+        icono: 'sparkles',
+        descripcion: 'Fondo negro profundo con acentos arcoíris. Para soñadores.',
+        categoria: 'Especiales',
+        ruta: 'Temas/dreams.css',
+        espacio: 2,
+        monedas: 30,
+        colores: {
+            '--violet-100': '#2E1A44',
+            '--violet-300': '#7C4DE8',
+            '--violet-500': '#C084FC',
+            '--bg':         '#050510',
+            '--bg-alt':     '#0F0F1E',
+            '--white':      '#0A0A15'
+        }
     }
 ];
