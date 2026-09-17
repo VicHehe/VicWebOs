@@ -116,7 +116,7 @@ function actualizarNavActivo() {
 }
 
 // ============================================================
-//  ACCESOS RÁPIDOS (configurables por el usuario)
+//  ACCESOS RÁPIDOS
 // ============================================================
 function renderAccesosRapidos() {
     const cont = document.getElementById('accesosRapidos');
@@ -134,7 +134,6 @@ function renderAccesosRapidos() {
     const instaladas = obtenerAppsInstaladas();
     const accesos = obtenerAccesosRapidos();
 
-    // Filtrar los accesos: solo apps instaladas y que existan en catálogo
     const mostrar = accesos
         .map(id => catalogo.find(h => h.id === id))
         .filter(h => h && instaladas.includes(h.id));
@@ -565,6 +564,16 @@ window.__vicwebos = {
     },
     canjear:      async (icono, fuente, texto, cantidad) => await canjear(icono, fuente, texto, cantidad),
     gastoBoleta:  async (icono, fuente, texto, cantidad) => await gastoBoleta(icono, fuente, texto, cantidad),
+
+    // ---- Notificaciones ----
+    enviarNotificacion: async (fuente, texto, usuarioDestino) => {
+        if (!window.Notificaciones) throw new Error('Notificaciones no disponible.');
+        return await window.Notificaciones.enviar(fuente, texto, usuarioDestino);
+    },
+    notificacionesRecargar: async () => {
+        if (!window.Notificaciones) return;
+        return await window.Notificaciones.recargar();
+    },
 
     // ---- Acciones: apps ----
     instalar: async (id) => {
