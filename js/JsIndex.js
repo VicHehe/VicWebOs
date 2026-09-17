@@ -116,7 +116,7 @@ function actualizarNavActivo() {
 }
 
 // ============================================================
-//  ACCESOS RÁPIDOS
+//  ACCESOS RÁPIDOS (configurables por el usuario)
 // ============================================================
 function renderAccesosRapidos() {
     const cont = document.getElementById('accesosRapidos');
@@ -132,12 +132,12 @@ function renderAccesosRapidos() {
 
     const catalogo = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
     const instaladas = obtenerAppsInstaladas();
+    const accesos = obtenerAccesosRapidos();
 
-    let mostrar = catalogo.filter(h => instaladas.includes(h.id) && h.id !== 'stor-he');
-    if (mostrar.length === 0) {
-        mostrar = catalogo.filter(h => !h.esBase);
-    }
-    mostrar = mostrar.slice(0, 8);
+    // Filtrar los accesos: solo apps instaladas y que existan en catálogo
+    const mostrar = accesos
+        .map(id => catalogo.find(h => h.id === id))
+        .filter(h => h && instaladas.includes(h.id));
 
     if (mostrar.length === 0) {
         seccion.style.display = 'none';
@@ -534,6 +534,7 @@ window.__vicwebos = {
     obtenerWidgetsInstalados: () => obtenerWidgetsInstalados(),
     obtenerWidgetsActivos:    () => obtenerWidgetsActivos(),
     obtenerTemaActivo:        () => obtenerTemaActivo(),
+    obtenerAccesosRapidos:    () => obtenerAccesosRapidos(),
     estaInstalada:            (id) => estaInstalada(id),
 
     tieneCuenta:    () => !!cuentaActual,
@@ -555,6 +556,7 @@ window.__vicwebos = {
     ESPACIO_POR_COMPRA:   ESPACIO_POR_COMPRA,
     COSTO_COMPRA_ESPACIO: COSTO_COMPRA_ESPACIO,
     MAX_WIDGETS_ACTIVOS:  MAX_WIDGETS_ACTIVOS,
+    MAX_ACCESOS_RAPIDOS:  MAX_ACCESOS_RAPIDOS,
 
     // ---- Chequera ----
     chequeraLeer: async () => {
@@ -594,7 +596,11 @@ window.__vicwebos = {
     instalarWidget:    async (id) => { try { await instalarWidget(id); }    catch (e) { alert('❌ ' + e.message); throw e; } },
     desinstalarWidget: async (id) => { try { await desinstalarWidget(id); } catch (e) { alert('❌ ' + e.message); throw e; } },
     activarWidget:     async (id) => { try { await activarWidget(id); }     catch (e) { alert('❌ ' + e.message); throw e; } },
-    desactivarWidget:  async (id) => { try { await desactivarWidget(id); }  catch (e) { alert('❌ ' + e.message); throw e; } }
+    desactivarWidget:  async (id) => { try { await desactivarWidget(id); }  catch (e) { alert('❌ ' + e.message); throw e; } },
+
+    // ---- Acciones: accesos rápidos ----
+    activarAccesoRapido:   async (id) => { try { await activarAccesoRapido(id); }   catch (e) { alert('❌ ' + e.message); throw e; } },
+    desactivarAccesoRapido: async (id) => { try { await desactivarAccesoRapido(id); } catch (e) { alert('❌ ' + e.message); throw e; } }
 };
 
 // ============================================================
