@@ -1186,3 +1186,92 @@ body {
     .modal-categoria-grid { grid-template-columns: 1fr; }
     .config-panel-header h3 { font-size: 15px; }
 }
+
+/* ================================================
+   NUEVOS: estado vacío + status GitHub + spinner
+   ================================================ */
+
+/* Estado vacío en panel de config */
+.config-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 24px;
+    gap: 12px;
+}
+.config-empty-icon {
+    width: 64px;
+    height: 64px;
+    background: var(--violet-50);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--violet-500);
+    box-shadow: inset 0 0 0 1px var(--violet-200);
+    margin-bottom: 4px;
+}
+.config-empty-icon [data-lucide] {
+    width: 28px;
+    height: 28px;
+    stroke-width: 1.75;
+}
+.config-empty h4 {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--gray-900);
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+.config-empty p {
+    font-size: 13px;
+    color: var(--gray-500);
+    max-width: 320px;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Estado de conexión GitHub */
+.config-status {
+    margin-top: 14px;
+    padding: 10px 14px;
+    border-radius: var(--r-md);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    display: none;
+}
+.config-status:not(:empty) { display: block; }
+.config-status.info {
+    background: var(--violet-50);
+    color: var(--violet-700);
+    border: 1px solid var(--violet-200);
+}
+.config-status.success {
+    background: #ECFDF5;
+    color: #065F46;
+    border: 1px solid #A7F3D0;
+}
+.config-status.error {
+    background: #FEF2F2;
+    color: #991B1B;
+    border: 1px solid #FECACA;
+}
+
+/* Spinner para el botón conectando */
+.spin {
+    animation: girar 1s linear infinite;
+}
+@keyframes girar {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* Ajuste: el SVG inline de GitHub hereda color del contenedor */
+.storage-icon svg {
+    width: 18px;
+    height: 18px;
+    color: inherit;
+}
