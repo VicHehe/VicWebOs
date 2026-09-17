@@ -117,6 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderApariencia() {
         const temasCont   = document.getElementById('configTemasLista');
         const widgetsCont = document.getElementById('configWidgetsLista');
+        const accesosCont = document.getElementById('configAccesosLista');
 
         if (!ConfigBD.estaConectado() || !cuentaActual) {
             const html = `
@@ -127,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>`;
             if (temasCont)   temasCont.innerHTML = html;
             if (widgetsCont) widgetsCont.innerHTML = html;
+            if (accesosCont) accesosCont.innerHTML = html;
             lucide.createIcons();
             return;
         }
@@ -218,6 +220,58 @@ document.addEventListener('DOMContentLoaded', () => {
                             else await activarWidget(id);
                             renderApariencia();
                         } catch (err) { alert('❌ ' + err.message); }
+                    });
+                });
+            }
+        }
+
+        // --- Accesos rápidos ---
+        if (accesosCont) {
+            const catalogo = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
+            const instaladas = obtenerAppsInstaladas();
+            const activos = obtenerAccesosRapidos();
+
+            // Mostrar TODAS las apps instaladas, con checkbox
+            if (instaladas.length === 0) {
+                accesosCont.innerHTML = `<p class="config-ayuda">No tienes apps instaladas. Abre Stor-He.</p>`;
+            } else {
+                accesosCont.innerHTML = '';
+
+                instaladas.forEach(id => {
+                    const app = catalogo.find(a => a.id === id);
+                    if (!app) return;
+                    const activo = activos.includes(id);
+
+                    const label = document.createElement('label');
+                    label.className = 'config-checkbox-label' + (activo ? ' activo' : '');
+                    label.innerHTML = `
+                        <input type="checkbox" data-id="${id}" ${activo ? 'checked' : ''}>
+                        <span class="config-checkbox-icono"><i data-lucide="${app.icono || 'circle'}"></i></span>
+                        <span class="config-checkbox-texto">${app.nombre}</span>
+                    `;
+                    accesosCont.appendChild(label);
+                });
+
+                lucide.createIcons();
+
+                accesosCont.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                    cb.addEventListener('change', async () => {
+                        const id = cb.dataset.id;
+                        try {
+                            if (cb.checked) {
+                                await activarAccesoRapido(id);
+                            } else {
+                                await desactivarAccesoRapido(id);
+                            }
+                            // Refrescar el welcome si está visible
+                            if (typeof renderAccesosRapidos === 'function') renderAccesosRapidos();
+                            // Actualizar visual de la label
+                            cb.closest('.config-checkbox-label').classList.toggle('activo', cb.checked);
+                            if (footerMsg) footerMsg.textContent = '✅ Accesos rápidos actualizados';
+                        } catch (err) {
+                            cb.checked = !cb.checked;
+                            alert('❌ ' + err.message);
+                        }
                     });
                 });
             }
