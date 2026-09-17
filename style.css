@@ -1435,20 +1435,18 @@ body {
     }
     .noti-btn [data-lucide] { width: 17px; height: 17px; }
 
-    /* info-local compacto: hora + clima, sin monedas */
+    /* info-local compacto: hora + clima + monedas (todo visible) */
     .info-local {
         display: flex;
-        padding: 5px 10px;
+        padding: 4px 10px;
         gap: 6px;
         font-size: 11px;
         border-radius: var(--r-md);
     }
-    .info-local > .divider-dot:nth-child(4),
-    .info-local > .monedas-local {
-        display: none;
-    }
     .info-icon, .clima-icon { width: 12px; height: 12px; }
     .hora-texto, .temp-texto { font-size: 11px; }
+    .monedas-texto { font-size: 11px; }
+    .divider-dot { width: 2px; height: 2px; }
 
     /* Panel de notis: se adapta al ancho */
     .noti-panel {
@@ -1647,9 +1645,11 @@ body {
     }
     .search-bar { height: 36px; padding: 0 10px; }
 
-    .info-local { padding: 4px 8px; gap: 5px; font-size: 10.5px; }
+    /* Info aún más compacta pero sin ocultar monedas */
+    .info-local { padding: 3px 8px; gap: 5px; font-size: 10.5px; }
     .info-icon, .clima-icon { width: 11px; height: 11px; }
     .hora-texto, .temp-texto { font-size: 10.5px; }
+    .monedas-texto { font-size: 10.5px; }
 
     .sidebar { width: 260px; max-width: 82vw; }
 
