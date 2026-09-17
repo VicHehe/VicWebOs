@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Favicon SVG (Lucide hexagon en morado) -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238B5CF6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z'/></svg>">
     <title>VicWebOs</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <!-- Lucide (iconos) -->
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
@@ -20,30 +18,32 @@
         <header class="app-header">
             <div class="header-left">
                 <div class="logo">
-                    <i data-lucide="hexagon" class="logo-icon"></i>
+                    <div class="logo-mark">
+                        <i data-lucide="hexagon"></i>
+                    </div>
                     <span class="logo-text">VicWebOs</span>
                 </div>
             </div>
 
             <div class="search-bar">
                 <i data-lucide="search" class="search-icon"></i>
-                <input type="text" id="searchInput" placeholder="Buscar herramienta...">
+                <input type="text" id="searchInput" placeholder="Buscar en tus apps...">
+                <kbd class="search-kbd">/</kbd>
             </div>
 
             <div class="header-right">
-                <!-- Hora local y clima local (se llenan desde JS) -->
                 <div class="info-local">
                     <div class="hora-local">
                         <i data-lucide="clock" class="info-icon"></i>
                         <span class="hora-texto" id="horaLocal">--:--:--</span>
                     </div>
+                    <div class="divider-dot"></div>
                     <div class="clima-local">
                         <i data-lucide="cloud-sun" class="info-icon"></i>
                         <span class="temp" id="climaLocal">--°C</span>
                     </div>
                 </div>
 
-                <!-- Avatar + Configuración (unificado) -->
                 <button class="avatar-config" id="btnConfig" title="Configuración">
                     <i data-lucide="user" class="avatar-icon"></i>
                 </button>
@@ -52,34 +52,28 @@
 
         <div class="app-body">
             <nav class="sidebar">
-                <div class="sidebar-nav" id="sidebarNav">
-                    <!-- Se llena dinámicamente desde JsRutas.js (vacío por ahora) -->
-                    <div class="sidebar-empty">
-                        <i data-lucide="inbox"></i>
-                        <span>No hay herramientas disponibles</span>
-                    </div>
-                </div>
+                <div class="sidebar-label">Aplicaciones</div>
+                <div class="sidebar-nav" id="sidebarNav"></div>
             </nav>
 
             <main class="main-content">
-                <!-- Barra de pestañas -->
                 <div id="tabBar" class="tab-bar">
                     <span class="tab-empty-hint">
                         <i data-lucide="hexagon"></i>
-                        Abre una herramienta del menú
+                        Abre una app del menú
                     </span>
                 </div>
 
-                <!-- Contenedor de paneles -->
                 <div id="panelContainer" class="panel-container">
                     <div id="welcomeScreen" class="welcome-placeholder">
-                        <i data-lucide="hexagon" class="welcome-icon"></i>
+                        <div class="welcome-glow"></div>
+                        <div class="welcome-icon-wrap">
+                            <i data-lucide="hexagon" class="welcome-icon"></i>
+                        </div>
                         <h1>Bienvenide a VicWebOs</h1>
                         <p>Sistema operativo web centrado en el uso personal o grupal de grupos de amistades.</p>
 
-                        <div class="accesos-rapidos">
-                            <!-- Se llena dinámicamente (por ahora placeholder) -->
-                        </div>
+                        <div class="accesos-rapidos"></div>
 
                         <button class="btn-ver-todas" id="btnVerTodas">
                             <i data-lucide="layout-grid"></i>
@@ -95,14 +89,15 @@
     <div id="modalTodas" class="modal-todas-overlay" style="display:none;">
         <div class="modal-todas-card">
             <div class="modal-todas-header">
-                <h2>Todas las herramientas</h2>
+                <div>
+                    <h2>Todas las herramientas</h2>
+                    <p class="modal-subtitle">Apps instaladas en tu VicWebOs</p>
+                </div>
                 <button class="modal-todas-cerrar" id="modalTodasCerrar">
                     <i data-lucide="x"></i>
                 </button>
             </div>
-            <div class="modal-todas-body" id="modalTodasBody">
-                <!-- Se llena dinámicamente desde JsRutas.js -->
-            </div>
+            <div class="modal-todas-body" id="modalTodasBody"></div>
         </div>
     </div>
 
@@ -110,97 +105,210 @@
     <div id="configOverlay" class="config-overlay" style="display:none;">
         <div class="config-card">
             <div class="config-header">
-                <h2>Configuración</h2>
+                <div>
+                    <h2>Configuración</h2>
+                    <p class="config-subtitle">Personaliza tu VicWebOs</p>
+                </div>
                 <button class="config-cerrar" id="btnCerrarConfig">
                     <i data-lucide="x"></i>
                 </button>
             </div>
-            <div class="config-body">
-                <!-- Almacenamiento -->
-                <div class="config-seccion">
-                    <h3><i data-lucide="database"></i> Almacenamiento de datos</h3>
-                    <p class="config-ayuda">Elige dónde quieres guardar tu configuración.</p>
 
-                    <div class="storage-options">
-                        <label class="storage-option">
-                            <input type="radio" name="storage" value="local" checked>
-                            <div class="storage-card">
-                                <i data-lucide="hard-drive"></i>
-                                <div class="storage-info">
-                                    <span class="storage-nombre">Navegador (localStorage)</span>
-                                    <span class="storage-desc">Rápido y privado. Solo en este dispositivo.</span>
-                                </div>
-                            </div>
-                        </label>
-
-                        <label class="storage-option">
-                            <input type="radio" name="storage" value="github">
-                            <div class="storage-card">
-                                <i data-lucide="github"></i>
-                                <div class="storage-info">
-                                    <span class="storage-nombre">GitHub</span>
-                                    <span class="storage-desc">Sincroniza entre dispositivos. Compartible con amigos.</span>
-                                </div>
-                            </div>
-                        </label>
-
-                        <label class="storage-option">
-                            <input type="radio" name="storage" value="gdrive">
-                            <div class="storage-card">
-                                <i data-lucide="cloud"></i>
-                                <div class="storage-info">
-                                    <span class="storage-nombre">Google Drive</span>
-                                    <span class="storage-desc">Usa tu espacio de Drive. Sincronización automática.</span>
-                                </div>
-                            </div>
-                        </label>
-
-                        <label class="storage-option">
-                            <input type="radio" name="storage" value="other">
-                            <div class="storage-card">
-                                <i data-lucide="puzzle"></i>
-                                <div class="storage-info">
-                                    <span class="storage-nombre">Otra opción</span>
-                                    <span class="storage-desc">Dropbox, OneDrive, etc. (próximamente).</span>
-                                </div>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Campo para API Key de GitHub (se muestra si se elige GitHub) -->
-                <div class="config-seccion" id="githubConfig" style="display:none;">
-                    <h3><i data-lucide="key"></i> Configuración de GitHub</h3>
-                    <div class="config-campo">
-                        <label>Token de acceso personal (API Key)</label>
-                        <input type="password" id="githubToken" placeholder="ghp_...">
-                        <p class="config-ayuda">
-                            Puedes compartir este token con tus amigos para que todos usen el mismo repositorio.
-                        </p>
-                    </div>
-                    <div class="config-campo">
-                        <label>Repositorio (usuario/repo)</label>
-                        <input type="text" id="githubRepo" placeholder="tu-usuario/vicwebos-data">
-                    </div>
-                </div>
-
-                <div class="config-botones">
-                    <button class="btn-primario" id="btnGuardarConfig">
-                        <i data-lucide="save"></i>
-                        Guardar configuración
+            <div class="config-layout">
+                <!-- Navegación lateral -->
+                <nav class="config-nav">
+                    <button class="config-nav-item active" data-section="cuenta">
+                        <i data-lucide="user"></i>
+                        <span>Cuenta</span>
                     </button>
+                    <button class="config-nav-item" data-section="apps">
+                        <i data-lucide="package"></i>
+                        <span>Apps instaladas</span>
+                    </button>
+                    <button class="config-nav-item" data-section="bd">
+                        <i data-lucide="database"></i>
+                        <span>Base de datos</span>
+                    </button>
+                </nav>
+
+                <!-- Contenido -->
+                <div class="config-content">
+
+                    <!-- ===== PANEL: CUENTA ===== -->
+                    <section class="config-panel active" data-panel="cuenta">
+                        <div class="config-panel-header">
+                            <h3>Cuenta</h3>
+                            <p>Temas y ajustes de tu perfil</p>
+                        </div>
+
+                        <div class="config-field">
+                            <label>Nombre de usuario</label>
+                            <input type="text" id="cuentaNombre" placeholder="Tu nombre" value="Usuario">
+                        </div>
+
+                        <div class="config-field">
+                            <label>Tema de la interfaz</label>
+                            <div class="theme-selector">
+                                <button class="theme-option active" data-theme="light">
+                                    <div class="theme-preview theme-preview-light">
+                                        <div class="tp-header"></div>
+                                        <div class="tp-body">
+                                            <div class="tp-sidebar"></div>
+                                            <div class="tp-content"></div>
+                                        </div>
+                                    </div>
+                                    <span>Claro</span>
+                                </button>
+                                <button class="theme-option" data-theme="dark">
+                                    <div class="theme-preview theme-preview-dark">
+                                        <div class="tp-header"></div>
+                                        <div class="tp-body">
+                                            <div class="tp-sidebar"></div>
+                                            <div class="tp-content"></div>
+                                        </div>
+                                    </div>
+                                    <span>Oscuro</span>
+                                </button>
+                                <button class="theme-option" data-theme="auto">
+                                    <div class="theme-preview theme-preview-auto">
+                                        <div class="tp-header"></div>
+                                        <div class="tp-body">
+                                            <div class="tp-sidebar"></div>
+                                            <div class="tp-content"></div>
+                                        </div>
+                                    </div>
+                                    <span>Auto</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="config-field">
+                            <label>Idioma</label>
+                            <select class="config-select">
+                                <option>Español</option>
+                                <option>English</option>
+                                <option>Português</option>
+                            </select>
+                        </div>
+                    </section>
+
+                    <!-- ===== PANEL: APPS INSTALADAS ===== -->
+                    <section class="config-panel" data-panel="apps">
+                        <div class="config-panel-header">
+                            <h3>Apps instaladas</h3>
+                            <p>Estas apps aparecen en tu menú lateral</p>
+                        </div>
+
+                        <div id="appsInstaladasLista" class="apps-instaladas-lista"></div>
+
+                        <div class="config-info-box">
+                            <i data-lucide="info"></i>
+                            <span>Para instalar más apps, abre <strong>Stor-He</strong> desde el menú lateral.</span>
+                        </div>
+                    </section>
+
+                    <!-- ===== PANEL: BASE DE DATOS ===== -->
+                    <section class="config-panel" data-panel="bd">
+                        <div class="config-panel-header">
+                            <h3>Base de datos</h3>
+                            <p>Elige dónde se guardan tus datos</p>
+                        </div>
+
+                        <div class="storage-options">
+                            <label class="storage-option">
+                                <input type="radio" name="storage" value="local" checked>
+                                <div class="storage-card">
+                                    <div class="storage-icon">
+                                        <i data-lucide="hard-drive"></i>
+                                    </div>
+                                    <div class="storage-info">
+                                        <span class="storage-nombre">Navegador local</span>
+                                        <span class="storage-desc">Rápido y privado. Solo este dispositivo.</span>
+                                    </div>
+                                    <i data-lucide="check-circle-2" class="storage-check"></i>
+                                </div>
+                            </label>
+
+                            <label class="storage-option">
+                                <input type="radio" name="storage" value="github">
+                                <div class="storage-card">
+                                    <div class="storage-icon">
+                                        <i data-lucide="github"></i>
+                                    </div>
+                                    <div class="storage-info">
+                                        <span class="storage-nombre">GitHub</span>
+                                        <span class="storage-desc">Sincroniza entre dispositivos. Compartible con amigos.</span>
+                                    </div>
+                                    <i data-lucide="check-circle-2" class="storage-check"></i>
+                                </div>
+                            </label>
+
+                            <label class="storage-option">
+                                <input type="radio" name="storage" value="gdrive">
+                                <div class="storage-card">
+                                    <div class="storage-icon">
+                                        <i data-lucide="cloud"></i>
+                                    </div>
+                                    <div class="storage-info">
+                                        <span class="storage-nombre">Google Drive</span>
+                                        <span class="storage-desc">Usa tu espacio de Drive. Sincronización automática.</span>
+                                    </div>
+                                    <i data-lucide="check-circle-2" class="storage-check"></i>
+                                </div>
+                            </label>
+
+                            <label class="storage-option">
+                                <input type="radio" name="storage" value="other">
+                                <div class="storage-card">
+                                    <div class="storage-icon">
+                                        <i data-lucide="puzzle"></i>
+                                    </div>
+                                    <div class="storage-info">
+                                        <span class="storage-nombre">Otra opción</span>
+                                        <span class="storage-desc">Dropbox, OneDrive, etc. (próximamente).</span>
+                                    </div>
+                                    <i data-lucide="check-circle-2" class="storage-check"></i>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Config GitHub -->
+                        <div id="githubConfig" class="github-config" style="display:none;">
+                            <div class="config-info-box github-info">
+                                <i data-lucide="key"></i>
+                                <span>Crea un token en <strong>github.com/settings/tokens</strong> con permisos de <code>repo</code>.</span>
+                            </div>
+                            <div class="config-field">
+                                <label>Token de acceso personal</label>
+                                <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxx">
+                            </div>
+                            <div class="config-field">
+                                <label>Repositorio (usuario/repo)</label>
+                                <input type="text" id="githubRepo" placeholder="tu-usuario/vicwebos-data">
+                            </div>
+                            <p class="config-help">
+                                Comparte este token con tus amigos para que todos usen el mismo repositorio.
+                            </p>
+                        </div>
+                    </section>
+
                 </div>
+            </div>
+
+            <div class="config-footer">
+                <span class="config-footer-msg" id="configFooterMsg"></span>
+                <button class="btn-primario" id="btnGuardarConfig">
+                    <i data-lucide="save"></i>
+                    Guardar cambios
+                </button>
             </div>
         </div>
     </div>
 
-  
-        <!-- Scripts -->
+    <!-- Scripts -->
     <script src="js/JsRutas.js"></script>
     <script src="js/configuracion.js"></script>
-    <script src="js/JsIndex.js"></script>   <!-- ← añadir esta línea -->
-
-    <!-- Inicializar iconos Lucide -->
+    <script src="js/JsIndex.js"></script>
     <script>lucide.createIcons();</script>
 </body>
 </html>
