@@ -8,7 +8,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tema activo (intercambiable) -->
+    <link rel="stylesheet" href="Temas/violeta.css" id="tema-activo">
+
+    <!-- Layout base -->
     <link rel="stylesheet" href="style.css">
+
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
@@ -142,13 +148,11 @@
                             <p>Crea tu cuenta o entra con tu código</p>
                         </div>
 
-                        <!-- Aviso si no hay GitHub -->
                         <div id="cuentaRequiereGitHub" class="config-info-box" style="display:none;">
                             <i data-lucide="database"></i>
                             <span>Primero conecta tu <strong>base de datos en GitHub</strong> desde la pestaña "Base de datos".</span>
                         </div>
 
-                        <!-- Sin sesión -->
                         <div id="cuentaSinSesion">
                             <div class="cuenta-tabs">
                                 <button class="cuenta-tab active" data-tab="crear">
@@ -341,7 +345,10 @@
         </div>
     </div>
 
+    <!-- Scripts -->
     <script src="js/JsRutas.js"></script>
+    <script src="js/JsTemas.js"></script>
+    <script src="js/JsWidgets.js"></script>
     <script src="js/ConfigBD.js"></script>
     <script src="js/Cuenta.js"></script>
     <script src="js/configuracion.js"></script>
