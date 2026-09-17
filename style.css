@@ -744,6 +744,216 @@ body {
     border: 1px solid var(--violet-200);
 }
 
+/* ================================================
+   WIDGETS EN WELCOME
+   ================================================ */
+.widgets-zona {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 24px;
+    max-width: 900px;
+    position: relative;
+    z-index: 1;
+}
+.widget-item {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    width: 280px;
+    height: 220px;
+}
+.widget-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+/* ================================================
+   CONFIG: SECCIONES Y APARIENCIA
+   ================================================ */
+.config-subsection {
+    margin-bottom: 32px;
+}
+.config-subsection h4 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--gray-900);
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+}
+.config-subsection h4 [data-lucide] {
+    width: 16px;
+    height: 16px;
+    color: var(--violet-600);
+}
+.config-subsection .config-help {
+    margin-bottom: 12px;
+}
+
+/* Lista de temas */
+.config-temas-lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+}
+.config-tema-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    border: 2px solid var(--border);
+    border-radius: var(--r-md);
+    cursor: pointer;
+    transition: var(--t);
+    background: var(--white);
+    position: relative;
+}
+.config-tema-item:hover {
+    border-color: var(--violet-300);
+}
+.config-tema-item.activo {
+    border-color: var(--violet-500);
+    box-shadow: var(--shadow-glow);
+}
+.config-tema-item input {
+    display: none;
+}
+.config-tema-mini {
+    width: 100%;
+    height: 64px;
+    border-radius: var(--r-sm);
+    display: flex;
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+.config-tema-mini-sidebar {
+    width: 28%;
+}
+.config-tema-mini-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px;
+}
+.config-tema-mini-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+.config-tema-nombre {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--gray-800);
+}
+.config-tema-check {
+    color: var(--violet-600);
+    display: inline-flex;
+}
+.config-tema-check [data-lucide] {
+    width: 14px;
+    height: 14px;
+    stroke-width: 3;
+}
+
+/* Lista de widgets */
+.config-widgets-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.config-widget-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-md);
+    background: var(--white);
+    transition: var(--t);
+}
+.config-widget-item.activo {
+    border-color: var(--violet-400);
+    background: var(--violet-50);
+}
+.config-widget-icono {
+    width: 36px;
+    height: 36px;
+    background: var(--violet-50);
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--violet-600);
+    flex-shrink: 0;
+}
+.config-widget-item.activo .config-widget-icono {
+    background: var(--white);
+}
+.config-widget-icono [data-lucide] {
+    width: 16px;
+    height: 16px;
+}
+.config-widget-info {
+    flex: 1;
+    min-width: 0;
+}
+.config-widget-nombre {
+    display: block;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--gray-900);
+}
+.config-widget-desc {
+    display: block;
+    font-size: 11.5px;
+    color: var(--gray-500);
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.config-widget-toggle {
+    background: none;
+    border: none;
+    padding: 4px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--gray-500);
+    display: flex;
+    align-items: center;
+    transition: var(--t-fast);
+}
+.config-widget-toggle:hover {
+    color: var(--violet-600);
+    background: var(--violet-50);
+}
+.config-widget-item.activo .config-widget-toggle {
+    color: var(--violet-600);
+}
+.config-widget-toggle [data-lucide] {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2;
+}
+
+@media (max-width: 500px) {
+    .widget-item { width: 100%; }
+}
+
+
 /* ========== RESPONSIVE ========== */
 @media (max-width: 900px) {
     .info-local { display: none; }
