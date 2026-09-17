@@ -1,15 +1,16 @@
 // ============================================================
-//  configuracion.js — Config + gestión de apps instaladas
+//  configuracion.js — Configuración general del WebOS
+//  - Modal, navegación entre secciones
+//  - Panel "Configuración": placeholder
+//  - Panel "Apps instaladas": listado y desinstalar
+//  (Base de datos se maneja en ConfigBD.js)
 // ============================================================
 
 const CONFIG_KEY = 'vicwebos_config';
 
 const DEFAULT_CONFIG = {
-    storage: 'local',
-    githubToken: '',
-    githubRepo: '',
     theme: 'light',
-    appsInstaladas: ['stor-he']   // por defecto solo Stor-He
+    appsInstaladas: ['stor-he']
 };
 
 // ---------- CARGAR / GUARDAR ----------
@@ -29,8 +30,7 @@ function guardarConfiguracion(config) {
 
 // ---------- GESTIÓN DE APPS ----------
 function obtenerAppsInstaladas() {
-    const config = cargarConfiguracion();
-    return config.appsInstaladas || [];
+    return cargarConfiguracion().appsInstaladas || [];
 }
 
 function estaInstalada(id) {
@@ -46,77 +46,52 @@ function instalarApp(id) {
 }
 
 function desinstalarApp(id) {
-    // No se puede desinstalar una app base
     const catalogo = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
     const app = catalogo.find(a => a.id === id);
-    if (app && app.esBase) {
-        throw new Error('Esta app es del sistema y no se puede desinstalar.');
-    }
+    if (app && app.esBase) throw new Error('Esta app es del sistema y no se puede desinstalar.');
 
     const config = cargarConfiguracion();
     config.appsInstaladas = config.appsInstaladas.filter(a => a !== id);
     guardarConfiguracion(config);
 }
 
-// ---------- GITHUB API ----------
-async function guardarEnGitHub(config) {
-    const { githubToken, githubRepo } = config;
-    if (!githubToken || !githubRepo) throw new Error('Falta token o repo');
-
-    const [owner, repo] = githubRepo.split('/');
-    const path = 'vicwebos-data.json';
-    const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
-
-    let sha = null;
-    try {
-        const res = await fetch(apiUrl, { headers: { Authorization: `Bearer ${githubToken}` } });
-        if (res.ok) sha = (await res.json()).sha;
-    } catch (e) {}
-
-    const body = {
-        message: 'Actualizar datos de VicWebOs',
-        content: btoa(unescape(encodeURIComponent(JSON.stringify(config, null, 2)))),
-        sha
-    };
-
-    const res = await fetch(apiUrl, {
-        method: 'PUT',
-        headers: { Authorization: `Bearer ${githubToken}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-    });
-
-    if (!res.ok) throw new Error((await res.json()).message || 'Error GitHub');
-    return await res.json();
-}
-
-async function guardarEnGoogleDrive() {
-    throw new Error('Google Drive aún no implementado');
-}
-
-// ---------- UI DE CONFIGURACIÓN ----------
+// ============================================================
+//  UI DE CONFIGURACIÓN
+// ============================================================
 document.addEventListener('DOMContentLoaded', () => {
-    const btnConfig       = document.getElementById('btnConfig');
-    const configOverlay   = document.getElementById('configOverlay');
-    const btnCerrarConfig = document.getElementById('btnCerrarConfig');
-    const btnGuardarConfig= document.getElementById('btnGuardarConfig');
-    const githubConfig    = document.getElementById('githubConfig');
-    const githubToken     = document.getElementById('githubToken');
-    const githubRepo      = document.getElementById('githubRepo');
-    const appsLista       = document.getElementById('appsInstaladasLista');
+    const btnConfig        = document.getElementById('btnConfig');
+    const configOverlay    = document.getElementById('configOverlay');
+    const btnCerrarConfig  = document.getElementById('btnCerrarConfig');
+    const btnGuardarConfig = document.getElementById('btnGuardarConfig');
+    const appsLista        = document.getElementById('appsInstaladasLista');
+    const footerMsg        = document.getElementById('configFooterMsg');
+    const githubToken      = document.getElementById('githubToken');
+    const githubRepo       = document.getElementById('githubRepo');
+    const githubConfig     = document.getElementById('githubConfig');
 
     if (!btnConfig || !configOverlay) return;
 
+    // ---------- NAVEGACIÓN ENTRE SECCIONES ----------
+    document.querySelectorAll('.config-nav-item').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const seccion = btn.dataset.section;
+            document.querySelectorAll('.config-nav-item').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.config-panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            const panel = document.querySelector(`.config-panel[data-panel="${seccion}"]`);
+            if (panel) panel.classList.add('active');
+        });
+    });
+
+    // ---------- RENDER APPS INSTALADAS ----------
     function renderAppsInstaladas() {
         if (!appsLista) return;
         const catalogo = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
         const instaladas = obtenerAppsInstaladas();
 
-        if (instaladas.length === 0) {
-            appsLista.innerHTML = `<p class="config-ayuda">No tienes apps instaladas.</p>`;
-            return;
-        }
-
         appsLista.innerHTML = '';
+        if (instaladas.length === 0) return;
+
         instaladas.forEach(id => {
             const app = catalogo.find(a => a.id === id);
             if (!app) return;
@@ -124,12 +99,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const item = document.createElement('div');
             item.className = 'app-instalada-item';
             item.innerHTML = `
-                <div class="app-instalada-info">
+                <div class="app-instalada-icono">
                     <i data-lucide="${app.icono || 'circle'}"></i>
-                    <div>
-                        <span class="app-instalada-nombre">${app.nombre}</span>
-                        <span class="app-instalada-desc">${app.descripcion || ''}</span>
-                    </div>
+                </div>
+                <div class="app-instalada-info">
+                    <span class="app-instalada-nombre">${app.nombre}</span>
+                    <span class="app-instalada-desc">${app.descripcion || ''}</span>
                 </div>
                 ${app.esBase
                     ? '<span class="app-base-tag">Sistema</span>'
@@ -148,7 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     desinstalarApp(btn.dataset.id);
                     renderAppsInstaladas();
-                    // Refrescar sidebar si está disponible
                     if (typeof renderSidebar === 'function') {
                         const s = document.getElementById('searchInput');
                         renderSidebar(s ? s.value : '');
@@ -160,48 +134,52 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // ---------- ABRIR CONFIG ----------
     btnConfig.addEventListener('click', () => {
-        const config = cargarConfiguracion();
-        document.querySelectorAll('input[name="storage"]').forEach(r => {
-            r.checked = r.value === config.storage;
-        });
-        githubConfig.style.display = config.storage === 'github' ? 'block' : 'none';
-        githubToken.value = config.githubToken || '';
-        githubRepo.value = config.githubRepo || '';
+        // Sincronizar los inputs de BD con la config guardada
+        if (typeof cargarConfigBD === 'function') {
+            const bdConfig = cargarConfigBD();
+            document.querySelectorAll('input[name="storage"]').forEach(r => {
+                r.checked = r.value === bdConfig.tipo;
+            });
+            githubConfig.style.display = bdConfig.tipo === 'github' ? 'block' : 'none';
+            if (githubToken) githubToken.value = bdConfig.githubToken || '';
+            if (githubRepo)  githubRepo.value  = bdConfig.githubRepo  || '';
+        }
+
+        // Reset a la sección "Configuración"
+        document.querySelectorAll('.config-nav-item').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.config-panel').forEach(p => p.classList.remove('active'));
+        document.querySelector('.config-nav-item[data-section="cuenta"]')?.classList.add('active');
+        document.querySelector('.config-panel[data-panel="cuenta"]')?.classList.add('active');
+
+        if (footerMsg) footerMsg.textContent = '';
         renderAppsInstaladas();
         configOverlay.style.display = 'flex';
         lucide.createIcons();
     });
 
+    // ---------- CERRAR ----------
     btnCerrarConfig.addEventListener('click', () => configOverlay.style.display = 'none');
     configOverlay.addEventListener('click', (e) => {
         if (e.target === configOverlay) configOverlay.style.display = 'none';
     });
 
-    document.querySelectorAll('input[name="storage"]').forEach(r => {
-        r.addEventListener('change', (e) => {
-            githubConfig.style.display = e.target.value === 'github' ? 'block' : 'none';
-        });
-    });
-
+    // ---------- GUARDAR ----------
     btnGuardarConfig.addEventListener('click', async () => {
-        const storage = document.querySelector('input[name="storage"]:checked')?.value || 'local';
-        const config = cargarConfiguracion();
-        config.storage = storage;
-        config.githubToken = githubToken.value.trim();
-        config.githubRepo = githubRepo.value.trim();
+        const storageElegido = document.querySelector('input[name="storage"]:checked')?.value || 'indexeddb';
 
-        try {
-            if (storage === 'github') {
-                await guardarEnGitHub(config);
-            } else if (storage === 'gdrive') {
-                await guardarEnGoogleDrive(config);
-            }
-            guardarConfiguracion(config);
-            alert('✅ Configuración guardada');
-            configOverlay.style.display = 'none';
-        } catch (err) {
-            alert('❌ Error: ' + err.message);
+        // Guardar config BD (la parte general; ConfigBD.js ya guardó token/repo al conectar)
+        if (typeof cargarConfigBD === 'function') {
+            const bdConfig = cargarConfigBD();
+            bdConfig.tipo = storageElegido;
+            guardarConfigBD(bdConfig);
         }
+
+        if (footerMsg) footerMsg.textContent = '✅ Cambios guardados';
+        setTimeout(() => {
+            configOverlay.style.display = 'none';
+            if (footerMsg) footerMsg.textContent = '';
+        }, 900);
     });
 });
