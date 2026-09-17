@@ -194,7 +194,7 @@ async function comprarFuncion(id) {
     if (!confirmado) return;
 
     try {
-        await api.gastoBoleta('calc', 'calculadora', `Función ${nombre}`, precio);
+        await api.gastoBoleta('calculator', 'calculadora', `Función ${nombre}`, precio);
         compras[id] = true;
         await guardarCompras();
         actualizarUIFunciones();
