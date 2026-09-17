@@ -1,0 +1,51 @@
+/* ================================================
+   Tema: Vapor
+   Fondo negro con paleta vaporwave.
+   Nostalgia de los 80s.
+   ================================================ */
+
+:root {
+    /* Acento rosa vapor */
+    --violet-50:  #1E0F30;
+    --violet-100: #2A1A44;
+    --violet-200: #4A2A6E;
+    --violet-300: #C084FC;
+    --violet-400: #E879F9;
+    --violet-500: #F472B6;
+    --violet-600: #DB2777;
+    --violet-700: #BE185D;
+
+    /* Neutros oscuros con tinte violeta */
+    --white:   #0F0818;
+    --bg:      #0A0510;
+    --bg-alt:  #150A22;
+    --gray-50:  #150A22;
+    --gray-100: #1E0F30;
+    --gray-200: #2A1A3E;
+    --gray-300: #3E2A56;
+    --gray-400: #6E4A8E;
+    --gray-500: #9A7AB0;
+    --gray-600: #B8A0CC;
+    --gray-700: #D0C0E0;
+    --gray-800: #E5DAF0;
+    --gray-900: #F5F0FF;
+
+    --border:  #2A1A3E;
+    --text:    #F5F0FF;
+    --text-2:  #B8A0CC;
+    --text-3:  #9A7AB0;
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.7);
+    --shadow-glow: 0 0 0 4px rgba(244, 114, 182, 0.20);
+
+    /* Acento: rosa → violeta → cyan (clásico vaporwave) */
+    --accent-gradient: linear-gradient(135deg, #F472B6, #A855F7, #22D3EE);
+    --accent-gradient-hover: linear-gradient(135deg, #FB7BB8, #B873F0, #38D8E8);
+    --accent-shadow: rgba(244, 114, 182, 0.35);
+    --accent-shadow-hover: rgba(244, 114, 182, 0.55);
+    --accent-text-gradient: linear-gradient(135deg, #22D3EE, #F472B6);
+}
