@@ -247,7 +247,6 @@ body {
 .nav-item:hover .nav-icon { color: var(--violet-500); }
 .nav-item.active .nav-icon { color: var(--violet-600); }
 
-/* Overlay del drawer móvil: por defecto oculto */
 .sidebar-overlay {
     display: none;
     position: fixed;
@@ -323,6 +322,8 @@ body {
 .welcome-placeholder {
     width: 100%;
     height: 100%;
+    /* overflow-x: hidden evita el scroll horizontal que provocaba .welcome-glow */
+    overflow-x: hidden;
     overflow-y: auto;
     background: var(--white);
     position: relative;
@@ -352,9 +353,13 @@ body {
     text-align: center;
     gap: 16px;
     max-width: 620px;
+    width: 100%;
     position: relative;
     z-index: 1;
     padding-top: 20px;
+    /* Defensa: nunca desbordar por texto largo */
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .welcome-icon-wrap {
@@ -408,6 +413,7 @@ body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    max-width: 100%;
 }
 
 .welcome-hero p {
@@ -1139,20 +1145,17 @@ body {
     .sidebar { width: 220px; min-width: 220px; }
 }
 
-/* --- Ocultar info densa del header --- */
-@media (max-width: 900px) {
-    .info-local { display: none; }
-    .search-kbd { display: none; }
-}
-
 /* --- Móvil: drawer, header en 2 filas, tabs horizontales --- */
 @media (max-width: 768px) {
 
-    /* --- Header en grid de 2 filas --- */
+    /* --- Header en grid: fila 1 = left + right, fila 2 = search --- */
     .app-header {
         display: grid;
-        grid-template-columns: auto 1fr auto;
+        grid-template-columns: auto 1fr;
         grid-template-rows: auto auto;
+        grid-template-areas:
+            "left right"
+            "search search";
         height: auto;
         min-height: 56px;
         padding: 8px 12px;
@@ -1161,26 +1164,45 @@ body {
     }
     .mobile-menu-btn { display: flex; }
     .header-left {
-        grid-column: 1 / 3;
-        grid-row: 1;
+        grid-area: left;
         gap: 6px;
     }
+    .header-right {
+        grid-area: right;
+        justify-self: end;
+        margin-left: 0;
+        gap: 8px;
+    }
     .search-bar {
-        grid-column: 1 / -1;
-        grid-row: 2;
+        grid-area: search;
         max-width: none;
         width: 100%;
         height: 38px;
     }
-    .header-right {
-        grid-column: 3;
-        grid-row: 1;
-        justify-self: end;
-        margin-left: 0;
-    }
     .avatar-config {
         width: 36px;
         height: 36px;
+    }
+
+    /* --- info-local compacto: hora + clima, sin monedas --- */
+    .info-local {
+        display: flex;
+        padding: 5px 10px;
+        gap: 6px;
+        font-size: 11px;
+        border-radius: var(--r-md);
+    }
+    /* Ocultar el 2º divisor y las monedas (van en Cuenta) */
+    .info-local > .divider-dot:nth-child(4),
+    .info-local > .monedas-local {
+        display: none;
+    }
+    .info-icon, .clima-icon {
+        width: 12px;
+        height: 12px;
+    }
+    .hora-texto, .temp-texto {
+        font-size: 11px;
     }
 
     /* --- Sidebar como drawer --- */
@@ -1258,12 +1280,13 @@ body {
     .tab-item .tab-close { opacity: 1; padding: 6px; }
     .tab-item .tab-close [data-lucide] { width: 13px; height: 13px; }
 
-    /* --- Welcome --- */
+    /* --- Welcome sin scroll horizontal --- */
     .welcome-placeholder {
         padding: 36px 20px 56px;
         gap: 30px;
+        overflow-x: hidden;
     }
-    .welcome-hero { padding-top: 8px; }
+    .welcome-hero { padding-top: 8px; max-width: 100%; }
     .welcome-hero h1 { font-size: 26px; }
     .welcome-hero p  { font-size: 14px; }
     .welcome-icon-wrap { width: 72px; height: 72px; border-radius: 20px; }
@@ -1292,33 +1315,43 @@ body {
         gap: 8px;
     }
 
-    /* --- Config: nav horizontal tipo tabs --- */
+    /* --- Config: nav como grid de 4 columnas (siempre visibles) --- */
     .config-layout { flex-direction: column; }
     .config-nav {
         width: 100%;
-        flex-direction: row;
-        overflow-x: auto;
-        overflow-y: hidden;
-        padding: 8px 12px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
         gap: 4px;
+        padding: 8px;
         border-right: none;
         border-bottom: 1px solid var(--border);
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
+        overflow: visible;
         flex-shrink: 0;
     }
-    .config-nav::-webkit-scrollbar { display: none; }
     .config-nav-item {
         flex-direction: column;
-        gap: 4px;
-        padding: 8px 12px;
-        min-width: 76px;
-        flex-shrink: 0;
-        font-size: 10.5px;
-        text-align: center;
+        gap: 3px;
+        padding: 8px 4px;
+        border-radius: 10px;
+        font-size: 10px;
         font-weight: 700;
+        text-align: center;
+        align-items: center;
+        justify-content: center;
+        line-height: 1.1;
+        min-height: 56px;
     }
     .config-nav-item [data-lucide] { width: 18px; height: 18px; }
+    .config-nav-item span {
+        display: block;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 1.15;
+        white-space: normal;
+        word-break: break-word;
+        hyphens: auto;
+        max-width: 100%;
+    }
     .config-content { padding: 18px 16px; }
 
     /* --- Config footer --- */
@@ -1363,6 +1396,11 @@ body {
     .avatar-config { width: 34px; height: 34px; }
     .search-bar { height: 36px; padding: 0 10px; }
 
+    /* Info compacto aún más pequeño */
+    .info-local { padding: 4px 8px; gap: 5px; font-size: 10.5px; }
+    .info-icon, .clima-icon { width: 11px; height: 11px; }
+    .hora-texto, .temp-texto { font-size: 10.5px; }
+
     .sidebar { width: 260px; max-width: 82vw; }
 
     .tab-bar { min-height: 46px; padding: 5px 10px 0; }
@@ -1392,7 +1430,9 @@ body {
     .modal-todas-card, .config-card { max-height: 94dvh; }
     .modal-categoria-grid { grid-template-columns: 1fr; }
     .config-content { padding: 16px 14px; }
-    .config-nav-item { min-width: 68px; padding: 7px 10px; }
-    .config-nav-item span { font-size: 10px; }
+    .config-nav { padding: 6px; gap: 3px; }
+    .config-nav-item { min-height: 52px; padding: 6px 2px; }
+    .config-nav-item [data-lucide] { width: 16px; height: 16px; }
+    .config-nav-item span { font-size: 9.5px; }
     .config-panel-header h3 { font-size: 15px; }
 }
