@@ -3,7 +3,6 @@
    Los colores vienen de Temas/{nombre}.css
    ================================================ */
 
-/* Fallback por si el tema no carga. El tema lo sobreescribe. */
 :root {
     --violet-50:#F5F3FF; --violet-100:#EDE9FE; --violet-200:#DDD6FE;
     --violet-300:#C4B5FD; --violet-400:#A78BFA; --violet-500:#8B5CF6;
@@ -1021,6 +1020,22 @@ body {
     background: var(--white); padding: 3px 9px;
     border-radius: 6px; letter-spacing: 0.05em;
     border: 1px solid var(--violet-200);
+}
+
+/* ========== MONEDAS EN EL HEADER ========== */
+.monedas-local {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.monedas-local .info-icon {
+    color: #F59E0B;
+}
+.monedas-texto {
+    color: var(--gray-900);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+    font-weight: 800;
 }
 
 /* ========== RESPONSIVE ========== */
