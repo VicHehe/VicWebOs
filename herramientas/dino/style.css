@@ -1,6 +1,8 @@
 /* ================================================
    Dino — Estilos
    Juego runner con recompensas. Compatible con temas.
+   En PC: pantalla con presencia + game over destacado.
+   En móvil: layout compacto (sin cambios).
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -33,12 +35,12 @@ body {
 .dn-container {
     height: 100%;
     height: 100dvh;
-    max-width: 1000px;
+    max-width: 1180px;
     margin: 0 auto;
-    padding: 18px 20px;
+    padding: 24px 32px 20px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
     overflow: hidden;
 }
 
@@ -48,32 +50,34 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: 16px;
 }
 
 .dn-logo {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     min-width: 0;
 }
 
 .dn-logo-mark {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
-    border-radius: 11px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    box-shadow: 0 8px 20px var(--accent-shadow, rgba(139,92,246,0.28));
+    box-shadow:
+        0 10px 24px var(--accent-shadow, rgba(139,92,246,0.28)),
+        inset 0 0 0 1px rgba(255,255,255,0.15);
     flex-shrink: 0;
 }
-.dn-logo-mark [data-lucide] { width: 20px; height: 20px; stroke-width: 2.5; }
+.dn-logo-mark [data-lucide] { width: 24px; height: 24px; stroke-width: 2.5; }
 
 .dn-logo-text h1 {
-    font-size: 19px;
+    font-size: 24px;
     font-weight: 800;
     letter-spacing: -0.03em;
     background: var(--accent-text-gradient, linear-gradient(135deg, #18181B, #7C3AED));
@@ -84,36 +88,50 @@ body {
     line-height: 1.15;
 }
 .dn-logo-text p {
-    font-size: 11.5px;
+    font-size: 12.5px;
     color: var(--gray-500, #71717A);
     font-weight: 600;
-    margin-top: 2px;
+    margin-top: 3px;
 }
 
 .dn-record {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 1px;
+    align-items: center;
+    gap: 10px;
     background: var(--violet-50, #F5F3FF);
-    border: 1px solid var(--violet-200, #DDD6FE);
+    border: 1.5px solid var(--violet-200, #DDD6FE);
     border-radius: var(--r-md, 12px);
-    padding: 6px 14px;
+    padding: 8px 16px;
     flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+}
+.dn-record::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent-gradient);
+    opacity: 0.05;
+    pointer-events: none;
 }
 .dn-record-label {
-    font-size: 9.5px;
+    font-size: 10px;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
     color: var(--gray-500, #71717A);
+    position: relative;
+    z-index: 1;
 }
 .dn-record-valor {
-    font-size: 17px;
+    font-size: 20px;
     font-weight: 800;
     color: var(--violet-700, #6D28D9);
     font-variant-numeric: tabular-nums;
-    line-height: 1.1;
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+    letter-spacing: -0.02em;
 }
 
 /* ========== HUD ========== */
@@ -123,51 +141,68 @@ body {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 0 2px;
+    padding: 0 4px;
 }
 
 .dn-hud-puntos {
     display: flex;
     align-items: baseline;
-    gap: 8px;
+    gap: 10px;
 }
 .dn-hud-label {
     font-size: 11px;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
     color: var(--gray-500, #71717A);
 }
 .dn-hud-valor {
-    font-size: 22px;
+    font-size: 26px;
     font-weight: 800;
     color: var(--gray-900, #18181B);
     font-variant-numeric: tabular-nums;
     line-height: 1;
+    letter-spacing: -0.02em;
 }
 
 .dn-hud-monedas {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     background: var(--violet-50, #F5F3FF);
-    border: 1px solid var(--violet-200, #DDD6FE);
+    border: 1.5px solid var(--violet-200, #DDD6FE);
     border-radius: var(--r-md, 12px);
-    padding: 5px 12px;
+    padding: 8px 16px;
+    position: relative;
+    overflow: hidden;
+}
+.dn-hud-monedas::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent-gradient);
+    opacity: 0.05;
+    pointer-events: none;
 }
 .dn-hud-icono {
-    width: 15px;
-    height: 15px;
+    width: 18px;
+    height: 18px;
     color: #F59E0B;
+    position: relative;
+    z-index: 1;
 }
 .dn-hud-monedas .dn-hud-valor {
-    font-size: 17px;
+    font-size: 20px;
     color: var(--violet-700, #6D28D9);
+    position: relative;
+    z-index: 1;
 }
 .dn-hud-monedas .dn-hud-label {
-    font-size: 10px;
+    font-size: 11px;
     text-transform: lowercase;
     letter-spacing: 0;
+    position: relative;
+    z-index: 1;
 }
 
 /* ========== CANVAS ========== */
@@ -175,13 +210,40 @@ body {
     flex: 1;
     min-height: 0;
     position: relative;
-    background: var(--gray-50, #FAFAFB);
+    background:
+        radial-gradient(
+            ellipse at 50% 0%,
+            var(--violet-50, #F5F3FF) 0%,
+            var(--gray-50, #FAFAFB) 60%
+        );
     border: 1.5px solid var(--border, #E8E8EE);
-    border-radius: var(--r-lg, 16px);
+    border-radius: var(--r-xl, 20px);
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow:
+        inset 0 2px 8px rgba(0,0,0,0.03),
+        inset 0 -1px 0 rgba(0,0,0,0.04);
+}
+
+/* Sutil glow superior, tipo "reflejo de pantalla" */
+.dn-canvas-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        var(--violet-300, #C4B5FD) 50%,
+        transparent 100%
+    );
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 2;
 }
 
 #dnCanvas {
@@ -190,6 +252,8 @@ body {
     height: 100%;
     object-fit: contain;
     image-rendering: pixelated;
+    position: relative;
+    z-index: 1;
 }
 
 /* ========== OVERLAY (start / game over) ========== */
@@ -197,12 +261,12 @@ body {
     position: absolute;
     inset: 0;
     background: rgba(24, 24, 27, 0.55);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 24px;
     z-index: 10;
     animation: dnFade 0.2s ease;
 }
@@ -215,106 +279,178 @@ body {
 
 .dn-overlay-card {
     background: var(--white, #FFFFFF);
-    border-radius: var(--r-xl, 20px);
-    padding: 24px 26px;
-    max-width: 380px;
+    border-radius: 24px;
+    padding: 32px 36px 28px;
+    max-width: 440px;
     width: 100%;
     text-align: center;
-    box-shadow: 0 24px 48px rgba(0,0,0,0.25);
-    animation: dnZoom 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow:
+        0 32px 64px rgba(0,0,0,0.3),
+        0 0 0 1px rgba(255,255,255,0.1) inset;
+    animation: dnZoom 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
 }
 
+/* Glow radial sutil en el overlay card */
+.dn-overlay-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(
+        circle,
+        var(--violet-100, #EDE9FE) 0%,
+        transparent 60%
+    );
+    opacity: 0.6;
+    pointer-events: none;
+    z-index: 0;
+}
+.dn-overlay-card > * { position: relative; z-index: 1; }
+
 @keyframes dnZoom {
-    from { opacity: 0; transform: scale(0.94) translateY(8px); }
+    from { opacity: 0; transform: scale(0.9) translateY(12px); }
     to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .dn-overlay-icono {
-    width: 56px;
-    height: 56px;
+    width: 72px;
+    height: 72px;
     background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
-    border-radius: 16px;
+    border-radius: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    margin: 0 auto 14px;
-    box-shadow: 0 8px 20px var(--accent-shadow, rgba(139,92,246,0.28));
+    margin: 0 auto 18px;
+    box-shadow:
+        0 12px 32px var(--accent-shadow, rgba(139,92,246,0.35)),
+        inset 0 0 0 1px rgba(255,255,255,0.15);
+    position: relative;
 }
-.dn-overlay-icono [data-lucide] { width: 26px; height: 26px; stroke-width: 2.25; }
+.dn-overlay-icono::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 28px;
+    background: var(--accent-gradient);
+    opacity: 0.2;
+    filter: blur(16px);
+    z-index: -1;
+}
+.dn-overlay-icono [data-lucide] {
+    width: 34px;
+    height: 34px;
+    stroke-width: 2.25;
+}
 
 .dn-overlay-icono-error {
     background: linear-gradient(135deg, #EF4444, #B91C1C);
-    box-shadow: 0 8px 20px rgba(239,68,68,0.3);
+    box-shadow:
+        0 12px 32px rgba(239,68,68,0.35),
+        inset 0 0 0 1px rgba(255,255,255,0.15);
+}
+.dn-overlay-icono-error::after {
+    background: linear-gradient(135deg, #EF4444, #B91C1C);
+    opacity: 0.25;
 }
 
 .dn-overlay-card h2 {
-    font-size: 20px;
+    font-size: 26px;
     font-weight: 800;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
     color: var(--gray-900, #18181B);
-    margin: 0 0 6px;
+    margin: 0 0 8px;
+    line-height: 1.15;
 }
 
 .dn-overlay-card p {
-    font-size: 13px;
+    font-size: 14px;
     color: var(--gray-500, #71717A);
-    line-height: 1.5;
-    margin: 0 0 18px;
+    line-height: 1.55;
+    margin: 0 0 22px;
+    max-width: 340px;
+    margin-left: auto;
+    margin-right: auto;
 }
 .dn-overlay-card kbd {
     font-family: inherit;
-    font-size: 11px;
+    font-size: 11.5px;
     font-weight: 800;
     background: var(--gray-100, #F4F4F7);
     border: 1px solid var(--border, #E8E8EE);
-    border-radius: 4px;
-    padding: 1px 6px;
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    padding: 2px 7px;
     color: var(--gray-700, #3F3F46);
+    display: inline-block;
+    line-height: 1.2;
 }
 
 /* ========== RESUMEN GAME OVER ========== */
 .dn-go-resumen {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 0;
     background: var(--gray-50, #FAFAFB);
-    border: 1px solid var(--border, #E8E8EE);
-    border-radius: var(--r-md, 12px);
-    padding: 14px 16px;
-    margin-bottom: 18px;
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 16px;
+    padding: 6px 20px;
+    margin-bottom: 22px;
 }
 
 .dn-go-fila {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
-    font-size: 13px;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border, #E8E8EE);
+    font-size: 14px;
 }
+.dn-go-fila:last-child { border-bottom: none; }
+
 .dn-go-label {
     color: var(--gray-600, #52525B);
     font-weight: 700;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+    font-size: 13.5px;
 }
-.dn-go-label [data-lucide] { width: 14px; height: 14px; }
+.dn-go-label [data-lucide] { width: 16px; height: 16px; }
 .dn-go-valor {
     color: var(--gray-900, #18181B);
     font-weight: 800;
     font-variant-numeric: tabular-nums;
-    font-size: 15px;
+    font-size: 20px;
+    letter-spacing: -0.02em;
+    line-height: 1;
 }
 
-.dn-go-destacada {
-    padding-top: 8px;
-    border-top: 1px solid var(--border, #E8E8EE);
+.dn-go-destacada .dn-go-label {
+    color: var(--gray-800, #27272A);
+    font-weight: 800;
 }
-.dn-go-destacada .dn-go-label { color: var(--gray-800, #27272A); }
 .dn-go-monedas {
-    font-size: 18px;
+    font-size: 26px !important;
+    color: #F59E0B !important;
+    text-shadow: 0 0 20px rgba(245, 158, 11, 0.35);
+}
+
+/* La fila de récord (solo aparece si superaste tu marca) */
+#dnGoRecordFila .dn-go-label {
+    color: #B45309;
+}
+#dnGoRecordFila .dn-go-label [data-lucide] {
     color: #F59E0B;
+}
+#dnGoRecordFila .dn-go-valor {
+    color: #B45309;
 }
 
 /* ========== BOTÓN PRIMARIO ========== */
@@ -322,35 +458,49 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 11px 22px;
+    gap: 10px;
+    padding: 15px 28px;
     border: none;
     border-radius: var(--r-md, 12px);
     font-family: inherit;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 800;
     cursor: pointer;
     background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
     color: white;
-    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
+    box-shadow:
+        0 6px 20px var(--accent-shadow, rgba(139,92,246,0.35)),
+        inset 0 1px 0 rgba(255,255,255,0.2);
     transition: all 0.15s;
     width: 100%;
     touch-action: manipulation;
+    letter-spacing: -0.01em;
 }
 .dn-btn-primario:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px var(--accent-shadow-hover, rgba(139,92,246,0.38));
+    transform: translateY(-2px);
+    box-shadow:
+        0 10px 28px var(--accent-shadow-hover, rgba(139,92,246,0.5)),
+        inset 0 1px 0 rgba(255,255,255,0.2);
 }
-.dn-btn-primario:active { transform: translateY(0); }
-.dn-btn-primario [data-lucide] { width: 16px; height: 16px; }
+.dn-btn-primario:active {
+    transform: translateY(0);
+    box-shadow:
+        0 4px 12px var(--accent-shadow, rgba(139,92,246,0.35)),
+        inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.dn-btn-primario [data-lucide] {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2.5;
+}
 
 /* ========== BARRA DE PROGRESO ========== */
 .dn-progreso {
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    padding: 10px 14px;
+    gap: 8px;
+    padding: 14px 20px;
     background: var(--gray-50, #FAFAFB);
     border: 1.5px solid var(--border, #E8E8EE);
     border-radius: var(--r-md, 12px);
@@ -365,30 +515,31 @@ body {
 .dn-progreso-label {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    font-size: 11.5px;
+    gap: 7px;
+    font-size: 12px;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     color: var(--gray-600, #52525B);
 }
 .dn-progreso-label [data-lucide] {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     color: var(--violet-500, #8B5CF6);
 }
 .dn-progreso-meta {
-    font-size: 11.5px;
+    font-size: 13px;
     font-weight: 800;
     color: var(--violet-700, #6D28D9);
     font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
 }
 
 .dn-progreso-barra {
     position: relative;
-    height: 12px;
+    height: 14px;
     background: var(--white, #FFFFFF);
-    border: 1px solid var(--border, #E8E8EE);
+    border: 1.5px solid var(--border, #E8E8EE);
     border-radius: 999px;
     overflow: hidden;
 }
@@ -400,29 +551,48 @@ body {
     height: 100%;
     background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
     border-radius: 999px;
-    transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 0 8px var(--accent-shadow, rgba(139,92,246,0.4));
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 12px var(--accent-shadow, rgba(139,92,246,0.5));
+    position: relative;
+}
+/* Brillo sutil encima del fill */
+.dn-progreso-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.35),
+        transparent
+    );
+    border-radius: 999px 999px 0 0;
+    pointer-events: none;
 }
 
 .dn-progreso-marcas {
     position: absolute;
     inset: 0;
     pointer-events: none;
+    z-index: 2;
 }
 .dn-progreso-marca {
     position: absolute;
-    top: 0;
-    bottom: 0;
+    top: 2px;
+    bottom: 2px;
     width: 1px;
     background: var(--border, #E8E8EE);
     transform: translateX(-0.5px);
+    transition: background 0.2s;
 }
 .dn-progreso-marca.llena {
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.6);
 }
 
 .dn-progreso-info {
-    font-size: 11px;
+    font-size: 11.5px;
     color: var(--gray-500, #71717A);
     text-align: center;
     font-weight: 600;
@@ -435,16 +605,16 @@ body {
 /* ========== TOAST ========== */
 .dn-toast {
     position: fixed;
-    bottom: 20px;
+    bottom: 24px;
     left: 50%;
     transform: translateX(-50%) translateY(100px);
     background: var(--gray-900, #18181B);
     color: white;
-    padding: 11px 20px;
+    padding: 13px 24px;
     border-radius: 999px;
-    font-size: 13px;
+    font-size: 13.5px;
     font-weight: 700;
-    box-shadow: 0 12px 32px rgba(0,0,0,0.2);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.25);
     opacity: 0;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     pointer-events: none;
@@ -460,7 +630,24 @@ body {
 .dn-toast.error   { background: #991B1B; }
 .dn-toast.info    { background: var(--violet-700, #6D28D9); }
 
-/* ========== RESPONSIVE ========== */
+/* ================================================
+   RESPONSIVE — Tablet (reducción intermedia)
+   ================================================ */
+@media (max-width: 900px) {
+    .dn-container { padding: 20px 22px 16px; gap: 14px; }
+    .dn-logo-mark { width: 44px; height: 44px; }
+    .dn-logo-mark [data-lucide] { width: 22px; height: 22px; }
+    .dn-logo-text h1 { font-size: 22px; }
+    .dn-hud-valor { font-size: 24px; }
+    .dn-overlay-card { padding: 28px 28px 24px; max-width: 400px; }
+    .dn-overlay-card h2 { font-size: 24px; }
+    .dn-overlay-icono { width: 64px; height: 64px; }
+    .dn-overlay-icono [data-lucide] { width: 30px; height: 30px; }
+}
+
+/* ================================================
+   RESPONSIVE — Móvil (SIN CAMBIOS al diseño actual)
+   ================================================ */
 @media (max-width: 640px) {
     .dn-container { padding: 12px 14px; gap: 10px; }
     .dn-logo-mark { width: 36px; height: 36px; border-radius: 10px; }
@@ -468,20 +655,41 @@ body {
     .dn-logo-text h1 { font-size: 17px; }
     .dn-logo-text p { font-size: 10.5px; }
 
-    .dn-record { padding: 5px 10px; }
+    .dn-record { padding: 5px 10px; gap: 8px; }
     .dn-record-valor { font-size: 15px; }
+    .dn-record-label { font-size: 9px; }
 
     .dn-hud-valor { font-size: 19px; }
+    .dn-hud-monedas { padding: 5px 10px; }
     .dn-hud-monedas .dn-hud-valor { font-size: 15px; }
+    .dn-hud-icono { width: 15px; height: 15px; }
 
-    .dn-overlay-card { padding: 20px 18px; }
+    .dn-overlay-card { padding: 20px 18px; border-radius: 18px; max-width: 100%; }
     .dn-overlay-card h2 { font-size: 18px; }
-    .dn-overlay-card p { font-size: 12.5px; }
+    .dn-overlay-card p { font-size: 12.5px; margin-bottom: 16px; }
+    .dn-overlay-icono {
+        width: 52px;
+        height: 52px;
+        border-radius: 15px;
+        margin-bottom: 12px;
+    }
+    .dn-overlay-icono [data-lucide] { width: 24px; height: 24px; }
+
+    .dn-go-resumen { padding: 4px 14px; border-radius: 12px; }
+    .dn-go-fila { padding: 10px 0; font-size: 13px; }
+    .dn-go-valor { font-size: 15px; }
+    .dn-go-monedas { font-size: 18px !important; }
+    .dn-go-label { font-size: 12px; gap: 6px; }
+    .dn-go-label [data-lucide] { width: 14px; height: 14px; }
+
+    .dn-btn-primario { padding: 11px 20px; font-size: 13.5px; }
+    .dn-btn-primario [data-lucide] { width: 16px; height: 16px; }
 
     .dn-progreso { padding: 8px 10px; gap: 5px; }
     .dn-progreso-label { font-size: 10px; }
     .dn-progreso-meta { font-size: 10.5px; }
     .dn-progreso-info { font-size: 10px; }
+    .dn-progreso-barra { height: 10px; }
 }
 
 @media (max-width: 420px) {
