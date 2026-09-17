@@ -1077,3 +1077,94 @@ body {
     .modal-categoria-grid { grid-template-columns: 1fr; }
     .config-panel-header h3 { font-size: 15px; }
 }
+
+/* ================================================
+   CONFIG: ACCESOS RÁPIDOS
+   ================================================ */
+.config-accesos-lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+}
+
+.config-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-md);
+    cursor: pointer;
+    transition: var(--t-fast);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-700);
+    user-select: none;
+}
+.config-checkbox-label:hover {
+    border-color: var(--violet-300);
+    background: var(--violet-50);
+}
+.config-checkbox-label.activo {
+    border-color: var(--violet-400);
+    background: var(--violet-50);
+    color: var(--violet-700);
+    font-weight: 700;
+}
+
+.config-checkbox-label input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.config-checkbox-icono {
+    width: 32px;
+    height: 32px;
+    background: var(--gray-100);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-500);
+    flex-shrink: 0;
+    transition: var(--t-fast);
+}
+.config-checkbox-label.activo .config-checkbox-icono {
+    background: var(--accent-gradient);
+    color: white;
+    box-shadow: 0 2px 8px var(--accent-shadow);
+}
+.config-checkbox-icono [data-lucide] {
+    width: 16px;
+    height: 16px;
+}
+
+.config-checkbox-texto {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Indicador visual de check */
+.config-checkbox-label::after {
+    content: '';
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    transition: var(--t-fast);
+    background: var(--white);
+}
+.config-checkbox-label.activo::after {
+    background: var(--violet-500);
+    border-color: var(--violet-500);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+    background-size: 12px 12px;
+    background-position: center;
+    background-repeat: no-repeat;
+}
