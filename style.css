@@ -3,7 +3,6 @@
    ================================================ */
 
 :root {
-    /* Paleta morada */
     --violet-50:  #F5F3FF;
     --violet-100: #EDE9FE;
     --violet-200: #DDD6FE;
@@ -13,7 +12,6 @@
     --violet-600: #7C3AED;
     --violet-700: #6D28D9;
 
-    /* Neutros */
     --white:   #FFFFFF;
     --bg:      #FBFBFD;
     --bg-alt:  #F5F5F8;
@@ -33,7 +31,6 @@
     --text-2:  var(--gray-600);
     --text-3:  var(--gray-500);
 
-    /* Sombras */
     --shadow-xs: 0 1px 2px rgba(24, 24, 27, 0.04);
     --shadow-sm: 0 1px 3px rgba(24, 24, 27, 0.06), 0 1px 2px rgba(24, 24, 27, 0.04);
     --shadow-md: 0 4px 12px rgba(24, 24, 27, 0.06), 0 2px 4px rgba(24, 24, 27, 0.04);
@@ -41,14 +38,12 @@
     --shadow-xl: 0 24px 48px rgba(24, 24, 27, 0.14), 0 8px 16px rgba(24, 24, 27, 0.06);
     --shadow-glow: 0 0 0 4px rgba(139, 92, 246, 0.10);
 
-    /* Radios */
     --r-sm: 8px;
     --r-md: 12px;
     --r-lg: 16px;
     --r-xl: 20px;
     --r-full: 999px;
 
-    /* Transiciones */
     --t-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     --t: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     --t-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
@@ -75,7 +70,6 @@ body {
     flex-shrink: 0;
 }
 
-/* ========== SCROLLBAR ========== */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
@@ -91,7 +85,6 @@ body {
 }
 * { scrollbar-width: thin; scrollbar-color: var(--gray-300) transparent; }
 
-/* ========== LAYOUT ========== */
 #appPrincipal {
     display: flex;
     flex-direction: column;
@@ -99,7 +92,6 @@ body {
     overflow: hidden;
 }
 
-/* ========== HEADER ========== */
 .app-header {
     height: 60px;
     flex-shrink: 0;
@@ -136,7 +128,6 @@ body {
     background-clip: text;
 }
 
-/* Search */
 .search-bar {
     display: flex;
     align-items: center;
@@ -193,7 +184,6 @@ body {
     margin-left: auto;
 }
 
-/* Info local */
 .info-local {
     display: flex;
     align-items: center;
@@ -204,9 +194,7 @@ body {
     font-size: 12px;
     font-weight: 700;
 }
-.hora-local, .clima-local {
-    display: flex; align-items: center; gap: 5px;
-}
+.hora-local, .clima-local { display: flex; align-items: center; gap: 5px; }
 .info-icon { color: var(--violet-500); width: 13px; height: 13px; }
 .hora-texto {
     color: var(--gray-900);
@@ -219,7 +207,6 @@ body {
     border-radius: 50%;
 }
 
-/* Avatar */
 .avatar-config {
     width: 38px; height: 38px;
     background: linear-gradient(135deg, var(--violet-400), var(--violet-600));
@@ -231,6 +218,7 @@ body {
     transition: var(--t);
     color: white;
     padding: 0;
+    overflow: hidden;
 }
 .avatar-config:hover {
     transform: translateY(-1px) scale(1.05);
@@ -239,7 +227,19 @@ body {
 .avatar-config:active { transform: scale(0.98); }
 .avatar-icon { width: 17px; height: 17px; }
 
-/* ========== BODY ========== */
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-inicial {
+    font-size: 15px;
+    font-weight: 800;
+    color: white;
+    line-height: 1;
+}
+
 .app-body {
     display: flex;
     flex: 1;
@@ -247,7 +247,6 @@ body {
     overflow: hidden;
 }
 
-/* ========== SIDEBAR ========== */
 .sidebar {
     width: 240px;
     min-width: 240px;
@@ -337,7 +336,6 @@ body {
 .nav-item:hover .nav-icon { color: var(--violet-500); }
 .nav-item.active .nav-icon { color: var(--violet-600); }
 
-/* ========== MAIN ========== */
 .main-content {
     flex: 1;
     min-width: 0;
@@ -348,7 +346,6 @@ body {
     overflow: hidden;
 }
 
-/* ========== TAB BAR ========== */
 .tab-bar {
     display: flex;
     align-items: flex-end;
@@ -433,7 +430,6 @@ body {
     color: #991B1B;
 }
 
-/* ========== PANEL ========== */
 .panel-container {
     flex: 1;
     position: relative;
@@ -452,7 +448,6 @@ body {
 }
 .panel-container iframe.tool-iframe.active { display: block; }
 
-/* ========== WELCOME ========== */
 .welcome-placeholder {
     width: 100%;
     height: 100%;
@@ -522,7 +517,6 @@ body {
     z-index: 1;
 }
 
-/* Accesos rápidos */
 .accesos-rapidos {
     display: flex;
     flex-wrap: wrap;
@@ -582,7 +576,6 @@ body {
     box-shadow: 0 8px 20px rgba(139, 92, 246, 0.30);
 }
 
-/* ========== MODALES (base) ========== */
 .modal-todas-overlay,
 .config-overlay {
     position: fixed;
@@ -672,7 +665,6 @@ body {
     padding: 24px 26px;
 }
 
-/* Categorías modal todas */
 .modal-categoria { margin-bottom: 28px; }
 .modal-categoria:last-child { margin-bottom: 0; }
 .modal-categoria h3 {
@@ -726,7 +718,6 @@ body {
     margin-left: 26px;
 }
 
-/* ========== CONFIG LAYOUT ========== */
 .config-layout {
     display: flex;
     flex: 1;
@@ -794,9 +785,7 @@ body {
     to   { opacity: 1; transform: translateY(0); }
 }
 
-.config-panel-header {
-    margin-bottom: 22px;
-}
+.config-panel-header { margin-bottom: 22px; }
 .config-panel-header h3 {
     font-size: 17px;
     font-weight: 800;
@@ -810,7 +799,6 @@ body {
     font-weight: 500;
 }
 
-/* Fields */
 .config-field { margin-bottom: 20px; }
 .config-field label {
     display: block;
@@ -849,7 +837,6 @@ body {
     margin-top: 6px;
 }
 
-/* ========== APPS INSTALADAS LISTA ========== */
 .apps-instaladas-lista {
     display: flex;
     flex-direction: column;
@@ -892,10 +879,7 @@ body {
 }
 .app-instalada-icono [data-lucide] { width: 18px; height: 18px; }
 
-.app-instalada-info {
-    flex: 1;
-    min-width: 0;
-}
+.app-instalada-info { flex: 1; min-width: 0; }
 .app-instalada-nombre {
     display: block;
     font-weight: 700;
@@ -943,7 +927,6 @@ body {
     color: #991B1B;
 }
 
-/* Info box */
 .config-info-box {
     display: flex;
     align-items: flex-start;
@@ -975,7 +958,6 @@ body {
 
 .github-info { margin-bottom: 16px; }
 
-/* ========== STORAGE OPTIONS ========== */
 .storage-options {
     display: flex;
     flex-direction: column;
@@ -1007,6 +989,7 @@ body {
     transition: var(--t);
 }
 .storage-icon [data-lucide] { width: 18px; height: 18px; }
+.storage-icon svg { width: 18px; height: 18px; color: inherit; }
 
 .storage-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
 .storage-nombre {
@@ -1048,7 +1031,6 @@ body {
     transform: scale(1);
 }
 
-/* ========== CONFIG FOOTER ========== */
 .config-footer {
     display: flex;
     justify-content: space-between;
@@ -1065,10 +1047,10 @@ body {
     color: var(--violet-600);
 }
 
-/* ========== BOTONES ========== */
 .btn-primario {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     padding: 10px 20px;
     border: none;
@@ -1081,6 +1063,7 @@ body {
     color: white;
     box-shadow: 0 4px 12px rgba(139, 92, 246, 0.28);
     transition: var(--t);
+    width: 100%;
 }
 .btn-primario [data-lucide] { width: 15px; height: 15px; }
 .btn-primario:hover {
@@ -1089,44 +1072,30 @@ body {
 }
 .btn-primario:active { transform: translateY(0); }
 
-/* ========== RESPONSIVE ========== */
-@media (max-width: 900px) {
-    .info-local { display: none; }
-    .search-kbd { display: none; }
+.btn-secundario {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-md);
+    font-size: 13.5px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    background: var(--white);
+    color: var(--gray-700);
+    transition: var(--t);
+    width: 100%;
+}
+.btn-secundario [data-lucide] { width: 15px; height: 15px; }
+.btn-secundario:hover {
+    background: #FEF2F2;
+    border-color: #FECACA;
+    color: #991B1B;
 }
 
-@media (max-width: 768px) {
-    .app-header { padding: 0 12px; gap: 12px; }
-    .sidebar { display: none; }
-    .search-bar { max-width: none; }
-    .logo-text { font-size: 15px; }
-    .config-nav { width: 60px; padding: 12px 6px; }
-    .config-nav-item { justify-content: center; padding: 10px; }
-    .config-nav-item span { display: none; }
-    .config-content { padding: 20px; }
-    .config-card { max-height: 95vh; margin: 12px; }
-    .modal-todas-card { max-height: 95vh; margin: 12px; }
-}
-
-@media (max-width: 500px) {
-    .app-header { height: 54px; padding: 0 10px; gap: 8px; }
-    .logo-text { display: none; }
-    .search-bar { height: 34px; }
-    .avatar-config { width: 34px; height: 34px; }
-    .welcome-placeholder { padding: 40px 20px; }
-    .welcome-placeholder h1 { font-size: 22px; }
-    .welcome-placeholder > p { font-size: 13.5px; }
-    .welcome-icon-wrap { width: 60px; height: 60px; }
-    .welcome-icon { width: 28px !important; height: 28px !important; }
-    .modal-categoria-grid { grid-template-columns: 1fr; }
-    .config-panel-header h3 { font-size: 15px; }
-}
-
-/* ================================================
-   ESTADO VACÍO + STATUS GITHUB + SPINNER
-   ================================================ */
-
-/* Estado vacío en panel de config */
 .config-empty {
     display: flex;
     flex-direction: column;
@@ -1168,7 +1137,6 @@ body {
     margin: 0;
 }
 
-/* Estado de conexión GitHub */
 .config-status {
     margin-top: 14px;
     padding: 10px 14px;
@@ -1195,7 +1163,6 @@ body {
     border: 1px solid #FECACA;
 }
 
-/* Spinner para el botón conectando */
 .spin {
     animation: girar 1s linear infinite;
 }
@@ -1204,35 +1171,7 @@ body {
     to   { transform: rotate(360deg); }
 }
 
-/* SVG inline de GitHub hereda color */
-.storage-icon svg {
-    width: 18px;
-    height: 18px;
-    color: inherit;
-}
-
-/* ================================================
-   CLIMA CON ICONOS LUCIDE (reemplaza .temp)
-   ================================================ */
 .clima-local {
     display: flex;
     align-items: center;
-    gap: 5px;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--gray-900);
-}
-
-.clima-icon {
-    width: 14px;
-    height: 14px;
-    color: var(--violet-500);
-    flex-shrink: 0;
-    stroke-width: 2.25;
-}
-
-.temp-texto {
-    color: var(--gray-900);
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -0.01em;
-}
+    gap
