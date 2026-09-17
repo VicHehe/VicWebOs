@@ -1,0 +1,43 @@
+/* ================================================
+   Tema: Consentido
+   Colores chilenos cálidos y elegantes.
+   ================================================ */
+
+:root {
+    /* Acento rojo chileno */
+    --violet-50:  #FFF5F5;
+    --violet-100: #FFE4E4;
+    --violet-200: #FFCACA;
+    --violet-300: #FCA5A5;
+    --violet-400: #EF4444;
+    --violet-500: #D52B1E;
+    --violet-600: #B91C1C;
+    --violet-700: #7F1D1D;
+
+    /* Fondos cálidos */
+    --bg:     #FFFBF7;
+    --bg-alt: #FFF5EE;
+
+    --shadow-glow: 0 0 0 4px rgba(213, 43, 30, 0.15);
+
+    /* Acento: rojo chileno → azul chileno */
+    --accent-gradient: linear-gradient(135deg, #D52B1E, #0033A0);
+    --accent-gradient-hover: linear-gradient(135deg, #EF4444, #1E40AF);
+    --accent-shadow: rgba(213, 43, 30, 0.28);
+    --accent-shadow-hover: rgba(213, 43, 30, 0.40);
+    --accent-text-gradient: linear-gradient(135deg, #7F1D1D, #0033A0);
+}
+
+/* Detalle: la card del tema activo lleva un brillo dorado sutil
+   para el toque "consentido" */
+.config-tema-item.activo {
+    border-color: var(--violet-500);
+    box-shadow:
+        0 0 0 4px rgba(213, 43, 30, 0.10),
+        0 0 0 6px rgba(212, 175, 55, 0.10);
+}
+
+/* La barrita del sidebar activo lleva un toque dorado */
+.nav-item.active::before {
+    background: linear-gradient(180deg, #D52B1E, #D4AF37);
+}
