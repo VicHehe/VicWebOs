@@ -1,18 +1,21 @@
 // ============================================================
-//  ConfigBD.js — Base de datos (IndexedDB + GitHub)
-//  Soporta múltiples archivos JSON
+//  ConfigBD.js — Solo GitHub + Caché IndexedDB transparente
+//  IndexedDB NO es fuente de datos, solo caché temporal.
 // ============================================================
 
 const BD_CONFIG_KEY = 'vicwebos_bd';
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
 
 const BD_DEFAULT = {
-    tipo: 'indexeddb',
     githubToken: '',
     githubRepo: '',
     githubOwner: '',
     githubConectado: false
 };
 
+// ============================================================
+//  CONFIG (localStorage) — solo conexión, NUNCA datos
+// ============================================================
 function cargarConfigBD() {
     try {
         const raw = localStorage.getItem(BD_CONFIG_KEY);
@@ -28,11 +31,11 @@ function guardarConfigBD(config) {
 }
 
 // ============================================================
-//  INDEXEDDB
+//  INDEXEDDB — solo caché
 // ============================================================
-const IDB_NAME = 'VicWebOsDB';
+const IDB_NAME = 'VicWebOsCache';
 const IDB_VERSION = 1;
-const IDB_STORE = 'kv';
+const IDB_STORE = 'cache';
 
 function abrirIDB() {
     return new Promise((resolve, reject) => {
@@ -66,6 +69,52 @@ async function idbGet(key) {
         req.onsuccess = () => resolve(req.result);
         req.onerror = (e) => reject(e.target.error);
     });
+}
+
+async function idbDelete(key) {
+    const db = await abrirIDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(IDB_STORE, 'readwrite');
+        tx.objectStore(IDB_STORE).delete(key);
+        tx.oncomplete = () => resolve();
+        tx.onerror = (e) => reject(e.target.error);
+    });
+}
+
+async function idbClear() {
+    const db = await abrirIDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(IDB_STORE, 'readwrite');
+        tx.objectStore(IDB_STORE).clear();
+        tx.oncomplete = () => resolve();
+        tx.onerror = (e) => reject(e.target.error);
+    });
+}
+
+// ============================================================
+//  CACHÉ con TTL
+// ============================================================
+async function leerCache(nombre) {
+    try {
+        const entry = await idbGet('cache_' + nombre);
+        if (!entry) return null;
+        if (Date.now() - entry.ts > CACHE_TTL) return null; // expirado
+        return entry.data;
+    } catch (e) { return null; }
+}
+
+async function guardarCache(nombre, data) {
+    try {
+        await idbSet('cache_' + nombre, { data, ts: Date.now() });
+    } catch (e) { console.warn(e); }
+}
+
+async function invalidarCache(nombre) {
+    try { await idbDelete('cache_' + nombre); } catch (e) {}
+}
+
+async function invalidarTodoCache() {
+    try { await idbClear(); } catch (e) { console.warn(e); }
 }
 
 // ============================================================
@@ -157,48 +206,84 @@ async function conectarGitHub(token, nombreRepo) {
 }
 
 // ============================================================
-//  API PÚBLICA — Múltiples archivos
+//  API PÚBLICA
 // ============================================================
 const ConfigBD = {
+    estaConectado() {
+        const c = cargarConfigBD();
+        return !!(c.githubConectado && c.githubToken && c.githubOwner && c.githubRepo);
+    },
+
+    obtenerInfo() {
+        const c = cargarConfigBD();
+        if (!this.estaConectado()) return null;
+        return { owner: c.githubOwner, repo: c.githubRepo };
+    },
+
     async leerArchivo(nombre) {
+        // 1) Caché (rápido)
+        const cache = await leerCache(nombre);
+        if (cache !== null) return cache;
+
+        // 2) GitHub (fuente de verdad)
+        if (!this.estaConectado()) return null;
         const config = cargarConfigBD();
-        if (config.tipo === 'github') {
-            if (!config.githubToken || !config.githubOwner || !config.githubRepo) return null;
-            try {
-                const archivo = await ghLeerArchivo(
-                    config.githubToken, config.githubOwner, config.githubRepo, nombre
-                );
-                if (!archivo) return null;
-                return JSON.parse(archivo.contenido);
-            } catch (e) {
-                console.warn('Error leyendo ' + nombre + ':', e);
-                return null;
-            }
+        try {
+            const archivo = await ghLeerArchivo(
+                config.githubToken, config.githubOwner, config.githubRepo, nombre
+            );
+            if (!archivo) return null;
+            const data = JSON.parse(archivo.contenido);
+            await guardarCache(nombre, data);
+            return data;
+        } catch (e) {
+            console.warn('Error leyendo ' + nombre + ':', e);
+            return null;
         }
-        return await idbGet(nombre);
     },
 
     async escribirArchivo(nombre, datos) {
+        if (!this.estaConectado()) throw new Error('GitHub no está conectado.');
         const config = cargarConfigBD();
-        if (config.tipo === 'github') {
-            if (!config.githubToken || !config.githubOwner || !config.githubRepo) {
-                throw new Error('GitHub no está conectado.');
-            }
-            const actual = await ghLeerArchivo(
-                config.githubToken, config.githubOwner, config.githubRepo, nombre
-            );
-            await ghEscribirArchivo(
-                config.githubToken, config.githubOwner, config.githubRepo,
-                nombre, JSON.stringify(datos, null, 2), actual?.sha || null
-            );
-            return { ok: true, destino: 'github' };
-        }
-        await idbSet(nombre, datos);
-        return { ok: true, destino: 'indexeddb' };
+
+        const actual = await ghLeerArchivo(
+            config.githubToken, config.githubOwner, config.githubRepo, nombre
+        );
+
+        await ghEscribirArchivo(
+            config.githubToken, config.githubOwner, config.githubRepo,
+            nombre, JSON.stringify(datos, null, 2), actual?.sha || null
+        );
+
+        // Actualizar caché para la próxima lectura
+        await guardarCache(nombre, datos);
+        return { ok: true };
     },
 
-    async probarConexion(token, repo) {
-        return await conectarGitHub(token, repo);
+    async conectar(token, repo) {
+        const resultado = await conectarGitHub(token, repo);
+
+        // Al cambiar de repo → invalidar todo el caché
+        await invalidarTodoCache();
+
+        const config = cargarConfigBD();
+        config.githubToken = token;
+        config.githubRepo = repo;
+        config.githubOwner = resultado.owner;
+        config.githubConectado = true;
+        guardarConfigBD(config);
+
+        return resultado;
+    },
+
+    async desconectar() {
+        const config = cargarConfigBD();
+        config.githubToken = '';
+        config.githubRepo = '';
+        config.githubOwner = '';
+        config.githubConectado = false;
+        guardarConfigBD(config);
+        await invalidarTodoCache();
     }
 };
 
@@ -207,19 +292,43 @@ window.ConfigBD = ConfigBD;
 // ============================================================
 //  UI: SECCIÓN "BASE DE DATOS"
 // ============================================================
+function actualizarUIBD() {
+    const sinConectar = document.getElementById('bdSinConectar');
+    const conectado   = document.getElementById('bdConectado');
+    const repoNombre  = document.getElementById('bdRepoNombre');
+    const repoOwner   = document.getElementById('bdRepoOwner');
+
+    if (!sinConectar || !conectado) return;
+
+    if (ConfigBD.estaConectado()) {
+        const info = ConfigBD.obtenerInfo();
+        sinConectar.style.display = 'none';
+        conectado.style.display = 'block';
+        if (repoNombre) repoNombre.textContent = info.repo;
+        if (repoOwner)  repoOwner.textContent = '@' + info.owner;
+    } else {
+        sinConectar.style.display = 'block';
+        conectado.style.display = 'none';
+    }
+    lucide.createIcons();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    const githubConfig  = document.getElementById('githubConfig');
-    const githubToken   = document.getElementById('githubToken');
-    const githubRepo    = document.getElementById('githubRepo');
-    const btnConectar   = document.getElementById('btnConectarGitHub');
-    const githubEstado  = document.getElementById('githubEstado');
+    const btnConectar    = document.getElementById('btnConectarGitHub');
+    const btnDesconectar = document.getElementById('btnDesconectarGitHub');
+    const githubToken    = document.getElementById('githubToken');
+    const githubRepo     = document.getElementById('githubRepo');
+    const githubEstado   = document.getElementById('githubEstado');
 
-    document.querySelectorAll('input[name="storage"]').forEach(r => {
-        r.addEventListener('change', (e) => {
-            githubConfig.style.display = e.target.value === 'github' ? 'block' : 'none';
-        });
-    });
+    // Estado inicial
+    actualizarUIBD();
 
+    // Pre-rellenar si ya hay datos
+    const config = cargarConfigBD();
+    if (githubToken && config.githubToken) githubToken.value = config.githubToken;
+    if (githubRepo && config.githubRepo) githubRepo.value = config.githubRepo;
+
+    // -------- Conectar --------
     if (btnConectar) {
         btnConectar.addEventListener('click', async () => {
             const token = githubToken.value.trim();
@@ -238,20 +347,22 @@ document.addEventListener('DOMContentLoaded', () => {
             mostrarEstado('⏳ Verificando token y repositorio...', 'info');
 
             try {
-                const resultado = await conectarGitHub(token, repo);
-                const config = cargarConfigBD();
-                config.tipo = 'github';
-                config.githubToken = token;
-                config.githubRepo = repo;
-                config.githubOwner = resultado.owner;
-                config.githubConectado = true;
-                guardarConfigBD(config);
+                const resultado = await ConfigBD.conectar(token, repo);
 
                 if (resultado.creado) {
                     mostrarEstado(`✅ Repositorio "${repo}" creado y conectado como ${resultado.owner}.`, 'success');
                 } else {
                     mostrarEstado(`✅ Conectado al repositorio "${resultado.owner}/${repo}".`, 'success');
                 }
+
+                // Refrescar UI global
+                actualizarUIBD();
+                if (typeof renderSidebar === 'function') renderSidebar();
+                if (typeof window.__actualizarUISesion === 'function') window.__actualizarUISesion();
+
+                setTimeout(() => {
+                    if (githubEstado) githubEstado.textContent = '';
+                }, 2500);
             } catch (err) {
                 mostrarEstado('❌ ' + err.message, 'error');
             } finally {
@@ -262,9 +373,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // -------- Desconectar --------
+    if (btnDesconectar) {
+        btnDesconectar.addEventListener('click', async () => {
+            if (!confirm('¿Desconectar el repositorio? Los datos siguen a salvo en GitHub, pero se borrará el caché local.')) return;
+            await ConfigBD.desconectar();
+
+            // Cerrar sesión local
+            if (typeof cerrarSesion === 'function') cerrarSesion();
+
+            actualizarUIBD();
+            if (typeof renderSidebar === 'function') renderSidebar();
+            if (typeof window.__actualizarUISesion === 'function') window.__actualizarUISesion();
+        });
+    }
+
     function mostrarEstado(texto, tipo) {
         if (!githubEstado) return;
         githubEstado.textContent = texto;
         githubEstado.className = 'config-status ' + (tipo || '');
     }
+
+    // Exponer globalmente para cuando se abra el modal
+    window.__actualizarUIBD = actualizarUIBD;
 });
