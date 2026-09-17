@@ -14,7 +14,7 @@
 
     <div class="calc-container">
         <!-- Header -->
-        <div class="calc-header">
+        <header class="calc-header">
             <div class="calc-logo">
                 <div class="calc-logo-mark">
                     <i data-lucide="calculator"></i>
@@ -24,60 +24,95 @@
                     <p id="calcUserBadge">—</p>
                 </div>
             </div>
-        </div>
+        </header>
 
-        <!-- Display -->
-        <div class="calc-display">
-            <div class="calc-historial-mini" id="calcHistMini"></div>
-            <div class="calc-expresion" id="calcExpresion">0</div>
-            <div class="calc-resultado-preview" id="calcResultadoPreview"></div>
-        </div>
+        <!-- Cuerpo: 2 columnas en PC -->
+        <div class="calc-cuerpo">
 
-        <!-- Teclado -->
-        <div class="calc-teclado">
-            <button class="calc-btn calc-btn-num" data-num="7">7</button>
-            <button class="calc-btn calc-btn-num" data-num="8">8</button>
-            <button class="calc-btn calc-btn-num" data-num="9">9</button>
-            <button class="calc-btn calc-btn-op" data-op="/">÷</button>
+            <!-- Columna izquierda: Display + Teclado -->
+            <div class="calc-columna-calc">
+                <div class="calc-display">
+                    <div class="calc-historial-mini" id="calcHistMini"></div>
+                    <div class="calc-expresion" id="calcExpresion">0</div>
+                    <div class="calc-resultado-preview" id="calcResultadoPreview"></div>
+                </div>
 
-            <button class="calc-btn calc-btn-num" data-num="4">4</button>
-            <button class="calc-btn calc-btn-num" data-num="5">5</button>
-            <button class="calc-btn calc-btn-num" data-num="6">6</button>
-            <button class="calc-btn calc-btn-op" data-op="*">×</button>
+                <div class="calc-teclado">
+                    <button class="calc-btn calc-btn-num" data-num="7">7</button>
+                    <button class="calc-btn calc-btn-num" data-num="8">8</button>
+                    <button class="calc-btn calc-btn-num" data-num="9">9</button>
+                    <button class="calc-btn calc-btn-op" data-op="/">÷</button>
 
-            <button class="calc-btn calc-btn-num" data-num="1">1</button>
-            <button class="calc-btn calc-btn-num" data-num="2">2</button>
-            <button class="calc-btn calc-btn-num" data-num="3">3</button>
-            <button class="calc-btn calc-btn-op" data-op="-">−</button>
+                    <button class="calc-btn calc-btn-num" data-num="4">4</button>
+                    <button class="calc-btn calc-btn-num" data-num="5">5</button>
+                    <button class="calc-btn calc-btn-num" data-num="6">6</button>
+                    <button class="calc-btn calc-btn-op" data-op="*">×</button>
 
-            <button class="calc-btn calc-btn-num" data-num="0">0</button>
-            <button class="calc-btn calc-btn-num" data-num=".">.</button>
-            <button class="calc-btn calc-btn-fn" data-fn="clear">C</button>
-            <button class="calc-btn calc-btn-op" data-op="+">+</button>
+                    <button class="calc-btn calc-btn-num" data-num="1">1</button>
+                    <button class="calc-btn calc-btn-num" data-num="2">2</button>
+                    <button class="calc-btn calc-btn-num" data-num="3">3</button>
+                    <button class="calc-btn calc-btn-op" data-op="-">−</button>
 
-            <button class="calc-btn calc-btn-fn" data-fn="pow">x²</button>
-            <button class="calc-btn calc-btn-fn" data-fn="percent">%</button>
-            <button class="calc-btn calc-btn-fn" data-fn="back">⌫</button>
-            <button class="calc-btn calc-btn-eq" data-fn="equals">=</button>
-        </div>
+                    <button class="calc-btn calc-btn-num" data-num="0">0</button>
+                    <button class="calc-btn calc-btn-num" data-num=".">.</button>
+                    <button class="calc-btn calc-btn-fn" data-fn="clear">C</button>
+                    <button class="calc-btn calc-btn-op" data-op="+">+</button>
 
-        <!-- Panel de funciones -->
-        <div class="calc-funciones">
-            <button class="calc-funcion-btn" data-funcion="intereses">
-                <i data-lucide="percent"></i>
-                <span class="calc-funcion-nombre">Intereses</span>
-                <span class="calc-funcion-estado" id="funcIntereses">🔒 5 🪙</span>
-            </button>
-            <button class="calc-funcion-btn" data-funcion="fechas">
-                <i data-lucide="calendar-days"></i>
-                <span class="calc-funcion-nombre">Fechas</span>
-                <span class="calc-funcion-estado" id="funcFechas">🔒 5 🪙</span>
-            </button>
-            <button class="calc-funcion-btn" data-funcion="graficos">
-                <i data-lucide="pie-chart"></i>
-                <span class="calc-funcion-nombre">Gráficos</span>
-                <span class="calc-funcion-estado" id="funcGraficos">🔒 10 🪙</span>
-            </button>
+                    <button class="calc-btn calc-btn-fn" data-fn="pow">
+                        <i data-lucide="superscript"></i>
+                        <span class="calc-btn-label">x²</span>
+                    </button>
+                    <button class="calc-btn calc-btn-fn" data-fn="percent">%</button>
+                    <button class="calc-btn calc-btn-fn" data-fn="back">
+                        <i data-lucide="delete"></i>
+                    </button>
+                    <button class="calc-btn calc-btn-eq" data-fn="equals">
+                        <i data-lucide="equal"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Columna derecha: Funciones premium -->
+            <aside class="calc-columna-funciones">
+                <div class="calc-funciones-titulo">
+                    <i data-lucide="sparkles"></i>
+                    <span>Funciones premium</span>
+                </div>
+
+                <button class="calc-funcion-card" data-funcion="intereses">
+                    <div class="calc-funcion-icono">
+                        <i data-lucide="percent"></i>
+                    </div>
+                    <div class="calc-funcion-info">
+                        <span class="calc-funcion-nombre">Intereses</span>
+                        <span class="calc-funcion-desc">Simple y compuesto</span>
+                    </div>
+                    <span class="calc-funcion-estado" id="funcIntereses"></span>
+                </button>
+
+                <button class="calc-funcion-card" data-funcion="fechas">
+                    <div class="calc-funcion-icono">
+                        <i data-lucide="calendar-days"></i>
+                    </div>
+                    <div class="calc-funcion-info">
+                        <span class="calc-funcion-nombre">Fechas</span>
+                        <span class="calc-funcion-desc">Cuánto falta o pasó</span>
+                    </div>
+                    <span class="calc-funcion-estado" id="funcFechas"></span>
+                </button>
+
+                <button class="calc-funcion-card" data-funcion="graficos">
+                    <div class="calc-funcion-icono">
+                        <i data-lucide="pie-chart"></i>
+                    </div>
+                    <div class="calc-funcion-info">
+                        <span class="calc-funcion-nombre">Gráficos</span>
+                        <span class="calc-funcion-desc">Porciones proporcionales</span>
+                    </div>
+                    <span class="calc-funcion-estado" id="funcGraficos"></span>
+                </button>
+            </aside>
+
         </div>
     </div>
 
