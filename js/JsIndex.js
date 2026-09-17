@@ -1,8 +1,8 @@
 // ============================================================
-//  JsIndex.js — Pestañas + sidebar + widgets + API
+//  JsIndex.js — Pestañas + sidebar + widgets + monedas + API
 // ============================================================
 
-const MAX_TABS = 10;
+const MAX_TABS = 6;
 let tabs = [];
 let activeTabId = null;
 
@@ -12,6 +12,16 @@ const tabBar         = document.getElementById('tabBar');
 const panelContainer = document.getElementById('panelContainer');
 const welcomeScreen  = document.getElementById('welcomeScreen');
 const btnVerTodas    = document.getElementById('btnVerTodas');
+
+// ============================================================
+//  CONTADOR DE MONEDAS EN EL HEADER
+// ============================================================
+function actualizarMonedasHeader() {
+    const el = document.getElementById('monedasLocal');
+    if (!el) return;
+    el.textContent = configCuentaActual ? (configCuentaActual.monedas ?? 0) : 0;
+}
+window.actualizarMonedasHeader = actualizarMonedasHeader;
 
 // ============================================================
 //  SIDEBAR
@@ -123,7 +133,6 @@ function renderAccesosRapidos() {
     const catalogo = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
     const instaladas = obtenerAppsInstaladas();
 
-    // Preferir las instaladas (excepto Stor-He); si no hay, mostrar el catálogo
     let mostrar = catalogo.filter(h => instaladas.includes(h.id) && h.id !== 'stor-he');
     if (mostrar.length === 0) {
         mostrar = catalogo.filter(h => !h.esBase);
@@ -242,7 +251,7 @@ function abrirHerramienta(id) {
     if (existente) { activarPestania(id); return; }
 
     if (tabs.length >= MAX_TABS) {
-        alert(`Solo puedes tener ${MAX_TABS} pestañas abiertas.`);
+        alert(`Solo puedes tener ${MAX_TABS} pestañas abiertas. Cierra una para abrir otra.`);
         return;
     }
 
@@ -526,6 +535,23 @@ window.__vicwebos = {
     estaConectado:  () => ConfigBD.estaConectado(),
     obtenerCuenta:  () => cuentaActual ? { nombre: cuentaActual.nombre, codigo: cuentaActual.codigo } : null,
 
+    // ---- Espacio y monedas ----
+    obtenerEspacioMaximo: () => obtenerEspacioMaximo(),
+    obtenerEspacioUsado:  () => calcularEspacioUsado(),
+    obtenerEspacioLibre:  () => calcularEspacioLibre(),
+    obtenerMonedas:       () => obtenerMonedas(),
+    puedeInstalar:        (req) => puedeInstalar(req),
+    comprarEspacio:       async () => {
+        const r = await comprarEspacio();
+        if (typeof renderSidebar === 'function') renderSidebar(searchInput ? searchInput.value : '');
+        return r;
+    },
+    ESPACIO_INICIAL:      ESPACIO_INICIAL,
+    ESPACIO_POR_COMPRA:   ESPACIO_POR_COMPRA,
+    COSTO_COMPRA_ESPACIO: COSTO_COMPRA_ESPACIO,
+    MAX_WIDGETS_ACTIVOS:  MAX_WIDGETS_ACTIVOS,
+
+    // ---- Acciones: apps ----
     instalar: async (id) => {
         try {
             await instalarApp(id);
@@ -546,15 +572,16 @@ window.__vicwebos = {
         return false;
     },
 
+    // ---- Acciones: temas ----
     instalarTema:    async (id) => { try { await instalarTema(id); }    catch (e) { alert('❌ ' + e.message); throw e; } },
     desinstalarTema: async (id) => { try { await desinstalarTema(id); } catch (e) { alert('❌ ' + e.message); throw e; } },
     aplicarTema:     async (id) => { try { await aplicarTema(id); }     catch (e) { alert('❌ ' + e.message); throw e; } },
 
+    // ---- Acciones: widgets ----
     instalarWidget:    async (id) => { try { await instalarWidget(id); }    catch (e) { alert('❌ ' + e.message); throw e; } },
     desinstalarWidget: async (id) => { try { await desinstalarWidget(id); } catch (e) { alert('❌ ' + e.message); throw e; } },
-
-    activarWidget:   async (id) => { try { await activarWidget(id); }   catch (e) { alert('❌ ' + e.message); throw e; } },
-    desactivarWidget: async (id) => { try { await desactivarWidget(id); } catch (e) { alert('❌ ' + e.message); throw e; } }
+    activarWidget:     async (id) => { try { await activarWidget(id); }     catch (e) { alert('❌ ' + e.message); throw e; } },
+    desactivarWidget:  async (id) => { try { await desactivarWidget(id); }  catch (e) { alert('❌ ' + e.message); throw e; } }
 };
 
 // ============================================================
@@ -566,6 +593,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     actualizarAvatarHeader();
+    actualizarMonedasHeader();
     renderSidebar();
     renderTabs();
     renderAccesosRapidos();
