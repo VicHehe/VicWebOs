@@ -1,21 +1,20 @@
 // ============================================================
-//  Cuenta.js — Sistema de cuentas de VicWebOs
-//  - cuenta.json: array de cuentas
-//  - cuentaConfig.json: { [codigo]: { appsInstaladas, ... } }
-//  - Código: 4 dígitos + 1 letra (ej: 1234A), único
+//  Cuenta.js — Sistema de cuentas (solo GitHub)
 // ============================================================
 
 const CUENTAS_FILE = 'cuenta.json';
 const CUENTA_CONFIG_FILE = 'cuentaConfig.json';
 const SESION_KEY = 'vicwebos_cuenta';
+const ULTIMO_CODIGO_KEY = 'vicwebos_ultimo_codigo';
 
 let cuentaActual = null;
 let configCuentaActual = null;
 
 // ============================================================
-//  CUENTAS: leer / escribir
+//  CUENTAS
 // ============================================================
 async function cargarCuentas() {
+    if (!ConfigBD.estaConectado()) return [];
     const data = await ConfigBD.leerArchivo(CUENTAS_FILE);
     return Array.isArray(data) ? data : [];
 }
@@ -33,6 +32,7 @@ async function buscarCuentaPorCodigo(codigo) {
 //  CONFIG POR CUENTA
 // ============================================================
 async function leerTodasConfigCuentas() {
+    if (!ConfigBD.estaConectado()) return {};
     const data = await ConfigBD.leerArchivo(CUENTA_CONFIG_FILE);
     return (data && typeof data === 'object') ? data : {};
 }
@@ -49,14 +49,14 @@ async function guardarConfigCuenta(codigo, config) {
 }
 
 // ============================================================
-//  VALIDACIÓN DE CÓDIGO
+//  VALIDACIÓN
 // ============================================================
 function validarFormatoCodigo(codigo) {
     return /^[0-9]{4}[A-Z]$/.test(codigo);
 }
 
 // ============================================================
-//  FOTO (procesamiento)
+//  FOTO
 // ============================================================
 function procesarFoto(file) {
     return new Promise((resolve, reject) => {
@@ -89,6 +89,10 @@ function procesarFoto(file) {
 //  CREAR / LOGIN / LOGOUT
 // ============================================================
 async function crearCuenta({ foto, nombre, pronombre, codigo }) {
+    if (!ConfigBD.estaConectado()) {
+        throw new Error('Conecta GitHub primero desde "Base de datos".');
+    }
+
     const codigoUp = codigo.toUpperCase();
 
     if (!validarFormatoCodigo(codigoUp)) {
@@ -113,16 +117,17 @@ async function crearCuenta({ foto, nombre, pronombre, codigo }) {
 
     cuentas.push(nueva);
     await guardarCuentas(cuentas);
-
-    // Crear config por defecto
     await guardarConfigCuenta(codigoUp, { appsInstaladas: ['stor-he'], theme: 'light' });
 
-    // Iniciar sesión
     await iniciarSesion(codigoUp);
     return nueva;
 }
 
 async function iniciarSesion(codigo) {
+    if (!ConfigBD.estaConectado()) {
+        throw new Error('Conecta GitHub primero desde "Base de datos".');
+    }
+
     const codigoUp = codigo.toUpperCase();
     if (!validarFormatoCodigo(codigoUp)) {
         throw new Error('Formato de código inválido. Debe ser 4 dígitos + 1 letra.');
@@ -136,7 +141,10 @@ async function iniciarSesion(codigo) {
 
     cuentaActual = cuenta;
     configCuentaActual = await obtenerConfigCuenta(codigoUp);
+
+    // Guardar en localStorage (solo device, no se sincroniza)
     localStorage.setItem(SESION_KEY, codigoUp);
+    localStorage.setItem(ULTIMO_CODIGO_KEY, codigoUp);
 
     actualizarAvatarHeader();
     if (typeof renderSidebar === 'function') renderSidebar();
@@ -153,8 +161,11 @@ function cerrarSesion() {
 }
 
 async function restaurarSesion() {
+    if (!ConfigBD.estaConectado()) return null;
+
     const codigo = localStorage.getItem(SESION_KEY);
     if (!codigo) return null;
+
     try {
         const cuentas = await cargarCuentas();
         const cuenta = cuentas.find(c => c.codigo === codigo);
@@ -173,7 +184,7 @@ async function restaurarSesion() {
 }
 
 // ============================================================
-//  GESTIÓN DE APPS (por cuenta)
+//  APPS (por cuenta)
 // ============================================================
 function obtenerAppsInstaladas() {
     return configCuentaActual?.appsInstaladas || [];
@@ -184,6 +195,7 @@ function estaInstalada(id) {
 }
 
 async function instalarApp(id) {
+    if (!ConfigBD.estaConectado()) throw new Error('Conecta GitHub primero.');
     if (!cuentaActual) throw new Error('Necesitas una cuenta para instalar apps.');
     if (!configCuentaActual) configCuentaActual = { appsInstaladas: [], theme: 'light' };
     if (!configCuentaActual.appsInstaladas) configCuentaActual.appsInstaladas = [];
@@ -194,7 +206,9 @@ async function instalarApp(id) {
 }
 
 async function desinstalarApp(id) {
+    if (!ConfigBD.estaConectado()) throw new Error('Conecta GitHub primero.');
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
+
     const catalogo = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
     const app = catalogo.find(a => a.id === id);
     if (app && app.esBase) throw new Error('Esta app es del sistema y no se puede desinstalar.');
@@ -204,7 +218,7 @@ async function desinstalarApp(id) {
 }
 
 // ============================================================
-//  AVATAR EN EL HEADER
+//  AVATAR HEADER
 // ============================================================
 function actualizarAvatarHeader() {
     const btn = document.getElementById('btnConfig');
@@ -222,7 +236,7 @@ function actualizarAvatarHeader() {
 }
 
 // ============================================================
-//  UI DE LA SECCIÓN "CUENTA"
+//  UI CUENTA
 // ============================================================
 function inicializarUICuenta() {
     const tabs       = document.querySelectorAll('.cuenta-tab');
@@ -238,8 +252,13 @@ function inicializarUICuenta() {
     const btnSalir   = document.getElementById('btnCerrarCuenta');
     const sinSesion  = document.getElementById('cuentaSinSesion');
     const conSesion  = document.getElementById('cuentaConSesion');
+    const avisoGH    = document.getElementById('cuentaRequiereGitHub');
 
     let fotoTemp = null;
+
+    // Pre-rellenar último código usado
+    const ultimo = localStorage.getItem(ULTIMO_CODIGO_KEY);
+    if (ultimo && inputLogin) inputLogin.value = ultimo;
 
     // Tabs
     tabs.forEach(t => {
@@ -266,7 +285,7 @@ function inicializarUICuenta() {
         });
     }
 
-    // Código: auto-uppercase
+    // Auto-uppercase código
     [inputCod, inputLogin].forEach(inp => {
         if (!inp) return;
         inp.addEventListener('input', (e) => {
@@ -294,7 +313,6 @@ function inicializarUICuenta() {
                 });
                 setMsg('✅ Cuenta creada', 'success');
                 mostrarSesionActiva();
-                // Actualizar UI tras un momento
                 setTimeout(() => {
                     if (typeof renderSidebar === 'function') renderSidebar();
                 }, 200);
@@ -333,13 +351,9 @@ function inicializarUICuenta() {
             if (!confirm('¿Cerrar sesión? Tu cuenta se queda guardada, puedes volver con tu código.')) return;
             cerrarSesion();
             mostrarSinSesion();
-            setTimeout(() => {
-                if (typeof renderSidebar === 'function') renderSidebar();
-            }, 100);
         });
     }
 
-    // ---- Mostrar/ocultar secciones según sesión ----
     function mostrarSesionActiva() {
         if (!sinSesion || !conSesion) return;
         sinSesion.style.display = 'none';
@@ -363,16 +377,34 @@ function inicializarUICuenta() {
         sinSesion.style.display = 'block';
         conSesion.style.display = 'none';
         if (inputCod) inputCod.value = '';
-        if (inputLogin) inputLogin.value = '';
         if (inputNom) inputNom.value = '';
+        const ultimo = localStorage.getItem(ULTIMO_CODIGO_KEY);
+        if (inputLogin) inputLogin.value = ultimo || '';
         fotoTemp = null;
         if (fotoPrev) fotoPrev.innerHTML = '<i data-lucide="camera"></i><span class="cuenta-foto-texto">Subir foto</span>';
         lucide.createIcons();
     }
 
-    // Exponer globalmente para que configuracion.js las llame
+    // Actualizar visibilidad según estado
     window.__actualizarUISesion = () => {
+        // Aviso de GitHub
+        if (avisoGH) {
+            avisoGH.style.display = ConfigBD.estaConectado() ? 'none' : 'flex';
+        }
+
+        if (!ConfigBD.estaConectado()) {
+            // Sin GitHub → ocultar todo lo demás
+            if (sinSesion) sinSesion.style.display = 'none';
+            if (conSesion) conSesion.style.display = 'none';
+            lucide.createIcons();
+            return;
+        }
+
         if (cuentaActual) mostrarSesionActiva();
         else mostrarSinSesion();
+        lucide.createIcons();
     };
+
+    // Ejecutar al cargar
+    window.__actualizarUISesion();
 }
