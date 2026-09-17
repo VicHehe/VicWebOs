@@ -3,10 +3,7 @@
 // ============================================================
 
 const CONFIG_KEY = 'vicwebos_config';
-
-const DEFAULT_CONFIG = {
-    theme: 'light'
-};
+const DEFAULT_CONFIG = { theme: 'light' };
 
 function cargarConfiguracion() {
     try {
@@ -22,9 +19,6 @@ function guardarConfiguracion(config) {
     } catch (e) { console.warn(e); }
 }
 
-// ============================================================
-//  UI
-// ============================================================
 document.addEventListener('DOMContentLoaded', () => {
     const btnConfig        = document.getElementById('btnConfig');
     const configOverlay    = document.getElementById('configOverlay');
@@ -32,13 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnGuardarConfig = document.getElementById('btnGuardarConfig');
     const appsLista        = document.getElementById('appsInstaladasLista');
     const footerMsg        = document.getElementById('configFooterMsg');
-    const githubToken      = document.getElementById('githubToken');
-    const githubRepo       = document.getElementById('githubRepo');
-    const githubConfig     = document.getElementById('githubConfig');
 
     if (!btnConfig || !configOverlay) return;
 
-    // Inicializar UI de cuenta
     if (typeof inicializarUICuenta === 'function') inicializarUICuenta();
 
     // ---------- NAVEGACIÓN ----------
@@ -51,14 +41,25 @@ document.addEventListener('DOMContentLoaded', () => {
             const panel = document.querySelector(`.config-panel[data-panel="${seccion}"]`);
             if (panel) panel.classList.add('active');
 
-            // Refrescar apps al abrir ese panel
             if (seccion === 'apps') renderAppsInstaladas();
+            if (seccion === 'bd' && typeof window.__actualizarUIBD === 'function') window.__actualizarUIBD();
         });
     });
 
     // ---------- RENDER APPS ----------
     function renderAppsInstaladas() {
         if (!appsLista) return;
+
+        if (!ConfigBD.estaConectado()) {
+            appsLista.innerHTML = `
+                <div class="config-empty" style="padding: 30px 12px;">
+                    <div class="config-empty-icon"><i data-lucide="database"></i></div>
+                    <h4>Conecta GitHub primero</h4>
+                    <p>Ve a la pestaña "Base de datos" y conecta tu repositorio.</p>
+                </div>`;
+            lucide.createIcons();
+            return;
+        }
 
         if (!cuentaActual) {
             appsLista.innerHTML = `
@@ -119,27 +120,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ---------- ABRIR CONFIG ----------
+    // ---------- ABRIR ----------
     btnConfig.addEventListener('click', () => {
-        // BD
-        if (typeof cargarConfigBD === 'function') {
-            const bdConfig = cargarConfigBD();
-            document.querySelectorAll('input[name="storage"]').forEach(r => {
-                r.checked = r.value === bdConfig.tipo;
-            });
-            if (githubConfig) githubConfig.style.display = bdConfig.tipo === 'github' ? 'block' : 'none';
-            if (githubToken) githubToken.value = bdConfig.githubToken || '';
-            if (githubRepo)  githubRepo.value  = bdConfig.githubRepo  || '';
-        }
-
         // Reset a sección "cuenta"
         document.querySelectorAll('.config-nav-item').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.config-panel').forEach(p => p.classList.remove('active'));
         document.querySelector('.config-nav-item[data-section="cuenta"]')?.classList.add('active');
         document.querySelector('.config-panel[data-panel="cuenta"]')?.classList.add('active');
 
-        // Actualizar UI de sesión
         if (typeof window.__actualizarUISesion === 'function') window.__actualizarUISesion();
+        if (typeof window.__actualizarUIBD === 'function') window.__actualizarUIBD();
 
         if (footerMsg) footerMsg.textContent = '';
         configOverlay.style.display = 'flex';
@@ -154,14 +144,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ---------- GUARDAR ----------
     btnGuardarConfig.addEventListener('click', async () => {
-        const storageElegido = document.querySelector('input[name="storage"]:checked')?.value || 'indexeddb';
-
-        if (typeof cargarConfigBD === 'function') {
-            const bdConfig = cargarConfigBD();
-            bdConfig.tipo = storageElegido;
-            guardarConfigBD(bdConfig);
-        }
-
         if (footerMsg) footerMsg.textContent = '✅ Cambios guardados';
         setTimeout(() => {
             if (footerMsg) footerMsg.textContent = '';
@@ -170,9 +152,17 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ============================================================
-//  ABRIR CONFIG DIRECTO A "CUENTA"
+//  ABRIR CONFIG DIRECTO
 // ============================================================
 function abrirConfigEnCuenta() {
     const btn = document.getElementById('btnConfig');
     if (btn) btn.click();
+}
+
+function abrirConfigEnBD() {
+    const btn = document.getElementById('btnConfig');
+    if (btn) btn.click();
+    setTimeout(() => {
+        document.querySelector('.config-nav-item[data-section="bd"]')?.click();
+    }, 100);
 }
