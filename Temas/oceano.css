@@ -1,0 +1,25 @@
+/* ================================================
+   Tema: Océano
+   ================================================ */
+
+:root {
+    --violet-50:  #EFF6FF;
+    --violet-100: #DBEAFE;
+    --violet-200: #BFDBFE;
+    --violet-300: #93C5FD;
+    --violet-400: #60A5FA;
+    --violet-500: #3B82F6;
+    --violet-600: #2563EB;
+    --violet-700: #1D4ED8;
+
+    --bg:     #F8FAFC;
+    --bg-alt: #F1F5F9;
+
+    --shadow-glow: 0 0 0 4px rgba(59, 130, 246, 0.10);
+
+    --accent-gradient: linear-gradient(135deg, #3B82F6, #1D4ED8);
+    --accent-gradient-hover: linear-gradient(135deg, #3B82F6, #2563EB);
+    --accent-shadow: rgba(59, 130, 246, 0.28);
+    --accent-shadow-hover: rgba(59, 130, 246, 0.38);
+    --accent-text-gradient: linear-gradient(135deg, var(--gray-900), #2563EB);
+}
