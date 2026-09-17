@@ -1,11 +1,21 @@
 // ============================================================
-//  Cuenta.js — Cuentas + apps + temas + widgets
+//  Cuenta.js — Cuentas + apps + temas + widgets + espacio/monedas
 // ============================================================
 
 const CUENTAS_FILE = 'cuenta.json';
 const CUENTA_CONFIG_FILE = 'cuentaConfig.json';
 const SESION_KEY = 'vicwebos_cuenta';
 const ULTIMO_CODIGO_KEY = 'vicwebos_ultimo_codigo';
+
+// ============================================================
+//  CONSTANTES DE ESPACIO Y MONEDAS
+//  Todo esto es ajustable desde aquí si quieres rebalancear.
+// ============================================================
+const ESPACIO_INICIAL         = 50;    // espacio con el que empiezas
+const ESPACIO_POR_COMPRA      = 12;    // cuánto suma cada compra
+const COSTO_COMPRA_ESPACIO    = 2500;  // monedas que cuesta una compra
+const MONEDAS_INICIALES       = 0;     // monedas al crear cuenta
+const MAX_WIDGETS_ACTIVOS     = 3;     // tope de widgets activos
 
 let cuentaActual = null;
 let configCuentaActual = null;
@@ -15,7 +25,9 @@ const CONFIG_CUENTA_DEFAULT = {
     temasInstalados: ['violeta'],
     temaActivo: 'violeta',
     widgetsInstalados: [],
-    widgetsActivos: []
+    widgetsActivos: [],
+    espacioMaximo: ESPACIO_INICIAL,
+    monedas: MONEDAS_INICIALES
 };
 
 // ---------- CUENTAS ----------
@@ -43,13 +55,91 @@ async function leerTodasConfigCuentas() {
 
 async function obtenerConfigCuenta(codigo) {
     const all = await leerTodasConfigCuentas();
-    return { ...CONFIG_CUENTA_DEFAULT, ...(all[codigo] || {}) };
+    const cfg = { ...CONFIG_CUENTA_DEFAULT, ...(all[codigo] || {}) };
+    // Migración: si es cuenta vieja sin espacioMaximo/monedas, se los ponemos
+    if (typeof cfg.espacioMaximo !== 'number') cfg.espacioMaximo = ESPACIO_INICIAL;
+    if (typeof cfg.monedas !== 'number') cfg.monedas = MONEDAS_INICIALES;
+    return cfg;
 }
 
 async function guardarConfigCuenta(codigo, config) {
     const all = await leerTodasConfigCuentas();
     all[codigo] = config;
     return await ConfigBD.escribirArchivo(CUENTA_CONFIG_FILE, all);
+}
+
+// ============================================================
+//  ESPACIO Y MONEDAS
+// ============================================================
+function obtenerEspacioMaximo() {
+    return configCuentaActual?.espacioMaximo ?? ESPACIO_INICIAL;
+}
+
+function obtenerMonedas() {
+    return configCuentaActual?.monedas ?? MONEDAS_INICIALES;
+}
+
+// Calcula el espacio total usado por apps + temas + widgets instalados
+function calcularEspacioUsado() {
+    if (!configCuentaActual) return 0;
+
+    const apps    = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
+    const temas   = typeof TEMAS_DISPONIBLES  !== 'undefined' ? TEMAS_DISPONIBLES  : [];
+    const widgets = typeof WIDGETS_DISPONIBLES !== 'undefined' ? WIDGETS_DISPONIBLES : [];
+
+    let total = 0;
+
+    (configCuentaActual.appsInstaladas || []).forEach(id => {
+        const a = apps.find(x => x.id === id);
+        if (a && !a.esBase) total += (a.espacio || 0);
+    });
+    (configCuentaActual.temasInstalados || []).forEach(id => {
+        const t = temas.find(x => x.id === id);
+        if (t && !t.esBase) total += (t.espacio || 0);
+    });
+    (configCuentaActual.widgetsInstalados || []).forEach(id => {
+        const w = widgets.find(x => x.id === id);
+        if (w && !w.esBase) total += (w.espacio || 0);
+    });
+
+    return total;
+}
+
+function calcularEspacioLibre() {
+    return obtenerEspacioMaximo() - calcularEspacioUsado();
+}
+
+// Valida si se puede instalar algo. Devuelve { ok, motivo }
+function puedeInstalar({ espacio = 0, monedas = 0 }) {
+    if (!cuentaActual) return { ok: false, motivo: 'Necesitas una cuenta.' };
+    if (calcularEspacioLibre() < espacio) {
+        return { ok: false, motivo: `Necesitas ${espacio} de espacio (tienes ${calcularEspacioLibre()} libres).` };
+    }
+    if (obtenerMonedas() < monedas) {
+        return { ok: false, motivo: `Necesitas ${monedas} monedas (tienes ${obtenerMonedas()}).` };
+    }
+    return { ok: true };
+}
+
+// Descuenta monedas. Puede ser negativo si no se valida antes.
+async function descontarMonedas(cantidad) {
+    if (!cuentaActual || cantidad <= 0) return;
+    configCuentaActual.monedas = Math.max(0, (configCuentaActual.monedas || 0) - cantidad);
+    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+    if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
+}
+
+// Compra de espacio (llamada desde Stor-He)
+async function comprarEspacio() {
+    if (!cuentaActual) throw new Error('Necesitas una cuenta.');
+    if (obtenerMonedas() < COSTO_COMPRA_ESPACIO) {
+        throw new Error(`Te faltan ${COSTO_COMPRA_ESPACIO - obtenerMonedas()} monedas.`);
+    }
+    configCuentaActual.monedas -= COSTO_COMPRA_ESPACIO;
+    configCuentaActual.espacioMaximo += ESPACIO_POR_COMPRA;
+    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+    if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
+    return { ok: true, espacioMaximo: configCuentaActual.espacioMaximo, monedas: configCuentaActual.monedas };
 }
 
 // ---------- VALIDACIÓN ----------
@@ -136,6 +226,7 @@ async function iniciarSesion(codigo) {
 
     cargarCSSTema(obtenerTemaActivo());
     actualizarAvatarHeader();
+    if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
     if (typeof renderSidebar === 'function') renderSidebar();
     if (typeof renderAccesosRapidos === 'function') renderAccesosRapidos();
     if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
@@ -150,6 +241,7 @@ function cerrarSesion() {
 
     cargarCSSTema('violeta');
     actualizarAvatarHeader();
+    if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
     if (typeof renderSidebar === 'function') renderSidebar();
     if (typeof renderAccesosRapidos === 'function') renderAccesosRapidos();
     if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
@@ -182,11 +274,20 @@ function estaInstalada(id) { return obtenerAppsInstaladas().includes(id); }
 async function instalarApp(id) {
     if (!ConfigBD.estaConectado()) throw new Error('Conecta GitHub primero.');
     if (!cuentaActual) throw new Error('Necesitas una cuenta para instalar apps.');
+
+    const catalogo = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
+    const app = catalogo.find(a => a.id === id);
+    if (!app) throw new Error('App no encontrada.');
+    if (estaInstalada(id)) return;
+
+    const check = puedeInstalar({ espacio: app.espacio || 0, monedas: app.monedas || 0 });
+    if (!check.ok) throw new Error(check.motivo);
+
     if (!configCuentaActual.appsInstaladas) configCuentaActual.appsInstaladas = [];
-    if (!configCuentaActual.appsInstaladas.includes(id)) {
-        configCuentaActual.appsInstaladas.push(id);
-        await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
-    }
+    configCuentaActual.appsInstaladas.push(id);
+    if ((app.monedas || 0) > 0) configCuentaActual.monedas -= app.monedas;
+    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+    if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
 }
 
 async function desinstalarApp(id) {
@@ -205,11 +306,20 @@ function obtenerTemaActivo() { return configCuentaActual?.temaActivo || 'violeta
 
 async function instalarTema(id) {
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
+
+    const catalogo = typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : [];
+    const tema = catalogo.find(t => t.id === id);
+    if (!tema) throw new Error('Tema no encontrado.');
+    if ((configCuentaActual.temasInstalados || []).includes(id)) return;
+
+    const check = puedeInstalar({ espacio: tema.espacio || 0, monedas: tema.monedas || 0 });
+    if (!check.ok) throw new Error(check.motivo);
+
     if (!configCuentaActual.temasInstalados) configCuentaActual.temasInstalados = [];
-    if (!configCuentaActual.temasInstalados.includes(id)) {
-        configCuentaActual.temasInstalados.push(id);
-        await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
-    }
+    configCuentaActual.temasInstalados.push(id);
+    if ((tema.monedas || 0) > 0) configCuentaActual.monedas -= tema.monedas;
+    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+    if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
 }
 
 async function desinstalarTema(id) {
@@ -269,11 +379,20 @@ function obtenerWidgetsActivos() { return configCuentaActual?.widgetsActivos || 
 
 async function instalarWidget(id) {
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
+
+    const catalogo = typeof WIDGETS_DISPONIBLES !== 'undefined' ? WIDGETS_DISPONIBLES : [];
+    const w = catalogo.find(x => x.id === id);
+    if (!w) throw new Error('Widget no encontrado.');
+    if ((configCuentaActual.widgetsInstalados || []).includes(id)) return;
+
+    const check = puedeInstalar({ espacio: w.espacio || 0, monedas: w.monedas || 0 });
+    if (!check.ok) throw new Error(check.motivo);
+
     if (!configCuentaActual.widgetsInstalados) configCuentaActual.widgetsInstalados = [];
-    if (!configCuentaActual.widgetsInstalados.includes(id)) {
-        configCuentaActual.widgetsInstalados.push(id);
-        await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
-    }
+    configCuentaActual.widgetsInstalados.push(id);
+    if ((w.monedas || 0) > 0) configCuentaActual.monedas -= w.monedas;
+    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+    if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
 }
 
 async function desinstalarWidget(id) {
@@ -287,11 +406,15 @@ async function desinstalarWidget(id) {
 async function activarWidget(id) {
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
     if (!configCuentaActual.widgetsActivos) configCuentaActual.widgetsActivos = [];
-    if (!configCuentaActual.widgetsActivos.includes(id)) {
-        configCuentaActual.widgetsActivos.push(id);
-        await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
-        if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
+    if (configCuentaActual.widgetsActivos.includes(id)) return;
+
+    if (configCuentaActual.widgetsActivos.length >= MAX_WIDGETS_ACTIVOS) {
+        throw new Error(`Máximo ${MAX_WIDGETS_ACTIVOS} widgets activos. Desactiva uno para activar otro.`);
     }
+
+    configCuentaActual.widgetsActivos.push(id);
+    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+    if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
 }
 
 async function desactivarWidget(id) {
@@ -388,6 +511,7 @@ function inicializarUICuenta() {
                     if (typeof renderAccesosRapidos === 'function') renderAccesosRapidos();
                     if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
                     if (typeof actualizarSaludo === 'function') actualizarSaludo();
+                    if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
                 }, 200);
             } catch (e) { setMsg('❌ ' + e.message, 'error'); }
         });
@@ -410,6 +534,7 @@ function inicializarUICuenta() {
                     if (typeof renderAccesosRapidos === 'function') renderAccesosRapidos();
                     if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
                     if (typeof actualizarSaludo === 'function') actualizarSaludo();
+                    if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
                 }, 200);
             } catch (e) { setMsg('❌ ' + e.message, 'error'); }
         });
