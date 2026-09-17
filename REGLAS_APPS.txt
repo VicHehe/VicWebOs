@@ -3,32 +3,72 @@
   Última actualización: 2026
 ================================================================
 
-Estas reglas aplican a TODAS las apps que se desarrollen o
-integren en VicWebOs. Son de cumplimiento obligatorio para
-mantener consistencia, portabilidad y compatibilidad con
-GitHub como backend.
+IMPORTANTE — DOS REPOSITORIOS SEPARADOS:
+
+  1) VicWebOs/         → REPO DE CÓDIGO (público o privado)
+                          Contiene el OS y las apps instalables.
+                          Se hostea en GitHub Pages / Vercel / etc.
+
+  2) vicwebos-data/    → REPO DE DATOS (privado, uno por grupo)
+                          Contiene los datos del usuario/grupo.
+                          Se conecta desde VicWebOs con un token.
+
+El usuario solo ve UNA VicWebOs (el código), pero cada grupo
+puede tener su propio vicwebos-data con sus cuentas y datos.
+
+================================================================
+  ESTRUCTURA GENERAL
+================================================================
+
+REPO DE CÓDIGO — VicWebOs/
+    VicWebOs/
+      index.html
+      style.css
+      README.md
+      REGLAS_APPS.txt
+      js/
+        JsRutas.js
+        ConfigBD.js
+        Cuenta.js
+        configuracion.js
+        JsIndex.js
+      herramientas/
+        {nombreHerramienta}/
+          index.html
+          style.css
+          script.js
+
+REPO DE DATOS — vicwebos-data/
+    vicwebos-data/
+      cuenta.json
+      cuentaConfig.json
+      app/
+        {nombreHerramienta}/
+          {nombreHerramienta}.json
+          {codigoUsuario}{nombreHerramienta}.json
+          {nombreHerramienta}(imagen)/
+          {nombreHerramienta}(audio)/
+          {nombreHerramienta}(video)/
+          {nombreHerramienta}(documento)/
+
+La carpeta /app SIEMPRE vive dentro de vicwebos-data/, nunca
+dentro del repo de código.
 
 ================================================================
   REGLA 1 — DATOS EN JSON POR APP
 ================================================================
 
-Cada app guarda su información en archivos JSON ubicados
-dentro de su propia carpeta en /app.
+Cada app guarda su información en archivos JSON dentro de su
+propia carpeta en /app (dentro del repo de datos).
 
-ESTRUCTURA BASE:
-
-    app/
-      {nombreHerramienta}/
-        {nombreHerramienta}.json              ← datos globales
-        {codigoUsuario}{nombreHerramienta}.json  ← datos por usuario
+    vicwebos-data/app/{nombreHerramienta}/
+      {nombreHerramienta}.json              ← datos globales
+      {codigoUsuario}{nombreHerramienta}.json  ← datos por usuario
 
 Una app puede usar:
     - UN SOLO JSON global
     - VARIOS JSON (uno por usuario)
     - AMBOS (global + por usuario)
-
-La estructura depende de las necesidades de cada app. Lo
-IMPORTANTE es respetar el patrón de nombres y la carpeta.
 
 ----------------------------------------------------------------
   PATRÓN DE NOMBRES
@@ -62,7 +102,7 @@ REGLAS DEL PATRÓN:
     - El código conserva su mayúscula (1234A), el nombre de
       la herramienta va en minúsculas.
     - El nombre de la herramienta debe coincidir con el "id"
-      de la app en JsRutas.js (sin guiones bajos, tal cual).
+      de la app en JsRutas.js.
 
 ----------------------------------------------------------------
   CUÁNDO USAR CADA UNO
@@ -84,12 +124,6 @@ AMBOS → cuando parte es compartida y parte es personal.
 ----------------------------------------------------------------
   ESTRUCTURA INTERNA DEL JSON
 ----------------------------------------------------------------
-
-El JSON debe contener un objeto con una propiedad "datos"
-(o el nombre que tenga sentido para la app) que almacene
-todo el estado.
-
-EJEMPLO DE ESTRUCTURA RECOMENDADA:
 
     {
         "version": 1,
@@ -116,14 +150,12 @@ REGLA GENERAL:
 EXCEPCIÓN ÚNICA:
     cuenta.json PUEDE contener la foto del usuario en base64
     embebida. Es el ÚNICO archivo autorizado para hacerlo.
-    Razón: son fotos pequeñas (~15 KB tras redimensionar) y
-    es más simple mantenerlas dentro del propio archivo de
-    cuentas que crear una carpeta solo para eso.
+    Razón: son fotos pequeñas (~15 KB tras redimensionar).
 
 Los archivos binarios van dentro de la carpeta de la app,
 en subcarpetas por tipo:
 
-    app/{nombreHerramienta}/{nombreHerramienta}({tipo})/{archivo}.{ext}
+    vicwebos-data/app/{nombreHerramienta}/{nombreHerramienta}({tipo})/{archivo}.{ext}
 
 TIPOS DE ARCHIVO PERMITIDOS:
     - imagen
@@ -156,159 +188,126 @@ EN EL JSON DE LA APP:
 REGLAS ADICIONALES:
     - Nombres de archivo sin espacios ni caracteres especiales.
       Usar guiones bajos: foto_001.png, no "foto 001.png".
-    - Nombres en minúsculas siempre.
-    - Extensiones en minúsculas: .png, .jpg, .mp3, .mp4
-    - Un archivo = un recurso. No comprimir varios en uno.
-    - Si el archivo pesa más de 25 MB, considerar dividirlo
-      (límite de la API de GitHub por archivo).
-    - Si un archivo se borra lógicamente, se elimina también
-      del repositorio para no acumular basura.
+    - Nombres y extensiones en minúsculas: .png, .jpg, .mp3, .mp4
+    - Un archivo = un recurso.
+    - Si pesa más de 25 MB, considerar dividirlo (límite GitHub).
 
 ================================================================
   REGLA 3 — ESTRUCTURA DE LAS HERRAMIENTAS
 ================================================================
 
-Toda herramienta vive en su propia carpeta dentro de
-/herramientas y tiene EXACTAMENTE esta estructura:
+Toda herramienta vive en su propia carpeta dentro del repo
+de CÓDIGO, en /herramientas, con EXACTAMENTE esta estructura:
 
-    herramientas/
-      {nombreHerramienta}/
+    VicWebOs/herramientas/{nombreHerramienta}/
         index.html      ← HTML
         style.css       ← CSS
         script.js       ← JavaScript
 
 REGLAS:
-    - Los nombres son fijos: index.html, style.css, script.js
-    - No se permiten otros nombres.
-    - No se permiten subcarpetas adicionales (js/, css/, img/).
-      Si una herramienta necesita assets propios, van dentro
-      de la carpeta /app de esa herramienta (ver Regla 2).
-    - El archivo se referencia desde JsRutas.js así:
+    - Nombres fijos: index.html, style.css, script.js
+    - No se permiten otros nombres ni subcarpetas dentro
+      de la carpeta de la herramienta.
+    - Si necesita assets propios, van en /app del repo de
+      datos (ver Regla 2).
+    - En JsRutas.js:
         ruta: 'herramientas/{nombreHerramienta}/index.html'
-    - El id en JsRutas.js debe coincidir con el nombre de la
-      carpeta y con el nombre de los JSON en /app.
+    - El id en JsRutas.js debe coincidir con:
+        · el nombre de la carpeta de la herramienta
+        · el nombre de los JSON en /app
+        · el nombre de las subcarpetas de binarios en /app
 
 EJEMPLO — App "galeria":
-    herramientas/galeria/index.html
-    herramientas/galeria/style.css
-    herramientas/galeria/script.js
 
-    JsRutas.js:
-        {
-            id: 'galeria',
-            nombre: 'Galería',
-            icono: 'image',
-            ruta: 'herramientas/galeria/index.html',
-            descripcion: 'Tus fotos favoritas',
-            categoria: 'Creación y Recuerdos'
-        }
+  En el repo de CÓDIGO:
+    VicWebOs/herramientas/galeria/index.html
+    VicWebOs/herramientas/galeria/style.css
+    VicWebOs/herramientas/galeria/script.js
 
-    Datos:
-        app/galeria/galeria.json
-        app/galeria/1234Agaleria.json
-        app/galeria/galeria(imagen)/foto_001.png
+  En el repo de DATOS:
+    vicwebos-data/app/galeria/galeria.json
+    vicwebos-data/app/galeria/1234Agaleria.json
+    vicwebos-data/app/galeria/galeria(imagen)/foto_001.png
+
+  En JsRutas.js:
+    {
+        id: 'galeria',
+        nombre: 'Galería',
+        icono: 'image',
+        ruta: 'herramientas/galeria/index.html',
+        descripcion: 'Tus fotos favoritas',
+        categoria: 'Creación y Recuerdos'
+    }
 
 ================================================================
-  TABLA RESUMEN
+  DÓNDE VA CADA COSA (resumen)
 ================================================================
 
-  TIPO DE DATO       → DÓNDE VA
+  COSA                → REPO            → RUTA
   ------------------------------------------------------------
-  Código de app      → herramientas/{nombre}/
-                         index.html
-                         style.css
-                         script.js
+  Código de la app    → VicWebOs/       → herramientas/{n}/index.html
+                                                          style.css
+                                                          script.js
 
-  Texto, números,    → app/{nombre}/{nombre}.json          (global)
-  fechas, listas,      o
-  configuración        app/{nombre}/{codigo}{nombre}.json (por usuario)
+  Registro de la app  → VicWebOs/       → js/JsRutas.js
 
-  Foto de usuario    → cuenta.json (base64)  ← ÚNICA EXCEPCIÓN
+  Cuentas             → vicwebos-data/  → cuenta.json
 
-  Imágenes           → app/{nombre}/{nombre}(imagen)/archivo.png
-                       (referencia en el JSON)
+  Apps por usuario    → vicwebos-data/  → cuentaConfig.json
+  temas, tema activo,
+  widgets
 
-  Videos             → app/{nombre}/{nombre}(video)/archivo.mp4
-                       (referencia en el JSON)
+  Datos de una app    → vicwebos-data/  → app/{n}/{n}.json
+  (globales)                              app/{n}/{cod}{n}.json
 
-  Audios             → app/{nombre}/{nombre}(audio)/archivo.mp3
-                       (referencia en el JSON)
-
-  Documentos         → app/{nombre}/{nombre}(documento)/archivo.pdf
-                       (referencia en el JSON)
+  Archivos binarios   → vicwebos-data/  → app/{n}/{n}(imagen)/...
+  de una app                              app/{n}/{n}(audio)/...
+                                          app/{n}/{n}(video)/...
+                                          app/{n}/{n}(documento)/...
 
 ================================================================
   API DISPONIBLE (recordatorio)
 ================================================================
 
-Para leer datos:
+ConfigBD.leerArchivo() y ConfigBD.escribirArchivo() operan
+SIEMPRE sobre el repo de DATOS (vicwebos-data/). El path es
+relativo a la raíz de ese repo.
+
+Para leer datos globales de una app:
     const data = await ConfigBD.leerArchivo(
         'app/galeria/galeria.json'
     );
 
-Para escribir datos:
+Para escribir datos globales:
     await ConfigBD.escribirArchivo(
         'app/galeria/galeria.json', data
     );
 
-Para leer datos de un usuario:
+Para leer datos del usuario actual:
     const codigo = cuentaActual.codigo; // ej: "1234A"
     const data = await ConfigBD.leerArchivo(
         `app/calendario/${codigo}calendario.json`
     );
 
 Para archivos binarios:
-    - Se subirán vía la API de GitHub (contents API)
-    - Se leerán con la misma API y se mostrarán con blob URLs
-    - Nunca se guardan como base64 en el JSON (excepto cuenta.json)
-
-================================================================
-  EJEMPLO COMPLETO — App "galeria"
-================================================================
-
-Estructura en el repositorio:
-    herramientas/galeria/index.html
-    herramientas/galeria/style.css
-    herramientas/galeria/script.js
-
-    app/galeria/galeria.json
-    app/galeria/1234Agaleria.json
-    app/galeria/5678Bgaleria.json
-    app/galeria/galeria(imagen)/foto_001.png
-    app/galeria/galeria(imagen)/foto_002.jpg
-    app/galeria/galeria(imagen)/foto_003.png
-
-Contenido de app/galeria/galeria.json (índice global):
-    {
-        "version": 1,
-        "datos": {
-            "fotosPublicas": [
-                { "id": "1", "ruta": "app/galeria/galeria(imagen)/foto_001.png", "titulo": "Atardecer" }
-            ]
-        }
-    }
-
-Contenido de app/galeria/1234Agaleria.json (galería personal):
-    {
-        "version": 1,
-        "actualizado": "2025-01-15T10:30:00Z",
-        "datos": {
-            "fotos": [
-                { "id": "1", "ruta": "app/galeria/galeria(imagen)/foto_002.jpg", "titulo": "Playa" },
-                { "id": "2", "ruta": "app/galeria/galeria(imagen)/foto_003.png", "titulo": "Bosque" }
-            ]
-        }
-    }
+    - Se suben vía la API de GitHub (contents API) al repo
+      de datos.
+    - Se leen con la misma API y se muestran con blob URLs.
+    - Nunca se guardan como base64 en el JSON (excepto
+      cuenta.json).
 
 ================================================================
   EJEMPLO COMPLETO — App "chequera"
 ================================================================
 
-Estructura en el repositorio:
+Repo de CÓDIGO (VicWebOs):
     herramientas/chequera/index.html
     herramientas/chequera/style.css
     herramientas/chequera/script.js
 
+Repo de DATOS (vicwebos-data):
+    cuenta.json
+    cuentaConfig.json
     app/chequera/chequera.json
     app/chequera/1234Achequera.json
     app/chequera/5678Bchequera.json
@@ -324,7 +323,7 @@ Contenido de app/chequera/chequera.json (catálogo global):
         }
     }
 
-Contenido de app/chequera/1234Achequera.json (monedas del usuario):
+Contenido de app/chequera/1234Achequera.json (monedas usuario):
     {
         "version": 1,
         "actualizado": "2025-01-15T10:30:00Z",
@@ -338,25 +337,25 @@ Contenido de app/chequera/1234Achequera.json (monedas del usuario):
   POR QUÉ ESTAS REGLAS
 ================================================================
 
-1. Estructura fija de herramientas (index.html, style.css,
-   script.js) → cada app es autocontenida, sin ambigüedad,
-   sin dependencias de rutas raras.
+1. Separación código/datos → el código se actualiza para
+   todos a la vez, los datos son privados de cada grupo.
 
-2. Carpeta por app en /app → todos los datos de una app
-   quedan juntos, fácil de auditar, fácil de borrar, fácil
-   de compartir.
+2. Estructura fija de herramientas → cada app es
+   autocontenida, sin ambigüedad, fácil de copiar a otra
+   VicWebOs.
 
-3. Patrón {codigo}{herramienta}.json → predecible, sin
-   ambigüedad, cada app sabe exactamente dónde buscar los
-   datos de cada usuario.
+3. Carpeta por app en /app → todos los datos de una app
+   quedan juntos, fácil de auditar, fácil de borrar.
 
-4. Archivos binarios separados por tipo → los JSON se
-   mantienen pequeños y legibles, no se infla el repo con
-   base64, y GitHub puede manejar cada archivo individualmente.
+4. Patrón {codigo}{herramienta}.json → predecible, sin
+   ambigüedad, cada app sabe dónde buscar los datos del
+   usuario.
 
-5. Excepción única para cuenta.json → las fotos de perfil
-   son pequeñas y necesitan estar en el mismo archivo que
-   la cuenta para simplificar la carga inicial.
+5. Archivos binarios separados por tipo → los JSON se
+   mantienen pequeños, GitHub maneja cada archivo mejor.
+
+6. Excepción única para cuenta.json → las fotos de perfil
+   son pequeñas y simplifica la carga inicial.
 
 ================================================================
   FIN DEL DOCUMENTO
