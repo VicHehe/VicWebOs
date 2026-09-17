@@ -1,0 +1,183 @@
+/* ================================================
+   Tema: Dreams and Hopes
+   Fondo negro profundo con acentos arcoíris.
+   Para soñadores.
+   ================================================ */
+
+:root {
+    /* Paleta de acento: arcoíris */
+    --violet-50:  #221030;
+    --violet-100: #2E1A44;
+    --violet-200: #3E2A5C;
+    --violet-300: #7C4DE8;
+    --violet-400: #A78BFA;
+    --violet-500: #C084FC;
+    --violet-600: #A855F7;
+    --violet-700: #7E22CE;
+
+    /* Neutros oscuros */
+    --white:   #0A0A15;
+    --bg:      #050510;
+    --bg-alt:  #0F0F1E;
+    --gray-50:  #0F0F1E;
+    --gray-100: #15152A;
+    --gray-200: #222236;
+    --gray-300: #35354E;
+    --gray-400: #5A5A7A;
+    --gray-500: #8A8AAC;
+    --gray-600: #B0B0C8;
+    --gray-700: #D0D0E0;
+    --gray-800: #E5E5F0;
+    --gray-900: #F5F5FF;
+
+    /* Tokens semánticos */
+    --border:  #2A2A44;
+    --text:    #F5F5FF;
+    --text-2:  #B0B0C8;
+    --text-3:  #8A8AAC;
+
+    /* Sombras */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.7);
+    --shadow-glow: 0 0 0 4px rgba(192, 132, 252, 0.20);
+
+    /* Acento arcoíris */
+    --accent-gradient: linear-gradient(135deg, #EF4444, #F59E0B, #10B981, #3B82F6, #8B5CF6, #EC4899);
+    --accent-gradient-hover: linear-gradient(135deg, #F87171, #FBBF24, #34D399, #60A5FA, #A78BFA, #F472B6);
+    --accent-shadow: rgba(192, 132, 252, 0.35);
+    --accent-shadow-hover: rgba(192, 132, 252, 0.55);
+    --accent-text-gradient: linear-gradient(135deg, #F472B6, #A78BFA, #60A5FA, #34D399);
+}
+
+/* ------------------------------------------------------------
+   Toques arcoíris en el shell
+   (solo afecta al shell; las apps solo heredan variables)
+   ------------------------------------------------------------ */
+
+/* Accesos rápidos con borde arcoíris sutil */
+.acceso-item {
+    position: relative;
+    border-color: transparent;
+}
+.acceso-item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: linear-gradient(135deg, #EF4444, #F59E0B, #10B981, #3B82F6, #8B5CF6, #EC4899);
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0.35;
+    transition: opacity 0.22s;
+}
+.acceso-item:hover::after {
+    opacity: 1;
+}
+
+/* Widgets con el mismo tratamiento */
+.widget-item {
+    position: relative;
+}
+.widget-item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: linear-gradient(135deg, #EF4444, #F59E0B, #10B981, #3B82F6, #8B5CF6, #EC4899);
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0.35;
+    transition: opacity 0.22s;
+}
+.widget-item:hover::after {
+    opacity: 1;
+}
+
+/* App activa en el sidebar: borde arcoíris */
+.nav-item.active {
+    position: relative;
+}
+.nav-item.active::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: linear-gradient(135deg, #EF4444, #F59E0B, #10B981, #3B82F6, #8B5CF6, #EC4899);
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+}
+
+/* Pestaña activa: borde arcoíris superior */
+.tab-item.active {
+    position: relative;
+}
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 12px;
+    right: 12px;
+    height: 2px;
+    background: linear-gradient(90deg, #EF4444, #F59E0B, #10B981, #3B82F6, #8B5CF6, #EC4899);
+    border-radius: 2px 2px 0 0;
+}
+
+/* Modales con borde arcoíris */
+.config-card,
+.modal-todas-card {
+    position: relative;
+    border: 1.5px solid transparent;
+}
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: linear-gradient(135deg, #EF4444, #F59E0B, #10B981, #3B82F6, #8B5CF6, #EC4899);
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* Tarjeta de tema activo en Configuración */
+.config-tema-item.activo {
+    position: relative;
+}
+.config-tema-item.activo::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: linear-gradient(135deg, #EF4444, #F59E0B, #10B981, #3B82F6, #8B5CF6, #EC4899);
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+}
