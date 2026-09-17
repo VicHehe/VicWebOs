@@ -31,14 +31,25 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 0
     },
     {
-    id: 'calculadora',
-    nombre: 'Calculadora',
-    icono: 'calculator',
-    ruta: 'herramientas/calculadora/index.html',
-    descripcion: 'Calculadora promedio + intereses, fechas y gráficos.',
-    categoria: 'Herramientas Prácticas',
-    esBase: false,
-    espacio: 6,
-    monedas: 0
-   }
+        id: 'calculadora',
+        nombre: 'Calculadora',
+        icono: 'calculator',
+        ruta: 'herramientas/calculadora/index.html',
+        descripcion: 'Calculadora promedio + intereses, fechas y gráficos.',
+        categoria: 'Herramientas Prácticas',
+        esBase: false,
+        espacio: 6,
+        monedas: 0
+    },
+    {
+        id: 'dino',
+        nombre: 'Dino',
+        icono: 'gamepad-2',
+        ruta: 'herramientas/dino/index.html',
+        descripcion: 'El clásico runner. Gana monedas mientras corres.',
+        categoria: 'Juegos',
+        esBase: false,
+        espacio: 4,
+        monedas: 0
+    }
 ];
