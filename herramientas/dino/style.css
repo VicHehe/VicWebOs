@@ -1,7 +1,9 @@
 /* ================================================
    Dino — Estilos
-   Móvil: layout original intacto (barra horizontal).
-   PC: canvas + panel bonus vertical a la derecha.
+   Layout original de una columna, barra de progreso
+   horizontal abajo.
+   Los overlays de start/game over son modales fixed
+   que cubren toda la app (no se limitan al canvas).
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -171,15 +173,6 @@ body {
     letter-spacing: 0;
 }
 
-/* ========== CUERPO ========== */
-.dn-cuerpo {
-    flex: 1;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
 /* ========== CANVAS ========== */
 .dn-canvas-wrapper {
     flex: 1;
@@ -202,18 +195,20 @@ body {
     image-rendering: pixelated;
 }
 
-/* ========== OVERLAY (start / game over) ========== */
+/* ========== OVERLAY (MODAL FIXED) ========== */
+/* Cubre toda la pantalla, no solo el canvas. La card
+   tiene espacio de sobra y no se aplasta. */
 .dn-overlay {
-    position: absolute;
+    position: fixed;
     inset: 0;
-    background: rgba(24, 24, 27, 0.55);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    background: rgba(24, 24, 27, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
-    z-index: 10;
+    padding: 24px;
+    z-index: 100;
     animation: dnFade 0.2s ease;
 }
 .dn-overlay[hidden] { display: none; }
@@ -223,15 +218,14 @@ body {
     to   { opacity: 1; }
 }
 
-/* La card NO tiene scroll: crece y el overlay le da aire */
 .dn-overlay-card {
     background: var(--white, #FFFFFF);
     border-radius: var(--r-xl, 20px);
-    padding: 24px 26px;
-    max-width: 380px;
+    padding: 28px 30px;
+    max-width: 420px;
     width: 100%;
     text-align: center;
-    box-shadow: 0 24px 48px rgba(0,0,0,0.25);
+    box-shadow: 0 24px 48px rgba(0,0,0,0.3);
     animation: dnZoom 0.24s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -241,18 +235,18 @@ body {
 }
 
 .dn-overlay-icono {
-    width: 56px;
-    height: 56px;
+    width: 60px;
+    height: 60px;
     background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
-    border-radius: 16px;
+    border-radius: 17px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    margin: 0 auto 14px;
+    margin: 0 auto 16px;
     box-shadow: 0 8px 20px var(--accent-shadow, rgba(139,92,246,0.28));
 }
-.dn-overlay-icono [data-lucide] { width: 26px; height: 26px; stroke-width: 2.25; }
+.dn-overlay-icono [data-lucide] { width: 28px; height: 28px; stroke-width: 2.25; }
 
 .dn-overlay-icono-error {
     background: linear-gradient(135deg, #EF4444, #B91C1C);
@@ -260,18 +254,21 @@ body {
 }
 
 .dn-overlay-card h2 {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 800;
     letter-spacing: -0.02em;
     color: var(--gray-900, #18181B);
-    margin: 0 0 6px;
+    margin: 0 0 8px;
 }
 
 .dn-overlay-card p {
-    font-size: 13px;
+    font-size: 13.5px;
     color: var(--gray-500, #71717A);
-    line-height: 1.5;
-    margin: 0 0 18px;
+    line-height: 1.55;
+    margin: 0 0 20px;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
 }
 .dn-overlay-card kbd {
     font-family: inherit;
@@ -288,12 +285,12 @@ body {
 .dn-go-resumen {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
     background: var(--gray-50, #FAFAFB);
     border: 1px solid var(--border, #E8E8EE);
     border-radius: var(--r-md, 12px);
-    padding: 14px 16px;
-    margin-bottom: 18px;
+    padding: 16px 18px;
+    margin-bottom: 20px;
 }
 
 .dn-go-fila {
@@ -301,7 +298,7 @@ body {
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    font-size: 13px;
+    font-size: 13.5px;
 }
 .dn-go-label {
     color: var(--gray-600, #52525B);
@@ -315,16 +312,16 @@ body {
     color: var(--gray-900, #18181B);
     font-weight: 800;
     font-variant-numeric: tabular-nums;
-    font-size: 15px;
+    font-size: 16px;
 }
 
 .dn-go-destacada {
-    padding-top: 8px;
+    padding-top: 10px;
     border-top: 1px solid var(--border, #E8E8EE);
 }
 .dn-go-destacada .dn-go-label { color: var(--gray-800, #27272A); }
 .dn-go-monedas {
-    font-size: 18px;
+    font-size: 20px;
     color: #F59E0B;
 }
 
@@ -334,7 +331,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 11px 22px;
+    padding: 12px 24px;
     border: none;
     border-radius: var(--r-md, 12px);
     font-family: inherit;
@@ -355,7 +352,7 @@ body {
 .dn-btn-primario:active { transform: translateY(0); }
 .dn-btn-primario [data-lucide] { width: 16px; height: 16px; }
 
-/* ========== PROGRESO (base = HORIZONTAL para móvil) ========== */
+/* ========== BARRA DE PROGRESO (horizontal, abajo) ========== */
 .dn-progreso {
     flex-shrink: 0;
     display: flex;
@@ -395,7 +392,6 @@ body {
     font-variant-numeric: tabular-nums;
 }
 
-/* Barra: horizontal por defecto (móvil) */
 .dn-progreso-barra {
     position: relative;
     height: 12px;
@@ -405,7 +401,6 @@ body {
     overflow: hidden;
 }
 
-/* Fill: horizontal (móvil) */
 .dn-progreso-fill {
     position: absolute;
     top: 0;
@@ -418,7 +413,6 @@ body {
     box-shadow: 0 0 8px var(--accent-shadow, rgba(139,92,246,0.4));
 }
 
-/* Marcas: verticales (móvil) */
 .dn-progreso-marcas {
     position: absolute;
     inset: 0;
@@ -477,121 +471,59 @@ body {
 .dn-toast.info    { background: var(--violet-700, #6D28D9); }
 
 /* ================================================
-   PC (≥769px): 2 columnas con barra VERTICAL
+   RESPONSIVE — Tablet
    ================================================ */
-@media (min-width: 769px) {
+@media (max-width: 900px) {
     .dn-container {
-        max-width: 1180px;
-        padding: 22px 28px 18px;
-        gap: 14px;
-    }
-
-    .dn-logo-mark { width: 46px; height: 46px; border-radius: 13px; }
-    .dn-logo-mark [data-lucide] { width: 22px; height: 22px; }
-    .dn-logo-text h1 { font-size: 22px; }
-    .dn-logo-text p { font-size: 12.5px; }
-    .dn-record { padding: 8px 16px; }
-    .dn-record-valor { font-size: 19px; }
-    .dn-hud-valor { font-size: 24px; }
-    .dn-hud-monedas { padding: 6px 14px; }
-    .dn-hud-monedas .dn-hud-valor { font-size: 18px; }
-    .dn-hud-icono { width: 16px; height: 16px; }
-
-    /* Grid con fila y columna explícitas */
-    .dn-cuerpo {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) 220px;
-        grid-template-rows: minmax(0, 1fr);
-        gap: 16px;
-        min-height: 0;
-    }
-
-    .dn-canvas-wrapper {
-        min-height: 0;
-        min-width: 0;
-    }
-
-    /* Panel: flex column con altura 100% garantizada */
-    .dn-progreso {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        min-height: 0;
-        align-self: stretch;
-        padding: 18px 16px;
-        gap: 12px;
-        overflow: hidden;
-    }
-
-    .dn-progreso-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-        flex-shrink: 0;
-    }
-    .dn-progreso-label { font-size: 11px; }
-    .dn-progreso-meta { font-size: 12.5px; }
-
-    /* Barra VERTICAL:
-       flex-basis: 0 + flex-grow: 1 = ocupa todo el alto sobrante.
-       min-height garantiza visibilidad incluso si algo raro pasa. */
-    .dn-progreso-barra {
-        position: relative;
-        flex: 1 1 0;
-        width: 100%;
-        height: auto;
-        min-height: 120px;
-        border-radius: 12px;
-        overflow: hidden;
-    }
-
-    /* Fill VERTICAL: anclado al fondo, crece hacia arriba */
-    .dn-progreso-fill {
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        top: auto;
-        width: 100%;
-        height: var(--pct, 0%);
-        border-radius: 12px 12px 0 0;
-        transition: height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 0 12px var(--accent-shadow, rgba(139,92,246,0.4));
-    }
-
-    /* Marcas HORIZONTALES: líneas cruzando la barra de lado a lado */
-    .dn-progreso-marca {
-        position: absolute;
-        top: auto;
-        left: 2px;
-        right: 2px;
-        width: auto;
-        height: 1px;
-        bottom: var(--pos, 0%);
-        transform: none;
-    }
-
-    /* Info al pie, sin shrink */
-    .dn-progreso-info {
-        text-align: left;
-        font-size: 10.5px;
-        line-height: 1.6;
-        flex-shrink: 0;
-    }
-    .dn-progreso-info > div { margin: 2px 0; }
-
-    /* Overlay: aire lateral para que la card no toque bordes del canvas */
-    .dn-overlay {
-        padding: 36px 44px;
+        padding: 16px 18px;
+        gap: 10px;
     }
 }
 
 /* ================================================
-   Móvil: ajustes finos
+   RESPONSIVE — Móvil
    ================================================ */
+@media (max-width: 640px) {
+    .dn-container { padding: 12px 14px; gap: 10px; }
+    .dn-logo-mark { width: 36px; height: 36px; border-radius: 10px; }
+    .dn-logo-mark [data-lucide] { width: 18px; height: 18px; }
+    .dn-logo-text h1 { font-size: 17px; }
+    .dn-logo-text p { font-size: 10.5px; }
+
+    .dn-record { padding: 5px 10px; }
+    .dn-record-valor { font-size: 15px; }
+
+    .dn-hud-valor { font-size: 19px; }
+    .dn-hud-monedas .dn-hud-valor { font-size: 15px; }
+
+    .dn-overlay { padding: 16px; }
+    .dn-overlay-card { padding: 22px 20px; max-width: 100%; border-radius: 18px; }
+    .dn-overlay-card h2 { font-size: 18px; }
+    .dn-overlay-card p { font-size: 12.5px; margin-bottom: 16px; }
+    .dn-overlay-icono {
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+        margin-bottom: 12px;
+    }
+    .dn-overlay-icono [data-lucide] { width: 24px; height: 24px; }
+
+    .dn-go-resumen { padding: 12px 14px; gap: 8px; }
+    .dn-go-fila { font-size: 12.5px; }
+    .dn-go-valor { font-size: 15px; }
+    .dn-go-monedas { font-size: 18px; }
+
+    .dn-btn-primario { padding: 11px 20px; font-size: 13.5px; }
+
+    .dn-progreso { padding: 8px 10px; gap: 5px; }
+    .dn-progreso-label { font-size: 10px; }
+    .dn-progreso-meta { font-size: 10.5px; }
+    .dn-progreso-info { font-size: 10px; }
+}
+
 @media (max-width: 420px) {
     .dn-container { padding: 10px 10px; gap: 8px; }
     .dn-logo-text p { display: none; }
     .dn-hud-label { font-size: 10px; }
-    .dn-progreso-info { font-size: 10px; }
+    .dn-progreso-info { display: none; }
 }
