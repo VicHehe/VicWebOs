@@ -13,9 +13,9 @@ let configCuentaActual = null;
 const CONFIG_CUENTA_DEFAULT = {
     appsInstaladas: ['stor-he'],
     temasInstalados: ['violeta'],
-    temaActivo: 'violeta',          // tema por defecto
+    temaActivo: 'violeta',
     widgetsInstalados: [],
-    widgetsActivos: []              // widgets que se muestran en el inicio
+    widgetsActivos: []
 };
 
 // ---------- CUENTAS ----------
@@ -134,7 +134,7 @@ async function iniciarSesion(codigo) {
     localStorage.setItem(SESION_KEY, codigoUp);
     localStorage.setItem(ULTIMO_CODIGO_KEY, codigoUp);
 
-    aplicarTemaActual();
+    cargarCSSTema(obtenerTemaActivo());
     actualizarAvatarHeader();
     if (typeof renderSidebar === 'function') renderSidebar();
     if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
@@ -146,7 +146,7 @@ function cerrarSesion() {
     configCuentaActual = null;
     localStorage.removeItem(SESION_KEY);
 
-    aplicarTema('violeta');
+    cargarCSSTema('violeta');
     actualizarAvatarHeader();
     if (typeof renderSidebar === 'function') renderSidebar();
     if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
@@ -162,7 +162,7 @@ async function restaurarSesion() {
         if (!cuenta) { localStorage.removeItem(SESION_KEY); return null; }
         cuentaActual = cuenta;
         configCuentaActual = await obtenerConfigCuenta(codigo);
-        aplicarTemaActual();
+        cargarCSSTema(obtenerTemaActivo());
         actualizarAvatarHeader();
         return cuenta;
     } catch (e) {
@@ -216,12 +216,15 @@ async function desinstalarTema(id) {
     configCuentaActual.temasInstalados = (configCuentaActual.temasInstalados || []).filter(t => t !== id);
     if (configCuentaActual.temaActivo === id) {
         configCuentaActual.temaActivo = 'violeta';
-        aplicarTema('violeta');
+        cargarCSSTema('violeta');
     }
     await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
 }
 
-// Tema activo = tema por defecto (se aplica al iniciar sesión)
+// ============================================================
+//  APLICAR TEMA (público — guarda en cuentaConfig.json)
+//  Se llama desde Stor-He y desde la pestaña Apariencia.
+// ============================================================
 async function aplicarTema(id) {
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
     const catalogo = typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : [];
@@ -230,15 +233,20 @@ async function aplicarTema(id) {
 
     configCuentaActual.temaActivo = id;
     await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
-    aplicarTema(id);
+    cargarCSSTema(id);
 }
 
-// Carga el CSS del tema en el <head>
-function aplicarTema(id) {
+// ============================================================
+//  CARGAR CSS DEL TEMA (interno — solo cambia el <link>)
+//  NO toca cuentaConfig.json. Se usa al iniciar sesión,
+//  al restaurar, al cerrar sesión y en desinstalarTema.
+// ============================================================
+function cargarCSSTema(id) {
     const catalogo = typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : [];
     const tema = catalogo.find(t => t.id === id);
     if (!tema || !tema.ruta) return;
 
+    // Reemplazar el <link> del tema
     const viejo = document.getElementById('tema-activo');
     if (viejo) viejo.remove();
 
@@ -247,10 +255,14 @@ function aplicarTema(id) {
     nuevo.rel = 'stylesheet';
     nuevo.href = tema.ruta;
     document.head.appendChild(nuevo);
-}
 
-function aplicarTemaActual() {
-    aplicarTema(obtenerTemaActivo());
+    // Avisar a los widgets (Regla 6) — esperar un momento para que
+    // el CSS se aplique primero
+    setTimeout(() => {
+        if (typeof window.__notificarCambioTema === 'function') {
+            window.__notificarCambioTema();
+        }
+    }, 150);
 }
 
 // ---------- WIDGETS ----------
