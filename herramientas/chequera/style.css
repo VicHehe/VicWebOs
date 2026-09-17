@@ -244,9 +244,27 @@ body {
 }
 .chq-mov.canje .chq-mov-icono {
     background: #ECFDF5;
+    color: #059669;
 }
 .chq-mov.gasto .chq-mov-icono {
     background: #FEF2F2;
+    color: #DC2626;
+}
+
+/* Icono Lucide dentro del contenedor: más grande que el default */
+.chq-mov-icono [data-lucide] {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2.25;
+}
+
+/* Icono texto/emoji (fallback cuando no es nombre Lucide) */
+.chq-mov-icono-txt {
+    font-size: 20px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .chq-mov-info {
@@ -335,6 +353,8 @@ body {
     .chq-filtro span { display: none; }
     .chq-resumen { width: 100%; margin-left: 0; }
     .chq-resumen-item { flex: 1; justify-content: center; }
-    .chq-mov-icono { width: 36px; height: 36px; font-size: 18px; }
+    .chq-mov-icono { width: 36px; height: 36px; }
+    .chq-mov-icono [data-lucide] { width: 18px; height: 18px; }
+    .chq-mov-icono-txt { font-size: 18px; }
     .chq-mov-cantidad { font-size: 13.5px; }
 }
