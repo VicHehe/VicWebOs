@@ -18,6 +18,7 @@ const COSTO_COMPRA_ESPACIO    = 2500;
 const MONEDAS_INICIALES       = 0;
 const MAX_WIDGETS_ACTIVOS     = 3;
 const MAX_MOVIMIENTOS_CHEQUERA = 500;
+const MAX_ACCESOS_RAPIDOS     = 8;
 
 let cuentaActual = null;
 let configCuentaActual = null;
@@ -29,8 +30,23 @@ const CONFIG_CUENTA_DEFAULT = {
     widgetsInstalados: [],
     widgetsActivos: [],
     espacioMaximo: ESPACIO_INICIAL,
-    monedas: MONEDAS_INICIALES
+    monedas: MONEDAS_INICIALES,
+    accesosRapidos: ['stor-he', 'chequera']
 };
+
+// Clone seguro para no compartir referencias de arrays con la constante
+function clonarConfigDefault() {
+    return {
+        appsInstaladas:    [...CONFIG_CUENTA_DEFAULT.appsInstaladas],
+        temasInstalados:   [...CONFIG_CUENTA_DEFAULT.temasInstalados],
+        temaActivo:        CONFIG_CUENTA_DEFAULT.temaActivo,
+        widgetsInstalados: [...CONFIG_CUENTA_DEFAULT.widgetsInstalados],
+        widgetsActivos:    [...CONFIG_CUENTA_DEFAULT.widgetsActivos],
+        espacioMaximo:     CONFIG_CUENTA_DEFAULT.espacioMaximo,
+        monedas:           CONFIG_CUENTA_DEFAULT.monedas,
+        accesosRapidos:    [...CONFIG_CUENTA_DEFAULT.accesosRapidos]
+    };
+}
 
 // ---------- CUENTAS ----------
 async function cargarCuentas() {
@@ -60,6 +76,7 @@ async function obtenerConfigCuenta(codigo) {
     const cfg = { ...CONFIG_CUENTA_DEFAULT, ...(all[codigo] || {}) };
     if (typeof cfg.espacioMaximo !== 'number') cfg.espacioMaximo = ESPACIO_INICIAL;
     if (typeof cfg.monedas !== 'number') cfg.monedas = MONEDAS_INICIALES;
+    if (!Array.isArray(cfg.accesosRapidos)) cfg.accesosRapidos = [...CONFIG_CUENTA_DEFAULT.accesosRapidos];
     return cfg;
 }
 
@@ -157,6 +174,34 @@ async function comprarEspacio() {
 }
 
 // ============================================================
+//  ACCESOS RÁPIDOS
+// ============================================================
+function obtenerAccesosRapidos() {
+    if (!configCuentaActual) return [];
+    if (!Array.isArray(configCuentaActual.accesosRapidos)) return [];
+    return configCuentaActual.accesosRapidos;
+}
+
+async function activarAccesoRapido(id) {
+    if (!cuentaActual) throw new Error('Necesitas una cuenta.');
+    if (!configCuentaActual.accesosRapidos) configCuentaActual.accesosRapidos = [];
+    if (configCuentaActual.accesosRapidos.includes(id)) return;
+
+    if (configCuentaActual.accesosRapidos.length >= MAX_ACCESOS_RAPIDOS) {
+        throw new Error(`Máximo ${MAX_ACCESOS_RAPIDOS} accesos rápidos. Quita uno para añadir otro.`);
+    }
+
+    configCuentaActual.accesosRapidos.push(id);
+    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+}
+
+async function desactivarAccesoRapido(id) {
+    if (!cuentaActual) throw new Error('Necesitas una cuenta.');
+    configCuentaActual.accesosRapidos = (configCuentaActual.accesosRapidos || []).filter(x => x !== id);
+    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+}
+
+// ============================================================
 //  CHEQUERA — historial de movimientos (por usuario)
 // ============================================================
 function rutaChequera(codigo) {
@@ -183,17 +228,14 @@ function generarIdMovimiento() {
 
 // ============================================================
 //  CANJEAR: gana monedas (llamable desde cualquier app)
-//  Firma: canjear(icono, fuente, texto, cantidad)
 // ============================================================
 async function canjear(icono, fuente, texto, cantidad) {
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
     if (!cantidad || cantidad <= 0) throw new Error('La cantidad debe ser positiva.');
 
-    // 1) Sumar monedas al usuario
     configCuentaActual.monedas = (configCuentaActual.monedas || 0) + cantidad;
     await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
 
-    // 2) Añadir entrada al historial de la chequera
     const cheq = await leerChequeraUsuario();
     cheq.movimientos.unshift({
         id: generarIdMovimiento(),
@@ -210,7 +252,6 @@ async function canjear(icono, fuente, texto, cantidad) {
     cheq.actualizado = new Date().toISOString();
     await guardarChequeraUsuario(cheq);
 
-    // 3) Refrescar UI global
     if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
     if (typeof window.__notificarCambioChequera === 'function') window.__notificarCambioChequera();
 
@@ -219,7 +260,6 @@ async function canjear(icono, fuente, texto, cantidad) {
 
 // ============================================================
 //  GASTO BOLETA: pierde monedas (llamable desde cualquier app)
-//  Firma: gastoBoleta(icono, fuente, texto, cantidad)
 // ============================================================
 async function gastoBoleta(icono, fuente, texto, cantidad) {
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
@@ -228,11 +268,9 @@ async function gastoBoleta(icono, fuente, texto, cantidad) {
         throw new Error(`No tienes suficientes monedas (tienes ${configCuentaActual.monedas || 0}, necesitas ${cantidad}).`);
     }
 
-    // 1) Restar monedas al usuario
     configCuentaActual.monedas = (configCuentaActual.monedas || 0) - cantidad;
     await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
 
-    // 2) Añadir entrada al historial de la chequera
     const cheq = await leerChequeraUsuario();
     cheq.movimientos.unshift({
         id: generarIdMovimiento(),
@@ -249,7 +287,6 @@ async function gastoBoleta(icono, fuente, texto, cantidad) {
     cheq.actualizado = new Date().toISOString();
     await guardarChequeraUsuario(cheq);
 
-    // 3) Refrescar UI global
     if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
     if (typeof window.__notificarCambioChequera === 'function') window.__notificarCambioChequera();
 
@@ -314,7 +351,7 @@ async function crearCuenta({ foto, nombre, pronombre, codigo }) {
     };
     cuentas.push(nueva);
     await guardarCuentas(cuentas);
-    await guardarConfigCuenta(codigoUp, { ...CONFIG_CUENTA_DEFAULT });
+    await guardarConfigCuenta(codigoUp, clonarConfigDefault());
 
     await iniciarSesion(codigoUp);
     return nueva;
@@ -416,6 +453,8 @@ async function desinstalarApp(id) {
     const app = catalogo.find(a => a.id === id);
     if (app && app.esBase) throw new Error('Esta app es del sistema y no se puede desinstalar.');
     configCuentaActual.appsInstaladas = (configCuentaActual.appsInstaladas || []).filter(a => a !== id);
+    // Al desinstalar, quitarla también de accesos rápidos
+    configCuentaActual.accesosRapidos = (configCuentaActual.accesosRapidos || []).filter(a => a !== id);
     await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
 }
 
