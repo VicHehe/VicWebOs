@@ -33,7 +33,7 @@
     --text-2:  var(--gray-600);
     --text-3:  var(--gray-500);
 
-    /* Sombras (suaves, multi-capa) */
+    /* Sombras */
     --shadow-xs: 0 1px 2px rgba(24, 24, 27, 0.04);
     --shadow-sm: 0 1px 3px rgba(24, 24, 27, 0.06), 0 1px 2px rgba(24, 24, 27, 0.04);
     --shadow-md: 0 4px 12px rgba(24, 24, 27, 0.06), 0 2px 4px rgba(24, 24, 27, 0.04);
@@ -213,7 +213,6 @@ body {
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.01em;
 }
-.temp { color: var(--gray-900); }
 .divider-dot {
     width: 3px; height: 3px;
     background: var(--gray-300);
@@ -850,69 +849,6 @@ body {
     margin-top: 6px;
 }
 
-/* Theme selector */
-.theme-selector {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-}
-.theme-option {
-    background: none;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 0;
-    font-family: inherit;
-    transition: var(--t);
-}
-.theme-preview {
-    width: 100%;
-    aspect-ratio: 4/3;
-    border-radius: var(--r-md);
-    border: 2px solid var(--border);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    transition: var(--t);
-}
-.theme-option:hover .theme-preview { border-color: var(--violet-300); }
-.theme-option.active .theme-preview {
-    border-color: var(--violet-500);
-    box-shadow: var(--shadow-glow);
-}
-
-.theme-preview-light { background: #FBFBFD; }
-.theme-preview-light .tp-header { background: #FFFFFF; }
-.theme-preview-light .tp-sidebar { background: #F5F5F8; }
-.theme-preview-light .tp-content { background: #FFFFFF; }
-
-.theme-preview-dark { background: #18181B; }
-.theme-preview-dark .tp-header { background: #27272A; }
-.theme-preview-dark .tp-sidebar { background: #1F1F23; }
-.theme-preview-dark .tp-content { background: #27272A; }
-
-.theme-preview-auto { 
-    background: linear-gradient(135deg, #FBFBFD 50%, #18181B 50%); 
-}
-.theme-preview-auto .tp-header { background: linear-gradient(90deg, #FFFFFF 50%, #27272A 50%); }
-.theme-preview-auto .tp-sidebar { background: linear-gradient(90deg, #F5F5F8 50%, #1F1F23 50%); }
-.theme-preview-auto .tp-content { background: linear-gradient(90deg, #FFFFFF 50%, #27272A 50%); }
-
-.tp-header { height: 20%; border-bottom: 1px solid rgba(0,0,0,0.05); }
-.tp-body { flex: 1; display: flex; }
-.tp-sidebar { width: 30%; border-right: 1px solid rgba(0,0,0,0.05); }
-.tp-content { flex: 1; }
-
-.theme-option span {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--gray-700);
-    text-align: center;
-}
-.theme-option.active span { color: var(--violet-700); }
-
 /* ========== APPS INSTALADAS LISTA ========== */
 .apps-instaladas-lista {
     display: flex;
@@ -1182,13 +1118,12 @@ body {
     .welcome-placeholder > p { font-size: 13.5px; }
     .welcome-icon-wrap { width: 60px; height: 60px; }
     .welcome-icon { width: 28px !important; height: 28px !important; }
-    .theme-selector { grid-template-columns: 1fr; }
     .modal-categoria-grid { grid-template-columns: 1fr; }
     .config-panel-header h3 { font-size: 15px; }
 }
 
 /* ================================================
-   NUEVOS: estado vacío + status GitHub + spinner
+   ESTADO VACÍO + STATUS GITHUB + SPINNER
    ================================================ */
 
 /* Estado vacío en panel de config */
@@ -1269,9 +1204,35 @@ body {
     to   { transform: rotate(360deg); }
 }
 
-/* Ajuste: el SVG inline de GitHub hereda color del contenedor */
+/* SVG inline de GitHub hereda color */
 .storage-icon svg {
     width: 18px;
     height: 18px;
     color: inherit;
+}
+
+/* ================================================
+   CLIMA CON ICONOS LUCIDE (reemplaza .temp)
+   ================================================ */
+.clima-local {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gray-900);
+}
+
+.clima-icon {
+    width: 14px;
+    height: 14px;
+    color: var(--violet-500);
+    flex-shrink: 0;
+    stroke-width: 2.25;
+}
+
+.temp-texto {
+    color: var(--gray-900);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
 }
