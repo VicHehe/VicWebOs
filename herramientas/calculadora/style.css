@@ -1,6 +1,7 @@
 /* ================================================
    Calculadora — Estilos
-   Layout 2 columnas en PC, apilado en móvil.
+   Layout 2 columnas en PC, 1 columna en móvil.
+   En móvil: teclado protagonista + chips premium.
    Compatible con temas. Sin emojis.
    ================================================ */
 
@@ -15,6 +16,7 @@ body {
     font-size: 14px;
     -webkit-font-smoothing: antialiased;
     color-scheme: light dark;
+    -webkit-tap-highlight-color: transparent;
 }
 
 [data-lucide] { width: 18px; height: 18px; stroke-width: 2; flex-shrink: 0; }
@@ -31,14 +33,14 @@ body {
 /* ========== LAYOUT ========== */
 .calc-container {
     height: 100%;
+    height: 100dvh;
     max-width: 1040px;
     margin: 0 auto;
-    padding: 24px 28px;
+    padding: 20px 24px;
     display: flex;
     flex-direction: column;
-    gap: 18px;
-    overflow-y: auto;
-    overflow-x: hidden;
+    gap: 14px;
+    overflow: hidden;
 }
 
 /* ========== HEADER ========== */
@@ -56,10 +58,10 @@ body {
 }
 
 .calc-logo-mark {
-    width: 46px;
-    height: 46px;
+    width: 42px;
+    height: 42px;
     background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
-    border-radius: 13px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -67,10 +69,10 @@ body {
     box-shadow: 0 8px 20px var(--accent-shadow, rgba(139,92,246,0.28));
     flex-shrink: 0;
 }
-.calc-logo-mark [data-lucide] { width: 24px; height: 24px; stroke-width: 2.5; }
+.calc-logo-mark [data-lucide] { width: 22px; height: 22px; stroke-width: 2.5; }
 
 .calc-logo-text h1 {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 800;
     letter-spacing: -0.03em;
     background: var(--accent-text-gradient, linear-gradient(135deg, #18181B, #7C3AED));
@@ -81,7 +83,7 @@ body {
     line-height: 1.15;
 }
 .calc-logo-text p {
-    font-size: 12.5px;
+    font-size: 12px;
     color: var(--gray-500, #71717A);
     font-weight: 600;
     margin-top: 2px;
@@ -94,7 +96,7 @@ body {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 340px;
     gap: 20px;
-    align-items: start;
+    /* Sin align-items: start — las columnas estiran para llenar */
 }
 
 .calc-columna-calc {
@@ -110,6 +112,7 @@ body {
     flex-direction: column;
     gap: 10px;
     min-width: 0;
+    min-height: 0;
 }
 
 /* ========== DISPLAY ========== */
@@ -117,11 +120,11 @@ body {
     background: var(--gray-50, #FAFAFB);
     border: 1.5px solid var(--border, #E8E8EE);
     border-radius: var(--r-lg, 16px);
-    padding: 16px 20px;
+    padding: 14px 20px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    min-height: 120px;
+    gap: 6px;
+    min-height: 110px;
     flex-shrink: 0;
     position: relative;
     overflow: hidden;
@@ -158,7 +161,7 @@ body {
 }
 
 .calc-expresion {
-    font-size: 32px;
+    font-size: 30px;
     font-weight: 800;
     color: var(--gray-900, #18181B);
     text-align: right;
@@ -169,16 +172,17 @@ body {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    min-height: 40px;
+    min-height: 38px;
+    overflow: hidden;
 }
 
 .calc-resultado-preview {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
     color: var(--gray-500, #71717A);
     text-align: right;
     font-variant-numeric: tabular-nums;
-    min-height: 20px;
+    min-height: 18px;
 }
 .calc-resultado-preview:not(:empty)::before {
     content: '= ';
@@ -189,6 +193,7 @@ body {
 .calc-teclado {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(5, minmax(0, 1fr));
     gap: 10px;
     flex: 1;
     min-height: 0;
@@ -207,8 +212,9 @@ body {
     justify-content: center;
     user-select: none;
     padding: 0;
-    min-height: 60px;
+    min-height: 0;
     gap: 6px;
+    touch-action: manipulation;
 }
 
 .calc-btn [data-lucide] { width: 20px; height: 20px; }
@@ -291,6 +297,7 @@ body {
     width: 100%;
     position: relative;
     overflow: hidden;
+    touch-action: manipulation;
 }
 .calc-funcion-card:hover {
     border-color: var(--violet-400, #A78BFA);
@@ -401,6 +408,7 @@ body {
     width: 100%;
     max-width: 440px;
     max-height: 90vh;
+    max-height: 90dvh;
     display: flex;
     flex-direction: column;
     box-shadow: 0 24px 48px rgba(0,0,0,0.2);
@@ -531,6 +539,7 @@ body {
     box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
     transition: all 0.15s;
     margin-top: 4px;
+    touch-action: manipulation;
 }
 .calc-btn-accion:hover {
     transform: translateY(-1px);
@@ -788,30 +797,164 @@ body {
 .calc-toast.error   { background: #991B1B; }
 .calc-toast.info    { background: var(--violet-700, #6D28D9); }
 
-/* ========== RESPONSIVE ========== */
+/* ================================================
+   RESPONSIVE — Tablet y móvil
+   ================================================ */
+
+/* --- 900px: 1 columna, chips premium horizontales --- */
 @media (max-width: 900px) {
-    .calc-container { padding: 16px; }
+
+    .calc-container {
+        padding: 14px 14px 12px;
+        gap: 10px;
+    }
+
+    /* Header compacto */
+    .calc-logo-mark { width: 36px; height: 36px; border-radius: 10px; }
+    .calc-logo-mark [data-lucide] { width: 18px; height: 18px; }
+    .calc-logo-text h1 { font-size: 17px; }
+    .calc-logo-text p { font-size: 11px; }
+
+    /* Cuerpo: flex column, calc-columna crece, premium chips al fondo */
     .calc-cuerpo {
-        grid-template-columns: 1fr;
-        gap: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        flex: 1;
+        min-height: 0;
     }
+
+    .calc-columna-calc {
+        flex: 1;
+        min-height: 0;
+        gap: 10px;
+    }
+
+    /* Display compacto */
+    .calc-display {
+        padding: 10px 14px;
+        min-height: 90px;
+        gap: 4px;
+    }
+    .calc-historial-mini { max-height: 22px; gap: 4px; }
+    .calc-hist-chip { font-size: 10px; padding: 2px 7px; }
+    .calc-expresion { font-size: 26px; min-height: 32px; }
+    .calc-resultado-preview { font-size: 13px; min-height: 16px; }
+
+    /* Teclado: filas reparten espacio, botones cómodos */
+    .calc-teclado {
+        gap: 8px;
+        flex: 1;
+        min-height: 0;
+    }
+    .calc-btn {
+        font-size: 22px;
+        border-radius: 12px;
+    }
+    .calc-btn [data-lucide] { width: 20px; height: 20px; }
+    .calc-btn-label { font-size: 14px; }
+    .calc-btn-op { font-size: 24px; }
+    .calc-btn-fn { font-size: 17px; }
+
+    /* Premium: chips horizontales abajo */
     .calc-columna-funciones {
-        overflow: visible;
+        flex-direction: row;
+        flex-shrink: 0;
+        overflow-x: auto;
+        overflow-y: hidden;
+        gap: 8px;
+        padding: 2px 2px 4px;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
     }
+    .calc-columna-funciones::-webkit-scrollbar { display: none; }
+    .calc-funciones-titulo { display: none; }
+
+    .calc-funcion-card {
+        flex-shrink: 0;
+        width: auto;
+        padding: 8px 12px;
+        gap: 8px;
+        border-radius: 12px;
+    }
+    .calc-funcion-card:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    .calc-funcion-icono {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+    }
+    .calc-funcion-icono [data-lucide] { width: 16px; height: 16px; }
+    .calc-funcion-info { flex: none; }
+    .calc-funcion-nombre { font-size: 12.5px; }
+    .calc-funcion-desc { display: none; }
+    .calc-funcion-estado {
+        font-size: 10.5px;
+        padding: 3px 8px;
+        gap: 4px;
+    }
+    .calc-funcion-estado [data-lucide] { width: 11px; height: 11px; }
 }
 
+/* --- 500px: pantallas chicas (Honor 400 Smart y similares) --- */
 @media (max-width: 500px) {
-    .calc-container { padding: 12px; gap: 12px; }
-    .calc-expresion { font-size: 24px; }
-    .calc-btn { font-size: 18px; min-height: 48px; }
-    .calc-btn-op { font-size: 20px; }
+
+    .calc-container {
+        padding: 10px 10px 8px;
+        gap: 8px;
+    }
+
+    /* Header aún más compacto */
+    .calc-logo-mark { width: 32px; height: 32px; border-radius: 9px; }
+    .calc-logo-mark [data-lucide] { width: 16px; height: 16px; }
+    .calc-logo-text h1 { font-size: 16px; }
+    .calc-logo-text p { font-size: 10.5px; }
+
+    .calc-cuerpo { gap: 8px; }
+    .calc-columna-calc { gap: 8px; }
+
+    /* Display más compacto */
+    .calc-display {
+        padding: 8px 12px;
+        min-height: 78px;
+        border-radius: 12px;
+    }
+    .calc-expresion { font-size: 22px; min-height: 28px; }
+    .calc-resultado-preview { font-size: 12px; min-height: 14px; }
+    .calc-historial-mini { max-height: 20px; }
+    .calc-hist-chip { font-size: 9.5px; padding: 1px 6px; }
+
+    /* Teclado más compacto */
+    .calc-teclado { gap: 6px; }
+    .calc-btn {
+        font-size: 20px;
+        border-radius: 10px;
+        border-width: 1.5px;
+    }
     .calc-btn [data-lucide] { width: 18px; height: 18px; }
+    .calc-btn-label { font-size: 13px; }
+    .calc-btn-op { font-size: 22px; }
+    .calc-btn-fn { font-size: 15px; }
+
+    /* Chips premium más compactos */
+    .calc-columna-funciones { gap: 6px; padding-bottom: 2px; }
+    .calc-funcion-card { padding: 7px 10px; gap: 6px; }
+    .calc-funcion-icono { width: 26px; height: 26px; border-radius: 7px; }
+    .calc-funcion-icono [data-lucide] { width: 14px; height: 14px; }
+    .calc-funcion-nombre { font-size: 11.5px; }
+    .calc-funcion-estado { font-size: 10px; padding: 2px 7px; }
+
+    /* Modales */
+    .calc-modal { padding: 10px; }
+    .calc-modal-card { max-height: 94dvh; border-radius: 16px; }
+    .calc-modal-header { padding: 14px 16px; }
+    .calc-modal-header h2 { font-size: 15.5px; }
+    .calc-modal-body { padding: 16px 16px 18px; }
+
+    /* Gráficos */
     .calc-grafico-svg { width: 160px; height: 160px; }
-    .calc-grafico-resultado { flex-direction: column; }
-    .calc-modal-body { padding: 16px; }
-    .calc-funcion-card { padding: 12px 14px; }
-    .calc-funcion-icono { width: 38px; height: 38px; }
-    .calc-funcion-nombre { font-size: 13px; }
-    .calc-funcion-desc { font-size: 11px; }
-    .calc-funcion-estado { font-size: 10px; padding: 4px 8px; }
+    .calc-grafico-resultado { flex-direction: column; gap: 14px; padding: 14px; }
+    .calc-grafico-leyenda { max-height: none; width: 100%; }
 }
