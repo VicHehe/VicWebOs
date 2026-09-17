@@ -137,7 +137,9 @@ async function iniciarSesion(codigo) {
     cargarCSSTema(obtenerTemaActivo());
     actualizarAvatarHeader();
     if (typeof renderSidebar === 'function') renderSidebar();
+    if (typeof renderAccesosRapidos === 'function') renderAccesosRapidos();
     if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
+    if (typeof actualizarSaludo === 'function') actualizarSaludo();
     return cuenta;
 }
 
@@ -149,7 +151,9 @@ function cerrarSesion() {
     cargarCSSTema('violeta');
     actualizarAvatarHeader();
     if (typeof renderSidebar === 'function') renderSidebar();
+    if (typeof renderAccesosRapidos === 'function') renderAccesosRapidos();
     if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
+    if (typeof actualizarSaludo === 'function') actualizarSaludo();
 }
 
 async function restaurarSesion() {
@@ -223,7 +227,6 @@ async function desinstalarTema(id) {
 
 // ============================================================
 //  APLICAR TEMA (público — guarda en cuentaConfig.json)
-//  Se llama desde Stor-He y desde la pestaña Apariencia.
 // ============================================================
 async function aplicarTema(id) {
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
@@ -238,15 +241,12 @@ async function aplicarTema(id) {
 
 // ============================================================
 //  CARGAR CSS DEL TEMA (interno — solo cambia el <link>)
-//  NO toca cuentaConfig.json. Se usa al iniciar sesión,
-//  al restaurar, al cerrar sesión y en desinstalarTema.
 // ============================================================
 function cargarCSSTema(id) {
     const catalogo = typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : [];
     const tema = catalogo.find(t => t.id === id);
     if (!tema || !tema.ruta) return;
 
-    // Reemplazar el <link> del tema
     const viejo = document.getElementById('tema-activo');
     if (viejo) viejo.remove();
 
@@ -256,8 +256,6 @@ function cargarCSSTema(id) {
     nuevo.href = tema.ruta;
     document.head.appendChild(nuevo);
 
-    // Avisar a los widgets (Regla 6) — esperar un momento para que
-    // el CSS se aplique primero
     setTimeout(() => {
         if (typeof window.__notificarCambioTema === 'function') {
             window.__notificarCambioTema();
@@ -387,7 +385,9 @@ function inicializarUICuenta() {
                 mostrarSesionActiva();
                 setTimeout(() => {
                     if (typeof renderSidebar === 'function') renderSidebar();
+                    if (typeof renderAccesosRapidos === 'function') renderAccesosRapidos();
                     if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
+                    if (typeof actualizarSaludo === 'function') actualizarSaludo();
                 }, 200);
             } catch (e) { setMsg('❌ ' + e.message, 'error'); }
         });
@@ -407,7 +407,9 @@ function inicializarUICuenta() {
                 mostrarSesionActiva();
                 setTimeout(() => {
                     if (typeof renderSidebar === 'function') renderSidebar();
+                    if (typeof renderAccesosRapidos === 'function') renderAccesosRapidos();
                     if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
+                    if (typeof actualizarSaludo === 'function') actualizarSaludo();
                 }, 200);
             } catch (e) { setMsg('❌ ' + e.message, 'error'); }
         });
