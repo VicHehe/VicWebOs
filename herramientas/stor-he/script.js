@@ -1,13 +1,12 @@
 // ============================================================
 //  Stor-He — Lógica
-//  "Descargar" = activar/desactivar lo que aparece en el OS.
+//  Instalar/desinstalar apps, temas y widgets.
+//  (Tema activo y widgets activos se controlan en Config)
 // ============================================================
 
 const API = () => window.parent.__vicwebos || null;
 
-// ============================================================
-//  TOAST
-// ============================================================
+// ---------- TOAST ----------
 let toastTimeout = null;
 function toast(texto, tipo = 'info') {
     const el = document.getElementById('shToast');
@@ -22,43 +21,7 @@ function toast(texto, tipo = 'info') {
     toastTimeout = setTimeout(() => el.classList.remove('show'), 2600);
 }
 
-// ============================================================
-//  CARGA DE COLORES DE TEMAS (parseando el CSS)
-// ============================================================
-const coloresTemasCache = {};
-
-async function cargarColoresTema(tema) {
-    if (coloresTemasCache[tema.id] !== undefined) return coloresTemasCache[tema.id];
-
-    const colores = {};
-    try {
-        // Stor-He está en /herramientas/stor-he/, entonces ../../ vuelve a la raíz
-        const url = '../../' + tema.ruta;
-        const res = await fetch(url);
-        if (res.ok) {
-            const css = await res.text();
-            // Captura variables tipo: --nombre: valor;
-            const regex = /--([a-z0-9-]+)\s*:\s*([^;]+);/gi;
-            let m;
-            while ((m = regex.exec(css)) !== null) {
-                colores['--' + m[1]] = m[2].trim();
-            }
-        }
-    } catch (e) {
-        console.warn('No se pudo leer el tema ' + tema.id + ':', e);
-    }
-
-    coloresTemasCache[tema.id] = colores;
-    return colores;
-}
-
-async function precargarColoresTemas(catalogo) {
-    await Promise.all(catalogo.map(t => cargarColoresTema(t)));
-}
-
-// ============================================================
-//  RENDER GENÉRICO
-// ============================================================
+// ---------- RENDER GENÉRICO ----------
 function agruparPorCategoria(lista) {
     const cats = {};
     lista.forEach(item => {
@@ -84,17 +47,13 @@ function renderGrid(contenedor, lista, renderCard) {
 
     const cats = agruparPorCategoria(lista);
     let html = '';
-
     for (const [cat, items] of Object.entries(cats)) {
         html += `<div class="sh-categoria">`;
         html += `<div class="sh-categoria-titulo">${cat}</div>`;
         html += `<div class="sh-grid">`;
-        items.forEach(item => {
-            html += renderCard(item);
-        });
+        items.forEach(item => { html += renderCard(item); });
         html += `</div></div>`;
     }
-
     contenedor.innerHTML = html;
     lucide.createIcons();
 }
@@ -115,7 +74,6 @@ function renderApps() {
 
     const catalogo = api.obtenerCatalogo() || [];
     const instaladas = api.obtenerInstaladas() || [];
-
     document.getElementById('countApps').textContent = catalogo.length;
 
     renderGrid(cont, catalogo, (app) => {
@@ -125,9 +83,7 @@ function renderApps() {
         return `
             <div class="sh-card ${instalada ? 'instalada' : ''}" data-id="${app.id}">
                 <div class="sh-card-header">
-                    <div class="sh-card-icono">
-                        <i data-lucide="${app.icono || 'circle'}"></i>
-                    </div>
+                    <div class="sh-card-icono"><i data-lucide="${app.icono || 'circle'}"></i></div>
                     <div class="sh-card-info">
                         <div class="sh-card-nombre">
                             ${app.nombre}
@@ -138,15 +94,12 @@ function renderApps() {
                 </div>
                 <div class="sh-card-footer">
                     ${instalada
-                        ? `<span class="sh-badge sh-badge-instalada">
-                             <i data-lucide="check"></i> Activa
-                           </span>
+                        ? `<span class="sh-badge sh-badge-instalada"><i data-lucide="check"></i> Activa</span>
                            <div class="sh-acciones">
                              ${esBase ? '' : `
                                 <button class="sh-btn sh-btn-icono" data-accion="desinstalar" data-id="${app.id}" title="Quitar del sidebar">
                                     <i data-lucide="minus-circle"></i>
-                                </button>
-                             `}
+                                </button>`}
                              <button class="sh-btn sh-btn-abrir" data-accion="abrir" data-id="${app.id}">
                                 <i data-lucide="external-link"></i> Abrir
                              </button>
@@ -155,11 +108,9 @@ function renderApps() {
                              <button class="sh-btn sh-btn-instalar" data-accion="instalar" data-id="${app.id}">
                                 <i data-lucide="plus-circle"></i> Agregar al sidebar
                              </button>
-                           </div>`
-                    }
+                           </div>`}
                 </div>
-            </div>
-        `;
+            </div>`;
     });
 }
 
@@ -189,11 +140,10 @@ function renderTemaPreview(colores) {
                     <div class="sh-tema-preview-line w40" style="background:${c100};"></div>
                 </div>
             </div>
-        </div>
-    `;
+        </div>`;
 }
 
-async function renderTemas() {
+function renderTemas() {
     const api = API();
     const cont = document.getElementById('temasContenido');
     if (!cont) return;
@@ -210,18 +160,14 @@ async function renderTemas() {
 
     document.getElementById('countTemas').textContent = catalogo.length;
 
-    // Pre-cargar los colores de TODOS los temas (parseando el CSS)
-    await precargarColoresTemas(catalogo);
-
     renderGrid(cont, catalogo, (tema) => {
         const instalado = instalados.includes(tema.id);
         const esBase = !!tema.esBase;
         const esActivo = activo === tema.id;
-        const colores = coloresTemasCache[tema.id] || {};
 
         return `
             <div class="sh-card ${instalado ? 'instalada' : ''}" data-id="${tema.id}">
-                ${renderTemaPreview(colores)}
+                ${renderTemaPreview(tema.colores || {})}
                 <div class="sh-card-header">
                     <div class="sh-card-info">
                         <div class="sh-card-nombre">
@@ -234,27 +180,23 @@ async function renderTemas() {
                 <div class="sh-card-footer">
                     ${instalado
                         ? `${esActivo
-                             ? `<span class="sh-badge sh-badge-instalada"><i data-lucide="check"></i> Activo</span>`
+                             ? `<span class="sh-badge sh-badge-instalada"><i data-lucide="check"></i> Aplicado</span>`
                              : `<button class="sh-btn sh-btn-aplicar" data-accion="aplicarTema" data-id="${tema.id}">
                                     <i data-lucide="play"></i> Aplicar
-                                </button>`
-                           }
+                                </button>`}
                            <div class="sh-acciones">
                              ${esBase ? '' : `
                                 <button class="sh-btn sh-btn-icono" data-accion="desinstalarTema" data-id="${tema.id}" title="Desinstalar">
                                     <i data-lucide="trash-2"></i>
-                                </button>
-                             `}
+                                </button>`}
                            </div>`
                         : `<div class="sh-acciones">
                              <button class="sh-btn sh-btn-instalar" data-accion="instalarTema" data-id="${tema.id}">
                                 <i data-lucide="download"></i> Instalar
                              </button>
-                           </div>`
-                    }
+                           </div>`}
                 </div>
-            </div>
-        `;
+            </div>`;
     });
 }
 
@@ -284,9 +226,7 @@ function renderWidgets() {
         return `
             <div class="sh-card ${instalado ? 'instalada' : ''}" data-id="${widget.id}">
                 <div class="sh-card-header">
-                    <div class="sh-card-icono">
-                        <i data-lucide="${widget.icono || 'square'}"></i>
-                    </div>
+                    <div class="sh-card-icono"><i data-lucide="${widget.icono || 'square'}"></i></div>
                     <div class="sh-card-info">
                         <div class="sh-card-nombre">
                             ${widget.nombre}
@@ -297,23 +237,23 @@ function renderWidgets() {
                 </div>
                 <div class="sh-card-footer">
                     ${instalado
-                        ? `<span class="sh-badge sh-badge-instalada"><i data-lucide="check"></i> Activo</span>
+                        ? `<span class="sh-badge sh-badge-instalada"><i data-lucide="check"></i> Instalado</span>
                            <div class="sh-acciones">
+                             <small style="font-size:11px;color:var(--gray-500);margin-right:6px;">
+                                Actívalo en Configuración
+                             </small>
                              ${esBase ? '' : `
                                 <button class="sh-btn sh-btn-icono" data-accion="desinstalarWidget" data-id="${widget.id}" title="Desinstalar">
                                     <i data-lucide="trash-2"></i>
-                                </button>
-                             `}
+                                </button>`}
                            </div>`
                         : `<div class="sh-acciones">
                              <button class="sh-btn sh-btn-instalar" data-accion="instalarWidget" data-id="${widget.id}">
                                 <i data-lucide="download"></i> Instalar
                              </button>
-                           </div>`
-                    }
+                           </div>`}
                 </div>
-            </div>
-        `;
+            </div>`;
     });
 }
 
@@ -349,7 +289,7 @@ async function manejarAccion(accion, id) {
                 break;
             case 'aplicarTema':
                 await api.aplicarTema(id);
-                toast('Tema aplicado', 'success');
+                toast('Tema por defecto actualizado', 'success');
                 break;
             case 'instalarWidget':
                 await api.instalarWidget(id);
@@ -372,9 +312,7 @@ function refrescarTodo() {
     renderWidgets();
 }
 
-// ============================================================
-//  TABS
-// ============================================================
+// ---------- TABS ----------
 function inicializarTabs() {
     document.querySelectorAll('.sh-tab').forEach(tab => {
         tab.addEventListener('click', () => {
@@ -387,9 +325,7 @@ function inicializarTabs() {
     });
 }
 
-// ============================================================
-//  INIT
-// ============================================================
+// ---------- INIT ----------
 document.addEventListener('DOMContentLoaded', () => {
     inicializarTabs();
 
@@ -400,7 +336,5 @@ document.addEventListener('DOMContentLoaded', () => {
         manejarAccion(btn.dataset.accion, btn.dataset.id);
     });
 
-    setTimeout(() => {
-        refrescarTodo();
-    }, 100);
+    setTimeout(refrescarTodo, 100);
 });
