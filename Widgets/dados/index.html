@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dados</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="dados-widget">
+        <div class="dados-header">
+            <div class="dados-titulo">
+                <i data-lucide="dice-5"></i>
+                <span>Tirar Dados</span>
+            </div>
+            <button class="dados-reset" id="dadosReset" title="Reiniciar historial">
+                <i data-lucide="rotate-ccw"></i>
+            </button>
+        </div>
+
+        <div class="dados-zona" id="dadosZona">
+            <div class="dado" data-cara="1"></div>
+            <div class="dado" data-cara="1"></div>
+        </div>
+
+        <div class="dados-info">
+            <span class="dados-suma-label">Suma</span>
+            <span class="dados-suma" id="dadosSuma">—</span>
+        </div>
+
+        <button class="dados-btn" id="dadosBtn">
+            <i data-lucide="shuffle"></i>
+            Tirar
+        </button>
+
+        <div class="dados-historial" id="dadosHistorial"></div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
