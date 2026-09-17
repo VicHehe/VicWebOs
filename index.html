@@ -9,11 +9,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Layout base PRIMERO -->
-<link rel="stylesheet" href="style.css">
-
-<!-- Tema DESPUÉS (así gana sobre style.css) -->
-<link rel="stylesheet" href="Temas/violeta.css" id="tema-activo">
+    <!-- Layout base primero -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Tema después (así gana) -->
+    <link rel="stylesheet" href="Temas/violeta.css" id="tema-activo">
 
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -23,9 +22,7 @@
         <header class="app-header">
             <div class="header-left">
                 <div class="logo">
-                    <div class="logo-mark">
-                        <i data-lucide="hexagon"></i>
-                    </div>
+                    <div class="logo-mark"><i data-lucide="hexagon"></i></div>
                     <span class="logo-text">VicWebOs</span>
                 </div>
             </div>
@@ -84,6 +81,9 @@
                             <i data-lucide="layout-grid"></i>
                             Ver todas las herramientas
                         </button>
+
+                        <!-- Widgets activos -->
+                        <div id="widgetsZona" class="widgets-zona"></div>
                     </div>
                 </div>
             </main>
@@ -98,9 +98,7 @@
                     <h2>Todas las herramientas</h2>
                     <p class="modal-subtitle">Apps instaladas en tu VicWebOs</p>
                 </div>
-                <button class="modal-todas-cerrar" id="modalTodasCerrar">
-                    <i data-lucide="x"></i>
-                </button>
+                <button class="modal-todas-cerrar" id="modalTodasCerrar"><i data-lucide="x"></i></button>
             </div>
             <div class="modal-todas-body" id="modalTodasBody"></div>
         </div>
@@ -114,9 +112,7 @@
                     <h2>Cuenta y configuración</h2>
                     <p class="config-subtitle">Personaliza tu VicWebOs</p>
                 </div>
-                <button class="config-cerrar" id="btnCerrarConfig">
-                    <i data-lucide="x"></i>
-                </button>
+                <button class="config-cerrar" id="btnCerrarConfig"><i data-lucide="x"></i></button>
             </div>
 
             <div class="config-layout">
@@ -125,9 +121,9 @@
                         <i data-lucide="user-circle"></i>
                         <span>Cuenta</span>
                     </button>
-                    <button class="config-nav-item" data-section="general">
-                        <i data-lucide="settings-2"></i>
-                        <span>Configuración</span>
+                    <button class="config-nav-item" data-section="apariencia">
+                        <i data-lucide="palette"></i>
+                        <span>Apariencia</span>
                     </button>
                     <button class="config-nav-item" data-section="apps">
                         <i data-lucide="package"></i>
@@ -163,7 +159,6 @@
                                 </button>
                             </div>
 
-                            <!-- Crear -->
                             <div class="cuenta-form active" data-form="crear">
                                 <div class="cuenta-foto-wrap">
                                     <label for="cuentaFoto" class="cuenta-foto" id="cuentaFotoPreview">
@@ -172,12 +167,10 @@
                                     </label>
                                     <input type="file" id="cuentaFoto" accept="image/*" hidden>
                                 </div>
-
                                 <div class="config-field">
                                     <label>Nombre</label>
                                     <input type="text" id="cuentaNombre" placeholder="Ej: Nicolás" maxlength="40">
                                 </div>
-
                                 <div class="config-field">
                                     <label>Pronombre</label>
                                     <select id="cuentaPronombre">
@@ -186,13 +179,11 @@
                                         <option value="elle">Elle</option>
                                     </select>
                                 </div>
-
                                 <div class="config-field">
                                     <label>Tu código personal (4 dígitos + 1 letra)</label>
                                     <input type="text" id="cuentaCodigo" placeholder="1234A" maxlength="5" style="text-transform: uppercase;">
                                     <p class="config-help">No puede repetirse con otros usuarios. Lo usarás para volver a entrar.</p>
                                 </div>
-
                                 <button class="btn-primario" id="btnCrearCuenta">
                                     <i data-lucide="user-plus"></i>
                                     Crear cuenta
@@ -200,14 +191,12 @@
                                 <div id="cuentaMensaje" class="config-status"></div>
                             </div>
 
-                            <!-- Entrar -->
                             <div class="cuenta-form" data-form="entrar">
                                 <div class="config-field">
                                     <label>Tu código</label>
                                     <input type="text" id="loginCodigo" placeholder="1234A" maxlength="5" style="text-transform: uppercase;">
                                     <p class="config-help">Introduce el código que elegiste al crear tu cuenta.</p>
                                 </div>
-
                                 <button class="btn-primario" id="btnEntrarCuenta">
                                     <i data-lucide="log-in"></i>
                                     Entrar
@@ -216,7 +205,6 @@
                             </div>
                         </div>
 
-                        <!-- Con sesión -->
                         <div id="cuentaConSesion" style="display:none;">
                             <div class="cuenta-perfil">
                                 <div class="cuenta-perfil-foto" id="perfilFoto">
@@ -228,7 +216,6 @@
                                     <span class="cuenta-perfil-codigo" id="perfilCodigo">—</span>
                                 </div>
                             </div>
-
                             <button class="btn-secundario" id="btnCerrarCuenta">
                                 <i data-lucide="log-out"></i>
                                 Cerrar sesión
@@ -236,19 +223,23 @@
                         </div>
                     </section>
 
-                    <!-- ===== PANEL: GENERAL ===== -->
-                    <section class="config-panel" data-panel="general">
+                    <!-- ===== PANEL: APARIENCIA ===== -->
+                    <section class="config-panel" data-panel="apariencia">
                         <div class="config-panel-header">
-                            <h3>Configuración</h3>
-                            <p>Ajustes generales de tu VicWebOs</p>
+                            <h3>Apariencia</h3>
+                            <p>Tema por defecto y widgets activos</p>
                         </div>
 
-                        <div class="config-empty">
-                            <div class="config-empty-icon">
-                                <i data-lucide="settings-2"></i>
-                            </div>
-                            <h4>Aún no hay configuración propia</h4>
-                            <p>Cuando agreguemos opciones de personalización, aparecerán aquí.</p>
+                        <div class="config-subsection">
+                            <h4><i data-lucide="palette"></i> Tema por defecto</h4>
+                            <p class="config-help">Se aplicará cada vez que entres a VicWebOs.</p>
+                            <div id="configTemasLista" class="config-temas-lista"></div>
+                        </div>
+
+                        <div class="config-subsection">
+                            <h4><i data-lucide="layout-grid"></i> Widgets activos</h4>
+                            <p class="config-help">Solo los widgets instalados desde Stor-He aparecen aquí. Actívalos para mostrarlos en el inicio.</p>
+                            <div id="configWidgetsLista" class="config-widgets-lista"></div>
                         </div>
                     </section>
 
@@ -258,9 +249,7 @@
                             <h3>Apps instaladas</h3>
                             <p>Estas apps aparecen en tu menú lateral</p>
                         </div>
-
                         <div id="appsInstaladasLista" class="apps-instaladas-lista"></div>
-
                         <div class="config-info-box">
                             <i data-lucide="info"></i>
                             <span>Para instalar más apps, abre <strong>Stor-He</strong> desde el menú lateral.</span>
@@ -279,29 +268,24 @@
                             <span>Todo se guarda en un <strong>repositorio privado de GitHub</strong>. Crea el tuyo, o únete al de un amigo con su token.</span>
                         </div>
 
-                        <!-- Sin conectar -->
                         <div id="bdSinConectar" style="margin-top: 20px;">
                             <div class="config-field">
                                 <label>Token personal (classic)</label>
                                 <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
                                 <p class="config-help">Créalo en <code>github.com/settings/tokens</code> con scope <code>repo</code>.</p>
                             </div>
-
                             <div class="config-field">
                                 <label>Nombre del repositorio</label>
                                 <input type="text" id="githubRepo" placeholder="vicwebos-data">
                                 <p class="config-help">Si no existe, se creará automáticamente como privado.</p>
                             </div>
-
                             <button class="btn-primario" id="btnConectarGitHub">
                                 <i data-lucide="link-2"></i>
                                 Conectar con GitHub
                             </button>
-
                             <div id="githubEstado" class="config-status"></div>
                         </div>
 
-                        <!-- Conectado -->
                         <div id="bdConectado" style="display:none; margin-top: 20px;">
                             <div class="bd-conectado-card">
                                 <div class="bd-conectado-icono">
@@ -319,12 +303,10 @@
                                     Conectado
                                 </span>
                             </div>
-
                             <button class="btn-secundario" id="btnDesconectarGitHub" style="margin-top: 12px;">
                                 <i data-lucide="unlink"></i>
                                 Desconectar repositorio
                             </button>
-
                             <div class="bd-aviso">
                                 <i data-lucide="alert-triangle"></i>
                                 <span>Si te desconectas, se borrará el caché local. Tus datos siguen a salvo en GitHub.</span>
@@ -345,7 +327,6 @@
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="js/JsRutas.js"></script>
     <script src="js/JsTemas.js"></script>
     <script src="js/JsWidgets.js"></script>
