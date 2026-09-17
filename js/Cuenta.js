@@ -1,5 +1,5 @@
 // ============================================================
-//  Cuenta.js — Sistema de cuentas + apps + temas + widgets
+//  Cuenta.js — Cuentas + apps + temas + widgets
 // ============================================================
 
 const CUENTAS_FILE = 'cuenta.json';
@@ -13,13 +13,12 @@ let configCuentaActual = null;
 const CONFIG_CUENTA_DEFAULT = {
     appsInstaladas: ['stor-he'],
     temasInstalados: ['violeta'],
-    temaActivo: 'violeta',
-    widgetsInstalados: []
+    temaActivo: 'violeta',          // tema por defecto
+    widgetsInstalados: [],
+    widgetsActivos: []              // widgets que se muestran en el inicio
 };
 
-// ============================================================
-//  CUENTAS
-// ============================================================
+// ---------- CUENTAS ----------
 async function cargarCuentas() {
     if (!ConfigBD.estaConectado()) return [];
     const data = await ConfigBD.leerArchivo(CUENTAS_FILE);
@@ -35,9 +34,7 @@ async function buscarCuentaPorCodigo(codigo) {
     return cuentas.find(c => c.codigo === codigo.toUpperCase()) || null;
 }
 
-// ============================================================
-//  CONFIG POR CUENTA
-// ============================================================
+// ---------- CONFIG POR CUENTA ----------
 async function leerTodasConfigCuentas() {
     if (!ConfigBD.estaConectado()) return {};
     const data = await ConfigBD.leerArchivo(CUENTA_CONFIG_FILE);
@@ -55,16 +52,12 @@ async function guardarConfigCuenta(codigo, config) {
     return await ConfigBD.escribirArchivo(CUENTA_CONFIG_FILE, all);
 }
 
-// ============================================================
-//  VALIDACIÓN
-// ============================================================
+// ---------- VALIDACIÓN ----------
 function validarFormatoCodigo(codigo) {
     return /^[0-9]{4}[A-Z]$/.test(codigo);
 }
 
-// ============================================================
-//  FOTO
-// ============================================================
+// ---------- FOTO ----------
 function procesarFoto(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -92,28 +85,22 @@ function procesarFoto(file) {
     });
 }
 
-// ============================================================
-//  CREAR / LOGIN / LOGOUT
-// ============================================================
+// ---------- CREAR / LOGIN / LOGOUT ----------
 async function crearCuenta({ foto, nombre, pronombre, codigo }) {
     if (!ConfigBD.estaConectado()) {
         throw new Error('Conecta GitHub primero desde "Base de datos".');
     }
-
     const codigoUp = codigo.toUpperCase();
-
     if (!validarFormatoCodigo(codigoUp)) {
         throw new Error('El código debe ser 4 dígitos seguidos de 1 letra (ej: 1234A).');
     }
     if (!nombre || !nombre.trim()) {
         throw new Error('El nombre es obligatorio.');
     }
-
     const cuentas = await cargarCuentas();
     if (cuentas.some(c => c.codigo === codigoUp)) {
         throw new Error('Ese código ya está en uso. Elige otro.');
     }
-
     const nueva = {
         codigo: codigoUp,
         nombre: nombre.trim(),
@@ -121,7 +108,6 @@ async function crearCuenta({ foto, nombre, pronombre, codigo }) {
         foto: foto || null,
         creado: new Date().toISOString()
     };
-
     cuentas.push(nueva);
     await guardarCuentas(cuentas);
     await guardarConfigCuenta(codigoUp, { ...CONFIG_CUENTA_DEFAULT });
@@ -134,17 +120,13 @@ async function iniciarSesion(codigo) {
     if (!ConfigBD.estaConectado()) {
         throw new Error('Conecta GitHub primero desde "Base de datos".');
     }
-
     const codigoUp = codigo.toUpperCase();
     if (!validarFormatoCodigo(codigoUp)) {
         throw new Error('Formato de código inválido. Debe ser 4 dígitos + 1 letra.');
     }
-
     const cuentas = await cargarCuentas();
     const cuenta = cuentas.find(c => c.codigo === codigoUp);
-    if (!cuenta) {
-        throw new Error('Código incorrecto o cuenta no encontrada.');
-    }
+    if (!cuenta) throw new Error('Código incorrecto o cuenta no encontrada.');
 
     cuentaActual = cuenta;
     configCuentaActual = await obtenerConfigCuenta(codigoUp);
@@ -155,6 +137,7 @@ async function iniciarSesion(codigo) {
     aplicarTemaActual();
     actualizarAvatarHeader();
     if (typeof renderSidebar === 'function') renderSidebar();
+    if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
     return cuenta;
 }
 
@@ -166,21 +149,17 @@ function cerrarSesion() {
     aplicarTema('violeta');
     actualizarAvatarHeader();
     if (typeof renderSidebar === 'function') renderSidebar();
+    if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
 }
 
 async function restaurarSesion() {
     if (!ConfigBD.estaConectado()) return null;
-
     const codigo = localStorage.getItem(SESION_KEY);
     if (!codigo) return null;
-
     try {
         const cuentas = await cargarCuentas();
         const cuenta = cuentas.find(c => c.codigo === codigo);
-        if (!cuenta) {
-            localStorage.removeItem(SESION_KEY);
-            return null;
-        }
+        if (!cuenta) { localStorage.removeItem(SESION_KEY); return null; }
         cuentaActual = cuenta;
         configCuentaActual = await obtenerConfigCuenta(codigo);
         aplicarTemaActual();
@@ -192,16 +171,9 @@ async function restaurarSesion() {
     }
 }
 
-// ============================================================
-//  APPS
-// ============================================================
-function obtenerAppsInstaladas() {
-    return configCuentaActual?.appsInstaladas || [];
-}
-
-function estaInstalada(id) {
-    return obtenerAppsInstaladas().includes(id);
-}
+// ---------- APPS ----------
+function obtenerAppsInstaladas() { return configCuentaActual?.appsInstaladas || []; }
+function estaInstalada(id) { return obtenerAppsInstaladas().includes(id); }
 
 async function instalarApp(id) {
     if (!ConfigBD.estaConectado()) throw new Error('Conecta GitHub primero.');
@@ -216,25 +188,16 @@ async function instalarApp(id) {
 async function desinstalarApp(id) {
     if (!ConfigBD.estaConectado()) throw new Error('Conecta GitHub primero.');
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
-
     const catalogo = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
     const app = catalogo.find(a => a.id === id);
     if (app && app.esBase) throw new Error('Esta app es del sistema y no se puede desinstalar.');
-
     configCuentaActual.appsInstaladas = (configCuentaActual.appsInstaladas || []).filter(a => a !== id);
     await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
 }
 
-// ============================================================
-//  TEMAS
-// ============================================================
-function obtenerTemasInstalados() {
-    return configCuentaActual?.temasInstalados || [];
-}
-
-function obtenerTemaActivo() {
-    return configCuentaActual?.temaActivo || 'violeta';
-}
+// ---------- TEMAS ----------
+function obtenerTemasInstalados() { return configCuentaActual?.temasInstalados || []; }
+function obtenerTemaActivo() { return configCuentaActual?.temaActivo || 'violeta'; }
 
 async function instalarTema(id) {
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
@@ -247,13 +210,10 @@ async function instalarTema(id) {
 
 async function desinstalarTema(id) {
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
-
     const catalogo = typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : [];
     const tema = catalogo.find(t => t.id === id);
     if (tema && tema.esBase) throw new Error('Este tema es base y no se puede desinstalar.');
-
     configCuentaActual.temasInstalados = (configCuentaActual.temasInstalados || []).filter(t => t !== id);
-
     if (configCuentaActual.temaActivo === id) {
         configCuentaActual.temaActivo = 'violeta';
         aplicarTema('violeta');
@@ -261,9 +221,9 @@ async function desinstalarTema(id) {
     await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
 }
 
+// Tema activo = tema por defecto (se aplica al iniciar sesión)
 async function aplicarTema(id) {
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
-
     const catalogo = typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : [];
     const tema = catalogo.find(t => t.id === id);
     if (!tema) throw new Error('Tema no encontrado.');
@@ -273,18 +233,15 @@ async function aplicarTema(id) {
     aplicarTema(id);
 }
 
-// Aplica el tema: remueve el <link> viejo y crea uno nuevo al final
-// del <head>. Así SIEMPRE gana sobre style.css y se recarga el CSS.
+// Carga el CSS del tema en el <head>
 function aplicarTema(id) {
     const catalogo = typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : [];
     const tema = catalogo.find(t => t.id === id);
     if (!tema || !tema.ruta) return;
 
-    // Quitar el tema actual
     const viejo = document.getElementById('tema-activo');
     if (viejo) viejo.remove();
 
-    // Crear uno nuevo al final del <head>
     const nuevo = document.createElement('link');
     nuevo.id = 'tema-activo';
     nuevo.rel = 'stylesheet';
@@ -296,12 +253,9 @@ function aplicarTemaActual() {
     aplicarTema(obtenerTemaActivo());
 }
 
-// ============================================================
-//  WIDGETS
-// ============================================================
-function obtenerWidgetsInstalados() {
-    return configCuentaActual?.widgetsInstalados || [];
-}
+// ---------- WIDGETS ----------
+function obtenerWidgetsInstalados() { return configCuentaActual?.widgetsInstalados || []; }
+function obtenerWidgetsActivos() { return configCuentaActual?.widgetsActivos || []; }
 
 async function instalarWidget(id) {
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
@@ -315,16 +269,32 @@ async function instalarWidget(id) {
 async function desinstalarWidget(id) {
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
     configCuentaActual.widgetsInstalados = (configCuentaActual.widgetsInstalados || []).filter(w => w !== id);
+    configCuentaActual.widgetsActivos = (configCuentaActual.widgetsActivos || []).filter(w => w !== id);
     await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+    if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
 }
 
-// ============================================================
-//  AVATAR HEADER
-// ============================================================
+async function activarWidget(id) {
+    if (!cuentaActual) throw new Error('Necesitas una cuenta.');
+    if (!configCuentaActual.widgetsActivos) configCuentaActual.widgetsActivos = [];
+    if (!configCuentaActual.widgetsActivos.includes(id)) {
+        configCuentaActual.widgetsActivos.push(id);
+        await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+        if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
+    }
+}
+
+async function desactivarWidget(id) {
+    if (!cuentaActual) throw new Error('Necesitas una cuenta.');
+    configCuentaActual.widgetsActivos = (configCuentaActual.widgetsActivos || []).filter(w => w !== id);
+    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+    if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
+}
+
+// ---------- AVATAR HEADER ----------
 function actualizarAvatarHeader() {
     const btn = document.getElementById('btnConfig');
     if (!btn) return;
-
     if (cuentaActual?.foto) {
         btn.innerHTML = `<img src="${cuentaActual.foto}" alt="" class="avatar-img">`;
     } else if (cuentaActual) {
@@ -336,9 +306,7 @@ function actualizarAvatarHeader() {
     }
 }
 
-// ============================================================
-//  UI CUENTA
-// ============================================================
+// ---------- UI CUENTA ----------
 function inicializarUICuenta() {
     const tabs       = document.querySelectorAll('.cuenta-tab');
     const forms      = document.querySelectorAll('.cuenta-form');
@@ -377,9 +345,7 @@ function inicializarUICuenta() {
             try {
                 fotoTemp = await procesarFoto(f);
                 fotoPrev.innerHTML = `<img src="${fotoTemp}" alt="" class="cuenta-foto-img">`;
-            } catch (e) {
-                alert('❌ ' + e.message);
-            }
+            } catch (e) { alert('❌ ' + e.message); }
         });
     }
 
@@ -409,10 +375,9 @@ function inicializarUICuenta() {
                 mostrarSesionActiva();
                 setTimeout(() => {
                     if (typeof renderSidebar === 'function') renderSidebar();
+                    if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
                 }, 200);
-            } catch (e) {
-                setMsg('❌ ' + e.message, 'error');
-            }
+            } catch (e) { setMsg('❌ ' + e.message, 'error'); }
         });
     }
 
@@ -430,10 +395,9 @@ function inicializarUICuenta() {
                 mostrarSesionActiva();
                 setTimeout(() => {
                     if (typeof renderSidebar === 'function') renderSidebar();
+                    if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
                 }, 200);
-            } catch (e) {
-                setMsg('❌ ' + e.message, 'error');
-            }
+            } catch (e) { setMsg('❌ ' + e.message, 'error'); }
         });
     }
 
@@ -477,9 +441,7 @@ function inicializarUICuenta() {
     }
 
     window.__actualizarUISesion = () => {
-        if (avisoGH) {
-            avisoGH.style.display = ConfigBD.estaConectado() ? 'none' : 'flex';
-        }
+        if (avisoGH) avisoGH.style.display = ConfigBD.estaConectado() ? 'none' : 'flex';
         if (!ConfigBD.estaConectado()) {
             if (sinSesion) sinSesion.style.display = 'none';
             if (conSesion) conSesion.style.display = 'none';
