@@ -11,6 +11,9 @@
 //
 //  Sin WebSocket: se relee cada POLL_MS usando leerArchivoFresh()
 //  (bypass del caché de 5 minutos de ConfigBD).
+//
+//  Escucha el evento 'vicwebos:sesion' que dispara Cuenta.js para
+//  recargar automáticamente al iniciar / cerrar sesión.
 // ============================================================
 
 (function () {
@@ -30,8 +33,18 @@
         return window.ConfigBD;
     }
 
+    // Obtiene el código del usuario actual. Prioriza la API pública
+    // de __vicwebos (más robusto), y cae a window.cuentaActual si
+    // existe (getter expuesto por Cuenta.js).
     function miCodigo() {
-        return (window.cuentaActual && window.cuentaActual.codigo) || null;
+        if (window.__vicwebos && typeof window.__vicwebos.obtenerCuenta === 'function') {
+            const c = window.__vicwebos.obtenerCuenta();
+            if (c && c.codigo) return c.codigo;
+        }
+        if (window.cuentaActual && window.cuentaActual.codigo) {
+            return window.cuentaActual.codigo;
+        }
+        return null;
     }
 
     function estructuraVacia() {
@@ -88,8 +101,6 @@
     // ---------- Carga ----------
     async function leerTodo() {
         try {
-            // Fuerza leer directo de GitHub — el caché haría que
-            // el poller siempre leyera la versión vieja durante 5 min.
             const raw = await bd().leerArchivoFresh(ARCHIVO);
             return normalizar(raw);
         } catch (e) {
@@ -142,7 +153,6 @@
             fecha:  new Date().toISOString()
         };
 
-        // Reintento con relectura para evitar perder notis en concurrencia
         for (let i = 0; i < 3; i++) {
             try {
                 const data = await leerTodo();
@@ -391,6 +401,11 @@
 
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) recargar().catch(() => {});
+        });
+
+        // Recargar cuando el usuario inicia / cierra sesión
+        window.addEventListener('vicwebos:sesion', () => {
+            recargar().catch(() => {});
         });
 
         recargar().catch(() => {});
