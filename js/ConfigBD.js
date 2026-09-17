@@ -1,20 +1,18 @@
 // ============================================================
 //  ConfigBD.js — Base de datos (IndexedDB + GitHub)
-//  - IndexedDB: almacenamiento local en el navegador
-//  - GitHub: sincronización con un repositorio privado
+//  Soporta múltiples archivos JSON
 // ============================================================
 
 const BD_CONFIG_KEY = 'vicwebos_bd';
 
 const BD_DEFAULT = {
-    tipo: 'indexeddb',      // 'indexeddb' | 'github'
+    tipo: 'indexeddb',
     githubToken: '',
     githubRepo: '',
     githubOwner: '',
     githubConectado: false
 };
 
-// ---------- CONFIG BD (localStorage para saber dónde guardar) ----------
 function cargarConfigBD() {
     try {
         const raw = localStorage.getItem(BD_CONFIG_KEY);
@@ -70,18 +68,8 @@ async function idbGet(key) {
     });
 }
 
-async function idbDelete(key) {
-    const db = await abrirIDB();
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction(IDB_STORE, 'readwrite');
-        tx.objectStore(IDB_STORE).delete(key);
-        tx.oncomplete = () => resolve();
-        tx.onerror = (e) => reject(e.target.error);
-    });
-}
-
 // ============================================================
-//  GITHUB API (classic token)
+//  GITHUB API
 // ============================================================
 const GH_HEADERS = (token) => ({
     'Authorization': `Bearer ${token}`,
@@ -96,9 +84,7 @@ async function ghObtenerUsuario(token) {
 }
 
 async function ghRepoExiste(token, owner, repo) {
-    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
-        headers: GH_HEADERS(token)
-    });
+    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers: GH_HEADERS(token) });
     if (res.status === 404) return false;
     if (!res.ok) throw new Error('Error al verificar el repositorio.');
     return true;
@@ -128,7 +114,7 @@ async function ghLeerArchivo(token, owner, repo, path) {
         { headers: GH_HEADERS(token) }
     );
     if (res.status === 404) return null;
-    if (!res.ok) throw new Error('Error al leer el archivo de GitHub.');
+    if (!res.ok) throw new Error('Error al leer el archivo.');
     const data = await res.json();
     const contenido = decodeURIComponent(escape(atob(data.content)));
     return { contenido, sha: data.sha };
@@ -140,7 +126,6 @@ async function ghEscribirArchivo(token, owner, repo, path, contenido, sha = null
         content: btoa(unescape(encodeURIComponent(contenido))),
         ...(sha ? { sha } : {})
     };
-
     const res = await fetch(
         `https://api.github.com/repos/${owner}/${repo}/contents/${path}`,
         {
@@ -149,7 +134,6 @@ async function ghEscribirArchivo(token, owner, repo, path, contenido, sha = null
             body: JSON.stringify(body)
         }
     );
-
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.message || 'Error al escribir en GitHub.');
@@ -157,91 +141,67 @@ async function ghEscribirArchivo(token, owner, repo, path, contenido, sha = null
     return await res.json();
 }
 
-// ============================================================
-//  CONECTAR CON GITHUB (crea el repo si no existe, si existe lo usa)
-// ============================================================
 async function conectarGitHub(token, nombreRepo) {
-    // 1. Obtener usuario
     const usuario = await ghObtenerUsuario(token);
     const owner = usuario.login;
-
-    // 2. Verificar si existe
     const existe = await ghRepoExiste(token, owner, nombreRepo);
 
     let creadoAhora = false;
     if (!existe) {
         await ghCrearRepo(token, nombreRepo);
         creadoAhora = true;
-        // Esperar un momento a que GitHub inicialice el repo
         await new Promise(r => setTimeout(r, 1200));
     }
 
-    return {
-        owner,
-        repo: nombreRepo,
-        creado: creadoAhora,
-        existe: true
-    };
+    return { owner, repo: nombreRepo, creado: creadoAhora, existe: true };
 }
 
 // ============================================================
-//  API PÚBLICA DE ALMACENAMIENTO
+//  API PÚBLICA — Múltiples archivos
 // ============================================================
-const DATA_FILE = 'vicwebos-data.json';
-
 const ConfigBD = {
-    // -------- Guardar (según config actual) --------
-    async guardar(datos) {
+    async leerArchivo(nombre) {
         const config = cargarConfigBD();
-
-        if (config.tipo === 'github') {
-            if (!config.githubToken || !config.githubOwner || !config.githubRepo) {
-                throw new Error('GitHub no está conectado.');
-            }
-            const path = DATA_FILE;
-            const actual = await ghLeerArchivo(
-                config.githubToken, config.githubOwner, config.githubRepo, path
-            );
-            await ghEscribirArchivo(
-                config.githubToken, config.githubOwner, config.githubRepo,
-                path, JSON.stringify(datos, null, 2), actual?.sha || null
-            );
-            return { ok: true, destino: 'github' };
-        }
-
-        // Por defecto: IndexedDB
-        await idbSet('vicwebos_data', datos);
-        return { ok: true, destino: 'indexeddb' };
-    },
-
-    // -------- Cargar --------
-    async cargar() {
-        const config = cargarConfigBD();
-
         if (config.tipo === 'github') {
             if (!config.githubToken || !config.githubOwner || !config.githubRepo) return null;
             try {
                 const archivo = await ghLeerArchivo(
-                    config.githubToken, config.githubOwner, config.githubRepo, DATA_FILE
+                    config.githubToken, config.githubOwner, config.githubRepo, nombre
                 );
                 if (!archivo) return null;
                 return JSON.parse(archivo.contenido);
             } catch (e) {
-                console.warn('Error cargando de GitHub:', e);
+                console.warn('Error leyendo ' + nombre + ':', e);
                 return null;
             }
         }
-
-        return await idbGet('vicwebos_data');
+        return await idbGet(nombre);
     },
 
-    // -------- Probar conexión --------
+    async escribirArchivo(nombre, datos) {
+        const config = cargarConfigBD();
+        if (config.tipo === 'github') {
+            if (!config.githubToken || !config.githubOwner || !config.githubRepo) {
+                throw new Error('GitHub no está conectado.');
+            }
+            const actual = await ghLeerArchivo(
+                config.githubToken, config.githubOwner, config.githubRepo, nombre
+            );
+            await ghEscribirArchivo(
+                config.githubToken, config.githubOwner, config.githubRepo,
+                nombre, JSON.stringify(datos, null, 2), actual?.sha || null
+            );
+            return { ok: true, destino: 'github' };
+        }
+        await idbSet(nombre, datos);
+        return { ok: true, destino: 'indexeddb' };
+    },
+
     async probarConexion(token, repo) {
         return await conectarGitHub(token, repo);
     }
 };
 
-// Exponer globalmente
 window.ConfigBD = ConfigBD;
 
 // ============================================================
@@ -254,27 +214,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnConectar   = document.getElementById('btnConectarGitHub');
     const githubEstado  = document.getElementById('githubEstado');
 
-    // -------- Cambio de opción storage --------
     document.querySelectorAll('input[name="storage"]').forEach(r => {
         r.addEventListener('change', (e) => {
             githubConfig.style.display = e.target.value === 'github' ? 'block' : 'none';
         });
     });
 
-    // -------- Conectar con GitHub --------
     if (btnConectar) {
         btnConectar.addEventListener('click', async () => {
             const token = githubToken.value.trim();
             const repo  = githubRepo.value.trim();
 
-            if (!token) {
-                mostrarEstado('❌ Introduce tu token personal.', 'error');
-                return;
-            }
-            if (!repo) {
-                mostrarEstado('❌ Introduce un nombre de repositorio.', 'error');
-                return;
-            }
+            if (!token) { mostrarEstado('❌ Introduce tu token personal.', 'error'); return; }
+            if (!repo)  { mostrarEstado('❌ Introduce un nombre de repositorio.', 'error'); return; }
             if (!/^[a-zA-Z0-9._-]+$/.test(repo)) {
                 mostrarEstado('❌ El nombre solo puede tener letras, números, puntos, guiones y guiones bajos.', 'error');
                 return;
