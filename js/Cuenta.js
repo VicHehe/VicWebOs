@@ -273,16 +273,20 @@ async function aplicarTema(id) {
     aplicarTema(id);
 }
 
-// Aplica el tema al documento padre (cambia variables CSS)
+// Aplica el tema cargando el CSS real (intercambia el <link id="tema-activo">)
 function aplicarTema(id) {
     const catalogo = typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : [];
     const tema = catalogo.find(t => t.id === id);
-    if (!tema || !tema.colores) return;
+    if (!tema || !tema.ruta) return;
 
-    const root = document.documentElement;
-    for (const [key, value] of Object.entries(tema.colores)) {
-        root.style.setProperty(key, value);
+    let link = document.getElementById('tema-activo');
+    if (!link) {
+        link = document.createElement('link');
+        link.id = 'tema-activo';
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
     }
+    link.href = tema.ruta;
 }
 
 function aplicarTemaActual() {
