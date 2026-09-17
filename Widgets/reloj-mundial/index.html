@@ -13,13 +13,30 @@
 <body>
     <div class="rm-widget">
         <div class="rm-header">
-            <i data-lucide="globe-2"></i>
-            <span>Reloj Mundial</span>
+            <div class="rm-titulo">
+                <i data-lucide="globe-2"></i>
+                <span>Reloj Mundial</span>
+            </div>
+            <button class="rm-add-btn" id="rmAddBtn" title="Añadir zona horaria">
+                <i data-lucide="plus"></i>
+            </button>
         </div>
-        <div class="rm-lista" id="rmLista">
-            <!-- Se llena desde script.js -->
+        <div class="rm-lista" id="rmLista"></div>
+    </div>
+
+    <!-- Modal para añadir zona -->
+    <div class="rm-modal" id="rmModal" hidden>
+        <div class="rm-modal-card">
+            <h3>Añadir zona horaria</h3>
+            <p>Máximo 4 zonas.</p>
+            <select id="rmZonaSelect"></select>
+            <div class="rm-modal-btns">
+                <button class="rm-btn rm-btn-cancel" id="rmCancelar">Cancelar</button>
+                <button class="rm-btn rm-btn-ok" id="rmConfirmar">Añadir</button>
+            </div>
         </div>
     </div>
+
     <script src="script.js"></script>
     <script>lucide.createIcons();</script>
 </body>
