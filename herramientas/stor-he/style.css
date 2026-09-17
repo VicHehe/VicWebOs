@@ -16,6 +16,7 @@ html, body {
     -webkit-font-smoothing: antialiased;
     transition: background 0.3s, color 0.3s;
     color-scheme: light dark;
+    -webkit-tap-highlight-color: transparent;
 }
 
 [data-lucide] {
@@ -123,6 +124,7 @@ html, body {
     transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     margin-bottom: -1px;
+    touch-action: manipulation;
 }
 .sh-tab [data-lucide] {
     width: 15px;
@@ -322,6 +324,7 @@ html, body {
     cursor: pointer;
     transition: all 0.15s;
     white-space: nowrap;
+    touch-action: manipulation;
 }
 .sh-btn [data-lucide] {
     width: 13px;
@@ -621,31 +624,245 @@ html, body {
     cursor: not-allowed;
 }
 
-/* ========== RESPONSIVE ========== */
+/* ================================================
+   RESPONSIVE — Tablet
+   ================================================ */
+@media (max-width: 900px) {
+    .sh-header { padding: 20px 22px 0; }
+    .sh-content { padding: 22px; }
+}
+
+/* ================================================
+   RESPONSIVE — Móvil
+   ================================================ */
 @media (max-width: 640px) {
-    .sh-header { padding: 20px 18px 0; }
-    .sh-content { padding: 20px 18px; }
-    .sh-grid { grid-template-columns: 1fr; }
-    .sh-tab span:not(.sh-tab-count) { display: none; }
-    .sh-tab { padding: 10px 14px 12px; }
-    .sh-logo-text p { display: none; }
-    .sh-header-top {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
+    .sh-header {
+        padding: 16px 16px 0;
     }
+
+    .sh-header-top {
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    .sh-logo {
+        gap: 10px;
+        flex: 1;
+        min-width: 0;
+    }
+    .sh-logo-mark {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+    }
+    .sh-logo-mark [data-lucide] { width: 20px; height: 20px; }
+    .sh-logo-text h1 { font-size: 18px; }
+    .sh-logo-text p { display: none; }
+
+    /* Recursos: chips compactos */
     .sh-recursos {
-        gap: 8px;
-        width: 100%;
+        gap: 6px;
+        flex-shrink: 0;
     }
     .sh-recurso {
-        flex: 1;
-        padding: 8px 12px;
+        padding: 6px 10px;
+        gap: 8px;
+        border-radius: 10px;
+    }
+    .sh-recurso [data-lucide] { width: 15px; height: 15px; }
+    .sh-recurso-label { font-size: 9px; }
+    .sh-recurso-valor { font-size: 13px; }
+
+    /* Tabs con TEXTO visible y buen tap target */
+    .sh-tabs {
+        gap: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+    .sh-tabs::-webkit-scrollbar { display: none; }
+    .sh-tab {
+        padding: 10px 14px 12px;
+        font-size: 13px;
+        flex-shrink: 0;
+        min-height: 44px;
+        gap: 7px;
+    }
+    /* El texto ahora SÍ se ve */
+    .sh-tab span:not(.sh-tab-count) { display: inline; }
+    .sh-tab [data-lucide] { width: 15px; height: 15px; }
+    .sh-tab-count {
+        font-size: 10px;
+        padding: 1px 6px;
+        min-width: 20px;
+    }
+
+    .sh-content { padding: 16px; }
+
+    /* Grid: 1 columna */
+    .sh-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    /* Cards compactas */
+    .sh-card {
+        padding: 14px;
+        gap: 12px;
+        border-radius: 14px;
+    }
+    .sh-card:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    .sh-card-header { gap: 12px; }
+    .sh-card-icono {
+        width: 42px;
+        height: 42px;
+        border-radius: 11px;
+    }
+    .sh-card-icono [data-lucide] { width: 20px; height: 20px; }
+    .sh-card-nombre { font-size: 14.5px; }
+    .sh-card-desc { font-size: 12px; }
+
+    .sh-card-footer {
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .sh-acciones { margin-left: auto; }
+
+    /* Botones con mayor área táctil */
+    .sh-btn {
+        padding: 10px 14px;
+        font-size: 13px;
+        min-height: 40px;
+        border-radius: 10px;
+    }
+    .sh-btn [data-lucide] { width: 14px; height: 14px; }
+    .sh-btn-icono {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+    }
+
+    .sh-badge { font-size: 9px; padding: 3px 7px; }
+    .sh-badge-instalada [data-lucide] { width: 9px; height: 9px; }
+
+    /* Preview de tema más baja */
+    .sh-tema-preview {
+        aspect-ratio: 16 / 8;
+        border-radius: 10px;
+    }
+
+    /* Categoría título más cerca */
+    .sh-categoria { margin-bottom: 24px; }
+    .sh-categoria-titulo {
+        font-size: 10.5px;
+        margin-bottom: 10px;
+    }
+
+    /* Ampliación compacta */
+    .sh-ampliacion {
+        margin-bottom: 16px;
     }
     .sh-ampliacion-card {
         flex-direction: column;
         align-items: flex-start;
-        text-align: left;
+        gap: 12px;
+        padding: 14px;
+        border-radius: 14px;
     }
-    .sh-ampliacion .sh-btn { width: 100%; }
+    .sh-ampliacion-icono {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+    }
+    .sh-ampliacion-icono [data-lucide] { width: 20px; height: 20px; }
+    .sh-ampliacion-titulo { font-size: 14px; }
+    .sh-ampliacion-desc { font-size: 12px; }
+    .sh-ampliacion .sh-btn {
+        width: 100%;
+        min-height: 44px;
+    }
+
+    /* Costes más compactos */
+    .sh-costes { gap: 5px; margin-top: 5px; }
+    .sh-coste { font-size: 10.5px; padding: 2px 7px; }
+
+    /* Empty state */
+    .sh-empty { padding: 48px 16px; }
+    .sh-empty [data-lucide] { width: 36px; height: 36px; }
+    .sh-empty h3 { font-size: 15px; }
+    .sh-empty p { font-size: 12.5px; }
+}
+
+/* ================================================
+   RESPONSIVE — Móvil pequeño (360px, Honor 400 Smart)
+   ================================================ */
+@media (max-width: 400px) {
+    .sh-header { padding: 14px 14px 0; }
+    .sh-header-top { gap: 8px; margin-bottom: 12px; }
+
+    .sh-logo { gap: 8px; }
+    .sh-logo-mark {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+    }
+    .sh-logo-mark [data-lucide] { width: 18px; height: 18px; }
+    .sh-logo-text h1 { font-size: 17px; }
+
+    /* Recursos solo valor, sin etiqueta */
+    .sh-recursos { gap: 5px; }
+    .sh-recurso {
+        padding: 5px 8px;
+        gap: 6px;
+        border-radius: 9px;
+    }
+    .sh-recurso [data-lucide] { width: 13px; height: 13px; }
+    .sh-recurso-label { display: none; }
+    .sh-recurso-valor { font-size: 12px; }
+
+    /* Tabs más ajustados */
+    .sh-tab {
+        padding: 9px 10px 11px;
+        font-size: 12.5px;
+        gap: 6px;
+    }
+    .sh-tab [data-lucide] { width: 14px; height: 14px; }
+    .sh-tab-count { font-size: 9.5px; padding: 1px 5px; min-width: 18px; }
+
+    .sh-content { padding: 14px; }
+
+    /* Cards aún más compactas */
+    .sh-card { padding: 12px; gap: 10px; border-radius: 12px; }
+    .sh-card-header { gap: 10px; }
+    .sh-card-icono {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+    }
+    .sh-card-icono [data-lucide] { width: 18px; height: 18px; }
+    .sh-card-nombre { font-size: 14px; }
+    .sh-card-desc { font-size: 11.5px; }
+
+    .sh-btn { font-size: 12.5px; padding: 9px 12px; }
+    .sh-btn-icono { width: 38px; height: 38px; }
+
+    .sh-tema-preview { aspect-ratio: 16 / 7.5; }
+
+    /* Ampliación aún más compacta */
+    .sh-ampliacion-card { padding: 12px; gap: 10px; }
+    .sh-ampliacion-icono { width: 36px; height: 36px; }
+    .sh-ampliacion-icono [data-lucide] { width: 18px; height: 18px; }
+    .sh-ampliacion-titulo { font-size: 13.5px; }
+    .sh-ampliacion-desc { font-size: 11.5px; }
+
+    /* Toast */
+    .sh-toast {
+        bottom: 14px;
+        padding: 10px 18px;
+        font-size: 12.5px;
+        max-width: calc(100% - 28px);
+    }
 }
