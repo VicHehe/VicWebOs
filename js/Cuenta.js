@@ -273,20 +273,23 @@ async function aplicarTema(id) {
     aplicarTema(id);
 }
 
-// Aplica el tema cargando el CSS real (intercambia el <link id="tema-activo">)
+// Aplica el tema: remueve el <link> viejo y crea uno nuevo al final
+// del <head>. Así SIEMPRE gana sobre style.css y se recarga el CSS.
 function aplicarTema(id) {
     const catalogo = typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : [];
     const tema = catalogo.find(t => t.id === id);
     if (!tema || !tema.ruta) return;
 
-    let link = document.getElementById('tema-activo');
-    if (!link) {
-        link = document.createElement('link');
-        link.id = 'tema-activo';
-        link.rel = 'stylesheet';
-        document.head.appendChild(link);
-    }
-    link.href = tema.ruta;
+    // Quitar el tema actual
+    const viejo = document.getElementById('tema-activo');
+    if (viejo) viejo.remove();
+
+    // Crear uno nuevo al final del <head>
+    const nuevo = document.createElement('link');
+    nuevo.id = 'tema-activo';
+    nuevo.rel = 'stylesheet';
+    nuevo.href = tema.ruta;
+    document.head.appendChild(nuevo);
 }
 
 function aplicarTemaActual() {
