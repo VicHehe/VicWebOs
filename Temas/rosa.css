@@ -1,0 +1,25 @@
+/* ================================================
+   Tema: Rosa Pastel
+   ================================================ */
+
+:root {
+    --violet-50:  #FFF1F5;
+    --violet-100: #FFE4EC;
+    --violet-200: #FFC9D9;
+    --violet-300: #FFA3BC;
+    --violet-400: #FF7BA1;
+    --violet-500: #EC4899;
+    --violet-600: #DB2777;
+    --violet-700: #BE185D;
+
+    --bg:     #FFFAFB;
+    --bg-alt: #FFF5F7;
+
+    --shadow-glow: 0 0 0 4px rgba(236, 72, 153, 0.10);
+
+    --accent-gradient: linear-gradient(135deg, #EC4899, #BE185D);
+    --accent-gradient-hover: linear-gradient(135deg, #EC4899, #DB2777);
+    --accent-shadow: rgba(236, 72, 153, 0.28);
+    --accent-shadow-hover: rgba(236, 72, 153, 0.38);
+    --accent-text-gradient: linear-gradient(135deg, var(--gray-900), #DB2777);
+}
