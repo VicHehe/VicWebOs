@@ -2,6 +2,7 @@
 //  Calculadora — Calculadora básica + 3 funciones premium
 //  Compras persistentes en app/calculadora/calculadora.json
 //  Historial por usuario en IndexedDB (máx 3)
+//  Sin emojis en la UI. Todo con iconos Lucide.
 // ============================================================
 
 const COMPRAS_FILE       = 'app/calculadora/calculadora.json';
@@ -14,6 +15,12 @@ const PRECIOS = {
     intereses: 5,
     fechas:    5,
     graficos: 10
+};
+
+const NOMBRES_FUNCION = {
+    intereses: 'Intereses',
+    fechas:    'Fechas',
+    graficos:  'Gráficos'
 };
 
 const COLORES_GRAFICO = [
@@ -107,7 +114,6 @@ async function guardarHistorial() {
 }
 
 function agregarAlHistorial(expresion, resultado) {
-    // Quitar duplicado si ya existe la misma expresión
     historial = historial.filter(h => h.expresion !== expresion);
     historial.unshift({ expresion, resultado });
     if (historial.length > HIST_MAX) historial = historial.slice(0, HIST_MAX);
@@ -182,18 +188,17 @@ async function comprarFuncion(id) {
     if (!api) return;
 
     const precio = PRECIOS[id] || 0;
-    const nombres = { intereses: 'Intereses', fechas: 'Fechas', graficos: 'Gráficos' };
+    const nombre = NOMBRES_FUNCION[id] || id;
 
-    const confirmado = confirm(`¿Comprar la función "${nombres[id]}" por ${precio} monedas?`);
+    const confirmado = confirm(`¿Comprar la función "${nombre}" por ${precio} monedas?`);
     if (!confirmado) return;
 
     try {
-        await api.gastoBoleta('🧮', 'calculadora', `Función ${nombres[id]}`, precio);
+        await api.gastoBoleta('calc', 'calculadora', `Función ${nombre}`, precio);
         compras[id] = true;
         await guardarCompras();
         actualizarUIFunciones();
-        toast('¡Función desbloqueada!', 'success');
-        // Abrir directamente el modal tras la compra
+        toast('Función desbloqueada', 'success');
         setTimeout(() => abrirModalFuncion(id), 300);
     } catch (e) {
         toast(e.message || 'No se pudo comprar', 'error');
@@ -211,17 +216,19 @@ function actualizarUIFunciones() {
     };
 
     for (const id of Object.keys(botones)) {
-        const btn = document.querySelector(`.calc-funcion-btn[data-funcion="${id}"]`);
+        const card = document.querySelector(`.calc-funcion-card[data-funcion="${id}"]`);
         const estado = botones[id];
-        if (!btn || !estado) continue;
+        if (!card || !estado) continue;
+
         if (compras[id]) {
-            btn.classList.add('comprada');
-            estado.textContent = '✓ Listo';
+            card.classList.add('comprada');
+            estado.innerHTML = `<i data-lucide="check"></i> Desbloqueada`;
         } else {
-            btn.classList.remove('comprada');
-            estado.textContent = `🔒 ${PRECIOS[id]} 🪙`;
+            card.classList.remove('comprada');
+            estado.innerHTML = `<i data-lucide="lock"></i> ${PRECIOS[id]} <i data-lucide="coins"></i>`;
         }
     }
+    lucide.createIcons();
 }
 
 function abrirModalFuncion(id) {
@@ -256,7 +263,6 @@ function renderDisplay() {
 
     exp.textContent = expresion || '0';
 
-    // Preview del resultado si la expresión es evaluable
     const preview = calcularPreview(expresion);
     if (preview !== null && preview !== expresion) {
         prev.textContent = preview;
@@ -267,13 +273,10 @@ function renderDisplay() {
 
 function calcularPreview(expr) {
     try {
-        // No evaluar si termina en operador
         if (/[+\-*/.]$/.test(expr)) return null;
         if (!/[+\-*/]/.test(expr)) return null;
 
-        // Reemplazar % por /100 en contexto simple
         let limpio = expr.replace(/%/g, '/100');
-        // Validar solo caracteres permitidos
         if (!/^[0-9+\-*/().\s]+$/.test(limpio)) return null;
 
         const r = Function('"use strict"; return (' + limpio + ')')();
@@ -285,8 +288,7 @@ function calcularPreview(expr) {
 }
 
 function formatearNumero(n) {
-    if (!isFinite(n)) return '∞';
-    // Máximo 8 decimales, sin ceros trailing
+    if (!isFinite(n)) return 'infinito';
     const redondeado = Math.round(n * 1e8) / 1e8;
     return String(redondeado);
 }
@@ -295,7 +297,6 @@ function presionarNumero(n) {
     if (expresion === '0' && n !== '.') {
         expresion = n;
     } else if (n === '.' && /\.\d*$/.test(expresion)) {
-        // ya tiene punto en el número actual
         return;
     } else if (n === '.' && (expresion === '0' || /[+\-*/]$/.test(expresion))) {
         expresion += '0.';
@@ -335,7 +336,6 @@ function presionarPow() {
         expresion = formatearNumero(r * r);
         renderDisplay();
     } else {
-        // Aplicar cuadrado al último número
         expresion = expresion.replace(/(\d+\.?\d*)$/, (m) => {
             const n = parseFloat(m);
             return formatearNumero(n * n);
@@ -345,7 +345,6 @@ function presionarPow() {
 }
 
 function presionarPercent() {
-    // Convierte el último número en su versión /100
     expresion = expresion.replace(/(\d+\.?\d*)$/, (m) => {
         const n = parseFloat(m);
         return formatearNumero(n / 100);
@@ -375,16 +374,13 @@ function calcularInteres() {
         return;
     }
 
-    // Normalizar tiempo a años
     let t = tiempo;
     if (unidad === 'dias')  t = tiempo / 365;
     if (unidad === 'meses') t = tiempo / 12;
 
-    // Interés simple: C · r · t / 100
     const interesSimple = capital * (tasa / 100) * t;
     const totalSimple = capital + interesSimple;
 
-    // Interés compuesto: C · (1 + r/100)^t − C
     const montoCompuesto = capital * Math.pow(1 + tasa / 100, t);
     const interesCompuesto = montoCompuesto - capital;
 
@@ -450,12 +446,11 @@ function calcularFecha() {
     const totalHoras = Math.floor(abs / (1000 * 60 * 60));
     const totalMin = Math.floor(abs / (1000 * 60));
 
-    // Desglose años/meses/días
     let desde, hasta;
     if (futuro) { desde = new Date(fechaA); hasta = new Date(fechaB); }
     else        { desde = new Date(fechaB); hasta = new Date(fechaA); }
 
-    let años = hasta.getFullYear() - desde.getFullYear();
+    let anios = hasta.getFullYear() - desde.getFullYear();
     let meses = hasta.getMonth() - desde.getMonth();
     let dias = hasta.getDate() - desde.getDate();
 
@@ -465,30 +460,28 @@ function calcularFecha() {
         dias += ultimoDiaMesAnterior;
     }
     if (meses < 0) {
-        años--;
+        anios--;
         meses += 12;
     }
 
     const fmtFecha = (d) => d.toLocaleDateString('es-CL', { day: '2-digit', month: 'long', year: 'numeric' });
 
-    const titulo = futuro
-        ? (modoFecha === 'entre' ? 'Faltan' : 'Faltan')
-        : (modoFecha === 'entre' ? 'Pasaron' : 'Ya pasó');
+    const titulo = futuro ? 'Faltan' : (modoFecha === 'entre' ? 'Pasaron' : 'Ya pasó');
 
     const panel = document.getElementById('fechaResultado');
     panel.style.display = 'flex';
     panel.innerHTML = `
         <div class="calc-resultado-fila">
             <span class="calc-resultado-label">${fmtFecha(desde)}</span>
-            <span class="calc-resultado-label">→</span>
+            <span class="calc-resultado-label">hasta</span>
             <span class="calc-resultado-valor">${fmtFecha(hasta)}</span>
         </div>
         <div class="calc-resultado-fila calc-resultado-destacado">
             <span class="calc-resultado-label">${titulo}</span>
-            <span class="calc-resultado-valor">${años} ${años === 1 ? 'año' : 'años'}, ${meses} ${meses === 1 ? 'mes' : 'meses'}, ${dias} ${dias === 1 ? 'día' : 'días'}</span>
+            <span class="calc-resultado-valor">${anios} ${anios === 1 ? 'año' : 'años'}, ${meses} ${meses === 1 ? 'mes' : 'meses'}, ${dias} ${dias === 1 ? 'día' : 'días'}</span>
         </div>
         <p class="calc-resultado-sub">
-            Total: ${totalDias.toLocaleString('es-CL')} días · ${totalHoras.toLocaleString('es-CL')} horas · ${totalMin.toLocaleString('es-CL')} minutos.
+            Total: ${totalDias.toLocaleString('es-CL')} días, ${totalHoras.toLocaleString('es-CL')} horas, ${totalMin.toLocaleString('es-CL')} minutos.
         </p>
     `;
 }
@@ -552,7 +545,7 @@ function actualizarGrafico() {
     }
 
     const total = datos.reduce((a, d) => a + d.valor, 0);
-    const cx = 90, cy = 90, r = 80;
+    const cx = 100, cy = 100, r = 88;
 
     let anguloInicial = 0;
     let paths = '';
@@ -563,7 +556,6 @@ function actualizarGrafico() {
         anguloInicial += angulo;
     });
 
-    // Si solo hay una porción, agregar círculo completo
     if (datos.length === 1) {
         paths = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${COLORES_GRAFICO[0]}"/>`;
     }
@@ -582,7 +574,7 @@ function actualizarGrafico() {
 
     cont.style.display = 'flex';
     cont.innerHTML = `
-        <svg class="calc-grafico-svg" viewBox="0 0 180 180">
+        <svg class="calc-grafico-svg" viewBox="0 0 200 200">
             ${paths}
         </svg>
         <div class="calc-grafico-leyenda">${leyenda}</div>
@@ -640,9 +632,7 @@ function inicializarTeclado() {
         });
     });
 
-    // Atajos de teclado físico
     document.addEventListener('keydown', (e) => {
-        // No interferir si hay un input activo
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
         if (/^[0-9]$/.test(e.key)) presionarNumero(e.key);
         else if (e.key === '.') presionarNumero('.');
@@ -658,7 +648,7 @@ function inicializarTeclado() {
 //  EVENTOS DE FUNCIONES
 // ============================================================
 function inicializarFunciones() {
-    document.querySelectorAll('.calc-funcion-btn').forEach(btn => {
+    document.querySelectorAll('.calc-funcion-card').forEach(btn => {
         btn.addEventListener('click', () => abrirModalFuncion(btn.dataset.funcion));
     });
 
@@ -666,7 +656,6 @@ function inicializarFunciones() {
         btn.addEventListener('click', () => cerrarModal(btn.dataset.cerrar));
     });
 
-    // Cerrar modal al click fuera
     ['modalIntereses', 'modalFechas', 'modalGraficos'].forEach(id => {
         const modal = document.getElementById(id);
         if (!modal) return;
@@ -678,12 +667,10 @@ function inicializarFunciones() {
     document.getElementById('btnCalcularInteres')?.addEventListener('click', calcularInteres);
     document.getElementById('btnCalcularFecha')?.addEventListener('click', calcularFecha);
 
-    // Modo fecha
     document.querySelectorAll('.calc-modo-btn').forEach(btn => {
         btn.addEventListener('click', () => cambiarModoFecha(btn.dataset.modo));
     });
 
-    // Gráficos
     document.getElementById('btnAnadirFila')?.addEventListener('click', () => anadirFilaGrafico());
 }
 
@@ -693,13 +680,11 @@ function inicializarFunciones() {
 document.addEventListener('DOMContentLoaded', async () => {
     aplicarTemaDelPadre();
 
-    // Badge del usuario
     const api = API();
     const cuenta = api?.obtenerCuenta?.();
     const badge = document.getElementById('calcUserBadge');
     if (badge) badge.textContent = cuenta ? `@${cuenta.codigo} · ${cuenta.nombre}` : '—';
 
-    // Cargar historial y compras
     historial = await cargarHistorial();
     await cargarCompras();
 
@@ -710,14 +695,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     inicializarTeclado();
     inicializarFunciones();
 
-    // Fila inicial del gráfico si no hay
     const cont = document.getElementById('grafFilas');
     if (cont && cont.children.length === 0) {
         anadirFilaGrafico();
         anadirFilaGrafico();
     }
 
-    // Valores por defecto en el modal de fechas
     const hoy = new Date().toISOString().split('T')[0];
     if (document.getElementById('fecha1')) document.getElementById('fecha1').value = hoy;
     if (document.getElementById('fechaObjetivo')) document.getElementById('fechaObjetivo').value = hoy;
