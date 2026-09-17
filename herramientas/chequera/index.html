@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chequera</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="chq-container">
+        <header class="chq-header">
+            <div class="chq-logo">
+                <div class="chq-logo-mark">
+                    <i data-lucide="wallet"></i>
+                </div>
+                <div class="chq-logo-text">
+                    <h1>Chequera</h1>
+                    <p id="chqUserBadge">—</p>
+                </div>
+            </div>
+
+            <div class="chq-saldo">
+                <span class="chq-saldo-label">Saldo disponible</span>
+                <div class="chq-saldo-valor">
+                    <i data-lucide="coins"></i>
+                    <span id="chqSaldo">0</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="chq-filtros">
+            <button class="chq-filtro active" data-filtro="todos">
+                <i data-lucide="list"></i> Todos
+            </button>
+            <button class="chq-filtro" data-filtro="canje">
+                <i data-lucide="trending-up"></i> Ganancias
+            </button>
+            <button class="chq-filtro" data-filtro="gasto">
+                <i data-lucide="trending-down"></i> Gastos
+            </button>
+
+            <div class="chq-resumen" id="chqResumen">
+                <span class="chq-resumen-item chq-resumen-ganado">
+                    <i data-lucide="arrow-up-circle"></i>
+                    <span id="chqTotalGanado">+0</span>
+                </span>
+                <span class="chq-resumen-item chq-resumen-gastado">
+                    <i data-lucide="arrow-down-circle"></i>
+                    <span id="chqTotalGastado">-0</span>
+                </span>
+            </div>
+        </div>
+
+        <div class="chq-lista" id="chqLista">
+            <!-- Se llena desde JS -->
+        </div>
+
+        <div class="chq-empty" id="chqEmpty" style="display:none;">
+            <i data-lucide="inbox"></i>
+            <h3>Aún no hay movimientos</h3>
+            <p>Cuando ganes o gastes monedas, aparecerán aquí.</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
