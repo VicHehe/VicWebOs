@@ -1,5 +1,5 @@
 // ============================================================
-//  JsIndex.js — Pestañas + sidebar + API extendida
+//  JsIndex.js — Pestañas + sidebar + widgets + API
 // ============================================================
 
 const MAX_TABS = 10;
@@ -106,6 +106,37 @@ function actualizarNavActivo() {
 }
 
 // ============================================================
+//  WIDGETS ACTIVOS EN WELCOME
+// ============================================================
+function renderWidgetsActivos() {
+    const zona = document.getElementById('widgetsZona');
+    if (!zona) return;
+    zona.innerHTML = '';
+
+    if (!cuentaActual) return;
+
+    const activos = obtenerWidgetsActivos();
+    if (activos.length === 0) return;
+
+    const catalogo = typeof WIDGETS_DISPONIBLES !== 'undefined' ? WIDGETS_DISPONIBLES : [];
+
+    activos.forEach(id => {
+        const w = catalogo.find(x => x.id === id);
+        if (!w) return;
+
+        const wrap = document.createElement('div');
+        wrap.className = 'widget-item';
+        const iframe = document.createElement('iframe');
+        iframe.src = w.ruta;
+        iframe.className = 'widget-iframe';
+        iframe.loading = 'lazy';
+        iframe.setAttribute('scrolling', 'no');
+        wrap.appendChild(iframe);
+        zona.appendChild(wrap);
+    });
+}
+
+// ============================================================
 //  PESTAÑAS
 // ============================================================
 function abrirHerramienta(id) {
@@ -143,7 +174,7 @@ function abrirHerramienta(id) {
 
 function activarPestania(id) {
     activeTabId = id;
-    panelContainer.querySelectorAll('iframe').forEach(f => {
+    panelContainer.querySelectorAll('iframe.tool-iframe').forEach(f => {
         f.style.display = 'none';
         f.classList.remove('active');
     });
@@ -211,7 +242,7 @@ function renderTabs() {
 }
 
 function mostrarBienvenida() {
-    panelContainer.querySelectorAll('iframe').forEach(f => {
+    panelContainer.querySelectorAll('iframe.tool-iframe').forEach(f => {
         f.style.display = 'none';
         f.classList.remove('active');
     });
@@ -219,6 +250,7 @@ function mostrarBienvenida() {
     activeTabId = null;
     renderTabs();
     actualizarNavActivo();
+    renderWidgetsActivos();
 }
 
 // ============================================================
@@ -369,62 +401,51 @@ function iniciarClimaLocal() {
 }
 
 // ============================================================
-//  API PARA IFRAMES (Stor-He y otras apps)
+//  API PARA IFRAMES
 // ============================================================
 window.__vicwebos = {
-    // ---- Catálogo ----
     obtenerCatalogo:  () => (typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : []),
     obtenerTemas:     () => (typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : []),
     obtenerWidgets:   () => (typeof WIDGETS_DISPONIBLES !== 'undefined' ? WIDGETS_DISPONIBLES : []),
 
-    // ---- Estado de instalación ----
     obtenerInstaladas:        () => obtenerAppsInstaladas(),
     obtenerTemasInstalados:   () => obtenerTemasInstalados(),
     obtenerWidgetsInstalados: () => obtenerWidgetsInstalados(),
+    obtenerWidgetsActivos:    () => obtenerWidgetsActivos(),
     obtenerTemaActivo:        () => obtenerTemaActivo(),
     estaInstalada:            (id) => estaInstalada(id),
 
-    // ---- Cuenta / estado ----
     tieneCuenta:    () => !!cuentaActual,
     estaConectado:  () => ConfigBD.estaConectado(),
     obtenerCuenta:  () => cuentaActual ? { nombre: cuentaActual.nombre, codigo: cuentaActual.codigo } : null,
 
-    // ---- Acciones: apps ----
     instalar: async (id) => {
         try {
             await instalarApp(id);
             renderSidebar(searchInput ? searchInput.value : '');
-        } catch (e) {
-            alert('❌ ' + e.message);
-            throw e;
-        }
+        } catch (e) { alert('❌ ' + e.message); throw e; }
     },
     desinstalar: async (id) => {
         try {
             await desinstalarApp(id);
             if (tabs.find(t => t.id === id)) cerrarPestania(id);
             renderSidebar(searchInput ? searchInput.value : '');
-        } catch (e) {
-            alert('❌ ' + e.message);
-            throw e;
-        }
+        } catch (e) { alert('❌ ' + e.message); throw e; }
     },
     abrirApp: (id) => {
-        if (estaInstalada(id)) {
-            abrirHerramienta(id);
-            return true;
-        }
+        if (estaInstalada(id)) { abrirHerramienta(id); return true; }
         return false;
     },
 
-    // ---- Acciones: temas ----
     instalarTema:    async (id) => { try { await instalarTema(id); }    catch (e) { alert('❌ ' + e.message); throw e; } },
     desinstalarTema: async (id) => { try { await desinstalarTema(id); } catch (e) { alert('❌ ' + e.message); throw e; } },
     aplicarTema:     async (id) => { try { await aplicarTema(id); }     catch (e) { alert('❌ ' + e.message); throw e; } },
 
-    // ---- Acciones: widgets ----
     instalarWidget:    async (id) => { try { await instalarWidget(id); }    catch (e) { alert('❌ ' + e.message); throw e; } },
-    desinstalarWidget: async (id) => { try { await desinstalarWidget(id); } catch (e) { alert('❌ ' + e.message); throw e; } }
+    desinstalarWidget: async (id) => { try { await desinstalarWidget(id); } catch (e) { alert('❌ ' + e.message); throw e; } },
+
+    activarWidget:   async (id) => { try { await activarWidget(id); }   catch (e) { alert('❌ ' + e.message); throw e; } },
+    desactivarWidget: async (id) => { try { await desactivarWidget(id); } catch (e) { alert('❌ ' + e.message); throw e; } }
 };
 
 // ============================================================
@@ -438,23 +459,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     actualizarAvatarHeader();
     renderSidebar();
     renderTabs();
+    renderWidgetsActivos();
     iniciarRelojLocal();
     iniciarClimaLocal();
 
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => renderSidebar(e.target.value));
-    }
-    if (btnVerTodas) {
-        btnVerTodas.addEventListener('click', abrirModalTodas);
-    }
+    if (searchInput) searchInput.addEventListener('input', (e) => renderSidebar(e.target.value));
+    if (btnVerTodas) btnVerTodas.addEventListener('click', abrirModalTodas);
 
     const cerrar = document.getElementById('modalTodasCerrar');
     if (cerrar) cerrar.addEventListener('click', cerrarModalTodas);
 
     const m = document.getElementById('modalTodas');
-    if (m) {
-        m.addEventListener('click', (e) => {
-            if (e.target === m) cerrarModalTodas();
-        });
-    }
+    if (m) m.addEventListener('click', (e) => { if (e.target === m) cerrarModalTodas(); });
 });
+
+// Exponer para que Cuenta.js pueda llamar
+window.renderWidgetsActivos = renderWidgetsActivos;
