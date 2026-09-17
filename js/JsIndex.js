@@ -106,17 +106,76 @@ function actualizarNavActivo() {
 }
 
 // ============================================================
+//  ACCESOS RÁPIDOS
+// ============================================================
+function renderAccesosRapidos() {
+    const cont = document.getElementById('accesosRapidos');
+    const seccion = document.getElementById('welcomeAppsSection');
+    if (!cont || !seccion) return;
+
+    cont.innerHTML = '';
+
+    if (!ConfigBD.estaConectado() || !cuentaActual) {
+        seccion.style.display = 'none';
+        return;
+    }
+
+    const catalogo = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
+    const instaladas = obtenerAppsInstaladas();
+
+    // Preferir las instaladas (excepto Stor-He); si no hay, mostrar el catálogo
+    let mostrar = catalogo.filter(h => instaladas.includes(h.id) && h.id !== 'stor-he');
+    if (mostrar.length === 0) {
+        mostrar = catalogo.filter(h => !h.esBase);
+    }
+    mostrar = mostrar.slice(0, 8);
+
+    if (mostrar.length === 0) {
+        seccion.style.display = 'none';
+        return;
+    }
+
+    seccion.style.display = 'flex';
+
+    mostrar.forEach(h => {
+        const div = document.createElement('div');
+        div.className = 'acceso-item';
+        div.dataset.id = h.id;
+        div.innerHTML = `
+            <div class="acceso-icon-wrap">
+                <i data-lucide="${h.icono || 'circle'}" class="acceso-icon"></i>
+            </div>
+            <span class="acceso-nombre">${h.nombre}</span>
+        `;
+        div.addEventListener('click', () => abrirHerramienta(h.id));
+        cont.appendChild(div);
+    });
+
+    lucide.createIcons();
+}
+
+// ============================================================
 //  WIDGETS ACTIVOS EN WELCOME
 // ============================================================
 function renderWidgetsActivos() {
     const zona = document.getElementById('widgetsZona');
-    if (!zona) return;
+    const seccion = document.getElementById('welcomeWidgetsSection');
+    if (!zona || !seccion) return;
+
     zona.innerHTML = '';
 
-    if (!cuentaActual) return;
+    if (!cuentaActual) {
+        seccion.style.display = 'none';
+        return;
+    }
 
     const activos = obtenerWidgetsActivos();
-    if (activos.length === 0) return;
+    if (activos.length === 0) {
+        seccion.style.display = 'none';
+        return;
+    }
+
+    seccion.style.display = 'flex';
 
     const catalogo = typeof WIDGETS_DISPONIBLES !== 'undefined' ? WIDGETS_DISPONIBLES : [];
 
@@ -134,6 +193,38 @@ function renderWidgetsActivos() {
         wrap.appendChild(iframe);
         zona.appendChild(wrap);
     });
+}
+
+// ============================================================
+//  SALUDO PERSONALIZADO
+// ============================================================
+function actualizarSaludo() {
+    const h1 = document.getElementById('welcomeSaludo');
+    const p  = document.getElementById('welcomeSubtitulo');
+    if (!h1 || !p) return;
+
+    if (!cuentaActual) {
+        h1.textContent = 'Bienvenide a VicWebOs';
+        p.textContent = 'Sistema operativo web centrado en el uso personal o grupal de grupos de amistades.';
+        return;
+    }
+
+    const hora = new Date().getHours();
+    let momento = 'días';
+    if (hora >= 12 && hora < 20) momento = 'tardes';
+    else if (hora >= 20 || hora < 6) momento = 'noches';
+
+    const nombre = cuentaActual.nombre || 'amigue';
+    h1.textContent = `Buenos ${momento}, ${nombre}`;
+
+    const frases = [
+        'Aquí tienes tus apps listas para usar.',
+        'Todo lo que necesitas, en un solo lugar.',
+        '¿Qué vamos a hacer hoy?',
+        'Bienvenide de vuelta a tu espacio.',
+        'Tu espacio, tus reglas.'
+    ];
+    p.textContent = frases[Math.floor(Math.random() * frases.length)];
 }
 
 // ============================================================
@@ -250,7 +341,9 @@ function mostrarBienvenida() {
     activeTabId = null;
     renderTabs();
     actualizarNavActivo();
+    renderAccesosRapidos();
     renderWidgetsActivos();
+    actualizarSaludo();
 }
 
 // ============================================================
@@ -401,6 +494,20 @@ function iniciarClimaLocal() {
 }
 
 // ============================================================
+//  NOTIFICAR CAMBIO DE TEMA A IFRAMES (Regla 6)
+// ============================================================
+window.__notificarCambioTema = function() {
+    document.querySelectorAll('iframe').forEach(iframe => {
+        try {
+            iframe.contentWindow.postMessage(
+                { type: 'vicwebos_tema_cambio' },
+                '*'
+            );
+        } catch (e) { /* silencioso */ }
+    });
+};
+
+// ============================================================
 //  API PARA IFRAMES
 // ============================================================
 window.__vicwebos = {
@@ -423,6 +530,7 @@ window.__vicwebos = {
         try {
             await instalarApp(id);
             renderSidebar(searchInput ? searchInput.value : '');
+            renderAccesosRapidos();
         } catch (e) { alert('❌ ' + e.message); throw e; }
     },
     desinstalar: async (id) => {
@@ -430,6 +538,7 @@ window.__vicwebos = {
             await desinstalarApp(id);
             if (tabs.find(t => t.id === id)) cerrarPestania(id);
             renderSidebar(searchInput ? searchInput.value : '');
+            renderAccesosRapidos();
         } catch (e) { alert('❌ ' + e.message); throw e; }
     },
     abrirApp: (id) => {
@@ -459,7 +568,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     actualizarAvatarHeader();
     renderSidebar();
     renderTabs();
+    renderAccesosRapidos();
     renderWidgetsActivos();
+    actualizarSaludo();
     iniciarRelojLocal();
     iniciarClimaLocal();
 
@@ -475,3 +586,5 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Exponer para que Cuenta.js pueda llamar
 window.renderWidgetsActivos = renderWidgetsActivos;
+window.renderAccesosRapidos = renderAccesosRapidos;
+window.actualizarSaludo = actualizarSaludo;
