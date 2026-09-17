@@ -52,6 +52,11 @@
                     </div>
                 </div>
 
+                <button class="noti-btn" id="btnNotificaciones" title="Notificaciones" aria-label="Notificaciones">
+                    <i data-lucide="bell"></i>
+                    <span class="noti-badge" id="notiBadge" style="display:none;">0</span>
+                </button>
+
                 <button class="avatar-config" id="btnConfig" title="Cuenta y configuración">
                     <i data-lucide="user" class="avatar-icon"></i>
                 </button>
@@ -113,6 +118,9 @@
 
         <!-- Overlay del drawer móvil -->
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Panel de notificaciones -->
+        <div class="noti-panel" id="notiPanel"></div>
     </div>
 
     <!-- ====== MODAL "VER TODAS" ====== -->
@@ -363,6 +371,7 @@
     <script src="js/Cuenta.js"></script>
     <script src="js/configuracion.js"></script>
     <script src="js/JsIndex.js"></script>
+    <script src="js/Notificaciones.js"></script>
     <script src="js/MobileUI.js"></script>
     <script>lucide.createIcons();</script>
 </body>
