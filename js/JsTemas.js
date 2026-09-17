@@ -1,6 +1,8 @@
 // ============================================================
 //  JsTemas.js — Catálogo de TEMAS
-//  Cada tema es un archivo CSS en /Temas/{id}.css
+//  - ruta: el CSS real (fuente de verdad para aplicar)
+//  - colores: copia para previews en Stor-He (debe coincidir
+//             con las variables de Temas/{id}.css)
 // ============================================================
 
 const TEMAS_DISPONIBLES = [
@@ -11,7 +13,15 @@ const TEMAS_DISPONIBLES = [
         descripcion: 'El tema por defecto. Fondo blanco, violeta clásico.',
         categoria: 'Oficiales',
         esBase: true,
-        ruta: 'Temas/violeta.css'
+        ruta: 'Temas/violeta.css',
+        colores: {
+            '--violet-100': '#EDE9FE',
+            '--violet-300': '#C4B5FD',
+            '--violet-500': '#8B5CF6',
+            '--bg':         '#FBFBFD',
+            '--bg-alt':     '#F5F5F8',
+            '--white':      '#FFFFFF'
+        }
     },
     {
         id: 'rosa',
@@ -19,7 +29,15 @@ const TEMAS_DISPONIBLES = [
         icono: 'flower-2',
         descripcion: 'Tonos rosados suaves y cálidos.',
         categoria: 'Oficiales',
-        ruta: 'Temas/rosa.css'
+        ruta: 'Temas/rosa.css',
+        colores: {
+            '--violet-100': '#FFE4EC',
+            '--violet-300': '#FFA3BC',
+            '--violet-500': '#EC4899',
+            '--bg':         '#FFFAFB',
+            '--bg-alt':     '#FFF5F7',
+            '--white':      '#FFFFFF'
+        }
     },
     {
         id: 'oceano',
@@ -27,7 +45,15 @@ const TEMAS_DISPONIBLES = [
         icono: 'waves',
         descripcion: 'Azules profundos, tipo mar.',
         categoria: 'Oficiales',
-        ruta: 'Temas/oceano.css'
+        ruta: 'Temas/oceano.css',
+        colores: {
+            '--violet-100': '#DBEAFE',
+            '--violet-300': '#93C5FD',
+            '--violet-500': '#3B82F6',
+            '--bg':         '#F8FAFC',
+            '--bg-alt':     '#F1F5F9',
+            '--white':      '#FFFFFF'
+        }
     },
     {
         id: 'bosque',
@@ -35,7 +61,15 @@ const TEMAS_DISPONIBLES = [
         icono: 'trees',
         descripcion: 'Verdes naturales y frescos.',
         categoria: 'Oficiales',
-        ruta: 'Temas/bosque.css'
+        ruta: 'Temas/bosque.css',
+        colores: {
+            '--violet-100': '#D1FAE5',
+            '--violet-300': '#6EE7B7',
+            '--violet-500': '#10B981',
+            '--bg':         '#F8FBF9',
+            '--bg-alt':     '#F0F7F3',
+            '--white':      '#FFFFFF'
+        }
     },
     {
         id: 'atardecer',
@@ -43,7 +77,15 @@ const TEMAS_DISPONIBLES = [
         icono: 'sunset',
         descripcion: 'Naranjas y ámbar cálidos.',
         categoria: 'Oficiales',
-        ruta: 'Temas/atardecer.css'
+        ruta: 'Temas/atardecer.css',
+        colores: {
+            '--violet-100': '#FFEDD5',
+            '--violet-300': '#FDBA74',
+            '--violet-500': '#F97316',
+            '--bg':         '#FFFBF5',
+            '--bg-alt':     '#FFF7ED',
+            '--white':      '#FFFFFF'
+        }
     },
     {
         id: 'noche',
@@ -51,6 +93,14 @@ const TEMAS_DISPONIBLES = [
         icono: 'moon',
         descripcion: 'Oscuros con acentos suaves.',
         categoria: 'Oficiales',
-        ruta: 'Temas/noche.css'
+        ruta: 'Temas/noche.css',
+        colores: {
+            '--violet-100': '#312E81',
+            '--violet-300': '#4C1D95',
+            '--violet-500': '#8B5CF6',
+            '--bg':         '#0F0F1A',
+            '--bg-alt':     '#1A1A2E',
+            '--white':      '#1A1A2E'
+        }
     }
 ];
