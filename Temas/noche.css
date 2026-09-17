@@ -1,7 +1,6 @@
 /* ================================================
    Tema: Noche Estrellada
-   Cambia colores + redondea más + sidebar más angosto.
-   Demuestra que un tema puede reescribir CUALQUIER cosa.
+   Solo colores. Mismo layout que el resto.
    ================================================ */
 
 :root {
@@ -40,47 +39,4 @@
     --accent-shadow: rgba(139, 92, 246, 0.35);
     --accent-shadow-hover: rgba(139, 92, 246, 0.55);
     --accent-text-gradient: linear-gradient(135deg, #F5F5FF, #C4B5FD);
-}
-
-/* ============================================================
-   Overrides de LAYOUT específicos de este tema.
-   Demuestra que un tema puede tocar cualquier regla.
-   ============================================================ */
-
-body {
-    background:
-        radial-gradient(circle at 20% 10%, rgba(139, 92, 246, 0.15), transparent 40%),
-        radial-gradient(circle at 80% 90%, rgba(167, 139, 250, 0.10), transparent 40%),
-        var(--bg);
-}
-
-.sidebar { width: 200px; min-width: 200px; }
-.sidebar-label { padding: 14px 16px 6px; }
-
-.app-header { border-bottom-color: rgba(139, 92, 246, 0.25); }
-.logo-text { text-shadow: 0 0 20px rgba(196, 181, 253, 0.35); }
-
-.search-bar { background: rgba(139, 92, 246, 0.10); }
-.search-bar:hover { background: rgba(139, 92, 246, 0.16); }
-
-.nav-item.active {
-    background: rgba(139, 92, 246, 0.15);
-    box-shadow:
-        var(--shadow-xs),
-        inset 0 0 0 1px rgba(196, 181, 253, 0.35),
-        0 0 20px rgba(139, 92, 246, 0.20);
-}
-
-.welcome-glow {
-    background: radial-gradient(circle,
-        rgba(196, 181, 253, 0.20) 0%,
-        transparent 60%);
-}
-
-.cuenta-perfil,
-.bd-conectado-card {
-    background: linear-gradient(135deg,
-        rgba(139, 92, 246, 0.15),
-        rgba(139, 92, 246, 0.05));
-    border-color: rgba(196, 181, 253, 0.30);
 }
