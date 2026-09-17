@@ -25,6 +25,24 @@
             </div>
         </div>
 
+        <!-- Barra de recursos -->
+        <div class="sh-recursos">
+            <div class="sh-recurso">
+                <i data-lucide="hard-drive"></i>
+                <div class="sh-recurso-info">
+                    <span class="sh-recurso-label">Espacio</span>
+                    <span class="sh-recurso-valor" id="shEspacio">0 / 50</span>
+                </div>
+            </div>
+            <div class="sh-recurso">
+                <i data-lucide="coins"></i>
+                <div class="sh-recurso-info">
+                    <span class="sh-recurso-label">Monedas</span>
+                    <span class="sh-recurso-valor" id="shMonedas">0</span>
+                </div>
+            </div>
+        </div>
+
         <div class="sh-tabs">
             <button class="sh-tab active" data-tab="apps">
                 <i data-lucide="package"></i>
@@ -47,6 +65,7 @@
     <div class="sh-content">
 
         <section class="sh-panel active" data-panel="apps">
+            <div id="shAmpliacion" class="sh-ampliacion"></div>
             <div id="appsContenido"></div>
         </section>
 
