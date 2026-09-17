@@ -9,8 +9,8 @@
 //      await api.enviarNotificacion('calculadora', 'Has ganado 5 monedas', '1234A');
 //      await api.enviarNotificacion('sistema', 'Bienvenido', null); // a mí mismo
 //
-//  Sin WebSocket: se relee cada POLL_MS con visibilitychange.
-//  El badge del header se actualiza solo.
+//  Sin WebSocket: se relee cada POLL_MS usando leerArchivoFresh()
+//  (bypass del caché de 5 minutos de ConfigBD).
 // ============================================================
 
 (function () {
@@ -88,7 +88,9 @@
     // ---------- Carga ----------
     async function leerTodo() {
         try {
-            const raw = await bd().leerArchivo(ARCHIVO);
+            // Fuerza leer directo de GitHub — el caché haría que
+            // el poller siempre leyera la versión vieja durante 5 min.
+            const raw = await bd().leerArchivoFresh(ARCHIVO);
             return normalizar(raw);
         } catch (e) {
             return estructuraVacia();
@@ -105,12 +107,7 @@
             } catch (e) {
                 if (i === intentos - 1) throw e;
                 await new Promise(r => setTimeout(r, 400 * (i + 1)));
-                // Releer y reaplicar por si otro escribió
                 actual = await leerTodo();
-                // Reaplicar la modificación original sobre la versión fresca
-                if (data.__op) {
-                    // (no usamos este camino; se maneja en cada función)
-                }
             }
         }
     }
@@ -286,7 +283,6 @@
 
         if (window.lucide) window.lucide.createIcons();
 
-        // --- Eventos del panel ---
         panel.querySelector('#notiCerrar')?.addEventListener('click', cerrarPanel);
 
         panel.querySelector('#notiLimpiarTodas')?.addEventListener('click', async () => {
