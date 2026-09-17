@@ -1,8 +1,6 @@
 // ============================================================
 //  Stor-He — Lógica
-//  "Descargar" = activar/desactivar apps que aparecen en el
-//  sidebar del OS. Todo se guarda en cuentaConfig.json del
-//  usuario (repo de datos).
+//  "Descargar" = activar/desactivar lo que aparece en el OS.
 // ============================================================
 
 const API = () => window.parent.__vicwebos || null;
@@ -22,6 +20,40 @@ function toast(texto, tipo = 'info') {
     lucide.createIcons();
     clearTimeout(toastTimeout);
     toastTimeout = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+// ============================================================
+//  CARGA DE COLORES DE TEMAS (parseando el CSS)
+// ============================================================
+const coloresTemasCache = {};
+
+async function cargarColoresTema(tema) {
+    if (coloresTemasCache[tema.id] !== undefined) return coloresTemasCache[tema.id];
+
+    const colores = {};
+    try {
+        // Stor-He está en /herramientas/stor-he/, entonces ../../ vuelve a la raíz
+        const url = '../../' + tema.ruta;
+        const res = await fetch(url);
+        if (res.ok) {
+            const css = await res.text();
+            // Captura variables tipo: --nombre: valor;
+            const regex = /--([a-z0-9-]+)\s*:\s*([^;]+);/gi;
+            let m;
+            while ((m = regex.exec(css)) !== null) {
+                colores['--' + m[1]] = m[2].trim();
+            }
+        }
+    } catch (e) {
+        console.warn('No se pudo leer el tema ' + tema.id + ':', e);
+    }
+
+    coloresTemasCache[tema.id] = colores;
+    return colores;
+}
+
+async function precargarColoresTemas(catalogo) {
+    await Promise.all(catalogo.map(t => cargarColoresTema(t)));
 }
 
 // ============================================================
@@ -140,17 +172,18 @@ function renderTemaPreview(colores) {
     const c500 = colores['--violet-500'] || '#8B5CF6';
     const bg   = colores['--bg']         || '#FBFBFD';
     const bgAlt= colores['--bg-alt']     || '#F5F5F8';
+    const white= colores['--white']      || '#FFFFFF';
 
     return `
         <div class="sh-tema-preview" style="background:${bg};">
-            <div class="sh-tema-preview-header" style="background:#FFF;">
+            <div class="sh-tema-preview-header" style="background:${white};">
                 <div class="sh-tema-preview-header-dot" style="background:${c500};"></div>
                 <div class="sh-tema-preview-header-dot" style="background:${c300};"></div>
                 <div class="sh-tema-preview-header-dot" style="background:${c100};"></div>
             </div>
             <div class="sh-tema-preview-body">
                 <div class="sh-tema-preview-sidebar" style="background:${bgAlt};"></div>
-                <div class="sh-tema-preview-content">
+                <div class="sh-tema-preview-content" style="background:${white};">
                     <div class="sh-tema-preview-line w80" style="background:${c500};"></div>
                     <div class="sh-tema-preview-line w60" style="background:${c300};"></div>
                     <div class="sh-tema-preview-line w40" style="background:${c100};"></div>
@@ -160,7 +193,7 @@ function renderTemaPreview(colores) {
     `;
 }
 
-function renderTemas() {
+async function renderTemas() {
     const api = API();
     const cont = document.getElementById('temasContenido');
     if (!cont) return;
@@ -177,14 +210,18 @@ function renderTemas() {
 
     document.getElementById('countTemas').textContent = catalogo.length;
 
+    // Pre-cargar los colores de TODOS los temas (parseando el CSS)
+    await precargarColoresTemas(catalogo);
+
     renderGrid(cont, catalogo, (tema) => {
         const instalado = instalados.includes(tema.id);
         const esBase = !!tema.esBase;
         const esActivo = activo === tema.id;
+        const colores = coloresTemasCache[tema.id] || {};
 
         return `
             <div class="sh-card ${instalado ? 'instalada' : ''}" data-id="${tema.id}">
-                ${renderTemaPreview(tema.colores || {})}
+                ${renderTemaPreview(colores)}
                 <div class="sh-card-header">
                     <div class="sh-card-info">
                         <div class="sh-card-nombre">
