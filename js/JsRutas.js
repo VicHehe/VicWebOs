@@ -49,7 +49,7 @@ const RUTAS_HERRAMIENTAS = [
         descripcion: 'El clásico runner. Gana monedas mientras corres.',
         categoria: 'Juegos',
         esBase: false,
-        espacio: 4,
+        espacio: 6,
         monedas: 0
     }
 ];
