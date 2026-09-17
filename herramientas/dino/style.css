@@ -1,8 +1,7 @@
 /* ================================================
    Dino — Estilos
-   Layout original en móvil.
-   En PC: canvas + panel bonus vertical a la derecha.
-   Compatible con temas.
+   Móvil: layout original intacto.
+   PC: canvas + panel bonus vertical a la derecha.
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -172,8 +171,7 @@ body {
     letter-spacing: 0;
 }
 
-/* ========== CUERPO (canvas + panel) ========== */
-/* Móvil: apilados, canvas arriba, panel abajo */
+/* ========== CUERPO ========== */
 .dn-cuerpo {
     flex: 1;
     min-height: 0;
@@ -204,7 +202,7 @@ body {
     image-rendering: pixelated;
 }
 
-/* ========== OVERLAY (start / game over) ========== */
+/* ========== OVERLAY ========== */
 .dn-overlay {
     position: absolute;
     inset: 0;
@@ -231,8 +229,6 @@ body {
     padding: 24px 26px;
     max-width: 380px;
     width: 100%;
-    max-height: 100%;
-    overflow-y: auto;
     text-align: center;
     box-shadow: 0 24px 48px rgba(0,0,0,0.25);
     animation: dnZoom 0.24s cubic-bezier(0.16, 1, 0.3, 1);
@@ -358,7 +354,7 @@ body {
 .dn-btn-primario:active { transform: translateY(0); }
 .dn-btn-primario [data-lucide] { width: 16px; height: 16px; }
 
-/* ========== PROGRESO (horizontal en móvil) ========== */
+/* ========== PROGRESO (base, se usa en móvil horizontal) ========== */
 .dn-progreso {
     flex-shrink: 0;
     display: flex;
@@ -477,7 +473,7 @@ body {
 .dn-toast.info    { background: var(--violet-700, #6D28D9); }
 
 /* ================================================
-   PC: 2 columnas — canvas a la izquierda, bonus vertical a la derecha
+   PC (≥769px): 2 columnas con bonus vertical
    ================================================ */
 @media (min-width: 769px) {
     .dn-container {
@@ -493,39 +489,54 @@ body {
     .dn-record { padding: 8px 16px; }
     .dn-record-valor { font-size: 19px; }
     .dn-hud-valor { font-size: 24px; }
-    .dn-hud-monedas .dn-hud-valor { font-size: 18px; }
     .dn-hud-monedas { padding: 6px 14px; }
+    .dn-hud-monedas .dn-hud-valor { font-size: 18px; }
     .dn-hud-icono { width: 16px; height: 16px; }
 
-    /* Cuerpo en 2 columnas */
+    /* Grid con fila explícita de 1fr: crítico para que la
+       barra vertical reciba altura y no colapse. */
     .dn-cuerpo {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) 200px;
+        grid-template-columns: minmax(0, 1fr) 220px;
+        grid-template-rows: minmax(0, 1fr);
         gap: 16px;
-        align-items: stretch;
+        min-height: 0;
     }
 
-    /* El panel de progreso se vuelve vertical y ocupa toda la altura */
+    /* El canvas se estira al alto de la fila (por stretch implícito) */
+    .dn-canvas-wrapper {
+        min-height: 0;
+        min-width: 0;
+    }
+
+    /* Panel de progreso: contenedor vertical con altura completa */
     .dn-progreso {
         height: 100%;
+        min-height: 0;
         padding: 18px 16px;
-        gap: 10px;
+        gap: 12px;
+        overflow: hidden;
     }
+
     .dn-progreso-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 4px;
+        flex-shrink: 0;
     }
     .dn-progreso-label { font-size: 11px; }
-    .dn-progreso-meta { font-size: 12px; }
+    .dn-progreso-meta { font-size: 12.5px; }
 
-    /* Barra vertical: crece de abajo hacia arriba */
+    /* Barra vertical: ocupa todo el alto disponible */
     .dn-progreso-barra {
+        flex: 1 1 auto;
+        min-height: 0;
+        width: 100%;
         height: auto;
-        flex: 1;
-        min-height: 100px;
         border-radius: 12px;
     }
+
+    /* Fill: crece de abajo hacia arriba */
     .dn-progreso-fill {
         top: auto;
         bottom: 0;
@@ -536,30 +547,34 @@ body {
         border-radius: 12px;
         transition: height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
+
+    /* Marcas: líneas horizontales */
     .dn-progreso-marca {
         top: auto;
         left: 2px;
         right: 2px;
-        bottom: var(--pos, 0%);
         width: auto;
         height: 1px;
+        bottom: var(--pos, 0%);
         transform: none;
     }
 
     .dn-progreso-info {
         text-align: left;
         font-size: 10.5px;
-        line-height: 1.5;
+        line-height: 1.6;
+        flex-shrink: 0;
     }
+    .dn-progreso-info > div { margin: 2px 0; }
 
-    /* Overlay: más aire para que la card no toque bordes del canvas */
+    /* Overlay: aire a los lados sin forzar scroll */
     .dn-overlay {
         padding: 36px 44px;
     }
 }
 
 /* ================================================
-   Ajustes finos móvil
+   Móvil: ajustes finos
    ================================================ */
 @media (max-width: 420px) {
     .dn-container { padding: 10px 10px; gap: 8px; }
