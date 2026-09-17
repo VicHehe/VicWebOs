@@ -1,8 +1,5 @@
 // ============================================================
 //  JsTemas.js — Catálogo de TEMAS
-//  - ruta: el CSS real (fuente de verdad para aplicar)
-//  - colores: copia para previews en Stor-He (debe coincidir
-//             con las variables de Temas/{id}.css)
 // ============================================================
 
 const TEMAS_DISPONIBLES = [
@@ -14,6 +11,8 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Oficiales',
         esBase: true,
         ruta: 'Temas/violeta.css',
+        espacio: 0,
+        monedas: 0,
         colores: {
             '--violet-100': '#EDE9FE',
             '--violet-300': '#C4B5FD',
@@ -30,6 +29,8 @@ const TEMAS_DISPONIBLES = [
         descripcion: 'Tonos rosados suaves y cálidos.',
         categoria: 'Oficiales',
         ruta: 'Temas/rosa.css',
+        espacio: 2,
+        monedas: 0,
         colores: {
             '--violet-100': '#FFE4EC',
             '--violet-300': '#FFA3BC',
@@ -46,6 +47,8 @@ const TEMAS_DISPONIBLES = [
         descripcion: 'Azules profundos, tipo mar.',
         categoria: 'Oficiales',
         ruta: 'Temas/oceano.css',
+        espacio: 2,
+        monedas: 0,
         colores: {
             '--violet-100': '#DBEAFE',
             '--violet-300': '#93C5FD',
@@ -62,6 +65,8 @@ const TEMAS_DISPONIBLES = [
         descripcion: 'Verdes naturales y frescos.',
         categoria: 'Oficiales',
         ruta: 'Temas/bosque.css',
+        espacio: 2,
+        monedas: 0,
         colores: {
             '--violet-100': '#D1FAE5',
             '--violet-300': '#6EE7B7',
@@ -78,6 +83,8 @@ const TEMAS_DISPONIBLES = [
         descripcion: 'Naranjas y ámbar cálidos.',
         categoria: 'Oficiales',
         ruta: 'Temas/atardecer.css',
+        espacio: 2,
+        monedas: 0,
         colores: {
             '--violet-100': '#FFEDD5',
             '--violet-300': '#FDBA74',
@@ -94,6 +101,8 @@ const TEMAS_DISPONIBLES = [
         descripcion: 'Oscuros con acentos suaves.',
         categoria: 'Oficiales',
         ruta: 'Temas/noche.css',
+        espacio: 2,
+        monedas: 0,
         colores: {
             '--violet-100': '#312E81',
             '--violet-300': '#4C1D95',
