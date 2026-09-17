@@ -1,5 +1,6 @@
 // ============================================================
 //  JsIndex.js — Pestañas + sidebar (solo instaladas) + API
+//  Clima con iconos Lucide (sin emojis)
 // ============================================================
 
 const MAX_TABS = 10;
@@ -13,6 +14,9 @@ const panelContainer = document.getElementById('panelContainer');
 const welcomeScreen  = document.getElementById('welcomeScreen');
 const btnVerTodas    = document.getElementById('btnVerTodas');
 
+// ============================================================
+//  SIDEBAR: SOLO APPS INSTALADAS
+// ============================================================
 function renderSidebar(filtro = '') {
     if (!sidebarNav) return;
     sidebarNav.innerHTML = '';
@@ -72,6 +76,9 @@ function actualizarNavActivo() {
     });
 }
 
+// ============================================================
+//  PESTAÑAS
+// ============================================================
 function abrirHerramienta(id) {
     const catalogo = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
     const herramienta = catalogo.find(h => h.id === id);
@@ -182,6 +189,9 @@ function mostrarBienvenida() {
     actualizarNavActivo();
 }
 
+// ============================================================
+//  MODAL "VER TODAS"
+// ============================================================
 function abrirModalTodas() {
     const modal = document.getElementById('modalTodas');
     const body  = document.getElementById('modalTodasBody');
@@ -240,52 +250,93 @@ function cerrarModalTodas() {
     if (modal) modal.style.display = 'none';
 }
 
-// -------- RELOJ / CLIMA --------
+// ============================================================
+//  CLIMA (con iconos Lucide) + RELOJ
+// ============================================================
+
+// Devuelve el nombre del icono Lucide según el código WMO
+function iconoClima(c, isDay) {
+    const d = isDay === 1;
+    if (c === 0) return d ? 'sun' : 'moon';
+    if (c === 1) return d ? 'sun' : 'moon-star';
+    if (c === 2) return d ? 'cloud-sun' : 'cloud-moon';
+    if (c === 3) return 'cloud';
+    if (c === 45 || c === 48) return 'cloud-fog';
+    if (c >= 51 && c <= 57) return 'cloud-drizzle';
+    if (c >= 61 && c <= 67) return 'cloud-rain';
+    if (c >= 71 && c <= 77) return 'snowflake';
+    if (c >= 80 && c <= 82) return 'cloud-rain-wind';
+    if (c === 85 || c === 86) return 'cloud-snow';
+    if (c >= 95) return 'cloud-lightning';
+    return d ? 'cloud-sun' : 'cloud-moon';
+}
+
 async function obtenerClima(lat, lon) {
     try {
         const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day&timezone=auto`);
         if (!r.ok) return null;
         const d = await r.json();
-        return d.current ? { temp: Math.round(d.current.temperature_2m), emoji: emojiClima(d.current.weather_code, d.current.is_day) } : null;
-    } catch (e) { return null; }
+        if (!d.current) return null;
+        return {
+            temp: Math.round(d.current.temperature_2m),
+            icono: iconoClima(d.current.weather_code, d.current.is_day)
+        };
+    } catch (e) {
+        return null;
+    }
 }
-function emojiClima(c, isDay) {
-    const d = isDay === 1;
-    if (c === 0) return d ? '☀️' : '🌙';
-    if (c === 1) return d ? '🌤️' : '🌙';
-    if (c === 2) return d ? '⛅' : '☁️';
-    if (c === 3) return '☁️';
-    if (c === 45 || c === 48) return '🌫️';
-    if (c >= 51 && c <= 57) return '🌦️';
-    if (c >= 61 && c <= 67) return '🌧️';
-    if (c >= 71 && c <= 77) return '❄️';
-    if (c >= 80 && c <= 82) return '🌧️';
-    if (c === 85 || c === 86) return '🌨️';
-    if (c >= 95) return '⛈️';
-    return d ? '🌤️' : '🌙';
-}
+
 function iniciarRelojLocal() {
     const el = document.getElementById('horaLocal');
     if (!el) return;
-    const act = () => el.textContent = new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    const act = () => {
+        el.textContent = new Date().toLocaleTimeString('es-CL', {
+            hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+        });
+    };
     act();
     setInterval(act, 1000);
 }
+
+function pintarClima(icono, temp) {
+    const el = document.getElementById('climaLocal');
+    if (!el) return;
+    el.innerHTML = `
+        <i data-lucide="${icono}" class="clima-icon"></i>
+        <span class="temp-texto">${temp}°C</span>
+    `;
+    lucide.createIcons();
+}
+
 function iniciarClimaLocal() {
     const el = document.getElementById('climaLocal');
     if (!el) return;
-    if (!navigator.geolocation) { el.textContent = '--°C'; return; }
+
+    if (!navigator.geolocation) {
+        pintarClima('cloud-sun', '--');
+        return;
+    }
+
     navigator.geolocation.getCurrentPosition(
         async (pos) => {
             const c = await obtenerClima(pos.coords.latitude, pos.coords.longitude);
-            el.textContent = c ? `${c.emoji} ${c.temp}°C` : '🌤️ --°C';
+            if (c) pintarClima(c.icono, c.temp);
+            else pintarClima('cloud-sun', '--');
+
+            // Actualizar cada 15 min
+            setInterval(async () => {
+                const c2 = await obtenerClima(pos.coords.latitude, pos.coords.longitude);
+                if (c2) pintarClima(c2.icono, c2.temp);
+            }, 900000);
         },
-        () => el.textContent = '🌤️ --°C',
+        () => pintarClima('cloud-sun', '--'),
         { timeout: 8000 }
     );
 }
 
-// -------- API PARA IFRAMES --------
+// ============================================================
+//  API PARA IFRAMES (Stor-He y otras apps)
+// ============================================================
 window.__vicwebos = {
     obtenerCatalogo: () => (typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : []),
     obtenerInstaladas: () => obtenerAppsInstaladas(),
@@ -308,18 +359,30 @@ window.__vicwebos = {
     }
 };
 
-// -------- INIT --------
+// ============================================================
+//  INIT
+// ============================================================
 document.addEventListener('DOMContentLoaded', () => {
     renderSidebar();
     renderTabs();
     iniciarRelojLocal();
     iniciarClimaLocal();
 
-    if (searchInput) searchInput.addEventListener('input', (e) => renderSidebar(e.target.value));
-    if (btnVerTodas) btnVerTodas.addEventListener('click', abrirModalTodas);
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => renderSidebar(e.target.value));
+    }
+
+    if (btnVerTodas) {
+        btnVerTodas.addEventListener('click', abrirModalTodas);
+    }
 
     const cerrar = document.getElementById('modalTodasCerrar');
     if (cerrar) cerrar.addEventListener('click', cerrarModalTodas);
+
     const m = document.getElementById('modalTodas');
-    if (m) m.addEventListener('click', (e) => { if (e.target === m) cerrarModalTodas(); });
+    if (m) {
+        m.addEventListener('click', (e) => {
+            if (e.target === m) cerrarModalTodas();
+        });
+    }
 });
