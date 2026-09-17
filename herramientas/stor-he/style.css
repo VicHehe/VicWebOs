@@ -1,4 +1,520 @@
 /* ================================================
+   Stor-He — Estilos
+   ================================================ */
+
+:root {
+    --violet-50:  #F5F3FF;
+    --violet-100: #EDE9FE;
+    --violet-200: #DDD6FE;
+    --violet-300: #C4B5FD;
+    --violet-400: #A78BFA;
+    --violet-500: #8B5CF6;
+    --violet-600: #7C3AED;
+    --violet-700: #6D28D9;
+
+    --white:   #FFFFFF;
+    --gray-50: #FAFAFB;
+    --gray-100:#F4F4F7;
+    --gray-200:#E8E8EE;
+    --gray-300:#D4D4DD;
+    --gray-400:#A1A1AD;
+    --gray-500:#71717A;
+    --gray-600:#52525B;
+    --gray-700:#3F3F46;
+    --gray-800:#27272A;
+    --gray-900:#18181B;
+
+    --border: var(--gray-200);
+
+    --shadow-xs: 0 1px 2px rgba(24, 24, 27, 0.04);
+    --shadow-sm: 0 1px 3px rgba(24, 24, 27, 0.06);
+    --shadow-md: 0 4px 12px rgba(24, 24, 27, 0.08);
+    --shadow-lg: 0 12px 32px rgba(24, 24, 27, 0.10);
+
+    --r-sm: 8px;
+    --r-md: 12px;
+    --r-lg: 16px;
+    --r-full: 999px;
+
+    --t-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    --t: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    min-height: 100%;
+    background: var(--white);
+    color: var(--gray-900);
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+[data-lucide] {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2;
+    flex-shrink: 0;
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: var(--gray-200);
+    border-radius: var(--r-full);
+    border: 3px solid transparent;
+    background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-300);
+    background-clip: content-box;
+    border: 3px solid transparent;
+}
+* { scrollbar-width: thin; scrollbar-color: var(--gray-300) transparent; }
+
+/* ========== HEADER ========== */
+.sh-header {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 24px 28px 0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.sh-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.sh-logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.sh-logo-mark {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--violet-500), var(--violet-700));
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.28);
+}
+.sh-logo-mark [data-lucide] {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2.5;
+}
+
+.sh-logo-text h1 {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, var(--gray-900), var(--violet-600));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+}
+.sh-logo-text p {
+    font-size: 13px;
+    color: var(--gray-500);
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+/* ========== TABS ========== */
+.sh-tabs {
+    display: flex;
+    gap: 4px;
+}
+
+.sh-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px 14px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--gray-500);
+    cursor: pointer;
+    transition: var(--t-fast);
+    position: relative;
+    margin-bottom: -1px;
+}
+.sh-tab [data-lucide] {
+    width: 15px;
+    height: 15px;
+}
+.sh-tab:hover {
+    color: var(--gray-900);
+}
+.sh-tab.active {
+    color: var(--violet-700);
+    border-bottom-color: var(--violet-500);
+}
+.sh-tab.active [data-lucide] {
+    color: var(--violet-600);
+}
+
+.sh-tab-count {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--gray-600);
+    background: var(--gray-100);
+    padding: 2px 7px;
+    border-radius: var(--r-full);
+    min-width: 22px;
+    text-align: center;
+    line-height: 1.4;
+}
+.sh-tab.active .sh-tab-count {
+    background: var(--violet-100);
+    color: var(--violet-700);
+}
+
+/* ========== CONTENT ========== */
+.sh-content {
+    padding: 28px;
+}
+
+.sh-panel { display: none; }
+.sh-panel.active { display: block; animation: shPanelIn 0.22s ease; }
+@keyframes shPanelIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ========== SECCIONES ========== */
+.sh-categoria {
+    margin-bottom: 32px;
+}
+.sh-categoria:last-child { margin-bottom: 0; }
+
+.sh-categoria-titulo {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gray-500);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ========== GRID ========== */
+.sh-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+}
+
+/* ========== CARDS ========== */
+.sh-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    transition: var(--t);
+    position: relative;
+    overflow: hidden;
+}
+.sh-card:hover {
+    border-color: var(--violet-300);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+.sh-card.instalada {
+    border-color: var(--violet-300);
+    background: linear-gradient(180deg, var(--violet-50) 0%, var(--white) 100%);
+}
+
+.sh-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.sh-card-icono {
+    width: 48px;
+    height: 48px;
+    background: var(--violet-50);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--violet-600);
+    flex-shrink: 0;
+    transition: var(--t);
+}
+.sh-card.instalada .sh-card-icono {
+    background: var(--white);
+    box-shadow: var(--shadow-sm);
+}
+.sh-card-icono [data-lucide] {
+    width: 22px;
+    height: 22px;
+    stroke-width: 2;
+}
+
+.sh-card-info {
+    flex: 1;
+    min-width: 0;
+}
+.sh-card-nombre {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--gray-900);
+    letter-spacing: -0.01em;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.sh-card-desc {
+    font-size: 12.5px;
+    color: var(--gray-500);
+    line-height: 1.5;
+}
+
+.sh-badge {
+    font-size: 9.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 3px 8px;
+    border-radius: var(--r-full);
+    line-height: 1.3;
+    display: inline-block;
+}
+.sh-badge-base {
+    color: var(--violet-700);
+    background: var(--violet-100);
+    border: 1px solid var(--violet-200);
+}
+.sh-badge-instalada {
+    color: #065F46;
+    background: #ECFDF5;
+    border: 1px solid #A7F3D0;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.sh-badge-instalada [data-lucide] {
+    width: 10px;
+    height: 10px;
+    stroke-width: 3;
+}
+
+.sh-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-top: 4px;
+}
+
+.sh-acciones {
+    display: flex;
+    gap: 6px;
+    margin-left: auto;
+}
+
+/* ========== BOTONES ========== */
+.sh-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: none;
+    border-radius: var(--r-md);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--t-fast);
+    white-space: nowrap;
+}
+.sh-btn [data-lucide] {
+    width: 13px;
+    height: 13px;
+    stroke-width: 2.5;
+}
+
+.sh-btn-instalar {
+    background: linear-gradient(135deg, var(--violet-500), var(--violet-600));
+    color: white;
+    box-shadow: 0 4px 10px rgba(139, 92, 246, 0.25);
+}
+.sh-btn-instalar:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(139, 92, 246, 0.35);
+}
+.sh-btn-instalar:active { transform: translateY(0); }
+
+.sh-btn-abrir {
+    background: var(--white);
+    color: var(--violet-700);
+    border: 1.5px solid var(--violet-300);
+}
+.sh-btn-abrir:hover {
+    background: var(--violet-50);
+    border-color: var(--violet-400);
+}
+
+.sh-btn-icono {
+    background: var(--gray-100);
+    color: var(--gray-600);
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border-radius: var(--r-md);
+}
+.sh-btn-icono:hover {
+    background: #FEE2E2;
+    color: #991B1B;
+}
+
+.sh-btn-aplicar {
+    background: var(--gray-100);
+    color: var(--gray-700);
+}
+.sh-btn-aplicar:hover {
+    background: var(--gray-200);
+}
+.sh-btn-aplicar.activo {
+    background: #ECFDF5;
+    color: #065F46;
+    border: 1px solid #A7F3D0;
+}
+
+/* ========== PREVIEW DE TEMA ========== */
+.sh-tema-preview {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    border-radius: var(--r-md);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    margin-bottom: 4px;
+    position: relative;
+}
+.sh-tema-preview-header {
+    height: 22%;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    gap: 4px;
+}
+.sh-tema-preview-header-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+.sh-tema-preview-body {
+    flex: 1;
+    display: flex;
+}
+.sh-tema-preview-sidebar {
+    width: 26%;
+}
+.sh-tema-preview-content {
+    flex: 1;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.sh-tema-preview-line {
+    height: 4px;
+    border-radius: 2px;
+    opacity: 0.7;
+}
+.sh-tema-preview-line.w80 { width: 80%; }
+.sh-tema-preview-line.w60 { width: 60%; }
+.sh-tema-preview-line.w40 { width: 40%; }
+
+/* ========== EMPTY ========== */
+.sh-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--gray-500);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+.sh-empty [data-lucide] {
+    width: 40px;
+    height: 40px;
+    color: var(--violet-300);
+    stroke-width: 1.5;
+    margin-bottom: 4px;
+}
+.sh-empty h3 {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--gray-900);
+}
+.sh-empty p {
+    font-size: 13px;
+    max-width: 360px;
+    line-height: 1.5;
+}
+
+/* ========== TOAST ========== */
+.sh-toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--gray-900);
+    color: white;
+    padding: 11px 20px;
+    border-radius: var(--r-full);
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: calc(100% - 40px);
+}
+.sh-toast [data-lucide] {
+    width: 15px;
+    height: 15px;
+}
+.sh-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+.sh-toast.success { background: #065F46; }
+.sh-toast.error   { background: #991B1B; }
+
+/* ================================================
    RECURSOS (espacio y monedas)
    ================================================ */
 .sh-recursos {
@@ -127,4 +643,22 @@
 .sh-ampliacion .sh-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 640px) {
+    .sh-header { padding: 20px 18px 0; }
+    .sh-content { padding: 20px 18px; }
+    .sh-grid { grid-template-columns: 1fr; }
+    .sh-tab span:not(.sh-tab-count) { display: none; }
+    .sh-tab { padding: 10px 14px 12px; }
+    .sh-logo-text p { display: none; }
+    .sh-recursos { gap: 8px; }
+    .sh-recurso { min-width: 120px; padding: 8px 12px; }
+    .sh-ampliacion-card {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+    }
+    .sh-ampliacion .sh-btn { width: 100%; }
 }
