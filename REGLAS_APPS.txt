@@ -1,6 +1,6 @@
 ================================================================
   REGLAS PARA APPS DE VICWEBOS
-  Última actualización: 2025
+  Última actualización: 2026
 ================================================================
 
 Estas reglas aplican a TODAS las apps que se desarrollen o
@@ -163,6 +163,84 @@ REGLAS ADICIONALES:
       del repositorio para no acumular basura.
 
 ================================================================
+  REGLA 3 — ESTRUCTURA OBLIGATORIA DE CADA APP
+================================================================
+
+Toda app en herramientas/ DEBE tener esta estructura mínima:
+
+    herramientas/{nombreHerramienta}/
+    ├── index.html        ← obligatorio
+    ├── style.css         ← obligatorio
+    └── script.js         ← obligatorio
+    └── ...agregados      ← opcionales
+
+----------------------------------------------------------------
+  NOMBRES OBLIGATORIOS
+----------------------------------------------------------------
+
+- El HTML principal SIEMPRE se llama      index.html
+- Los estilos SIEMPRE van en              style.css
+- La lógica SIEMPRE va en                 script.js
+
+NO se permiten nombres alternativos como:
+    ❌ stor-he.js
+    ❌ main.js
+    ❌ app.css
+    ❌ home.html
+
+----------------------------------------------------------------
+  ARCHIVOS AGREGADOS (opcionales)
+----------------------------------------------------------------
+
+Si la app necesita más archivos, se permiten con estos
+nombres SIEMPRE en minúsculas, con guiones bajos si son
+varias palabras:
+
+    herramientas/{nombre}/
+    ├── index.html
+    ├── style.css
+    ├── script.js
+    ├── utils.js              ← helpers
+    ├── api.js                ← llamadas al backend
+    ├── config.js             ← constantes
+    ├── modal_confirm.html    ← sub-páginas o templates
+    ├── assets/               ← carpeta de recursos
+    │   ├── icono.png
+    │   └── fuente.woff2
+    └── ...
+
+----------------------------------------------------------------
+  REGLAS PARA AGREGADOS
+----------------------------------------------------------------
+
+- Todo archivo JS adicional debe terminar en .js
+- Todo archivo CSS adicional debe terminar en .css
+- Todo HTML secundario debe terminar en .html
+- Los nombres en minúsculas, con guiones bajos (no guiones
+  medios, no mayúsculas)
+- Los assets (imágenes, fuentes, sonidos del propio motor de
+  la app, NO de datos del usuario) van en una subcarpeta
+  llamada assets/
+- NO cargar librerías externas dentro de la carpeta de la app.
+  Usar CDN siempre.
+
+----------------------------------------------------------------
+  POR QUÉ ESTA REGLA
+----------------------------------------------------------------
+
+1. Nombres predecibles → cualquiera puede abrir cualquier
+   app y saber dónde está el HTML, el CSS y el JS.
+
+2. index.html siempre → el navegador carga index.html por
+   defecto en cualquier carpeta, no hay que configurar nada.
+
+3. Sin ambigüedad → no hay "¿esto va en main.js o app.js?".
+   Es script.js y punto.
+
+4. Los "agregados" permiten apps complejas sin perder el
+   orden base.
+
+================================================================
   TABLA RESUMEN
 ================================================================
 
@@ -185,6 +263,12 @@ REGLAS ADICIONALES:
 
   Documentos         → app/{nombre}(documento)/archivo.pdf
                        (referencia en el JSON)
+
+  Código de la app   → herramientas/{nombre}/
+                       ├── index.html
+                       ├── style.css
+                       ├── script.js
+                       └── (agregados)
 
 ================================================================
   API DISPONIBLE (recordatorio)
@@ -211,7 +295,13 @@ Para archivos binarios:
   EJEMPLO COMPLETO — App "galeria"
 ================================================================
 
-Estructura en el repositorio:
+Estructura de la app en herramientas/:
+    herramientas/galeria/
+    ├── index.html
+    ├── style.css
+    └── script.js
+
+Estructura de los datos en app/:
     app/galeria.json
     app/1234Agaleria.json
     app/5678Bgaleria.json
@@ -241,22 +331,18 @@ Contenido de app/1234Agaleria.json (galería personal):
         }
     }
 
-Contenido de app/5678Bgaleria.json (galería de otro usuario):
-    {
-        "version": 1,
-        "actualizado": "2025-01-15T11:00:00Z",
-        "datos": {
-            "fotos": [
-                { "id": "1", "ruta": "app/galeria(imagen)/foto_001.png", "titulo": "Atardecer" }
-            ]
-        }
-    }
-
 ================================================================
   EJEMPLO COMPLETO — App "chequera"
 ================================================================
 
-Estructura en el repositorio:
+Estructura de la app en herramientas/:
+    herramientas/chequera/
+    ├── index.html
+    ├── style.css
+    ├── script.js
+    └── utils.js              ← agregado (opcional)
+
+Estructura de los datos en app/:
     app/chequera.json
     app/1234Achequera.json
     app/5678Bchequera.json
@@ -303,8 +389,9 @@ Contenido de app/1234Achequera.json (monedas del usuario):
    son pequeñas y necesitan estar en el mismo archivo que
    la cuenta para simplificar la carga inicial.
 
-5. Nombres consistentes → evita colisiones, problemas de
-   encoding, y hace el repo predecible.
+5. Nombres consistentes en apps → index.html, style.css y
+   script.js siempre. Cualquier persona puede abrir una app
+   y saber dónde está cada cosa.
 
 ================================================================
   FIN DEL DOCUMENTO
