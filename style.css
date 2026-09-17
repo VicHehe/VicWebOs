@@ -160,7 +160,7 @@ body {
 .search-bar:focus-within .search-kbd { display: none; }
 
 .header-right {
-    display: flex; align-items: center; gap: 12px;
+    display: flex; align-items: center; gap: 10px;
     flex-shrink: 0; margin-left: auto;
 }
 
@@ -195,6 +195,258 @@ body {
 .avatar-icon { width: 17px; height: 17px; }
 .avatar-img { width: 100%; height: 100%; object-fit: cover; }
 .avatar-inicial { font-size: 15px; font-weight: 800; color: white; line-height: 1; }
+
+/* ========== BOTÓN DE NOTIFICACIONES ========== */
+.noti-btn {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    background: var(--gray-100);
+    border: none;
+    border-radius: var(--r-md);
+    cursor: pointer;
+    color: var(--gray-700);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: var(--t-fast);
+    flex-shrink: 0;
+}
+.noti-btn:hover { background: var(--gray-200); color: var(--gray-900); }
+.noti-btn.tiene-no-leidas {
+    background: var(--violet-50);
+    color: var(--violet-600);
+}
+.noti-btn.tiene-no-leidas:hover {
+    background: var(--violet-100);
+    color: var(--violet-700);
+}
+.noti-btn [data-lucide] { width: 18px; height: 18px; stroke-width: 2; }
+
+.noti-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 5px;
+    background: #EF4444;
+    color: white;
+    font-size: 10px;
+    font-weight: 800;
+    border-radius: var(--r-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--white);
+    font-variant-numeric: tabular-nums;
+    pointer-events: none;
+    line-height: 1;
+    animation: notiPulse 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes notiPulse {
+    from { transform: scale(0); }
+    to   { transform: scale(1); }
+}
+
+/* ========== PANEL DE NOTIFICACIONES ========== */
+.noti-panel {
+    position: fixed;
+    top: calc(var(--noti-top, 60px) + 8px);
+    right: 16px;
+    width: 380px;
+    max-width: calc(100vw - 32px);
+    max-height: calc(100dvh - var(--noti-top, 60px) - 24px);
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-xl);
+    z-index: 150;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    animation: notiIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.noti-panel.show { display: flex; }
+
+@keyframes notiIn {
+    from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+
+.noti-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 12px 12px 16px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    gap: 8px;
+}
+
+.noti-titulo {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--gray-900);
+    letter-spacing: -0.01em;
+}
+
+.noti-acciones {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+}
+
+.noti-accion, .noti-cerrar {
+    width: 30px;
+    height: 30px;
+    background: none;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--gray-500);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: var(--t-fast);
+}
+.noti-accion:hover {
+    background: var(--gray-100);
+    color: var(--gray-800);
+}
+.noti-cerrar:hover {
+    background: #FEE2E2;
+    color: #991B1B;
+}
+.noti-accion [data-lucide],
+.noti-cerrar [data-lucide] { width: 14px; height: 14px; }
+
+.noti-lista {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.noti-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px 12px 16px;
+    border-bottom: 1px solid var(--gray-100);
+    cursor: pointer;
+    transition: background 0.15s;
+    position: relative;
+}
+.noti-item:last-child { border-bottom: none; }
+.noti-item:hover { background: var(--gray-50); }
+.noti-item.no-leida { background: var(--violet-50); }
+.noti-item.no-leida:hover { background: var(--violet-100); }
+.noti-item.no-leida::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 26px;
+    background: var(--violet-500);
+    border-radius: 0 3px 3px 0;
+}
+
+.noti-icono {
+    width: 34px;
+    height: 34px;
+    background: var(--gray-100);
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-600);
+    flex-shrink: 0;
+    transition: var(--t-fast);
+}
+.noti-item.no-leida .noti-icono {
+    background: var(--violet-100);
+    color: var(--violet-600);
+}
+.noti-icono [data-lucide] { width: 15px; height: 15px; }
+
+.noti-cuerpo { flex: 1; min-width: 0; }
+
+.noti-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    margin-bottom: 2px;
+}
+
+.noti-fuente {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--gray-500);
+}
+.noti-item.no-leida .noti-fuente { color: var(--violet-600); }
+
+.noti-tiempo {
+    font-size: 10.5px;
+    color: var(--gray-400);
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.noti-texto {
+    font-size: 12.5px;
+    color: var(--gray-800);
+    line-height: 1.45;
+    word-break: break-word;
+}
+
+.noti-borrar {
+    width: 26px;
+    height: 26px;
+    background: none;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--gray-400);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    opacity: 0;
+    transition: var(--t-fast);
+    flex-shrink: 0;
+    align-self: center;
+}
+.noti-item:hover .noti-borrar { opacity: 1; }
+.noti-borrar:hover { background: #FEE2E2; color: #991B1B; }
+.noti-borrar [data-lucide] { width: 12px; height: 12px; }
+
+.noti-vacio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 44px 20px;
+    gap: 10px;
+    color: var(--gray-500);
+    font-size: 13px;
+    text-align: center;
+}
+.noti-vacio [data-lucide] {
+    width: 32px;
+    height: 32px;
+    color: var(--violet-300);
+    stroke-width: 1.5;
+}
+.noti-vacio p { margin: 0; font-weight: 600; }
 
 /* ========== BODY ========== */
 .app-body { display: flex; flex: 1; min-height: 0; overflow: hidden; }
@@ -322,7 +574,6 @@ body {
 .welcome-placeholder {
     width: 100%;
     height: 100%;
-    /* overflow-x: hidden evita el scroll horizontal que provocaba .welcome-glow */
     overflow-x: hidden;
     overflow-y: auto;
     background: var(--white);
@@ -357,7 +608,6 @@ body {
     position: relative;
     z-index: 1;
     padding-top: 20px;
-    /* Defensa: nunca desbordar por texto largo */
     overflow-wrap: anywhere;
     word-break: break-word;
 }
@@ -1137,18 +1387,14 @@ body {
 
 /* ================================================
    RESPONSIVE
-   Desktop intacto. Móvil mejora sin tocar el resto.
    ================================================ */
 
-/* --- Tablet: sidebar más estrecha --- */
 @media (max-width: 1024px) {
     .sidebar { width: 220px; min-width: 220px; }
 }
 
-/* --- Móvil: drawer, header en 2 filas, tabs horizontales --- */
 @media (max-width: 768px) {
 
-    /* --- Header en grid: fila 1 = left + right, fila 2 = search --- */
     .app-header {
         display: grid;
         grid-template-columns: auto 1fr;
@@ -1171,7 +1417,7 @@ body {
         grid-area: right;
         justify-self: end;
         margin-left: 0;
-        gap: 8px;
+        gap: 6px;
     }
     .search-bar {
         grid-area: search;
@@ -1183,8 +1429,13 @@ body {
         width: 36px;
         height: 36px;
     }
+    .noti-btn {
+        width: 36px;
+        height: 36px;
+    }
+    .noti-btn [data-lucide] { width: 17px; height: 17px; }
 
-    /* --- info-local compacto: hora + clima, sin monedas --- */
+    /* info-local compacto: hora + clima, sin monedas */
     .info-local {
         display: flex;
         padding: 5px 10px;
@@ -1192,20 +1443,22 @@ body {
         font-size: 11px;
         border-radius: var(--r-md);
     }
-    /* Ocultar el 2º divisor y las monedas (van en Cuenta) */
     .info-local > .divider-dot:nth-child(4),
     .info-local > .monedas-local {
         display: none;
     }
-    .info-icon, .clima-icon {
-        width: 12px;
-        height: 12px;
-    }
-    .hora-texto, .temp-texto {
-        font-size: 11px;
+    .info-icon, .clima-icon { width: 12px; height: 12px; }
+    .hora-texto, .temp-texto { font-size: 11px; }
+
+    /* Panel de notis: se adapta al ancho */
+    .noti-panel {
+        right: 12px;
+        left: 12px;
+        width: auto;
+        max-width: none;
     }
 
-    /* --- Sidebar como drawer --- */
+    /* Sidebar como drawer */
     .sidebar {
         position: fixed;
         top: 0;
@@ -1220,9 +1473,7 @@ body {
         box-shadow: 0 0 40px rgba(0,0,0,0.15);
         will-change: transform;
     }
-    .sidebar.show {
-        transform: translateX(0);
-    }
+    .sidebar.show { transform: translateX(0); }
     .sidebar-mobile-header {
         display: flex;
         align-items: center;
@@ -1257,7 +1508,6 @@ body {
     }
     .sidebar-mobile-close [data-lucide] { width: 18px; height: 18px; stroke-width: 2.5; }
 
-    /* --- Nav items con más área táctil --- */
     .nav-item {
         padding: 12px 14px;
         font-size: 14px;
@@ -1266,7 +1516,6 @@ body {
     .nav-item.active::before { left: -10px; height: 22px; }
     .nav-icon { width: 18px; height: 18px; }
 
-    /* --- Tab bar con close siempre visible --- */
     .tab-bar {
         min-height: 50px;
         padding: 6px 12px 0;
@@ -1280,7 +1529,6 @@ body {
     .tab-item .tab-close { opacity: 1; padding: 6px; }
     .tab-item .tab-close [data-lucide] { width: 13px; height: 13px; }
 
-    /* --- Welcome sin scroll horizontal --- */
     .welcome-placeholder {
         padding: 36px 20px 56px;
         gap: 30px;
@@ -1296,7 +1544,6 @@ body {
         gap: 10px;
     }
 
-    /* --- Modales tipo bottom-sheet suave --- */
     .modal-todas-overlay, .config-overlay {
         padding: 12px;
         align-items: center;
@@ -1315,7 +1562,6 @@ body {
         gap: 8px;
     }
 
-    /* --- Config: nav como grid de 4 columnas (siempre visibles) --- */
     .config-layout { flex-direction: column; }
     .config-nav {
         width: 100%;
@@ -1354,7 +1600,6 @@ body {
     }
     .config-content { padding: 18px 16px; }
 
-    /* --- Config footer --- */
     .config-footer {
         padding: 12px 16px;
         flex-wrap: wrap;
@@ -1363,7 +1608,6 @@ body {
     .config-footer-msg { font-size: 12px; width: 100%; text-align: center; }
     .config-footer .btn-primario { flex: 1 1 auto; }
 
-    /* --- Cuenta: perfil más compacto --- */
     .cuenta-perfil { padding: 16px; gap: 14px; }
     .cuenta-perfil-foto { width: 56px; height: 56px; }
     .cuenta-perfil-foto [data-lucide] { width: 24px; height: 24px; }
@@ -1371,10 +1615,8 @@ body {
     .cuenta-perfil-info h4 { font-size: 15px; }
     .cuenta-perfil-info p { font-size: 12.5px; }
 
-    /* --- Cuenta tabs más altas --- */
     .cuenta-tab { padding: 11px 14px; font-size: 13px; }
 
-    /* --- Inputs con padding más generoso --- */
     .config-field input[type="text"],
     .config-field input[type="password"],
     .config-field select {
@@ -1383,7 +1625,6 @@ body {
     }
 }
 
-/* --- Móvil pequeño (360px y similar) --- */
 @media (max-width: 480px) {
     .app-header {
         min-height: 52px;
@@ -1394,9 +1635,18 @@ body {
     .logo-mark { width: 32px; height: 32px; border-radius: 9px; }
     .logo-mark [data-lucide] { width: 17px; height: 17px; }
     .avatar-config { width: 34px; height: 34px; }
+    .noti-btn { width: 34px; height: 34px; border-radius: 10px; }
+    .noti-btn [data-lucide] { width: 16px; height: 16px; }
+    .noti-badge {
+        top: 1px;
+        right: 1px;
+        min-width: 15px;
+        height: 15px;
+        font-size: 9.5px;
+        padding: 0 4px;
+    }
     .search-bar { height: 36px; padding: 0 10px; }
 
-    /* Info compacto aún más pequeño */
     .info-local { padding: 4px 8px; gap: 5px; font-size: 10.5px; }
     .info-icon, .clima-icon { width: 11px; height: 11px; }
     .hora-texto, .temp-texto { font-size: 10.5px; }
@@ -1435,4 +1685,20 @@ body {
     .config-nav-item [data-lucide] { width: 16px; height: 16px; }
     .config-nav-item span { font-size: 9.5px; }
     .config-panel-header h3 { font-size: 15px; }
+
+    /* Panel de notis casi full-screen */
+    .noti-panel {
+        right: 8px;
+        left: 8px;
+        border-radius: var(--r-md);
+    }
+    .noti-header { padding: 10px 10px 10px 14px; }
+    .noti-titulo { font-size: 13px; }
+    .noti-accion, .noti-cerrar { width: 28px; height: 28px; }
+    .noti-item { padding: 10px 10px 10px 14px; gap: 8px; }
+    .noti-icono { width: 30px; height: 30px; border-radius: 8px; }
+    .noti-icono [data-lucide] { width: 14px; height: 14px; }
+    .noti-texto { font-size: 12px; }
+    .noti-borrar { opacity: 1; }
+    .noti-vacio { padding: 36px 16px; }
 }
