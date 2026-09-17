@@ -13,7 +13,6 @@ const panelContainer = document.getElementById('panelContainer');
 const welcomeScreen  = document.getElementById('welcomeScreen');
 const btnVerTodas    = document.getElementById('btnVerTodas');
 
-// -------- SIDEBAR: SOLO APPS INSTALADAS --------
 function renderSidebar(filtro = '') {
     if (!sidebarNav) return;
     sidebarNav.innerHTML = '';
@@ -27,8 +26,7 @@ function renderSidebar(filtro = '') {
             <div class="sidebar-empty">
                 <i data-lucide="package-open"></i>
                 <span>No tienes apps instaladas. Abre <strong>Stor-He</strong> para descargar.</span>
-            </div>
-        `;
+            </div>`;
         lucide.createIcons();
         return;
     }
@@ -46,8 +44,7 @@ function renderSidebar(filtro = '') {
             <div class="sidebar-empty">
                 <i data-lucide="search-x"></i>
                 <span>Sin resultados para "${filtro}"</span>
-            </div>
-        `;
+            </div>`;
         lucide.createIcons();
         return;
     }
@@ -75,7 +72,6 @@ function actualizarNavActivo() {
     });
 }
 
-// -------- ABRIR / ACTIVAR / CERRAR PESTAÑAS --------
 function abrirHerramienta(id) {
     const catalogo = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
     const herramienta = catalogo.find(h => h.id === id);
@@ -186,7 +182,6 @@ function mostrarBienvenida() {
     actualizarNavActivo();
 }
 
-// -------- MODAL "VER TODAS" (solo instaladas) --------
 function abrirModalTodas() {
     const modal = document.getElementById('modalTodas');
     const body  = document.getElementById('modalTodasBody');
@@ -245,7 +240,7 @@ function cerrarModalTodas() {
     if (modal) modal.style.display = 'none';
 }
 
-// -------- RELOJ / CLIMA LOCAL --------
+// -------- RELOJ / CLIMA --------
 async function obtenerClima(lat, lon) {
     try {
         const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day&timezone=auto`);
@@ -290,8 +285,7 @@ function iniciarClimaLocal() {
     );
 }
 
-// -------- API PARA IFRAMES (Stor-He y otras apps) --------
-// Cualquier iframe puede hacer: window.parent.__vicwebos.instalar('id')
+// -------- API PARA IFRAMES --------
 window.__vicwebos = {
     obtenerCatalogo: () => (typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : []),
     obtenerInstaladas: () => obtenerAppsInstaladas(),
@@ -302,7 +296,6 @@ window.__vicwebos = {
     },
     desinstalar: (id) => {
         desinstalarApp(id);
-        // Si la app desinstalada estaba abierta como pestaña, cerrarla
         if (tabs.find(t => t.id === id)) cerrarPestania(id);
         renderSidebar(searchInput ? searchInput.value : '');
     },
@@ -315,7 +308,7 @@ window.__vicwebos = {
     }
 };
 
-// -------- INICIALIZACIÓN --------
+// -------- INIT --------
 document.addEventListener('DOMContentLoaded', () => {
     renderSidebar();
     renderTabs();
