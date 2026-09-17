@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="calc-container">
+        <!-- Header -->
+        <div class="calc-header">
+            <div class="calc-logo">
+                <div class="calc-logo-mark">
+                    <i data-lucide="calculator"></i>
+                </div>
+                <div class="calc-logo-text">
+                    <h1>Calculadora</h1>
+                    <p id="calcUserBadge">—</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Display -->
+        <div class="calc-display">
+            <div class="calc-historial-mini" id="calcHistMini"></div>
+            <div class="calc-expresion" id="calcExpresion">0</div>
+            <div class="calc-resultado-preview" id="calcResultadoPreview"></div>
+        </div>
+
+        <!-- Teclado -->
+        <div class="calc-teclado">
+            <button class="calc-btn calc-btn-num" data-num="7">7</button>
+            <button class="calc-btn calc-btn-num" data-num="8">8</button>
+            <button class="calc-btn calc-btn-num" data-num="9">9</button>
+            <button class="calc-btn calc-btn-op" data-op="/">÷</button>
+
+            <button class="calc-btn calc-btn-num" data-num="4">4</button>
+            <button class="calc-btn calc-btn-num" data-num="5">5</button>
+            <button class="calc-btn calc-btn-num" data-num="6">6</button>
+            <button class="calc-btn calc-btn-op" data-op="*">×</button>
+
+            <button class="calc-btn calc-btn-num" data-num="1">1</button>
+            <button class="calc-btn calc-btn-num" data-num="2">2</button>
+            <button class="calc-btn calc-btn-num" data-num="3">3</button>
+            <button class="calc-btn calc-btn-op" data-op="-">−</button>
+
+            <button class="calc-btn calc-btn-num" data-num="0">0</button>
+            <button class="calc-btn calc-btn-num" data-num=".">.</button>
+            <button class="calc-btn calc-btn-fn" data-fn="clear">C</button>
+            <button class="calc-btn calc-btn-op" data-op="+">+</button>
+
+            <button class="calc-btn calc-btn-fn" data-fn="pow">x²</button>
+            <button class="calc-btn calc-btn-fn" data-fn="percent">%</button>
+            <button class="calc-btn calc-btn-fn" data-fn="back">⌫</button>
+            <button class="calc-btn calc-btn-eq" data-fn="equals">=</button>
+        </div>
+
+        <!-- Panel de funciones -->
+        <div class="calc-funciones">
+            <button class="calc-funcion-btn" data-funcion="intereses">
+                <i data-lucide="percent"></i>
+                <span class="calc-funcion-nombre">Intereses</span>
+                <span class="calc-funcion-estado" id="funcIntereses">🔒 5 🪙</span>
+            </button>
+            <button class="calc-funcion-btn" data-funcion="fechas">
+                <i data-lucide="calendar-days"></i>
+                <span class="calc-funcion-nombre">Fechas</span>
+                <span class="calc-funcion-estado" id="funcFechas">🔒 5 🪙</span>
+            </button>
+            <button class="calc-funcion-btn" data-funcion="graficos">
+                <i data-lucide="pie-chart"></i>
+                <span class="calc-funcion-nombre">Gráficos</span>
+                <span class="calc-funcion-estado" id="funcGraficos">🔒 10 🪙</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: Intereses -->
+    <div class="calc-modal" id="modalIntereses" hidden>
+        <div class="calc-modal-card">
+            <div class="calc-modal-header">
+                <h2><i data-lucide="percent"></i> Intereses</h2>
+                <button class="calc-modal-cerrar" data-cerrar="intereses"><i data-lucide="x"></i></button>
+            </div>
+            <div class="calc-modal-body">
+                <div class="calc-field">
+                    <label>Capital</label>
+                    <input type="number" id="intCapital" placeholder="1000" step="any" inputmode="decimal">
+                </div>
+                <div class="calc-field">
+                    <label>Tasa anual (%)</label>
+                    <input type="number" id="intTasa" placeholder="5" step="any" inputmode="decimal">
+                </div>
+                <div class="calc-field">
+                    <label>Tiempo</label>
+                    <div class="calc-field-grupo">
+                        <input type="number" id="intTiempo" placeholder="12" step="any" inputmode="decimal">
+                        <select id="intUnidad">
+                            <option value="dias">Días</option>
+                            <option value="meses" selected>Meses</option>
+                            <option value="anios">Años</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="calc-btn-accion" id="btnCalcularInteres">
+                    <i data-lucide="sparkles"></i>
+                    Calcular
+                </button>
+                <div class="calc-resultado-panel" id="intResultado" style="display:none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Fechas -->
+    <div class="calc-modal" id="modalFechas" hidden>
+        <div class="calc-modal-card">
+            <div class="calc-modal-header">
+                <h2><i data-lucide="calendar-days"></i> Fechas</h2>
+                <button class="calc-modal-cerrar" data-cerrar="fechas"><i data-lucide="x"></i></button>
+            </div>
+            <div class="calc-modal-body">
+                <div class="calc-modo-tabs">
+                    <button class="calc-modo-btn active" data-modo="entre">Entre 2 fechas</button>
+                    <button class="calc-modo-btn" data-modo="desde-hoy">Desde hoy</button>
+                </div>
+
+                <div id="fechaModoEntre">
+                    <div class="calc-field">
+                        <label>Fecha 1</label>
+                        <input type="date" id="fecha1">
+                    </div>
+                    <div class="calc-field">
+                        <label>Fecha 2</label>
+                        <input type="date" id="fecha2">
+                    </div>
+                </div>
+
+                <div id="fechaModoDesdeHoy" style="display:none;">
+                    <div class="calc-field">
+                        <label>Fecha objetivo</label>
+                        <input type="date" id="fechaObjetivo">
+                    </div>
+                </div>
+
+                <button class="calc-btn-accion" id="btnCalcularFecha">
+                    <i data-lucide="sparkles"></i>
+                    Calcular
+                </button>
+                <div class="calc-resultado-panel" id="fechaResultado" style="display:none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Gráficos -->
+    <div class="calc-modal" id="modalGraficos" hidden>
+        <div class="calc-modal-card calc-modal-card-grande">
+            <div class="calc-modal-header">
+                <h2><i data-lucide="pie-chart"></i> Gráficos</h2>
+                <button class="calc-modal-cerrar" data-cerrar="graficos"><i data-lucide="x"></i></button>
+            </div>
+            <div class="calc-modal-body">
+                <p class="calc-modal-ayuda">Añade hasta 8 porciones con su valor. El gráfico se dibuja proporcional al total.</p>
+
+                <div class="calc-grafico-filas" id="grafFilas"></div>
+
+                <button class="calc-btn-add-fila" id="btnAnadirFila">
+                    <i data-lucide="plus"></i>
+                    Añadir porción
+                </button>
+
+                <div class="calc-grafico-resultado" id="grafResultado" style="display:none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="calc-toast" id="calcToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
