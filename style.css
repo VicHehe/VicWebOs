@@ -43,6 +43,7 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     transition: background 0.3s, color 0.3s;
+    -webkit-tap-highlight-color: transparent;
 }
 
 [data-lucide] { width: 18px; height: 18px; stroke-width: 2; flex-shrink: 0; }
@@ -62,7 +63,13 @@ body {
 }
 * { scrollbar-width: thin; scrollbar-color: var(--gray-300) transparent; }
 
-#appPrincipal { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+#appPrincipal {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+}
 
 /* ========== HEADER ========== */
 .app-header {
@@ -76,7 +83,27 @@ body {
     border-bottom: 1px solid var(--border);
     z-index: 100;
 }
-.header-left { display: flex; align-items: center; flex-shrink: 0; }
+
+.header-left { display: flex; align-items: center; flex-shrink: 0; gap: 10px; }
+
+.mobile-menu-btn {
+    display: none;
+    width: 40px;
+    height: 40px;
+    background: none;
+    border: none;
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    color: var(--gray-700);
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    flex-shrink: 0;
+    transition: var(--t-fast);
+}
+.mobile-menu-btn:hover { background: var(--gray-100); color: var(--gray-900); }
+.mobile-menu-btn [data-lucide] { width: 20px; height: 20px; stroke-width: 2.5; }
+
 .logo { display: flex; align-items: center; gap: 10px; }
 .logo-mark {
     width: 34px; height: 34px;
@@ -179,6 +206,9 @@ body {
     border-right: 1px solid var(--border);
     display: flex; flex-direction: column; overflow: hidden;
 }
+
+.sidebar-mobile-header { display: none; }
+
 .sidebar-label {
     font-size: 10.5px; font-weight: 800; text-transform: uppercase;
     letter-spacing: 0.08em; color: var(--gray-500); padding: 18px 20px 8px;
@@ -216,6 +246,21 @@ body {
 .nav-icon { width: 16px; height: 16px; color: var(--gray-500); transition: var(--t-fast); }
 .nav-item:hover .nav-icon { color: var(--violet-500); }
 .nav-item.active .nav-icon { color: var(--violet-600); }
+
+/* Overlay del drawer móvil: por defecto oculto */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(24, 24, 27, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 199;
+}
+.sidebar-overlay.show {
+    display: block;
+    animation: fadeIn 0.2s ease;
+}
 
 /* ========== MAIN ========== */
 .main-content {
@@ -300,7 +345,6 @@ body {
     z-index: 0;
 }
 
-/* ===== HERO ===== */
 .welcome-hero {
     display: flex;
     flex-direction: column;
@@ -374,7 +418,6 @@ body {
     max-width: 480px;
 }
 
-/* ===== SECCIONES ===== */
 .welcome-section {
     width: 100%;
     max-width: 920px;
@@ -410,7 +453,6 @@ body {
     color: var(--violet-500);
 }
 
-/* ===== ACCESOS RÁPIDOS ===== */
 .accesos-rapidos {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -447,9 +489,7 @@ body {
         0 12px 24px var(--accent-shadow),
         var(--shadow-md);
 }
-.acceso-item:hover::before {
-    opacity: 0.04;
-}
+.acceso-item:hover::before { opacity: 0.04; }
 
 .acceso-icon-wrap {
     width: 44px;
@@ -470,11 +510,7 @@ body {
     transform: scale(1.08) rotate(-4deg);
     box-shadow: 0 6px 14px var(--accent-shadow);
 }
-.acceso-icon {
-    width: 20px;
-    height: 20px;
-    stroke-width: 2;
-}
+.acceso-icon { width: 20px; height: 20px; stroke-width: 2; }
 
 .acceso-nombre {
     font-weight: 700;
@@ -501,19 +537,10 @@ body {
     transition: all 0.15s;
     border-radius: var(--r-sm);
 }
-.btn-ver-todas [data-lucide] {
-    width: 13px;
-    height: 13px;
-    transition: transform 0.15s;
-}
-.btn-ver-todas:hover {
-    background: var(--violet-50);
-}
-.btn-ver-todas:hover [data-lucide] {
-    transform: translateX(3px);
-}
+.btn-ver-todas [data-lucide] { width: 13px; height: 13px; transition: transform 0.15s; }
+.btn-ver-todas:hover { background: var(--violet-50); }
+.btn-ver-todas:hover [data-lucide] { transform: translateX(3px); }
 
-/* ===== WIDGETS ===== */
 .widgets-zona {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -533,12 +560,7 @@ body {
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
 }
-.widget-iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    display: block;
-}
+.widget-iframe { width: 100%; height: 100%; border: none; display: block; }
 
 /* ========== MODALES ========== */
 .modal-todas-overlay, .config-overlay {
@@ -676,7 +698,6 @@ body {
 }
 .config-help { font-size: 12px; color: var(--gray-500); line-height: 1.5; margin-top: 6px; }
 
-/* ========== CONFIG: SUBSECCIONES ========== */
 .config-subsection { margin-bottom: 32px; }
 .config-subsection h4 {
     display: flex; align-items: center; gap: 8px;
@@ -688,7 +709,6 @@ body {
 }
 .config-subsection .config-help { margin-bottom: 12px; }
 
-/* Lista de temas */
 .config-temas-lista {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -722,7 +742,6 @@ body {
 .config-tema-check { color: var(--violet-600); display: inline-flex; }
 .config-tema-check [data-lucide] { width: 14px; height: 14px; stroke-width: 3; }
 
-/* Lista de widgets */
 .config-widgets-lista {
     display: flex; flex-direction: column; gap: 8px;
 }
@@ -763,7 +782,6 @@ body {
 .config-widget-item.activo .config-widget-toggle { color: var(--violet-600); }
 .config-widget-toggle [data-lucide] { width: 24px; height: 24px; stroke-width: 2; }
 
-/* ========== APPS INSTALADAS (en config) ========== */
 .apps-instaladas-lista {
     display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px;
 }
@@ -812,7 +830,6 @@ body {
 .app-desinstalar [data-lucide] { width: 14px; height: 14px; }
 .app-desinstalar:hover { background: #FEE2E2; color: #991B1B; }
 
-/* Info box */
 .config-info-box {
     display: flex; align-items: flex-start; gap: 10px;
     padding: 12px 14px; background: var(--violet-50);
@@ -831,7 +848,6 @@ body {
     color: var(--violet-700);
 }
 
-/* ========== BD CONECTADA ========== */
 .bd-conectado-card {
     display: flex; align-items: center; gap: 14px;
     padding: 16px 18px;
@@ -871,7 +887,6 @@ body {
     flex-shrink: 0; margin-top: 1px;
 }
 
-/* ========== CONFIG FOOTER ========== */
 .config-footer {
     display: flex; justify-content: space-between; align-items: center;
     padding: 16px 26px; border-top: 1px solid var(--border);
@@ -879,7 +894,6 @@ body {
 }
 .config-footer-msg { font-size: 13px; font-weight: 600; color: var(--violet-600); }
 
-/* ========== BOTONES ========== */
 .btn-primario {
     display: inline-flex; align-items: center; justify-content: center;
     gap: 8px; padding: 10px 20px; border: none; border-radius: var(--r-md);
@@ -908,7 +922,6 @@ body {
     background: #FEF2F2; border-color: #FECACA; color: #991B1B;
 }
 
-/* ========== ESTADO VACÍO ========== */
 .config-empty {
     display: flex; flex-direction: column; align-items: center;
     justify-content: center; text-align: center;
@@ -930,7 +943,6 @@ body {
     max-width: 320px; line-height: 1.5; margin: 0;
 }
 
-/* ========== STATUS ========== */
 .config-status {
     margin-top: 14px; padding: 10px 14px;
     border-radius: var(--r-md); font-size: 13px;
@@ -954,7 +966,6 @@ body {
     to   { transform: rotate(360deg); }
 }
 
-/* ========== CUENTA ========== */
 .cuenta-tabs {
     display: flex; gap: 4px; background: var(--gray-100);
     padding: 4px; border-radius: var(--r-md); margin-bottom: 22px;
@@ -1022,60 +1033,13 @@ body {
     border: 1px solid var(--violet-200);
 }
 
-/* ========== MONEDAS EN EL HEADER ========== */
-.monedas-local {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-.monedas-local .info-icon {
-    color: #F59E0B;
-}
+.monedas-local { display: flex; align-items: center; gap: 5px; }
+.monedas-local .info-icon { color: #F59E0B; }
 .monedas-texto {
     color: var(--gray-900);
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.01em;
     font-weight: 800;
-}
-
-/* ========== RESPONSIVE ========== */
-@media (max-width: 900px) {
-    .info-local { display: none; }
-    .search-kbd { display: none; }
-}
-@media (max-width: 768px) {
-    .app-header { padding: 0 12px; gap: 12px; }
-    .sidebar { display: none; }
-    .search-bar { max-width: none; }
-    .logo-text { font-size: 15px; }
-    .config-nav { width: 60px; padding: 12px 6px; }
-    .config-nav-item { justify-content: center; padding: 10px; }
-    .config-nav-item span { display: none; }
-    .config-content { padding: 20px; }
-    .config-card { max-height: 95vh; margin: 12px; }
-    .modal-todas-card { max-height: 95vh; margin: 12px; }
-    .welcome-placeholder { padding: 40px 20px 60px; gap: 32px; }
-    .welcome-hero h1 { font-size: 26px; }
-    .welcome-hero p { font-size: 14px; }
-    .welcome-icon-wrap { width: 72px; height: 72px; }
-    .welcome-icon { width: 34px !important; height: 34px !important; }
-    .accesos-rapidos { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
-}
-@media (max-width: 500px) {
-    .app-header { height: 54px; padding: 0 10px; gap: 8px; }
-    .logo-text { display: none; }
-    .search-bar { height: 34px; }
-    .avatar-config { width: 34px; height: 34px; }
-    .welcome-placeholder { padding: 32px 16px 60px; gap: 28px; }
-    .welcome-hero h1 { font-size: 22px; }
-    .welcome-icon-wrap { width: 64px; height: 64px; border-radius: 18px; }
-    .welcome-icon { width: 30px !important; height: 30px !important; }
-    .accesos-rapidos { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .acceso-item { padding: 14px 10px; }
-    .acceso-icon-wrap { width: 40px; height: 40px; }
-    .widgets-zona { grid-template-columns: 1fr; }
-    .modal-categoria-grid { grid-template-columns: 1fr; }
-    .config-panel-header h3 { font-size: 15px; }
 }
 
 /* ================================================
@@ -1136,10 +1100,7 @@ body {
     color: white;
     box-shadow: 0 2px 8px var(--accent-shadow);
 }
-.config-checkbox-icono [data-lucide] {
-    width: 16px;
-    height: 16px;
-}
+.config-checkbox-icono [data-lucide] { width: 16px; height: 16px; }
 
 .config-checkbox-texto {
     flex: 1;
@@ -1149,7 +1110,6 @@ body {
     white-space: nowrap;
 }
 
-/* Indicador visual de check */
 .config-checkbox-label::after {
     content: '';
     width: 18px;
@@ -1167,4 +1127,272 @@ body {
     background-size: 12px 12px;
     background-position: center;
     background-repeat: no-repeat;
+}
+
+/* ================================================
+   RESPONSIVE
+   Desktop intacto. Móvil mejora sin tocar el resto.
+   ================================================ */
+
+/* --- Tablet: sidebar más estrecha --- */
+@media (max-width: 1024px) {
+    .sidebar { width: 220px; min-width: 220px; }
+}
+
+/* --- Ocultar info densa del header --- */
+@media (max-width: 900px) {
+    .info-local { display: none; }
+    .search-kbd { display: none; }
+}
+
+/* --- Móvil: drawer, header en 2 filas, tabs horizontales --- */
+@media (max-width: 768px) {
+
+    /* --- Header en grid de 2 filas --- */
+    .app-header {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        grid-template-rows: auto auto;
+        height: auto;
+        min-height: 56px;
+        padding: 8px 12px;
+        gap: 8px;
+        align-items: center;
+    }
+    .mobile-menu-btn { display: flex; }
+    .header-left {
+        grid-column: 1 / 3;
+        grid-row: 1;
+        gap: 6px;
+    }
+    .search-bar {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        max-width: none;
+        width: 100%;
+        height: 38px;
+    }
+    .header-right {
+        grid-column: 3;
+        grid-row: 1;
+        justify-self: end;
+        margin-left: 0;
+    }
+    .avatar-config {
+        width: 36px;
+        height: 36px;
+    }
+
+    /* --- Sidebar como drawer --- */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 280px;
+        min-width: 0;
+        max-width: 84vw;
+        z-index: 200;
+        transform: translateX(-100%);
+        transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 0 40px rgba(0,0,0,0.15);
+        will-change: transform;
+    }
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    .sidebar-mobile-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
+    }
+    .sidebar-mobile-title {
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--gray-900);
+        letter-spacing: -0.02em;
+    }
+    .sidebar-mobile-close {
+        width: 36px;
+        height: 36px;
+        background: var(--gray-100);
+        border: none;
+        border-radius: 10px;
+        color: var(--gray-600);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        transition: var(--t-fast);
+    }
+    .sidebar-mobile-close:hover {
+        background: var(--gray-200);
+        color: var(--gray-900);
+    }
+    .sidebar-mobile-close [data-lucide] { width: 18px; height: 18px; stroke-width: 2.5; }
+
+    /* --- Nav items con más área táctil --- */
+    .nav-item {
+        padding: 12px 14px;
+        font-size: 14px;
+        min-height: 46px;
+    }
+    .nav-item.active::before { left: -10px; height: 22px; }
+    .nav-icon { width: 18px; height: 18px; }
+
+    /* --- Tab bar con close siempre visible --- */
+    .tab-bar {
+        min-height: 50px;
+        padding: 6px 12px 0;
+    }
+    .tab-item {
+        height: 40px;
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+    .tab-item.active { height: 42px; }
+    .tab-item .tab-close { opacity: 1; padding: 6px; }
+    .tab-item .tab-close [data-lucide] { width: 13px; height: 13px; }
+
+    /* --- Welcome --- */
+    .welcome-placeholder {
+        padding: 36px 20px 56px;
+        gap: 30px;
+    }
+    .welcome-hero { padding-top: 8px; }
+    .welcome-hero h1 { font-size: 26px; }
+    .welcome-hero p  { font-size: 14px; }
+    .welcome-icon-wrap { width: 72px; height: 72px; border-radius: 20px; }
+    .welcome-icon { width: 34px !important; height: 34px !important; }
+    .accesos-rapidos {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 10px;
+    }
+
+    /* --- Modales tipo bottom-sheet suave --- */
+    .modal-todas-overlay, .config-overlay {
+        padding: 12px;
+        align-items: center;
+    }
+    .modal-todas-card, .config-card {
+        max-height: 92vh;
+        max-height: 92dvh;
+        border-radius: var(--r-lg);
+    }
+    .modal-todas-header, .config-header { padding: 18px 18px 14px; }
+    .modal-todas-header h2, .config-header h2 { font-size: 17px; }
+    .modal-todas-cerrar, .config-cerrar { width: 36px; height: 36px; }
+    .modal-todas-body { padding: 18px; }
+    .modal-categoria-grid {
+        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+        gap: 8px;
+    }
+
+    /* --- Config: nav horizontal tipo tabs --- */
+    .config-layout { flex-direction: column; }
+    .config-nav {
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 8px 12px;
+        gap: 4px;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        flex-shrink: 0;
+    }
+    .config-nav::-webkit-scrollbar { display: none; }
+    .config-nav-item {
+        flex-direction: column;
+        gap: 4px;
+        padding: 8px 12px;
+        min-width: 76px;
+        flex-shrink: 0;
+        font-size: 10.5px;
+        text-align: center;
+        font-weight: 700;
+    }
+    .config-nav-item [data-lucide] { width: 18px; height: 18px; }
+    .config-content { padding: 18px 16px; }
+
+    /* --- Config footer --- */
+    .config-footer {
+        padding: 12px 16px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .config-footer-msg { font-size: 12px; width: 100%; text-align: center; }
+    .config-footer .btn-primario { flex: 1 1 auto; }
+
+    /* --- Cuenta: perfil más compacto --- */
+    .cuenta-perfil { padding: 16px; gap: 14px; }
+    .cuenta-perfil-foto { width: 56px; height: 56px; }
+    .cuenta-perfil-foto [data-lucide] { width: 24px; height: 24px; }
+    .cuenta-perfil-foto .avatar-inicial { font-size: 20px; }
+    .cuenta-perfil-info h4 { font-size: 15px; }
+    .cuenta-perfil-info p { font-size: 12.5px; }
+
+    /* --- Cuenta tabs más altas --- */
+    .cuenta-tab { padding: 11px 14px; font-size: 13px; }
+
+    /* --- Inputs con padding más generoso --- */
+    .config-field input[type="text"],
+    .config-field input[type="password"],
+    .config-field select {
+        padding: 12px 14px;
+        font-size: 14px;
+    }
+}
+
+/* --- Móvil pequeño (360px y similar) --- */
+@media (max-width: 480px) {
+    .app-header {
+        min-height: 52px;
+        padding: 6px 10px;
+        gap: 6px;
+    }
+    .logo-text { display: none; }
+    .logo-mark { width: 32px; height: 32px; border-radius: 9px; }
+    .logo-mark [data-lucide] { width: 17px; height: 17px; }
+    .avatar-config { width: 34px; height: 34px; }
+    .search-bar { height: 36px; padding: 0 10px; }
+
+    .sidebar { width: 260px; max-width: 82vw; }
+
+    .tab-bar { min-height: 46px; padding: 5px 10px 0; }
+    .tab-item { height: 38px; padding: 7px 10px; font-size: 12px; }
+    .tab-item.active { height: 40px; }
+    .tab-item [data-lucide] { width: 12px; height: 12px; }
+
+    .welcome-placeholder { padding: 28px 16px 48px; gap: 24px; }
+    .welcome-hero { padding-top: 4px; gap: 12px; }
+    .welcome-hero h1 { font-size: 22px; }
+    .welcome-hero p { font-size: 13.5px; }
+    .welcome-icon-wrap { width: 64px; height: 64px; border-radius: 18px; margin-bottom: 4px; }
+    .welcome-icon { width: 30px !important; height: 30px !important; }
+
+    .accesos-rapidos {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    .acceso-item { padding: 14px 10px; gap: 8px; }
+    .acceso-icon-wrap { width: 40px; height: 40px; border-radius: 10px; }
+    .acceso-icon { width: 18px; height: 18px; }
+    .acceso-nombre { font-size: 12.5px; }
+
+    .widgets-zona { grid-template-columns: 1fr; }
+    .widget-item { height: 220px; }
+
+    .modal-todas-card, .config-card { max-height: 94dvh; }
+    .modal-categoria-grid { grid-template-columns: 1fr; }
+    .config-content { padding: 16px 14px; }
+    .config-nav-item { min-width: 68px; padding: 7px 10px; }
+    .config-nav-item span { font-size: 10px; }
+    .config-panel-header h3 { font-size: 15px; }
 }
