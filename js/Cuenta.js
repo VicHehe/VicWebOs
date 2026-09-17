@@ -1,27 +1,29 @@
 // ============================================================
 //  Cuenta.js — Cuentas + apps + temas + widgets + espacio/monedas
+//  Incluye funciones globales de chequera (canjear / gastoBoleta)
 // ============================================================
 
 const CUENTAS_FILE = 'cuenta.json';
 const CUENTA_CONFIG_FILE = 'cuentaConfig.json';
+const CHEQUERA_FILE_BASE = 'app/chequera/';
 const SESION_KEY = 'vicwebos_cuenta';
 const ULTIMO_CODIGO_KEY = 'vicwebos_ultimo_codigo';
 
 // ============================================================
 //  CONSTANTES DE ESPACIO Y MONEDAS
-//  Todo esto es ajustable desde aquí si quieres rebalancear.
 // ============================================================
-const ESPACIO_INICIAL         = 50;    // espacio con el que empiezas
-const ESPACIO_POR_COMPRA      = 12;    // cuánto suma cada compra
-const COSTO_COMPRA_ESPACIO    = 2500;  // monedas que cuesta una compra
-const MONEDAS_INICIALES       = 0;     // monedas al crear cuenta
-const MAX_WIDGETS_ACTIVOS     = 3;     // tope de widgets activos
+const ESPACIO_INICIAL         = 50;
+const ESPACIO_POR_COMPRA      = 12;
+const COSTO_COMPRA_ESPACIO    = 2500;
+const MONEDAS_INICIALES       = 0;
+const MAX_WIDGETS_ACTIVOS     = 3;
+const MAX_MOVIMIENTOS_CHEQUERA = 500;
 
 let cuentaActual = null;
 let configCuentaActual = null;
 
 const CONFIG_CUENTA_DEFAULT = {
-    appsInstaladas: ['stor-he'],
+    appsInstaladas: ['stor-he', 'chequera'],
     temasInstalados: ['violeta'],
     temaActivo: 'violeta',
     widgetsInstalados: [],
@@ -56,7 +58,6 @@ async function leerTodasConfigCuentas() {
 async function obtenerConfigCuenta(codigo) {
     const all = await leerTodasConfigCuentas();
     const cfg = { ...CONFIG_CUENTA_DEFAULT, ...(all[codigo] || {}) };
-    // Migración: si es cuenta vieja sin espacioMaximo/monedas, se los ponemos
     if (typeof cfg.espacioMaximo !== 'number') cfg.espacioMaximo = ESPACIO_INICIAL;
     if (typeof cfg.monedas !== 'number') cfg.monedas = MONEDAS_INICIALES;
     return cfg;
@@ -66,6 +67,30 @@ async function guardarConfigCuenta(codigo, config) {
     const all = await leerTodasConfigCuentas();
     all[codigo] = config;
     return await ConfigBD.escribirArchivo(CUENTA_CONFIG_FILE, all);
+}
+
+// ============================================================
+//  MIGRACIÓN: garantiza que las apps por defecto estén presentes
+// ============================================================
+async function migrarAppsPorDefecto(codigo) {
+    const catalogo = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
+    const requeridas = catalogo
+        .filter(a => a.esBase || a.esDefault)
+        .map(a => a.id);
+
+    let huboCambios = false;
+
+    if (!configCuentaActual.appsInstaladas) configCuentaActual.appsInstaladas = [];
+    requeridas.forEach(id => {
+        if (!configCuentaActual.appsInstaladas.includes(id)) {
+            configCuentaActual.appsInstaladas.push(id);
+            huboCambios = true;
+        }
+    });
+
+    if (huboCambios) {
+        await guardarConfigCuenta(codigo, configCuentaActual);
+    }
 }
 
 // ============================================================
@@ -79,7 +104,6 @@ function obtenerMonedas() {
     return configCuentaActual?.monedas ?? MONEDAS_INICIALES;
 }
 
-// Calcula el espacio total usado por apps + temas + widgets instalados
 function calcularEspacioUsado() {
     if (!configCuentaActual) return 0;
 
@@ -109,7 +133,6 @@ function calcularEspacioLibre() {
     return obtenerEspacioMaximo() - calcularEspacioUsado();
 }
 
-// Valida si se puede instalar algo. Devuelve { ok, motivo }
 function puedeInstalar({ espacio = 0, monedas = 0 }) {
     if (!cuentaActual) return { ok: false, motivo: 'Necesitas una cuenta.' };
     if (calcularEspacioLibre() < espacio) {
@@ -121,15 +144,6 @@ function puedeInstalar({ espacio = 0, monedas = 0 }) {
     return { ok: true };
 }
 
-// Descuenta monedas. Puede ser negativo si no se valida antes.
-async function descontarMonedas(cantidad) {
-    if (!cuentaActual || cantidad <= 0) return;
-    configCuentaActual.monedas = Math.max(0, (configCuentaActual.monedas || 0) - cantidad);
-    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
-    if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
-}
-
-// Compra de espacio (llamada desde Stor-He)
 async function comprarEspacio() {
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
     if (obtenerMonedas() < COSTO_COMPRA_ESPACIO) {
@@ -140,6 +154,106 @@ async function comprarEspacio() {
     await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
     if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
     return { ok: true, espacioMaximo: configCuentaActual.espacioMaximo, monedas: configCuentaActual.monedas };
+}
+
+// ============================================================
+//  CHEQUERA — historial de movimientos (por usuario)
+// ============================================================
+function rutaChequera(codigo) {
+    return CHEQUERA_FILE_BASE + codigo + 'chequera.json';
+}
+
+async function leerChequeraUsuario() {
+    if (!cuentaActual) return { version: 1, movimientos: [] };
+    try {
+        const data = await ConfigBD.leerArchivo(rutaChequera(cuentaActual.codigo));
+        if (data && Array.isArray(data.movimientos)) return data;
+    } catch (e) { /* no existe */ }
+    return { version: 1, movimientos: [] };
+}
+
+async function guardarChequeraUsuario(data) {
+    if (!cuentaActual) return;
+    await ConfigBD.escribirArchivo(rutaChequera(cuentaActual.codigo), data);
+}
+
+function generarIdMovimiento() {
+    return 'mov_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
+}
+
+// ============================================================
+//  CANJEAR: gana monedas (llamable desde cualquier app)
+//  Firma: canjear(icono, fuente, texto, cantidad)
+// ============================================================
+async function canjear(icono, fuente, texto, cantidad) {
+    if (!cuentaActual) throw new Error('Necesitas una cuenta.');
+    if (!cantidad || cantidad <= 0) throw new Error('La cantidad debe ser positiva.');
+
+    // 1) Sumar monedas al usuario
+    configCuentaActual.monedas = (configCuentaActual.monedas || 0) + cantidad;
+    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+
+    // 2) Añadir entrada al historial de la chequera
+    const cheq = await leerChequeraUsuario();
+    cheq.movimientos.unshift({
+        id: generarIdMovimiento(),
+        tipo: 'canje',
+        icono: icono || '💰',
+        fuente: fuente || 'app',
+        texto: texto || 'Recompensa',
+        cantidad: cantidad,
+        fecha: new Date().toISOString()
+    });
+    if (cheq.movimientos.length > MAX_MOVIMIENTOS_CHEQUERA) {
+        cheq.movimientos = cheq.movimientos.slice(0, MAX_MOVIMIENTOS_CHEQUERA);
+    }
+    cheq.actualizado = new Date().toISOString();
+    await guardarChequeraUsuario(cheq);
+
+    // 3) Refrescar UI global
+    if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
+    if (typeof window.__notificarCambioChequera === 'function') window.__notificarCambioChequera();
+
+    return { ok: true, monedas: configCuentaActual.monedas };
+}
+
+// ============================================================
+//  GASTO BOLETA: pierde monedas (llamable desde cualquier app)
+//  Firma: gastoBoleta(icono, fuente, texto, cantidad)
+// ============================================================
+async function gastoBoleta(icono, fuente, texto, cantidad) {
+    if (!cuentaActual) throw new Error('Necesitas una cuenta.');
+    if (!cantidad || cantidad <= 0) throw new Error('La cantidad debe ser positiva.');
+    if ((configCuentaActual.monedas || 0) < cantidad) {
+        throw new Error(`No tienes suficientes monedas (tienes ${configCuentaActual.monedas || 0}, necesitas ${cantidad}).`);
+    }
+
+    // 1) Restar monedas al usuario
+    configCuentaActual.monedas = (configCuentaActual.monedas || 0) - cantidad;
+    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+
+    // 2) Añadir entrada al historial de la chequera
+    const cheq = await leerChequeraUsuario();
+    cheq.movimientos.unshift({
+        id: generarIdMovimiento(),
+        tipo: 'gasto',
+        icono: icono || '🧾',
+        fuente: fuente || 'app',
+        texto: texto || 'Gasto',
+        cantidad: -cantidad,
+        fecha: new Date().toISOString()
+    });
+    if (cheq.movimientos.length > MAX_MOVIMIENTOS_CHEQUERA) {
+        cheq.movimientos = cheq.movimientos.slice(0, MAX_MOVIMIENTOS_CHEQUERA);
+    }
+    cheq.actualizado = new Date().toISOString();
+    await guardarChequeraUsuario(cheq);
+
+    // 3) Refrescar UI global
+    if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
+    if (typeof window.__notificarCambioChequera === 'function') window.__notificarCambioChequera();
+
+    return { ok: true, monedas: configCuentaActual.monedas };
 }
 
 // ---------- VALIDACIÓN ----------
@@ -221,6 +335,8 @@ async function iniciarSesion(codigo) {
     cuentaActual = cuenta;
     configCuentaActual = await obtenerConfigCuenta(codigoUp);
 
+    await migrarAppsPorDefecto(codigoUp);
+
     localStorage.setItem(SESION_KEY, codigoUp);
     localStorage.setItem(ULTIMO_CODIGO_KEY, codigoUp);
 
@@ -258,6 +374,9 @@ async function restaurarSesion() {
         if (!cuenta) { localStorage.removeItem(SESION_KEY); return null; }
         cuentaActual = cuenta;
         configCuentaActual = await obtenerConfigCuenta(codigo);
+
+        await migrarAppsPorDefecto(codigo);
+
         cargarCSSTema(obtenerTemaActivo());
         actualizarAvatarHeader();
         return cuenta;
@@ -335,9 +454,6 @@ async function desinstalarTema(id) {
     await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
 }
 
-// ============================================================
-//  APLICAR TEMA (público — guarda en cuentaConfig.json)
-// ============================================================
 async function aplicarTema(id) {
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
     const catalogo = typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : [];
@@ -349,9 +465,6 @@ async function aplicarTema(id) {
     cargarCSSTema(id);
 }
 
-// ============================================================
-//  CARGAR CSS DEL TEMA (interno — solo cambia el <link>)
-// ============================================================
 function cargarCSSTema(id) {
     const catalogo = typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : [];
     const tema = catalogo.find(t => t.id === id);
