@@ -1,15 +1,51 @@
 ================================================================
-  REGLAS PARA VICWEBOS
+  VICWEBOS — DOCUMENTO MAESTRO DEL PROYECTO
   Última actualización: 2026
 ================================================================
 
-IMPORTANTE — DOS REPOSITORIOS SEPARADOS:
-
-  1) VicWebOs/         → REPO DE CÓDIGO (público o privado)
-  2) vicwebos-data/    → REPO DE DATOS (privado, uno por grupo)
+Este documento describe TODA la arquitectura, reglas y estado
+actual de VicWebOs. Cualquier desarrollador (humano o IA) que
+retome el proyecto debe leerlo completo antes de tocar código.
 
 ================================================================
-  ESTRUCTURA GENERAL DE REPOS
+  1. FILOSOFÍA DEL PROYECTO
+================================================================
+
+VicWebOs es un "sistema operativo web" personal o grupal. No es
+una app normal: es un shell con apps instalables, temas
+intercambiables y widgets. Está pensado para grupos pequeños
+(pareja, amigos, familia) que comparten un mismo repositorio de
+datos.
+
+Objetivos:
+    - Instalable y desinstalable (apps, temas, widgets)
+    - Persistente (todo se guarda)
+    - Personalizable (temas, accesos, widgets)
+    - Gamificado (monedas, espacio, recompensas)
+    - Auto-contenido (no requiere backend)
+
+================================================================
+  2. ARQUITECTURA DE REPOSITORIOS (CRÍTICO)
+================================================================
+
+Hay DOS repositorios separados:
+
+REPO 1 — CÓDIGO — VicWebOs/
+    Contiene TODO el código fuente del OS y las apps.
+    Puede ser público o privado.
+    Se hostea en GitHub Pages / Vercel / Netlify / local.
+
+REPO 2 — DATOS — vicwebos-data/
+    Contiene TODOS los datos del grupo (cuentas, configs, apps).
+    Debe ser PRIVADO.
+    El usuario lo conecta con un token de GitHub desde el OS.
+
+El código se actualiza una sola vez para todos. Los datos son
+privados por grupo. Cada grupo puede tener su propio
+vicwebos-data compartido con sus amigos.
+
+================================================================
+  3. ESTRUCTURA DE ARCHIVOS
 ================================================================
 
 REPO DE CÓDIGO — VicWebOs/
@@ -19,13 +55,14 @@ REPO DE CÓDIGO — VicWebOs/
       README.md
       REGLAS_APPS.txt
       js/
-        JsRutas.js        ← catálogo de APPS
-        JsTemas.js        ← catálogo de TEMAS
-        JsWidgets.js      ← catálogo de WIDGETS
-        ConfigBD.js
-        Cuenta.js
-        configuracion.js
-        JsIndex.js
+        JsRutas.js          ← catálogo de APPS
+        JsTemas.js          ← catálogo de TEMAS
+        JsWidgets.js        ← catálogo de WIDGETS
+        ConfigBD.js         ← conexión GitHub + caché
+        Cuenta.js           ← cuentas, apps, temas, widgets,
+                              economía, chequera, migración
+        configuracion.js    ← modal de configuración (UI)
+        JsIndex.js          ← shell: pestañas, sidebar, API
       herramientas/
         {nombreApp}/
           index.html
@@ -53,136 +90,415 @@ REPO DE DATOS — vicwebos-data/
           {nombreApp}(documento)/
 
 ================================================================
-  REGLA 1 — DATOS EN JSON POR APP
+  4. REGLAS DE DATOS
 ================================================================
 
-(Vive en vicwebos-data/app/{nombreApp}/ — ver documento
-original para detalles completos.)
+REGLA 1 — JSON POR APP
+    Cada app guarda sus datos en vicwebos-data/app/{nombreApp}/
+    Puede usar 1 JSON global, varios por usuario, o ambos.
+    Patrón global:      {nombreApp}.json
+    Patrón por usuario: {codigoUsuario}{nombreApp}.json
+    Ejemplo usuario 1234A:
+        app/calendario/calendario.json
+        app/calendario/1234Acalendario.json
 
-================================================================
-  REGLA 2 — ARCHIVOS BINARIOS EN CARPETAS SEPARADAS
-================================================================
+REGLA 2 — BINARIOS
+    PROHIBIDO guardar imágenes/audio/video en base64 dentro de
+    los JSON (excepción: cuenta.json que puede guardar la foto
+    de perfil del usuario en base64).
+    Los binarios van en subcarpetas dentro de la carpeta de la app:
+        app/{nombreApp}/{nombreApp}(imagen)/archivo.png
+        app/{nombreApp}/{nombreApp}(audio)/archivo.mp3
+        app/{nombreApp}/{nombreApp}(video)/archivo.mp4
+        app/{nombreApp}/{nombreApp}(documento)/archivo.pdf
+    En el JSON se guarda solo la ruta relativa.
 
-(Viven en vicwebos-data/app/{nombreApp}/{nombreApp}(tipo)/)
-
-================================================================
-  REGLA 3 — ESTRUCTURA DE LAS HERRAMIENTAS (APPS)
-================================================================
-
-Cada app vive en:
-    VicWebOs/herramientas/{nombreApp}/
+REGLA 3 — ESTRUCTURA DE APPS
+    herramientas/{nombreApp}/
         index.html
         style.css
         script.js
+    Nombres fijos, sin subcarpetas, sin excepciones.
 
-Registro: VicWebOs/js/JsRutas.js
-
-================================================================
-  REGLA 4 — TEMAS
-================================================================
-
-Cada tema vive en:
-    VicWebOs/Temas/{nombreTema}.css
-
-CARACTERÍSTICAS:
-    - UN ARCHIVO CSS por tema. Nada más.
-    - Se carga en index.html así:
+REGLA 4 — TEMAS
+    Cada tema es UN archivo CSS:
+        Temas/{nombreTema}.css
+    Se carga en index.html con:
         <link rel="stylesheet" href="Temas/{nombre}.css" id="tema-activo">
-    - Para cambiar de tema, se intercambia el href del <link>
-      con id="tema-activo" (ver Cuenta.js → aplicarTema()).
-    - El tema puede sobreescribir CUALQUIER regla CSS del
-      style.css base: colores, tamaños, layout, tipografía,
-      sombras, animaciones, TODO.
-    - Como mínimo, todo tema debe definir las variables del
-      :root (--violet-XXX, --bg, --bg-alt, etc.) para no
-      romper la UI.
-    - Si un tema NO define el layout, hereda el del style.css
-      base automáticamente.
+    Al cambiar tema, se reemplaza el <link id="tema-activo">.
+    El tema puede sobreescribir CUALQUIER regla CSS del style.css
+    base: colores, layout, tipografía, sombras, todo.
 
-TEMA BASE OBLIGATORIO:
-    Temas/violeta.css — fondo blanco, violeta clásico.
-    Es el default. Se carga siempre al iniciar VicWebOs si
-    no hay otro guardado en la cuenta.
-
-REGLAS:
-    - Nombre del archivo en minúsculas: violeta.css, no Violeta.CSS
-    - Sin subcarpetas dentro de Temas/
-    - Sin imágenes/iconos propios (si algún tema los necesita,
-      se suben al repo de datos y se referencian por URL completa)
-    - Registrar en JsTemas.js con:
-        { id, nombre, icono, descripcion, categoria, esBase, ruta }
-    - Añadir en JsTemas.js un campo "colores" con las variables
-      principales (--violet-100, --violet-300, --violet-500,
-      --bg, --bg-alt, --white) para que Stor-He pueda mostrar
-      un preview correcto sin leer el CSS.
-
-================================================================
-  REGLA 5 — WIDGETS
-================================================================
-
-Cada widget vive en:
-    VicWebOs/Widgets/{nombreWidget}/
+REGLA 5 — WIDGETS
+    Widgets/{nombreWidget}/
         index.html
         style.css
         script.js
+    Igual que apps pero se renderizan en el welcome screen.
 
-CARACTERÍSTICAS:
-    - Misma estructura que las apps (Regla 3)
-    - Los widgets se renderizan dentro de la welcomeScreen del
-      OS (o donde el usuario los coloque), no en pestañas.
-    - El padre comunica con el widget vía:
-        iframe.contentWindow.postMessage()  o
-        window.parent.__vicwebos.*
-    - Los datos del widget, si los necesita, van en:
-        vicwebos-data/app/{nombreWidget}/
-      con el mismo patrón que cualquier app (Regla 1).
-
-REGLAS:
-    - Nombre de carpeta en minúsculas con guiones: reloj-mundial
-    - Nombres fijos: index.html, style.css, script.js
-    - Registrar en JsWidgets.js con:
-        { id, nombre, icono, descripcion, categoria, esBase, ruta }
+REGLA 6 — COMPATIBILIDAD CON TEMAS
+    APPS: NO están obligadas. Recomendado usar var(--algo, fallback).
+    WIDGETS: SÍ están obligados. Deben leer variables CSS del padre
+    y escuchar mensajes 'vicwebos_tema_cambio'.
+    STOR-HE: Hereda el tema (es una app pero por coherencia visual
+    se comporta como widget).
 
 ================================================================
-  REGLA 6 — COMPATIBILIDAD CON TEMAS
+  5. SISTEMA DE CUENTAS
 ================================================================
 
-APPS (herramientas/):
-    - NO están obligadas a ser compatibles con los temas.
-    - Cada app es libre de elegir su propio estilo visual.
-    - Se recomienda (pero no es obligatorio) usar las variables
-      CSS del tema (--violet-500, --bg, etc.) cuando sea posible.
+Crear cuenta:
+    - Nombre
+    - Pronombre (el / ella / elle)
+    - Código único de 4 dígitos + 1 letra mayúscula (formato: 1234A)
+    - Foto opcional (se guarda en base64 en cuenta.json)
 
-WIDGETS (Widgets/):
-    - SÍ deben ser compatibles con TODOS los temas, actuales
-      y futuros. Esto es obligatorio.
-    - Como viven en un <iframe>, NO heredan las variables CSS
-      del padre automáticamente. Deben leerlas al cargar:
+Entrar con código:
+    - El código se guarda en localStorage (device-specific)
 
-        const rootPadre = window.parent.document.documentElement;
-        const stylePadre = getComputedStyle(rootPadre);
-        const v500 = stylePadre.getPropertyValue('--violet-500');
+Datos por cuenta (cuentaConfig.json):
+    {
+        "1234A": {
+            "appsInstaladas": ["stor-he", "chequera"],
+            "temasInstalados": ["violeta"],
+            "temaActivo": "violeta",
+            "widgetsInstalados": [],
+            "widgetsActivos": [],
+            "espacioMaximo": 50,
+            "monedas": 0,
+            "accesosRapidos": ["stor-he", "chequera"]
+        }
+    }
 
-      Y aplicarlas a su propio :root.
+Migración automática:
+    Al iniciar sesión, migrarAppsPorDefecto() añade apps con
+    esBase:true o esDefault:true que el usuario no tenga.
 
-    - Deben escuchar el mensaje { type: 'vicwebos_tema_cambio' }
-      para re-aplicar las variables cuando el usuario cambia de
-      tema. El padre envía este mensaje a todos los iframes de
-      widgets después de aplicar un tema.
+================================================================
+  6. SISTEMA DE ESPACIO Y MONEDAS
+================================================================
 
-    - Fallback obligatorio: si no pueden leer las variables del
-      padre (cross-origin o error), deben usar colores por
-      defecto razonables.
+CONSTANTES ACTUALES (en Cuenta.js):
+    ESPACIO_INICIAL        = 50
+    ESPACIO_POR_COMPRA     = 12
+    COSTO_COMPRA_ESPACIO   = 2500
+    MONEDAS_INICIALES      = 0
+    MAX_WIDGETS_ACTIVOS    = 3
+    MAX_ACCESOS_RAPIDOS    = 8
+    MAX_TABS               = 6 (pestañas simultáneas en JsIndex.js)
+    MAX_MOVIMIENTOS_CHEQUERA = 500
 
-    - El CSS del widget debe usar `var(--variable, fallback)`
-      en TODAS partes donde pueda haber color, sombra, radio, etc.
+COSTOS DE CATÁLOGO:
+    - App: 6 de espacio, 0 monedas (por defecto)
+    - Widget: 4 de espacio, varía en monedas
+    - Tema: 2 de espacio, 0 monedas
+    - Apps/temas base (esBase:true): 0 de todo, no desinstalables
+    - Puedes poner monedas a cualquier cosa (ej: dados = 15)
 
-    - Lista mínima de variables a heredar:
-        --violet-50..700, --white, --bg, --bg-alt,
-        --gray-50..900, --border, --text, --text-2, --text-3,
-        --shadow-*, --accent-shadow*, --r-*
+COMPRA DE ESPACIO:
+    Desde Stor-He, la card "Ampliar espacio" cuesta 2500 monedas
+    y da +12 de espacio.
 
-PLANTILLA DE HERENCIA DE TEMA (copiar en cada widget):
+================================================================
+  7. CHEQUERA Y ECONOMÍA
+================================================================
+
+La Chequera es una app del sistema (esBase + esDefault).
+Registra TODOS los movimientos de monedas.
+
+Ubicación de datos:
+    app/chequera/{codigo}chequera.json  (uno por usuario)
+
+Estructura:
+    {
+        "version": 1,
+        "movimientos": [
+            {
+                "id": "mov_xxx",
+                "tipo": "canje" | "gasto",
+                "icono": "texto",
+                "fuente": "nombreApp",
+                "texto": "descripción",
+                "cantidad": 50 (positivo) o -20 (negativo),
+                "fecha": "ISO"
+            }
+        ]
+    }
+
+API GLOBAL (llamable desde cualquier app):
+    // Ganar monedas (aparece en chequera como +)
+    window.parent.__vicwebos.canjear(icono, fuente, texto, cantidad)
+
+    // Gastar monedas (aparece en chequera como -)
+    window.parent.__vicwebos.gastoBoleta(icono, fuente, texto, cantidad)
+
+    // Leer movimientos
+    const data = await window.parent.__vicwebos.chequeraLeer();
+
+Ambas funciones:
+    - Actualizan configCuentaActual.monedas
+    - Escriben en el JSON de chequera
+    - Actualizan el header en el shell
+    - Notifican a la chequera abierta por postMessage
+    - Lanzan error si no hay cuenta o monedas insuficientes
+
+NOTIFICACIÓN CHEQUERA:
+    Mensaje: { type: 'vicwebos_chequera_cambio' }
+    La chequera lo escucha y se refresca automáticamente.
+
+================================================================
+  8. API PARA IFRAMES
+================================================================
+
+Desde cualquier app/widget (que viva en un iframe):
+    const api = window.parent.__vicwebos;
+    const bd  = window.parent.ConfigBD;
+
+MÉTODOS DISPONIBLES:
+
+    // Catálogo
+    api.obtenerCatalogo()   → array de apps
+    api.obtenerTemas()      → array de temas
+    api.obtenerWidgets()    → array de widgets
+
+    // Estado del usuario
+    api.obtenerInstaladas()        → ids de apps instaladas
+    api.obtenerTemasInstalados()   → ids de temas instalados
+    api.obtenerWidgetsInstalados() → ids de widgets instalados
+    api.obtenerWidgetsActivos()    → ids de widgets activos
+    api.obtenerTemaActivo()        → id del tema activo
+    api.obtenerAccesosRapidos()    → ids de accesos rápidos
+    api.estaInstalada(id)          → bool
+    api.tieneCuenta()              → bool
+    api.estaConectado()            → bool
+    api.obtenerCuenta()            → { nombre, codigo } o null
+
+    // Economía
+    api.obtenerEspacioMaximo()   → int
+    api.obtenerEspacioUsado()    → int
+    api.obtenerEspacioLibre()    → int
+    api.obtenerMonedas()         → int
+    api.puedeInstalar({espacio, monedas}) → { ok, motivo }
+    api.comprarEspacio()         → Promise
+
+    // Chequera
+    api.chequeraLeer()           → Promise<data>
+    api.canjear(icono, fuente, texto, cantidad)
+    api.gastoBoleta(icono, fuente, texto, cantidad)
+
+    // Acciones (todas devuelven Promise)
+    api.instalar(id)
+    api.desinstalar(id)
+    api.abrirApp(id)
+    api.instalarTema(id)
+    api.desinstalarTema(id)
+    api.aplicarTema(id)
+    api.instalarWidget(id)
+    api.desinstalarWidget(id)
+    api.activarWidget(id)
+    api.desactivarWidget(id)
+    api.activarAccesoRapido(id)
+    api.desactivarAccesoRapido(id)
+
+    // Constantes
+    api.ESPACIO_INICIAL
+    api.ESPACIO_POR_COMPRA
+    api.COSTO_COMPRA_ESPACIO
+    api.MAX_WIDGETS_ACTIVOS
+    api.MAX_ACCESOS_RAPIDOS
+
+DATA (ConfigBD):
+    bd.leerArchivo(path)         → Promise<data|null>
+    bd.escribirArchivo(path,data) → Promise<{ok}>
+    bd.estaConectado()           → bool
+    bd.obtenerInfo()             → { owner, repo }
+
+NOTA: ConfigBD trabaja SIEMPRE sobre el repo de DATOS
+(vicwebos-data). Los paths son relativos a su raíz.
+
+================================================================
+  9. SISTEMA DE TEMAS
+================================================================
+
+Temas base oficiales actualmente:
+    - violeta (base, default) — fondo blanco, violeta clásico
+    - rosa — rosados pastel
+    - oceano — azules
+    - bosque — verdes
+    - atardecer — naranjas
+    - noche — oscuro (fondo #0F0F1A)
+
+Cada tema es un archivo CSS en Temas/{id}.css que define las
+variables del :root:
+    --violet-50..700
+    --white, --bg, --bg-alt
+    --gray-50..900
+    --border, --text, --text-2, --text-3
+    --shadow-xs..xl, --shadow-glow
+    --accent-gradient, --accent-gradient-hover
+    --accent-shadow, --accent-shadow-hover
+    --accent-text-gradient
+    --r-sm, --r-md, --r-lg, --r-xl, --r-full
+
+TEMAS PERSONALIZADOS: un tema nuevo es solo añadir su .css a
+Temas/ y su entrada en JsTemas.js. No requiere tocar el shell.
+
+STOR-HE + WIDGETS: heredan las variables del padre leyendo
+getComputedStyle(document.documentElement) y escuchando el
+mensaje 'vicwebos_tema_cambio'.
+
+================================================================
+  10. SISTEMA DE PESTAÑAS
+================================================================
+
+- Máximo MAX_TABS (actualmente 6) pestañas simultáneas.
+- Cada pestaña es un <iframe> con la app cargada.
+- Al abrir una app ya abierta, se activa su pestaña.
+- Al cerrar una pestaña, se destruye el iframe.
+- El welcome screen se muestra cuando no hay ninguna pestaña.
+
+Al abrir herramientas desde el sidebar o el modal "Ver todas"
+se activan o se crean pestañas.
+
+================================================================
+  11. STOR-HE
+================================================================
+
+Stor-He es la tienda. Es la ÚNICA forma de instalar/desinstalar
+apps, temas y widgets. También permite comprar espacio.
+
+Estructura:
+    - Header con logo + recursos (espacio, monedas)
+    - 3 tabs: Apps | Temas | Widgets
+    - Card de ampliación de espacio (solo en Apps)
+    - Cards de cada item con: icono, nombre, descripción, costos,
+      acciones (Instalar / Desinstalar / Aplicar / Abrir)
+
+Validaciones:
+    - No permite instalar si falta espacio o monedas
+    - Muestra el motivo en el botón deshabilitado
+    - Apps con esBase:true no se pueden desinstalar
+    - Temas con esBase:true no se pueden desinstalar
+
+Compatible con temas (hereda variables CSS del padre).
+
+================================================================
+  12. APLICACIONES ACTUALES
+================================================================
+
+INSTALADAS POR DEFECTO (para toda cuenta nueva):
+    - stor-he (esBase, esDefault)
+    - chequera (esBase, esDefault)
+
+APPS DE USUARIO (instalables desde Stor-He):
+    - calculadora (espacio: 6)
+        Calculadora con funciones premium desbloqueables:
+        - Intereses (5 monedas): simple + compuesto
+        - Fechas (5 monedas): diferencia entre fechas
+        - Gráficos (10 monedas): pie chart SVG
+        Historial guardado en IndexedDB (últimos 3 cálculos).
+
+================================================================
+  13. WIDGETS ACTUALES
+================================================================
+
+    - reloj-mundial (espacio: 4, monedas: 0)
+        Muestra hasta 4 zonas horarias configurables.
+        Lista curada de países agrupada por continente.
+        Datos por usuario en app/reloj-mundial/.
+
+    - dados (espacio: 4, monedas: 15)
+        Dos dados 3D con CSS puro, historial de la sesión.
+        Sin persistencia.
+
+Los widgets se activan/desactivan desde Configuración >
+Apariencia. Máximo 3 activos simultáneamente.
+
+================================================================
+  14. ACCESOS RÁPIDOS
+================================================================
+
+Aparecen en el welcome screen. Máximo 8.
+Se configuran desde Configuración > Apariencia.
+Por defecto: las apps base (stor-he, chequera).
+Al desinstalar una app, se quita también de accesos rápidos.
+
+================================================================
+  15. CONFIGURACIÓN
+================================================================
+
+Modal con 4 secciones:
+
+CUENTA:
+    - Crear cuenta / Entrar con código
+    - Ver perfil si hay sesión (foto, nombre, código)
+    - Cerrar sesión
+
+APARIENCIA:
+    - Tema por defecto (radio de temas instalados)
+    - Widgets activos (toggle por widget instalado, máx 3)
+    - Accesos rápidos (checkbox por app instalada, máx 8)
+
+APPS INSTALADAS:
+    - Lista de apps, con opción de desinstalar (excepto base)
+
+BASE DE DATOS:
+    - Conectar con GitHub (token + repo)
+    - Ver info del repo conectado
+    - Desconectar repositorio
+
+================================================================
+  16. LIMITACIONES CONOCIDAS / DEUDAS TÉCNICAS
+================================================================
+
+1. CONCURRENCIA DE ESCRITURA
+   Si dos usuarios escriben el mismo JSON al mismo tiempo,
+   el segundo puede pisar al primero. Actualmente no hay
+   retry ni merge automático.
+   Mitigación: usar archivos por usuario siempre que sea posible.
+   Fix pendiente: añadir retry con merge en ConfigBD.
+
+2. SUBIDA DE BINARIOS NO IMPLEMENTADA
+   ConfigBD solo escribe texto (JSON). Falta un método
+   subirArchivo() para subir imágenes/audio/video a GitHub.
+   Pendiente para cuando una app lo necesite.
+
+3. NOTIFICACIONES GLOBALES
+   No hay sistema de toasts globales desde el shell hacia el
+   usuario. Solo alert() de las apps.
+
+4. SIN TIEMPO REAL
+   No hay WebSocket. Para sincronización en vivo habría que
+   hacer polling o usar un servicio externo.
+
+5. LÍMITE DE 5000 requests/hora de GitHub
+   Si una app escribe muy seguido, agota el límite.
+   Recomendado: acumular cambios y guardar cada 10-30s.
+
+================================================================
+  17. CHECKLIST PARA CREAR UNA APP NUEVA
+================================================================
+
+1. Decidir el id (minúsculas, sin guiones, ej: "calculadora")
+2. Crear herramientas/{id}/ con index.html, style.css, script.js
+3. Registrar en JsRutas.js con:
+    {
+        id, nombre, icono (nombre lucide), ruta,
+        descripcion, categoria, esBase, esDefault,
+        espacio (int), monedas (int)
+    }
+4. Decidir qué guarda:
+    - Nada → no necesita JSON
+    - Global → app/{id}/{id}.json
+    - Por usuario → app/{id}/{codigo}{id}.json
+    - Ambos → ambos archivos
+5. ¿Usa monedas? Usar api.gastoBoleta() / api.canjear()
+6. ¿Necesita binarios? Ir a subcarpetas (regla 2)
+7. Compatibilidad con temas:
+    - Recomendado (no obligatorio) para apps
+    - OBLIGATORIO para widgets y para Stor-He
+
+TEMPLATE DE HERENCIA DE TEMA (copiar en cada app/widget):
 
     function aplicarTemaDelPadre() {
         try {
@@ -196,7 +512,9 @@ PLANTILLA DE HERENCIA DE TEMA (copiar en cada widget):
                 '--gray-500','--gray-600','--gray-700','--gray-800','--gray-900',
                 '--border','--text','--text-2','--text-3',
                 '--shadow-xs','--shadow-sm','--shadow-md','--shadow-lg','--shadow-xl',
+                '--accent-gradient','--accent-gradient-hover',
                 '--accent-shadow','--accent-shadow-hover',
+                '--accent-text-gradient',
                 '--r-sm','--r-md','--r-lg','--r-xl','--r-full'
             ];
             vars.forEach(v => {
@@ -215,38 +533,98 @@ PLANTILLA DE HERENCIA DE TEMA (copiar en cada widget):
     document.addEventListener('DOMContentLoaded', aplicarTemaDelPadre);
 
 ================================================================
-  TABLA RESUMEN
+  18. REGLAS DE ESTILO Y UX
 ================================================================
 
-  TIPO          → DÓNDE VIVE                        → CATÁLOGO
-  ----------------------------------------------------------------
-  App           → herramientas/{nombre}/            → JsRutas.js
-  Tema          → Temas/{nombre}.css                → JsTemas.js
-  Widget        → Widgets/{nombre}/                 → JsWidgets.js
-  Datos de app  → vicwebos-data/app/{nombre}/       (repo datos)
+ICONOS:
+    - Usar SIEMPRE iconos Lucide (https://lucide.dev/icons)
+    - NO usar emojis en la UI. Causan problemas entre sistemas
+      operativos (Windows 10 no renderiza algunos).
+    - Excepción: emojis decorativos que ya existían en el
+      proyecto (banderas de países en reloj-mundial). Evaluar
+      caso a caso.
+
+COLORES:
+    - NUNCA hardcodear colores. Usar var(--algo, fallback).
+    - El fallback debe ser el color por defecto del tema violeta.
+
+LAYOUT:
+    - PC: ancho máximo razonable (800-1100px), grid si aplica
+    - Móvil: apilado, sin scroll horizontal
+    - Overflow-y: auto cuando el contenido pueda no caber
+
+ESPACIADO:
+    - Sistema de spacing consistente (4, 8, 12, 16, 20, 24, 32)
+    - Radios: usar var(--r-sm/md/lg/xl/full)
 
 ================================================================
-  API DISPONIBLE (recordatorio)
+  19. FLUJO DE INICIO DE UNA CUENTA NUEVA
 ================================================================
 
-En el shell (index.html + js/):
-    window.__vicwebos.obtenerCatalogo()   → apps
-    window.__vicwebos.obtenerTemas()      → temas
-    window.__vicwebos.obtenerWidgets()    → widgets
-    window.__vicwebos.aplicarTema(id)     → cambia tema
-    window.__vicwebos.instalarTema(id)
-    window.__vicwebos.instalarWidget(id)
-    window.__vicwebos.activarWidget(id)
-    window.__vicwebos.desactivarWidget(id)
-    ...
+1. Abrir VicWebOs → pantalla de login/registro
+2. El usuario intenta registrarse pero no hay repo conectado
+   → se muestra aviso para conectar GitHub primero
+3. Configurar Base de Datos → conectar con GitHub (token+repo)
+4. Crear cuenta (nombre, pronombre, foto, código)
+5. Se crea cuentaConfig.json con:
+   - appsInstaladas: [stor-he, chequera]
+   - tema: violeta
+   - accesosRapidos: [stor-he, chequera]
+6. Se abre el welcome screen con saludo personalizado
+7. El usuario puede:
+   - Abrir Stor-He para instalar más apps
+   - Abrir Chequera para ver sus monedas (0 al inicio)
+   - Configurar tema, widgets, accesos
 
-En apps/widgets (iframes):
-    window.parent.__vicwebos.*
-    window.parent.ConfigBD.*
+================================================================
+  20. API DE CHEQUERA — EJEMPLO COMPLETO
+================================================================
 
-En datos (JSON):
-    ConfigBD.leerArchivo(path)
-    ConfigBD.escribirArchivo(path, data)
+Desde cualquier app que quiera dar monedas al usuario:
+
+    const api = window.parent.__vicwebos;
+    try {
+        await api.canjear(
+            'trofeo',              // icono (nombre lucide o texto)
+            'mi_app',              // fuente (nombre de la app)
+            'Ganaste un logro',    // texto descriptivo
+            50                     // cantidad
+        );
+        // Al usuario se le suman 50 monedas
+        // Aparece +50 en su chequera
+    } catch (e) {
+        console.error('No se pudo dar monedas:', e);
+    }
+
+Desde cualquier app que quiera cobrar al usuario:
+
+    try {
+        await api.gastoBoleta(
+            'calc',
+            'calculadora',
+            'Función Intereses',
+            5
+        );
+        // Al usuario se le restan 5 monedas
+        // Aparece -5 en su chequera
+    } catch (e) {
+        // Si no tiene monedas suficientes, lanza error
+        alert(e.message);
+    }
+
+================================================================
+  21. CÓMO PROBAR LOCALMENTE
+================================================================
+
+1. Abrir VicWebOs (con iniciar.bat o servidor local)
+2. Configurar Base de Datos con un repo de prueba privado
+3. Crear cuenta
+4. Abrir Stor-He → Instalar Calculadora
+5. Ir a Chequera → ver saldo en 0
+6. Abrir Calculadora → intentar comprar función
+7. Fallará por falta de monedas → mensaje correcto
+8. Para probar más fácil, desde consola del navegador:
+   window.parent.__vicwebos.canjear('bug', 'test', 'Monedas de prueba', 100)
 
 ================================================================
   FIN DEL DOCUMENTO
