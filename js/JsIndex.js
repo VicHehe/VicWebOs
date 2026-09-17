@@ -2,7 +2,7 @@
 //  JsIndex.js — Pestañas + sidebar (solo instaladas) + API
 // ============================================================
 
-const MAX_TABS = 5;
+const MAX_TABS = 10;
 let tabs = [];
 let activeTabId = null;
 
