@@ -1,5 +1,5 @@
 // ============================================================
-//  Cuenta.js — Sistema de cuentas (solo GitHub)
+//  Cuenta.js — Sistema de cuentas + apps + temas + widgets
 // ============================================================
 
 const CUENTAS_FILE = 'cuenta.json';
@@ -9,6 +9,13 @@ const ULTIMO_CODIGO_KEY = 'vicwebos_ultimo_codigo';
 
 let cuentaActual = null;
 let configCuentaActual = null;
+
+const CONFIG_CUENTA_DEFAULT = {
+    appsInstaladas: ['stor-he'],
+    temasInstalados: ['violeta'],
+    temaActivo: 'violeta',
+    widgetsInstalados: []
+};
 
 // ============================================================
 //  CUENTAS
@@ -39,7 +46,7 @@ async function leerTodasConfigCuentas() {
 
 async function obtenerConfigCuenta(codigo) {
     const all = await leerTodasConfigCuentas();
-    return all[codigo] || { appsInstaladas: ['stor-he'], theme: 'light' };
+    return { ...CONFIG_CUENTA_DEFAULT, ...(all[codigo] || {}) };
 }
 
 async function guardarConfigCuenta(codigo, config) {
@@ -117,7 +124,7 @@ async function crearCuenta({ foto, nombre, pronombre, codigo }) {
 
     cuentas.push(nueva);
     await guardarCuentas(cuentas);
-    await guardarConfigCuenta(codigoUp, { appsInstaladas: ['stor-he'], theme: 'light' });
+    await guardarConfigCuenta(codigoUp, { ...CONFIG_CUENTA_DEFAULT });
 
     await iniciarSesion(codigoUp);
     return nueva;
@@ -142,10 +149,10 @@ async function iniciarSesion(codigo) {
     cuentaActual = cuenta;
     configCuentaActual = await obtenerConfigCuenta(codigoUp);
 
-    // Guardar en localStorage (solo device, no se sincroniza)
     localStorage.setItem(SESION_KEY, codigoUp);
     localStorage.setItem(ULTIMO_CODIGO_KEY, codigoUp);
 
+    aplicarTemaActual();
     actualizarAvatarHeader();
     if (typeof renderSidebar === 'function') renderSidebar();
     return cuenta;
@@ -156,6 +163,7 @@ function cerrarSesion() {
     configCuentaActual = null;
     localStorage.removeItem(SESION_KEY);
 
+    aplicarTema('violeta');
     actualizarAvatarHeader();
     if (typeof renderSidebar === 'function') renderSidebar();
 }
@@ -175,6 +183,7 @@ async function restaurarSesion() {
         }
         cuentaActual = cuenta;
         configCuentaActual = await obtenerConfigCuenta(codigo);
+        aplicarTemaActual();
         actualizarAvatarHeader();
         return cuenta;
     } catch (e) {
@@ -184,7 +193,7 @@ async function restaurarSesion() {
 }
 
 // ============================================================
-//  APPS (por cuenta)
+//  APPS
 // ============================================================
 function obtenerAppsInstaladas() {
     return configCuentaActual?.appsInstaladas || [];
@@ -197,7 +206,6 @@ function estaInstalada(id) {
 async function instalarApp(id) {
     if (!ConfigBD.estaConectado()) throw new Error('Conecta GitHub primero.');
     if (!cuentaActual) throw new Error('Necesitas una cuenta para instalar apps.');
-    if (!configCuentaActual) configCuentaActual = { appsInstaladas: [], theme: 'light' };
     if (!configCuentaActual.appsInstaladas) configCuentaActual.appsInstaladas = [];
     if (!configCuentaActual.appsInstaladas.includes(id)) {
         configCuentaActual.appsInstaladas.push(id);
@@ -214,6 +222,92 @@ async function desinstalarApp(id) {
     if (app && app.esBase) throw new Error('Esta app es del sistema y no se puede desinstalar.');
 
     configCuentaActual.appsInstaladas = (configCuentaActual.appsInstaladas || []).filter(a => a !== id);
+    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+}
+
+// ============================================================
+//  TEMAS
+// ============================================================
+function obtenerTemasInstalados() {
+    return configCuentaActual?.temasInstalados || [];
+}
+
+function obtenerTemaActivo() {
+    return configCuentaActual?.temaActivo || 'violeta';
+}
+
+async function instalarTema(id) {
+    if (!cuentaActual) throw new Error('Necesitas una cuenta.');
+    if (!configCuentaActual.temasInstalados) configCuentaActual.temasInstalados = [];
+    if (!configCuentaActual.temasInstalados.includes(id)) {
+        configCuentaActual.temasInstalados.push(id);
+        await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+    }
+}
+
+async function desinstalarTema(id) {
+    if (!cuentaActual) throw new Error('Necesitas una cuenta.');
+
+    const catalogo = typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : [];
+    const tema = catalogo.find(t => t.id === id);
+    if (tema && tema.esBase) throw new Error('Este tema es base y no se puede desinstalar.');
+
+    configCuentaActual.temasInstalados = (configCuentaActual.temasInstalados || []).filter(t => t !== id);
+
+    if (configCuentaActual.temaActivo === id) {
+        configCuentaActual.temaActivo = 'violeta';
+        aplicarTema('violeta');
+    }
+    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+}
+
+async function aplicarTema(id) {
+    if (!cuentaActual) throw new Error('Necesitas una cuenta.');
+
+    const catalogo = typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : [];
+    const tema = catalogo.find(t => t.id === id);
+    if (!tema) throw new Error('Tema no encontrado.');
+
+    configCuentaActual.temaActivo = id;
+    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+    aplicarTema(id);
+}
+
+// Aplica el tema al documento padre (cambia variables CSS)
+function aplicarTema(id) {
+    const catalogo = typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : [];
+    const tema = catalogo.find(t => t.id === id);
+    if (!tema || !tema.colores) return;
+
+    const root = document.documentElement;
+    for (const [key, value] of Object.entries(tema.colores)) {
+        root.style.setProperty(key, value);
+    }
+}
+
+function aplicarTemaActual() {
+    aplicarTema(obtenerTemaActivo());
+}
+
+// ============================================================
+//  WIDGETS
+// ============================================================
+function obtenerWidgetsInstalados() {
+    return configCuentaActual?.widgetsInstalados || [];
+}
+
+async function instalarWidget(id) {
+    if (!cuentaActual) throw new Error('Necesitas una cuenta.');
+    if (!configCuentaActual.widgetsInstalados) configCuentaActual.widgetsInstalados = [];
+    if (!configCuentaActual.widgetsInstalados.includes(id)) {
+        configCuentaActual.widgetsInstalados.push(id);
+        await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+    }
+}
+
+async function desinstalarWidget(id) {
+    if (!cuentaActual) throw new Error('Necesitas una cuenta.');
+    configCuentaActual.widgetsInstalados = (configCuentaActual.widgetsInstalados || []).filter(w => w !== id);
     await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
 }
 
@@ -256,11 +350,9 @@ function inicializarUICuenta() {
 
     let fotoTemp = null;
 
-    // Pre-rellenar último código usado
     const ultimo = localStorage.getItem(ULTIMO_CODIGO_KEY);
     if (ultimo && inputLogin) inputLogin.value = ultimo;
 
-    // Tabs
     tabs.forEach(t => {
         t.addEventListener('click', () => {
             tabs.forEach(x => x.classList.remove('active'));
@@ -271,7 +363,6 @@ function inicializarUICuenta() {
         });
     });
 
-    // Foto
     if (fotoInput && fotoPrev) {
         fotoInput.addEventListener('change', async () => {
             const f = fotoInput.files[0];
@@ -285,16 +376,13 @@ function inicializarUICuenta() {
         });
     }
 
-    // Auto-uppercase código
     [inputCod, inputLogin].forEach(inp => {
         if (!inp) return;
         inp.addEventListener('input', (e) => {
-            let v = e.target.value.toUpperCase().replace(/[^0-9A-Z]/g, '');
-            e.target.value = v;
+            e.target.value = e.target.value.toUpperCase().replace(/[^0-9A-Z]/g, '');
         });
     });
 
-    // Crear cuenta
     if (btnCrear) {
         btnCrear.addEventListener('click', async () => {
             const msg = document.getElementById('cuentaMensaje');
@@ -302,7 +390,6 @@ function inicializarUICuenta() {
                 msg.textContent = txt;
                 msg.className = 'config-status ' + (tipo || '');
             };
-
             try {
                 setMsg('⏳ Creando cuenta...', 'info');
                 await crearCuenta({
@@ -322,7 +409,6 @@ function inicializarUICuenta() {
         });
     }
 
-    // Entrar
     if (btnEntrar) {
         btnEntrar.addEventListener('click', async () => {
             const msg = document.getElementById('loginMensaje');
@@ -330,7 +416,6 @@ function inicializarUICuenta() {
                 msg.textContent = txt;
                 msg.className = 'config-status ' + (tipo || '');
             };
-
             try {
                 setMsg('⏳ Entrando...', 'info');
                 await iniciarSesion(inputLogin.value);
@@ -345,7 +430,6 @@ function inicializarUICuenta() {
         });
     }
 
-    // Cerrar sesión
     if (btnSalir) {
         btnSalir.addEventListener('click', () => {
             if (!confirm('¿Cerrar sesión? Tu cuenta se queda guardada, puedes volver con tu código.')) return;
@@ -385,26 +469,20 @@ function inicializarUICuenta() {
         lucide.createIcons();
     }
 
-    // Actualizar visibilidad según estado
     window.__actualizarUISesion = () => {
-        // Aviso de GitHub
         if (avisoGH) {
             avisoGH.style.display = ConfigBD.estaConectado() ? 'none' : 'flex';
         }
-
         if (!ConfigBD.estaConectado()) {
-            // Sin GitHub → ocultar todo lo demás
             if (sinSesion) sinSesion.style.display = 'none';
             if (conSesion) conSesion.style.display = 'none';
             lucide.createIcons();
             return;
         }
-
         if (cuentaActual) mostrarSesionActiva();
         else mostrarSinSesion();
         lucide.createIcons();
     };
 
-    // Ejecutar al cargar
     window.__actualizarUISesion();
 }
