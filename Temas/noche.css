@@ -1,0 +1,86 @@
+/* ================================================
+   Tema: Noche Estrellada
+   Cambia colores + redondea más + sidebar más angosto.
+   Demuestra que un tema puede reescribir CUALQUIER cosa.
+   ================================================ */
+
+:root {
+    --violet-50:  #1E1B4B;
+    --violet-100: #312E81;
+    --violet-200: #3730A3;
+    --violet-300: #4C1D95;
+    --violet-400: #6D28D9;
+    --violet-500: #8B5CF6;
+    --violet-600: #A78BFA;
+    --violet-700: #C4B5FD;
+
+    --white:   #1A1A2E;
+    --bg:      #0F0F1A;
+    --bg-alt:  #1A1A2E;
+    --gray-50: #1E1E30;
+    --gray-100:#252540;
+    --gray-200:#323250;
+    --gray-300:#4A4A6E;
+    --gray-400:#6E6E8E;
+    --gray-500:#9595B0;
+    --gray-600:#B8B8CC;
+    --gray-700:#D0D0E0;
+    --gray-800:#E5E5F0;
+    --gray-900:#F5F5FF;
+
+    --border:  #323250;
+    --text:    #F5F5FF;
+    --text-2:  #B8B8CC;
+    --text-3:  #9595B0;
+
+    --shadow-glow: 0 0 0 4px rgba(139, 92, 246, 0.20);
+
+    --accent-gradient: linear-gradient(135deg, #8B5CF6, #C4B5FD);
+    --accent-gradient-hover: linear-gradient(135deg, #A78BFA, #C4B5FD);
+    --accent-shadow: rgba(139, 92, 246, 0.35);
+    --accent-shadow-hover: rgba(139, 92, 246, 0.55);
+    --accent-text-gradient: linear-gradient(135deg, #F5F5FF, #C4B5FD);
+}
+
+/* ============================================================
+   Overrides de LAYOUT específicos de este tema.
+   Demuestra que un tema puede tocar cualquier regla.
+   ============================================================ */
+
+body {
+    background:
+        radial-gradient(circle at 20% 10%, rgba(139, 92, 246, 0.15), transparent 40%),
+        radial-gradient(circle at 80% 90%, rgba(167, 139, 250, 0.10), transparent 40%),
+        var(--bg);
+}
+
+.sidebar { width: 200px; min-width: 200px; }
+.sidebar-label { padding: 14px 16px 6px; }
+
+.app-header { border-bottom-color: rgba(139, 92, 246, 0.25); }
+.logo-text { text-shadow: 0 0 20px rgba(196, 181, 253, 0.35); }
+
+.search-bar { background: rgba(139, 92, 246, 0.10); }
+.search-bar:hover { background: rgba(139, 92, 246, 0.16); }
+
+.nav-item.active {
+    background: rgba(139, 92, 246, 0.15);
+    box-shadow:
+        var(--shadow-xs),
+        inset 0 0 0 1px rgba(196, 181, 253, 0.35),
+        0 0 20px rgba(139, 92, 246, 0.20);
+}
+
+.welcome-glow {
+    background: radial-gradient(circle,
+        rgba(196, 181, 253, 0.20) 0%,
+        transparent 60%);
+}
+
+.cuenta-perfil,
+.bd-conectado-card {
+    background: linear-gradient(135deg,
+        rgba(139, 92, 246, 0.15),
+        rgba(139, 92, 246, 0.05));
+    border-color: rgba(196, 181, 253, 0.30);
+}
