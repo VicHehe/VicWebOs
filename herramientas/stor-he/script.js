@@ -3,13 +3,19 @@
 //  Instalar/desinstalar apps, temas y widgets.
 //  Incluye validaciones de espacio y monedas + compra de espacio.
 //  Compatible con TODOS los temas (hereda variables CSS del padre).
+//
+//  Anti doble-click: mientras una acción está en curso, el botón
+//  se deshabilita y se bloquea una segunda ejecución.
 // ============================================================
 
 const API = () => window.parent.__vicwebos || null;
 const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 
+// Set de acciones en vuelo: "instalar:calculadora", "instalarTema:vapor", ...
+const _accionesEnVuelo = new Set();
+
 // ============================================================
-//  TEMA: heredar variables CSS del padre
+//  TEMA
 // ============================================================
 function aplicarTemaDelPadre() {
     try {
@@ -369,11 +375,27 @@ function renderWidgets() {
 }
 
 // ============================================================
-//  ACCIONES
+//  ACCIONES (con lock anti doble-click)
 // ============================================================
-async function manejarAccion(accion, id) {
+async function manejarAccion(accion, id, btnOrigen) {
     const api = API();
     if (!api) return;
+
+    // Lock por acción + id (permite dos apps distintas a la vez, pero no la misma dos veces)
+    const clave = `${accion}:${id || 'x'}`;
+    if (_accionesEnVuelo.has(clave)) {
+        return;
+    }
+    _accionesEnVuelo.add(clave);
+
+    // Deshabilitar botón mientras dura
+    let txtOriginal = '';
+    if (btnOrigen) {
+        btnOrigen.disabled = true;
+        txtOriginal = btnOrigen.innerHTML;
+        btnOrigen.innerHTML = '<i data-lucide="loader-2" class="spin"></i>';
+        lucide.createIcons();
+    }
 
     try {
         switch (accion) {
@@ -418,6 +440,15 @@ async function manejarAccion(accion, id) {
         refrescarTodo();
     } catch (e) {
         toast(e.message || 'Error', 'error');
+    } finally {
+        _accionesEnVuelo.delete(clave);
+        if (btnOrigen && document.body.contains(btnOrigen)) {
+            // El botón puede haber sido reemplazado por refrescarTodo();
+            // si sigue existiendo, restaurar.
+            btnOrigen.disabled = false;
+            btnOrigen.innerHTML = txtOriginal;
+            lucide.createIcons();
+        }
     }
 }
 
@@ -452,7 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!btn) return;
         e.preventDefault();
         if (btn.disabled) return;
-        manejarAccion(btn.dataset.accion, btn.dataset.id);
+        manejarAccion(btn.dataset.accion, btn.dataset.id, btn);
     });
 
     setTimeout(refrescarTodo, 100);
