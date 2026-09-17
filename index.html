@@ -69,21 +69,34 @@
                 <div id="panelContainer" class="panel-container">
                     <div id="welcomeScreen" class="welcome-placeholder">
                         <div class="welcome-glow"></div>
-                        <div class="welcome-icon-wrap">
-                            <i data-lucide="hexagon" class="welcome-icon"></i>
+
+                        <!-- Hero -->
+                        <div class="welcome-hero">
+                            <div class="welcome-icon-wrap">
+                                <i data-lucide="hexagon" class="welcome-icon"></i>
+                            </div>
+                            <h1 id="welcomeSaludo">Bienvenide a VicWebOs</h1>
+                            <p id="welcomeSubtitulo">Sistema operativo web centrado en el uso personal o grupal de grupos de amistades.</p>
                         </div>
-                        <h1>Bienvenide a VicWebOs</h1>
-                        <p>Sistema operativo web centrado en el uso personal o grupal de grupos de amistades.</p>
 
-                        <div class="accesos-rapidos"></div>
+                        <!-- Apps destacadas -->
+                        <div class="welcome-section" id="welcomeAppsSection">
+                            <div class="welcome-section-header">
+                                <h2><i data-lucide="sparkles"></i> Accesos rápidos</h2>
+                                <button class="btn-ver-todas" id="btnVerTodas">
+                                    Ver todas <i data-lucide="arrow-right"></i>
+                                </button>
+                            </div>
+                            <div class="accesos-rapidos" id="accesosRapidos"></div>
+                        </div>
 
-                        <button class="btn-ver-todas" id="btnVerTodas">
-                            <i data-lucide="layout-grid"></i>
-                            Ver todas las herramientas
-                        </button>
-
-                        <!-- Widgets activos -->
-                        <div id="widgetsZona" class="widgets-zona"></div>
+                        <!-- Widgets -->
+                        <div class="welcome-section" id="welcomeWidgetsSection" style="display:none;">
+                            <div class="welcome-section-header">
+                                <h2><i data-lucide="layout-grid"></i> Widgets</h2>
+                            </div>
+                            <div id="widgetsZona" class="widgets-zona"></div>
+                        </div>
                     </div>
                 </div>
             </main>
