@@ -175,18 +175,6 @@ function puedeInstalar({ espacio = 0, monedas = 0 }) {
     return { ok: true };
 }
 
-async function comprarEspacio() {
-    if (!cuentaActual) throw new Error('Necesitas una cuenta.');
-    if (obtenerMonedas() < COSTO_COMPRA_ESPACIO) {
-        throw new Error(`Te faltan ${COSTO_COMPRA_ESPACIO - obtenerMonedas()} monedas.`);
-    }
-    configCuentaActual.monedas -= COSTO_COMPRA_ESPACIO;
-    configCuentaActual.espacioMaximo += ESPACIO_POR_COMPRA;
-    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
-    if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
-    return { ok: true, espacioMaximo: configCuentaActual.espacioMaximo, monedas: configCuentaActual.monedas };
-}
-
 // ============================================================
 //  ACCESOS RÁPIDOS
 // ============================================================
@@ -330,6 +318,24 @@ async function gastoBoleta(icono, fuente, texto, cantidad) {
     await _notificarMovimientoMonedas('gasto', fuente, texto, cantidad);
 
     return { ok: true, monedas: configCuentaActual.monedas };
+}
+
+// ============================================================
+//  COMPRAR ESPACIO (pasa por gastoBoleta para chequera + noti)
+// ============================================================
+async function comprarEspacio() {
+    if (!cuentaActual) throw new Error('Necesitas una cuenta.');
+    if (obtenerMonedas() < COSTO_COMPRA_ESPACIO) {
+        throw new Error(`Te faltan ${COSTO_COMPRA_ESPACIO - obtenerMonedas()} monedas.`);
+    }
+
+    // Cobrar (registra en chequera, notifica, actualiza header)
+    await gastoBoleta('hard-drive', 'stor-he', 'Ampliar espacio (+12)', COSTO_COMPRA_ESPACIO);
+
+    configCuentaActual.espacioMaximo += ESPACIO_POR_COMPRA;
+    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+
+    return { ok: true, espacioMaximo: configCuentaActual.espacioMaximo, monedas: configCuentaActual.monedas };
 }
 
 // ---------- VALIDACIÓN ----------
@@ -493,11 +499,15 @@ async function instalarApp(id) {
     const check = puedeInstalar({ espacio: app.espacio || 0, monedas: app.monedas || 0 });
     if (!check.ok) throw new Error(check.motivo);
 
+    // Cobrar PRIMERO (registra en chequera, noti y descuenta monedas)
+    if ((app.monedas || 0) > 0) {
+        await gastoBoleta('package', 'stor-he', `App: ${app.nombre}`, app.monedas);
+    }
+
+    // Ahora sí, agregar la app
     if (!configCuentaActual.appsInstaladas) configCuentaActual.appsInstaladas = [];
     configCuentaActual.appsInstaladas.push(id);
-    if ((app.monedas || 0) > 0) configCuentaActual.monedas -= app.monedas;
     await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
-    if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
 }
 
 async function desinstalarApp(id) {
@@ -526,11 +536,14 @@ async function instalarTema(id) {
     const check = puedeInstalar({ espacio: tema.espacio || 0, monedas: tema.monedas || 0 });
     if (!check.ok) throw new Error(check.motivo);
 
+    // Cobrar primero si tiene costo
+    if ((tema.monedas || 0) > 0) {
+        await gastoBoleta('palette', 'stor-he', `Tema: ${tema.nombre}`, tema.monedas);
+    }
+
     if (!configCuentaActual.temasInstalados) configCuentaActual.temasInstalados = [];
     configCuentaActual.temasInstalados.push(id);
-    if ((tema.monedas || 0) > 0) configCuentaActual.monedas -= tema.monedas;
     await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
-    if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
 }
 
 async function desinstalarTema(id) {
@@ -557,6 +570,11 @@ async function aplicarTema(id) {
     cargarCSSTema(id);
 }
 
+// ------------------------------------------------------------
+//  Cargar el CSS del tema en el <head> del shell.
+//  Espera al load del <link> antes de notificar a los iframes,
+//  para evitar que lean variables CSS todavía sin actualizar.
+// ------------------------------------------------------------
 function cargarCSSTema(id) {
     const catalogo = typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : [];
     const tema = catalogo.find(t => t.id === id);
@@ -569,13 +587,29 @@ function cargarCSSTema(id) {
     nuevo.id = 'tema-activo';
     nuevo.rel = 'stylesheet';
     nuevo.href = tema.ruta;
-    document.head.appendChild(nuevo);
 
-    setTimeout(() => {
+    let notificado = false;
+    const notificar = () => {
+        if (notificado) return;
+        notificado = true;
         if (typeof window.__notificarCambioTema === 'function') {
             window.__notificarCambioTema();
         }
-    }, 150);
+    };
+
+    // Cuando el CSS esté aplicado en el padre, notificar a los iframes.
+    // Doble rAF para asegurar que el reflow ya ocurrió.
+    nuevo.addEventListener('load', () => {
+        requestAnimationFrame(() => {
+            requestAnimationFrame(notificar);
+        });
+    });
+
+    // Red de seguridad: si el load no dispara (CSS cacheado, etc.),
+    // notificar de todas formas tras un pequeño margen.
+    setTimeout(notificar, 400);
+
+    document.head.appendChild(nuevo);
 }
 
 // ---------- WIDGETS ----------
@@ -593,11 +627,14 @@ async function instalarWidget(id) {
     const check = puedeInstalar({ espacio: w.espacio || 0, monedas: w.monedas || 0 });
     if (!check.ok) throw new Error(check.motivo);
 
+    // Cobrar primero si tiene costo
+    if ((w.monedas || 0) > 0) {
+        await gastoBoleta('layout-grid', 'stor-he', `Widget: ${w.nombre}`, w.monedas);
+    }
+
     if (!configCuentaActual.widgetsInstalados) configCuentaActual.widgetsInstalados = [];
     configCuentaActual.widgetsInstalados.push(id);
-    if ((w.monedas || 0) > 0) configCuentaActual.monedas -= w.monedas;
     await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
-    if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
 }
 
 async function desinstalarWidget(id) {
