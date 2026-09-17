@@ -102,6 +102,23 @@ function fechaBonita(iso) {
     return d.toLocaleDateString('es-CL', { day: '2-digit', month: 'short' });
 }
 
+// ¿El icono parece un nombre Lucide? (ej: "coins", "trophy", "calculator")
+// Filtro simple: solo letras minúsculas, números y guiones.
+// Emojis y cualquier otra cosa caen al fallback de texto plano.
+function esIconoLucide(valor) {
+    return typeof valor === 'string' && /^[a-z][a-z0-9-]*$/.test(valor);
+}
+
+function renderIconoMovimiento(icono, tipo) {
+    const fallback = tipo === 'canje' ? 'trending-up' : 'trending-down';
+    const valor = (icono && String(icono).trim()) || fallback;
+
+    if (esIconoLucide(valor)) {
+        return `<i data-lucide="${valor}"></i>`;
+    }
+    return `<span class="chq-mov-icono-txt">${escapeHTML(valor)}</span>`;
+}
+
 function render() {
     const lista = document.getElementById('chqLista');
     const empty = document.getElementById('chqEmpty');
@@ -156,7 +173,7 @@ function render() {
         const tipo = m.cantidad > 0 ? 'canje' : 'gasto';
         return `
             <div class="chq-mov ${tipo}">
-                <div class="chq-mov-icono">${m.icono || (tipo === 'canje' ? '💰' : '🧾')}</div>
+                <div class="chq-mov-icono">${renderIconoMovimiento(m.icono, tipo)}</div>
                 <div class="chq-mov-info">
                     <div class="chq-mov-texto">${escapeHTML(m.texto || 'Movimiento')}</div>
                     <div class="chq-mov-meta">
@@ -168,6 +185,8 @@ function render() {
             </div>
         `;
     }).join('');
+
+    lucide.createIcons();
 }
 
 function escapeHTML(str) {
