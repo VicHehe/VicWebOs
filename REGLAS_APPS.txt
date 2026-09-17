@@ -111,6 +111,10 @@ REGLAS:
       se suben al repo de datos y se referencian por URL completa)
     - Registrar en JsTemas.js con:
         { id, nombre, icono, descripcion, categoria, esBase, ruta }
+    - Añadir en JsTemas.js un campo "colores" con las variables
+      principales (--violet-100, --violet-300, --violet-500,
+      --bg, --bg-alt, --white) para que Stor-He pueda mostrar
+      un preview correcto sin leer el CSS.
 
 ================================================================
   REGLA 5 — WIDGETS
@@ -140,6 +144,77 @@ REGLAS:
         { id, nombre, icono, descripcion, categoria, esBase, ruta }
 
 ================================================================
+  REGLA 6 — COMPATIBILIDAD CON TEMAS
+================================================================
+
+APPS (herramientas/):
+    - NO están obligadas a ser compatibles con los temas.
+    - Cada app es libre de elegir su propio estilo visual.
+    - Se recomienda (pero no es obligatorio) usar las variables
+      CSS del tema (--violet-500, --bg, etc.) cuando sea posible.
+
+WIDGETS (Widgets/):
+    - SÍ deben ser compatibles con TODOS los temas, actuales
+      y futuros. Esto es obligatorio.
+    - Como viven en un <iframe>, NO heredan las variables CSS
+      del padre automáticamente. Deben leerlas al cargar:
+
+        const rootPadre = window.parent.document.documentElement;
+        const stylePadre = getComputedStyle(rootPadre);
+        const v500 = stylePadre.getPropertyValue('--violet-500');
+
+      Y aplicarlas a su propio :root.
+
+    - Deben escuchar el mensaje { type: 'vicwebos_tema_cambio' }
+      para re-aplicar las variables cuando el usuario cambia de
+      tema. El padre envía este mensaje a todos los iframes de
+      widgets después de aplicar un tema.
+
+    - Fallback obligatorio: si no pueden leer las variables del
+      padre (cross-origin o error), deben usar colores por
+      defecto razonables.
+
+    - El CSS del widget debe usar `var(--variable, fallback)`
+      en TODAS partes donde pueda haber color, sombra, radio, etc.
+
+    - Lista mínima de variables a heredar:
+        --violet-50..700, --white, --bg, --bg-alt,
+        --gray-50..900, --border, --text, --text-2, --text-3,
+        --shadow-*, --accent-shadow*, --r-*
+
+PLANTILLA DE HERENCIA DE TEMA (copiar en cada widget):
+
+    function aplicarTemaDelPadre() {
+        try {
+            const rootPadre = window.parent.document.documentElement;
+            const stylePadre = getComputedStyle(rootPadre);
+            const vars = [
+                '--violet-50','--violet-100','--violet-200','--violet-300',
+                '--violet-400','--violet-500','--violet-600','--violet-700',
+                '--white','--bg','--bg-alt',
+                '--gray-50','--gray-100','--gray-200','--gray-300','--gray-400',
+                '--gray-500','--gray-600','--gray-700','--gray-800','--gray-900',
+                '--border','--text','--text-2','--text-3',
+                '--shadow-xs','--shadow-sm','--shadow-md','--shadow-lg','--shadow-xl',
+                '--accent-shadow','--accent-shadow-hover',
+                '--r-sm','--r-md','--r-lg','--r-xl','--r-full'
+            ];
+            vars.forEach(v => {
+                const val = stylePadre.getPropertyValue(v).trim();
+                if (val) document.documentElement.style.setProperty(v, val);
+            });
+        } catch (e) { /* silencioso */ }
+    }
+
+    window.addEventListener('message', (e) => {
+        if (e.data && e.data.type === 'vicwebos_tema_cambio') {
+            aplicarTemaDelPadre();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', aplicarTemaDelPadre);
+
+================================================================
   TABLA RESUMEN
 ================================================================
 
@@ -161,10 +236,13 @@ En el shell (index.html + js/):
     window.__vicwebos.aplicarTema(id)     → cambia tema
     window.__vicwebos.instalarTema(id)
     window.__vicwebos.instalarWidget(id)
+    window.__vicwebos.activarWidget(id)
+    window.__vicwebos.desactivarWidget(id)
     ...
 
 En apps/widgets (iframes):
     window.parent.__vicwebos.*
+    window.parent.ConfigBD.*
 
 En datos (JSON):
     ConfigBD.leerArchivo(path)
