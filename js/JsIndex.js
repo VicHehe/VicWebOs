@@ -1,6 +1,5 @@
 // ============================================================
-//  JsIndex.js — Pestañas + sidebar (solo instaladas) + API
-//  Clima con iconos Lucide (sin emojis)
+//  JsIndex.js — Pestañas + sidebar + API
 // ============================================================
 
 const MAX_TABS = 10;
@@ -15,11 +14,27 @@ const welcomeScreen  = document.getElementById('welcomeScreen');
 const btnVerTodas    = document.getElementById('btnVerTodas');
 
 // ============================================================
-//  SIDEBAR: SOLO APPS INSTALADAS
+//  SIDEBAR
 // ============================================================
 function renderSidebar(filtro = '') {
     if (!sidebarNav) return;
     sidebarNav.innerHTML = '';
+
+    // Sin cuenta → no mostrar nada
+    if (!cuentaActual) {
+        sidebarNav.innerHTML = `
+            <div class="sidebar-empty">
+                <i data-lucide="user-circle"></i>
+                <span>Necesitas una cuenta para ver tus apps.</span>
+                <button class="btn-primario" style="margin-top: 6px;" id="btnIrACuenta">
+                    <i data-lucide="user-plus"></i>
+                    Crear cuenta
+                </button>
+            </div>`;
+        lucide.createIcons();
+        document.getElementById('btnIrACuenta')?.addEventListener('click', abrirConfigEnCuenta);
+        return;
+    }
 
     const catalogo = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
     const instaladas = obtenerAppsInstaladas();
@@ -80,6 +95,11 @@ function actualizarNavActivo() {
 //  PESTAÑAS
 // ============================================================
 function abrirHerramienta(id) {
+    if (!cuentaActual) {
+        abrirConfigEnCuenta();
+        return;
+    }
+
     const catalogo = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
     const herramienta = catalogo.find(h => h.id === id);
     if (!herramienta) return;
@@ -197,6 +217,17 @@ function abrirModalTodas() {
     const body  = document.getElementById('modalTodasBody');
     if (!modal || !body) return;
 
+    if (!cuentaActual) {
+        body.innerHTML = `
+            <div class="sidebar-empty" style="padding: 40px 12px;">
+                <i data-lucide="user-circle"></i>
+                <span>Necesitas una cuenta para ver tus apps.</span>
+            </div>`;
+        lucide.createIcons();
+        modal.style.display = 'flex';
+        return;
+    }
+
     const catalogo = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
     const instaladas = obtenerAppsInstaladas();
     const lista = catalogo.filter(h => instaladas.includes(h.id));
@@ -251,10 +282,8 @@ function cerrarModalTodas() {
 }
 
 // ============================================================
-//  CLIMA (con iconos Lucide) + RELOJ
+//  CLIMA + RELOJ
 // ============================================================
-
-// Devuelve el nombre del icono Lucide según el código WMO
 function iconoClima(c, isDay) {
     const d = isDay === 1;
     if (c === 0) return d ? 'sun' : 'moon';
@@ -281,9 +310,7 @@ async function obtenerClima(lat, lon) {
             temp: Math.round(d.current.temperature_2m),
             icono: iconoClima(d.current.weather_code, d.current.is_day)
         };
-    } catch (e) {
-        return null;
-    }
+    } catch (e) { return null; }
 }
 
 function iniciarRelojLocal() {
@@ -311,11 +338,7 @@ function pintarClima(icono, temp) {
 function iniciarClimaLocal() {
     const el = document.getElementById('climaLocal');
     if (!el) return;
-
-    if (!navigator.geolocation) {
-        pintarClima('cloud-sun', '--');
-        return;
-    }
+    if (!navigator.geolocation) { pintarClima('cloud-sun', '--'); return; }
 
     navigator.geolocation.getCurrentPosition(
         async (pos) => {
@@ -323,7 +346,6 @@ function iniciarClimaLocal() {
             if (c) pintarClima(c.icono, c.temp);
             else pintarClima('cloud-sun', '--');
 
-            // Actualizar cada 15 min
             setInterval(async () => {
                 const c2 = await obtenerClima(pos.coords.latitude, pos.coords.longitude);
                 if (c2) pintarClima(c2.icono, c2.temp);
@@ -335,20 +357,30 @@ function iniciarClimaLocal() {
 }
 
 // ============================================================
-//  API PARA IFRAMES (Stor-He y otras apps)
+//  API PARA IFRAMES
 // ============================================================
 window.__vicwebos = {
     obtenerCatalogo: () => (typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : []),
     obtenerInstaladas: () => obtenerAppsInstaladas(),
     estaInstalada: (id) => estaInstalada(id),
-    instalar: (id) => {
-        instalarApp(id);
-        renderSidebar(searchInput ? searchInput.value : '');
+    tieneCuenta: () => !!cuentaActual,
+    obtenerCuenta: () => cuentaActual ? { nombre: cuentaActual.nombre, codigo: cuentaActual.codigo } : null,
+    instalar: async (id) => {
+        try {
+            await instalarApp(id);
+            renderSidebar(searchInput ? searchInput.value : '');
+        } catch (e) {
+            alert('❌ ' + e.message);
+        }
     },
-    desinstalar: (id) => {
-        desinstalarApp(id);
-        if (tabs.find(t => t.id === id)) cerrarPestania(id);
-        renderSidebar(searchInput ? searchInput.value : '');
+    desinstalar: async (id) => {
+        try {
+            await desinstalarApp(id);
+            if (tabs.find(t => t.id === id)) cerrarPestania(id);
+            renderSidebar(searchInput ? searchInput.value : '');
+        } catch (e) {
+            alert('❌ ' + e.message);
+        }
     },
     abrirApp: (id) => {
         if (estaInstalada(id)) {
@@ -362,7 +394,13 @@ window.__vicwebos = {
 // ============================================================
 //  INIT
 // ============================================================
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Restaurar sesión antes de renderizar
+    if (typeof restaurarSesion === 'function') {
+        await restaurarSesion();
+    }
+
+    actualizarAvatarHeader();
     renderSidebar();
     renderTabs();
     iniciarRelojLocal();
@@ -371,7 +409,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (searchInput) {
         searchInput.addEventListener('input', (e) => renderSidebar(e.target.value));
     }
-
     if (btnVerTodas) {
         btnVerTodas.addEventListener('click', abrirModalTodas);
     }
