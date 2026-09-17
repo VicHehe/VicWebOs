@@ -2,16 +2,14 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238B5CF6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z'/></svg>">
     <title>VicWebOs</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Layout base primero -->
     <link rel="stylesheet" href="style.css">
-    <!-- Tema después (así gana) -->
     <link rel="stylesheet" href="Temas/violeta.css" id="tema-activo">
 
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -21,6 +19,9 @@
     <div id="appPrincipal">
         <header class="app-header">
             <div class="header-left">
+                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Abrir menú">
+                    <i data-lucide="menu"></i>
+                </button>
                 <div class="logo">
                     <div class="logo-mark"><i data-lucide="hexagon"></i></div>
                     <span class="logo-text">VicWebOs</span>
@@ -59,6 +60,12 @@
 
         <div class="app-body">
             <nav class="sidebar">
+                <div class="sidebar-mobile-header">
+                    <span class="sidebar-mobile-title">VicWebOs</span>
+                    <button class="sidebar-mobile-close" id="sidebarCloseBtn" aria-label="Cerrar menú">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
                 <div class="sidebar-label">Aplicaciones</div>
                 <div class="sidebar-nav" id="sidebarNav"></div>
             </nav>
@@ -75,7 +82,6 @@
                     <div id="welcomeScreen" class="welcome-placeholder">
                         <div class="welcome-glow"></div>
 
-                        <!-- Hero -->
                         <div class="welcome-hero">
                             <div class="welcome-icon-wrap">
                                 <i data-lucide="hexagon" class="welcome-icon"></i>
@@ -84,7 +90,6 @@
                             <p id="welcomeSubtitulo">Sistema operativo web centrado en el uso personal o grupal de grupos de amistades.</p>
                         </div>
 
-                        <!-- Apps destacadas -->
                         <div class="welcome-section" id="welcomeAppsSection">
                             <div class="welcome-section-header">
                                 <h2><i data-lucide="sparkles"></i> Accesos rápidos</h2>
@@ -95,7 +100,6 @@
                             <div class="accesos-rapidos" id="accesosRapidos"></div>
                         </div>
 
-                        <!-- Widgets -->
                         <div class="welcome-section" id="welcomeWidgetsSection" style="display:none;">
                             <div class="welcome-section-header">
                                 <h2><i data-lucide="layout-grid"></i> Widgets</h2>
@@ -106,6 +110,9 @@
                 </div>
             </main>
         </div>
+
+        <!-- Overlay del drawer móvil -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
     </div>
 
     <!-- ====== MODAL "VER TODAS" ====== -->
@@ -145,7 +152,7 @@
                     </button>
                     <button class="config-nav-item" data-section="apps">
                         <i data-lucide="package"></i>
-                        <span>Apps instaladas</span>
+                        <span>Apps</span>
                     </button>
                     <button class="config-nav-item" data-section="bd">
                         <i data-lucide="database"></i>
@@ -155,7 +162,6 @@
 
                 <div class="config-content">
 
-                    <!-- ===== PANEL: CUENTA ===== -->
                     <section class="config-panel active" data-panel="cuenta">
                         <div class="config-panel-header">
                             <h3>Cuenta</h3>
@@ -241,7 +247,6 @@
                         </div>
                     </section>
 
-                    <!-- ===== PANEL: APARIENCIA ===== -->
                     <section class="config-panel" data-panel="apariencia">
                         <div class="config-panel-header">
                             <h3>Apariencia</h3>
@@ -267,7 +272,6 @@
                         </div>
                     </section>
 
-                    <!-- ===== PANEL: APPS ===== -->
                     <section class="config-panel" data-panel="apps">
                         <div class="config-panel-header">
                             <h3>Apps instaladas</h3>
@@ -280,7 +284,6 @@
                         </div>
                     </section>
 
-                    <!-- ===== PANEL: BASE DE DATOS ===== -->
                     <section class="config-panel" data-panel="bd">
                         <div class="config-panel-header">
                             <h3>Base de datos</h3>
@@ -352,14 +355,15 @@
     </div>
 
     <script src="js/JsRutas.js"></script>
-<script src="js/JsTemas.js"></script>
-<script src="js/JsWidgets.js"></script>
-<script src="js/ConfigBD.js"></script>
-<script src="js/ConfigBD.binarios.js"></script>  <!-- turno anterior -->
-<script src="js/MasterHad.js"></script>            <!-- nuevo -->
-<script src="js/Cuenta.js"></script>
-<script src="js/configuracion.js"></script>
-<script src="js/JsIndex.js"></script>
+    <script src="js/JsTemas.js"></script>
+    <script src="js/JsWidgets.js"></script>
+    <script src="js/ConfigBD.js"></script>
+    <script src="js/ConfigBD.binarios.js"></script>
+    <script src="js/MasterHad.js"></script>
+    <script src="js/Cuenta.js"></script>
+    <script src="js/configuracion.js"></script>
+    <script src="js/JsIndex.js"></script>
+    <script src="js/MobileUI.js"></script>
     <script>lucide.createIcons();</script>
 </body>
 </html>
