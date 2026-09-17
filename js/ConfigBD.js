@@ -185,9 +185,26 @@ async function ghEscribirArchivo(token, owner, repo, path, contenido, sha = null
     );
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || 'Error al escribir en GitHub.');
+        const e = new Error(err.message || 'Error al escribir en GitHub.');
+        e.status = res.status;
+        throw e;
     }
     return await res.json();
+}
+
+// Detecta errores de conflicto de escritura (para reintentar)
+function esConflicto(e) {
+    if (!e) return false;
+    if (e.status === 409 || e.status === 422) return true;
+    const m = String(e.message || '').toLowerCase();
+    return m.includes('conflict') ||
+           m.includes('fast forward') ||
+           m.includes('does not match') ||
+           m.includes('sha');
+}
+
+function esperar(ms) {
+    return new Promise(r => setTimeout(r, ms));
 }
 
 async function conectarGitHub(token, nombreRepo) {
@@ -243,12 +260,14 @@ const ConfigBD = {
     },
 
     // Lee SIEMPRE desde GitHub, ignorando el caché.
-    // Útil para polling (notificaciones, mensajes, etc.).
+    // Útil para polling (notificaciones, mensajes, chequera, etc.).
     async leerArchivoFresh(nombre) {
         await invalidarCache(nombre);
         return await this.leerArchivo(nombre);
     },
 
+    // Escribe sin retry. Si falla por conflicto, el llamador debe
+    // resolverlo con actualizarArchivo (recomendado).
     async escribirArchivo(nombre, datos) {
         if (!this.estaConectado()) throw new Error('GitHub no está conectado.');
         const config = cargarConfigBD();
@@ -262,9 +281,69 @@ const ConfigBD = {
             nombre, JSON.stringify(datos, null, 2), actual?.sha || null
         );
 
-        // Actualizar caché para la próxima lectura
         await guardarCache(nombre, datos);
         return { ok: true };
+    },
+
+    // --------------------------------------------------------
+    //  actualizarArchivo — Lectura + mutación + escritura con retry
+    //  --------------------------------------------------------
+    //  Uso:
+    //    await bd.actualizarArchivo('cuentaConfig.json', (actual) => {
+    //        actual = actual || {};
+    //        actual['1234A'] = { ... };
+    //        return actual;  // o undefined para mutar in-place
+    //    });
+    //
+    //  - Lee SIEMPRE fresco desde GitHub (sin caché).
+    //  - Aplica mutador(actual). Si devuelve algo, ese es el nuevo.
+    //  - Escribe con reintento automático en conflicto (409/422).
+    //  - En cada reintento, vuelve a leer fresco y reaplica el mutador,
+    //    así los cambios de otro usuario no se pierden.
+    //  --------------------------------------------------------
+    async actualizarArchivo(nombre, mutador, opciones = {}) {
+        if (!this.estaConectado()) throw new Error('GitHub no está conectado.');
+        if (typeof mutador !== 'function') {
+            throw new Error('actualizarArchivo requiere una función mutadora.');
+        }
+        const maxIntentos = opciones.intentos || 5;
+        const config = cargarConfigBD();
+
+        for (let i = 0; i < maxIntentos; i++) {
+            // 1) Leer fresco (bypass de caché)
+            const archivo = await ghLeerArchivo(
+                config.githubToken, config.githubOwner, config.githubRepo, nombre
+            );
+            let actual = null;
+            if (archivo && archivo.contenido) {
+                try { actual = JSON.parse(archivo.contenido); }
+                catch (e) { actual = null; }
+            }
+
+            // 2) Aplicar mutador
+            let nuevo = mutador(actual);
+            const final = (nuevo === undefined) ? actual : nuevo;
+            if (final === null || final === undefined) {
+                throw new Error('El mutador devolvió vacío; nada que escribir.');
+            }
+
+            // 3) Intentar escribir
+            try {
+                await ghEscribirArchivo(
+                    config.githubToken, config.githubOwner, config.githubRepo,
+                    nombre, JSON.stringify(final, null, 2), archivo?.sha || null
+                );
+                await guardarCache(nombre, final);
+                return final;
+            } catch (e) {
+                if (i === maxIntentos - 1) throw e;
+                if (!esConflicto(e)) throw e;
+                // Conflicto → releer y reintentar
+                console.warn(`[ConfigBD] Conflicto en ${nombre}, reintentando (${i + 1}/${maxIntentos - 1})...`);
+                await invalidarCache(nombre);
+                await esperar(300 + Math.random() * 400);
+            }
+        }
     },
 
     // Invalida el caché de un archivo concreto (fuerza releer de GitHub).
@@ -372,7 +451,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     mostrarEstado(`✅ Conectado al repositorio "${resultado.owner}/${repo}".`, 'success');
                 }
 
-                // Refrescar UI global
                 actualizarUIBD();
                 if (typeof renderSidebar === 'function') renderSidebar();
                 if (typeof window.__actualizarUISesion === 'function') window.__actualizarUISesion();
@@ -396,7 +474,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!confirm('¿Desconectar el repositorio? Los datos siguen a salvo en GitHub, pero se borrará el caché local.')) return;
             await ConfigBD.desconectar();
 
-            // Cerrar sesión local
             if (typeof cerrarSesion === 'function') cerrarSesion();
 
             actualizarUIBD();
@@ -411,6 +488,5 @@ document.addEventListener('DOMContentLoaded', () => {
         githubEstado.className = 'config-status ' + (tipo || '');
     }
 
-    // Exponer globalmente para cuando se abra el modal
     window.__actualizarUIBD = actualizarUIBD;
 });
