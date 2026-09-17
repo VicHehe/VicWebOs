@@ -1,5 +1,7 @@
 // ============================================================
 //  JsRutas.js — Catálogo de APPS
+//  Cada app tiene: espacio (int) y monedas (int).
+//  esBase: true → espacio/monedas ignorados (siempre instalada).
 // ============================================================
 
 const RUTAS_HERRAMIENTAS = [
@@ -10,6 +12,8 @@ const RUTAS_HERRAMIENTAS = [
         ruta: 'herramientas/stor-he/index.html',
         descripcion: 'Tienda: descarga apps, temas y widgets.',
         categoria: 'Sistema',
-        esBase: true
+        esBase: true,
+        espacio: 0,
+        monedas: 0
     }
 ];
