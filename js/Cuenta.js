@@ -240,6 +240,27 @@ function generarIdMovimiento() {
     return 'mov_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
 }
 
+// ------------------------------------------------------------
+//  Notificación de movimiento de monedas
+//  Envía una noti al propio usuario desde 'chequera' con el
+//  contexto de la app que disparó el movimiento.
+//  Falla silenciosamente para no romper la operación principal.
+// ------------------------------------------------------------
+async function _notificarMovimientoMonedas(tipo, fuente, texto, cantidad) {
+    try {
+        if (!window.Notificaciones) return;
+        if (!cuentaActual) return;
+
+        const signo = tipo === 'canje' ? '+' : '−';
+        const verbo = tipo === 'canje' ? 'Ganaste' : 'Gastaste';
+        const mensaje = `${verbo} ${signo}${cantidad} monedas · ${fuente}: ${texto}`;
+
+        await window.Notificaciones.enviar('chequera', mensaje, cuentaActual.codigo);
+    } catch (e) {
+        console.warn('[Cuenta] No se pudo enviar la notificación:', e);
+    }
+}
+
 // ============================================================
 //  CANJEAR: gana monedas (llamable desde cualquier app)
 // ============================================================
@@ -268,6 +289,8 @@ async function canjear(icono, fuente, texto, cantidad) {
 
     if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
     if (typeof window.__notificarCambioChequera === 'function') window.__notificarCambioChequera();
+
+    await _notificarMovimientoMonedas('canje', fuente, texto, cantidad);
 
     return { ok: true, monedas: configCuentaActual.monedas };
 }
@@ -303,6 +326,8 @@ async function gastoBoleta(icono, fuente, texto, cantidad) {
 
     if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
     if (typeof window.__notificarCambioChequera === 'function') window.__notificarCambioChequera();
+
+    await _notificarMovimientoMonedas('gasto', fuente, texto, cantidad);
 
     return { ok: true, monedas: configCuentaActual.monedas };
 }
