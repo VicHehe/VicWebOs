@@ -1,55 +1,21 @@
 /* ================================================
    Stor-He — Estilos
+   Compatible con TODOS los temas (var() con fallbacks).
+   Sin emojis.
    ================================================ */
-
-:root {
-    --violet-50:  #F5F3FF;
-    --violet-100: #EDE9FE;
-    --violet-200: #DDD6FE;
-    --violet-300: #C4B5FD;
-    --violet-400: #A78BFA;
-    --violet-500: #8B5CF6;
-    --violet-600: #7C3AED;
-    --violet-700: #6D28D9;
-
-    --white:   #FFFFFF;
-    --gray-50: #FAFAFB;
-    --gray-100:#F4F4F7;
-    --gray-200:#E8E8EE;
-    --gray-300:#D4D4DD;
-    --gray-400:#A1A1AD;
-    --gray-500:#71717A;
-    --gray-600:#52525B;
-    --gray-700:#3F3F46;
-    --gray-800:#27272A;
-    --gray-900:#18181B;
-
-    --border: var(--gray-200);
-
-    --shadow-xs: 0 1px 2px rgba(24, 24, 27, 0.04);
-    --shadow-sm: 0 1px 3px rgba(24, 24, 27, 0.06);
-    --shadow-md: 0 4px 12px rgba(24, 24, 27, 0.08);
-    --shadow-lg: 0 12px 32px rgba(24, 24, 27, 0.10);
-
-    --r-sm: 8px;
-    --r-md: 12px;
-    --r-lg: 16px;
-    --r-full: 999px;
-
-    --t-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-    --t: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-}
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body {
     min-height: 100%;
-    background: var(--white);
-    color: var(--gray-900);
+    background: var(--white, #FFFFFF);
+    color: var(--text, #18181B);
     font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 14px;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    transition: background 0.3s, color 0.3s;
+    color-scheme: light dark;
 }
 
 [data-lucide] {
@@ -62,26 +28,27 @@ html, body {
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-    background: var(--gray-200);
-    border-radius: var(--r-full);
+    background: var(--gray-200, #E8E8EE);
+    border-radius: var(--r-full, 999px);
     border: 3px solid transparent;
     background-clip: content-box;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--gray-300);
+    background: var(--gray-300, #D4D4DD);
     background-clip: content-box;
     border: 3px solid transparent;
 }
-* { scrollbar-width: thin; scrollbar-color: var(--gray-300) transparent; }
+* { scrollbar-width: thin; scrollbar-color: var(--gray-300, #D4D4DD) transparent; }
 
 /* ========== HEADER ========== */
 .sh-header {
-    background: var(--white);
-    border-bottom: 1px solid var(--border);
+    background: var(--white, #FFFFFF);
+    border-bottom: 1px solid var(--border, #E8E8EE);
     padding: 24px 28px 0;
     position: sticky;
     top: 0;
     z-index: 10;
+    transition: background 0.3s, border-color 0.3s;
 }
 
 .sh-header-top {
@@ -102,13 +69,14 @@ html, body {
 .sh-logo-mark {
     width: 48px;
     height: 48px;
-    background: linear-gradient(135deg, var(--violet-500), var(--violet-700));
+    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
     border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.28);
+    box-shadow: 0 8px 20px var(--accent-shadow, rgba(139, 92, 246, 0.28));
+    flex-shrink: 0;
 }
 .sh-logo-mark [data-lucide] {
     width: 24px;
@@ -120,7 +88,7 @@ html, body {
     font-size: 22px;
     font-weight: 800;
     letter-spacing: -0.03em;
-    background: linear-gradient(135deg, var(--gray-900), var(--violet-600));
+    background: var(--accent-text-gradient, linear-gradient(135deg, #18181B, #7C3AED));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -128,7 +96,7 @@ html, body {
 }
 .sh-logo-text p {
     font-size: 13px;
-    color: var(--gray-500);
+    color: var(--gray-500, #71717A);
     font-weight: 500;
     margin-top: 2px;
 }
@@ -150,9 +118,9 @@ html, body {
     font-family: inherit;
     font-size: 13.5px;
     font-weight: 700;
-    color: var(--gray-500);
+    color: var(--gray-500, #71717A);
     cursor: pointer;
-    transition: var(--t-fast);
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     margin-bottom: -1px;
 }
@@ -161,30 +129,30 @@ html, body {
     height: 15px;
 }
 .sh-tab:hover {
-    color: var(--gray-900);
+    color: var(--gray-900, #18181B);
 }
 .sh-tab.active {
-    color: var(--violet-700);
-    border-bottom-color: var(--violet-500);
+    color: var(--violet-700, #6D28D9);
+    border-bottom-color: var(--violet-500, #8B5CF6);
 }
 .sh-tab.active [data-lucide] {
-    color: var(--violet-600);
+    color: var(--violet-600, #7C3AED);
 }
 
 .sh-tab-count {
     font-size: 10.5px;
     font-weight: 800;
-    color: var(--gray-600);
-    background: var(--gray-100);
+    color: var(--gray-600, #52525B);
+    background: var(--gray-100, #F4F4F7);
     padding: 2px 7px;
-    border-radius: var(--r-full);
+    border-radius: var(--r-full, 999px);
     min-width: 22px;
     text-align: center;
     line-height: 1.4;
 }
 .sh-tab.active .sh-tab-count {
-    background: var(--violet-100);
-    color: var(--violet-700);
+    background: var(--violet-100, #EDE9FE);
+    color: var(--violet-700, #6D28D9);
 }
 
 /* ========== CONTENT ========== */
@@ -210,7 +178,7 @@ html, body {
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--gray-500);
+    color: var(--gray-500, #71717A);
     margin-bottom: 14px;
     display: flex;
     align-items: center;
@@ -226,25 +194,25 @@ html, body {
 
 /* ========== CARDS ========== */
 .sh-card {
-    background: var(--white);
-    border: 1.5px solid var(--border);
-    border-radius: var(--r-lg);
+    background: var(--white, #FFFFFF);
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: var(--r-lg, 16px);
     padding: 18px;
     display: flex;
     flex-direction: column;
     gap: 14px;
-    transition: var(--t);
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
 }
 .sh-card:hover {
-    border-color: var(--violet-300);
-    box-shadow: var(--shadow-md);
+    border-color: var(--violet-300, #C4B5FD);
+    box-shadow: var(--shadow-md, 0 4px 12px rgba(0, 0, 0, 0.08));
     transform: translateY(-2px);
 }
 .sh-card.instalada {
-    border-color: var(--violet-300);
-    background: linear-gradient(180deg, var(--violet-50) 0%, var(--white) 100%);
+    border-color: var(--violet-300, #C4B5FD);
+    background: var(--violet-50, #F5F3FF);
 }
 
 .sh-card-header {
@@ -256,18 +224,18 @@ html, body {
 .sh-card-icono {
     width: 48px;
     height: 48px;
-    background: var(--violet-50);
+    background: var(--violet-50, #F5F3FF);
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--violet-600);
+    color: var(--violet-600, #7C3AED);
     flex-shrink: 0;
-    transition: var(--t);
+    transition: all 0.22s;
 }
 .sh-card.instalada .sh-card-icono {
-    background: var(--white);
-    box-shadow: var(--shadow-sm);
+    background: var(--white, #FFFFFF);
+    box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06));
 }
 .sh-card-icono [data-lucide] {
     width: 22px;
@@ -282,7 +250,7 @@ html, body {
 .sh-card-nombre {
     font-size: 15px;
     font-weight: 800;
-    color: var(--gray-900);
+    color: var(--gray-900, #18181B);
     letter-spacing: -0.01em;
     margin-bottom: 2px;
     display: flex;
@@ -292,7 +260,7 @@ html, body {
 }
 .sh-card-desc {
     font-size: 12.5px;
-    color: var(--gray-500);
+    color: var(--gray-500, #71717A);
     line-height: 1.5;
 }
 
@@ -302,14 +270,14 @@ html, body {
     text-transform: uppercase;
     letter-spacing: 0.05em;
     padding: 3px 8px;
-    border-radius: var(--r-full);
+    border-radius: var(--r-full, 999px);
     line-height: 1.3;
     display: inline-block;
 }
 .sh-badge-base {
-    color: var(--violet-700);
-    background: var(--violet-100);
-    border: 1px solid var(--violet-200);
+    color: var(--violet-700, #6D28D9);
+    background: var(--violet-100, #EDE9FE);
+    border: 1px solid var(--violet-200, #DDD6FE);
 }
 .sh-badge-instalada {
     color: #065F46;
@@ -347,12 +315,12 @@ html, body {
     gap: 6px;
     padding: 8px 14px;
     border: none;
-    border-radius: var(--r-md);
+    border-radius: var(--r-md, 12px);
     font-family: inherit;
     font-size: 12.5px;
     font-weight: 700;
     cursor: pointer;
-    transition: var(--t-fast);
+    transition: all 0.15s;
     white-space: nowrap;
 }
 .sh-btn [data-lucide] {
@@ -362,33 +330,33 @@ html, body {
 }
 
 .sh-btn-instalar {
-    background: linear-gradient(135deg, var(--violet-500), var(--violet-600));
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
     color: white;
-    box-shadow: 0 4px 10px rgba(139, 92, 246, 0.25);
+    box-shadow: 0 4px 10px var(--accent-shadow, rgba(139, 92, 246, 0.25));
 }
 .sh-btn-instalar:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 14px rgba(139, 92, 246, 0.35);
+    box-shadow: 0 6px 14px var(--accent-shadow-hover, rgba(139, 92, 246, 0.35));
 }
 .sh-btn-instalar:active { transform: translateY(0); }
 
 .sh-btn-abrir {
-    background: var(--white);
-    color: var(--violet-700);
-    border: 1.5px solid var(--violet-300);
+    background: var(--white, #FFFFFF);
+    color: var(--violet-700, #6D28D9);
+    border: 1.5px solid var(--violet-300, #C4B5FD);
 }
 .sh-btn-abrir:hover {
-    background: var(--violet-50);
-    border-color: var(--violet-400);
+    background: var(--violet-50, #F5F3FF);
+    border-color: var(--violet-400, #A78BFA);
 }
 
 .sh-btn-icono {
-    background: var(--gray-100);
-    color: var(--gray-600);
+    background: var(--gray-100, #F4F4F7);
+    color: var(--gray-600, #52525B);
     width: 34px;
     height: 34px;
     padding: 0;
-    border-radius: var(--r-md);
+    border-radius: var(--r-md, 12px);
 }
 .sh-btn-icono:hover {
     background: #FEE2E2;
@@ -396,11 +364,11 @@ html, body {
 }
 
 .sh-btn-aplicar {
-    background: var(--gray-100);
-    color: var(--gray-700);
+    background: var(--gray-100, #F4F4F7);
+    color: var(--gray-700, #3F3F46);
 }
 .sh-btn-aplicar:hover {
-    background: var(--gray-200);
+    background: var(--gray-200, #E8E8EE);
 }
 .sh-btn-aplicar.activo {
     background: #ECFDF5;
@@ -412,11 +380,11 @@ html, body {
 .sh-tema-preview {
     width: 100%;
     aspect-ratio: 16 / 10;
-    border-radius: var(--r-md);
+    border-radius: var(--r-md, 12px);
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border, #E8E8EE);
     margin-bottom: 4px;
     position: relative;
 }
@@ -459,7 +427,7 @@ html, body {
 .sh-empty {
     text-align: center;
     padding: 60px 20px;
-    color: var(--gray-500);
+    color: var(--gray-500, #71717A);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -468,14 +436,14 @@ html, body {
 .sh-empty [data-lucide] {
     width: 40px;
     height: 40px;
-    color: var(--violet-300);
+    color: var(--violet-300, #C4B5FD);
     stroke-width: 1.5;
     margin-bottom: 4px;
 }
 .sh-empty h3 {
     font-size: 16px;
     font-weight: 800;
-    color: var(--gray-900);
+    color: var(--gray-900, #18181B);
 }
 .sh-empty p {
     font-size: 13px;
@@ -489,13 +457,13 @@ html, body {
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%) translateY(100px);
-    background: var(--gray-900);
+    background: var(--gray-900, #18181B);
     color: white;
     padding: 11px 20px;
-    border-radius: var(--r-full);
+    border-radius: var(--r-full, 999px);
     font-size: 13px;
     font-weight: 700;
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-lg, 0 12px 32px rgba(0, 0, 0, 0.10));
     opacity: 0;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     pointer-events: none;
@@ -530,19 +498,19 @@ html, body {
     align-items: center;
     gap: 10px;
     padding: 8px 14px;
-    background: var(--gray-50);
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    transition: var(--t-fast);
+    background: var(--gray-50, #FAFAFB);
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: var(--r-md, 12px);
+    transition: all 0.15s;
 }
 .sh-recurso:hover {
-    border-color: var(--violet-300);
-    background: var(--violet-50);
+    border-color: var(--violet-300, #C4B5FD);
+    background: var(--violet-50, #F5F3FF);
 }
 .sh-recurso [data-lucide] {
     width: 18px;
     height: 18px;
-    color: var(--violet-500);
+    color: var(--violet-500, #8B5CF6);
 }
 .sh-recurso-info {
     display: flex;
@@ -554,13 +522,13 @@ html, body {
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: var(--gray-500);
+    color: var(--gray-500, #71717A);
     line-height: 1;
 }
 .sh-recurso-valor {
     font-size: 14px;
     font-weight: 800;
-    color: var(--gray-900);
+    color: var(--gray-900, #18181B);
     font-variant-numeric: tabular-nums;
     line-height: 1.2;
 }
@@ -581,15 +549,15 @@ html, body {
     font-size: 11px;
     font-weight: 700;
     padding: 3px 8px;
-    border-radius: var(--r-full);
+    border-radius: var(--r-full, 999px);
 }
 .sh-coste [data-lucide] {
     width: 11px;
     height: 11px;
 }
 .sh-coste-esp {
-    background: var(--gray-100);
-    color: var(--gray-700);
+    background: var(--gray-100, #F4F4F7);
+    color: var(--gray-700, #3F3F46);
 }
 .sh-coste-mon {
     background: #FEF3C7;
@@ -607,19 +575,19 @@ html, body {
     align-items: center;
     gap: 14px;
     padding: 16px 18px;
-    background: linear-gradient(135deg, var(--violet-50) 0%, var(--white) 100%);
-    border: 1.5px solid var(--violet-200);
-    border-radius: var(--r-lg);
+    background: var(--violet-50, #F5F3FF);
+    border: 1.5px solid var(--violet-200, #DDD6FE);
+    border-radius: var(--r-lg, 16px);
 }
 .sh-ampliacion-icono {
     width: 44px;
     height: 44px;
-    background: var(--violet-100);
+    background: var(--violet-100, #EDE9FE);
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--violet-700);
+    color: var(--violet-700, #6D28D9);
     flex-shrink: 0;
 }
 .sh-ampliacion-icono [data-lucide] {
@@ -633,17 +601,17 @@ html, body {
 .sh-ampliacion-titulo {
     font-size: 14px;
     font-weight: 800;
-    color: var(--gray-900);
+    color: var(--gray-900, #18181B);
     margin-bottom: 2px;
     letter-spacing: -0.01em;
 }
 .sh-ampliacion-desc {
     font-size: 12px;
-    color: var(--gray-500);
+    color: var(--gray-500, #71717A);
     line-height: 1.4;
 }
 .sh-ampliacion-desc strong {
-    color: var(--violet-700);
+    color: var(--violet-700, #6D28D9);
 }
 .sh-ampliacion .sh-btn {
     flex-shrink: 0;
