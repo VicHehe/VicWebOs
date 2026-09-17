@@ -23,6 +23,20 @@ const MAX_ACCESOS_RAPIDOS     = 8;
 let cuentaActual = null;
 let configCuentaActual = null;
 
+// ------------------------------------------------------------
+//  Exponer como getters de window para scripts que no comparten
+//  scope con este archivo (Notificaciones, MasterHad, etc.).
+//  Con `let` no se crean propiedades en `window`, esto lo arregla.
+// ------------------------------------------------------------
+Object.defineProperty(window, 'cuentaActual', {
+    get: () => cuentaActual,
+    configurable: true
+});
+Object.defineProperty(window, 'configCuentaActual', {
+    get: () => configCuentaActual,
+    configurable: true
+});
+
 const CONFIG_CUENTA_DEFAULT = {
     appsInstaladas: ['stor-he', 'chequera'],
     temasInstalados: ['violeta'],
@@ -384,6 +398,12 @@ async function iniciarSesion(codigo) {
     if (typeof renderAccesosRapidos === 'function') renderAccesosRapidos();
     if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
     if (typeof actualizarSaludo === 'function') actualizarSaludo();
+
+    // Notificar a otros módulos (Notificaciones, etc.)
+    window.dispatchEvent(new CustomEvent('vicwebos:sesion', {
+        detail: { codigo: codigoUp, activa: true }
+    }));
+
     return cuenta;
 }
 
@@ -399,6 +419,10 @@ function cerrarSesion() {
     if (typeof renderAccesosRapidos === 'function') renderAccesosRapidos();
     if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
     if (typeof actualizarSaludo === 'function') actualizarSaludo();
+
+    window.dispatchEvent(new CustomEvent('vicwebos:sesion', {
+        detail: { codigo: null, activa: false }
+    }));
 }
 
 async function restaurarSesion() {
@@ -416,6 +440,11 @@ async function restaurarSesion() {
 
         cargarCSSTema(obtenerTemaActivo());
         actualizarAvatarHeader();
+
+        window.dispatchEvent(new CustomEvent('vicwebos:sesion', {
+            detail: { codigo, activa: true }
+        }));
+
         return cuenta;
     } catch (e) {
         console.warn('No se pudo restaurar sesión:', e);
@@ -453,7 +482,6 @@ async function desinstalarApp(id) {
     const app = catalogo.find(a => a.id === id);
     if (app && app.esBase) throw new Error('Esta app es del sistema y no se puede desinstalar.');
     configCuentaActual.appsInstaladas = (configCuentaActual.appsInstaladas || []).filter(a => a !== id);
-    // Al desinstalar, quitarla también de accesos rápidos
     configCuentaActual.accesosRapidos = (configCuentaActual.accesosRapidos || []).filter(a => a !== id);
     await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
 }
