@@ -503,15 +503,20 @@ function iniciarClimaLocal() {
 }
 
 // ============================================================
-//  NOTIFICAR CAMBIO DE TEMA A IFRAMES (Regla 6)
+//  NOTIFICAR CAMBIOS A IFRAMES
 // ============================================================
 window.__notificarCambioTema = function() {
     document.querySelectorAll('iframe').forEach(iframe => {
         try {
-            iframe.contentWindow.postMessage(
-                { type: 'vicwebos_tema_cambio' },
-                '*'
-            );
+            iframe.contentWindow.postMessage({ type: 'vicwebos_tema_cambio' }, '*');
+        } catch (e) { /* silencioso */ }
+    });
+};
+
+window.__notificarCambioChequera = function() {
+    document.querySelectorAll('iframe').forEach(iframe => {
+        try {
+            iframe.contentWindow.postMessage({ type: 'vicwebos_chequera_cambio' }, '*');
         } catch (e) { /* silencioso */ }
     });
 };
@@ -550,6 +555,14 @@ window.__vicwebos = {
     ESPACIO_POR_COMPRA:   ESPACIO_POR_COMPRA,
     COSTO_COMPRA_ESPACIO: COSTO_COMPRA_ESPACIO,
     MAX_WIDGETS_ACTIVOS:  MAX_WIDGETS_ACTIVOS,
+
+    // ---- Chequera ----
+    chequeraLeer: async () => {
+        if (typeof leerChequeraUsuario !== 'function') return null;
+        return await leerChequeraUsuario();
+    },
+    canjear:      async (icono, fuente, texto, cantidad) => await canjear(icono, fuente, texto, cantidad),
+    gastoBoleta:  async (icono, fuente, texto, cantidad) => await gastoBoleta(icono, fuente, texto, cantidad),
 
     // ---- Acciones: apps ----
     instalar: async (id) => {
