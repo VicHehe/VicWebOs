@@ -1,6 +1,7 @@
 // ============================================================
 //  Widget: Reloj Mundial
 //  - Hasta 4 zonas horarias configurables por el usuario
+//  - Lista curada de países (con bandera), agrupada por continente
 //  - Compatible con todos los temas (lee variables del padre)
 //  - Datos por usuario en:
 //      vicwebos-data/app/reloj-mundial/{codigo}reloj-mundial.json
@@ -14,6 +15,88 @@ let zonas = [];
 
 const API = () => window.parent.__vicwebos || null;
 const BD  = () => window.parent.ConfigBD || null;
+
+// ============================================================
+//  PAÍSES CURADOS — agrupados por continente
+// ============================================================
+const PAISES = {
+    '🌎 América': [
+        { bandera: '🇦🇷', nombre: 'Argentina',        zona: 'America/Argentina/Buenos_Aires' },
+        { bandera: '🇧🇴', nombre: 'Bolivia',          zona: 'America/La_Paz' },
+        { bandera: '🇧🇷', nombre: 'Brasil (São Paulo)', zona: 'America/Sao_Paulo' },
+        { bandera: '🇨🇦', nombre: 'Canadá (Toronto)', zona: 'America/Toronto' },
+        { bandera: '🇨🇱', nombre: 'Chile',            zona: 'America/Santiago' },
+        { bandera: '🇨🇴', nombre: 'Colombia',         zona: 'America/Bogota' },
+        { bandera: '🇨🇷', nombre: 'Costa Rica',       zona: 'America/Costa_Rica' },
+        { bandera: '🇨🇺', nombre: 'Cuba',             zona: 'America/Havana' },
+        { bandera: '🇪🇨', nombre: 'Ecuador',          zona: 'America/Guayaquil' },
+        { bandera: '🇺🇸', nombre: 'EE.UU. (Nueva York)', zona: 'America/New_York' },
+        { bandera: '🇺🇸', nombre: 'EE.UU. (Los Ángeles)', zona: 'America/Los_Angeles' },
+        { bandera: '🇺🇸', nombre: 'EE.UU. (Chicago)', zona: 'America/Chicago' },
+        { bandera: '🇬🇹', nombre: 'Guatemala',        zona: 'America/Guatemala' },
+        { bandera: '🇭🇳', nombre: 'Honduras',         zona: 'America/Tegucigalpa' },
+        { bandera: '🇲🇽', nombre: 'México (CDMX)',    zona: 'America/Mexico_City' },
+        { bandera: '🇲🇽', nombre: 'México (Tijuana)', zona: 'America/Tijuana' },
+        { bandera: '🇳🇮', nombre: 'Nicaragua',        zona: 'America/Managua' },
+        { bandera: '🇵🇦', nombre: 'Panamá',           zona: 'America/Panama' },
+        { bandera: '🇵🇾', nombre: 'Paraguay',         zona: 'America/Asuncion' },
+        { bandera: '🇵🇪', nombre: 'Perú',             zona: 'America/Lima' },
+        { bandera: '🇵🇷', nombre: 'Puerto Rico',      zona: 'America/Puerto_Rico' },
+        { bandera: '🇩🇴', nombre: 'Rep. Dominicana',  zona: 'America/Santo_Domingo' },
+        { bandera: '🇸🇻', nombre: 'El Salvador',      zona: 'America/El_Salvador' },
+        { bandera: '🇺🇾', nombre: 'Uruguay',          zona: 'America/Montevideo' },
+        { bandera: '🇻🇪', nombre: 'Venezuela',        zona: 'America/Caracas' }
+    ],
+    '🌍 Europa': [
+        { bandera: '🇩🇪', nombre: 'Alemania',         zona: 'Europe/Berlin' },
+        { bandera: '🇦🇹', nombre: 'Austria',          zona: 'Europe/Vienna' },
+        { bandera: '🇧🇪', nombre: 'Bélgica',          zona: 'Europe/Brussels' },
+        { bandera: '🇩🇰', nombre: 'Dinamarca',        zona: 'Europe/Copenhagen' },
+        { bandera: '🇪🇸', nombre: 'España',           zona: 'Europe/Madrid' },
+        { bandera: '🇫🇮', nombre: 'Finlandia',        zona: 'Europe/Helsinki' },
+        { bandera: '🇫🇷', nombre: 'Francia',          zona: 'Europe/Paris' },
+        { bandera: '🇬🇷', nombre: 'Grecia',           zona: 'Europe/Athens' },
+        { bandera: '🇮🇪', nombre: 'Irlanda',          zona: 'Europe/Dublin' },
+        { bandera: '🇮🇹', nombre: 'Italia',           zona: 'Europe/Rome' },
+        { bandera: '🇳🇱', nombre: 'Países Bajos',     zona: 'Europe/Amsterdam' },
+        { bandera: '🇵🇱', nombre: 'Polonia',          zona: 'Europe/Warsaw' },
+        { bandera: '🇵🇹', nombre: 'Portugal',         zona: 'Europe/Lisbon' },
+        { bandera: '🇬🇧', nombre: 'Reino Unido',      zona: 'Europe/London' },
+        { bandera: '🇨🇿', nombre: 'Rep. Checa',       zona: 'Europe/Prague' },
+        { bandera: '🇷🇺', nombre: 'Rusia (Moscú)',    zona: 'Europe/Moscow' },
+        { bandera: '🇸🇪', nombre: 'Suecia',           zona: 'Europe/Stockholm' },
+        { bandera: '🇨🇭', nombre: 'Suiza',            zona: 'Europe/Zurich' },
+        { bandera: '🇺🇦', nombre: 'Ucrania',          zona: 'Europe/Kyiv' }
+    ],
+    '🌏 Asia': [
+        { bandera: '🇸🇦', nombre: 'Arabia Saudita',   zona: 'Asia/Riyadh' },
+        { bandera: '🇨🇳', nombre: 'China',            zona: 'Asia/Shanghai' },
+        { bandera: '🇰🇷', nombre: 'Corea del Sur',    zona: 'Asia/Seoul' },
+        { bandera: '🇦🇪', nombre: 'Emiratos Árabes',  zona: 'Asia/Dubai' },
+        { bandera: '🇮🇳', nombre: 'India',            zona: 'Asia/Kolkata' },
+        { bandera: '🇮🇩', nombre: 'Indonesia',        zona: 'Asia/Jakarta' },
+        { bandera: '🇮🇱', nombre: 'Israel',           zona: 'Asia/Jerusalem' },
+        { bandera: '🇯🇵', nombre: 'Japón',            zona: 'Asia/Tokyo' },
+        { bandera: '🇲🇾', nombre: 'Malasia',          zona: 'Asia/Kuala_Lumpur' },
+        { bandera: '🇵🇭', nombre: 'Filipinas',        zona: 'Asia/Manila' },
+        { bandera: '🇸🇬', nombre: 'Singapur',         zona: 'Asia/Singapore' },
+        { bandera: '🇹🇭', nombre: 'Tailandia',        zona: 'Asia/Bangkok' },
+        { bandera: '🇹🇷', nombre: 'Turquía',          zona: 'Europe/Istanbul' },
+        { bandera: '🇻🇳', nombre: 'Vietnam',          zona: 'Asia/Ho_Chi_Minh' }
+    ],
+    '🌍 África': [
+        { bandera: '🇿🇦', nombre: 'Sudáfrica',        zona: 'Africa/Johannesburg' },
+        { bandera: '🇪🇬', nombre: 'Egipto',           zona: 'Africa/Cairo' },
+        { bandera: '🇰🇪', nombre: 'Kenia',            zona: 'Africa/Nairobi' },
+        { bandera: '🇲🇦', nombre: 'Marruecos',        zona: 'Africa/Casablanca' },
+        { bandera: '🇳🇬', nombre: 'Nigeria',          zona: 'Africa/Lagos' }
+    ],
+    '🌏 Oceanía': [
+        { bandera: '🇦🇺', nombre: 'Australia (Sídney)', zona: 'Australia/Sydney' },
+        { bandera: '🇦🇺', nombre: 'Australia (Perth)',  zona: 'Australia/Perth' },
+        { bandera: '🇳🇿', nombre: 'Nueva Zelanda',    zona: 'Pacific/Auckland' }
+    ]
+};
 
 // ============================================================
 //  TEMA: heredar variables CSS del padre (Regla 6)
@@ -64,11 +147,26 @@ function formatearHora(zona) {
     }
 }
 
+// Nombre amigable a partir de la zona IANA (fallback si no está en PAISES)
 function nombreBonito(zona) {
-    // 'America/Santiago'             → 'Santiago'
-    // 'America/Argentina/Buenos_Aires' → 'Buenos Aires'
     const partes = zona.split('/');
     return partes[partes.length - 1].replace(/_/g, ' ');
+}
+
+// Busca un país por zona para mostrar la bandera
+function buscarPaisPorZona(zona) {
+    for (const lista of Object.values(PAISES)) {
+        const p = lista.find(x => x.zona === zona);
+        if (p) return p;
+    }
+    return null;
+}
+
+// Devuelve la etiqueta bonita: "🇨🇱 Chile" o fallback "Santiago"
+function etiquetaZona(zona) {
+    const p = buscarPaisPorZona(zona);
+    if (p) return `${p.bandera} ${p.nombre}`;
+    return nombreBonito(zona);
 }
 
 // ============================================================
@@ -131,7 +229,7 @@ function render() {
     } else {
         cont.innerHTML = zonas.map(z => `
             <div class="rm-item" data-zona="${z}">
-                <span class="rm-ciudad">${nombreBonito(z)}</span>
+                <span class="rm-ciudad">${etiquetaZona(z)}</span>
                 <div class="rm-acciones">
                     <span class="rm-hora" data-zona="${z}">${formatearHora(z)}</span>
                     <button class="rm-remove" data-zona="${z}" title="Quitar">
@@ -160,32 +258,29 @@ function tick() {
 }
 
 // ============================================================
-//  MODAL: añadir zona
+//  MODAL: añadir zona (agrupado por continente)
 // ============================================================
 function poblarSelect() {
     const sel = document.getElementById('rmZonaSelect');
     if (!sel) return;
 
-    let disponibles = [];
-    try {
-        disponibles = Intl.supportedValuesOf('timeZone');
-    } catch (e) {
-        disponibles = [
-            'America/Santiago', 'America/Tijuana', 'America/New_York',
-            'America/Los_Angeles', 'America/Mexico_City', 'America/Sao_Paulo',
-            'Europe/Madrid', 'Europe/London', 'Europe/Paris', 'Europe/Moscow',
-            'Asia/Tokyo', 'Asia/Shanghai', 'Asia/Dubai', 'Asia/Kolkata',
-            'Australia/Sydney', 'Pacific/Auckland', 'Africa/Cairo'
-        ];
+    let html = '';
+    for (const [continente, lista] of Object.entries(PAISES)) {
+        const disponibles = lista.filter(p => !zonas.includes(p.zona));
+        if (disponibles.length === 0) continue;
+
+        html += `<optgroup label="${continente}">`;
+        disponibles.forEach(p => {
+            html += `<option value="${p.zona}">${p.bandera} ${p.nombre}</option>`;
+        });
+        html += `</optgroup>`;
     }
 
-    disponibles = disponibles
-        .filter(z => !zonas.includes(z))
-        .sort((a, b) => nombreBonito(a).localeCompare(nombreBonito(b)));
+    if (!html) {
+        html = `<option value="">No hay más zonas disponibles</option>`;
+    }
 
-    sel.innerHTML = disponibles.map(z => `
-        <option value="${z}">${nombreBonito(z)} — ${z.split('/')[0]}</option>
-    `).join('');
+    sel.innerHTML = html;
 }
 
 function abrirModal() {
