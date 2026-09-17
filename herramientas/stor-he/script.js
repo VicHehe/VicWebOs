@@ -1,7 +1,7 @@
 // ============================================================
 //  Stor-He — Lógica
 //  Instalar/desinstalar apps, temas y widgets.
-//  (Tema activo y widgets activos se controlan en Config)
+//  Incluye validaciones de espacio y monedas + compra de espacio.
 // ============================================================
 
 const API = () => window.parent.__vicwebos || null;
@@ -19,6 +19,54 @@ function toast(texto, tipo = 'info') {
     lucide.createIcons();
     clearTimeout(toastTimeout);
     toastTimeout = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+// ---------- RECURSOS ----------
+function actualizarRecursos() {
+    const api = API();
+    if (!api) return;
+
+    const espacioMax = api.obtenerEspacioMaximo() ?? 50;
+    const espacioUsado = api.obtenerEspacioUsado() ?? 0;
+    const monedas = api.obtenerMonedas() ?? 0;
+
+    const elEsp = document.getElementById('shEspacio');
+    const elMon = document.getElementById('shMonedas');
+    if (elEsp) elEsp.textContent = `${espacioUsado} / ${espacioMax}`;
+    if (elMon) elMon.textContent = monedas;
+}
+
+// ---------- RENDER: AMPLIACIÓN ----------
+function renderAmpliacion() {
+    const cont = document.getElementById('shAmpliacion');
+    const api = API();
+    if (!cont || !api) return;
+
+    const max = api.obtenerEspacioMaximo() ?? 50;
+    const monedas = api.obtenerMonedas() ?? 0;
+    const costo = api.COSTO_COMPRA_ESPACIO ?? 2500;
+    const sumar = api.ESPACIO_POR_COMPRA ?? 12;
+    const puede = monedas >= costo;
+
+    cont.innerHTML = `
+        <div class="sh-ampliacion-card">
+            <div class="sh-ampliacion-icono"><i data-lucide="hard-drive"></i></div>
+            <div class="sh-ampliacion-info">
+                <div class="sh-ampliacion-titulo">Ampliar espacio</div>
+                <div class="sh-ampliacion-desc">
+                    Añade <strong>+${sumar} espacio</strong> a tu VicWebOs.
+                    Actualmente tienes <strong>${max}</strong>.
+                </div>
+            </div>
+            <button class="sh-btn ${puede ? 'sh-btn-instalar' : 'sh-btn-aplicar'}"
+                    data-accion="comprarEspacio"
+                    ${puede ? '' : 'disabled title="Te faltan monedas"'}>
+                <i data-lucide="coins"></i>
+                ${costo} monedas
+            </button>
+        </div>
+    `;
+    lucide.createIcons();
 }
 
 // ---------- RENDER GENÉRICO ----------
@@ -58,6 +106,19 @@ function renderGrid(contenedor, lista, renderCard) {
     lucide.createIcons();
 }
 
+// ---------- ETIQUETA DE COSTO ----------
+function etiquetaCosto(item) {
+    const partes = [];
+    if ((item.espacio || 0) > 0) {
+        partes.push(`<span class="sh-coste sh-coste-esp"><i data-lucide="hard-drive"></i> ${item.espacio}</span>`);
+    }
+    if ((item.monedas || 0) > 0) {
+        partes.push(`<span class="sh-coste sh-coste-mon"><i data-lucide="coins"></i> ${item.monedas}</span>`);
+    }
+    if (partes.length === 0) return '';
+    return `<div class="sh-costes">${partes.join('')}</div>`;
+}
+
 // ============================================================
 //  TAB: APPS
 // ============================================================
@@ -67,7 +128,7 @@ function renderApps() {
     if (!cont) return;
 
     if (!api) {
-        cont.innerHTML = `<div class="sh-empty"><i data-lucide="alert-triangle"></i><h3>Error de conexión</h3><p>No se pudo conectar con VicWebOs.</p></div>`;
+        cont.innerHTML = `<div class="sh-empty"><i data-lucide="alert-triangle"></i><h3>Error de conexión</h3><p>No se pudo conectar con VicWebOS.</p></div>`;
         lucide.createIcons();
         return;
     }
@@ -79,6 +140,8 @@ function renderApps() {
     renderGrid(cont, catalogo, (app) => {
         const instalada = instaladas.includes(app.id);
         const esBase = !!app.esBase;
+        const check = api.puedeInstalar({ espacio: app.espacio || 0, monedas: app.monedas || 0 });
+        const bloqueado = !instalada && !check.ok;
 
         return `
             <div class="sh-card ${instalada ? 'instalada' : ''}" data-id="${app.id}">
@@ -90,6 +153,7 @@ function renderApps() {
                             ${esBase ? '<span class="sh-badge sh-badge-base">Sistema</span>' : ''}
                         </div>
                         <div class="sh-card-desc">${app.descripcion || ''}</div>
+                        ${etiquetaCosto(app)}
                     </div>
                 </div>
                 <div class="sh-card-footer">
@@ -105,8 +169,10 @@ function renderApps() {
                              </button>
                            </div>`
                         : `<div class="sh-acciones">
-                             <button class="sh-btn sh-btn-instalar" data-accion="instalar" data-id="${app.id}">
-                                <i data-lucide="plus-circle"></i> Agregar al sidebar
+                             <button class="sh-btn ${bloqueado ? 'sh-btn-aplicar' : 'sh-btn-instalar'}"
+                                     data-accion="instalar" data-id="${app.id}"
+                                     ${bloqueado ? `disabled title="${check.motivo}"` : ''}>
+                                <i data-lucide="plus-circle"></i> Agregar
                              </button>
                            </div>`}
                 </div>
@@ -149,7 +215,7 @@ function renderTemas() {
     if (!cont) return;
 
     if (!api) {
-        cont.innerHTML = `<div class="sh-empty"><i data-lucide="alert-triangle"></i><h3>Error de conexión</h3><p>No se pudo conectar con VicWebOs.</p></div>`;
+        cont.innerHTML = `<div class="sh-empty"><i data-lucide="alert-triangle"></i><h3>Error de conexión</h3><p>No se pudo conectar con VicWebOS.</p></div>`;
         lucide.createIcons();
         return;
     }
@@ -164,6 +230,8 @@ function renderTemas() {
         const instalado = instalados.includes(tema.id);
         const esBase = !!tema.esBase;
         const esActivo = activo === tema.id;
+        const check = api.puedeInstalar({ espacio: tema.espacio || 0, monedas: tema.monedas || 0 });
+        const bloqueado = !instalado && !check.ok;
 
         return `
             <div class="sh-card ${instalado ? 'instalada' : ''}" data-id="${tema.id}">
@@ -175,6 +243,7 @@ function renderTemas() {
                             ${esBase ? '<span class="sh-badge sh-badge-base">Base</span>' : ''}
                         </div>
                         <div class="sh-card-desc">${tema.descripcion || ''}</div>
+                        ${etiquetaCosto(tema)}
                     </div>
                 </div>
                 <div class="sh-card-footer">
@@ -191,7 +260,9 @@ function renderTemas() {
                                 </button>`}
                            </div>`
                         : `<div class="sh-acciones">
-                             <button class="sh-btn sh-btn-instalar" data-accion="instalarTema" data-id="${tema.id}">
+                             <button class="sh-btn ${bloqueado ? 'sh-btn-aplicar' : 'sh-btn-instalar'}"
+                                     data-accion="instalarTema" data-id="${tema.id}"
+                                     ${bloqueado ? `disabled title="${check.motivo}"` : ''}>
                                 <i data-lucide="download"></i> Instalar
                              </button>
                            </div>`}
@@ -209,7 +280,7 @@ function renderWidgets() {
     if (!cont) return;
 
     if (!api) {
-        cont.innerHTML = `<div class="sh-empty"><i data-lucide="alert-triangle"></i><h3>Error de conexión</h3><p>No se pudo conectar con VicWebOs.</p></div>`;
+        cont.innerHTML = `<div class="sh-empty"><i data-lucide="alert-triangle"></i><h3>Error de conexión</h3><p>No se pudo conectar con VicWebOS.</p></div>`;
         lucide.createIcons();
         return;
     }
@@ -222,6 +293,8 @@ function renderWidgets() {
     renderGrid(cont, catalogo, (widget) => {
         const instalado = instalados.includes(widget.id);
         const esBase = !!widget.esBase;
+        const check = api.puedeInstalar({ espacio: widget.espacio || 0, monedas: widget.monedas || 0 });
+        const bloqueado = !instalado && !check.ok;
 
         return `
             <div class="sh-card ${instalado ? 'instalada' : ''}" data-id="${widget.id}">
@@ -233,6 +306,7 @@ function renderWidgets() {
                             ${esBase ? '<span class="sh-badge sh-badge-base">Sistema</span>' : ''}
                         </div>
                         <div class="sh-card-desc">${widget.descripcion || ''}</div>
+                        ${etiquetaCosto(widget)}
                     </div>
                 </div>
                 <div class="sh-card-footer">
@@ -248,7 +322,9 @@ function renderWidgets() {
                                 </button>`}
                            </div>`
                         : `<div class="sh-acciones">
-                             <button class="sh-btn sh-btn-instalar" data-accion="instalarWidget" data-id="${widget.id}">
+                             <button class="sh-btn ${bloqueado ? 'sh-btn-aplicar' : 'sh-btn-instalar'}"
+                                     data-accion="instalarWidget" data-id="${widget.id}"
+                                     ${bloqueado ? `disabled title="${check.motivo}"` : ''}>
                                 <i data-lucide="download"></i> Instalar
                              </button>
                            </div>`}
@@ -299,6 +375,10 @@ async function manejarAccion(accion, id) {
                 await api.desinstalarWidget(id);
                 toast('Widget desinstalado', 'success');
                 break;
+            case 'comprarEspacio':
+                await api.comprarEspacio();
+                toast('¡Espacio ampliado!', 'success');
+                break;
         }
         refrescarTodo();
     } catch (e) {
@@ -307,6 +387,8 @@ async function manejarAccion(accion, id) {
 }
 
 function refrescarTodo() {
+    actualizarRecursos();
+    renderAmpliacion();
     renderApps();
     renderTemas();
     renderWidgets();
@@ -333,6 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const btn = e.target.closest('[data-accion]');
         if (!btn) return;
         e.preventDefault();
+        if (btn.disabled) return;
         manejarAccion(btn.dataset.accion, btn.dataset.id);
     });
 
