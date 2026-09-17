@@ -523,3 +523,134 @@ html, body {
     .sh-tab { padding: 10px 14px 12px; }
     .sh-logo-text p { display: none; }
 }
+
+/* ================================================
+   RECURSOS (espacio y monedas)
+   ================================================ */
+.sh-recursos {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+.sh-recurso {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--gray-50);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    min-width: 140px;
+}
+.sh-recurso [data-lucide] {
+    width: 18px;
+    height: 18px;
+    color: var(--violet-500);
+}
+.sh-recurso-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+.sh-recurso-label {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-500);
+}
+.sh-recurso-valor {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--gray-900);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ================================================
+   COSTES EN CARDS
+   ================================================ */
+.sh-costes {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+}
+.sh-coste {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: var(--r-full);
+}
+.sh-coste [data-lucide] {
+    width: 11px;
+    height: 11px;
+}
+.sh-coste-esp {
+    background: var(--gray-100);
+    color: var(--gray-700);
+}
+.sh-coste-mon {
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+/* ================================================
+   CARD DE AMPLIACIÓN DE ESPACIO
+   ================================================ */
+.sh-ampliacion {
+    margin-bottom: 24px;
+}
+.sh-ampliacion-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    background: linear-gradient(135deg, var(--violet-50) 0%, var(--white) 100%);
+    border: 1.5px solid var(--violet-200);
+    border-radius: var(--r-lg);
+}
+.sh-ampliacion-icono {
+    width: 44px;
+    height: 44px;
+    background: var(--violet-100);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--violet-700);
+    flex-shrink: 0;
+}
+.sh-ampliacion-icono [data-lucide] {
+    width: 22px;
+    height: 22px;
+}
+.sh-ampliacion-info {
+    flex: 1;
+    min-width: 0;
+}
+.sh-ampliacion-titulo {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--gray-900);
+    margin-bottom: 2px;
+    letter-spacing: -0.01em;
+}
+.sh-ampliacion-desc {
+    font-size: 12px;
+    color: var(--gray-500);
+    line-height: 1.4;
+}
+.sh-ampliacion-desc strong {
+    color: var(--violet-700);
+}
+.sh-ampliacion .sh-btn {
+    flex-shrink: 0;
+}
+.sh-ampliacion .sh-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
