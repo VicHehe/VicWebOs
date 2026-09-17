@@ -242,6 +242,13 @@ const ConfigBD = {
         }
     },
 
+    // Lee SIEMPRE desde GitHub, ignorando el caché.
+    // Útil para polling (notificaciones, mensajes, etc.).
+    async leerArchivoFresh(nombre) {
+        await invalidarCache(nombre);
+        return await this.leerArchivo(nombre);
+    },
+
     async escribirArchivo(nombre, datos) {
         if (!this.estaConectado()) throw new Error('GitHub no está conectado.');
         const config = cargarConfigBD();
@@ -258,6 +265,16 @@ const ConfigBD = {
         // Actualizar caché para la próxima lectura
         await guardarCache(nombre, datos);
         return { ok: true };
+    },
+
+    // Invalida el caché de un archivo concreto (fuerza releer de GitHub).
+    async invalidarCache(nombre) {
+        return await invalidarCache(nombre);
+    },
+
+    // Invalida TODO el caché local.
+    async invalidarTodo() {
+        return await invalidarTodoCache();
     },
 
     async conectar(token, repo) {
