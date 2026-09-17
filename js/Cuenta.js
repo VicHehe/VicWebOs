@@ -1,6 +1,12 @@
 // ============================================================
 //  Cuenta.js — Cuentas + apps + temas + widgets + espacio/monedas
 //  Incluye funciones globales de chequera (canjear / gastoBoleta)
+//
+//  Concurrencia:
+//  - guardarConfigCuenta usa ConfigBD.actualizarArchivo (merge real)
+//  - canjear/gastoBoleta usan actualizarArchivo para el chequero
+//  - Las operaciones de compra/instalación usan un lock en memoria
+//    para evitar doble-click o doble-tap.
 // ============================================================
 
 const CUENTAS_FILE = 'cuenta.json';
@@ -24,9 +30,27 @@ let cuentaActual = null;
 let configCuentaActual = null;
 
 // ------------------------------------------------------------
+//  Lock en memoria: evita que la misma operación se dispare
+//  dos veces si el usuario pulsa el botón muy rápido.
+//  Claves: "instalarApp:id", "instalarTema:id", etc.
+// ------------------------------------------------------------
+const _locks = new Set();
+
+async function _conLock(clave, fn) {
+    if (_locks.has(clave)) {
+        throw new Error('Operación en curso. Espera un momento.');
+    }
+    _locks.add(clave);
+    try {
+        return await fn();
+    } finally {
+        _locks.delete(clave);
+    }
+}
+
+// ------------------------------------------------------------
 //  Exponer como getters de window para scripts que no comparten
-//  scope con este archivo (Notificaciones, MasterHad, etc.).
-//  Con `let` no se crean propiedades en `window`, esto lo arregla.
+//  scope con este archivo.
 // ------------------------------------------------------------
 Object.defineProperty(window, 'cuentaActual', {
     get: () => cuentaActual,
@@ -48,7 +72,6 @@ const CONFIG_CUENTA_DEFAULT = {
     accesosRapidos: ['stor-he', 'chequera']
 };
 
-// Clone seguro para no compartir referencias de arrays con la constante
 function clonarConfigDefault() {
     return {
         appsInstaladas:    [...CONFIG_CUENTA_DEFAULT.appsInstaladas],
@@ -79,14 +102,22 @@ async function buscarCuentaPorCodigo(codigo) {
 }
 
 // ---------- CONFIG POR CUENTA ----------
+//  Lectura con caché (rápida, para render).
 async function leerTodasConfigCuentas() {
     if (!ConfigBD.estaConectado()) return {};
     const data = await ConfigBD.leerArchivo(CUENTA_CONFIG_FILE);
     return (data && typeof data === 'object') ? data : {};
 }
 
+//  Lectura SIN caché (para operaciones críticas).
+async function leerTodasConfigCuentasFresh() {
+    if (!ConfigBD.estaConectado()) return {};
+    const data = await ConfigBD.leerArchivoFresh(CUENTA_CONFIG_FILE);
+    return (data && typeof data === 'object') ? data : {};
+}
+
 async function obtenerConfigCuenta(codigo) {
-    const all = await leerTodasConfigCuentas();
+    const all = await leerTodasConfigCuentasFresh();
     const cfg = { ...CONFIG_CUENTA_DEFAULT, ...(all[codigo] || {}) };
     if (typeof cfg.espacioMaximo !== 'number') cfg.espacioMaximo = ESPACIO_INICIAL;
     if (typeof cfg.monedas !== 'number') cfg.monedas = MONEDAS_INICIALES;
@@ -94,14 +125,31 @@ async function obtenerConfigCuenta(codigo) {
     return cfg;
 }
 
-async function guardarConfigCuenta(codigo, config) {
-    const all = await leerTodasConfigCuentas();
-    all[codigo] = config;
-    return await ConfigBD.escribirArchivo(CUENTA_CONFIG_FILE, all);
+// ------------------------------------------------------------
+//  Guardar config de UNA cuenta de forma segura (merge real).
+//  Lee fresco, modifica solo la clave del usuario, escribe.
+//  Si otro usuario escribió a la vez, el retry relee y reaplica.
+//  El segundo argumento puede ser un objeto completo (reemplaza)
+//  o una función mutadora (recibe la config actual y devuelve la nueva).
+// ------------------------------------------------------------
+async function guardarConfigCuenta(codigo, configOrMutador) {
+    return await ConfigBD.actualizarArchivo(CUENTA_CONFIG_FILE, (all) => {
+        if (!all || typeof all !== 'object') all = {};
+        const actual = all[codigo] || {};
+        let nueva;
+        if (typeof configOrMutador === 'function') {
+            nueva = configOrMutador({ ...actual });
+            if (nueva === undefined) nueva = actual;
+        } else {
+            nueva = configOrMutador;
+        }
+        all[codigo] = nueva;
+        return all;
+    });
 }
 
 // ============================================================
-//  MIGRACIÓN: garantiza que las apps por defecto estén presentes
+//  MIGRACIÓN
 // ============================================================
 async function migrarAppsPorDefecto(codigo) {
     const catalogo = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
@@ -109,19 +157,19 @@ async function migrarAppsPorDefecto(codigo) {
         .filter(a => a.esBase || a.esDefault)
         .map(a => a.id);
 
-    let huboCambios = false;
+    const instaladas = configCuentaActual.appsInstaladas || [];
+    const faltantes = requeridas.filter(id => !instaladas.includes(id));
+    if (faltantes.length === 0) return;
 
-    if (!configCuentaActual.appsInstaladas) configCuentaActual.appsInstaladas = [];
-    requeridas.forEach(id => {
-        if (!configCuentaActual.appsInstaladas.includes(id)) {
-            configCuentaActual.appsInstaladas.push(id);
-            huboCambios = true;
-        }
+    await guardarConfigCuenta(codigo, (cfg) => {
+        if (!Array.isArray(cfg.appsInstaladas)) cfg.appsInstaladas = [];
+        faltantes.forEach(id => {
+            if (!cfg.appsInstaladas.includes(id)) cfg.appsInstaladas.push(id);
+        });
+        return cfg;
     });
 
-    if (huboCambios) {
-        await guardarConfigCuenta(codigo, configCuentaActual);
-    }
+    configCuentaActual = await obtenerConfigCuenta(codigo);
 }
 
 // ============================================================
@@ -186,25 +234,33 @@ function obtenerAccesosRapidos() {
 
 async function activarAccesoRapido(id) {
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
-    if (!configCuentaActual.accesosRapidos) configCuentaActual.accesosRapidos = [];
-    if (configCuentaActual.accesosRapidos.includes(id)) return;
-
-    if (configCuentaActual.accesosRapidos.length >= MAX_ACCESOS_RAPIDOS) {
-        throw new Error(`Máximo ${MAX_ACCESOS_RAPIDOS} accesos rápidos. Quita uno para añadir otro.`);
-    }
-
-    configCuentaActual.accesosRapidos.push(id);
-    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+    return await _conLock(`acceso:${id}`, async () => {
+        const codigo = cuentaActual.codigo;
+        const cfg = await obtenerConfigCuenta(codigo);
+        if (!Array.isArray(cfg.accesosRapidos)) cfg.accesosRapidos = [];
+        if (cfg.accesosRapidos.includes(id)) return;
+        if (cfg.accesosRapidos.length >= MAX_ACCESOS_RAPIDOS) {
+            throw new Error(`Máximo ${MAX_ACCESOS_RAPIDOS} accesos rápidos. Quita uno para añadir otro.`);
+        }
+        cfg.accesosRapidos.push(id);
+        await guardarConfigCuenta(codigo, cfg);
+        configCuentaActual.accesosRapidos = cfg.accesosRapidos;
+    });
 }
 
 async function desactivarAccesoRapido(id) {
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
-    configCuentaActual.accesosRapidos = (configCuentaActual.accesosRapidos || []).filter(x => x !== id);
-    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+    return await _conLock(`acceso:${id}`, async () => {
+        const codigo = cuentaActual.codigo;
+        const cfg = await obtenerConfigCuenta(codigo);
+        cfg.accesosRapidos = (cfg.accesosRapidos || []).filter(x => x !== id);
+        await guardarConfigCuenta(codigo, cfg);
+        configCuentaActual.accesosRapidos = cfg.accesosRapidos;
+    });
 }
 
 // ============================================================
-//  CHEQUERA — historial de movimientos (por usuario)
+//  CHEQUERA
 // ============================================================
 function rutaChequera(codigo) {
     return CHEQUERA_FILE_BASE + codigo + 'chequera.json';
@@ -213,15 +269,11 @@ function rutaChequera(codigo) {
 async function leerChequeraUsuario() {
     if (!cuentaActual) return { version: 1, movimientos: [] };
     try {
-        const data = await ConfigBD.leerArchivo(rutaChequera(cuentaActual.codigo));
+        // leerArchivoFresh evita que se quede pegado con caché viejo.
+        const data = await ConfigBD.leerArchivoFresh(rutaChequera(cuentaActual.codigo));
         if (data && Array.isArray(data.movimientos)) return data;
     } catch (e) { /* no existe */ }
     return { version: 1, movimientos: [] };
-}
-
-async function guardarChequeraUsuario(data) {
-    if (!cuentaActual) return;
-    await ConfigBD.escribirArchivo(rutaChequera(cuentaActual.codigo), data);
 }
 
 function generarIdMovimiento() {
@@ -229,20 +281,36 @@ function generarIdMovimiento() {
 }
 
 // ------------------------------------------------------------
+//  Escribir movimiento en la chequera de forma segura.
+//  Lee fresco, muta, escribe con retry si hay conflicto.
+// ------------------------------------------------------------
+async function _añadirMovimientoChequera(movimiento) {
+    if (!cuentaActual) return;
+    const ruta = rutaChequera(cuentaActual.codigo);
+    await ConfigBD.actualizarArchivo(ruta, (actual) => {
+        if (!actual || typeof actual !== 'object') {
+            actual = { version: 1, movimientos: [] };
+        }
+        if (!Array.isArray(actual.movimientos)) actual.movimientos = [];
+        actual.movimientos.unshift(movimiento);
+        if (actual.movimientos.length > MAX_MOVIMIENTOS_CHEQUERA) {
+            actual.movimientos = actual.movimientos.slice(0, MAX_MOVIMIENTOS_CHEQUERA);
+        }
+        actual.actualizado = new Date().toISOString();
+        return actual;
+    });
+}
+
+// ------------------------------------------------------------
 //  Notificación de movimiento de monedas
-//  Envía una noti al propio usuario desde 'chequera' con el
-//  contexto de la app que disparó el movimiento.
-//  Falla silenciosamente para no romper la operación principal.
 // ------------------------------------------------------------
 async function _notificarMovimientoMonedas(tipo, fuente, texto, cantidad) {
     try {
         if (!window.Notificaciones) return;
         if (!cuentaActual) return;
-
         const signo = tipo === 'canje' ? '+' : '−';
         const verbo = tipo === 'canje' ? 'Ganaste' : 'Gastaste';
         const mensaje = `${verbo} ${signo}${cantidad} monedas · ${fuente}: ${texto}`;
-
         await window.Notificaciones.enviar('chequera', mensaje, cuentaActual.codigo);
     } catch (e) {
         console.warn('[Cuenta] No se pudo enviar la notificación:', e);
@@ -250,92 +318,120 @@ async function _notificarMovimientoMonedas(tipo, fuente, texto, cantidad) {
 }
 
 // ============================================================
-//  CANJEAR: gana monedas (llamable desde cualquier app)
+//  CANJEAR
 // ============================================================
 async function canjear(icono, fuente, texto, cantidad) {
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
     if (!cantidad || cantidad <= 0) throw new Error('La cantidad debe ser positiva.');
 
-    configCuentaActual.monedas = (configCuentaActual.monedas || 0) + cantidad;
-    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+    const codigo = cuentaActual.codigo;
 
-    const cheq = await leerChequeraUsuario();
-    cheq.movimientos.unshift({
-        id: generarIdMovimiento(),
-        tipo: 'canje',
-        icono: icono || '💰',
-        fuente: fuente || 'app',
-        texto: texto || 'Recompensa',
-        cantidad: cantidad,
-        fecha: new Date().toISOString()
+    // Lock por si la misma app dispara dos canjes seguidos muy rápido
+    return await _conLock(`monedas:${codigo}`, async () => {
+        // 1) Actualizar monedas en configCuenta de forma segura
+        await guardarConfigCuenta(codigo, (cfg) => {
+            cfg.monedas = (cfg.monedas || 0) + cantidad;
+            return cfg;
+        });
+
+        // Refrescar config local
+        configCuentaActual = await obtenerConfigCuenta(codigo);
+
+        // 2) Añadir movimiento al chequero
+        const mov = {
+            id: generarIdMovimiento(),
+            tipo: 'canje',
+            icono: icono || 'coins',
+            fuente: fuente || 'app',
+            texto: texto || 'Recompensa',
+            cantidad: cantidad,
+            fecha: new Date().toISOString()
+        };
+        try {
+            await _añadirMovimientoChequera(mov);
+        } catch (e) {
+            console.warn('[Cuenta] No se pudo guardar en chequera:', e);
+        }
+
+        // 3) UI + notificaciones
+        if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
+        if (typeof window.__notificarCambioChequera === 'function') window.__notificarCambioChequera();
+        await _notificarMovimientoMonedas('canje', fuente, texto, cantidad);
+
+        return { ok: true, monedas: configCuentaActual.monedas };
     });
-    if (cheq.movimientos.length > MAX_MOVIMIENTOS_CHEQUERA) {
-        cheq.movimientos = cheq.movimientos.slice(0, MAX_MOVIMIENTOS_CHEQUERA);
-    }
-    cheq.actualizado = new Date().toISOString();
-    await guardarChequeraUsuario(cheq);
-
-    if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
-    if (typeof window.__notificarCambioChequera === 'function') window.__notificarCambioChequera();
-
-    await _notificarMovimientoMonedas('canje', fuente, texto, cantidad);
-
-    return { ok: true, monedas: configCuentaActual.monedas };
 }
 
 // ============================================================
-//  GASTO BOLETA: pierde monedas (llamable desde cualquier app)
+//  GASTO BOLETA
 // ============================================================
 async function gastoBoleta(icono, fuente, texto, cantidad) {
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
     if (!cantidad || cantidad <= 0) throw new Error('La cantidad debe ser positiva.');
-    if ((configCuentaActual.monedas || 0) < cantidad) {
-        throw new Error(`No tienes suficientes monedas (tienes ${configCuentaActual.monedas || 0}, necesitas ${cantidad}).`);
-    }
 
-    configCuentaActual.monedas = (configCuentaActual.monedas || 0) - cantidad;
-    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+    const codigo = cuentaActual.codigo;
 
-    const cheq = await leerChequeraUsuario();
-    cheq.movimientos.unshift({
-        id: generarIdMovimiento(),
-        tipo: 'gasto',
-        icono: icono || '🧾',
-        fuente: fuente || 'app',
-        texto: texto || 'Gasto',
-        cantidad: -cantidad,
-        fecha: new Date().toISOString()
+    return await _conLock(`monedas:${codigo}`, async () => {
+        // 1) Verificar y descontar de forma segura
+        let saldoFinal = 0;
+        await guardarConfigCuenta(codigo, (cfg) => {
+            const actuales = cfg.monedas || 0;
+            if (actuales < cantidad) {
+                const e = new Error(`No tienes suficientes monedas (tienes ${actuales}, necesitas ${cantidad}).`);
+                e.code = 'SIN_SALDO';
+                throw e;
+            }
+            cfg.monedas = actuales - cantidad;
+            saldoFinal = cfg.monedas;
+            return cfg;
+        });
+
+        configCuentaActual = await obtenerConfigCuenta(codigo);
+
+        // 2) Movimiento
+        const mov = {
+            id: generarIdMovimiento(),
+            tipo: 'gasto',
+            icono: icono || 'receipt',
+            fuente: fuente || 'app',
+            texto: texto || 'Gasto',
+            cantidad: -cantidad,
+            fecha: new Date().toISOString()
+        };
+        try {
+            await _añadirMovimientoChequera(mov);
+        } catch (e) {
+            console.warn('[Cuenta] No se pudo guardar en chequera:', e);
+        }
+
+        if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
+        if (typeof window.__notificarCambioChequera === 'function') window.__notificarCambioChequera();
+        await _notificarMovimientoMonedas('gasto', fuente, texto, cantidad);
+
+        return { ok: true, monedas: saldoFinal };
     });
-    if (cheq.movimientos.length > MAX_MOVIMIENTOS_CHEQUERA) {
-        cheq.movimientos = cheq.movimientos.slice(0, MAX_MOVIMIENTOS_CHEQUERA);
-    }
-    cheq.actualizado = new Date().toISOString();
-    await guardarChequeraUsuario(cheq);
-
-    if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
-    if (typeof window.__notificarCambioChequera === 'function') window.__notificarCambioChequera();
-
-    await _notificarMovimientoMonedas('gasto', fuente, texto, cantidad);
-
-    return { ok: true, monedas: configCuentaActual.monedas };
 }
 
 // ============================================================
-//  COMPRAR ESPACIO (pasa por gastoBoleta para chequera + noti)
+//  COMPRAR ESPACIO
 // ============================================================
 async function comprarEspacio() {
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
     if (obtenerMonedas() < COSTO_COMPRA_ESPACIO) {
         throw new Error(`Te faltan ${COSTO_COMPRA_ESPACIO - obtenerMonedas()} monedas.`);
     }
+    const codigo = cuentaActual.codigo;
 
-    // Cobrar (registra en chequera, notifica, actualiza header)
-    await gastoBoleta('hard-drive', 'stor-he', 'Ampliar espacio (+12)', COSTO_COMPRA_ESPACIO);
+    return await _conLock(`comprarEspacio:${codigo}`, async () => {
+        await gastoBoleta('hard-drive', 'stor-he', 'Ampliar espacio (+12)', COSTO_COMPRA_ESPACIO);
 
-    configCuentaActual.espacioMaximo += ESPACIO_POR_COMPRA;
-    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
-
-    return { ok: true, espacioMaximo: configCuentaActual.espacioMaximo, monedas: configCuentaActual.monedas };
+        await guardarConfigCuenta(codigo, (cfg) => {
+            cfg.espacioMaximo = (cfg.espacioMaximo || ESPACIO_INICIAL) + ESPACIO_POR_COMPRA;
+            return cfg;
+        });
+        configCuentaActual = await obtenerConfigCuenta(codigo);
+        return { ok: true, espacioMaximo: configCuentaActual.espacioMaximo, monedas: configCuentaActual.monedas };
+    });
 }
 
 // ---------- VALIDACIÓN ----------
@@ -383,23 +479,29 @@ async function crearCuenta({ foto, nombre, pronombre, codigo }) {
     if (!nombre || !nombre.trim()) {
         throw new Error('El nombre es obligatorio.');
     }
-    const cuentas = await cargarCuentas();
-    if (cuentas.some(c => c.codigo === codigoUp)) {
-        throw new Error('Ese código ya está en uso. Elige otro.');
-    }
-    const nueva = {
-        codigo: codigoUp,
-        nombre: nombre.trim(),
-        pronombre: pronombre || 'el',
-        foto: foto || null,
-        creado: new Date().toISOString()
-    };
-    cuentas.push(nueva);
-    await guardarCuentas(cuentas);
-    await guardarConfigCuenta(codigoUp, clonarConfigDefault());
 
-    await iniciarSesion(codigoUp);
-    return nueva;
+    // Lock global para evitar crear dos cuentas con el mismo código
+    return await _conLock('crearCuenta', async () => {
+        const cuentas = await cargarCuentas();
+        if (cuentas.some(c => c.codigo === codigoUp)) {
+            throw new Error('Ese código ya está en uso. Elige otro.');
+        }
+        const nueva = {
+            codigo: codigoUp,
+            nombre: nombre.trim(),
+            pronombre: pronombre || 'el',
+            foto: foto || null,
+            creado: new Date().toISOString()
+        };
+        cuentas.push(nueva);
+        await guardarCuentas(cuentas);
+
+        // Crear config del usuario de forma segura
+        await guardarConfigCuenta(codigoUp, clonarConfigDefault());
+
+        await iniciarSesion(codigoUp);
+        return nueva;
+    });
 }
 
 async function iniciarSesion(codigo) {
@@ -430,7 +532,6 @@ async function iniciarSesion(codigo) {
     if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
     if (typeof actualizarSaludo === 'function') actualizarSaludo();
 
-    // Notificar a otros módulos (Notificaciones, etc.)
     window.dispatchEvent(new CustomEvent('vicwebos:sesion', {
         detail: { codigo: codigoUp, activa: true }
     }));
@@ -491,34 +592,53 @@ async function instalarApp(id) {
     if (!ConfigBD.estaConectado()) throw new Error('Conecta GitHub primero.');
     if (!cuentaActual) throw new Error('Necesitas una cuenta para instalar apps.');
 
-    const catalogo = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
-    const app = catalogo.find(a => a.id === id);
-    if (!app) throw new Error('App no encontrada.');
-    if (estaInstalada(id)) return;
+    const codigo = cuentaActual.codigo;
+    return await _conLock(`instalarApp:${id}`, async () => {
+        const catalogo = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
+        const app = catalogo.find(a => a.id === id);
+        if (!app) throw new Error('App no encontrada.');
 
-    const check = puedeInstalar({ espacio: app.espacio || 0, monedas: app.monedas || 0 });
-    if (!check.ok) throw new Error(check.motivo);
+        // Reload fresco para ver si ya está instalada
+        configCuentaActual = await obtenerConfigCuenta(codigo);
+        if ((configCuentaActual.appsInstaladas || []).includes(id)) {
+            return { ok: true, yaEstaba: true };
+        }
 
-    // Cobrar PRIMERO (registra en chequera, noti y descuenta monedas)
-    if ((app.monedas || 0) > 0) {
-        await gastoBoleta('package', 'stor-he', `App: ${app.nombre}`, app.monedas);
-    }
+        const check = puedeInstalar({ espacio: app.espacio || 0, monedas: app.monedas || 0 });
+        if (!check.ok) throw new Error(check.motivo);
 
-    // Ahora sí, agregar la app
-    if (!configCuentaActual.appsInstaladas) configCuentaActual.appsInstaladas = [];
-    configCuentaActual.appsInstaladas.push(id);
-    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+        // Cobrar primero si tiene costo
+        if ((app.monedas || 0) > 0) {
+            await gastoBoleta('package', 'stor-he', `App: ${app.nombre}`, app.monedas);
+        }
+
+        await guardarConfigCuenta(codigo, (cfg) => {
+            if (!Array.isArray(cfg.appsInstaladas)) cfg.appsInstaladas = [];
+            if (!cfg.appsInstaladas.includes(id)) cfg.appsInstaladas.push(id);
+            return cfg;
+        });
+        configCuentaActual = await obtenerConfigCuenta(codigo);
+        return { ok: true };
+    });
 }
 
 async function desinstalarApp(id) {
     if (!ConfigBD.estaConectado()) throw new Error('Conecta GitHub primero.');
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
-    const catalogo = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
-    const app = catalogo.find(a => a.id === id);
-    if (app && app.esBase) throw new Error('Esta app es del sistema y no se puede desinstalar.');
-    configCuentaActual.appsInstaladas = (configCuentaActual.appsInstaladas || []).filter(a => a !== id);
-    configCuentaActual.accesosRapidos = (configCuentaActual.accesosRapidos || []).filter(a => a !== id);
-    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+
+    const codigo = cuentaActual.codigo;
+    return await _conLock(`desinstalarApp:${id}`, async () => {
+        const catalogo = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
+        const app = catalogo.find(a => a.id === id);
+        if (app && app.esBase) throw new Error('Esta app es del sistema y no se puede desinstalar.');
+
+        await guardarConfigCuenta(codigo, (cfg) => {
+            cfg.appsInstaladas = (cfg.appsInstaladas || []).filter(a => a !== id);
+            cfg.accesosRapidos = (cfg.accesosRapidos || []).filter(a => a !== id);
+            return cfg;
+        });
+        configCuentaActual = await obtenerConfigCuenta(codigo);
+    });
 }
 
 // ---------- TEMAS ----------
@@ -527,36 +647,56 @@ function obtenerTemaActivo() { return configCuentaActual?.temaActivo || 'violeta
 
 async function instalarTema(id) {
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
+    const codigo = cuentaActual.codigo;
 
-    const catalogo = typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : [];
-    const tema = catalogo.find(t => t.id === id);
-    if (!tema) throw new Error('Tema no encontrado.');
-    if ((configCuentaActual.temasInstalados || []).includes(id)) return;
+    return await _conLock(`instalarTema:${id}`, async () => {
+        const catalogo = typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : [];
+        const tema = catalogo.find(t => t.id === id);
+        if (!tema) throw new Error('Tema no encontrado.');
 
-    const check = puedeInstalar({ espacio: tema.espacio || 0, monedas: tema.monedas || 0 });
-    if (!check.ok) throw new Error(check.motivo);
+        configCuentaActual = await obtenerConfigCuenta(codigo);
+        if ((configCuentaActual.temasInstalados || []).includes(id)) {
+            return { ok: true, yaEstaba: true };
+        }
 
-    // Cobrar primero si tiene costo
-    if ((tema.monedas || 0) > 0) {
-        await gastoBoleta('palette', 'stor-he', `Tema: ${tema.nombre}`, tema.monedas);
-    }
+        const check = puedeInstalar({ espacio: tema.espacio || 0, monedas: tema.monedas || 0 });
+        if (!check.ok) throw new Error(check.motivo);
 
-    if (!configCuentaActual.temasInstalados) configCuentaActual.temasInstalados = [];
-    configCuentaActual.temasInstalados.push(id);
-    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+        if ((tema.monedas || 0) > 0) {
+            await gastoBoleta('palette', 'stor-he', `Tema: ${tema.nombre}`, tema.monedas);
+        }
+
+        await guardarConfigCuenta(codigo, (cfg) => {
+            if (!Array.isArray(cfg.temasInstalados)) cfg.temasInstalados = [];
+            if (!cfg.temasInstalados.includes(id)) cfg.temasInstalados.push(id);
+            return cfg;
+        });
+        configCuentaActual = await obtenerConfigCuenta(codigo);
+        return { ok: true };
+    });
 }
 
 async function desinstalarTema(id) {
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
-    const catalogo = typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : [];
-    const tema = catalogo.find(t => t.id === id);
-    if (tema && tema.esBase) throw new Error('Este tema es base y no se puede desinstalar.');
-    configCuentaActual.temasInstalados = (configCuentaActual.temasInstalados || []).filter(t => t !== id);
-    if (configCuentaActual.temaActivo === id) {
-        configCuentaActual.temaActivo = 'violeta';
-        cargarCSSTema('violeta');
-    }
-    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+    const codigo = cuentaActual.codigo;
+
+    return await _conLock(`desinstalarTema:${id}`, async () => {
+        const catalogo = typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : [];
+        const tema = catalogo.find(t => t.id === id);
+        if (tema && tema.esBase) throw new Error('Este tema es base y no se puede desinstalar.');
+
+        let temaActivoQuedo = null;
+        await guardarConfigCuenta(codigo, (cfg) => {
+            cfg.temasInstalados = (cfg.temasInstalados || []).filter(t => t !== id);
+            if (cfg.temaActivo === id) {
+                cfg.temaActivo = 'violeta';
+                temaActivoQuedo = 'violeta';
+            }
+            return cfg;
+        });
+        configCuentaActual = await obtenerConfigCuenta(codigo);
+        if (temaActivoQuedo) cargarCSSTema('violeta');
+    });
 }
 
 async function aplicarTema(id) {
@@ -565,15 +705,17 @@ async function aplicarTema(id) {
     const tema = catalogo.find(t => t.id === id);
     if (!tema) throw new Error('Tema no encontrado.');
 
-    configCuentaActual.temaActivo = id;
-    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+    const codigo = cuentaActual.codigo;
+    await guardarConfigCuenta(codigo, (cfg) => {
+        cfg.temaActivo = id;
+        return cfg;
+    });
+    configCuentaActual = await obtenerConfigCuenta(codigo);
     cargarCSSTema(id);
 }
 
 // ------------------------------------------------------------
 //  Cargar el CSS del tema en el <head> del shell.
-//  Espera al load del <link> antes de notificar a los iframes,
-//  para evitar que lean variables CSS todavía sin actualizar.
 // ------------------------------------------------------------
 function cargarCSSTema(id) {
     const catalogo = typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : [];
@@ -597,16 +739,11 @@ function cargarCSSTema(id) {
         }
     };
 
-    // Cuando el CSS esté aplicado en el padre, notificar a los iframes.
-    // Doble rAF para asegurar que el reflow ya ocurrió.
     nuevo.addEventListener('load', () => {
         requestAnimationFrame(() => {
             requestAnimationFrame(notificar);
         });
     });
-
-    // Red de seguridad: si el load no dispara (CSS cacheado, etc.),
-    // notificar de todas formas tras un pequeño margen.
     setTimeout(notificar, 400);
 
     document.head.appendChild(nuevo);
@@ -618,52 +755,81 @@ function obtenerWidgetsActivos() { return configCuentaActual?.widgetsActivos || 
 
 async function instalarWidget(id) {
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
+    const codigo = cuentaActual.codigo;
 
-    const catalogo = typeof WIDGETS_DISPONIBLES !== 'undefined' ? WIDGETS_DISPONIBLES : [];
-    const w = catalogo.find(x => x.id === id);
-    if (!w) throw new Error('Widget no encontrado.');
-    if ((configCuentaActual.widgetsInstalados || []).includes(id)) return;
+    return await _conLock(`instalarWidget:${id}`, async () => {
+        const catalogo = typeof WIDGETS_DISPONIBLES !== 'undefined' ? WIDGETS_DISPONIBLES : [];
+        const w = catalogo.find(x => x.id === id);
+        if (!w) throw new Error('Widget no encontrado.');
 
-    const check = puedeInstalar({ espacio: w.espacio || 0, monedas: w.monedas || 0 });
-    if (!check.ok) throw new Error(check.motivo);
+        configCuentaActual = await obtenerConfigCuenta(codigo);
+        if ((configCuentaActual.widgetsInstalados || []).includes(id)) {
+            return { ok: true, yaEstaba: true };
+        }
 
-    // Cobrar primero si tiene costo
-    if ((w.monedas || 0) > 0) {
-        await gastoBoleta('layout-grid', 'stor-he', `Widget: ${w.nombre}`, w.monedas);
-    }
+        const check = puedeInstalar({ espacio: w.espacio || 0, monedas: w.monedas || 0 });
+        if (!check.ok) throw new Error(check.motivo);
 
-    if (!configCuentaActual.widgetsInstalados) configCuentaActual.widgetsInstalados = [];
-    configCuentaActual.widgetsInstalados.push(id);
-    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
+        if ((w.monedas || 0) > 0) {
+            await gastoBoleta('layout-grid', 'stor-he', `Widget: ${w.nombre}`, w.monedas);
+        }
+
+        await guardarConfigCuenta(codigo, (cfg) => {
+            if (!Array.isArray(cfg.widgetsInstalados)) cfg.widgetsInstalados = [];
+            if (!cfg.widgetsInstalados.includes(id)) cfg.widgetsInstalados.push(id);
+            return cfg;
+        });
+        configCuentaActual = await obtenerConfigCuenta(codigo);
+        return { ok: true };
+    });
 }
 
 async function desinstalarWidget(id) {
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
-    configCuentaActual.widgetsInstalados = (configCuentaActual.widgetsInstalados || []).filter(w => w !== id);
-    configCuentaActual.widgetsActivos = (configCuentaActual.widgetsActivos || []).filter(w => w !== id);
-    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
-    if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
+    const codigo = cuentaActual.codigo;
+
+    return await _conLock(`desinstalarWidget:${id}`, async () => {
+        await guardarConfigCuenta(codigo, (cfg) => {
+            cfg.widgetsInstalados = (cfg.widgetsInstalados || []).filter(w => w !== id);
+            cfg.widgetsActivos = (cfg.widgetsActivos || []).filter(w => w !== id);
+            return cfg;
+        });
+        configCuentaActual = await obtenerConfigCuenta(codigo);
+        if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
+    });
 }
 
 async function activarWidget(id) {
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
-    if (!configCuentaActual.widgetsActivos) configCuentaActual.widgetsActivos = [];
-    if (configCuentaActual.widgetsActivos.includes(id)) return;
+    const codigo = cuentaActual.codigo;
 
-    if (configCuentaActual.widgetsActivos.length >= MAX_WIDGETS_ACTIVOS) {
-        throw new Error(`Máximo ${MAX_WIDGETS_ACTIVOS} widgets activos. Desactiva uno para activar otro.`);
-    }
-
-    configCuentaActual.widgetsActivos.push(id);
-    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
-    if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
+    return await _conLock(`activarWidget:${id}`, async () => {
+        await guardarConfigCuenta(codigo, (cfg) => {
+            if (!Array.isArray(cfg.widgetsActivos)) cfg.widgetsActivos = [];
+            if (cfg.widgetsActivos.includes(id)) return cfg;
+            if (cfg.widgetsActivos.length >= MAX_WIDGETS_ACTIVOS) {
+                throw new Error(`Máximo ${MAX_WIDGETS_ACTIVOS} widgets activos. Desactiva uno para activar otro.`);
+            }
+            cfg.widgetsActivos.push(id);
+            return cfg;
+        });
+        configCuentaActual = await obtenerConfigCuenta(codigo);
+        if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
+    });
 }
 
 async function desactivarWidget(id) {
     if (!cuentaActual) throw new Error('Necesitas una cuenta.');
-    configCuentaActual.widgetsActivos = (configCuentaActual.widgetsActivos || []).filter(w => w !== id);
-    await guardarConfigCuenta(cuentaActual.codigo, configCuentaActual);
-    if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
+    const codigo = cuentaActual.codigo;
+
+    return await _conLock(`desactivarWidget:${id}`, async () => {
+        await guardarConfigCuenta(codigo, (cfg) => {
+            cfg.widgetsActivos = (cfg.widgetsActivos || []).filter(w => w !== id);
+            return cfg;
+        });
+        configCuentaActual = await obtenerConfigCuenta(codigo);
+        if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
+    });
 }
 
 // ---------- AVATAR HEADER ----------
@@ -738,6 +904,11 @@ function inicializarUICuenta() {
                 msg.textContent = txt;
                 msg.className = 'config-status ' + (tipo || '');
             };
+            if (btnCrear.disabled) return;
+            btnCrear.disabled = true;
+            const txtOriginal = btnCrear.innerHTML;
+            btnCrear.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Creando...';
+            lucide.createIcons();
             try {
                 setMsg('⏳ Creando cuenta...', 'info');
                 await crearCuenta({
@@ -756,6 +927,11 @@ function inicializarUICuenta() {
                     if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
                 }, 200);
             } catch (e) { setMsg('❌ ' + e.message, 'error'); }
+            finally {
+                btnCrear.disabled = false;
+                btnCrear.innerHTML = txtOriginal;
+                lucide.createIcons();
+            }
         });
     }
 
@@ -766,6 +942,11 @@ function inicializarUICuenta() {
                 msg.textContent = txt;
                 msg.className = 'config-status ' + (tipo || '');
             };
+            if (btnEntrar.disabled) return;
+            btnEntrar.disabled = true;
+            const txtOriginal = btnEntrar.innerHTML;
+            btnEntrar.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Entrando...';
+            lucide.createIcons();
             try {
                 setMsg('⏳ Entrando...', 'info');
                 await iniciarSesion(inputLogin.value);
@@ -779,6 +960,11 @@ function inicializarUICuenta() {
                     if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
                 }, 200);
             } catch (e) { setMsg('❌ ' + e.message, 'error'); }
+            finally {
+                btnEntrar.disabled = false;
+                btnEntrar.innerHTML = txtOriginal;
+                lucide.createIcons();
+            }
         });
     }
 
