@@ -184,13 +184,14 @@ function renderCarpetas() {
 }
 
 // ------------------------------------------------------------
-//  Render: grid
+//  Render: grid + empty
 // ------------------------------------------------------------
 function renderGrid() {
     const grid = document.getElementById('gxGrid');
     const empty = document.getElementById('gxEmpty');
     const footer = document.getElementById('gxFooter');
     const contador = document.getElementById('gxContador');
+    const btnSubirEmpty = document.getElementById('gxEmptyBtnSubir');
     if (!grid) return;
 
     // Limpiar URLs de la página anterior
@@ -199,13 +200,19 @@ function renderGrid() {
 
     const lista = imagenesFiltradas();
 
-    // Contador
+    // Contador: solo si hay contenido
     if (contador) {
-        const n = lista.length;
-        const carpetaTxt = carpetaActual === 'todas' ? 'todas las carpetas' : `"${nombreCarpeta(carpetaActual)}"`;
-        contador.textContent = n === 1
-            ? `1 imagen en ${carpetaTxt}`
-            : `${n} imágenes en ${carpetaTxt}`;
+        if (lista.length === 0) {
+            contador.textContent = '';
+        } else {
+            const n = lista.length;
+            const carpetaTxt = carpetaActual === 'todas'
+                ? 'todas las carpetas'
+                : `"${nombreCarpeta(carpetaActual)}"`;
+            contador.textContent = n === 1
+                ? `1 imagen en ${carpetaTxt}`
+                : `${n} imágenes en ${carpetaTxt}`;
+        }
     }
 
     // Empty
@@ -217,24 +224,29 @@ function renderGrid() {
 
         const titulo = document.getElementById('gxEmptyTitulo');
         const desc = document.getElementById('gxEmptyDesc');
+
         if (filtroBusqueda) {
             titulo.textContent = 'Sin resultados';
             desc.textContent = `No hay imágenes que coincidan con "${filtroBusqueda}".`;
+            if (btnSubirEmpty) btnSubirEmpty.style.display = 'none';
         } else if (imagenes.length === 0) {
-            titulo.textContent = 'Aún no tienes imágenes';
-            desc.textContent = 'Pulsa "Subir imágenes" para empezar.';
+            titulo.textContent = 'Tu galería está vacía';
+            desc.textContent = 'Sube tus primeras imágenes y estarán disponibles en todas las apps de VicWebOs.';
+            if (btnSubirEmpty) btnSubirEmpty.style.display = 'inline-flex';
         } else if (carpetaActual !== 'todas') {
             titulo.textContent = 'Esta carpeta está vacía';
             desc.textContent = 'Sube imágenes o muévelas aquí desde otra carpeta.';
+            if (btnSubirEmpty) btnSubirEmpty.style.display = 'inline-flex';
         } else {
             titulo.textContent = 'Nada que mostrar';
             desc.textContent = '';
+            if (btnSubirEmpty) btnSubirEmpty.style.display = 'none';
         }
         if (window.lucide) window.lucide.createIcons();
         return;
     }
 
-    grid.style.display = 'grid';
+    grid.style.display = 'block';
     empty.hidden = true;
     footer.hidden = false;
 
@@ -614,10 +626,16 @@ async function inicializar() {
     await cargarTodo();
     renderTodo();
 
-    // Botón subir
+    // Botón subir (header) + botón subir (empty)
     const btnSubir = document.getElementById('btnSubir');
+    const btnSubirEmpty = document.getElementById('gxEmptyBtnSubir');
     const input = document.getElementById('inputImagenes');
-    btnSubir?.addEventListener('click', () => input?.click());
+
+    const dispararInput = () => input?.click();
+
+    btnSubir?.addEventListener('click', dispararInput);
+    btnSubirEmpty?.addEventListener('click', dispararInput);
+
     input?.addEventListener('change', () => {
         if (input.files.length) {
             subirArchivos(input.files);
@@ -702,7 +720,8 @@ async function inicializar() {
 
 document.addEventListener('DOMContentLoaded', inicializar);
 
-// Limpieza al descargar
-window.addEventListener('unload', () => {
+// Limpieza al descargar (pagehide en lugar de unload para evitar
+// el warning de Permissions-Policy)
+window.addEventListener('pagehide', () => {
     urlsActivas.forEach(u => URL.revokeObjectURL(u));
 });
