@@ -1,9 +1,7 @@
 /* ================================================
    Tema: Celeste Nublado
-   Cielo pastel grisáceo con nubes suaves.
-   Estética tranquila y amigable.
-   Incluye nubes vectoriales (SVG embebido) en
-   welcome y sidebar. Sin emojis.
+   Sidebar más azul, lobby más gris. Nubes suaves
+   vectoriales (SVG embebido). Sin emojis.
    ================================================ */
 
 :root {
@@ -17,31 +15,25 @@
     --violet-600: #4A6F8C;
     --violet-700: #385A75;
 
-    /* Neutros fríos: cielo pálido un poco más saturado */
+    /* Neutros fríos: sidebar más azul, lobby más gris */
     --white:   #FFFFFF;
-    --bg:      #E4EEF6;
-    --bg-alt:  #D4E2EE;
+    --bg:      #E7EDF3;   /* lobby: gris azulado apagado */
+    --bg-alt:  #CADEEF;   /* sidebar: azul cielo con más presencia */
 
-    /* Sombras: más suaves y frías que las del tema violeta */
     --shadow-glow: 0 0 0 4px rgba(94, 132, 160, 0.14);
 
-    /* Acento: azul pastel → azul grisáceo profundo */
     --accent-gradient: linear-gradient(135deg, #7B9DB5, #4A6F8C);
     --accent-gradient-hover: linear-gradient(135deg, #7B9DB5, #5E84A0);
     --accent-shadow: rgba(94, 132, 160, 0.30);
     --accent-shadow-hover: rgba(94, 132, 160, 0.42);
     --accent-text-gradient: linear-gradient(135deg, var(--gray-900), #4A6F8C);
 
-    /* Patrón de nubes (SVG embebido, sin emojis)
-       Opacidades subidas + una 4ª formación para que
-       se noten claramente sobre el fondo azulado. */
+    /* Patrón de nubes (SVG embebido, sin emojis) */
     --theme-clouds: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 700 340'%3E%3Cg opacity='0.85'%3E%3Cellipse cx='120' cy='140' rx='60' ry='30' fill='white'/%3E%3Cellipse cx='170' cy='125' rx='50' ry='40' fill='white'/%3E%3Cellipse cx='80' cy='133' rx='42' ry='26' fill='white'/%3E%3Cellipse cx='140' cy='118' rx='44' ry='32' fill='white'/%3E%3Cellipse cx='105' cy='150' rx='58' ry='22' fill='white'/%3E%3C/g%3E%3Cg opacity='0.92'%3E%3Cellipse cx='480' cy='90' rx='56' ry='28' fill='white'/%3E%3Cellipse cx='520' cy='78' rx='46' ry='36' fill='white'/%3E%3Cellipse cx='445' cy='84' rx='38' ry='26' fill='white'/%3E%3Cellipse cx='495' cy='98' rx='52' ry='22' fill='white'/%3E%3C/g%3E%3Cg opacity='0.78'%3E%3Cellipse cx='320' cy='260' rx='50' ry='24' fill='white'/%3E%3Cellipse cx='355' cy='250' rx='40' ry='30' fill='white'/%3E%3Cellipse cx='290' cy='256' rx='34' ry='22' fill='white'/%3E%3C/g%3E%3Cg opacity='0.72'%3E%3Cellipse cx='620' cy='220' rx='44' ry='22' fill='white'/%3E%3Cellipse cx='655' cy='208' rx='36' ry='28' fill='white'/%3E%3Cellipse cx='592' cy='214' rx='30' ry='20' fill='white'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 /* ================================================
    Nubes en el welcome / lobby
-   Tamaño más generoso y posición al top para que
-   el cielo nuble la parte alta de la pantalla.
    ================================================ */
 .welcome-placeholder {
     background: var(--bg);
@@ -51,13 +43,12 @@
     background-repeat: repeat;
 }
 
-/* Reforzar el glow del hero con un halo más azulado */
 .welcome-glow {
     background: radial-gradient(circle, rgba(94, 132, 160, 0.18) 0%, transparent 68%);
 }
 
 /* ================================================
-   Nubes sutiles en el sidebar
+   Nubes en el sidebar
    ================================================ */
 .sidebar {
     background: var(--bg-alt);
