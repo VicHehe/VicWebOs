@@ -1,5 +1,15 @@
 // ============================================================
 //  JsWidgets.js — Catálogo de WIDGETS
+//  ------------------------------------------------------------
+//  ESCALA DE ESPACIO (par, progresiva):
+//    2 → widget mínimo (muestra info, 1 acción simple)
+//    4 → widget interactivo (animación, modales, varios estados)
+//
+//  ESCALA DE PRECIO (monedas):
+//    5   → mínimo simbólico (decorativo pero con trabajo detrás)
+//    10  → entretenimiento puro (no resuelve problema real)
+//    20  → utilidad media o complejidad alta
+//    35  → el más útil del catálogo (lo usarás cada vez que abras el OS)
 // ============================================================
 
 const WIDGETS_DISPONIBLES = [
@@ -12,7 +22,7 @@ const WIDGETS_DISPONIBLES = [
         categoria: 'Utilidades',
         esBase: false,
         espacio: 4,
-        monedas: 0
+        monedas: 20
     },
     {
         id: 'dados',
@@ -22,8 +32,8 @@ const WIDGETS_DISPONIBLES = [
         descripcion: 'Tira 2 dados y suma el resultado.',
         categoria: 'Utilidades',
         esBase: false,
-        espacio: 4,
-        monedas: 15
+        espacio: 2,
+        monedas: 10
     },
     {
         id: 'bubble-image',
@@ -33,8 +43,8 @@ const WIDGETS_DISPONIBLES = [
         descripcion: 'Muestra una imagen de tu galería en un círculo.',
         categoria: 'Personalización',
         esBase: false,
-        espacio: 4,
-        monedas: 0
+        espacio: 2,
+        monedas: 5
     },
     {
         id: 'ruleta',
@@ -45,7 +55,7 @@ const WIDGETS_DISPONIBLES = [
         categoria: 'Juegos',
         esBase: false,
         espacio: 4,
-        monedas: 25
+        monedas: 20
     },
     {
         id: 'acceso-directo',
@@ -56,6 +66,6 @@ const WIDGETS_DISPONIBLES = [
         categoria: 'Utilidades',
         esBase: false,
         espacio: 4,
-        monedas: 40
+        monedas: 35
     }
 ];
