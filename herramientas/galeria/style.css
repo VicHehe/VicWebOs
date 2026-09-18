@@ -1,13 +1,12 @@
 /* ================================================
    Galería — App principal
-   Centro de imágenes del usuario.
+   Grid fijo: 6 columnas en PC, 2 en móvil.
+   Todas las imágenes son cuadradas (aspect-ratio 1/1).
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* ============================================================
-   REGLA CRÍTICA: el atributo HTML "hidden" debe ganar SIEMPRE.
-   ============================================================ */
+/* REGLA CRÍTICA: el atributo HTML "hidden" debe ganar SIEMPRE */
 [hidden] { display: none !important; }
 
 html, body { height: 100%; overflow: hidden; }
@@ -288,44 +287,42 @@ body {
 .gx-contador:empty { display: none; }
 
 /* ============================================================
-   GRID — Masonry con CSS columns
-   6 columnas en desktop, cada imagen ~190-200px de ancho.
+   GRID — Cuadrícula fija
+   PC: 6 columnas. Todas las celdas son cuadradas.
    ============================================================ */
 .gx-grid {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
-    columns: 6 180px;
-    column-gap: 12px;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
     padding-right: 4px;
     padding-bottom: 4px;
+    align-content: start;
 }
 
 .gx-item {
-    display: block;
-    width: 100%;
-    break-inside: avoid;
-    -webkit-column-break-inside: avoid;
-    page-break-inside: avoid;
-    margin: 0 0 12px 0;
+    position: relative;
+    aspect-ratio: 1 / 1;
     border-radius: 10px;
     overflow: hidden;
     cursor: pointer;
-    position: relative;
     background: var(--gray-100, #F4F4F7);
-    transition: transform 0.2s, box-shadow 0.2s;
-    min-height: 100px;
+    transition: transform 0.18s, box-shadow 0.18s;
 }
 .gx-item:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
 }
 
 .gx-item img {
     display: block;
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
     border-radius: 10px;
 }
 
@@ -951,22 +948,15 @@ body {
 
 /* ============================================================
    RESPONSIVE
-   Columnas: 6 → 5 → 4 → 3 → 2 según ancho.
+   PC: 6 columnas. Móvil: 2 columnas.
    ============================================================ */
 
-@media (max-width: 1200px) {
-    .gx-grid { columns: 5 180px; }
-}
-
-@media (max-width: 980px) {
-    .gx-grid { columns: 4 170px; column-gap: 12px; }
-}
-
-@media (max-width: 780px) {
-    .gx-grid { columns: 3 160px; column-gap: 10px; }
-    .gx-item { margin-bottom: 10px; border-radius: 9px; }
+@media (max-width: 900px) {
+    .gx-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .gx-item { border-radius: 9px; }
     .gx-item img { border-radius: 9px; }
-    .gx-item-overlay { border-radius: 0 0 9px 9px; font-size: 10px; }
+    .gx-item-overlay { border-radius: 0 0 9px 9px; }
+    .gx-item-skeleton { border-radius: 9px; }
 
     .gx-preview-body {
         grid-template-columns: 1fr;
@@ -1000,14 +990,16 @@ body {
     .gx-btn-carpeta { padding: 0 12px; font-size: 12.5px; }
     .gx-btn-carpeta span { display: none; }
 
-    .gx-grid { columns: 3 130px; column-gap: 8px; }
-    .gx-item { margin-bottom: 8px; border-radius: 8px; min-height: 80px; }
+    /* MÓVIL: 2 columnas */
+    .gx-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .gx-item { border-radius: 8px; }
     .gx-item img { border-radius: 8px; }
     .gx-item-overlay {
         border-radius: 0 0 8px 8px;
         font-size: 9.5px;
         padding: 14px 6px 5px;
     }
+    .gx-item-skeleton { border-radius: 8px; }
 
     .gx-empty { padding: 12px; }
     .gx-empty-card { padding: 36px 24px; border-radius: 20px; gap: 10px; }
@@ -1030,17 +1022,10 @@ body {
     .gx-overlay-subida-card { padding: 22px 20px; }
 }
 
-@media (max-width: 480px) {
-    .gx-grid { columns: 2 140px; column-gap: 8px; }
-}
-
 @media (max-width: 400px) {
     .gx-logo-text p { display: none; }
     .gx-btn-subir span { display: none; }
     .gx-btn-subir { padding: 10px 12px; }
-    .gx-grid { columns: 2 120px; column-gap: 6px; }
-    .gx-item { margin-bottom: 6px; border-radius: 7px; }
-    .gx-item img { border-radius: 7px; }
 
     .gx-empty-card { padding: 28px 18px; }
     .gx-empty-icon { width: 64px; height: 64px; border-radius: 18px; }
