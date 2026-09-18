@@ -71,17 +71,6 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 0
     },
     {
-        id: 'yapoyapo',
-        nombre: 'Yapo Yapo',
-        icono: 'puzzle',
-        ruta: 'herramientas/yapoyapo/index.html',
-        descripcion: 'Puzzle: junta 4+ Yapos iguales y hazlos explotar. Gana monedas.',
-        categoria: 'Juegos',
-        esBase: false,
-        espacio: 6,
-        monedas: 25
-    },
-    {
         id: 'evmail',
         nombre: 'EVmail',
         icono: 'mail',
