@@ -13,8 +13,8 @@
 'use strict';
 
 const MENSAJE_TEMA = 'vicwebos_tema_cambio';
-const POR_PAGINA = 12;
-const MAX_ARCHIVO_MB = 50;
+const POR_PAGINA = 6;
+const MAX_ARCHIVO_MB = 25;
 
 // ------------------------------------------------------------
 //  Estado
