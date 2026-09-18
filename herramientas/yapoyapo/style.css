@@ -1,7 +1,7 @@
 /* ============================================
    Yapo Yapo — Estilos
    Compatible con todos los temas de VicWebOs.
-   Sin emojis. Todo con Lucide.
+   Layout optimizado para móviles verticales.
    ============================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -184,7 +184,6 @@ html, body {
     text-align: center;
     transition: transform 0.2s;
 }
-.yp-rule-card:hover { transform: translateY(-3px); }
 .yp-rule-icon {
     width: 30px;
     height: 30px;
@@ -198,17 +197,8 @@ html, body {
     margin-bottom: 2px;
 }
 .yp-rule-icon [data-lucide] { width: 15px; height: 15px; stroke-width: 2.5; }
-.yp-rule-title {
-    font-weight: 800;
-    font-size: 0.8rem;
-    color: var(--gray-900, #18181B);
-}
-.yp-rule-desc {
-    font-size: 0.68rem;
-    color: var(--gray-500, #71717A);
-    font-weight: 600;
-    line-height: 1.3;
-}
+.yp-rule-title { font-weight: 800; font-size: 0.8rem; color: var(--gray-900, #18181B); }
+.yp-rule-desc { font-size: 0.68rem; color: var(--gray-500, #71717A); font-weight: 600; line-height: 1.3; }
 
 .yp-controls-hint {
     display: flex;
@@ -269,10 +259,6 @@ html, body {
     box-shadow: 0 6px 18px var(--accent-shadow, rgba(139,92,246,0.35));
     transition: transform 0.15s, box-shadow 0.15s;
 }
-.yp-btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 26px var(--accent-shadow-hover, rgba(139,92,246,0.45));
-}
 .yp-btn-primary:active { transform: translateY(0); }
 
 .yp-btn-secondary {
@@ -298,16 +284,17 @@ html, body {
 }
 
 /* =====================================================
-   PANTALLA DE JUEGO
+   PANTALLA DE JUEGO — Desktop
    ===================================================== */
 .yp-game-layout {
     flex: 1;
     min-height: 0;
     display: flex;
+    flex-direction: row;
     gap: 14px;
     padding: 12px 14px;
     justify-content: center;
-    align-items: stretch;   /* Cambio clave: sidebar ocupa todo el alto */
+    align-items: stretch;
     overflow: hidden;
 }
 
@@ -321,16 +308,27 @@ html, body {
         0 12px 32px var(--accent-shadow, rgba(0,0,0,0.15));
     flex-shrink: 0;
     background: #1a1520;
-    align-self: center;   /* El tablero sí se centra verticalmente */
+    align-self: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
+/* ================================================================
+   CANVAS — override de los estilos inline que pone script.js
+   (canvas.style.width = "300px" / canvas.style.height = "600px")
+   ================================================================ */
 #gameCanvas {
     display: block;
     border-radius: 12px;
+    /* !important para ganarle al style="" inline que mete el JS */
+    width: auto !important;
+    height: auto !important;
+    max-width: 100%;
     max-height: calc(100vh - 130px);
     max-height: calc(100dvh - 130px);
-    width: auto;
-    height: auto;
+    aspect-ratio: 1 / 2;
+    /* El canvas mantiene su proporción 6:12 (columnas:filas) */
 }
 
 /* Banner de chain */
@@ -362,7 +360,7 @@ html, body {
     100% { transform: translate(-50%, -70%) scale(0.8); opacity: 0; }
 }
 
-/* ===== SIDEBAR ===== */
+/* ===== SIDEBAR (desktop) ===== */
 .yp-side-panel {
     display: flex;
     flex-direction: column;
@@ -370,19 +368,16 @@ html, body {
     width: 150px;
     flex-shrink: 0;
     max-height: 100%;
-    overflow-y: auto;    /* Red de seguridad si no cabe */
+    overflow-y: auto;
     overflow-x: hidden;
     padding-right: 2px;
     scrollbar-width: thin;
     scrollbar-color: var(--gray-300, #D4D4DD) transparent;
 }
 .yp-side-panel::-webkit-scrollbar { width: 6px; }
-.yp-side-panel::-webkit-scrollbar-track { background: transparent; }
 .yp-side-panel::-webkit-scrollbar-thumb {
     background: var(--gray-200, #E8E8EE);
     border-radius: 999px;
-    border: 1px solid transparent;
-    background-clip: content-box;
 }
 
 .yp-panel-card {
@@ -396,7 +391,6 @@ html, body {
     align-items: center;
     gap: 2px;
     box-shadow: 0 2px 8px var(--accent-shadow, rgba(139,92,246,0.06));
-    transition: all 0.3s;
     flex-shrink: 0;
 }
 .yp-panel-label {
@@ -419,14 +413,13 @@ html, body {
     font-variant-numeric: tabular-nums;
 }
 
-.yp-next-card {
-    padding: 7px 6px;
-    gap: 4px;
-}
+.yp-next-card { padding: 7px 6px; gap: 4px; }
 #nextCanvas {
     display: block;
     border-radius: 8px;
     background: #1a1520;
+    width: 70px;
+    height: 70px;
 }
 
 .yp-coins-card {
@@ -442,10 +435,7 @@ html, body {
     gap: 3px;
 }
 .yp-tier-card .yp-panel-label { color: rgba(255,255,255,0.85); }
-.yp-tier-card .yp-panel-value {
-    color: white;
-    font-size: 1.35rem;
-}
+.yp-tier-card .yp-panel-value { color: white; font-size: 1.35rem; }
 .yp-tier-bonus {
     font-size: 0.58rem;
     font-weight: 800;
@@ -494,15 +484,11 @@ html, body {
     cursor: pointer;
     font-size: 0.78rem;
     width: 100%;
-    transition: transform 0.15s, box-shadow 0.15s;
     box-shadow: 0 3px 10px rgba(249,168,37,0.25);
     flex-shrink: 0;
+    transition: transform 0.15s;
 }
-.yp-btn-retire:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(249,168,37,0.4);
-}
-.yp-btn-retire:active { transform: translateY(0); }
+.yp-btn-retire:active { transform: scale(0.97); }
 .yp-btn-retire [data-lucide] { width: 13px; height: 13px; }
 
 .yp-btn-small {
@@ -519,23 +505,22 @@ html, body {
    ===================================================== */
 .yp-mobile-controls {
     display: none;
-    flex-direction: column;
-    gap: 8px;
+    flex-direction: row;
+    justify-content: center;
     align-items: center;
+    gap: 8px;
     padding: 8px 12px 12px;
     flex-shrink: 0;
 }
 
 .yp-mc-row {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
+    display: contents; /* colapsa los wrappers: los botones van a la fila principal */
 }
 
 .yp-mc-btn {
-    width: 58px;
-    height: 58px;
-    border-radius: 18px;
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
     background: var(--white, #FFFFFF);
     color: var(--violet-600, #7C3AED);
     border: 2px solid var(--violet-200, #DDD6FE);
@@ -556,8 +541,8 @@ html, body {
     box-shadow: 0 2px 6px var(--accent-shadow, rgba(139,92,246,0.2));
 }
 .yp-mc-btn [data-lucide] {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     stroke-width: 2.5;
 }
 
@@ -573,8 +558,6 @@ html, body {
 
 @media (pointer: coarse) {
     .yp-mobile-controls { display: flex; }
-    #gameCanvas { max-height: 40vh; }
-    #gameCanvas { max-height: 40dvh; }
 }
 
 /* =====================================================
@@ -632,11 +615,7 @@ html, body {
     box-shadow: 0 8px 24px var(--accent-shadow, rgba(139,92,246,0.35));
     animation: ypBob 1.8s ease-in-out infinite;
 }
-.yp-modal-icon [data-lucide] {
-    width: 28px;
-    height: 28px;
-    stroke-width: 2.5;
-}
+.yp-modal-icon [data-lucide] { width: 28px; height: 28px; stroke-width: 2.5; }
 .yp-modal-title {
     font-size: 1.55rem;
     font-weight: 800;
@@ -698,165 +677,220 @@ html, body {
    RESPONSIVE — Tablet
    ===================================================== */
 @media (max-width: 900px) {
-    .yp-game-layout {
-        gap: 10px;
-        padding: 10px 12px;
-    }
-    .yp-side-panel {
-        width: 140px;
-    }
-    #gameCanvas {
-        max-height: calc(100vh - 120px);
-        max-height: calc(100dvh - 120px);
-    }
+    .yp-game-layout { gap: 10px; padding: 10px 12px; }
+    .yp-side-panel { width: 140px; }
+    #gameCanvas { max-height: calc(100dvh - 120px); }
 }
 
 /* =====================================================
-   RESPONSIVE — Móvil
+   RESPONSIVE — MÓVIL (vertical)
+   Layout: header / board / sidebar horizontal / controles
    ===================================================== */
 @media (max-width: 720px) {
-    .yp-header { padding: 9px 14px; }
-    .yp-header-text h1 { font-size: 1rem; }
-    .yp-badge { font-size: 0.62rem; }
-    .yp-logo-mark { width: 30px; height: 30px; border-radius: 9px; }
-    .yp-logo-mark [data-lucide] { width: 16px; height: 16px; }
+    /* --- HEADER compacto --- */
+    .yp-header { padding: 6px 12px; }
+    .yp-logo-mark { width: 28px; height: 28px; border-radius: 8px; }
+    .yp-logo-mark [data-lucide] { width: 14px; height: 14px; }
+    .yp-header-text h1 { font-size: 0.92rem; }
+    .yp-badge { font-size: 0.6rem; }
+
+    /* --- SCREEN de juego: columna con 2 bloques --- */
+    .yp-screen.visible { display: flex; }
 
     .yp-game-layout {
+        flex: 1;
+        min-height: 0;
         flex-direction: column;
-        gap: 10px;
-        padding: 10px;
+        gap: 8px;
+        padding: 8px;
         justify-content: flex-start;
+        align-items: stretch;
+        overflow: hidden;
+    }
+
+    /* --- BOARD: se estira, canvas mantiene 1:2 --- */
+    .yp-board-wrapper {
+        flex: 1;
+        min-height: 0;
+        align-self: stretch;
+        display: flex;
         align-items: center;
-        overflow-y: auto;
-        overflow-x: hidden;
+        justify-content: center;
+        border-radius: 12px;
     }
 
     #gameCanvas {
-        max-height: 48vh;
-        max-height: 48dvh;
+        width: auto !important;
+        height: 100% !important;
+        max-height: 100%;
+        max-width: 100%;
+        aspect-ratio: 1 / 2;
+        object-fit: contain;
     }
 
-    /* Sidebar como franja horizontal abajo */
+    /* --- SIDEBAR: fila compacta debajo del board --- */
     .yp-side-panel {
         width: 100%;
         max-height: none;
         overflow: visible;
         flex-direction: row;
-        justify-content: center;
-        align-items: stretch;
         flex-wrap: wrap;
-        padding-right: 0;
         gap: 6px;
+        padding-right: 0;
+        flex-shrink: 0;
+        align-items: stretch;
     }
+
+    /* Ocultar la card "Siguiente" en móvil (no es crítica durante la partida) */
+    .yp-next-card { display: none; }
+
+    /* 3 chips de stats en una fila */
     .yp-side-panel .yp-panel-card {
-        flex: 1 1 calc(25% - 6px);
-        min-width: 80px;
+        flex: 1 1 calc(33.333% - 4px);
+        min-width: 0;
         padding: 6px 8px;
+        border-radius: 10px;
+        gap: 1px;
     }
-    .yp-panel-value { font-size: 1.05rem; }
-    .yp-tier-card .yp-panel-value { font-size: 1.15rem; }
-    .yp-tier-bonus { font-size: 0.52rem; padding: 1px 6px; }
-    .yp-tier-next { font-size: 0.5rem; }
+    .yp-panel-label { font-size: 0.55rem; }
+    .yp-panel-label [data-lucide] { width: 9px; height: 9px; }
+    .yp-panel-value { font-size: 0.95rem; }
 
-    .yp-next-card { flex: 0 0 auto !important; min-width: 70px; padding: 5px; }
-    #nextCanvas { width: 60px; height: 60px; }
+    /* Nivel: compacto en móvil (sin bonus ni barra larga) */
+    .yp-tier-card {
+        padding: 6px 8px;
+        gap: 2px;
+    }
+    .yp-tier-card .yp-panel-value { font-size: 1.05rem; }
+    .yp-tier-bonus,
+    .yp-tier-next {
+        display: none;
+    }
+    .yp-tier-progress-track {
+        height: 3px;
+        margin-top: 2px;
+    }
 
+    /* 2 botones de acción en una fila */
     .yp-side-panel .yp-btn-retire,
     .yp-side-panel .yp-btn-small {
         flex: 1 1 calc(50% - 3px);
-        min-height: 40px;
-        font-size: 0.78rem;
-    }
-
-    /* Chip de bienvenida */
-    .yp-chip { width: 38px; height: 38px; }
-    .yp-chip [data-lucide] { width: 18px; height: 18px; }
-    .yp-title { font-size: 1.8rem; }
-    .yp-subtitle { font-size: 0.82rem; }
-    .yp-showcase { gap: 8px; }
-
-    .yp-rules-grid {
-        grid-template-columns: 1fr;
-        gap: 6px;
-    }
-    .yp-rule-card {
-        flex-direction: row;
-        justify-content: flex-start;
-        padding: 8px 12px;
-        gap: 10px;
-        text-align: left;
-    }
-    .yp-rule-icon { margin-bottom: 0; }
-    .yp-rule-title, .yp-rule-desc { font-size: 0.75rem; }
-
-    .yp-controls-hint {
-        font-size: 0.68rem;
-        gap: 5px 10px;
-        padding: 6px 12px;
-    }
-    .yp-controls-hint kbd { font-size: 0.6rem; min-width: 18px; height: 18px; }
-
-    .yp-start-actions {
-        flex-direction: column;
-        gap: 8px;
-    }
-    .yp-btn-primary { font-size: 0.88rem; padding: 11px 20px; }
-}
-
-@media (max-width: 480px) {
-    .yp-start-card { padding: 14px 12px; gap: 10px; }
-    .yp-showcase { gap: 6px; }
-    .yp-chip { width: 34px; height: 34px; }
-    .yp-chip [data-lucide] { width: 16px; height: 16px; }
-    .yp-title { font-size: 1.55rem; }
-
-    /* Móvil chico: canvas más pequeño + controles */
-    #gameCanvas { max-height: 42vh; max-height: 42dvh; }
-
-    /* Sidebar aún más compacto */
-    .yp-side-panel .yp-panel-card {
-        flex: 1 1 calc(33% - 4px);
-        padding: 5px 6px;
-        border-radius: 10px;
-    }
-    .yp-panel-label { font-size: 0.55rem; }
-    .yp-panel-value { font-size: 0.95rem; }
-    .yp-tier-card .yp-panel-value { font-size: 1.05rem; }
-
-    .yp-next-card { display: none; }  /* En pantallas muy chicas se oculta el preview del next */
-
-    .yp-side-panel .yp-btn-retire,
-    .yp-side-panel .yp-btn-small {
-        min-height: 38px;
+        width: auto;
+        min-height: 36px;
         font-size: 0.72rem;
-        padding: 6px 10px;
+        padding: 6px 8px;
+        border-radius: 10px;
     }
     .yp-btn-retire [data-lucide],
     .yp-btn-small [data-lucide] { width: 11px; height: 11px; }
 
-    .yp-mc-btn { width: 52px; height: 52px; border-radius: 16px; }
-    .yp-mc-btn [data-lucide] { width: 22px; height: 22px; }
+    /* --- CONTROLES MÓVILES (siempre en una fila) --- */
+    .yp-mobile-controls {
+        padding: 6px 10px 10px;
+        gap: 6px;
+    }
+    .yp-mc-btn {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+    }
+    .yp-mc-btn [data-lucide] { width: 20px; height: 20px; }
 
-    .yp-modal-card { padding: 20px 16px 18px; }
-    .yp-modal-title { font-size: 1.35rem; }
-    .yp-modal-icon { width: 52px; height: 52px; margin-bottom: 8px; }
+    /* --- START screen compacta --- */
+    .yp-start-card { padding: 14px 14px; gap: 10px; }
+    .yp-showcase { gap: 6px; }
+    .yp-chip { width: 36px; height: 36px; }
+    .yp-chip [data-lucide] { width: 18px; height: 18px; }
+    .yp-title { font-size: 1.7rem; }
+    .yp-subtitle { font-size: 0.8rem; }
+
+    .yp-rules-grid { grid-template-columns: 1fr; gap: 5px; }
+    .yp-rule-card {
+        flex-direction: row;
+        justify-content: flex-start;
+        padding: 7px 10px;
+        gap: 8px;
+        text-align: left;
+    }
+    .yp-rule-icon { margin-bottom: 0; width: 26px; height: 26px; border-radius: 8px; }
+    .yp-rule-icon [data-lucide] { width: 13px; height: 13px; }
+    .yp-rule-title { font-size: 0.72rem; }
+    .yp-rule-desc { font-size: 0.65rem; }
+
+    .yp-controls-hint {
+        font-size: 0.66rem;
+        gap: 4px 8px;
+        padding: 5px 10px;
+    }
+    .yp-controls-hint kbd { font-size: 0.58rem; min-width: 17px; height: 17px; }
+
+    .yp-start-actions { flex-direction: column; gap: 6px; }
+    .yp-btn-primary { padding: 10px 18px; font-size: 0.85rem; }
+    .yp-btn-secondary { padding: 9px 16px; font-size: 0.8rem; }
+
+    /* --- MODAL --- */
+    .yp-modal-card { padding: 20px 16px 18px; border-radius: 20px; }
+    .yp-modal-title { font-size: 1.3rem; }
+    .yp-modal-icon { width: 50px; height: 50px; margin-bottom: 8px; }
     .yp-modal-icon [data-lucide] { width: 24px; height: 24px; }
+    .yp-stat-row { padding: 8px 12px; font-size: 0.78rem; }
+    .yp-stat-row strong { font-size: 1rem; }
 }
 
-/* Pantallas muy bajas (iframe comprimido) */
+/* =====================================================
+   MÓVIL CHICO — < 380px (Honor 400 Smart, ~360px)
+   ===================================================== */
+@media (max-width: 380px) {
+    .yp-header { padding: 5px 10px; }
+    .yp-logo-mark { width: 26px; height: 26px; }
+    .yp-logo-mark [data-lucide] { width: 13px; height: 13px; }
+    .yp-header-text h1 { font-size: 0.85rem; }
+    .yp-badge { font-size: 0.55rem; }
+
+    .yp-game-layout { padding: 6px; gap: 6px; }
+
+    .yp-side-panel .yp-panel-card {
+        flex: 1 1 calc(33.333% - 4px);
+        padding: 5px 6px;
+    }
+    .yp-panel-value { font-size: 0.88rem; }
+    .yp-tier-card .yp-panel-value { font-size: 0.95rem; }
+    .yp-panel-label { font-size: 0.5rem; }
+
+    .yp-side-panel .yp-btn-retire,
+    .yp-side-panel .yp-btn-small {
+        min-height: 34px;
+        font-size: 0.68rem;
+        padding: 5px 6px;
+    }
+
+    .yp-mc-btn { width: 46px; height: 46px; border-radius: 13px; }
+    .yp-mc-btn [data-lucide] { width: 18px; height: 18px; }
+    .yp-mobile-controls { padding: 5px 8px 8px; gap: 5px; }
+
+    /* Start screen aún más compacta */
+    .yp-chip { width: 32px; height: 32px; }
+    .yp-chip [data-lucide] { width: 16px; height: 16px; }
+    .yp-title { font-size: 1.5rem; }
+    .yp-subtitle { font-size: 0.75rem; }
+}
+
+/* =====================================================
+   IFRAMES BAJOS EN DESKTOP (< 500px de alto)
+   ===================================================== */
 @media (max-height: 500px) and (min-width: 721px) {
-    .yp-header { padding: 7px 14px; }
-    .yp-logo-mark { width: 30px; height: 30px; border-radius: 9px; }
-    .yp-header-text h1 { font-size: 1rem; }
+    .yp-header { padding: 6px 14px; }
+    .yp-logo-mark { width: 28px; height: 28px; border-radius: 8px; }
+    .yp-logo-mark [data-lucide] { width: 14px; height: 14px; }
+    .yp-header-text h1 { font-size: 0.95rem; }
 
     .yp-game-layout { padding: 8px 10px; gap: 10px; }
-
-    #gameCanvas { max-height: calc(100dvh - 90px); }
+    #gameCanvas { max-height: calc(100dvh - 80px); }
 
     .yp-side-panel { gap: 6px; width: 140px; }
     .yp-panel-card { padding: 6px 8px; }
     .yp-panel-value { font-size: 1.05rem; }
     .yp-tier-card .yp-panel-value { font-size: 1.15rem; }
-    .yp-btn-retire { padding: 7px 10px; font-size: 0.72rem; }
-    .yp-btn-small { padding: 6px 10px; font-size: 0.68rem; }
+    .yp-btn-retire { padding: 6px 10px; font-size: 0.72rem; }
+    .yp-btn-small { padding: 5px 8px; font-size: 0.66rem; }
 }
