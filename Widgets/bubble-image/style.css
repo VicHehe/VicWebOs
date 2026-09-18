@@ -1,0 +1,193 @@
+/* ================================================
+   Widget: Imagen Burbuja
+   Muestra una imagen de la galería en un círculo.
+   Compatible con temas.
+   ================================================ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: transparent;
+    color: var(--text, #18181B);
+    font-size: 13px;
+    overflow: hidden;
+}
+
+[data-lucide] { width: 16px; height: 16px; stroke-width: 2; flex-shrink: 0; }
+
+.bi-widget {
+    background: var(--white, #FFFFFF);
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: var(--r-lg, 16px);
+    padding: 14px 16px;
+    box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: hidden;
+    transition: background 0.3s, color 0.3s, border-color 0.3s;
+}
+
+/* ========== HEADER ========== */
+.bi-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--gray-100, #F4F4F7);
+    flex-shrink: 0;
+    min-height: 30px;
+}
+
+.bi-titulo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-500, #71717A);
+}
+.bi-titulo [data-lucide] { color: var(--violet-500, #8B5CF6); }
+
+.bi-acciones { display: flex; gap: 4px; }
+
+.bi-icon-btn {
+    background: none;
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: 7px;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--gray-500, #71717A);
+    transition: all 0.15s;
+    padding: 0;
+}
+.bi-icon-btn:hover {
+    background: var(--violet-50, #F5F3FF);
+    border-color: var(--violet-300, #C4B5FD);
+    color: var(--violet-600, #7C3AED);
+}
+.bi-icon-btn.bi-icon-danger:hover {
+    background: #FEE2E2;
+    border-color: #FECACA;
+    color: #991B1B;
+}
+.bi-icon-btn [data-lucide] { width: 13px; height: 13px; }
+
+/* ========== ZONA ========== */
+.bi-zona {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+/* Burbuja (imagen circular) */
+.bi-burbuja {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--white, #FFFFFF);
+    box-shadow:
+        0 0 0 1px var(--border, #E8E8EE),
+        0 8px 22px var(--accent-shadow, rgba(139,92,246,0.28));
+    background: var(--gray-100, #F4F4F7);
+    animation: biPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes biPop {
+    from { transform: scale(0.85); opacity: 0; }
+    to   { transform: scale(1);    opacity: 1; }
+}
+
+/* Esqueleto de carga */
+.bi-burbuja-cargando {
+    width: 60%;
+    aspect-ratio: 1 / 1;
+    max-height: 100%;
+    border-radius: 50%;
+    background: linear-gradient(90deg,
+        var(--gray-100, #F4F4F7) 0%,
+        var(--gray-200, #E8E8EE) 50%,
+        var(--gray-100, #F4F4F7) 100%);
+    background-size: 200% 100%;
+    animation: biShimmer 1.4s linear infinite;
+}
+@keyframes biShimmer {
+    from { background-position: 200% 0; }
+    to   { background-position: -200% 0; }
+}
+
+/* ========== EMPTY ========== */
+.bi-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-align: center;
+    padding: 8px;
+    width: 100%;
+    color: var(--gray-500, #71717A);
+}
+
+.bi-empty-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--violet-50, #F5F3FF);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--violet-500, #8B5CF6);
+}
+.bi-empty-icon [data-lucide] { width: 22px; height: 22px; stroke-width: 1.75; }
+
+.bi-empty p {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 0;
+    max-width: 200px;
+}
+
+.bi-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: none;
+    border-radius: var(--r-md, 12px);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 800;
+    cursor: pointer;
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: white;
+    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
+    transition: all 0.15s;
+    touch-action: manipulation;
+}
+.bi-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px var(--accent-shadow-hover, rgba(139,92,246,0.38));
+}
+.bi-btn:active { transform: translateY(0); }
+.bi-btn [data-lucide] { width: 14px; height: 14px; }
