@@ -20,12 +20,12 @@ const MAX_ARCHIVO_MB = 50;
 //  Estado
 // ------------------------------------------------------------
 let usuarioActual = null;
-let imagenes = [];          // todas las del usuario
-let carpetas = [];          // todas las del usuario
-let carpetaActual = 'todas';// 'todas' o un id
+let imagenes = [];
+let carpetas = [];
+let carpetaActual = 'todas';
 let filtroBusqueda = '';
 let paginaActual = 1;
-let imagenSeleccionada = null; // { id, nombre, archivo, carpeta, tipo, tamano, subida }
+let imagenSeleccionada = null;
 let urlsActivas = [];
 let toastTimeout = null;
 
@@ -121,7 +121,6 @@ async function cargarTodo() {
     try {
         imagenes = await mh.galeria.listarImagenes(usuarioActual.codigo, { fresh: true });
         carpetas = await mh.galeria.listarCarpetas(usuarioActual.codigo, { fresh: true });
-        // Asegurar que exista la carpeta general si hay imágenes sueltas
         if (!carpetas.find(c => c.id === 'c_general')) {
             carpetas.unshift({ id: 'c_general', nombre: 'General', creada: null });
         }
@@ -185,6 +184,8 @@ function renderCarpetas() {
 
 // ------------------------------------------------------------
 //  Render: grid + empty
+//  Forzamos TANTO el atributo hidden COMO style.display para
+//  evitar cualquier resquicio de CSS que los mantenga visibles.
 // ------------------------------------------------------------
 function renderGrid() {
     const grid = document.getElementById('gxGrid');
@@ -194,13 +195,12 @@ function renderGrid() {
     const btnSubirEmpty = document.getElementById('gxEmptyBtnSubir');
     if (!grid) return;
 
-    // Limpiar URLs de la página anterior
     urlsActivas.forEach(u => URL.revokeObjectURL(u));
     urlsActivas = [];
 
     const lista = imagenesFiltradas();
 
-    // Contador: solo si hay contenido
+    // Contador
     if (contador) {
         if (lista.length === 0) {
             contador.textContent = '';
@@ -215,12 +215,17 @@ function renderGrid() {
         }
     }
 
-    // Empty
+    // ---------- CASO VACÍO ----------
     if (lista.length === 0) {
         grid.innerHTML = '';
+        grid.hidden = true;
         grid.style.display = 'none';
+
         empty.hidden = false;
+        empty.style.display = 'flex';
+
         footer.hidden = true;
+        footer.style.display = 'none';
 
         const titulo = document.getElementById('gxEmptyTitulo');
         const desc = document.getElementById('gxEmptyDesc');
@@ -246,9 +251,15 @@ function renderGrid() {
         return;
     }
 
+    // ---------- CASO CON CONTENIDO ----------
+    grid.hidden = false;
     grid.style.display = 'block';
+
     empty.hidden = true;
+    empty.style.display = 'none';
+
     footer.hidden = false;
+    footer.style.display = 'flex';
 
     // Paginación
     const totalPaginas = Math.ceil(lista.length / POR_PAGINA);
@@ -265,19 +276,15 @@ function renderGrid() {
         </div>
     `).join('');
 
-    // Cargar imágenes
     pag.forEach(img => cargarMiniatura(img));
 
-    // Actualizar paginación
     document.getElementById('gxPageInfo').textContent = `${paginaActual} / ${totalPaginas}`;
     document.getElementById('btnPrev').disabled = paginaActual <= 1;
     document.getElementById('btnNext').disabled = paginaActual >= totalPaginas;
 
-    // Tamaño total
     const bytesTotal = lista.reduce((acc, i) => acc + (i.tamano || 0), 0);
     document.getElementById('gxTamanoTotal').textContent = `Total: ${formatearBytes(bytesTotal)}`;
 
-    // Listeners
     grid.querySelectorAll('.gx-item').forEach(el => {
         el.addEventListener('click', () => abrirPreview(el.dataset.id));
     });
@@ -379,13 +386,11 @@ async function subirArchivos(files) {
 
     if (validos.length === 0) return;
 
-    // Elegir carpeta destino
     let carpetaDestino = 'c_general';
     if (carpetaActual !== 'todas' && carpetas.find(c => c.id === carpetaActual)) {
         carpetaDestino = carpetaActual;
     }
 
-    // Overlay
     const overlay = document.getElementById('overlaySubida');
     const overlayTexto = document.getElementById('overlaySubidaTexto');
     const overlayProgFill = document.getElementById('overlayProgresoFill');
@@ -417,7 +422,6 @@ async function subirArchivos(files) {
 
     overlay.hidden = true;
 
-    // Recargar y mostrar
     await cargarTodo();
     paginaActual = 1;
     renderTodo();
@@ -481,7 +485,6 @@ async function guardarNombre() {
         document.getElementById('modalRenombrar').hidden = true;
         await cargarTodo();
         renderTodo();
-        // Actualizar la vista previa con el nuevo nombre
         if (imagenSeleccionada) {
             const nueva = imagenes.find(i => i.id === imagenSeleccionada.id);
             if (nueva) {
@@ -503,9 +506,8 @@ function abrirModalMover() {
     if (!imagenSeleccionada) return;
 
     const lista = document.getElementById('moverLista');
-    const carpetasDisponibles = carpetas;
 
-    lista.innerHTML = carpetasDisponibles.map(c => {
+    lista.innerHTML = carpetas.map(c => {
         const actual = c.id === imagenSeleccionada.carpeta;
         return `
             <button class="gx-mover-opcion ${actual ? 'actual' : ''}" data-id="${escapar(c.id)}" ${actual ? 'disabled' : ''}>
@@ -565,7 +567,7 @@ async function eliminarImagen() {
 }
 
 // ------------------------------------------------------------
-//  Drag & drop global
+//  Drag & drop
 // ------------------------------------------------------------
 function inicializarDragDrop() {
     const cont = document.querySelector('.gx-container');
@@ -585,14 +587,13 @@ function inicializarDragDrop() {
         dragContador++;
     });
 
-    document.addEventListener('dragleave', (e) => {
+    document.addEventListener('dragleave', () => {
         dragContador--;
         if (dragContador <= 0) dragContador = 0;
     });
 
     document.addEventListener('drop', (e) => {
         if (!e.dataTransfer || !e.dataTransfer.files.length) return;
-        // Solo si estamos dentro de la app
         e.preventDefault();
         dragContador = 0;
         subirArchivos(e.dataTransfer.files);
@@ -626,7 +627,6 @@ async function inicializar() {
     await cargarTodo();
     renderTodo();
 
-    // Botón subir (header) + botón subir (empty)
     const btnSubir = document.getElementById('btnSubir');
     const btnSubirEmpty = document.getElementById('gxEmptyBtnSubir');
     const input = document.getElementById('inputImagenes');
@@ -643,7 +643,6 @@ async function inicializar() {
         }
     });
 
-    // Buscador
     const buscador = document.getElementById('gxBuscador');
     const buscadorClear = document.getElementById('gxBuscadorClear');
     buscador?.addEventListener('input', (e) => {
@@ -660,7 +659,6 @@ async function inicializar() {
         renderGrid();
     });
 
-    // Nueva carpeta
     document.getElementById('btnNuevaCarpeta')?.addEventListener('click', abrirModalCarpeta);
     document.getElementById('carpetaCerrar')?.addEventListener('click', () => {
         document.getElementById('modalCarpeta').hidden = true;
@@ -670,18 +668,15 @@ async function inicializar() {
         if (e.key === 'Enter') crearCarpeta();
     });
 
-    // Preview cerrar
     document.getElementById('previewCerrar')?.addEventListener('click', cerrarPreview);
     document.getElementById('modalPreview')?.addEventListener('click', (e) => {
         if (e.target.id === 'modalPreview') cerrarPreview();
     });
 
-    // Acciones de vista previa
     document.getElementById('btnRenombrar')?.addEventListener('click', abrirModalRenombrar);
     document.getElementById('btnMover')?.addEventListener('click', abrirModalMover);
     document.getElementById('btnEliminar')?.addEventListener('click', eliminarImagen);
 
-    // Renombrar
     document.getElementById('renombrarCerrar')?.addEventListener('click', () => {
         document.getElementById('modalRenombrar').hidden = true;
     });
@@ -690,12 +685,10 @@ async function inicializar() {
         if (e.key === 'Enter') guardarNombre();
     });
 
-    // Mover
     document.getElementById('moverCerrar')?.addEventListener('click', () => {
         document.getElementById('modalMover').hidden = true;
     });
 
-    // Paginación
     document.getElementById('btnPrev')?.addEventListener('click', () => {
         if (paginaActual > 1) { paginaActual--; renderGrid(); }
     });
@@ -704,7 +697,6 @@ async function inicializar() {
         if (paginaActual < total) { paginaActual++; renderGrid(); }
     });
 
-    // ESC cierra modales
     document.addEventListener('keydown', (e) => {
         if (e.key !== 'Escape') return;
         if (!document.getElementById('modalPreview').hidden) { cerrarPreview(); return; }
@@ -720,8 +712,6 @@ async function inicializar() {
 
 document.addEventListener('DOMContentLoaded', inicializar);
 
-// Limpieza al descargar (pagehide en lugar de unload para evitar
-// el warning de Permissions-Policy)
 window.addEventListener('pagehide', () => {
     urlsActivas.forEach(u => URL.revokeObjectURL(u));
 });
