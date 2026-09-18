@@ -80,22 +80,26 @@
                     </div>
                     <div id="msgTexto" class="editor-content" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Escribe tu mensaje..."></div>
                 </div>
+
+                <!-- IMAGEN: ahora viene de la Galería, no se sube acá -->
                 <div class="form-group">
                     <label>Imagen (opcional)</label>
-                    <div class="file-upload-wrapper">
-                        <label for="msgImagen" class="file-upload-label">
-                            <i data-lucide="image-plus"></i>
-                            Elegir imagen
-                        </label>
-                        <input type="file" id="msgImagen" accept="image/*">
-                        <span class="file-name" id="msgImagenNombre">Ningún archivo</span>
+                    <div class="imagen-picker-wrap">
+                        <button type="button" class="btn-secondary" id="btnElegirImagen">
+                            <i data-lucide="image"></i>
+                            Elegir de mi galería
+                        </button>
+                        <button type="button" class="btn-secondary btn-sm" id="btnQuitarImagen" hidden>
+                            <i data-lucide="trash-2"></i>
+                            Quitar
+                        </button>
                     </div>
-                    <div id="msgImagenPreview"></div>
-                    <button type="button" id="btnQuitarImagen" class="btn-secondary btn-sm" hidden>
-                        <i data-lucide="trash-2"></i>
-                        Quitar imagen
-                    </button>
+                    <div id="msgImagenPreview" hidden>
+                        <img alt="Vista previa" id="msgImagenPreviewImg">
+                        <span class="imagen-nombre" id="msgImagenNombre"></span>
+                    </div>
                 </div>
+
                 <div class="modal-actions">
                     <button type="button" class="btn-secondary" id="btnCancelar">Cancelar</button>
                     <button type="submit" class="btn-primary" id="btnSubmit">
