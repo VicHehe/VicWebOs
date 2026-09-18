@@ -1,0 +1,158 @@
+/* ================================================
+   Tema: Libro de Historia
+   Texturas desgastadas, colores sepia y cuero.
+   Tema caro con detalles originales.
+   ================================================ */
+
+:root {
+    /* Acento sepia/cuero */
+    --violet-50:  #2C1E12;
+    --violet-100: #3E2C1C;
+    --violet-200: #5A4030;
+    --violet-300: #8B6B4A;
+    --violet-400: #A8845C;
+    --violet-500: #C49A6C;
+    --violet-600: #B08654;
+    --violet-700: #8C6840;
+
+    /* Neutros café desgastado */
+    --white:   #2A1F16;
+    --bg:      #1A120A;
+    --bg-alt:  #2A1F16;
+    --gray-50:  #2A1F16;
+    --gray-100: #3A2C1E;
+    --gray-200: #4E3E2C;
+    --gray-300: #6A5640;
+    --gray-400: #8C7558;
+    --gray-500: #B09878;
+    --gray-600: #C8B498;
+    --gray-700: #DED0B8;
+    --gray-800: #EDE2D0;
+    --gray-900: #F8F0E4;
+
+    --border:  #4E3E2C;
+    --text:    #F8F0E4;
+    --text-2:  #C8B498;
+    --text-3:  #B09878;
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.6);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.7);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.8);
+    --shadow-glow: 0 0 0 4px rgba(164, 132, 92, 0.20);
+
+    /* Acento: cuero → oro viejo */
+    --accent-gradient: linear-gradient(135deg, #A8845C, #8B6B4A);
+    --accent-gradient-hover: linear-gradient(135deg, #C49A6C, #A8845C);
+    --accent-shadow: rgba(164, 132, 92, 0.35);
+    --accent-shadow-hover: rgba(164, 132, 92, 0.55);
+    --accent-text-gradient: linear-gradient(135deg, #EDE2D0, #C49A6C);
+}
+
+/* ================================================================
+   Efectos originales del tema "Libro de Historia"
+   Simula un libro antiguo con textura de papel.
+   ================================================================ */
+
+/* Textura de papel sutil sobre el fondo del shell */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.06;
+    background-image:
+        radial-gradient(circle at 20% 30%, rgba(255,240,220,0.8) 0.5px, transparent 1px),
+        radial-gradient(circle at 70% 60%, rgba(200,170,140,0.6) 0.5px, transparent 1px),
+        radial-gradient(circle at 40% 80%, rgba(255,240,220,0.5) 0.5px, transparent 1px),
+        radial-gradient(circle at 85% 15%, rgba(200,170,140,0.5) 0.5px, transparent 1px);
+    background-size: 120px 120px, 180px 180px, 90px 90px, 150px 150px;
+}
+
+/* Borde de "libro" en el welcome: como si fuera una página con doblez */
+.welcome-placeholder {
+    position: relative;
+}
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: linear-gradient(
+        180deg,
+        transparent 0%,
+        var(--border) 15%,
+        var(--border) 85%,
+        transparent 100%
+    );
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Las cards del welcome simulan páginas de un libro */
+.acceso-item {
+    position: relative;
+    border-color: #4E3E2C;
+    background:
+        linear-gradient(135deg, rgba(60,44,30,0.3) 0%, transparent 50%),
+        var(--white);
+    box-shadow:
+        inset 1px 1px 0 rgba(255,240,220,0.05),
+        2px 2px 0 rgba(0,0,0,0.3);
+}
+.acceso-item:hover {
+    border-color: var(--violet-400);
+    box-shadow:
+        inset 1px 1px 0 rgba(255,240,220,0.08),
+        3px 3px 0 rgba(0,0,0,0.35);
+}
+
+/* Los widgets simulan páginas con borde desgastado */
+.widget-item {
+    position: relative;
+    border-color: #4E3E2C;
+    box-shadow:
+        inset 1px 1px 0 rgba(255,240,220,0.05),
+        2px 2px 0 rgba(0,0,0,0.3);
+}
+
+/* El nav-item activo se ve como un marcador dorado */
+.nav-item.active::before {
+    background: linear-gradient(180deg, #C49A6C, #8B6A3A);
+    box-shadow: 0 0 6px rgba(196,154,108,0.5);
+}
+
+/* La pestaña activa tiene un subrayado dorado como un lomo */
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 12px;
+    right: 12px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #C49A6C, transparent);
+    border-radius: 2px 2px 0 0;
+}
+
+/* Los modales llevan borde doble como una portada encuadernada */
+.config-card,
+.modal-todas-card {
+    position: relative;
+    border: 2px solid #5A4030;
+    box-shadow:
+        inset 0 0 0 4px #2A1F16,
+        inset 0 0 0 5px #5A4030,
+        0 24px 48px rgba(0,0,0,0.7);
+}
+
+/* El botón primario tiene un brillo dorado como el lomo de un libro */
+.btn-primario {
+    box-shadow:
+        0 4px 12px rgba(164,132,92,0.35),
+        inset 0 1px 0 rgba(255,240,220,0.15);
+}
