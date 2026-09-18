@@ -1,7 +1,6 @@
 /* ================================================
    Galería — App principal
    6 columnas fijas en PC, 2 en móvil.
-   Imágenes cuadradas con padding-bottom.
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -287,13 +286,12 @@ body {
 .gx-contador:empty { display: none; }
 
 /* ============================================================
-   GRID — 6 columnas fijas en PC. Con !important para vencer
-   cualquier regla residual de versiones anteriores del CSS.
+   GRID — 6 columnas fijas en PC con gap generoso.
    ============================================================ */
 .gx-grid {
-    display: grid !important;
-    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
-    gap: 12px !important;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 14px;
     flex: 1;
     min-height: 0;
     min-width: 0;
@@ -303,34 +301,19 @@ body {
     padding-right: 4px;
     align-content: start;
     width: 100%;
-
-    /* Anular cualquier regla de "columns" heredada */
-    columns: auto !important;
-    column-count: auto !important;
-    column-width: auto !important;
-    column-gap: normal !important;
 }
 
 .gx-item {
-    position: relative !important;
-    display: block !important;
-    width: 100% !important;
-    height: 0 !important;
-    padding-bottom: 100% !important;
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 0;
+    padding-bottom: 100%;
     border-radius: 12px;
     overflow: hidden;
     cursor: pointer;
     background: var(--gray-100, #F4F4F7);
     transition: transform 0.2s, box-shadow 0.2s;
-
-    /* Anular break-inside de masonry previo */
-    break-inside: auto !important;
-    -webkit-column-break-inside: auto !important;
-    page-break-inside: auto !important;
-
-    /* Anular aspect-ratio si estuviera presente */
-    aspect-ratio: auto !important;
-    min-height: 0 !important;
 }
 .gx-item:hover {
     transform: scale(1.02);
@@ -338,14 +321,14 @@ body {
 }
 
 .gx-item img {
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-    object-position: center !important;
-    display: block !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
     border-radius: 12px;
 }
 
@@ -968,13 +951,20 @@ body {
 .gx-toast.info    { background: var(--violet-700, #6D28D9); }
 
 /* ============================================================
-   RESPONSIVE — Móvil: 2 columnas
+   RESPONSIVE
    ============================================================ */
+
+@media (max-width: 1200px) {
+    .gx-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+    }
+}
 
 @media (max-width: 900px) {
     .gx-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-        gap: 10px !important;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
     }
 
     .gx-preview-body {
@@ -1009,10 +999,10 @@ body {
     .gx-btn-carpeta { padding: 0 12px; font-size: 12.5px; }
     .gx-btn-carpeta span { display: none; }
 
-    /* MÓVIL: 2 columnas forzadas */
+    /* MÓVIL: 2 columnas */
     .gx-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        gap: 8px !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
     }
 
     .gx-empty { padding: 12px; }
