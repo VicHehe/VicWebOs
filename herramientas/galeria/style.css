@@ -1,6 +1,8 @@
 /* ================================================
    Galería — App principal
    Centro de imágenes del usuario.
+   Rediseño con masonry (CSS columns) y layout
+   optimizado para galerías de fotos.
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -32,7 +34,7 @@ body {
 .gx-container {
     height: 100%;
     height: 100dvh;
-    max-width: 1180px;
+    max-width: 1280px;
     margin: 0 auto;
     padding: 18px 22px 12px;
     display: flex;
@@ -270,38 +272,44 @@ body {
     padding: 0 4px;
 }
 
-/* ========== GRID ========== */
+/* ============================================================
+   GRID — Masonry con CSS columns
+   Las imágenes mantienen su aspect ratio natural.
+   ============================================================ */
 .gx-grid {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 12px;
+    columns: 4 180px;
+    column-gap: 14px;
     padding-right: 2px;
     align-content: start;
 }
 
 .gx-item {
-    position: relative;
-    aspect-ratio: 1 / 1;
-    background: var(--gray-100, #F4F4F7);
+    break-inside: avoid;
+    margin-bottom: 14px;
     border-radius: 14px;
     overflow: hidden;
     cursor: pointer;
-    transition: all 0.2s;
-    border: 2px solid transparent;
+    position: relative;
+    background: var(--gray-100, #F4F4F7);
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 .gx-item:hover {
-    border-color: var(--violet-300, #C4B5FD);
     transform: translateY(-2px);
-    box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.08));
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
+
 .gx-item img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
     display: block;
+    border-radius: 14px;
+    transition: transform 0.3s ease;
+}
+.gx-item:hover img {
+    transform: scale(1.03);
 }
 
 .gx-item-overlay {
@@ -309,20 +317,28 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 20px 10px 8px;
+    padding: 24px 12px 10px;
     background: linear-gradient(to top, rgba(0,0,0,0.75), transparent);
     color: white;
-    font-size: 11px;
+    font-size: 11.5px;
     font-weight: 700;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
     pointer-events: none;
+    border-radius: 0 0 14px 14px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.gx-item:hover .gx-item-overlay {
+    opacity: 1;
 }
 
+/* Skeleton adaptado a masonry: altura mínima para evitar saltos */
 .gx-item-skeleton {
     position: absolute;
     inset: 0;
+    min-height: 140px;
     background: linear-gradient(90deg,
         var(--gray-100, #F4F4F7) 0%,
         var(--gray-200, #E8E8EE) 50%,
@@ -330,6 +346,7 @@ body {
     background-size: 200% 100%;
     animation: gxShimmer 1.4s linear infinite;
     z-index: 1;
+    border-radius: 14px;
 }
 @keyframes gxShimmer {
     from { background-position: 200% 0; }
@@ -422,7 +439,9 @@ body {
     font-weight: 600;
 }
 
-/* ========== MODALES ========== */
+/* ============================================================
+   MODALES
+   ============================================================ */
 .gx-modal {
     position: fixed;
     inset: 0;
@@ -455,7 +474,7 @@ body {
     animation: gxZoom 0.22s cubic-bezier(0.16, 1, 0.3, 1);
     overflow: hidden;
 }
-.gx-modal-card-grande { max-width: 820px; }
+.gx-modal-card-grande { max-width: 880px; }
 
 @keyframes gxZoom {
     from { opacity: 0; transform: scale(0.96) translateY(8px); }
@@ -523,12 +542,15 @@ body {
     gap: 14px;
 }
 
-/* ========== VISTA PREVIA ========== */
+/* ============================================================
+   VISTA PREVIA — Rediseñada
+   Imagen grande a la izquierda, info compacta a la derecha.
+   ============================================================ */
 .gx-preview-body {
     flex: 1;
     min-height: 0;
     display: grid;
-    grid-template-columns: 1fr 260px;
+    grid-template-columns: 1fr 280px;
     overflow: hidden;
 }
 
@@ -538,15 +560,16 @@ body {
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    padding: 12px;
+    padding: 16px;
     min-height: 0;
 }
 .gx-preview-img-wrap img {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
-    border-radius: 6px;
+    border-radius: 8px;
     display: block;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
 
 .gx-preview-info {
@@ -848,13 +871,26 @@ body {
 .gx-toast.error   { background: #991B1B; }
 .gx-toast.info    { background: var(--violet-700, #6D28D9); }
 
-/* ========== RESPONSIVE ========== */
-@media (max-width: 720px) {
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 1100px) {
+    .gx-grid { columns: 3 180px; }
+}
+
+@media (max-width: 820px) {
+    .gx-grid { columns: 2 160px; column-gap: 12px; }
+    .gx-item { margin-bottom: 12px; border-radius: 12px; }
+    .gx-item img { border-radius: 12px; }
+    .gx-item-overlay { border-radius: 0 0 12px 12px; font-size: 11px; }
+    .gx-item-skeleton { border-radius: 12px; }
+
     .gx-preview-body {
         grid-template-columns: 1fr;
         grid-template-rows: 1fr auto;
     }
-    .gx-preview-img-wrap { min-height: 200px; }
+    .gx-preview-img-wrap { min-height: 220px; }
     .gx-preview-info {
         border-left: none;
         border-top: 1px solid var(--border, #E8E8EE);
@@ -882,12 +918,15 @@ body {
     .gx-btn-carpeta { padding: 0 12px; font-size: 12.5px; }
     .gx-btn-carpeta span { display: none; }
 
-    .gx-grid {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-        gap: 8px;
+    .gx-grid { columns: 2 140px; column-gap: 10px; }
+    .gx-item { margin-bottom: 10px; border-radius: 10px; }
+    .gx-item img { border-radius: 10px; }
+    .gx-item-overlay {
+        border-radius: 0 0 10px 10px;
+        font-size: 10px;
+        padding: 18px 8px 6px;
     }
-    .gx-item { border-radius: 12px; }
-    .gx-item-overlay { font-size: 10px; padding: 16px 8px 6px; }
+    .gx-item-skeleton { border-radius: 10px; min-height: 120px; }
 
     .gx-footer { flex-direction: column; align-items: stretch; }
     .gx-paginacion { justify-content: center; }
@@ -906,5 +945,7 @@ body {
     .gx-logo-text p { display: none; }
     .gx-btn-subir span { display: none; }
     .gx-btn-subir { padding: 10px 12px; }
-    .gx-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 6px; }
+    .gx-grid { columns: 2 120px; column-gap: 8px; }
+    .gx-item { margin-bottom: 8px; border-radius: 9px; }
+    .gx-item img { border-radius: 9px; }
 }
