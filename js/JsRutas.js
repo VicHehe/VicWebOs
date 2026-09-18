@@ -4,6 +4,12 @@
 //  esBase: true    → no se puede desinstalar
 //  esDefault: true → se instala automáticamente al crear cuenta
 //                    o se añade a cuentas viejas que no la tengan
+//
+//  ESCALA DE ESPACIO (par, progresiva):
+//    2  → app mínima (1 botón, canvas simple)
+//    4  → herramienta estándar (DOM + lógica ligera)
+//    6  → app con contenido real (grid, estado, modales)
+//    8  → app compleja (polling, editor, picker, multi-vista)
 // ============================================================
 
 const RUTAS_HERRAMIENTAS = [
@@ -50,7 +56,7 @@ const RUTAS_HERRAMIENTAS = [
         descripcion: 'Calculadora promedio + intereses, fechas y gráficos.',
         categoria: 'Herramientas Prácticas',
         esBase: false,
-        espacio: 6,
+        espacio: 4,
         monedas: 0
     },
     {
@@ -61,8 +67,19 @@ const RUTAS_HERRAMIENTAS = [
         descripcion: 'El clásico runner. Gana monedas mientras corres.',
         categoria: 'Juegos',
         esBase: false,
-        espacio: 6,
+        espacio: 2,
         monedas: 0
+    },
+    {
+        id: 'yapoyapo',
+        nombre: 'Yapo Yapo',
+        icono: 'puzzle',
+        ruta: 'herramientas/yapoyapo/index.html',
+        descripcion: 'Puzzle: junta 4+ Yapos iguales y hazlos explotar. Gana monedas.',
+        categoria: 'Juegos',
+        esBase: false,
+        espacio: 6,
+        monedas: 25
     },
     {
         id: 'evmail',
@@ -72,7 +89,7 @@ const RUTAS_HERRAMIENTAS = [
         descripcion: 'Correo interno entre los usuarios del grupo.',
         categoria: 'Social',
         esBase: false,
-        espacio: 6,
+        espacio: 8,
         monedas: 0
     }
 ];
