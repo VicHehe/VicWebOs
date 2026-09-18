@@ -113,6 +113,24 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
+        id: 'ocean',
+        nombre: 'Ocean',
+        icono: 'droplet',
+        descripcion: 'Modo oscuro con azules marinos profundos y destellos teal.',
+        categoria: 'Oficiales',
+        ruta: 'Temas/ocean.css',
+        espacio: 2,
+        monedas: 0,
+        colores: {
+            '--violet-100': '#13294B',
+            '--violet-300': '#17879B',
+            '--violet-500': '#1DAEC4',
+            '--bg':         '#050E1C',
+            '--bg-alt':     '#0A1628',
+            '--white':      '#0A1628'
+        }
+    },
+    {
         id: 'vapor',
         nombre: 'Vapor',
         icono: 'sunset',
@@ -164,6 +182,60 @@ const TEMAS_DISPONIBLES = [
             '--bg':         '#050510',
             '--bg-alt':     '#0F0F1E',
             '--white':      '#0A0A15'
+        }
+    },
+    {
+        id: 'salon',
+        nombre: 'Salón de Noche',
+        icono: 'martini',
+        descripcion: 'Inspirado en los salones de baile de los años 40 y 50. Elegancia nocturna.',
+        categoria: 'Comprables',
+        ruta: 'Temas/salon.css',
+        espacio: 2,
+        monedas: 25,
+        colores: {
+            '--violet-100': '#2E2218',
+            '--violet-300': '#B8860B',
+            '--violet-500': '#E0B84C',
+            '--bg':         '#0F0B08',
+            '--bg-alt':     '#1A1410',
+            '--white':      '#1A1410'
+        }
+    },
+    {
+        id: 'libro',
+        nombre: 'Libro de Historia',
+        icono: 'book-open',
+        descripcion: 'Texturas desgastadas, cuero y papel viejo. Para los que atesoran el pasado.',
+        categoria: 'Comprables',
+        ruta: 'Temas/libro.css',
+        espacio: 2,
+        monedas: 30,
+        colores: {
+            '--violet-100': '#3E2C1C',
+            '--violet-300': '#8B6B4A',
+            '--violet-500': '#C49A6C',
+            '--bg':         '#1A120A',
+            '--bg-alt':     '#2A1F16',
+            '--white':      '#2A1F16'
+        }
+    },
+    {
+        id: 'floral',
+        nombre: 'Floral',
+        icono: 'flower',
+        descripcion: 'Colores vivos y pétalos. Para los que florecen.',
+        categoria: 'Comprables',
+        ruta: 'Temas/floral.css',
+        espacio: 2,
+        monedas: 30,
+        colores: {
+            '--violet-100': '#DCFCE7',
+            '--violet-300': '#F9A8D4',
+            '--violet-500': '#EC4899',
+            '--bg':         '#F7FDF9',
+            '--bg-alt':     '#F0F9F2',
+            '--white':      '#FFFFFF'
         }
     }
 ];
