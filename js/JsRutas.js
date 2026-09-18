@@ -51,5 +51,16 @@ const RUTAS_HERRAMIENTAS = [
         esBase: false,
         espacio: 6,
         monedas: 0
+    },
+    {
+        id: 'evmail',
+        nombre: 'EVmail',
+        icono: 'mail',
+        ruta: 'herramientas/evmail/index.html',
+        descripcion: 'Correo interno entre los usuarios del grupo.',
+        categoria: 'Social',
+        esBase: false,
+        espacio: 6,
+        monedas: 0
     }
 ];
