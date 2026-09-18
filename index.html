@@ -3,199 +3,413 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Yapo Yapo</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238B5CF6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z'/></svg>">
+    <title>VicWebOs</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="Temas/violeta.css" id="tema-activo">
+
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 
-    <div class="yp-app">
-        <!-- HEADER -->
-        <header class="yp-header">
-            <div class="yp-header-left">
-                <div class="yp-logo-mark">
-                    <i data-lucide="puzzle"></i>
+    <div id="appPrincipal">
+        <header class="app-header">
+            <div class="header-left">
+                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Abrir menú">
+                    <i data-lucide="menu"></i>
+                </button>
+                <div class="logo">
+                    <div class="logo-mark"><i data-lucide="hexagon"></i></div>
+                    <span class="logo-text">VicWebOs</span>
                 </div>
-                <div class="yp-header-text">
-                    <h1>Yapo Yapo</h1>
-                    <span class="yp-badge" id="ypUserBadge">—</span>
+            </div>
+
+            <div class="search-bar">
+                <i data-lucide="search" class="search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Buscar en tus apps...">
+                <kbd class="search-kbd">/</kbd>
+            </div>
+
+            <div class="header-right">
+                <div class="info-local">
+                    <div class="hora-local">
+                        <i data-lucide="clock" class="info-icon"></i>
+                        <span class="hora-texto" id="horaLocal">--:--:--</span>
+                    </div>
+                    <div class="divider-dot"></div>
+                    <div class="clima-local" id="climaLocal">
+                        <i data-lucide="cloud-sun" class="clima-icon"></i>
+                        <span class="temp-texto">--°C</span>
+                    </div>
+                    <div class="divider-dot"></div>
+                    <div class="monedas-local" title="Tus monedas">
+                        <i data-lucide="coins" class="info-icon"></i>
+                        <span class="monedas-texto" id="monedasLocal">0</span>
+                    </div>
                 </div>
+
+                <button class="noti-btn" id="btnNotificaciones" title="Notificaciones" aria-label="Notificaciones">
+                    <i data-lucide="bell"></i>
+                    <span class="noti-badge" id="notiBadge" style="display:none;">0</span>
+                </button>
+
+                <button class="avatar-config" id="btnConfig" title="Cuenta y configuración">
+                    <i data-lucide="user" class="avatar-icon"></i>
+                </button>
             </div>
         </header>
 
-        <!-- ============ PANTALLA DE INICIO ============ -->
-        <section id="startScreen" class="yp-screen visible">
-            <div class="yp-start-card">
-                <div class="yp-showcase">
-                    <span class="yp-chip c1"><i data-lucide="heart"></i></span>
-                    <span class="yp-chip c2"><i data-lucide="star"></i></span>
-                    <span class="yp-chip c3"><i data-lucide="hexagon"></i></span>
-                    <span class="yp-chip c4"><i data-lucide="zap"></i></span>
-                    <span class="yp-chip c5"><i data-lucide="diamond"></i></span>
-                </div>
-
-                <h2 class="yp-title">Yapo Yapo</h2>
-                <p class="yp-subtitle">
-                    Junta <b>4 o más Yapos</b> del mismo tipo para hacerlos explotar.
-                    A más puntos, más rápido va el juego <b>y mejores son las recompensas</b>.
-                </p>
-
-                <div class="yp-rules-grid">
-                    <div class="yp-rule-card">
-                        <div class="yp-rule-icon"><i data-lucide="target"></i></div>
-                        <span class="yp-rule-title">Objetivo</span>
-                        <span class="yp-rule-desc">Combina 4+ Yapos iguales</span>
-                    </div>
-                    <div class="yp-rule-card">
-                        <div class="yp-rule-icon"><i data-lucide="coins"></i></div>
-                        <span class="yp-rule-title">Recompensas</span>
-                        <span class="yp-rule-desc">4→1 · 6→2 · 8→3 · 10→4</span>
-                    </div>
-                    <div class="yp-rule-card">
-                        <div class="yp-rule-icon"><i data-lucide="zap"></i></div>
-                        <span class="yp-rule-title">Escalada</span>
-                        <span class="yp-rule-desc">+350 pts → +1 moneda y +10% velocidad</span>
-                    </div>
-                </div>
-
-                <div class="yp-controls-hint">
-                    <span><kbd>←</kbd><kbd>→</kbd> Mover</span>
-                    <span><kbd>↑</kbd> Girar</span>
-                    <span><kbd>↓</kbd> Bajar rápido</span>
-                    <span><kbd>A</kbd><kbd>W</kbd><kbd>S</kbd><kbd>D</kbd> Alternativa</span>
-                </div>
-
-                <div class="yp-start-actions">
-                    <button id="btnStart" class="yp-btn-primary">
-                        <i data-lucide="play"></i>
-                        ¡Jugar!
-                    </button>
-                    <button id="btnExitStart" class="yp-btn-secondary">
+        <div class="app-body">
+            <nav class="sidebar">
+                <div class="sidebar-mobile-header">
+                    <span class="sidebar-mobile-title">VicWebOs</span>
+                    <button class="sidebar-mobile-close" id="sidebarCloseBtn" aria-label="Cerrar menú">
                         <i data-lucide="x"></i>
-                        Salir
                     </button>
                 </div>
-            </div>
-        </section>
 
-        <!-- ============ PANTALLA DE JUEGO ============ -->
-        <section id="gameScreen" class="yp-screen">
-            <div class="yp-game-layout">
-                <div class="yp-board-wrapper">
-                    <canvas id="gameCanvas"></canvas>
-                    <div id="chainOverlay" class="yp-chain-overlay"></div>
+                <!-- Chip de comunidad activa -->
+                <div class="sidebar-comunidad" id="sidebarComunidad" style="display:none;">
+                    <div class="sidebar-comunidad-icono">
+                        <i data-lucide="users"></i>
+                    </div>
+                    <div class="sidebar-comunidad-info">
+                        <span class="sidebar-comunidad-label">Comunidad</span>
+                        <span class="sidebar-comunidad-nombre" id="sidebarComunidadNombre">—</span>
+                    </div>
+                    <button class="sidebar-comunidad-cambiar" id="sidebarComunidadCambiar" title="Cambiar comunidad" aria-label="Cambiar comunidad">
+                        <i data-lucide="chevrons-up-down"></i>
+                    </button>
                 </div>
 
-                <aside class="yp-side-panel">
-                    <div class="yp-panel-card yp-next-card">
-                        <span class="yp-panel-label">Siguiente</span>
-                        <canvas id="nextCanvas"></canvas>
-                    </div>
+                <div class="sidebar-label">Aplicaciones</div>
+                <div class="sidebar-nav" id="sidebarNav"></div>
+            </nav>
 
-                    <div class="yp-panel-card">
-                        <span class="yp-panel-label">Puntos</span>
-                        <span class="yp-panel-value" id="scoreDisplay">0</span>
-                    </div>
+            <main class="main-content">
+                <div id="tabBar" class="tab-bar">
+                    <span class="tab-empty-hint">
+                        <i data-lucide="hexagon"></i>
+                        Abre una app del menú
+                    </span>
+                </div>
 
-                    <div class="yp-panel-card yp-coins-card">
-                        <span class="yp-panel-label">
-                            <i data-lucide="coins"></i>
-                            Monedas
-                        </span>
-                        <span class="yp-panel-value" id="coinsDisplay">0</span>
-                    </div>
+                <div id="panelContainer" class="panel-container">
+                    <div id="welcomeScreen" class="welcome-placeholder">
+                        <div class="welcome-glow"></div>
 
-                    <div class="yp-panel-card yp-tier-card">
-                        <span class="yp-panel-label">
-                            <i data-lucide="zap"></i>
-                            Nivel
-                        </span>
-                        <span class="yp-panel-value" id="tierDisplay">0</span>
-                        <span class="yp-tier-bonus" id="tierBonus">+0 · x1.00</span>
-                        <div class="yp-tier-progress-track">
-                            <div class="yp-tier-progress-fill" id="tierProgressFill"></div>
+                        <div class="welcome-hero">
+                            <div class="welcome-icon-wrap">
+                                <i data-lucide="hexagon" class="welcome-icon"></i>
+                            </div>
+                            <h1 id="welcomeSaludo">Bienvenide a VicWebOs</h1>
+                            <p id="welcomeSubtitulo">Sistema operativo web centrado en el uso personal o grupal de grupos de amistades.</p>
                         </div>
-                        <span class="yp-tier-next" id="tierNext">350 pts → nivel 1</span>
-                    </div>
 
-                    <button id="btnRetire" class="yp-btn-retire">
-                        <i data-lucide="flag"></i>
-                        Retirarse
-                    </button>
-                    <button id="btnExitGame" class="yp-btn-secondary yp-btn-small">
-                        <i data-lucide="x"></i>
-                        Salir
-                    </button>
-                </aside>
+                        <div class="welcome-section" id="welcomeAppsSection">
+                            <div class="welcome-section-header">
+                                <h2><i data-lucide="sparkles"></i> Accesos rápidos</h2>
+                                <button class="btn-ver-todas" id="btnVerTodas">
+                                    Ver todas <i data-lucide="arrow-right"></i>
+                                </button>
+                            </div>
+                            <div class="accesos-rapidos" id="accesosRapidos"></div>
+                        </div>
+
+                        <div class="welcome-section" id="welcomeWidgetsSection" style="display:none;">
+                            <div class="welcome-section-header">
+                                <h2><i data-lucide="layout-grid"></i> Widgets</h2>
+                            </div>
+                            <div id="widgetsZona" class="widgets-zona"></div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Overlay del drawer móvil -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Panel de notificaciones -->
+        <div class="noti-panel" id="notiPanel"></div>
+    </div>
+
+    <!-- ====== MODAL "VER TODAS" ====== -->
+    <div id="modalTodas" class="modal-todas-overlay" style="display:none;">
+        <div class="modal-todas-card">
+            <div class="modal-todas-header">
+                <div>
+                    <h2>Todas las herramientas</h2>
+                    <p class="modal-subtitle">Apps instaladas en tu VicWebOs</p>
+                </div>
+                <button class="modal-todas-cerrar" id="modalTodasCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-todas-body" id="modalTodasBody"></div>
+        </div>
+    </div>
+
+    <!-- ====== MODAL CONFIGURACIÓN ====== -->
+    <div id="configOverlay" class="config-overlay" style="display:none;">
+        <div class="config-card">
+            <div class="config-header">
+                <div>
+                    <h2>Cuenta y configuración</h2>
+                    <p class="config-subtitle">Personaliza tu VicWebOs</p>
+                </div>
+                <button class="config-cerrar" id="btnCerrarConfig"><i data-lucide="x"></i></button>
             </div>
 
-            <!-- ============ CONTROLES MÓVILES ============
-                 Orden: [←] [⟳] [↓] [→]
-                 Izquierda, Girar, Bajar (centro), Derecha. -->
-            <div class="yp-mobile-controls" id="ypMobileControls">
-                <button class="yp-mc-btn" id="mcLeft" aria-label="Izquierda">
-                    <i data-lucide="arrow-left"></i>
-                </button>
-                <button class="yp-mc-btn" id="mcRotate" aria-label="Girar">
-                    <i data-lucide="rotate-cw"></i>
-                </button>
-                <button class="yp-mc-btn yp-mc-primary" id="mcDown" aria-label="Bajar rápido">
-                    <i data-lucide="arrow-down"></i>
-                </button>
-                <button class="yp-mc-btn" id="mcRight" aria-label="Derecha">
-                    <i data-lucide="arrow-right"></i>
-                </button>
+            <div class="config-layout">
+                <nav class="config-nav">
+                    <button class="config-nav-item active" data-section="cuenta">
+                        <i data-lucide="user-circle"></i>
+                        <span>Cuenta</span>
+                    </button>
+                    <button class="config-nav-item" data-section="apariencia">
+                        <i data-lucide="palette"></i>
+                        <span>Apariencia</span>
+                    </button>
+                    <button class="config-nav-item" data-section="apps">
+                        <i data-lucide="package"></i>
+                        <span>Apps</span>
+                    </button>
+                    <button class="config-nav-item" data-section="bd">
+                        <i data-lucide="database"></i>
+                        <span>Comunidades</span>
+                    </button>
+                </nav>
+
+                <div class="config-content">
+
+                    <section class="config-panel active" data-panel="cuenta">
+                        <div class="config-panel-header">
+                            <h3>Cuenta</h3>
+                            <p>Crea tu cuenta o entra con tu código en esta comunidad</p>
+                        </div>
+
+                        <div id="cuentaRequiereGitHub" class="config-info-box" style="display:none;">
+                            <i data-lucide="database"></i>
+                            <span>Primero conecta o crea una <strong>comunidad</strong> desde la pestaña "Comunidades".</span>
+                        </div>
+
+                        <div id="cuentaSinSesion">
+                            <div class="cuenta-tabs">
+                                <button class="cuenta-tab active" data-tab="crear">
+                                    <i data-lucide="user-plus"></i> Crear cuenta
+                                </button>
+                                <button class="cuenta-tab" data-tab="entrar">
+                                    <i data-lucide="log-in"></i> Ya tengo cuenta
+                                </button>
+                            </div>
+
+                            <div class="cuenta-form active" data-form="crear">
+                                <div class="cuenta-foto-wrap">
+                                    <label for="cuentaFoto" class="cuenta-foto" id="cuentaFotoPreview">
+                                        <i data-lucide="camera"></i>
+                                        <span class="cuenta-foto-texto">Subir foto</span>
+                                    </label>
+                                    <input type="file" id="cuentaFoto" accept="image/*" hidden>
+                                </div>
+                                <div class="config-field">
+                                    <label>Nombre</label>
+                                    <input type="text" id="cuentaNombre" placeholder="Ej: Nicolás" maxlength="40">
+                                </div>
+                                <div class="config-field">
+                                    <label>Pronombre</label>
+                                    <select id="cuentaPronombre">
+                                        <option value="el">Él</option>
+                                        <option value="ella">Ella</option>
+                                        <option value="elle">Elle</option>
+                                    </select>
+                                </div>
+                                <div class="config-field">
+                                    <label>Tu código personal (4 dígitos + 1 letra)</label>
+                                    <input type="text" id="cuentaCodigo" placeholder="1234A" maxlength="5" style="text-transform: uppercase;">
+                                    <p class="config-help">No puede repetirse con otros usuarios. Lo usarás para volver a entrar.</p>
+                                </div>
+                                <button class="btn-primario" id="btnCrearCuenta">
+                                    <i data-lucide="user-plus"></i>
+                                    Crear cuenta
+                                </button>
+                                <div id="cuentaMensaje" class="config-status"></div>
+                            </div>
+
+                            <div class="cuenta-form" data-form="entrar">
+                                <div class="config-field">
+                                    <label>Tu código</label>
+                                    <input type="text" id="loginCodigo" placeholder="1234A" maxlength="5" style="text-transform: uppercase;">
+                                    <p class="config-help">Introduce el código que elegiste al crear tu cuenta.</p>
+                                </div>
+                                <button class="btn-primario" id="btnEntrarCuenta">
+                                    <i data-lucide="log-in"></i>
+                                    Entrar
+                                </button>
+                                <div id="loginMensaje" class="config-status"></div>
+                            </div>
+                        </div>
+
+                        <div id="cuentaConSesion" style="display:none;">
+                            <div class="cuenta-perfil">
+                                <div class="cuenta-perfil-foto" id="perfilFoto">
+                                    <i data-lucide="user"></i>
+                                </div>
+                                <div class="cuenta-perfil-info">
+                                    <h4 id="perfilNombre">—</h4>
+                                    <p id="perfilPronombre">—</p>
+                                    <span class="cuenta-perfil-codigo" id="perfilCodigo">—</span>
+                                </div>
+                            </div>
+                            <button class="btn-secundario" id="btnCerrarCuenta">
+                                <i data-lucide="log-out"></i>
+                                Cerrar sesión
+                            </button>
+                        </div>
+                    </section>
+
+                    <section class="config-panel" data-panel="apariencia">
+                        <div class="config-panel-header">
+                            <h3>Apariencia</h3>
+                            <p>Tema, widgets y accesos rápidos</p>
+                        </div>
+
+                        <div class="config-subsection">
+                            <h4><i data-lucide="palette"></i> Tema por defecto</h4>
+                            <p class="config-help">Se aplicará cada vez que entres a VicWebOs.</p>
+                            <div id="configTemasLista" class="config-temas-lista"></div>
+                        </div>
+
+                        <div class="config-subsection">
+                            <h4><i data-lucide="layout-grid"></i> Widgets activos</h4>
+                            <p class="config-help">Solo los widgets instalados desde Stor-He aparecen aquí. Actívalos para mostrarlos en el inicio. Máximo 3.</p>
+                            <div id="configWidgetsLista" class="config-widgets-lista"></div>
+                        </div>
+
+                        <div class="config-subsection">
+                            <h4><i data-lucide="sparkles"></i> Accesos rápidos</h4>
+                            <p class="config-help">Apps que aparecen en el lobby de inicio. Máximo 8. Solo puedes elegir entre las apps que ya tengas instaladas.</p>
+                            <div id="configAccesosLista" class="config-accesos-lista"></div>
+                        </div>
+                    </section>
+
+                    <section class="config-panel" data-panel="apps">
+                        <div class="config-panel-header">
+                            <h3>Apps instaladas</h3>
+                            <p>Estas apps aparecen en tu menú lateral</p>
+                        </div>
+                        <div id="appsInstaladasLista" class="apps-instaladas-lista"></div>
+                        <div class="config-info-box">
+                            <i data-lucide="info"></i>
+                            <span>Para instalar más apps, abre <strong>Stor-He</strong> desde el menú lateral.</span>
+                        </div>
+                    </section>
+
+                    <!-- ============ COMUNIDADES ============ -->
+                    <section class="config-panel" data-panel="bd">
+                        <div class="config-panel-header">
+                            <h3>Comunidades</h3>
+                            <p>Cada comunidad tiene su propia base de datos en GitHub</p>
+                        </div>
+
+                        <div class="config-info-box">
+                            <i data-lucide="info"></i>
+                            <span>Puedes tener varias comunidades (pareja, amigos, familia). Los datos están <strong>totalmente aislados</strong>: en cada comunidad tendrás un perfil propio e independiente.</span>
+                        </div>
+
+                        <div id="bdListaComunidades" class="bd-lista-comunidades"></div>
+
+                        <button class="btn-primario" id="btnNuevaComunidad" style="margin-top: 16px;">
+                            <i data-lucide="plus"></i>
+                            Añadir comunidad
+                        </button>
+
+                        <!-- Formulario (crear/editar) -->
+                        <div id="bdFormulario" class="bd-formulario" style="display:none;">
+                            <div class="bd-formulario-header">
+                                <h4 id="bdFormularioTitulo">Nueva comunidad</h4>
+                                <button class="bd-formulario-cerrar" id="bdFormularioCerrar" aria-label="Cerrar formulario">
+                                    <i data-lucide="x"></i>
+                                </button>
+                            </div>
+
+                            <div class="config-field">
+                                <label>Nombre de la comunidad</label>
+                                <input type="text" id="bdNombreComunidad" placeholder="Ej: Mi pareja" maxlength="40">
+                                <p class="config-help">Solo para identificarla en la lista. No afecta al repositorio.</p>
+                            </div>
+
+                            <div class="config-field">
+                                <label>Tipo de token</label>
+                                <div class="bd-token-opciones">
+                                    <label class="bd-token-opcion">
+                                        <input type="radio" name="bdTipoToken" value="classic" checked>
+                                        <div class="bd-token-card">
+                                            <i data-lucide="key-round"></i>
+                                            <strong>Clásico</strong>
+                                            <span>Permite crear repositorios automáticamente. Ideal para empezar rápido.</span>
+                                        </div>
+                                    </label>
+                                    <label class="bd-token-opcion">
+                                        <input type="radio" name="bdTipoToken" value="fine-grained">
+                                        <div class="bd-token-card">
+                                            <i data-lucide="shield-check"></i>
+                                            <strong>Fine-grained</strong>
+                                            <span>Más seguro, permiso solo en repos concretos. El repo debe existir ya.</span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="config-field">
+                                <label>Token personal</label>
+                                <input type="password" id="bdToken" placeholder="ghp_... o github_pat_..." autocomplete="off">
+                                <p class="config-help" id="bdTokenAyuda">Créalo en <code>github.com/settings/tokens</code> con scope <code>repo</code>.</p>
+                            </div>
+
+                            <div class="config-field">
+                                <label>Nombre del repositorio</label>
+                                <input type="text" id="bdRepo" placeholder="vicwebos-data">
+                                <p class="config-help" id="bdRepoAyuda">Si no existe, se creará automáticamente como privado.</p>
+                            </div>
+
+                            <div class="bd-formulario-acciones">
+                                <button class="btn-secundario" id="bdCancelarForm" type="button">Cancelar</button>
+                                <button class="btn-primario" id="bdGuardarComunidad" type="button">
+                                    <i data-lucide="link-2"></i>
+                                    <span id="bdGuardarTexto">Conectar</span>
+                                </button>
+                            </div>
+                            <div id="bdFormStatus" class="config-status"></div>
+                        </div>
+                    </section>
+
+                </div>
             </div>
-        </section>
 
-        <!-- ============ MODAL GAME OVER ============ -->
-        <div class="yp-modal-overlay" id="gameOverModal">
-            <div class="yp-modal-card">
-                <div class="yp-modal-icon" id="modalIcon">
-                    <i data-lucide="zap-off"></i>
-                </div>
-                <h3 class="yp-modal-title" id="modalTitle">¡Game Over!</h3>
-                <p class="yp-modal-subtitle" id="modalSubtitle">La torre llegó al límite</p>
-
-                <div class="yp-modal-stats">
-                    <div class="yp-stat-row">
-                        <span>Puntuación</span>
-                        <strong id="finalScore">0</strong>
-                    </div>
-                    <div class="yp-stat-row">
-                        <span>
-                            <i data-lucide="zap"></i>
-                            Nivel alcanzado
-                        </span>
-                        <strong id="finalTier">0</strong>
-                    </div>
-                    <div class="yp-stat-row yp-stat-coins">
-                        <span>
-                            <i data-lucide="coins"></i>
-                            Monedas ganadas
-                        </span>
-                        <strong id="finalCoins">0</strong>
-                    </div>
-                </div>
-
-                <div class="yp-modal-actions">
-                    <button id="btnPlayAgain" class="yp-btn-primary">
-                        <i data-lucide="rotate-ccw"></i>
-                        Jugar de nuevo
-                    </button>
-                    <button id="btnBackMenu" class="yp-btn-secondary">
-                        <i data-lucide="home"></i>
-                        Menú
-                    </button>
-                </div>
+            <div class="config-footer">
+                <span class="config-footer-msg" id="configFooterMsg"></span>
+                <button class="btn-primario" id="btnGuardarConfig">
+                    <i data-lucide="save"></i>
+                    Guardar cambios
+                </button>
             </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="js/JsRutas.js"></script>
+    <script src="js/JsTemas.js"></script>
+    <script src="js/JsWidgets.js"></script>
+    <script src="js/ConfigBD.js"></script>
+    <script src="js/ConfigBD.binarios.js"></script>
+    <script src="js/MasterHad.js"></script>
+    <script src="js/Cuenta.js"></script>
+    <script src="js/configuracion.js"></script>
+    <script src="js/JsIndex.js"></script>
+    <script src="js/Notificaciones.js"></script>
+    <script src="js/MobileUI.js"></script>
     <script>lucide.createIcons();</script>
 </body>
 </html>
