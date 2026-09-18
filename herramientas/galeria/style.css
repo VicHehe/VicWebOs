@@ -1,7 +1,6 @@
 /* ================================================
    Galería — App principal
-   Grid con auto-fill, imágenes compactas para
-   que entren 10+ por fila en PC sin scroll.
+   6 columnas fijas en PC → 12 imágenes = 2 filas.
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -287,16 +286,18 @@ body {
 .gx-contador:empty { display: none; }
 
 /* ============================================================
-   GRID — minmax(110px) → ~10-12 columnas en PC.
-   Con 12 por página caben en 1-2 filas sin scroll.
+   GRID — 6 columnas FIJAS en PC.
+   Con 12 imágenes (POR_PAGINA) caen 6 + 6 en 2 filas.
+   Con 7 imágenes caen 6 + 1.
    ============================================================ */
 .gx-grid {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-    gap: 12px;
-    padding-top: 12px;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 10px;
+    padding-top: 10px;
     align-content: start;
     width: 100%;
     min-height: 0;
@@ -315,7 +316,7 @@ body {
     transition: transform 0.2s, box-shadow 0.2s;
 }
 .gx-item:hover {
-    transform: scale(1.04);
+    transform: scale(1.03);
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
 }
 
@@ -948,21 +949,15 @@ body {
 .gx-toast.info    { background: var(--violet-700, #6D28D9); }
 
 /* ============================================================
-   RESPONSIVE
+   RESPONSIVE — reduce columnas a medida que baja el ancho.
    ============================================================ */
 
 @media (max-width: 1100px) {
-    .gx-grid {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-        gap: 10px;
-    }
+    .gx-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 }
 
 @media (max-width: 900px) {
-    .gx-grid {
-        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-        gap: 10px;
-    }
+    .gx-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 
     .gx-preview-body {
         grid-template-columns: 1fr;
@@ -996,13 +991,12 @@ body {
     .gx-btn-carpeta { padding: 0 12px; font-size: 12.5px; }
     .gx-btn-carpeta span { display: none; }
 
-    /* MÓVIL: 3-4 por fila */
+    /* MÓVIL: 3 columnas */
     .gx-grid {
-        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 8px;
         padding-top: 8px;
     }
-    .gx-item { border-radius: 8px; }
 
     .gx-empty { padding: 12px; }
     .gx-empty-card { padding: 36px 24px; border-radius: 20px; gap: 10px; }
@@ -1029,6 +1023,9 @@ body {
     .gx-logo-text p { display: none; }
     .gx-btn-subir span { display: none; }
     .gx-btn-subir { padding: 10px 12px; }
+
+    /* MÓVIL CHICO: 2 columnas */
+    .gx-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
     .gx-empty-card { padding: 28px 18px; }
     .gx-empty-icon { width: 64px; height: 64px; border-radius: 18px; }
