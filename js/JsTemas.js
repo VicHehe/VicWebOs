@@ -1,5 +1,18 @@
 // ============================================================
 //  JsTemas.js — Catálogo de TEMAS
+//  ------------------------------------------------------------
+//  ESCALA DE ESPACIO:
+//    0 → base del sistema (violeta)
+//    2 → solo redefine variables :root
+//    4 → añade pseudo-elementos, mask, SVG patterns o texturas
+//
+//  ESCALA DE PRECIO (monedas):
+//    0   → oficiales (siempre disponibles)
+//    5   → variante simple (solo colores, paleta distintiva)
+//    10  → colores + 1-2 detalles propios
+//    15  → efecto visual único (SVG pattern, patrón)
+//    20  → múltiples efectos (mask, pseudo-elementos)
+//    25  → tema muy elaborado (textura + efectos combinados)
 // ============================================================
 
 const TEMAS_DISPONIBLES = [
@@ -149,42 +162,6 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
-        id: 'consentido',
-        nombre: 'Consentido',
-        icono: 'heart',
-        descripcion: 'Colores chilenos cálidos. Para los que se consienten.',
-        categoria: 'Comprables',
-        ruta: 'Temas/consentido.css',
-        espacio: 2,
-        monedas: 18,
-        colores: {
-            '--violet-100': '#FFE4E4',
-            '--violet-300': '#FCA5A5',
-            '--violet-500': '#D52B1E',
-            '--bg':         '#FFFBF7',
-            '--bg-alt':     '#FFF5EE',
-            '--white':      '#FFFFFF'
-        }
-    },
-    {
-        id: 'dreams',
-        nombre: 'Dreams and Hopes',
-        icono: 'sparkles',
-        descripcion: 'Fondo negro profundo con acentos arcoíris. Para soñadores.',
-        categoria: 'Comprables',
-        ruta: 'Temas/dreams.css',
-        espacio: 2,
-        monedas: 30,
-        colores: {
-            '--violet-100': '#2E1A44',
-            '--violet-300': '#7C4DE8',
-            '--violet-500': '#C084FC',
-            '--bg':         '#050510',
-            '--bg-alt':     '#0F0F1E',
-            '--white':      '#0A0A15'
-        }
-    },
-    {
         id: 'salon',
         nombre: 'Salón de Noche',
         icono: 'martini',
@@ -192,7 +169,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Comprables',
         ruta: 'Temas/salon.css',
         espacio: 2,
-        monedas: 25,
+        monedas: 5,
         colores: {
             '--violet-100': '#5C0A0A',
             '--violet-300': '#B8860B',
@@ -203,32 +180,68 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
-        id: 'libro',
-        nombre: 'Libro de Historia',
-        icono: 'book-open',
-        descripcion: 'Texturas desgastadas, cuero y papel viejo. Para los que atesoran el pasado.',
+        id: 'consentido',
+        nombre: 'Consentido',
+        icono: 'heart',
+        descripcion: 'Colores chilenos cálidos. Para los que se consienten.',
         categoria: 'Comprables',
-        ruta: 'Temas/libro.css',
+        ruta: 'Temas/consentido.css',
         espacio: 2,
-        monedas: 30,
+        monedas: 10,
         colores: {
-            '--violet-100': '#3E2C1C',
-            '--violet-300': '#8B6B4A',
-            '--violet-500': '#C49A6C',
-            '--bg':         '#1A120A',
-            '--bg-alt':     '#2A1F16',
-            '--white':      '#2A1F16'
+            '--violet-100': '#FFE4E4',
+            '--violet-300': '#FCA5A5',
+            '--violet-500': '#D52B1E',
+            '--bg':         '#FFFBF7',
+            '--bg-alt':     '#FFF5EE',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
+        id: 'celeste',
+        nombre: 'Celeste Nublado',
+        icono: 'cloud',
+        descripcion: 'Cielo pastel grisáceo con nubes suaves vectoriales.',
+        categoria: 'Comprables',
+        ruta: 'Temas/celeste.css',
+        espacio: 4,
+        monedas: 15,
+        colores: {
+            '--violet-100': '#DDE9F2',
+            '--violet-300': '#9CB8CD',
+            '--violet-500': '#5E84A0',
+            '--bg':         '#E7EDF3',
+            '--bg-alt':     '#CADEEF',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
+        id: 'dreams',
+        nombre: 'Dreams and Hopes',
+        icono: 'sparkles',
+        descripcion: 'Fondo negro profundo con bordes arcoíris. Para soñadores.',
+        categoria: 'Comprables',
+        ruta: 'Temas/dreams.css',
+        espacio: 4,
+        monedas: 20,
+        colores: {
+            '--violet-100': '#2E1A44',
+            '--violet-300': '#7C4DE8',
+            '--violet-500': '#C084FC',
+            '--bg':         '#050510',
+            '--bg-alt':     '#0F0F1E',
+            '--white':      '#0A0A15'
         }
     },
     {
         id: 'floral',
         nombre: 'Floral',
         icono: 'flower',
-        descripcion: 'Colores vivos y pétalos. Para los que florecen.',
+        descripcion: 'Colores vivos, pétalos y verdes frescos. Para los que florecen.',
         categoria: 'Comprables',
         ruta: 'Temas/floral.css',
-        espacio: 2,
-        monedas: 30,
+        espacio: 4,
+        monedas: 20,
         colores: {
             '--violet-100': '#DCFCE7',
             '--violet-300': '#F9A8D4',
@@ -239,21 +252,21 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
-        id: 'celeste',
-        nombre: 'Celeste Nublado',
-        icono: 'cloud',
-        descripcion: 'Cielo pastel tirando a grisáceo con nubes suaves. Estética tranquila y amigable.',
+        id: 'libro',
+        nombre: 'Libro de Historia',
+        icono: 'book-open',
+        descripcion: 'Cuero, papel viejo y texturas desgastadas. Para los que atesoran el pasado.',
         categoria: 'Comprables',
-        ruta: 'Temas/celeste.css',
-        espacio: 2,
-        monedas: 40,
+        ruta: 'Temas/libro.css',
+        espacio: 4,
+        monedas: 25,
         colores: {
-            '--violet-100': '#DDE9F2',
-            '--violet-300': '#9CB8CD',
-            '--violet-500': '#5E84A0',
-            '--bg':         '#E4EEF6',
-            '--bg-alt':     '#D4E2EE',
-            '--white':      '#FFFFFF'
+            '--violet-100': '#3E2C1C',
+            '--violet-300': '#8B6B4A',
+            '--violet-500': '#C49A6C',
+            '--bg':         '#1A120A',
+            '--bg-alt':     '#2A1F16',
+            '--white':      '#2A1F16'
         }
     }
 ];
