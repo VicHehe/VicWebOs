@@ -1,7 +1,7 @@
 /* ================================================
    Galería — App principal
-   Grid con auto-fill, imágenes más chicas para
-   que entren 6 por fila en viewport medio.
+   Grid con auto-fill, imágenes compactas para
+   que entren 10+ por fila en PC sin scroll.
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -35,7 +35,7 @@ body {
 .gx-container {
     height: 100%;
     height: 100dvh;
-    max-width: 1400px;
+    max-width: 1600px;
     margin: 0 auto;
     padding: 16px 20px 12px;
     display: flex;
@@ -287,16 +287,16 @@ body {
 .gx-contador:empty { display: none; }
 
 /* ============================================================
-   GRID — minmax(150px) para que entren ~6 por fila
-   en viewport medio y ~8 en viewport ancho.
+   GRID — minmax(110px) → ~10-12 columnas en PC.
+   Con 12 por página caben en 1-2 filas sin scroll.
    ============================================================ */
 .gx-grid {
     flex: 1;
     overflow-y: auto;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 14px;
-    padding-top: 14px;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 12px;
+    padding-top: 12px;
     align-content: start;
     width: 100%;
     min-height: 0;
@@ -308,14 +308,14 @@ body {
     width: 100%;
     height: 0;
     padding-bottom: 100%;
-    border-radius: 12px;
+    border-radius: 10px;
     overflow: hidden;
     cursor: pointer;
     background: var(--gray-100, #F4F4F7);
     transition: transform 0.2s, box-shadow 0.2s;
 }
 .gx-item:hover {
-    transform: scale(1.03);
+    transform: scale(1.04);
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
 }
 
@@ -334,10 +334,10 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 18px 8px 6px;
-    background: linear-gradient(to top, rgba(0,0,0,0.72), transparent);
+    padding: 14px 6px 5px;
+    background: linear-gradient(to top, rgba(0,0,0,0.75), transparent);
     color: white;
-    font-size: 10.5px;
+    font-size: 10px;
     font-weight: 700;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -951,10 +951,17 @@ body {
    RESPONSIVE
    ============================================================ */
 
+@media (max-width: 1100px) {
+    .gx-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 10px;
+    }
+}
+
 @media (max-width: 900px) {
     .gx-grid {
-        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-        gap: 12px;
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        gap: 10px;
     }
 
     .gx-preview-body {
@@ -989,12 +996,13 @@ body {
     .gx-btn-carpeta { padding: 0 12px; font-size: 12.5px; }
     .gx-btn-carpeta span { display: none; }
 
-    /* MÓVIL: imágenes pequeñas para que entren 3-4 por fila */
+    /* MÓVIL: 3-4 por fila */
     .gx-grid {
-        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
         gap: 8px;
         padding-top: 8px;
     }
+    .gx-item { border-radius: 8px; }
 
     .gx-empty { padding: 12px; }
     .gx-empty-card { padding: 36px 24px; border-radius: 20px; gap: 10px; }
