@@ -132,24 +132,23 @@
                 </aside>
             </div>
 
-            <!-- ============ CONTROLES MÓVILES ============ -->
+            <!-- ============ CONTROLES MÓVILES ============
+                 Orden: [←] [↓] [→] [⟳]
+                 El ⟳ (girar) va al final para que no se
+                 confunda con el botón de mover izquierda. -->
             <div class="yp-mobile-controls" id="ypMobileControls">
-                <div class="yp-mc-row">
-                    <button class="yp-mc-btn" id="mcRotate" aria-label="Girar">
-                        <i data-lucide="rotate-cw"></i>
-                    </button>
-                </div>
-                <div class="yp-mc-row">
-                    <button class="yp-mc-btn" id="mcLeft" aria-label="Izquierda">
-                        <i data-lucide="arrow-left"></i>
-                    </button>
-                    <button class="yp-mc-btn yp-mc-primary" id="mcDown" aria-label="Bajar rápido">
-                        <i data-lucide="arrow-down"></i>
-                    </button>
-                    <button class="yp-mc-btn" id="mcRight" aria-label="Derecha">
-                        <i data-lucide="arrow-right"></i>
-                    </button>
-                </div>
+                <button class="yp-mc-btn" id="mcLeft" aria-label="Izquierda">
+                    <i data-lucide="arrow-left"></i>
+                </button>
+                <button class="yp-mc-btn yp-mc-primary" id="mcDown" aria-label="Bajar rápido">
+                    <i data-lucide="arrow-down"></i>
+                </button>
+                <button class="yp-mc-btn" id="mcRight" aria-label="Derecha">
+                    <i data-lucide="arrow-right"></i>
+                </button>
+                <button class="yp-mc-btn" id="mcRotate" aria-label="Girar">
+                    <i data-lucide="rotate-cw"></i>
+                </button>
             </div>
         </section>
 
