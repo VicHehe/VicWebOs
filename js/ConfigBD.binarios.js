@@ -5,44 +5,25 @@
 //  (imágenes, audio, video, documentos) contra el repo de datos
 //  en GitHub.
 //
-//  Se carga DESPUÉS de ConfigBD.js:
-//      <script src="js/ConfigBD.js"></script>
-//      <script src="js/ConfigBD.binarios.js"></script>
+//  Se carga DESPUÉS de ConfigBD.js.
 //
-//  API que añade a ConfigBD:
-//      ConfigBD.subirArchivo(path, fileOrBlob, opciones)
-//      ConfigBD.leerArchivoBinario(path, opciones)        → Blob
-//      ConfigBD.leerArchivoBinarioComoURL(path, opciones) → string (blob:)
-//      ConfigBD.existeArchivo(path, opciones)             → bool
-//      ConfigBD.eliminarArchivo(path, opciones)
-//      ConfigBD.MAX_ARCHIVO_BINARIO                       → int
-//
-//  El desarrollador de la app NUNCA ve base64. Sube un File
-//  nativo del navegador y recibe Blob/URL al leer.
-//
-//  Internamente elige entre dos rutas según el tamaño:
-//    - ≤ 900 KB  → Contents API (1 request)
-//    - ≤ 50 MB   → Git Data API (6 requests, con reintentos)
+//  IMPORTANTE: el caché de la rama por defecto es POR COMUNIDAD,
+//  así al cambiar de comunidad no arrastramos ramas de otra.
 // ============================================================
 
 (function () {
     'use strict';
 
-    // ------------------------------------------------------------
-    //  Constantes
-    // ------------------------------------------------------------
     const UMBRAL_CONTENTS = 900 * 1024;        // 900 KB
-    const MAX_ARCHIVO     = 50 * 1024 * 1024;  // 50 MB (autoimpuesto)
+    const MAX_ARCHIVO     = 50 * 1024 * 1024;  // 50 MB
     const MAX_REINTENTOS  = 3;
 
-    // Caché de la rama por defecto del repo (main/master)
-    let _ramaCache = null;
+    // Caché de rama por comunidad: { comId: 'main' | 'master' }
+    const _ramasPorComunidad = new Map();
 
     // ------------------------------------------------------------
     //  Utilidades internas
     // ------------------------------------------------------------
-
-    // Uint8Array → base64 por chunks de 32 KB (evita stack overflow)
     function bytesABase64(bytes) {
         const CHUNK = 0x8000;
         let binario = '';
@@ -52,7 +33,6 @@
         return btoa(binario);
     }
 
-    // Normaliza cualquier entrada a Uint8Array
     async function aBytes(fileOrBlob) {
         if (fileOrBlob instanceof Uint8Array) return fileOrBlob;
         if (fileOrBlob instanceof ArrayBuffer) return new Uint8Array(fileOrBlob);
@@ -62,10 +42,17 @@
         throw new Error('Se esperaba un File, Blob, ArrayBuffer o Uint8Array.');
     }
 
-    // Lee la rama por defecto del repo (cacheada). Se resetea al
-    // desconectar o si una escritura da conflicto.
+    function idComunidadActiva() {
+        if (typeof window.obtenerComunidadActiva === 'function') {
+            const c = window.obtenerComunidadActiva();
+            return c ? c.id : 'none';
+        }
+        return 'none';
+    }
+
     async function obtenerRamaDefault() {
-        if (_ramaCache) return _ramaCache;
+        const comId = idComunidadActiva();
+        if (_ramasPorComunidad.has(comId)) return _ramasPorComunidad.get(comId);
 
         const config = cargarConfigBD();
         const res = await fetch(
@@ -74,11 +61,15 @@
         );
         if (!res.ok) throw new Error('No se pudo leer la info del repositorio.');
         const data = await res.json();
-        _ramaCache = data.default_branch || 'main';
-        return _ramaCache;
+        const rama = data.default_branch || 'main';
+        _ramasPorComunidad.set(comId, rama);
+        return rama;
     }
 
-    // Detecta si un error indica conflicto de escritura (para reintentar)
+    function olvidarRamaActual() {
+        _ramasPorComunidad.delete(idComunidadActiva());
+    }
+
     function esConflicto(mensaje) {
         if (!mensaje) return false;
         const m = String(mensaje).toLowerCase();
@@ -99,7 +90,6 @@
     async function subirViaContents(path, bytes, signal) {
         const config = cargarConfigBD();
 
-        // ¿Existe ya? Si sí, necesitamos su sha para sobrescribir.
         let sha = null;
         try {
             const res = await fetch(
@@ -112,7 +102,6 @@
             }
         } catch (e) {
             if (e.name === 'AbortError') throw e;
-            // 404 u otro → seguimos sin sha (creación nueva)
         }
 
         const body = {
@@ -142,7 +131,7 @@
     }
 
     // ------------------------------------------------------------
-    //  RUTA B — Git Data API (≤ 50 MB, con reintentos en conflicto)
+    //  RUTA B — Git Data API (≤ 50 MB, con reintentos)
     // ------------------------------------------------------------
     async function subirViaGitData(path, bytes, signal, intento = 1) {
         const config = cargarConfigBD();
@@ -152,7 +141,6 @@
         const rama  = await obtenerRamaDefault();
 
         try {
-            // 1. SHA del HEAD de la rama
             const refRes = await fetch(
                 `https://api.github.com/repos/${owner}/${repo}/git/ref/heads/${rama}`,
                 { headers: GH_HEADERS(token), signal }
@@ -160,7 +148,6 @@
             if (!refRes.ok) throw new Error(`No se pudo leer la rama ${rama}.`);
             const { object: { sha: commitSha } } = await refRes.json();
 
-            // 2. SHA del tree base de ese commit
             const commitRes = await fetch(
                 `https://api.github.com/repos/${owner}/${repo}/git/commits/${commitSha}`,
                 { headers: GH_HEADERS(token), signal }
@@ -168,7 +155,6 @@
             if (!commitRes.ok) throw new Error('No se pudo leer el commit base.');
             const { tree: { sha: baseTreeSha } } = await commitRes.json();
 
-            // 3. Crear el blob con el contenido binario
             const blobRes = await fetch(
                 `https://api.github.com/repos/${owner}/${repo}/git/blobs`,
                 {
@@ -187,7 +173,6 @@
             if (!blobRes.ok) throw new Error('No se pudo crear el blob.');
             const { sha: blobSha } = await blobRes.json();
 
-            // 4. Crear un tree nuevo encima del base, con nuestro archivo
             const treeRes = await fetch(
                 `https://api.github.com/repos/${owner}/${repo}/git/trees`,
                 {
@@ -211,7 +196,6 @@
             if (!treeRes.ok) throw new Error('No se pudo crear el tree.');
             const { sha: newTreeSha } = await treeRes.json();
 
-            // 5. Crear un commit apuntando a ese tree
             const commitNuevoRes = await fetch(
                 `https://api.github.com/repos/${owner}/${repo}/git/commits`,
                 {
@@ -231,7 +215,6 @@
             if (!commitNuevoRes.ok) throw new Error('No se pudo crear el commit.');
             const { sha: newCommitSha } = await commitNuevoRes.json();
 
-            // 6. Actualizar la rama al nuevo commit
             const patchRes = await fetch(
                 `https://api.github.com/repos/${owner}/${repo}/git/refs/heads/${rama}`,
                 {
@@ -254,10 +237,9 @@
         } catch (e) {
             if (e.name === 'AbortError') throw e;
 
-            // Reintento automático si es un conflicto de escritura
             if (intento < MAX_REINTENTOS && esConflicto(e.message)) {
                 console.warn(`[ConfigBD.binarios] Conflicto, reintentando (${intento}/${MAX_REINTENTOS - 1})...`);
-                _ramaCache = null;
+                olvidarRamaActual();
                 await esperar(400 * intento);
                 return await subirViaGitData(path, bytes, signal, intento + 1);
             }
@@ -268,13 +250,6 @@
     // ------------------------------------------------------------
     //  API PÚBLICA
     // ------------------------------------------------------------
-
-    /**
-     * Sube un archivo binario. Elige ruta interna según tamaño.
-     * @param {string} path - Ruta en el repo, ej: "app/galeria/galeria(imagen)/foto.jpg"
-     * @param {File|Blob|ArrayBuffer|Uint8Array} fileOrBlob
-     * @param {{ signal?: AbortSignal }} [opciones]
-     */
     async function subirArchivo(path, fileOrBlob, opciones = {}) {
         if (!this.estaConectado()) throw new Error('GitHub no está conectado.');
         if (!path) throw new Error('subirArchivo requiere una ruta.');
@@ -293,10 +268,6 @@
         return await subirViaGitData(path, bytes, opciones.signal);
     }
 
-    /**
-     * Lee un archivo binario y devuelve un Blob nativo.
-     * @returns {Promise<Blob|null>} null si no existe
-     */
     async function leerArchivoBinario(path, opciones = {}) {
         if (!this.estaConectado()) return null;
         if (!path) return null;
@@ -318,21 +289,12 @@
         return await res.blob();
     }
 
-    /**
-     * Lee un archivo binario y devuelve un blob: URL listo para
-     * poner en <img src>, <audio src>, <video src>, etc.
-     * IMPORTANTE: llamar URL.revokeObjectURL() cuando ya no se use.
-     * @returns {Promise<string|null>}
-     */
     async function leerArchivoBinarioComoURL(path, opciones = {}) {
         const blob = await this.leerArchivoBinario(path, opciones);
         if (!blob) return null;
         return URL.createObjectURL(blob);
     }
 
-    /**
-     * Comprueba si un archivo existe (sin descargarlo entero).
-     */
     async function existeArchivo(path, opciones = {}) {
         if (!this.estaConectado()) return false;
         if (!path) return false;
@@ -351,16 +313,12 @@
         return true;
     }
 
-    /**
-     * Elimina un archivo del repo (y su entrada en git).
-     */
     async function eliminarArchivo(path, opciones = {}) {
         if (!this.estaConectado()) throw new Error('GitHub no está conectado.');
         if (!path) throw new Error('eliminarArchivo requiere una ruta.');
 
         const config = cargarConfigBD();
 
-        // Necesitamos el sha para poder borrar
         const infoRes = await fetch(
             `https://api.github.com/repos/${config.githubOwner}/${config.githubRepo}/contents/${path}`,
             {
@@ -406,10 +364,15 @@
     ConfigBD.eliminarArchivo           = eliminarArchivo;
     ConfigBD.MAX_ARCHIVO_BINARIO       = MAX_ARCHIVO;
 
-    // Envolver desconectar() para resetear el caché de rama
+    // Invalidar la rama cacheada al desconectar o cambiar de comunidad
     const _desconectarOriginal = ConfigBD.desconectar.bind(ConfigBD);
     ConfigBD.desconectar = async function () {
-        _ramaCache = null;
+        _ramasPorComunidad.clear();
         return await _desconectarOriginal();
+    };
+
+    // Exponer una función de limpieza para cuando se cambia de comunidad
+    ConfigBD.__olvidarRamasBinarios = function () {
+        _ramasPorComunidad.clear();
     };
 })();
