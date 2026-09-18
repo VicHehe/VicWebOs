@@ -246,13 +246,13 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Comprables',
         ruta: 'Temas/celeste.css',
         espacio: 2,
-        monedas: 30,
+        monedas: 40,
         colores: {
-            '--violet-100': '#E3ECF3',
-            '--violet-300': '#A8C1D4',
-            '--violet-500': '#688DA9',
-            '--bg':         '#F4F8FB',
-            '--bg-alt':     '#EBF1F6',
+            '--violet-100': '#DDE9F2',
+            '--violet-300': '#9CB8CD',
+            '--violet-500': '#5E84A0',
+            '--bg':         '#E4EEF6',
+            '--bg-alt':     '#D4E2EE',
             '--white':      '#FFFFFF'
         }
     }
