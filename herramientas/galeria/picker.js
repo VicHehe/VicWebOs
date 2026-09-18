@@ -10,6 +10,7 @@
 'use strict';
 
 const POR_PAGINA = 6;
+const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 
 let imagenes = [];
 let paginaActual = 1;
@@ -19,6 +20,39 @@ let titulo = 'Elige una imagen';
 let urlsActivas = [];
 
 const MH = () => window.parent.MasterHad || null;
+
+// ------------------------------------------------------------
+//  Tema: heredar variables CSS del shell
+// ------------------------------------------------------------
+function aplicarTemaDelPadre() {
+    try {
+        const rootPadre = window.parent.document.documentElement;
+        const stylePadre = getComputedStyle(rootPadre);
+        const vars = [
+            '--violet-50','--violet-100','--violet-200','--violet-300',
+            '--violet-400','--violet-500','--violet-600','--violet-700',
+            '--white','--bg','--bg-alt',
+            '--gray-50','--gray-100','--gray-200','--gray-300','--gray-400',
+            '--gray-500','--gray-600','--gray-700','--gray-800','--gray-900',
+            '--border','--text','--text-2','--text-3',
+            '--shadow-xs','--shadow-sm','--shadow-md','--shadow-lg','--shadow-xl',
+            '--accent-gradient','--accent-gradient-hover',
+            '--accent-shadow','--accent-shadow-hover',
+            '--accent-text-gradient',
+            '--r-sm','--r-md','--r-lg','--r-xl','--r-full'
+        ];
+        vars.forEach(v => {
+            const val = stylePadre.getPropertyValue(v).trim();
+            if (val) document.documentElement.style.setProperty(v, val);
+        });
+    } catch (e) { /* silencioso */ }
+}
+
+window.addEventListener('message', (e) => {
+    if (e.data && e.data.type === MENSAJE_TEMA) {
+        aplicarTemaDelPadre();
+    }
+});
 
 // ------------------------------------------------------------
 //  Obtener código del usuario (vive en el shell)
@@ -35,18 +69,9 @@ function codigoActual() {
 }
 
 // ------------------------------------------------------------
-//  Leer opciones de la URL del iframe
+//  Leer opciones del iframe padre
 // ------------------------------------------------------------
 function leerOpciones() {
-    try {
-        const params = new URLSearchParams(window.location.search);
-        const t = params.get('titulo');
-        const m = params.get('multiple');
-        if (t) titulo = t;
-        if (m === '1') multiple = true;
-    } catch (e) { /* silencioso */ }
-
-    // Fallback: leer data-attributes del iframe padre (mismo origen)
     try {
         const frame = window.frameElement;
         if (frame) {
@@ -89,9 +114,7 @@ function render() {
     const btnPrev = document.getElementById('btnPrev');
     const btnNext = document.getElementById('btnNext');
     const btnOk = document.getElementById('btnSeleccionar');
-    const btnOkTxt = document.getElementById('btnSeleccionarTxt');
 
-    // Limpiar URLs de la página anterior
     urlsActivas.forEach(u => URL.revokeObjectURL(u));
     urlsActivas = [];
 
@@ -126,21 +149,17 @@ function render() {
         </div>
     `).join('');
 
-    // Cargar miniaturas
-    pagina.forEach((img, idx) => {
+    pagina.forEach((img) => {
         const el = grid.querySelector(`.picker-item[data-id="${img.id}"]`);
-        if (!el) return;
-        cargarMiniatura(img, el, idx === pagina.length - 1);
+        if (el) cargarMiniatura(img, el);
     });
 
     info.textContent = `${paginaActual} / ${totalPaginas}`;
     btnPrev.disabled = paginaActual <= 1;
     btnNext.disabled = paginaActual >= totalPaginas;
 
-    // Actualizar estado del botón OK según selección
     actualizarBotonOK();
 
-    // Marcar las ya seleccionadas
     seleccionados.forEach(id => {
         const el = grid.querySelector(`.picker-item[data-id="${id}"]`);
         if (el) el.classList.add('seleccionada');
@@ -149,7 +168,7 @@ function render() {
     if (window.lucide) window.lucide.createIcons();
 }
 
-async function cargarMiniatura(img, el, esUltima) {
+async function cargarMiniatura(img, el) {
     try {
         const mh = MH();
         if (!mh) return;
@@ -160,16 +179,14 @@ async function cargarMiniatura(img, el, esUltima) {
         imagenEl.src = url;
         imagenEl.alt = img.nombre || '';
         imagenEl.loading = 'lazy';
-        // Insertar antes del nombre (encima del skeleton)
         el.insertBefore(imagenEl, el.firstChild);
-        // Quitar el skeleton
         const skeleton = el.querySelector('.picker-item-cargando');
         if (skeleton) skeleton.remove();
     } catch (e) {
         console.warn('[picker] No se pudo cargar miniatura:', e);
         const skeleton = el.querySelector('.picker-item-cargando');
         if (skeleton) {
-            skeleton.style.background = 'var(--gray-200)';
+            skeleton.style.background = 'var(--gray-200, #E8E8EE)';
             skeleton.style.animation = 'none';
         }
     }
@@ -183,9 +200,7 @@ function actualizarBotonOK() {
     if (multiple) {
         const n = seleccionados.size;
         btnOk.disabled = n === 0;
-        btnOkTxt.textContent = n === 0
-            ? 'Seleccionar'
-            : `Seleccionar (${n})`;
+        btnOkTxt.textContent = n === 0 ? 'Seleccionar' : `Seleccionar (${n})`;
     } else {
         btnOk.disabled = seleccionados.size === 0;
         btnOkTxt.textContent = 'Seleccionar';
@@ -203,7 +218,6 @@ function seleccionarItem(id) {
         seleccionados.clear();
         seleccionados.add(id);
     }
-    // Actualizar visual
     document.querySelectorAll('.picker-item').forEach(el => {
         el.classList.toggle('seleccionada', seleccionados.has(el.dataset.id));
     });
@@ -264,10 +278,10 @@ function mostrarError(msg) {
 //  Init
 // ------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', async () => {
+    aplicarTemaDelPadre();
     leerOpciones();
     document.getElementById('pickerTitulo').textContent = titulo;
 
-    // Eventos
     document.getElementById('btnCancelar').addEventListener('click', cancelar);
     document.getElementById('btnCancelarHeader').addEventListener('click', cancelar);
     document.getElementById('btnSeleccionar').addEventListener('click', confirmar);
@@ -290,9 +304,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (window.lucide) window.lucide.createIcons();
 });
 
-// ------------------------------------------------------------
-//  Limpieza al cerrar
-// ------------------------------------------------------------
 window.addEventListener('unload', () => {
     urlsActivas.forEach(u => URL.revokeObjectURL(u));
 });
