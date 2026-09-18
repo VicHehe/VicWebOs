@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>EVmail</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="evmail-container">
+        <!-- HEADER -->
+        <header class="evmail-header">
+            <div class="evmail-logo">
+                <div class="evmail-logo-mark">
+                    <i data-lucide="mail"></i>
+                </div>
+                <div class="evmail-logo-text">
+                    <h1>EVmail</h1>
+                    <p id="evmailUserBadge">—</p>
+                </div>
+            </div>
+            <div class="header-info">
+                <button id="btnNuevoMensaje" class="btn-primary">
+                    <i data-lucide="pen-line"></i>
+                    Nuevo
+                </button>
+            </div>
+        </header>
+
+        <!-- BARRA DE BÚSQUEDA -->
+        <div class="search-bar">
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text" id="searchInput" placeholder="Buscar por título o remitente...">
+        </div>
+
+        <!-- TABS -->
+        <div class="tabs">
+            <button class="tab active" data-tab="recibidos">
+                <i data-lucide="inbox"></i>
+                Recibidos
+                <span id="noLeidosBadge" class="badge"></span>
+            </button>
+            <button class="tab" data-tab="enviados">
+                <i data-lucide="send"></i>
+                Enviados
+            </button>
+        </div>
+
+        <!-- LISTA DE MENSAJES -->
+        <div id="mensajesList" class="mensajes-list"></div>
+    </div>
+
+    <!-- MODAL NUEVO / EDITAR MENSAJE -->
+    <div class="modal-overlay" id="modalNuevo">
+        <div class="modal-card">
+            <div class="modal-titulo" id="modalTitulo">Nuevo mensaje</div>
+            <form id="formMensaje">
+                <div class="form-group">
+                    <label>
+                        <i data-lucide="users"></i>
+                        Destinatarios
+                    </label>
+                    <div id="destinatariosContainer" class="destinatarios-checkboxes"></div>
+                </div>
+                <div class="form-group">
+                    <label>Título</label>
+                    <input type="text" id="msgTitulo" placeholder="Título del mensaje" required maxlength="120">
+                </div>
+                <div class="form-group">
+                    <label>Mensaje</label>
+                    <div class="editor-toolbar">
+                        <button type="button" data-cmd="bold" title="Negrita"><b>N</b></button>
+                        <button type="button" data-cmd="italic" title="Cursiva"><i>C</i></button>
+                        <button type="button" data-cmd="underline" title="Subrayado"><u>S</u></button>
+                    </div>
+                    <div id="msgTexto" class="editor-content" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Escribe tu mensaje..."></div>
+                </div>
+                <div class="form-group">
+                    <label>Imagen (opcional)</label>
+                    <div class="file-upload-wrapper">
+                        <label for="msgImagen" class="file-upload-label">
+                            <i data-lucide="image-plus"></i>
+                            Elegir imagen
+                        </label>
+                        <input type="file" id="msgImagen" accept="image/*">
+                        <span class="file-name" id="msgImagenNombre">Ningún archivo</span>
+                    </div>
+                    <div id="msgImagenPreview"></div>
+                    <button type="button" id="btnQuitarImagen" class="btn-secondary btn-sm" hidden>
+                        <i data-lucide="trash-2"></i>
+                        Quitar imagen
+                    </button>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="btnCancelar">Cancelar</button>
+                    <button type="submit" class="btn-primary" id="btnSubmit">
+                        <i data-lucide="send"></i>
+                        Enviar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL VER MENSAJE -->
+    <div class="modal-overlay" id="modalVer">
+        <div class="modal-card modal-ver">
+            <div class="modal-titulo" id="verTitulo"></div>
+            <div class="ver-meta">
+                <span id="verRemitente"></span>
+                <span id="verDestinatarios"></span>
+                <span id="verFecha"></span>
+                <span id="verEditado"></span>
+                <span id="verLeido"></span>
+            </div>
+            <div id="verImagenWrap"></div>
+            <div id="verTexto" class="ver-texto"></div>
+            <div class="modal-actions">
+                <button class="btn-secondary" id="btnCerrarVer">Cerrar</button>
+                <button class="btn-secondary" id="btnResponder">
+                    <i data-lucide="reply"></i>
+                    Responder
+                </button>
+                <button class="btn-secondary" id="btnEditar" hidden>
+                    <i data-lucide="pencil"></i>
+                    Editar
+                </button>
+                <button class="btn-secondary btn-danger" id="btnEliminar">
+                    <i data-lucide="trash-2"></i>
+                    Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="evmail-toast" id="evmailToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
