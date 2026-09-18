@@ -2,9 +2,11 @@
 //  JsIndex.js — Pestañas + sidebar + widgets + monedas + API
 // ============================================================
 
-const MAX_TABS = 6;
-let tabs = [];
-let activeTabId = null;
+var MAX_TABS = 6;
+window.MAX_TABS = MAX_TABS;
+
+var tabs = [];
+var activeTabId = null;
 
 const sidebarNav     = document.getElementById('sidebarNav');
 const searchInput    = document.getElementById('searchInput');
@@ -24,6 +26,40 @@ function actualizarMonedasHeader() {
 window.actualizarMonedasHeader = actualizarMonedasHeader;
 
 // ============================================================
+//  CHIP DE COMUNIDAD EN SIDEBAR
+// ============================================================
+function renderSidebarComunidad() {
+    const cont     = document.getElementById('sidebarComunidad');
+    const nombreEl = document.getElementById('sidebarComunidadNombre');
+    const btnCamb  = document.getElementById('sidebarComunidadCambiar');
+    if (!cont || !nombreEl) return;
+
+    const com = (typeof window.obtenerComunidadActiva === 'function')
+        ? window.obtenerComunidadActiva() : null;
+
+    if (!com || !ConfigBD.estaConectado()) {
+        cont.style.display = 'none';
+        return;
+    }
+
+    cont.style.display = 'flex';
+    nombreEl.textContent = com.nombre || com.githubRepo || '—';
+
+    if (btnCamb) {
+        // Solo cablea una vez
+        if (!btnCamb.dataset.wired) {
+            btnCamb.dataset.wired = '1';
+            btnCamb.addEventListener('click', () => {
+                if (typeof abrirConfigEnBD === 'function') abrirConfigEnBD();
+            });
+        }
+    }
+
+    if (window.lucide) lucide.createIcons();
+}
+window.__renderSidebarComunidad = renderSidebarComunidad;
+
+// ============================================================
 //  SIDEBAR
 // ============================================================
 function renderSidebar(filtro = '') {
@@ -34,10 +70,10 @@ function renderSidebar(filtro = '') {
         sidebarNav.innerHTML = `
             <div class="sidebar-empty">
                 <i data-lucide="database"></i>
-                <span>Conecta tu <strong>base de datos en GitHub</strong> para empezar.</span>
+                <span>Conecta o crea una <strong>comunidad</strong> para empezar.</span>
                 <button class="btn-primario" style="margin-top: 6px;" id="btnIrABD">
-                    <i data-lucide="link-2"></i>
-                    Conectar GitHub
+                    <i data-lucide="users"></i>
+                    Gestionar comunidades
                 </button>
             </div>`;
         lucide.createIcons();
@@ -49,7 +85,7 @@ function renderSidebar(filtro = '') {
         sidebarNav.innerHTML = `
             <div class="sidebar-empty">
                 <i data-lucide="user-circle"></i>
-                <span>Necesitas una cuenta para ver tus apps.</span>
+                <span>Necesitas una cuenta para ver tus apps en esta comunidad.</span>
                 <button class="btn-primario" style="margin-top: 6px;" id="btnIrACuenta">
                     <i data-lucide="user-plus"></i>
                     Crear cuenta
@@ -303,6 +339,16 @@ function cerrarPestania(id) {
     actualizarNavActivo();
 }
 
+function cerrarTodasLasPestanas() {
+    tabs.forEach(t => {
+        if (t.iframe && t.iframe.parentNode) t.iframe.parentNode.removeChild(t.iframe);
+    });
+    tabs = [];
+    activeTabId = null;
+    mostrarBienvenida();
+}
+window.__cerrarTodasLasPestanas = cerrarTodasLasPestanas;
+
 function renderTabs() {
     if (!tabBar) return;
 
@@ -366,7 +412,7 @@ function abrirModalTodas() {
         body.innerHTML = `
             <div class="sidebar-empty" style="padding: 40px 12px;">
                 <i data-lucide="user-circle"></i>
-                <span>Necesitas cuenta y GitHub conectado.</span>
+                <span>Necesitas cuenta y una comunidad conectada.</span>
             </div>`;
         lucide.createIcons();
         modal.style.display = 'flex';
@@ -540,6 +586,13 @@ window.__vicwebos = {
     estaConectado:  () => ConfigBD.estaConectado(),
     obtenerCuenta:  () => cuentaActual ? { nombre: cuentaActual.nombre, codigo: cuentaActual.codigo } : null,
 
+    // Info de la comunidad activa
+    obtenerComunidadActiva: () => {
+        const c = (typeof window.obtenerComunidadActiva === 'function') ? window.obtenerComunidadActiva() : null;
+        if (!c) return null;
+        return { id: c.id, nombre: c.nombre, repo: c.githubRepo, owner: c.githubOwner };
+    },
+
     // ---- Espacio y monedas ----
     obtenerEspacioMaximo: () => obtenerEspacioMaximo(),
     obtenerEspacioUsado:  () => calcularEspacioUsado(),
@@ -622,6 +675,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     actualizarAvatarHeader();
     actualizarMonedasHeader();
+    renderSidebarComunidad();
     renderSidebar();
     renderTabs();
     renderAccesosRapidos();
@@ -644,3 +698,4 @@ document.addEventListener('DOMContentLoaded', async () => {
 window.renderWidgetsActivos = renderWidgetsActivos;
 window.renderAccesosRapidos = renderAccesosRapidos;
 window.actualizarSaludo = actualizarSaludo;
+window.renderSidebar = renderSidebar;
