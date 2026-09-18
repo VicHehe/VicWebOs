@@ -461,6 +461,78 @@ body {
 
 .sidebar-mobile-header { display: none; }
 
+/* Chip de comunidad activa en sidebar */
+.sidebar-comunidad {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 14px 10px 4px;
+    padding: 10px 12px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow-xs);
+    transition: var(--t-fast);
+}
+.sidebar-comunidad:hover {
+    border-color: var(--violet-200);
+    box-shadow: var(--shadow-sm);
+}
+.sidebar-comunidad-icono {
+    width: 32px;
+    height: 32px;
+    background: var(--violet-50);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--violet-600);
+    flex-shrink: 0;
+}
+.sidebar-comunidad-icono [data-lucide] { width: 15px; height: 15px; }
+.sidebar-comunidad-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+.sidebar-comunidad-label {
+    font-size: 9.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gray-500);
+}
+.sidebar-comunidad-nombre {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--gray-900);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.sidebar-comunidad-cambiar {
+    width: 28px;
+    height: 28px;
+    background: none;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--gray-500);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: var(--t-fast);
+    flex-shrink: 0;
+}
+.sidebar-comunidad-cambiar:hover {
+    background: var(--violet-50);
+    color: var(--violet-600);
+}
+.sidebar-comunidad-cambiar [data-lucide] { width: 14px; height: 14px; }
+
 .sidebar-label {
     font-size: 10.5px; font-weight: 800; text-transform: uppercase;
     letter-spacing: 0.08em; color: var(--gray-500); padding: 18px 20px 8px;
@@ -1143,6 +1215,204 @@ body {
     flex-shrink: 0; margin-top: 1px;
 }
 
+/* ================================================
+   MULTI-COMUNIDAD — lista y formulario
+   ================================================ */
+.bd-lista-comunidades {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+}
+.bd-comunidad-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-md);
+    transition: var(--t-fast);
+}
+.bd-comunidad-card:hover {
+    border-color: var(--violet-200);
+    box-shadow: var(--shadow-xs);
+}
+.bd-comunidad-card.activa {
+    border-color: var(--violet-400);
+    background: var(--violet-50);
+    box-shadow: var(--shadow-glow);
+}
+.bd-comunidad-icono {
+    width: 40px;
+    height: 40px;
+    background: var(--violet-100);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--violet-700);
+    flex-shrink: 0;
+}
+.bd-comunidad-card.activa .bd-comunidad-icono {
+    background: var(--accent-gradient);
+    color: white;
+    box-shadow: 0 4px 10px var(--accent-shadow);
+}
+.bd-comunidad-icono [data-lucide] { width: 18px; height: 18px; }
+.bd-comunidad-info { flex: 1; min-width: 0; }
+.bd-comunidad-info h4 {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--gray-900);
+    margin: 0 0 2px;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.bd-comunidad-info p {
+    font-size: 11.5px;
+    color: var(--gray-500);
+    margin: 0;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.bd-comunidad-acciones {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+    align-items: center;
+}
+.bd-accion {
+    width: 32px;
+    height: 32px;
+    background: var(--gray-100);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--gray-600);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: var(--t-fast);
+}
+.bd-accion:hover {
+    background: var(--violet-100);
+    color: var(--violet-700);
+}
+.bd-accion.bd-accion-peligro:hover {
+    background: #FEE2E2;
+    color: #991B1B;
+}
+.bd-accion [data-lucide] { width: 14px; height: 14px; }
+
+.bd-formulario {
+    margin-top: 16px;
+    padding: 18px;
+    background: var(--gray-50);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    animation: panelIn 0.2s ease;
+}
+.bd-formulario-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+.bd-formulario-header h4 {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--gray-900);
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+.bd-formulario-cerrar {
+    width: 28px;
+    height: 28px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    cursor: pointer;
+    color: var(--gray-500);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: var(--t-fast);
+}
+.bd-formulario-cerrar:hover {
+    background: var(--gray-200);
+    color: var(--gray-900);
+}
+.bd-formulario-cerrar [data-lucide] { width: 14px; height: 14px; }
+.bd-formulario-acciones {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 4px;
+}
+.bd-formulario-acciones .btn-secundario,
+.bd-formulario-acciones .btn-primario {
+    width: auto;
+    padding: 9px 18px;
+    font-size: 13px;
+}
+
+.bd-token-opciones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+.bd-token-opcion {
+    position: relative;
+    cursor: pointer;
+}
+.bd-token-opcion input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+.bd-token-card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-md);
+    transition: var(--t-fast);
+    height: 100%;
+}
+.bd-token-card [data-lucide] {
+    width: 18px;
+    height: 18px;
+    color: var(--violet-500);
+    margin-bottom: 4px;
+}
+.bd-token-card strong {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--gray-900);
+}
+.bd-token-card span {
+    font-size: 11.5px;
+    color: var(--gray-500);
+    line-height: 1.4;
+}
+.bd-token-opcion input:checked + .bd-token-card {
+    border-color: var(--violet-400);
+    background: var(--violet-50);
+    box-shadow: var(--shadow-glow);
+}
+.bd-token-opcion input:checked + .bd-token-card strong {
+    color: var(--violet-700);
+}
+
 .config-footer {
     display: flex; justify-content: space-between; align-items: center;
     padding: 16px 26px; border-top: 1px solid var(--border);
@@ -1435,7 +1705,6 @@ body {
     }
     .noti-btn [data-lucide] { width: 17px; height: 17px; }
 
-    /* info-local compacto: hora + clima + monedas (todo visible) */
     .info-local {
         display: flex;
         padding: 4px 10px;
@@ -1448,7 +1717,6 @@ body {
     .monedas-texto { font-size: 11px; }
     .divider-dot { width: 2px; height: 2px; }
 
-    /* Panel de notis: se adapta al ancho */
     .noti-panel {
         right: 12px;
         left: 12px;
@@ -1505,6 +1773,12 @@ body {
         color: var(--gray-900);
     }
     .sidebar-mobile-close [data-lucide] { width: 18px; height: 18px; stroke-width: 2.5; }
+
+    .sidebar-comunidad {
+        margin: 12px 10px 2px;
+        padding: 10px;
+    }
+    .sidebar-label { padding-top: 14px; }
 
     .nav-item {
         padding: 12px 14px;
@@ -1645,7 +1919,6 @@ body {
     }
     .search-bar { height: 36px; padding: 0 10px; }
 
-    /* Info aún más compacta pero sin ocultar monedas */
     .info-local { padding: 3px 8px; gap: 5px; font-size: 10.5px; }
     .info-icon, .clima-icon { width: 11px; height: 11px; }
     .hora-texto, .temp-texto { font-size: 10.5px; }
@@ -1686,7 +1959,12 @@ body {
     .config-nav-item span { font-size: 9.5px; }
     .config-panel-header h3 { font-size: 15px; }
 
-    /* Panel de notis casi full-screen */
+    .bd-token-opciones { grid-template-columns: 1fr; }
+    .bd-comunidad-card { padding: 12px; gap: 10px; }
+    .bd-comunidad-icono { width: 36px; height: 36px; }
+    .bd-comunidad-icono [data-lucide] { width: 16px; height: 16px; }
+    .bd-accion { width: 30px; height: 30px; }
+
     .noti-panel {
         right: 8px;
         left: 8px;
