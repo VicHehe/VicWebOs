@@ -92,8 +92,6 @@ body {
 }
 .evmail-logo-mark [data-lucide] { width: 22px; height: 22px; stroke-width: 2.5; }
 
-/* El título ya NO tiene tipografía propia: hereda la del tema,
-   igual que el resto de apps. */
 .evmail-logo-text h1 {
     font-family: inherit;
     font-size: 20px;
@@ -170,7 +168,6 @@ body {
 }
 .btn-secondary:active { transform: scale(0.98); }
 
-/* El botón de eliminar mantiene rojo (semántico, no de marca) */
 .btn-danger {
     border-color: #dc3545;
     color: #dc3545;
@@ -403,13 +400,17 @@ body {
     to   { opacity: 1; }
 }
 
+/* ============================================================
+   Tarjeta base del modal — 25% más chica.
+   560px → 420px. Padding reducido.
+   ============================================================ */
 .modal-card {
     background: var(--ev-surface);
     border-radius: 22px;
-    padding: 24px;
+    padding: 22px;
     width: 100%;
-    max-width: 560px;
-    max-height: 90dvh;
+    max-width: 420px;
+    max-height: 85dvh;
     display: flex;
     flex-direction: column;
     box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
@@ -423,16 +424,52 @@ body {
     to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-/* El título del modal ya NO usa fuente propia: hereda la del tema. */
+/* ============================================================
+   MODAL VER MENSAJE — scroll interno de toda la tarjeta.
+   Así el texto nunca se corta y los botones quedan accesibles.
+   ============================================================ */
+.modal-card.modal-ver {
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 14px;
+}
+
+/* Scrollbar visible del modal ver */
+.modal-card.modal-ver::-webkit-scrollbar {
+    width: 12px;
+}
+.modal-card.modal-ver::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 12px 0;
+}
+.modal-card.modal-ver::-webkit-scrollbar-thumb {
+    background: var(--ev-accent-light);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+}
+.modal-card.modal-ver::-webkit-scrollbar-thumb:hover {
+    background: var(--ev-accent);
+    background-clip: content-box;
+    border: 3px solid transparent;
+}
+
+/* Firefox */
+.modal-card.modal-ver {
+    scrollbar-width: thin;
+    scrollbar-color: var(--ev-accent-light) transparent;
+}
+
+/* El título del modal hereda la tipografía del tema. */
 .modal-titulo {
     font-family: inherit;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 800;
     color: var(--ev-text);
     letter-spacing: -0.02em;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     flex-shrink: 0;
-    line-height: 1.2;
+    line-height: 1.25;
 }
 
 .modal-card form {
@@ -545,8 +582,8 @@ body {
     border: 1.5px solid var(--ev-border);
     border-radius: 0 0 12px 12px;
     padding: 12px 14px;
-    min-height: 140px;
-    max-height: 240px;
+    min-height: 120px;
+    max-height: 200px;
     overflow-y: auto;
     background: var(--ev-surface);
     color: var(--ev-text);
@@ -610,10 +647,10 @@ body {
 .modal-ver .ver-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px 14px;
-    font-size: 12.5px;
+    gap: 6px 12px;
+    font-size: 12px;
     color: var(--ev-text-soft);
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     flex-shrink: 0;
     align-items: center;
 }
@@ -623,36 +660,37 @@ body {
     gap: 4px;
 }
 
+/* Imagen: bajada de 320 a 220px (25% menos) */
 #verImagenWrap {
-    margin: 8px 0;
+    margin: 6px 0;
     flex-shrink: 0;
 }
 #verImagenWrap img {
     max-width: 100%;
-    max-height: 320px;
+    max-height: 220px;
     border-radius: 12px;
     object-fit: cover;
+    display: block;
 }
 
+/* Texto: sin max-height propio, fluye con el scroll del modal */
 .ver-texto {
-    font-size: 14px;
-    line-height: 1.7;
+    font-size: 13.5px;
+    line-height: 1.65;
     color: var(--ev-text);
     background: var(--ev-accent-pale);
-    padding: 14px 18px;
+    padding: 12px 16px;
     border-radius: 12px;
     margin-top: 10px;
     word-wrap: break-word;
     overflow-wrap: anywhere;
-    overflow-y: auto;
-    max-height: 320px;
 }
 
 .modal-actions {
     display: flex;
     justify-content: flex-end;
     gap: 8px;
-    margin-top: 18px;
+    margin-top: 16px;
     flex-wrap: wrap;
     flex-shrink: 0;
 }
@@ -718,7 +756,7 @@ body {
 
     .modal-card { padding: 18px 16px; border-radius: 18px; }
     .modal-titulo { font-size: 15.5px; }
-    .editor-content { min-height: 110px; }
+    .editor-content { min-height: 100px; max-height: 160px; }
     .destinatario-checkbox { font-size: 12px; padding: 5px 10px 5px 6px; }
     .destinatarios-checkboxes { max-height: 100px; }
 
@@ -729,10 +767,14 @@ body {
     .modal-actions .btn-secondary {
         width: 100%;
     }
+
+    #verImagenWrap img { max-height: 180px; }
 }
 
 @media (max-width: 400px) {
     .evmail-logo-text p { display: none; }
     .tab { font-size: 12.5px; padding: 8px 12px; }
     .tab [data-lucide] { width: 14px; height: 14px; }
+
+    #verImagenWrap img { max-height: 160px; }
 }
