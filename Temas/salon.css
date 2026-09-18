@@ -1,51 +1,52 @@
 /* ================================================
    Tema: Salón de Noche
-   Inspirado en los salones de baile de los años 40-50.
-   Fondos oscuros cálidos, acentos dorados y ámbar.
+   Inspirado en la portada de "Noches de Salón"
+   de Enjambre. Rojo profundo, dorado cálido,
+   atmósfera de salón de baile de los años 40-50.
    ================================================ */
 
 :root {
-    /* Acento dorado/ámbar de luces de salón */
-    --violet-50:  #1F1710;
-    --violet-100: #2E2218;
-    --violet-200: #4A3620;
+    /* Acento dorado/ámbar de las letras del álbum */
+    --violet-50:  #3A0606;
+    --violet-100: #5C0A0A;
+    --violet-200: #7A1010;
     --violet-300: #B8860B;
     --violet-400: #D4A017;
-    --violet-500: #E0B84C;
-    --violet-600: #C99A2E;
-    --violet-700: #A67C1F;
+    --violet-500: #F5C518;
+    --violet-600: #E6B800;
+    --violet-700: #C49A2E;
 
-    /* Neutros cálidos muy oscuros */
-    --white:   #1A1410;
-    --bg:      #0F0B08;
-    --bg-alt:  #1A1410;
-    --gray-50:  #1A1410;
-    --gray-100: #241C14;
-    --gray-200: #362A1E;
-    --gray-300: #4E3E2C;
-    --gray-400: #7A6550;
-    --gray-500: #A89078;
-    --gray-600: #C8B098;
-    --gray-700: #DEC8B0;
-    --gray-800: #EDDCC8;
-    --gray-900: #F8F0E4;
+    /* Neutros rojo profundo (fondo del álbum) */
+    --white:   #3A0606;
+    --bg:      #2A0404;
+    --bg-alt:  #3A0606;
+    --gray-50:  #3A0606;
+    --gray-100: #4A0808;
+    --gray-200: #5C0A0A;
+    --gray-300: #7A1010;
+    --gray-400: #A03030;
+    --gray-500: #C06060;
+    --gray-600: #D89090;
+    --gray-700: #E8B8B8;
+    --gray-800: #F0D0D0;
+    --gray-900: #F8E8E8;
 
-    --border:  #362A1E;
-    --text:    #F8F0E4;
-    --text-2:  #C8B098;
-    --text-3:  #A89078;
+    --border:  #5C0A0A;
+    --text:    #F8E8E8;
+    --text-2:  #D89090;
+    --text-3:  #C06060;
 
-    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.5);
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.6);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
-    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.7);
-    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.8);
-    --shadow-glow: 0 0 0 4px rgba(224, 184, 76, 0.20);
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.6);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.7);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.7);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.8);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.9);
+    --shadow-glow: 0 0 0 4px rgba(245, 197, 24, 0.20);
 
-    /* Acento: dorado cálido con un toque de rojo vino */
-    --accent-gradient: linear-gradient(135deg, #D4A017, #8B1A1A);
-    --accent-gradient-hover: linear-gradient(135deg, #E0B84C, #A02020);
-    --accent-shadow: rgba(212, 160, 23, 0.35);
-    --accent-shadow-hover: rgba(212, 160, 23, 0.55);
-    --accent-text-gradient: linear-gradient(135deg, #E0B84C, #F0D080);
+    /* Acento: dorado cálido → rojo vino oscuro */
+    --accent-gradient: linear-gradient(135deg, #F5C518, #8B1A1A);
+    --accent-gradient-hover: linear-gradient(135deg, #FFD740, #A02020);
+    --accent-shadow: rgba(245, 197, 24, 0.35);
+    --accent-shadow-hover: rgba(245, 197, 24, 0.55);
+    --accent-text-gradient: linear-gradient(135deg, #F5C518, #FFD740);
 }
