@@ -184,8 +184,10 @@ function renderCarpetas() {
 
 // ------------------------------------------------------------
 //  Render: grid + empty
-//  Forzamos TANTO el atributo hidden COMO style.display para
-//  evitar cualquier resquicio de CSS que los mantenga visibles.
+//  Forzamos el atributo hidden + style.display.
+//  IMPORTANTE: cuando hay contenido usamos display:'grid'
+//  (NO 'block') para que el grid-template-columns del CSS
+//  siga funcionando — el estilo inline gana sobre el CSS.
 // ------------------------------------------------------------
 function renderGrid() {
     const grid = document.getElementById('gxGrid');
@@ -253,7 +255,7 @@ function renderGrid() {
 
     // ---------- CASO CON CONTENIDO ----------
     grid.hidden = false;
-    grid.style.display = 'block';
+    grid.style.display = 'grid'; // ← grid, NO block
 
     empty.hidden = true;
     empty.style.display = 'none';
