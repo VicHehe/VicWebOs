@@ -31,6 +31,18 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 0
     },
     {
+        id: 'galeria',
+        nombre: 'Galería',
+        icono: 'images',
+        ruta: 'herramientas/galeria/index.html',
+        descripcion: 'Tus fotos en un solo lugar. Se reutilizan en cualquier app.',
+        categoria: 'Sistema',
+        esBase: true,
+        esDefault: true,
+        espacio: 0,
+        monedas: 0
+    },
+    {
         id: 'calculadora',
         nombre: 'Calculadora',
         icono: 'calculator',
@@ -63,4 +75,3 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 6,
         monedas: 0
     }
-];
