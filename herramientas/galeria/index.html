@@ -32,7 +32,7 @@
             </button>
         </header>
 
-        <!-- BARRA DE BÚSQUEDA + CARPETAS -->
+        <!-- CONTROLES -->
         <div class="gx-controles">
             <div class="gx-buscador">
                 <i data-lucide="search" class="gx-buscador-icono"></i>
@@ -47,24 +47,37 @@
             </button>
         </div>
 
-        <!-- SELECTOR DE CARPETAS -->
+        <!-- CARPETAS -->
         <div class="gx-carpetas" id="gxCarpetas"></div>
 
-        <!-- CONTADOR -->
-        <div class="gx-contador" id="gxContador"></div>
+        <!-- MAIN -->
+        <main class="gx-main">
+            <div class="gx-contador" id="gxContador"></div>
 
-        <!-- GRID -->
-        <div class="gx-grid" id="gxGrid"></div>
+            <div class="gx-grid" id="gxGrid"></div>
 
-        <!-- EMPTY -->
-        <div class="gx-empty" id="gxEmpty" hidden>
-            <i data-lucide="image-off"></i>
-            <h3 id="gxEmptyTitulo">Aún no tienes imágenes</h3>
-            <p id="gxEmptyDesc">Pulsa "Subir imágenes" para empezar.</p>
-        </div>
+            <div class="gx-empty" id="gxEmpty" hidden>
+                <div class="gx-empty-card">
+                    <div class="gx-empty-icon">
+                        <i data-lucide="image-plus"></i>
+                    </div>
+                    <h3 id="gxEmptyTitulo">Tu galería está vacía</h3>
+                    <p id="gxEmptyDesc">Sube tus primeras imágenes y estarán disponibles en todas las apps de VicWebOs.</p>
+                    <button class="gx-empty-btn" id="gxEmptyBtnSubir">
+                        <i data-lucide="upload"></i>
+                        Subir imágenes
+                    </button>
+                    <div class="gx-empty-hint">
+                        <i data-lucide="info"></i>
+                        También puedes arrastrar y soltar archivos aquí
+                    </div>
+                </div>
+            </div>
+        </main>
 
-        <!-- PAGINACIÓN -->
+        <!-- FOOTER -->
         <footer class="gx-footer" id="gxFooter" hidden>
+            <div class="gx-tamano" id="gxTamanoTotal"></div>
             <div class="gx-paginacion">
                 <button class="gx-page-btn" id="btnPrev" title="Anterior">
                     <i data-lucide="chevron-left"></i>
@@ -74,15 +87,14 @@
                     <i data-lucide="chevron-right"></i>
                 </button>
             </div>
-            <div class="gx-tamano" id="gxTamanoTotal"></div>
         </footer>
 
     </div>
 
-    <!-- INPUT OCULTO PARA SUBIR -->
+    <!-- INPUT OCULTO -->
     <input type="file" id="inputImagenes" accept="image/*" multiple hidden>
 
-    <!-- MODAL: VISTA PREVIA DE IMAGEN -->
+    <!-- MODAL: VISTA PREVIA -->
     <div class="gx-modal" id="modalPreview" hidden>
         <div class="gx-modal-card gx-modal-card-grande">
             <div class="gx-modal-header">
@@ -207,7 +219,7 @@
         </div>
     </div>
 
-    <!-- OVERLAY DE SUBIDA -->
+    <!-- OVERLAY SUBIDA -->
     <div class="gx-overlay-subida" id="overlaySubida" hidden>
         <div class="gx-overlay-subida-card">
             <div class="gx-spinner"></div>
