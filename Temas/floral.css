@@ -1,0 +1,184 @@
+/* ================================================
+   Tema: Floral
+   Colores vivos, verdes frescos y flores.
+   Tema caro con efectos florales originales.
+   ================================================ */
+
+:root {
+    /* Acento verde vibrante → rosa flor */
+    --violet-50:  #F0FDF4;
+    --violet-100: #DCFCE7;
+    --violet-200: #BBF7D0;
+    --violet-300: #F9A8D4;
+    --violet-400: #F472B6;
+    --violet-500: #EC4899;
+    --violet-600: #DB2777;
+    --violet-700: #BE185D;
+
+    /* Neutros claros con tinte verde */
+    --white:   #FFFFFF;
+    --bg:      #F7FDF9;
+    --bg-alt:  #F0F9F2;
+    --gray-50:  #F0FDF4;
+    --gray-100: #DCFCE7;
+    --gray-200: #BBF7D0;
+    --gray-300: #86EFAC;
+    --gray-400: #4ADE80;
+    --gray-500: #22C55E;
+    --gray-600: #16A34A;
+    --gray-700: #15803D;
+    --gray-800: #166534;
+    --gray-900: #14532D;
+
+    --border:  #BBF7D0;
+    --text:    #14532D;
+    --text-2:  #166534;
+    --text-3:  #16A34A;
+
+    --shadow-xs: 0 1px 2px rgba(20, 83, 45, 0.06);
+    --shadow-sm: 0 1px 3px rgba(20, 83, 45, 0.08);
+    --shadow-md: 0 4px 12px rgba(20, 83, 45, 0.10);
+    --shadow-lg: 0 12px 32px rgba(20, 83, 45, 0.12);
+    --shadow-xl: 0 24px 48px rgba(20, 83, 45, 0.15);
+    --shadow-glow: 0 0 0 4px rgba(236, 72, 153, 0.15);
+
+    /* Acento: verde vibrante → rosa flor */
+    --accent-gradient: linear-gradient(135deg, #22C55E, #EC4899);
+    --accent-gradient-hover: linear-gradient(135deg, #16A34A, #DB2777);
+    --accent-shadow: rgba(236, 72, 153, 0.28);
+    --accent-shadow-hover: rgba(236, 72, 153, 0.40);
+    --accent-text-gradient: linear-gradient(135deg, #15803D, #EC4899);
+}
+
+/* ================================================================
+   Efectos florales originales
+   ================================================================ */
+
+/* Pétalos flotantes muy sutiles en el fondo del shell */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.35;
+    background-image:
+        radial-gradient(circle at 10% 20%, rgba(236,72,153,0.12) 0%, transparent 3%),
+        radial-gradient(circle at 90% 10%, rgba(244,114,182,0.10) 0%, transparent 2.5%),
+        radial-gradient(circle at 80% 80%, rgba(236,72,153,0.08) 0%, transparent 3.5%),
+        radial-gradient(circle at 20% 90%, rgba(249,168,212,0.10) 0%, transparent 2%);
+    background-size: 300px 300px, 400px 400px, 350px 350px, 280px 280px;
+}
+
+/* Flores de fondo en el welcome (puntos rosas y verdes) */
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.08;
+    background-image:
+        radial-gradient(circle, #EC4899 1px, transparent 1.5px),
+        radial-gradient(circle, #22C55E 1px, transparent 1.5px);
+    background-size: 60px 60px, 80px 80px;
+    background-position: 0 0, 30px 30px;
+}
+
+/* Los accesos rápidos tienen un mini pétalo en la esquina */
+.acceso-item {
+    position: relative;
+    overflow: visible;
+}
+.acceso-item::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 14px;
+    height: 14px;
+    background: radial-gradient(circle, #F9A8D4 0%, #EC4899 60%, transparent 70%);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.25s, transform 0.25s;
+    transform: scale(0.5);
+    z-index: 2;
+}
+.acceso-item:hover::after {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Los widgets tienen un pétalo esquinero también */
+.widget-item {
+    position: relative;
+}
+.widget-item::after {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    width: 16px;
+    height: 16px;
+    background: radial-gradient(circle at 30% 30%, #F9A8D4 0%, #EC4899 50%, transparent 70%);
+    border-radius: 50%;
+    opacity: 0.4;
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* El nav activo tiene un puntito rosa como flor */
+.nav-item.active::after {
+    content: '';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
+    background: #EC4899;
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(236,72,153,0.5);
+}
+
+/* La pestaña activa tiene un subrayado con gradiente floral */
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 12px;
+    right: 12px;
+    height: 2px;
+    background: linear-gradient(90deg, #22C55E, #EC4899, #22C55E);
+    border-radius: 2px 2px 0 0;
+}
+
+/* Los modales llevan un borde floral con gradiente */
+.config-card,
+.modal-todas-card {
+    position: relative;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: linear-gradient(135deg, #22C55E, #F9A8D4, #EC4899, #22C55E);
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+}
+
+/* El botón primario tiene un brillo floral */
+.btn-primario {
+    box-shadow:
+        0 4px 12px rgba(236,72,153,0.28),
+        inset 0 1px 0 rgba(255,255,255,0.2);
+}
