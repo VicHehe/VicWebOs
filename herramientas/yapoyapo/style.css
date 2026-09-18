@@ -482,14 +482,13 @@ html, body {
     font-size: 0.76rem;
     width: 100%;
     flex-shrink: 0;
-    padding: 8px 12px;
 }
 .yp-btn-small [data-lucide] { width: 12px; height: 12px; }
 
 /* =====================================================
    CONTROLES MÓVILES
    Solo visibles en touch (pointer: coarse).
-   Orden: [←] [↓] [→] [⟳]
+   Orden: [←] [⟳] [↓] [→]
    ===================================================== */
 .yp-mobile-controls {
     display: none;
@@ -856,4 +855,14 @@ html, body {
     .yp-tier-card .yp-panel-value { font-size: 1.15rem; }
     .yp-btn-retire { padding: 7px 10px; font-size: 0.74rem; }
     .yp-btn-small { padding: 6px 10px; font-size: 0.7rem; }
+}
+
+/* =====================================================
+   Ocultar el hint de teclado en dispositivos táctiles
+   (en móvil no aporta: se juega con botones en pantalla)
+   ===================================================== */
+@media (pointer: coarse) {
+    .yp-controls-hint {
+        display: none;
+    }
 }
