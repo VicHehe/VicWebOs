@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elegir imagen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="picker.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="picker-container">
+
+        <header class="picker-header">
+            <div class="picker-titulo">
+                <i data-lucide="image"></i>
+                <span id="pickerTitulo">Elige una imagen</span>
+            </div>
+            <button class="picker-cerrar" id="btnCancelarHeader" title="Cerrar">
+                <i data-lucide="x"></i>
+            </button>
+        </header>
+
+        <div class="picker-grid" id="pickerGrid">
+            <!-- Se llena por JS -->
+        </div>
+
+        <footer class="picker-footer">
+            <div class="picker-paginacion">
+                <button class="picker-page-btn" id="btnPrev" title="Anterior">
+                    <i data-lucide="chevron-left"></i>
+                </button>
+                <span class="picker-page-info" id="pickerPageInfo">1 / 1</span>
+                <button class="picker-page-btn" id="btnNext" title="Siguiente">
+                    <i data-lucide="chevron-right"></i>
+                </button>
+            </div>
+            <div class="picker-acciones">
+                <button class="picker-btn picker-btn-cancelar" id="btnCancelar">
+                    Cancelar
+                </button>
+                <button class="picker-btn picker-btn-ok" id="btnSeleccionar" disabled>
+                    <i data-lucide="check"></i>
+                    <span id="btnSeleccionarTxt">Seleccionar</span>
+                </button>
+            </div>
+        </footer>
+
+    </div>
+
+    <script src="picker.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
