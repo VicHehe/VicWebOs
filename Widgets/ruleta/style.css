@@ -1,8 +1,7 @@
 /* ================================================
    Widget: Mini Ruleta
    Ruleta de hasta 5 opciones. Sin persistencia.
-   Compatible con temas.
-   Modal con filas "tipo lista" (borde a borde).
+   Modal FULLSCREEN que llena todo el iframe.
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -148,17 +147,17 @@ body {
 .rl-btn:active:not(:disabled) { transform: translateY(0); }
 .rl-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-/* ========== MODAL ========== */
+/* ============================================================
+   MODAL — FULLSCREEN
+   ============================================================ */
 .rl-modal {
     position: fixed;
     inset: 0;
-    background: rgba(24, 24, 27, 0.55);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    background: var(--white, #FFFFFF);
     display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
+    align-items: stretch;
+    justify-content: stretch;
+    padding: 0;
     z-index: 100;
     animation: rlFade 0.15s ease;
 }
@@ -171,40 +170,43 @@ body {
 
 .rl-modal-card {
     background: var(--white, #FFFFFF);
-    border-radius: var(--r-lg, 16px);
     width: 100%;
-    max-width: 360px;
-    max-height: 90%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 24px 48px rgba(0,0,0,0.28);
-    animation: rlZoom 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     overflow: hidden;
+    animation: rlSlideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
-@keyframes rlZoom {
-    from { opacity: 0; transform: scale(0.96); }
-    to   { opacity: 1; transform: scale(1); }
+@keyframes rlSlideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ========== HEADER ========== */
 .rl-modal-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 16px;
+    padding: 12px 16px;
     border-bottom: 1px solid var(--border, #E8E8EE);
     background: var(--gray-50, #FAFAFB);
     flex-shrink: 0;
+    gap: 8px;
 }
 .rl-modal-header h3 {
     font-size: 14px;
     font-weight: 800;
     color: var(--gray-900, #18181B);
     margin: 0;
+    letter-spacing: -0.01em;
 }
 .rl-modal-cerrar {
     background: none;
     border: none;
-    padding: 4px;
+    padding: 5px;
     border-radius: 6px;
     cursor: pointer;
     color: var(--gray-500, #71717A);
@@ -216,10 +218,9 @@ body {
     background: #FEE2E2;
     color: #991B1B;
 }
+.rl-modal-cerrar [data-lucide] { width: 15px; height: 15px; }
 
-/* ============================================================
-   BODY del modal: SIN padding lateral, filas borde a borde.
-   ============================================================ */
+/* ========== BODY — filas borde a borde ========== */
 .rl-modal-body {
     flex: 1;
     min-height: 0;
@@ -230,8 +231,6 @@ body {
     gap: 0;
 }
 
-/* Contenedor de inputs: tampoco tiene gap, las filas se
-   separan solo con el border-bottom. */
 .rl-inputs {
     display: flex;
     flex-direction: column;
@@ -240,41 +239,34 @@ body {
 }
 
 /* ============================================================
-   FILA — ocupa todo el ancho del modal, con border-bottom.
-   El input de dentro pierde su borde para integrarse.
+   FILA — ocupa todo el ancho, con borde inferior.
    ============================================================ */
 .rl-input-row {
     display: flex;
     gap: 10px;
     align-items: center;
-    padding: 12px 16px;
+    padding: 11px 16px;
     background: var(--white, #FFFFFF);
     border-bottom: 1px solid var(--border, #E8E8EE);
     transition: background 0.15s;
-    min-height: 52px;
+    min-height: 48px;
+    flex-shrink: 0;
 }
 
-/* Feedback de foco: la fila entera se ilumina */
 .rl-input-row:focus-within {
     background: var(--violet-50, #F5F3FF);
 }
 
-/* La última fila no necesita border-bottom — se pega al botón "añadir" */
-.rl-input-row:last-child {
-    border-bottom: 1px solid var(--border, #E8E8EE);
-}
-
-/* Número a la izquierda */
 .rl-input-row .rl-row-num {
-    width: 26px;
-    height: 26px;
+    width: 24px;
+    height: 24px;
     background: var(--gray-100, #F4F4F7);
     color: var(--gray-600, #52525B);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 800;
     flex-shrink: 0;
     transition: all 0.15s;
@@ -284,10 +276,9 @@ body {
     color: white;
 }
 
-/* El input se integra: sin borde, sin fondo, sin padding lateral */
 .rl-input-row input {
     flex: 1;
-    padding: 6px 0;
+    padding: 4px 0;
     border: none;
     background: transparent;
     font-family: inherit;
@@ -302,11 +293,10 @@ body {
     font-weight: 500;
 }
 
-/* Botón de borrar la fila */
 .rl-row-del {
     background: transparent;
     border: none;
-    padding: 6px;
+    padding: 5px;
     border-radius: 7px;
     cursor: pointer;
     color: var(--gray-400, #A1A1AD);
@@ -322,15 +312,13 @@ body {
 }
 .rl-row-del [data-lucide] { width: 14px; height: 14px; }
 
-/* ============================================================
-   BOTÓN "Añadir opción" — con margin lateral para que respire.
-   ============================================================ */
+/* ========== BOTÓN AÑADIR ========== */
 .rl-btn-add {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    margin: 12px 16px;
+    margin: 12px 14px;
     padding: 10px 14px;
     border: 1.5px dashed var(--border, #E8E8EE);
     border-radius: 10px;
@@ -359,15 +347,16 @@ body {
     color: var(--gray-500, #71717A);
     line-height: 1.4;
     margin: 0;
-    padding: 0 16px 14px;
+    padding: 0 14px 12px;
     text-align: center;
+    flex-shrink: 0;
 }
 
-/* ========== ACCIONES ========== */
+/* ========== ACCIONES (sticky abajo) ========== */
 .rl-modal-actions {
     display: flex;
     gap: 8px;
-    padding: 12px 16px;
+    padding: 10px 14px;
     border-top: 1px solid var(--border, #E8E8EE);
     background: var(--gray-50, #FAFAFB);
     flex-shrink: 0;
@@ -405,4 +394,14 @@ body {
 .rl-btn-pri:hover {
     transform: translateY(-1px);
     box-shadow: 0 6px 16px var(--accent-shadow-hover, rgba(139,92,246,0.38));
+}
+
+/* ========== RESPONSIVE: muy angosto ========== */
+@media (max-width: 320px) {
+    .rl-input-row { padding: 9px 12px; gap: 8px; }
+    .rl-modal-header { padding: 10px 12px; }
+    .rl-modal-actions { padding: 8px 12px; gap: 6px; }
+    .rl-btn-sec, .rl-btn-pri { font-size: 12px; padding: 9px 10px; }
+    .rl-btn-add { margin: 10px 12px; }
+    .rl-modal-ayuda { padding: 0 12px 10px; }
 }
