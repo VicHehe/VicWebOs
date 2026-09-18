@@ -1,7 +1,7 @@
 /* ============================================
    Yapo Yapo — Estilos
    Compatible con todos los temas de VicWebOs.
-   Layout optimizado para móviles verticales.
+   Estilo alineado con Dino y Calculadora.
    ============================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -10,8 +10,9 @@ html, body {
     height: 100%;
     overflow: hidden;
     font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--bg, #FBFBFD);
+    background: var(--white, #FFFFFF);
     color: var(--text, #18181B);
+    font-size: 14px;
     -webkit-font-smoothing: antialiased;
     color-scheme: light dark;
     -webkit-tap-highlight-color: transparent;
@@ -32,61 +33,51 @@ html, body {
     position: relative;
 }
 
-/* ===== HEADER ===== */
+/* ===== HEADER — sin fondo, igual que Dino y Calculadora ===== */
 .yp-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 16px;
-    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
+    padding: 16px 20px 10px;
     flex-shrink: 0;
-    position: relative;
-    overflow: hidden;
-    color: white;
-}
-.yp-header::before {
-    content: '';
-    position: absolute;
-    top: -40%; right: -5%;
-    width: 180px; height: 180px;
-    background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 70%);
-    pointer-events: none;
 }
 .yp-header-left {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     min-width: 0;
-    position: relative;
-    z-index: 1;
 }
 .yp-logo-mark {
-    width: 34px;
-    height: 34px;
-    background: rgba(255,255,255,0.22);
-    border-radius: 10px;
+    width: 40px;
+    height: 40px;
+    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
+    border-radius: 11px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(255,255,255,0.35);
+    color: white;
+    box-shadow: 0 8px 20px var(--accent-shadow, rgba(139,92,246,0.28));
     flex-shrink: 0;
-    backdrop-filter: blur(4px);
 }
-.yp-logo-mark [data-lucide] { width: 18px; height: 18px; stroke-width: 2.5; }
+.yp-logo-mark [data-lucide] { width: 20px; height: 20px; stroke-width: 2.5; }
 
 .yp-header-text { display: flex; flex-direction: column; min-width: 0; }
 .yp-header-text h1 {
-    font-size: 1.1rem;
+    font-size: 19px;
     font-weight: 800;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
+    letter-spacing: -0.03em;
+    background: var(--accent-text-gradient, linear-gradient(135deg, #18181B, #7C3AED));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     margin: 0;
+    line-height: 1.15;
 }
 .yp-badge {
-    font-size: 0.68rem;
-    font-weight: 700;
-    opacity: 0.85;
-    margin-top: 1px;
+    font-size: 11.5px;
+    color: var(--gray-500, #71717A);
+    font-weight: 600;
+    margin-top: 2px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -131,7 +122,7 @@ html, body {
     justify-content: center;
     color: white;
     animation: ypBob 2.4s ease-in-out infinite;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.10);
 }
 .yp-chip [data-lucide] { width: 22px; height: 22px; stroke-width: 2.5; }
 .yp-chip.c1 { background: linear-gradient(135deg, #f26b6b, #e63946); animation-delay: 0s;    }
@@ -173,8 +164,8 @@ html, body {
     margin-top: 4px;
 }
 .yp-rule-card {
-    background: var(--violet-50, #F5F3FF);
-    border: 1.5px solid var(--violet-200, #DDD6FE);
+    background: var(--gray-50, #FAFAFB);
+    border: 1px solid var(--border, #E8E8EE);
     border-radius: var(--r-md, 12px);
     padding: 10px 8px;
     display: flex;
@@ -182,7 +173,6 @@ html, body {
     align-items: center;
     gap: 4px;
     text-align: center;
-    transition: transform 0.2s;
 }
 .yp-rule-icon {
     width: 30px;
@@ -193,7 +183,7 @@ html, body {
     align-items: center;
     justify-content: center;
     color: white;
-    box-shadow: 0 3px 10px var(--accent-shadow, rgba(139,92,246,0.28));
+    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
     margin-bottom: 2px;
 }
 .yp-rule-icon [data-lucide] { width: 15px; height: 15px; stroke-width: 2.5; }
@@ -223,13 +213,12 @@ html, body {
     height: 20px;
     padding: 0 5px;
     background: var(--white, #FFFFFF);
-    border: 1.5px solid var(--violet-200, #DDD6FE);
+    border: 1px solid var(--border, #E8E8EE);
     border-radius: 6px;
     font-family: 'Nunito', sans-serif;
     font-size: 0.65rem;
     font-weight: 800;
     color: var(--violet-600, #7C3AED);
-    box-shadow: 0 1px 0 var(--violet-200, #DDD6FE);
 }
 
 .yp-start-actions {
@@ -256,10 +245,12 @@ html, body {
     font-family: inherit;
     cursor: pointer;
     font-size: 0.92rem;
-    box-shadow: 0 6px 18px var(--accent-shadow, rgba(139,92,246,0.35));
-    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
+    transition: all 0.15s;
 }
+.yp-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 16px var(--accent-shadow-hover, rgba(139,92,246,0.38)); }
 .yp-btn-primary:active { transform: translateY(0); }
+.yp-btn-primary [data-lucide] { width: 16px; height: 16px; }
 
 .yp-btn-secondary {
     display: inline-flex;
@@ -268,13 +259,13 @@ html, body {
     gap: 7px;
     background: var(--white, #FFFFFF);
     color: var(--gray-700, #3F3F46);
-    border: 2px solid var(--border, #E8E8EE);
+    border: 1.5px solid var(--border, #E8E8EE);
     border-radius: var(--r-md, 12px);
-    padding: 10px 20px;
+    padding: 12px 20px;
     font-weight: 700;
     font-family: inherit;
     cursor: pointer;
-    font-size: 0.86rem;
+    font-size: 0.9rem;
     transition: all 0.15s;
 }
 .yp-btn-secondary:hover {
@@ -282,6 +273,8 @@ html, body {
     border-color: var(--violet-300, #C4B5FD);
     color: var(--violet-700, #6D28D9);
 }
+.yp-btn-secondary:active { transform: scale(0.98); }
+.yp-btn-secondary [data-lucide] { width: 15px; height: 15px; }
 
 /* =====================================================
    PANTALLA DE JUEGO — Desktop
@@ -292,7 +285,7 @@ html, body {
     display: flex;
     flex-direction: row;
     gap: 14px;
-    padding: 12px 14px;
+    padding: 4px 20px 16px;
     justify-content: center;
     align-items: stretch;
     overflow: hidden;
@@ -300,7 +293,7 @@ html, body {
 
 .yp-board-wrapper {
     position: relative;
-    border-radius: 14px;
+    border-radius: var(--r-lg, 16px);
     overflow: hidden;
     box-shadow:
         0 0 0 3px var(--violet-200, #DDD6FE),
@@ -314,21 +307,16 @@ html, body {
     justify-content: center;
 }
 
-/* ================================================================
-   CANVAS — override de los estilos inline que pone script.js
-   (canvas.style.width = "300px" / canvas.style.height = "600px")
-   ================================================================ */
+/* Canvas: override de estilos inline que mete script.js */
 #gameCanvas {
     display: block;
     border-radius: 12px;
-    /* !important para ganarle al style="" inline que mete el JS */
     width: auto !important;
     height: auto !important;
     max-width: 100%;
     max-height: calc(100vh - 130px);
     max-height: calc(100dvh - 130px);
     aspect-ratio: 1 / 2;
-    /* El canvas mantiene su proporción 6:12 (columnas:filas) */
 }
 
 /* Banner de chain */
@@ -360,7 +348,7 @@ html, body {
     100% { transform: translate(-50%, -70%) scale(0.8); opacity: 0; }
 }
 
-/* ===== SIDEBAR (desktop) ===== */
+/* ===== SIDEBAR ===== */
 .yp-side-panel {
     display: flex;
     flex-direction: column;
@@ -380,9 +368,10 @@ html, body {
     border-radius: 999px;
 }
 
+/* Panel card base — mismo patrón que .dn-hud-monedas de Dino */
 .yp-panel-card {
     background: var(--violet-50, #F5F3FF);
-    border: 1.5px solid var(--violet-200, #DDD6FE);
+    border: 1px solid var(--violet-200, #DDD6FE);
     border-radius: var(--r-md, 12px);
     padding: 7px 10px;
     text-align: center;
@@ -390,7 +379,6 @@ html, body {
     flex-direction: column;
     align-items: center;
     gap: 2px;
-    box-shadow: 0 2px 8px var(--accent-shadow, rgba(139,92,246,0.06));
     flex-shrink: 0;
 }
 .yp-panel-label {
@@ -407,8 +395,8 @@ html, body {
 .yp-panel-label [data-lucide] { width: 10px; height: 10px; }
 .yp-panel-value {
     font-size: 1.2rem;
-    font-weight: 900;
-    color: var(--violet-600, #7C3AED);
+    font-weight: 800;
+    color: var(--violet-700, #6D28D9);
     line-height: 1;
     font-variant-numeric: tabular-nums;
 }
@@ -422,25 +410,17 @@ html, body {
     height: 70px;
 }
 
-.yp-coins-card {
-    background: linear-gradient(135deg, var(--violet-50, #F5F3FF) 0%, var(--violet-100, #EDE9FE) 100%);
-}
-.yp-coins-card .yp-panel-value { color: var(--violet-700, #6D28D9); }
-
+/* Tier card — mismo tratamiento que las otras (sin gradiente) */
 .yp-tier-card {
-    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
-    border-color: transparent;
-    color: white;
-    padding: 8px 10px;
+    padding: 7px 10px;
     gap: 3px;
 }
-.yp-tier-card .yp-panel-label { color: rgba(255,255,255,0.85); }
-.yp-tier-card .yp-panel-value { color: white; font-size: 1.35rem; }
+.yp-tier-card .yp-panel-value { font-size: 1.25rem; }
 .yp-tier-bonus {
     font-size: 0.58rem;
     font-weight: 800;
-    color: white;
-    background: rgba(255,255,255,0.22);
+    color: var(--violet-700, #6D28D9);
+    background: var(--violet-100, #EDE9FE);
     padding: 2px 8px;
     border-radius: 10px;
     margin-top: 1px;
@@ -449,7 +429,8 @@ html, body {
 .yp-tier-progress-track {
     width: 100%;
     height: 4px;
-    background: rgba(255,255,255,0.22);
+    background: var(--white, #FFFFFF);
+    border: 1px solid var(--violet-200, #DDD6FE);
     border-radius: 4px;
     overflow: hidden;
     margin-top: 3px;
@@ -457,51 +438,58 @@ html, body {
 .yp-tier-progress-fill {
     height: 100%;
     width: 0%;
-    background: rgba(255,255,255,0.95);
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
     border-radius: 4px;
     transition: width 0.3s ease;
 }
 .yp-tier-next {
     font-size: 0.56rem;
-    color: rgba(255,255,255,0.9);
+    color: var(--gray-500, #71717A);
     font-weight: 700;
     margin-top: 1px;
     line-height: 1.2;
 }
 
+/* Botón retirarse — botón secundario estándar */
 .yp-btn-retire {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    background: linear-gradient(135deg, #FFE9A8 0%, #FFD86A 100%);
-    color: #8a6500;
-    border: 2px solid rgba(249,168,37,0.55);
+    background: var(--white, #FFFFFF);
+    color: var(--gray-700, #3F3F46);
+    border: 1.5px solid var(--border, #E8E8EE);
     border-radius: var(--r-md, 12px);
     padding: 9px 12px;
-    font-weight: 800;
+    font-weight: 700;
     font-family: inherit;
     cursor: pointer;
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     width: 100%;
-    box-shadow: 0 3px 10px rgba(249,168,37,0.25);
     flex-shrink: 0;
-    transition: transform 0.15s;
+    transition: all 0.15s;
 }
-.yp-btn-retire:active { transform: scale(0.97); }
+.yp-btn-retire:hover {
+    background: var(--violet-50, #F5F3FF);
+    border-color: var(--violet-300, #C4B5FD);
+    color: var(--violet-700, #6D28D9);
+}
+.yp-btn-retire:active { transform: scale(0.98); }
 .yp-btn-retire [data-lucide] { width: 13px; height: 13px; }
 
 .yp-btn-small {
-    padding: 7px 12px;
-    font-size: 0.74rem;
+    padding: 8px 12px;
+    font-size: 0.76rem;
     width: 100%;
     flex-shrink: 0;
+    padding: 8px 12px;
 }
 .yp-btn-small [data-lucide] { width: 12px; height: 12px; }
 
 /* =====================================================
    CONTROLES MÓVILES
-   Solo visibles en touch (pointer: coarse)
+   Solo visibles en touch (pointer: coarse).
+   Orden: [←] [↓] [→] [⟳]
    ===================================================== */
 .yp-mobile-controls {
     display: none;
@@ -509,26 +497,22 @@ html, body {
     justify-content: center;
     align-items: center;
     gap: 8px;
-    padding: 8px 12px 12px;
+    padding: 6px 12px 12px;
     flex-shrink: 0;
 }
 
-.yp-mc-row {
-    display: contents; /* colapsa los wrappers: los botones van a la fila principal */
-}
-
 .yp-mc-btn {
-    width: 52px;
-    height: 52px;
-    border-radius: 16px;
+    width: 54px;
+    height: 54px;
+    border-radius: var(--r-lg, 16px);
     background: var(--white, #FFFFFF);
     color: var(--violet-600, #7C3AED);
-    border: 2px solid var(--violet-200, #DDD6FE);
+    border: 1.5px solid var(--border, #E8E8EE);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.15));
+    box-shadow: var(--shadow-xs, 0 1px 2px rgba(0,0,0,0.04));
     transition: all 0.12s;
     touch-action: manipulation;
     user-select: none;
@@ -536,9 +520,9 @@ html, body {
     padding: 0;
 }
 .yp-mc-btn:active {
-    transform: scale(0.92);
+    transform: scale(0.94);
     background: var(--violet-50, #F5F3FF);
-    box-shadow: 0 2px 6px var(--accent-shadow, rgba(139,92,246,0.2));
+    border-color: var(--violet-300, #C4B5FD);
 }
 .yp-mc-btn [data-lucide] {
     width: 22px;
@@ -554,6 +538,7 @@ html, body {
 }
 .yp-mc-primary:active {
     background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
+    border-color: transparent;
 }
 
 @media (pointer: coarse) {
@@ -586,7 +571,7 @@ html, body {
 
 .yp-modal-card {
     background: var(--white, #FFFFFF);
-    border-radius: 24px;
+    border-radius: var(--r-xl, 20px);
     padding: 24px 22px 20px;
     max-width: 400px;
     width: 100%;
@@ -594,7 +579,6 @@ html, body {
     overflow-y: auto;
     text-align: center;
     box-shadow: 0 24px 48px rgba(0,0,0,0.28);
-    border: 1px solid var(--border, #E8E8EE);
     animation: ypModalPop 0.3s cubic-bezier(.34,1.56,.64,1);
 }
 @keyframes ypModalPop {
@@ -606,7 +590,7 @@ html, body {
     width: 60px;
     height: 60px;
     margin: 0 auto 10px;
-    border-radius: 50%;
+    border-radius: 17px;
     background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
     display: flex;
     align-items: center;
@@ -642,7 +626,7 @@ html, body {
     justify-content: space-between;
     align-items: center;
     background: var(--gray-50, #FAFAFB);
-    border-radius: 12px;
+    border-radius: var(--r-md, 12px);
     padding: 9px 14px;
     font-weight: 700;
     font-size: 0.85rem;
@@ -657,7 +641,7 @@ html, body {
 .yp-stat-row span [data-lucide] { width: 13px; height: 13px; }
 .yp-stat-row strong {
     font-size: 1.1rem;
-    font-weight: 900;
+    font-weight: 800;
     color: var(--gray-900, #18181B);
     font-variant-numeric: tabular-nums;
 }
@@ -677,38 +661,35 @@ html, body {
    RESPONSIVE — Tablet
    ===================================================== */
 @media (max-width: 900px) {
-    .yp-game-layout { gap: 10px; padding: 10px 12px; }
+    .yp-game-layout { gap: 10px; padding: 4px 14px 12px; }
     .yp-side-panel { width: 140px; }
     #gameCanvas { max-height: calc(100dvh - 120px); }
 }
 
 /* =====================================================
    RESPONSIVE — MÓVIL (vertical)
-   Layout: header / board / sidebar horizontal / controles
    ===================================================== */
 @media (max-width: 720px) {
     /* --- HEADER compacto --- */
-    .yp-header { padding: 6px 12px; }
-    .yp-logo-mark { width: 28px; height: 28px; border-radius: 8px; }
-    .yp-logo-mark [data-lucide] { width: 14px; height: 14px; }
-    .yp-header-text h1 { font-size: 0.92rem; }
-    .yp-badge { font-size: 0.6rem; }
+    .yp-header { padding: 10px 14px 6px; }
+    .yp-logo-mark { width: 34px; height: 34px; border-radius: 10px; }
+    .yp-logo-mark [data-lucide] { width: 17px; height: 17px; }
+    .yp-header-text h1 { font-size: 16px; }
+    .yp-badge { font-size: 10.5px; }
 
-    /* --- SCREEN de juego: columna con 2 bloques --- */
-    .yp-screen.visible { display: flex; }
-
+    /* --- SCREEN de juego: columna --- */
     .yp-game-layout {
         flex: 1;
         min-height: 0;
         flex-direction: column;
         gap: 8px;
-        padding: 8px;
+        padding: 0 10px 8px;
         justify-content: flex-start;
         align-items: stretch;
         overflow: hidden;
     }
 
-    /* --- BOARD: se estira, canvas mantiene 1:2 --- */
+    /* --- BOARD --- */
     .yp-board-wrapper {
         flex: 1;
         min-height: 0;
@@ -741,10 +722,8 @@ html, body {
         align-items: stretch;
     }
 
-    /* Ocultar la card "Siguiente" en móvil (no es crítica durante la partida) */
     .yp-next-card { display: none; }
 
-    /* 3 chips de stats en una fila */
     .yp-side-panel .yp-panel-card {
         flex: 1 1 calc(33.333% - 4px);
         min-width: 0;
@@ -755,48 +734,36 @@ html, body {
     .yp-panel-label { font-size: 0.55rem; }
     .yp-panel-label [data-lucide] { width: 9px; height: 9px; }
     .yp-panel-value { font-size: 0.95rem; }
-
-    /* Nivel: compacto en móvil (sin bonus ni barra larga) */
-    .yp-tier-card {
-        padding: 6px 8px;
-        gap: 2px;
-    }
-    .yp-tier-card .yp-panel-value { font-size: 1.05rem; }
+    .yp-tier-card .yp-panel-value { font-size: 1rem; }
     .yp-tier-bonus,
-    .yp-tier-next {
-        display: none;
-    }
-    .yp-tier-progress-track {
-        height: 3px;
-        margin-top: 2px;
-    }
+    .yp-tier-next { display: none; }
+    .yp-tier-progress-track { height: 3px; margin-top: 2px; }
 
-    /* 2 botones de acción en una fila */
     .yp-side-panel .yp-btn-retire,
     .yp-side-panel .yp-btn-small {
         flex: 1 1 calc(50% - 3px);
         width: auto;
-        min-height: 36px;
-        font-size: 0.72rem;
+        min-height: 38px;
+        font-size: 0.76rem;
         padding: 6px 8px;
         border-radius: 10px;
     }
     .yp-btn-retire [data-lucide],
     .yp-btn-small [data-lucide] { width: 11px; height: 11px; }
 
-    /* --- CONTROLES MÓVILES (siempre en una fila) --- */
+    /* --- CONTROLES --- */
     .yp-mobile-controls {
-        padding: 6px 10px 10px;
+        padding: 4px 10px 10px;
         gap: 6px;
     }
     .yp-mc-btn {
-        width: 48px;
-        height: 48px;
+        width: 52px;
+        height: 52px;
         border-radius: 14px;
     }
-    .yp-mc-btn [data-lucide] { width: 20px; height: 20px; }
+    .yp-mc-btn [data-lucide] { width: 22px; height: 22px; }
 
-    /* --- START screen compacta --- */
+    /* --- START screen --- */
     .yp-start-card { padding: 14px 14px; gap: 10px; }
     .yp-showcase { gap: 6px; }
     .yp-chip { width: 36px; height: 36px; }
@@ -825,13 +792,13 @@ html, body {
     .yp-controls-hint kbd { font-size: 0.58rem; min-width: 17px; height: 17px; }
 
     .yp-start-actions { flex-direction: column; gap: 6px; }
-    .yp-btn-primary { padding: 10px 18px; font-size: 0.85rem; }
-    .yp-btn-secondary { padding: 9px 16px; font-size: 0.8rem; }
+    .yp-btn-primary { padding: 11px 18px; font-size: 0.86rem; }
+    .yp-btn-secondary { padding: 11px 16px; font-size: 0.82rem; }
 
     /* --- MODAL --- */
-    .yp-modal-card { padding: 20px 16px 18px; border-radius: 20px; }
+    .yp-modal-card { padding: 20px 16px 18px; }
     .yp-modal-title { font-size: 1.3rem; }
-    .yp-modal-icon { width: 50px; height: 50px; margin-bottom: 8px; }
+    .yp-modal-icon { width: 52px; height: 52px; border-radius: 14px; margin-bottom: 8px; }
     .yp-modal-icon [data-lucide] { width: 24px; height: 24px; }
     .yp-stat-row { padding: 8px 12px; font-size: 0.78rem; }
     .yp-stat-row strong { font-size: 1rem; }
@@ -841,34 +808,30 @@ html, body {
    MÓVIL CHICO — < 380px (Honor 400 Smart, ~360px)
    ===================================================== */
 @media (max-width: 380px) {
-    .yp-header { padding: 5px 10px; }
-    .yp-logo-mark { width: 26px; height: 26px; }
-    .yp-logo-mark [data-lucide] { width: 13px; height: 13px; }
-    .yp-header-text h1 { font-size: 0.85rem; }
-    .yp-badge { font-size: 0.55rem; }
+    .yp-header { padding: 8px 12px 4px; }
+    .yp-logo-mark { width: 30px; height: 30px; border-radius: 9px; }
+    .yp-logo-mark [data-lucide] { width: 15px; height: 15px; }
+    .yp-header-text h1 { font-size: 15px; }
+    .yp-badge { font-size: 10px; }
 
-    .yp-game-layout { padding: 6px; gap: 6px; }
+    .yp-game-layout { padding: 0 8px 6px; gap: 6px; }
 
-    .yp-side-panel .yp-panel-card {
-        flex: 1 1 calc(33.333% - 4px);
-        padding: 5px 6px;
-    }
+    .yp-side-panel .yp-panel-card { padding: 5px 6px; }
     .yp-panel-value { font-size: 0.88rem; }
-    .yp-tier-card .yp-panel-value { font-size: 0.95rem; }
+    .yp-tier-card .yp-panel-value { font-size: 0.92rem; }
     .yp-panel-label { font-size: 0.5rem; }
 
     .yp-side-panel .yp-btn-retire,
     .yp-side-panel .yp-btn-small {
         min-height: 34px;
-        font-size: 0.68rem;
+        font-size: 0.7rem;
         padding: 5px 6px;
     }
 
-    .yp-mc-btn { width: 46px; height: 46px; border-radius: 13px; }
-    .yp-mc-btn [data-lucide] { width: 18px; height: 18px; }
-    .yp-mobile-controls { padding: 5px 8px 8px; gap: 5px; }
+    .yp-mc-btn { width: 48px; height: 48px; border-radius: 13px; }
+    .yp-mc-btn [data-lucide] { width: 20px; height: 20px; }
+    .yp-mobile-controls { padding: 4px 8px 8px; gap: 5px; }
 
-    /* Start screen aún más compacta */
     .yp-chip { width: 32px; height: 32px; }
     .yp-chip [data-lucide] { width: 16px; height: 16px; }
     .yp-title { font-size: 1.5rem; }
@@ -876,21 +839,21 @@ html, body {
 }
 
 /* =====================================================
-   IFRAMES BAJOS EN DESKTOP (< 500px de alto)
+   IFRAMES BAJOS EN DESKTOP
    ===================================================== */
 @media (max-height: 500px) and (min-width: 721px) {
-    .yp-header { padding: 6px 14px; }
-    .yp-logo-mark { width: 28px; height: 28px; border-radius: 8px; }
-    .yp-logo-mark [data-lucide] { width: 14px; height: 14px; }
-    .yp-header-text h1 { font-size: 0.95rem; }
+    .yp-header { padding: 10px 14px 4px; }
+    .yp-logo-mark { width: 32px; height: 32px; border-radius: 9px; }
+    .yp-logo-mark [data-lucide] { width: 16px; height: 16px; }
+    .yp-header-text h1 { font-size: 16px; }
 
-    .yp-game-layout { padding: 8px 10px; gap: 10px; }
-    #gameCanvas { max-height: calc(100dvh - 80px); }
+    .yp-game-layout { padding: 2px 12px 8px; gap: 10px; }
+    #gameCanvas { max-height: calc(100dvh - 90px); }
 
     .yp-side-panel { gap: 6px; width: 140px; }
     .yp-panel-card { padding: 6px 8px; }
     .yp-panel-value { font-size: 1.05rem; }
     .yp-tier-card .yp-panel-value { font-size: 1.15rem; }
-    .yp-btn-retire { padding: 6px 10px; font-size: 0.72rem; }
-    .yp-btn-small { padding: 5px 8px; font-size: 0.66rem; }
+    .yp-btn-retire { padding: 7px 10px; font-size: 0.74rem; }
+    .yp-btn-small { padding: 6px 10px; font-size: 0.7rem; }
 }
