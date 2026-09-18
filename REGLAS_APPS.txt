@@ -59,15 +59,26 @@ REPO DE CÓDIGO — VicWebOs/
         JsTemas.js          ← catálogo de TEMAS
         JsWidgets.js        ← catálogo de WIDGETS
         ConfigBD.js         ← conexión GitHub + caché
+        ConfigBD.binarios.js← subida/lectura de binarios
+        MasterHad.js        ← caja de herramientas global
         Cuenta.js           ← cuentas, apps, temas, widgets,
                               economía, chequera, migración
         configuracion.js    ← modal de configuración (UI)
         JsIndex.js          ← shell: pestañas, sidebar, API
+        Notificaciones.js   ← notificaciones globales
+        MobileUI.js         ← drawer lateral móvil
       herramientas/
         {nombreApp}/
           index.html
           style.css
           script.js
+        galeria/
+          index.html        ← app Galería (TODO)
+          style.css
+          script.js
+          picker.html       ← selector de imágenes para otras apps
+          picker.css
+          picker.js
       Temas/
         {nombreTema}.css
       Widgets/
@@ -80,11 +91,17 @@ REPO DE DATOS — vicwebos-data/
     vicwebos-data/
       cuenta.json
       cuentaConfig.json
+      CuentasNotificaciones.json
+      Galeria{CODIGO}/
+        img_xxx.jpg
+        img_yyy.png
+        galeria.json            ← índice por usuario
       app/
+        galeria/
+          galeria.json          ← índice global (intermediario)
         {nombreApp}/
           {nombreApp}.json
           {codigoUsuario}{nombreApp}.json
-          {nombreApp}(imagen)/
           {nombreApp}(audio)/
           {nombreApp}(video)/
           {nombreApp}(documento)/
@@ -102,25 +119,76 @@ REGLA 1 — JSON POR APP
         app/calendario/calendario.json
         app/calendario/1234Acalendario.json
 
-REGLA 2 — BINARIOS
-    PROHIBIDO guardar imágenes/audio/video en base64 dentro de
-    los JSON (excepción: cuenta.json que puede guardar la foto
-    de perfil del usuario en base64).
-    Los binarios van en subcarpetas dentro de la carpeta de la app:
-        app/{nombreApp}/{nombreApp}(imagen)/archivo.png
+REGLA 2 — IMÁGENES (GALERÍA GLOBAL)
+    >>> CAMBIO IMPORTANTE <<<
+
+    Las IMÁGENES ya NO se guardan dentro de la carpeta de cada app.
+    Van a una carpeta GLOBAL del usuario:
+
+        Galeria{CODIGO}/img_xxx.jpg
+        Galeria{CODIGO}/galeria.json
+
+    Cada usuario tiene SU carpeta Galeria{CODIGO}/ con todas sus
+    fotos. Esto evita duplicar la misma imagen en varias apps y
+    permite reutilizarla en cualquier lado.
+
+    Estructura del JSON por usuario (Galeria{CODIGO}/galeria.json):
+        {
+          "version": 1,
+          "codigo": "0308V",
+          "actualizado": "ISO",
+          "carpetas": [
+            { "id": "c_general", "nombre": "General", "creada": "ISO" }
+          ],
+          "imagenes": [
+            {
+              "id": "img_xxx",
+              "nombre": "playa.jpg",
+              "archivo": "img_xxx.jpg",
+              "carpeta": "c_general",
+              "tipo": "image/jpeg",
+              "tamano": 342000,
+              "subida": "ISO"
+            }
+          ]
+        }
+
+    JSON GLOBAL (app/galeria/galeria.json) — índice intermediario:
+        {
+          "version": 1,
+          "actualizado": "ISO",
+          "usuarios": {
+            "0308V": { "carpetas": [...], "imagenes": [...] },
+            "1234A": { "carpetas": [...], "imagenes": [...] }
+          }
+        }
+    Se mantienen sincronizados en cada operación. El global es lo
+    que el picker lee para mostrar rápido todas las imágenes de
+    todos los usuarios.
+
+    Las apps guardan SOLO el id de la imagen (imagenId), NO la
+    ruta. Al mostrar, resuelven con MasterHad.galeria.leerImagenURL(id).
+
+    Si el usuario borra una imagen de la Galería, deja de estar
+    disponible en todas las apps automáticamente.
+
+REGLA 3 — OTROS BINARIOS (audio, video, documento)
+    Van en subcarpetas dentro de la carpeta de la app:
         app/{nombreApp}/{nombreApp}(audio)/archivo.mp3
         app/{nombreApp}/{nombreApp}(video)/archivo.mp4
         app/{nombreApp}/{nombreApp}(documento)/archivo.pdf
-    En el JSON se guarda solo la ruta relativa.
+    En el JSON se guarda solo el nombre del archivo.
+    PROHIBIDO guardar base64 en los JSON (excepción: cuenta.json
+    que puede guardar la foto de perfil del usuario en base64).
 
-REGLA 3 — ESTRUCTURA DE APPS
+REGLA 4 — ESTRUCTURA DE APPS
     herramientas/{nombreApp}/
         index.html
         style.css
         script.js
     Nombres fijos, sin subcarpetas, sin excepciones.
 
-REGLA 4 — TEMAS
+REGLA 5 — TEMAS
     Cada tema es UN archivo CSS:
         Temas/{nombreTema}.css
     Se carga en index.html con:
@@ -129,14 +197,14 @@ REGLA 4 — TEMAS
     El tema puede sobreescribir CUALQUIER regla CSS del style.css
     base: colores, layout, tipografía, sombras, todo.
 
-REGLA 5 — WIDGETS
+REGLA 6 — WIDGETS
     Widgets/{nombreWidget}/
         index.html
         style.css
         script.js
     Igual que apps pero se renderizan en el welcome screen.
 
-REGLA 6 — COMPATIBILIDAD CON TEMAS
+REGLA 7 — COMPATIBILIDAD CON TEMAS
     APPS: NO están obligadas. Recomendado usar var(--algo, fallback).
     WIDGETS: SÍ están obligados. Deben leer variables CSS del padre
     y escuchar mensajes 'vicwebos_tema_cambio'.
@@ -159,14 +227,14 @@ Entrar con código:
 Datos por cuenta (cuentaConfig.json):
     {
         "1234A": {
-            "appsInstaladas": ["stor-he", "chequera"],
+            "appsInstaladas": ["stor-he", "chequera", "galeria"],
             "temasInstalados": ["violeta"],
             "temaActivo": "violeta",
             "widgetsInstalados": [],
             "widgetsActivos": [],
             "espacioMaximo": 50,
             "monedas": 0,
-            "accesosRapidos": ["stor-he", "chequera"]
+            "accesosRapidos": ["stor-he", "chequera", "galeria"]
         }
     }
 
@@ -193,7 +261,6 @@ COSTOS DE CATÁLOGO:
     - Widget: 4 de espacio, varía en monedas
     - Tema: 2 de espacio, 0 monedas
     - Apps/temas base (esBase:true): 0 de todo, no desinstalables
-    - Puedes poner monedas a cualquier cosa (ej: dados = 15)
 
 COMPRA DE ESPACIO:
     Desde Stor-He, la card "Ampliar espacio" cuesta 2500 monedas
@@ -225,26 +292,10 @@ Estructura:
         ]
     }
 
-API GLOBAL (llamable desde cualquier app):
-    // Ganar monedas (aparece en chequera como +)
+API GLOBAL:
     window.parent.__vicwebos.canjear(icono, fuente, texto, cantidad)
-
-    // Gastar monedas (aparece en chequera como -)
     window.parent.__vicwebos.gastoBoleta(icono, fuente, texto, cantidad)
-
-    // Leer movimientos
-    const data = await window.parent.__vicwebos.chequeraLeer();
-
-Ambas funciones:
-    - Actualizan configCuentaActual.monedas
-    - Escriben en el JSON de chequera
-    - Actualizan el header en el shell
-    - Notifican a la chequera abierta por postMessage
-    - Lanzan error si no hay cuenta o monedas insuficientes
-
-NOTIFICACIÓN CHEQUERA:
-    Mensaje: { type: 'vicwebos_chequera_cambio' }
-    La chequera lo escucha y se refresca automáticamente.
+    await window.parent.__vicwebos.chequeraLeer()
 
 ================================================================
   8. API PARA IFRAMES
@@ -253,80 +304,92 @@ NOTIFICACIÓN CHEQUERA:
 Desde cualquier app/widget (que viva en un iframe):
     const api = window.parent.__vicwebos;
     const bd  = window.parent.ConfigBD;
+    const mh  = window.parent.MasterHad;
 
 MÉTODOS DISPONIBLES:
 
     // Catálogo
-    api.obtenerCatalogo()   → array de apps
-    api.obtenerTemas()      → array de temas
-    api.obtenerWidgets()    → array de widgets
+    api.obtenerCatalogo() / obtenerTemas() / obtenerWidgets()
 
     // Estado del usuario
-    api.obtenerInstaladas()        → ids de apps instaladas
-    api.obtenerTemasInstalados()   → ids de temas instalados
-    api.obtenerWidgetsInstalados() → ids de widgets instalados
-    api.obtenerWidgetsActivos()    → ids de widgets activos
-    api.obtenerTemaActivo()        → id del tema activo
-    api.obtenerAccesosRapidos()    → ids de accesos rápidos
-    api.estaInstalada(id)          → bool
-    api.tieneCuenta()              → bool
-    api.estaConectado()            → bool
-    api.obtenerCuenta()            → { nombre, codigo } o null
+    api.obtenerInstaladas() / obtenerTemasInstalados() /
+    obtenerWidgetsInstalados() / obtenerWidgetsActivos() /
+    obtenerTemaActivo() / obtenerAccesosRapidos() /
+    estaInstalada(id) / tieneCuenta() / estaConectado() /
+    obtenerCuenta() → { nombre, codigo } | null
 
     // Economía
-    api.obtenerEspacioMaximo()   → int
-    api.obtenerEspacioUsado()    → int
-    api.obtenerEspacioLibre()    → int
-    api.obtenerMonedas()         → int
-    api.puedeInstalar({espacio, monedas}) → { ok, motivo }
-    api.comprarEspacio()         → Promise
+    api.obtenerEspacioMaximo/Usado/Libre()
+    api.obtenerMonedas()
+    api.puedeInstalar({espacio, monedas})
+    api.comprarEspacio()
 
     // Chequera
-    api.chequeraLeer()           → Promise<data>
+    api.chequeraLeer()
     api.canjear(icono, fuente, texto, cantidad)
     api.gastoBoleta(icono, fuente, texto, cantidad)
 
-    // Acciones (todas devuelven Promise)
-    api.instalar(id)
-    api.desinstalar(id)
-    api.abrirApp(id)
-    api.instalarTema(id)
-    api.desinstalarTema(id)
-    api.aplicarTema(id)
-    api.instalarWidget(id)
-    api.desinstalarWidget(id)
-    api.activarWidget(id)
-    api.desactivarWidget(id)
-    api.activarAccesoRapido(id)
-    api.desactivarAccesoRapido(id)
+    // Notificaciones
+    api.enviarNotificacion(fuente, texto, usuarioDestino)
 
-    // Constantes
-    api.ESPACIO_INICIAL
-    api.ESPACIO_POR_COMPRA
-    api.COSTO_COMPRA_ESPACIO
-    api.MAX_WIDGETS_ACTIVOS
-    api.MAX_ACCESOS_RAPIDOS
+    // Acciones (todas Promise)
+    api.instalar / desinstalar / abrirApp
+    api.instalarTema / desinstalarTema / aplicarTema
+    api.instalarWidget / desinstalarWidget /
+    activarWidget / desactivarWidget
+    api.activarAccesoRapido / desactivarAccesoRapido
 
 DATA (ConfigBD):
-    bd.leerArchivo(path)         → Promise<data|null>
-    bd.escribirArchivo(path,data) → Promise<{ok}>
-    bd.estaConectado()           → bool
-    bd.obtenerInfo()             → { owner, repo }
+    bd.leerArchivo(path)               → Promise<data|null>
+    bd.leerArchivoFresh(path)          → Promise<data|null>  (sin caché)
+    bd.escribirArchivo(path, data)
+    bd.actualizarArchivo(path, mutador) → merge + retry
+    bd.subirArchivo(path, blob)
+    bd.leerArchivoBinario(path)        → Blob
+    bd.leerArchivoBinarioComoURL(path) → blob: URL
+    bd.existeArchivo(path)
+    bd.eliminarArchivo(path)
 
-NOTA: ConfigBD trabaja SIEMPRE sobre el repo de DATOS
-(vicwebos-data). Los paths son relativos a su raíz.
+MASTERHAD:
+    // JSON
+    mh.leerJSON / escribirJSON / borrarJSON / vaciarJSON /
+    existeJSON / actualizarJSON
+
+    // Rutas
+    mh.rutas.jsonGlobal(appId)
+    mh.rutas.jsonUsuario(appId, codigo?)
+    mh.rutas.audio / video / documento (appId, nombre)
+
+    // Utilidades
+    mh.comprimirImagen(file, maxLado?, calidad?)
+    mh.formatearBytes(n)
+    mh.generarNombre(ext?)
+    mh.generarId(prefijo?)
+
+    // GALERÍA
+    mh.galeria.listarImagenes(codigo?, { fresh?, carpetaId? })
+    mh.galeria.listarCarpetas(codigo?, { fresh? })
+    mh.galeria.obtenerImagen(id, codigo?)
+    mh.galeria.leerImagenURL(id, codigo?)  → blob: URL
+    mh.galeria.leerImagenBlob(id, codigo?) → Blob
+    mh.galeria.subirImagen(file, { codigo?, carpeta?, maxLado?, calidad? })
+    mh.galeria.borrarImagen(id, codigo?)
+    mh.galeria.renombrarImagen(id, nuevoNombre, codigo?)
+    mh.galeria.moverACarpeta(id, carpetaId, codigo?)
+    mh.galeria.crearCarpeta(nombre, codigo?)
+    mh.galeria.abrirPicker({ multiple?, titulo?, carpetaId? })
+        → Promise<string | string[] | null>
+
+    // Binarios auxiliares
+    mh.publicarAudio / Video / Documento(appId, file, opts)
+    mh.reemplazarAudio / Video / Documento(ruta, file, opts)
+    mh.borrarAudio / Video / Documento(ruta)
+    mh.leerAudio / Video / DocumentoURL(ruta)
+    mh.leerAudio / Video / DocumentoBlob(ruta)
 
 ================================================================
   9. SISTEMA DE TEMAS
 ================================================================
-
-Temas base oficiales actualmente:
-    - violeta (base, default) — fondo blanco, violeta clásico
-    - rosa — rosados pastel
-    - oceano — azules
-    - bosque — verdes
-    - atardecer — naranjas
-    - noche — oscuro (fondo #0F0F1A)
 
 Cada tema es un archivo CSS en Temas/{id}.css que define las
 variables del :root:
@@ -343,9 +406,9 @@ variables del :root:
 TEMAS PERSONALIZADOS: un tema nuevo es solo añadir su .css a
 Temas/ y su entrada en JsTemas.js. No requiere tocar el shell.
 
-STOR-HE + WIDGETS: heredan las variables del padre leyendo
-getComputedStyle(document.documentElement) y escuchando el
-mensaje 'vicwebos_tema_cambio'.
+STOR-HE + WIDGETS + GALERÍA-PICKER: heredan las variables del
+padre leyendo getComputedStyle(document.documentElement) y
+escuchando el mensaje 'vicwebos_tema_cambio'.
 
 ================================================================
   10. SISTEMA DE PESTAÑAS
@@ -354,151 +417,112 @@ mensaje 'vicwebos_tema_cambio'.
 - Máximo MAX_TABS (actualmente 6) pestañas simultáneas.
 - Cada pestaña es un <iframe> con la app cargada.
 - Al abrir una app ya abierta, se activa su pestaña.
-- Al cerrar una pestaña, se destruye el iframe.
 - El welcome screen se muestra cuando no hay ninguna pestaña.
-
-Al abrir herramientas desde el sidebar o el modal "Ver todas"
-se activan o se crean pestañas.
 
 ================================================================
   11. STOR-HE
 ================================================================
 
-Stor-He es la tienda. Es la ÚNICA forma de instalar/desinstalar
-apps, temas y widgets. También permite comprar espacio.
-
-Estructura:
-    - Header con logo + recursos (espacio, monedas)
-    - 3 tabs: Apps | Temas | Widgets
-    - Card de ampliación de espacio (solo en Apps)
-    - Cards de cada item con: icono, nombre, descripción, costos,
-      acciones (Instalar / Desinstalar / Aplicar / Abrir)
-
-Validaciones:
-    - No permite instalar si falta espacio o monedas
-    - Muestra el motivo en el botón deshabilitado
-    - Apps con esBase:true no se pueden desinstalar
-    - Temas con esBase:true no se pueden desinstalar
-
-Compatible con temas (hereda variables CSS del padre).
+Tienda. ÚNICA forma de instalar/desinstalar apps, temas y
+widgets. También permite comprar espacio.
 
 ================================================================
   12. APLICACIONES ACTUALES
 ================================================================
 
-INSTALADAS POR DEFECTO (para toda cuenta nueva):
-    - stor-he (esBase, esDefault)
+INSTALADAS POR DEFECTO:
+    - stor-he (esBase)
     - chequera (esBase, esDefault)
+    - galeria (esBase, esDefault)
 
-APPS DE USUARIO (instalables desde Stor-He):
+APPS DE USUARIO:
     - calculadora (espacio: 6)
-        Calculadora con funciones premium desbloqueables:
-        - Intereses (5 monedas): simple + compuesto
-        - Fechas (5 monedas): diferencia entre fechas
-        - Gráficos (10 monedas): pie chart SVG
-        Historial guardado en IndexedDB (últimos 3 cálculos).
+    - dino (espacio: 6)
+    - evmail (espacio: 6)
 
 ================================================================
   13. WIDGETS ACTUALES
 ================================================================
 
     - reloj-mundial (espacio: 4, monedas: 0)
-        Muestra hasta 4 zonas horarias configurables.
-        Lista curada de países agrupada por continente.
-        Datos por usuario en app/reloj-mundial/.
-
     - dados (espacio: 4, monedas: 15)
-        Dos dados 3D con CSS puro, historial de la sesión.
-        Sin persistencia.
-
-Los widgets se activan/desactivan desde Configuración >
-Apariencia. Máximo 3 activos simultáneamente.
 
 ================================================================
-  14. ACCESOS RÁPIDOS
+  14. GALERÍA Y PICKER
 ================================================================
 
-Aparecen en el welcome screen. Máximo 8.
+La Galería es una app base (no desinstalable) que centraliza
+TODAS las imágenes del usuario. Otras apps nunca suben ni
+borran imágenes directamente: usan el picker.
+
+PICKER:
+    Es un modal que MasterHad inyecta en el shell como overlay.
+    Carga herramientas/galeria/picker.html en un iframe. El
+    picker lee del JSON global (app/galeria/galeria.json) todas
+    las imágenes del usuario actual, las muestra en un grid con
+    paginación de 6 por página, y devuelve los ids por
+    postMessage.
+
+    Cualquier app lo usa así:
+        const id = await mh.galeria.abrirPicker({ multiple: false });
+        if (id) { /* guardar id en el JSON de la app */ }
+
+    El shell recibe los mensajes:
+        { type: 'galeria:pick', ids: [...] }
+        { type: 'galeria:cancel' }
+
+    Mientras el picker está abierto, no se puede abrir otro.
+
+================================================================
+  15. ACCESOS RÁPIDOS
+================================================================
+
+Aparecen en el welcome. Máximo 8.
 Se configuran desde Configuración > Apariencia.
-Por defecto: las apps base (stor-he, chequera).
-Al desinstalar una app, se quita también de accesos rápidos.
 
 ================================================================
-  15. CONFIGURACIÓN
+  16. CONFIGURACIÓN
 ================================================================
 
-Modal con 4 secciones:
-
-CUENTA:
-    - Crear cuenta / Entrar con código
-    - Ver perfil si hay sesión (foto, nombre, código)
-    - Cerrar sesión
-
-APARIENCIA:
-    - Tema por defecto (radio de temas instalados)
-    - Widgets activos (toggle por widget instalado, máx 3)
-    - Accesos rápidos (checkbox por app instalada, máx 8)
-
-APPS INSTALADAS:
-    - Lista de apps, con opción de desinstalar (excepto base)
-
-BASE DE DATOS:
-    - Conectar con GitHub (token + repo)
-    - Ver info del repo conectado
-    - Desconectar repositorio
+Modal con 4 secciones: Cuenta, Apariencia, Apps, Base de datos.
 
 ================================================================
-  16. LIMITACIONES CONOCIDAS / DEUDAS TÉCNICAS
+  17. LIMITACIONES CONOCIDAS / DEUDAS TÉCNICAS
 ================================================================
 
 1. CONCURRENCIA DE ESCRITURA
-   Si dos usuarios escriben el mismo JSON al mismo tiempo,
-   el segundo puede pisar al primero. Actualmente no hay
-   retry ni merge automático.
-   Mitigación: usar archivos por usuario siempre que sea posible.
-   Fix pendiente: añadir retry con merge en ConfigBD.
+   Mitigado con ConfigBD.actualizarArchivo (reintentos + merge).
 
-2. SUBIDA DE BINARIOS NO IMPLEMENTADA
-   ConfigBD solo escribe texto (JSON). Falta un método
-   subirArchivo() para subir imágenes/audio/video a GitHub.
-   Pendiente para cuando una app lo necesite.
+2. SIN TIEMPO REAL
+   Polling cada 15-20s en apps que lo necesitan.
 
-3. NOTIFICACIONES GLOBALES
-   No hay sistema de toasts globales desde el shell hacia el
-   usuario. Solo alert() de las apps.
+3. LÍMITE DE 5000 requests/hora de GitHub
+   Cuidar cantidad de pollers activos simultáneos.
 
-4. SIN TIEMPO REAL
-   No hay WebSocket. Para sincronización en vivo habría que
-   hacer polling o usar un servicio externo.
-
-5. LÍMITE DE 5000 requests/hora de GitHub
-   Si una app escribe muy seguido, agota el límite.
-   Recomendado: acumular cambios y guardar cada 10-30s.
+4. GALERÍA SIN UI DE APP
+   La app Galería (index.html) aún está pendiente. El picker
+   funciona, pero el usuario no tiene todavía interfaz para
+   subir fotos. Próximo paso.
 
 ================================================================
-  17. CHECKLIST PARA CREAR UNA APP NUEVA
+  18. CHECKLIST PARA CREAR UNA APP NUEVA
 ================================================================
 
-1. Decidir el id (minúsculas, sin guiones, ej: "calculadora")
+1. Decidir el id (minúsculas, sin guiones)
 2. Crear herramientas/{id}/ con index.html, style.css, script.js
 3. Registrar en JsRutas.js con:
-    {
-        id, nombre, icono (nombre lucide), ruta,
-        descripcion, categoria, esBase, esDefault,
-        espacio (int), monedas (int)
-    }
+    { id, nombre, icono, ruta, descripcion, categoria,
+      esBase, esDefault, espacio, monedas }
 4. Decidir qué guarda:
-    - Nada → no necesita JSON
-    - Global → app/{id}/{id}.json
-    - Por usuario → app/{id}/{codigo}{id}.json
-    - Ambos → ambos archivos
-5. ¿Usa monedas? Usar api.gastoBoleta() / api.canjear()
-6. ¿Necesita binarios? Ir a subcarpetas (regla 2)
-7. Compatibilidad con temas:
-    - Recomendado (no obligatorio) para apps
-    - OBLIGATORIO para widgets y para Stor-He
+    - Nada / Global / Por usuario / Ambos
+5. ¿Usa imágenes? → NO subir. Usar mh.galeria.abrirPicker()
+6. ¿Usa audio/video/doc? → mh.publicarAudio/Video/Documento()
+7. ¿Usa monedas? → api.canjear() / api.gastoBoleta()
+8. Compatibilidad con temas:
+    - Recomendado para apps
+    - OBLIGATORIO para widgets, Stor-He, picker
 
-TEMPLATE DE HERENCIA DE TEMA (copiar en cada app/widget):
+TEMPLATE DE HERENCIA DE TEMA:
 
     function aplicarTemaDelPadre() {
         try {
@@ -533,98 +557,37 @@ TEMPLATE DE HERENCIA DE TEMA (copiar en cada app/widget):
     document.addEventListener('DOMContentLoaded', aplicarTemaDelPadre);
 
 ================================================================
-  18. REGLAS DE ESTILO Y UX
+  19. REGLAS DE ESTILO Y UX
 ================================================================
 
 ICONOS:
-    - Usar SIEMPRE iconos Lucide (https://lucide.dev/icons)
-    - NO usar emojis en la UI. Causan problemas entre sistemas
-      operativos (Windows 10 no renderiza algunos).
-    - Excepción: emojis decorativos que ya existían en el
-      proyecto (banderas de países en reloj-mundial). Evaluar
-      caso a caso.
+    - Usar SIEMPRE iconos Lucide
+    - NO usar emojis en la UI
 
 COLORES:
-    - NUNCA hardcodear colores. Usar var(--algo, fallback).
-    - El fallback debe ser el color por defecto del tema violeta.
+    - NUNCA hardcodear. var(--algo, fallback)
+    - Fallback = color del tema violeta
 
 LAYOUT:
-    - PC: ancho máximo razonable (800-1100px), grid si aplica
+    - PC: ancho máximo razonable, grid si aplica
     - Móvil: apilado, sin scroll horizontal
-    - Overflow-y: auto cuando el contenido pueda no caber
 
 ESPACIADO:
-    - Sistema de spacing consistente (4, 8, 12, 16, 20, 24, 32)
-    - Radios: usar var(--r-sm/md/lg/xl/full)
+    - Sistema consistente (4, 8, 12, 16, 20, 24, 32)
+    - Radios: var(--r-sm/md/lg/xl/full)
 
 ================================================================
-  19. FLUJO DE INICIO DE UNA CUENTA NUEVA
+  20. CÓMO PROBAR LOCALMENTE
 ================================================================
 
-1. Abrir VicWebOs → pantalla de login/registro
-2. El usuario intenta registrarse pero no hay repo conectado
-   → se muestra aviso para conectar GitHub primero
-3. Configurar Base de Datos → conectar con GitHub (token+repo)
-4. Crear cuenta (nombre, pronombre, foto, código)
-5. Se crea cuentaConfig.json con:
-   - appsInstaladas: [stor-he, chequera]
-   - tema: violeta
-   - accesosRapidos: [stor-he, chequera]
-6. Se abre el welcome screen con saludo personalizado
-7. El usuario puede:
-   - Abrir Stor-He para instalar más apps
-   - Abrir Chequera para ver sus monedas (0 al inicio)
-   - Configurar tema, widgets, accesos
-
-================================================================
-  20. API DE CHEQUERA — EJEMPLO COMPLETO
-================================================================
-
-Desde cualquier app que quiera dar monedas al usuario:
-
-    const api = window.parent.__vicwebos;
-    try {
-        await api.canjear(
-            'trofeo',              // icono (nombre lucide o texto)
-            'mi_app',              // fuente (nombre de la app)
-            'Ganaste un logro',    // texto descriptivo
-            50                     // cantidad
-        );
-        // Al usuario se le suman 50 monedas
-        // Aparece +50 en su chequera
-    } catch (e) {
-        console.error('No se pudo dar monedas:', e);
-    }
-
-Desde cualquier app que quiera cobrar al usuario:
-
-    try {
-        await api.gastoBoleta(
-            'calc',
-            'calculadora',
-            'Función Intereses',
-            5
-        );
-        // Al usuario se le restan 5 monedas
-        // Aparece -5 en su chequera
-    } catch (e) {
-        // Si no tiene monedas suficientes, lanza error
-        alert(e.message);
-    }
-
-================================================================
-  21. CÓMO PROBAR LOCALMENTE
-================================================================
-
-1. Abrir VicWebOs (con iniciar.bat o servidor local)
-2. Configurar Base de Datos con un repo de prueba privado
+1. Abrir VicWebOs
+2. Conectar Base de Datos
 3. Crear cuenta
-4. Abrir Stor-He → Instalar Calculadora
-5. Ir a Chequera → ver saldo en 0
-6. Abrir Calculadora → intentar comprar función
-7. Fallará por falta de monedas → mensaje correcto
-8. Para probar más fácil, desde consola del navegador:
-   window.parent.__vicwebos.canjear('bug', 'test', 'Monedas de prueba', 100)
+4. Abrir Stor-He → instalar Calculadora, Dino, EVmail
+5. Galería viene instalada por defecto (aún sin UI completa)
+6. Probar picker desde EVmail cuando haya imágenes
+7. Para canjear monedas desde consola:
+   window.__vicwebos.canjear('coins', 'test', 'test', 100)
 
 ================================================================
   FIN DEL DOCUMENTO
