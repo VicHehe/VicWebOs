@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Ruleta</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="rl-widget">
+        <div class="rl-header">
+            <div class="rl-titulo">
+                <i data-lucide="circle-dot-dashed"></i>
+                <span>Mini Ruleta</span>
+            </div>
+            <button class="rl-edit-btn" id="rlBtnEdit" title="Editar opciones">
+                <i data-lucide="settings-2"></i>
+            </button>
+        </div>
+
+        <div class="rl-zona">
+            <div class="rl-wheel-wrap">
+                <svg class="rl-wheel" id="rlWheel" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"></svg>
+                <div class="rl-pointer"></div>
+            </div>
+        </div>
+
+        <button class="rl-btn" id="rlBtnGirar">
+            <i data-lucide="play"></i>
+            <span id="rlBtnTexto">Girar</span>
+        </button>
+    </div>
+
+    <!-- MODAL editar opciones -->
+    <div class="rl-modal" id="rlModal" hidden>
+        <div class="rl-modal-card">
+            <div class="rl-modal-header">
+                <h3>Opciones (máx. 5)</h3>
+                <button class="rl-modal-cerrar" id="rlModalCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="rl-modal-body">
+                <div class="rl-inputs" id="rlInputs"></div>
+                <button class="rl-btn-add" id="rlBtnAddInput">
+                    <i data-lucide="plus"></i>
+                    Añadir opción
+                </button>
+                <p class="rl-modal-ayuda">Esta ruleta es efímera: se resetea al recargar.</p>
+            </div>
+            <div class="rl-modal-actions">
+                <button class="rl-btn-sec" id="rlBtnCancelar">Cancelar</button>
+                <button class="rl-btn-pri" id="rlBtnGuardar">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
