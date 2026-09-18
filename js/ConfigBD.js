@@ -1,105 +1,127 @@
 // ============================================================
-//  ConfigBD.js — GitHub + Multi-Comunidad + Caché IndexedDB
+//  ConfigBD.js — Multi-comunidad + GitHub + Caché IndexedDB
 //  ------------------------------------------------------------
-//  CAMBIOS IMPORTANTES (multi-comunidad):
-//    - Ya no hay UNA sola conexión. Hay N comunidades.
-//    - Cada comunidad tiene su propio { token, owner, repo, nombre }.
-//    - localStorage guarda la lista + cuál está activa.
-//    - Cada comunidad tiene SU sesión (código) independiente.
-//    - El caché de IndexedDB se namespacea por comunidad para no
-//      mezclar datos entre comunidades.
+//  Soporta MÚLTIPLES comunidades (pareja, amigos, familia).
+//  Cada comunidad tiene su propio token, repo y sesión.
+//  Los datos de cada comunidad están TOTALMENTE aislados.
+//
+//  Estructura en localStorage (vicwebos_bd):
+//    {
+//      comunidades: {
+//        [id]: {
+//          id, nombre,
+//          githubToken, githubRepo, githubOwner,
+//          tipoToken: 'classic' | 'fine-grained',
+//          conectado: bool,
+//          creada: ISO
+//        }
+//      },
+//      activa: id
+//    }
+//
+//  IndexedDB NO es fuente de datos, solo caché temporal.
 // ============================================================
 
-const BD_CONFIG_KEY = 'vicwebos_bd_v2';
+const BD_CONFIG_KEY = 'vicwebos_bd';
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
 
-const BD_DEFAULT = {
-    comunidades: [],          // [{ id, nombre, token, owner, repo, avatarColor }]
-    comunidadActiva: null     // id de la comunidad activa
-};
-
 // ============================================================
-//  CONFIG (localStorage)
+//  COMUNIDADES — almacenamiento
 // ============================================================
-function cargarConfigBD() {
+function leerComunidades() {
     try {
         const raw = localStorage.getItem(BD_CONFIG_KEY);
         if (raw) {
             const parsed = JSON.parse(raw);
-            // Migración suave desde v1 (una sola conexión)
-            if (parsed.githubToken && !parsed.comunidades) {
-                return {
-                    comunidades: [{
-                        id: 'com_' + Date.now().toString(36),
-                        nombre: parsed.githubRepo || 'Mi comunidad',
-                        token: parsed.githubToken,
-                        owner: parsed.githubOwner,
-                        repo: parsed.githubRepo,
-                        avatarColor: '#8B5CF6'
-                    }],
-                    comunidadActiva: 'com_' + Date.now().toString(36)
-                };
+            // Migración desde formato viejo (una sola comunidad)
+            if (parsed.githubToken !== undefined && !parsed.comunidades) {
+                return migrarFormatoViejo(parsed);
             }
-            return { ...BD_DEFAULT, ...parsed };
+            return {
+                comunidades: parsed.comunidades || {},
+                activa: parsed.activa || null
+            };
         }
     } catch (e) { console.warn(e); }
-    return { ...BD_DEFAULT };
+    return { comunidades: {}, activa: null };
+}
+
+function guardarComunidades(data) {
+    try {
+        localStorage.setItem(BD_CONFIG_KEY, JSON.stringify(data));
+    } catch (e) { console.warn(e); }
+}
+
+function migrarFormatoViejo(viejo) {
+    const comunidades = {};
+    let activa = null;
+    if (viejo.githubToken && viejo.githubRepo && viejo.githubOwner) {
+        const id = 'com_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
+        comunidades[id] = {
+            id,
+            nombre: viejo.githubRepo,
+            githubToken: viejo.githubToken,
+            githubRepo: viejo.githubRepo,
+            githubOwner: viejo.githubOwner,
+            tipoToken: 'classic',
+            conectado: !!viejo.githubConectado,
+            creada: new Date().toISOString()
+        };
+        activa = id;
+    }
+    const nuevo = { comunidades, activa };
+    try { localStorage.setItem(BD_CONFIG_KEY, JSON.stringify(nuevo)); } catch (e) {}
+    return nuevo;
+}
+
+function obtenerComunidadActiva() {
+    const data = leerComunidades();
+    if (!data.activa) return null;
+    return data.comunidades[data.activa] || null;
+}
+
+function obtenerComunidadPorId(id) {
+    const data = leerComunidades();
+    return data.comunidades[id] || null;
+}
+
+// ------------------------------------------------------------
+//  Compatibilidad con el código existente
+//  ------------------------------------------------------------
+function cargarConfigBD() {
+    const com = obtenerComunidadActiva();
+    if (!com) {
+        return { githubToken: '', githubRepo: '', githubOwner: '', githubConectado: false };
+    }
+    return {
+        githubToken: com.githubToken,
+        githubRepo: com.githubRepo,
+        githubOwner: com.githubOwner,
+        githubConectado: com.conectado
+    };
 }
 
 function guardarConfigBD(config) {
-    try {
-        localStorage.setItem(BD_CONFIG_KEY, JSON.stringify(config));
-    } catch (e) { console.warn(e); }
-}
-
-// ---------- Helpers de comunidad ----------
-function obtenerComunidadActiva() {
-    const cfg = cargarConfigBD();
-    if (!cfg.comunidadActiva) return null;
-    return cfg.comunidades.find(c => c.id === cfg.comunidadActiva) || null;
-}
-
-function listarComunidades() {
-    return cargarConfigBD().comunidades || [];
-}
-
-function guardarComunidad(comunidad) {
-    const cfg = cargarConfigBD();
-    const i = cfg.comunidades.findIndex(c => c.id === comunidad.id);
-    if (i >= 0) cfg.comunidades[i] = comunidad;
-    else cfg.comunidades.push(comunidad);
-    guardarConfigBD(cfg);
-    return comunidad;
-}
-
-function eliminarComunidad(id) {
-    const cfg = cargarConfigBD();
-    cfg.comunidades = cfg.comunidades.filter(c => c.id !== id);
-    if (cfg.comunidadActiva === id) {
-        cfg.comunidadActiva = cfg.comunidades[0]?.id || null;
-    }
-    guardarConfigBD(cfg);
-}
-
-function fijarComunidadActiva(id) {
-    const cfg = cargarConfigBD();
-    if (!cfg.comunidades.find(c => c.id === id)) return false;
-    cfg.comunidadActiva = id;
-    guardarConfigBD(cfg);
-    return true;
+    const data = leerComunidades();
+    if (!data.activa) return;
+    const com = data.comunidades[data.activa];
+    if (!com) return;
+    if (config.githubToken !== undefined)     com.githubToken = config.githubToken;
+    if (config.githubRepo !== undefined)      com.githubRepo = config.githubRepo;
+    if (config.githubOwner !== undefined)     com.githubOwner = config.githubOwner;
+    if (config.githubConectado !== undefined) com.conectado = config.githubConectado;
+    guardarComunidades(data);
 }
 
 // ============================================================
-//  INDEXEDDB — caché namespaceada por comunidad
+//  INDEXEDDB — solo caché
 // ============================================================
 const IDB_NAME = 'VicWebOsCache';
-const IDB_VERSION = 2;             // subimos versión: nuevo store
+const IDB_VERSION = 1;
 const IDB_STORE = 'cache';
 
-let _idbPromise = null;
 function abrirIDB() {
-    if (_idbPromise) return _idbPromise;
-    _idbPromise = new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
         const req = indexedDB.open(IDB_NAME, IDB_VERSION);
         req.onupgradeneeded = (e) => {
             const db = e.target.result;
@@ -108,9 +130,8 @@ function abrirIDB() {
             }
         };
         req.onsuccess = (e) => resolve(e.target.result);
-        req.onerror = (e) => { _idbPromise = null; reject(e.target.error); };
+        req.onerror = (e) => reject(e.target.error);
     });
-    return _idbPromise;
 }
 
 async function idbSet(key, value) {
@@ -153,15 +174,18 @@ async function idbClear() {
     });
 }
 
-// Prefijo de namespace: si no hay comunidad activa, "_global_"
-function prefijoCache() {
-    const c = obtenerComunidadActiva();
-    return c ? `com_${c.id}__` : '_global_';
+// ============================================================
+//  CACHÉ con TTL — namespace por comunidad activa
+// ============================================================
+function _prefijoCache() {
+    const com = obtenerComunidadActiva();
+    return 'cache_' + (com ? com.id : 'none') + '_';
 }
 
 async function leerCache(nombre) {
     try {
-        const entry = await idbGet(prefijoCache() + 'cache_' + nombre);
+        const key = _prefijoCache() + nombre;
+        const entry = await idbGet(key);
         if (!entry) return null;
         if (Date.now() - entry.ts > CACHE_TTL) return null;
         return entry.data;
@@ -170,53 +194,20 @@ async function leerCache(nombre) {
 
 async function guardarCache(nombre, data) {
     try {
-        await idbSet(prefijoCache() + 'cache_' + nombre, { data, ts: Date.now() });
+        const key = _prefijoCache() + nombre;
+        await idbSet(key, { data, ts: Date.now() });
     } catch (e) { console.warn(e); }
 }
 
 async function invalidarCache(nombre) {
-    try { await idbDelete(prefijoCache() + 'cache_' + nombre); } catch (e) {}
-}
-
-// Borra SOLO el caché de la comunidad activa
-async function invalidarCacheComunidadActiva() {
-    const db = await abrirIDB();
-    const pref = prefijoCache();
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction(IDB_STORE, 'readwrite');
-        const store = tx.objectStore(IDB_STORE);
-        const req = store.openKeyCursor();
-        req.onsuccess = (e) => {
-            const cursor = e.target.result;
-            if (cursor) {
-                if (String(cursor.key).startsWith(pref)) store.delete(cursor.key);
-                cursor.continue();
-            }
-        };
-        tx.oncomplete = () => resolve();
-        tx.onerror = (e) => reject(e.target.error);
-    });
+    try {
+        const key = _prefijoCache() + nombre;
+        await idbDelete(key);
+    } catch (e) {}
 }
 
 async function invalidarTodoCache() {
     try { await idbClear(); } catch (e) { console.warn(e); }
-}
-
-// ============================================================
-//  DETECCIÓN DE TIPO DE TOKEN
-//  - ghp_, gho_, ghu_, ghs_, ghr_ → clásico
-//  - github_pat_                  → fine-grained
-// ============================================================
-function tipoDeToken(token) {
-    if (!token) return 'desconocido';
-    const t = token.trim();
-    if (t.startsWith('ghp_') ||
-        t.startsWith('gho_') ||
-        t.startsWith('ghu_') ||
-        t.startsWith('ghs_') ||
-        t.startsWith('ghr_')) return 'clasico';
-    if (t.startsWith('github_pat_')) return 'fine-grained';
-    return 'desconocido';
 }
 
 // ============================================================
@@ -241,32 +232,6 @@ async function ghRepoExiste(token, owner, repo) {
     return true;
 }
 
-// Verifica que el token pueda ESCRIBIR en el repo objetivo.
-// Devuelve { puede: true, repo } o lanza Error con motivo.
-async function ghVerificarPermisosEscritura(token, owner, repo) {
-    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers: GH_HEADERS(token) });
-    if (res.status === 404) {
-        throw new Error(`El token no tiene acceso al repositorio "${owner}/${repo}". Verifica que sea el correcto o que el token tenga permisos sobre él.`);
-    }
-    if (!res.ok) throw new Error('No se pudo verificar el repositorio.');
-
-    const data = await res.json();
-    // "permissions" existe en la respuesta del repo para tokens con acceso
-    const p = data.permissions || {};
-    if (p.push === false && p.admin === false && p.maintain === false) {
-        throw new Error(`El token NO tiene permiso de escritura sobre "${owner}/${repo}". Necesita al menos "push" (Contents: Read and write en fine-grained).`);
-    }
-    return data;
-}
-
-// Igual que arriba pero para creación de repo nuevo.
-async function ghPuedeCrearRepo(token) {
-    const u = await ghObtenerUsuario(token);
-    // scopes viene en la cabecera X-OAuth-Scopes para tokens clásicos.
-    // Para fine-grained no aplica igual, así que no bloqueamos.
-    return u;
-}
-
 async function ghCrearRepo(token, nombre) {
     const res = await fetch('https://api.github.com/user/repos', {
         method: 'POST',
@@ -280,10 +245,6 @@ async function ghCrearRepo(token, nombre) {
     });
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        // Error típico: token fine-grained sin permiso de crear repo.
-        if (res.status === 403 || res.status === 404) {
-            throw new Error(`No se pudo crear el repositorio. Si usas un token fine-grained, necesita el permiso "Administration: Read and write" en tu cuenta, o crea el repositorio manualmente en GitHub y vuelve a intentar.`);
-        }
         throw new Error(err.message || 'No se pudo crear el repositorio.');
     }
     return await res.json();
@@ -338,144 +299,162 @@ function esperar(ms) {
     return new Promise(r => setTimeout(r, ms));
 }
 
-// ============================================================
-//  CONEXIÓN / DESCONEXIÓN DE COMUNIDADES
-// ============================================================
-
-// Crea (si hace falta) y registra una comunidad nueva.
-// Devuelve la comunidad registrada (con id).
-async function conectarComunidad({ token, repo, nombre }) {
-    const tipo = tipoDeToken(token);
-    if (tipo === 'desconocido') {
-        throw new Error('El token no parece de GitHub. Debe empezar con "ghp_", "github_pat_" o similar.');
-    }
-
+// ------------------------------------------------------------
+//  Conectar a GitHub. Según tipo de token:
+//  - classic      → si el repo no existe, lo crea (privado)
+//  - fine-grained → el repo DEBE existir previamente
+// ------------------------------------------------------------
+async function conectarGitHub(token, nombreRepo, tipoToken = 'classic') {
     const usuario = await ghObtenerUsuario(token);
     const owner = usuario.login;
+    const existe = await ghRepoExiste(token, owner, nombreRepo);
 
-    // 1) ¿Existe el repo?
-    let existe = await ghRepoExiste(token, owner, repo);
     let creadoAhora = false;
 
-    // 2) Si NO existe y el token es clásico, intentamos crearlo.
-    //    Si es fine-grained, es MUY probable que no tenga permiso
-    //    de "Administration", así que pedimos crearlo manualmente.
     if (!existe) {
-        if (tipo === 'fine-grained') {
-            throw new Error(`El repositorio "${owner}/${repo}" no existe. Con un token fine-grained debes crear el repositorio manualmente en GitHub (privado, con un README). Luego vuelve a conectar.`);
+        if (tipoToken === 'fine-grained') {
+            throw new Error(`Con token fine-grained el repositorio "${nombreRepo}" debe existir ya en tu cuenta. Créalo en github.com/new y vuelve a intentar.`);
         }
-        await ghCrearRepo(token, repo);
+        await ghCrearRepo(token, nombreRepo);
         creadoAhora = true;
-        await esperar(1200);
+        // Esperar a que GitHub asiente la creación
+        await new Promise(r => setTimeout(r, 1200));
     }
 
-    // 3) Verificar permisos de escritura sobre el repo
-    await ghVerificarPermisosEscritura(token, owner, repo);
-
-    // 4) Registrar/actualizar comunidad
-    const cfg = cargarConfigBD();
-    // ¿Existe ya una comunidad con mismo owner/repo?
-    let comunidad = cfg.comunidades.find(c => c.owner === owner && c.repo === repo);
-    if (comunidad) {
-        comunidad.token = token;
-        comunidad.nombre = nombre || comunidad.nombre || repo;
-    } else {
-        comunidad = {
-            id: 'com_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 5),
-            nombre: nombre || repo,
-            token,
-            owner,
-            repo,
-            avatarColor: colorAleatorio()
-        };
-        cfg.comunidades.push(comunidad);
-    }
-    cfg.comunidadActiva = comunidad.id;
-    guardarConfigBD(cfg);
-
-    // 5) Limpiar caché de TODAS las comunidades (por seguridad al
-    //    haber cambiado algo estructural). El namespace protege,
-    //    pero queremos datos frescos de aquí en adelante.
-    await invalidarTodoCache();
-
-    return { comunidad, creado: creadoAhora, tipoToken: tipo, owner };
-}
-
-function colorAleatorio() {
-    const paleta = ['#8B5CF6', '#EC4899', '#3B82F6', '#10B981', '#F97316', '#EF4444', '#14B8A6', '#A855F7'];
-    return paleta[Math.floor(Math.random() * paleta.length)];
-}
-
-async function desconectarComunidadActiva() {
-    const c = obtenerComunidadActiva();
-    if (!c) return;
-    // Solo quita el token (por seguridad), mantiene la entrada con
-    // marcador para que el usuario pueda reconectar fácilmente.
-    const cfg = cargarConfigBD();
-    const com = cfg.comunidades.find(x => x.id === c.id);
-    if (com) com.token = '';
-    guardarConfigBD(cfg);
-    await invalidarCacheComunidadActiva();
-}
-
-async function eliminarComunidadPorId(id) {
-    eliminarComunidad(id);
-    await invalidarTodoCache(); // purga total, es lo más seguro
-}
-
-async function cambiarComunidad(id) {
-    if (!fijarComunidadActiva(id)) throw new Error('Comunidad no encontrada.');
-    // Al cambiar de comunidad, la sesión del shell debe reiniciarse
-    // (los datos son distintos). Cerramos sesión de la comunidad anterior.
-    if (typeof cerrarSesion === 'function') {
-        try { cerrarSesion(); } catch (e) {}
-    }
-    // No borramos caché global: cada comunidad tiene su namespace.
-    // Solo pedimos al shell que recargue todo.
-    window.dispatchEvent(new CustomEvent('vicwebos:comunidad', {
-        detail: { id, comunidad: obtenerComunidadActiva() }
-    }));
-    return obtenerComunidadActiva();
+    return { owner, repo: nombreRepo, creado: creadoAhora, existe: true };
 }
 
 // ============================================================
-//  API PÚBLICA (ConfigBD)
+//  API PÚBLICA
 // ============================================================
 const ConfigBD = {
-    // ---------- Estado ----------
+    // -------------------- ESTADO --------------------
     estaConectado() {
-        const c = obtenerComunidadActiva();
-        return !!(c && c.token && c.owner && c.repo);
+        const com = obtenerComunidadActiva();
+        return !!(com && com.conectado && com.githubToken && com.githubOwner && com.githubRepo);
     },
 
     obtenerInfo() {
-        const c = obtenerComunidadActiva();
-        if (!c) return null;
-        return { owner: c.owner, repo: c.repo, nombre: c.nombre, id: c.id };
+        const com = obtenerComunidadActiva();
+        if (!com || !this.estaConectado()) return null;
+        return { owner: com.githubOwner, repo: com.githubRepo, nombre: com.nombre, id: com.id };
     },
 
-    // ---------- Gestión de comunidades ----------
-    listarComunidades,
-    obtenerComunidadActiva,
-    cambiarComunidad,
-    eliminarComunidad: eliminarComunidadPorId,
-    desconectarComunidadActiva,
-    conectar: conectarComunidad,
-
-    // Compat: devuelve true si la comunidad activa tiene token.
-    async desconectar() {
-        return await desconectarComunidadActiva();
+    // -------------------- COMUNIDADES --------------------
+    listarComunidades() {
+        const data = leerComunidades();
+        // Devuelve array ordenado por fecha de creación
+        return Object.values(data.comunidades).sort((a, b) =>
+            new Date(a.creada || 0) - new Date(b.creada || 0)
+        );
     },
 
-    // ---------- Lectura/escritura JSON ----------
+    obtenerComunidadActiva() {
+        return obtenerComunidadActiva();
+    },
+
+    obtenerComunidadPorId(id) {
+        return obtenerComunidadPorId(id);
+    },
+
+    obtenerIdComunidadActiva() {
+        return leerComunidades().activa;
+    },
+
+    async crearComunidad({ nombre, token, repo, tipoToken }) {
+        if (!token) throw new Error('Falta el token.');
+        if (!repo)  throw new Error('Falta el nombre del repositorio.');
+
+        const resultado = await conectarGitHub(token, repo, tipoToken || 'classic');
+
+        const id = 'com_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
+        const data = leerComunidades();
+        data.comunidades[id] = {
+            id,
+            nombre: nombre ? String(nombre).trim() : repo,
+            githubToken: token,
+            githubRepo: repo,
+            githubOwner: resultado.owner,
+            tipoToken: tipoToken || 'classic',
+            conectado: true,
+            creada: new Date().toISOString()
+        };
+        data.activa = id;
+        guardarComunidades(data);
+        await invalidarTodoCache();
+
+        return { id, ...resultado };
+    },
+
+    async actualizarComunidad(id, { nombre, token, repo, tipoToken }) {
+        const data = leerComunidades();
+        const com = data.comunidades[id];
+        if (!com) throw new Error('Comunidad no encontrada.');
+
+        const nuevoToken = token && token.trim() ? token.trim() : null;
+        const nuevoRepo  = repo && repo.trim() ? repo.trim() : null;
+        const nuevoTipo  = tipoToken || com.tipoToken;
+
+        const cambiaConexion =
+            (nuevoToken && nuevoToken !== com.githubToken) ||
+            (nuevoRepo  && nuevoRepo  !== com.githubRepo)  ||
+            (nuevoTipo  && nuevoTipo  !== com.tipoToken);
+
+        if (cambiaConexion) {
+            const resultado = await conectarGitHub(
+                nuevoToken || com.githubToken,
+                nuevoRepo || com.githubRepo,
+                nuevoTipo
+            );
+            if (nuevoToken) com.githubToken = nuevoToken;
+            if (nuevoRepo)  com.githubRepo = nuevoRepo;
+            com.githubOwner = resultado.owner;
+            com.tipoToken = nuevoTipo;
+            com.conectado = true;
+        }
+
+        if (nombre !== undefined) {
+            com.nombre = nombre ? String(nombre).trim() : com.githubRepo;
+        }
+
+        guardarComunidades(data);
+        if (data.activa === id) await invalidarTodoCache();
+        return com;
+    },
+
+    async activarComunidad(id) {
+        const data = leerComunidades();
+        if (!data.comunidades[id]) throw new Error('Comunidad no encontrada.');
+        if (data.activa === id) return;
+        data.activa = id;
+        guardarComunidades(data);
+        await invalidarTodoCache();
+    },
+
+    async eliminarComunidad(id) {
+        const data = leerComunidades();
+        if (!data.comunidades[id]) return;
+        const eraActiva = data.activa === id;
+        delete data.comunidades[id];
+        if (eraActiva) {
+            const restantes = Object.keys(data.comunidades);
+            data.activa = restantes[0] || null;
+        }
+        guardarComunidades(data);
+        if (eraActiva) await invalidarTodoCache();
+    },
+
+    // -------------------- ARCHIVOS JSON --------------------
     async leerArchivo(nombre) {
         const cache = await leerCache(nombre);
         if (cache !== null) return cache;
 
         if (!this.estaConectado()) return null;
-        const c = obtenerComunidadActiva();
+        const config = cargarConfigBD();
         try {
-            const archivo = await ghLeerArchivo(c.token, c.owner, c.repo, nombre);
+            const archivo = await ghLeerArchivo(
+                config.githubToken, config.githubOwner, config.githubRepo, nombre
+            );
             if (!archivo) return null;
             const data = JSON.parse(archivo.contenido);
             await guardarCache(nombre, data);
@@ -493,12 +472,14 @@ const ConfigBD = {
 
     async escribirArchivo(nombre, datos) {
         if (!this.estaConectado()) throw new Error('GitHub no está conectado.');
-        const c = obtenerComunidadActiva();
+        const config = cargarConfigBD();
 
-        const actual = await ghLeerArchivo(c.token, c.owner, c.repo, nombre);
+        const actual = await ghLeerArchivo(
+            config.githubToken, config.githubOwner, config.githubRepo, nombre
+        );
 
         await ghEscribirArchivo(
-            c.token, c.owner, c.repo,
+            config.githubToken, config.githubOwner, config.githubRepo,
             nombre, JSON.stringify(datos, null, 2), actual?.sha || null
         );
 
@@ -512,10 +493,12 @@ const ConfigBD = {
             throw new Error('actualizarArchivo requiere una función mutadora.');
         }
         const maxIntentos = opciones.intentos || 5;
-        const c = obtenerComunidadActiva();
+        const config = cargarConfigBD();
 
         for (let i = 0; i < maxIntentos; i++) {
-            const archivo = await ghLeerArchivo(c.token, c.owner, c.repo, nombre);
+            const archivo = await ghLeerArchivo(
+                config.githubToken, config.githubOwner, config.githubRepo, nombre
+            );
             let actual = null;
             if (archivo && archivo.contenido) {
                 try { actual = JSON.parse(archivo.contenido); }
@@ -530,7 +513,7 @@ const ConfigBD = {
 
             try {
                 await ghEscribirArchivo(
-                    c.token, c.owner, c.repo,
+                    config.githubToken, config.githubOwner, config.githubRepo,
                     nombre, JSON.stringify(final, null, 2), archivo?.sha || null
                 );
                 await guardarCache(nombre, final);
@@ -545,203 +528,288 @@ const ConfigBD = {
         }
     },
 
-    async invalidarCache(nombre) { return await invalidarCache(nombre); },
-    async invalidarTodo()        { return await invalidarTodoCache(); },
-    async invalidarComunidadActiva() { return await invalidarCacheComunidadActiva(); },
+    async invalidarCache(nombre) {
+        return await invalidarCache(nombre);
+    },
 
-    // ---------- Utilidades de token ----------
-    tipoDeToken
+    async invalidarTodo() {
+        return await invalidarTodoCache();
+    },
+
+    // -------------------- COMPAT (legacy) --------------------
+    // Conectar sin especificar comunidad: actualiza la activa o crea una nueva
+    async conectar(token, repo) {
+        const activa = obtenerComunidadActiva();
+        if (activa) {
+            return await this.actualizarComunidad(activa.id, { token, repo });
+        }
+        return await this.crearComunidad({ token, repo, tipoToken: 'classic' });
+    },
+
+    // Desconectar la comunidad activa (limpia token, no la elimina)
+    async desconectar() {
+        const data = leerComunidades();
+        if (!data.activa) return;
+        const com = data.comunidades[data.activa];
+        if (!com) return;
+        com.conectado = false;
+        com.githubToken = '';
+        guardarComunidades(data);
+        await invalidarTodoCache();
+    }
 };
 
 window.ConfigBD = ConfigBD;
 
-// ============================================================
-//  UI: SECCIÓN "BASE DE DATOS" — Multi-comunidad
-// ============================================================
-function actualizarUIBD() {
-    const lista        = document.getElementById('bdListaComunidades');
-    const sinConectar  = document.getElementById('bdSinConectar');
-    const conectado    = document.getElementById('bdConectado');
-    const repoNombre   = document.getElementById('bdRepoNombre');
-    const repoOwner    = document.getElementById('bdRepoOwner');
+// Exponer helpers globalmente
+window.leerComunidades = leerComunidades;
+window.guardarComunidades = guardarComunidades;
+window.obtenerComunidadActiva = obtenerComunidadActiva;
+window.obtenerComunidadPorId = obtenerComunidadPorId;
 
-    if (!sinConectar || !conectado) return;
+// ============================================================
+//  UI: SECCIÓN "COMUNIDADES"
+// ============================================================
+function escaparHTML(s) {
+    return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
 
-    // --- Render lista de comunidades ---
-    if (lista) {
-        const comunidades = listarComunidades();
-        const activaId = obtenerComunidadActiva()?.id;
-        if (comunidades.length === 0) {
-            lista.innerHTML = `<p class="config-help">Aún no tienes comunidades conectadas.</p>`;
+let _editandoId = null;
+
+function renderComunidadesUI() {
+    const cont = document.getElementById('bdListaComunidades');
+    if (!cont) return;
+
+    const lista = ConfigBD.listarComunidades();
+    const idActiva = ConfigBD.obtenerIdComunidadActiva();
+
+    if (lista.length === 0) {
+        cont.innerHTML = `
+            <div class="config-empty" style="padding: 30px 12px;">
+                <div class="config-empty-icon"><i data-lucide="network"></i></div>
+                <h4>Sin comunidades</h4>
+                <p>Añade tu primera comunidad para empezar a usar VicWebOs.</p>
+            </div>`;
+        if (window.lucide) lucide.createIcons();
+        return;
+    }
+
+    cont.innerHTML = '';
+    lista.forEach(com => {
+        const activa = com.id === idActiva;
+        const card = document.createElement('div');
+        card.className = 'bd-comunidad-card' + (activa ? ' activa' : '');
+        card.innerHTML = `
+            <div class="bd-comunidad-icono">
+                <i data-lucide="${activa ? 'check-circle-2' : 'circle'}"></i>
+            </div>
+            <div class="bd-comunidad-info">
+                <h4>${escaparHTML(com.nombre || com.githubRepo)}</h4>
+                <p>@${escaparHTML(com.githubOwner)}/${escaparHTML(com.githubRepo)} · ${com.tipoToken === 'fine-grained' ? 'Fine-grained' : 'Clásico'}</p>
+            </div>
+            <div class="bd-comunidad-acciones">
+                ${!activa ? `<button class="bd-accion" data-accion="activar" data-id="${com.id}" title="Activar esta comunidad"><i data-lucide="power"></i></button>` : ''}
+                <button class="bd-accion" data-accion="editar" data-id="${com.id}" title="Editar"><i data-lucide="pencil"></i></button>
+                <button class="bd-accion bd-accion-peligro" data-accion="eliminar" data-id="${com.id}" title="Eliminar"><i data-lucide="trash-2"></i></button>
+            </div>
+        `;
+        cont.appendChild(card);
+    });
+
+    if (window.lucide) lucide.createIcons();
+
+    cont.querySelectorAll('.bd-accion').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const accion = btn.dataset.accion;
+            const id = btn.dataset.id;
+            if (accion === 'activar') {
+                try {
+                    if (typeof window.cambiarComunidad === 'function') {
+                        await window.cambiarComunidad(id);
+                    } else {
+                        await ConfigBD.activarComunidad(id);
+                    }
+                    renderComunidadesUI();
+                    if (window.lucide) lucide.createIcons();
+                } catch (e) { alert('❌ ' + e.message); }
+            }
+            if (accion === 'editar') abrirFormularioComunidad(id);
+            if (accion === 'eliminar') eliminarComunidadUI(id);
+        });
+    });
+}
+
+function abrirFormularioComunidad(id = null) {
+    _editandoId = id;
+    const form = document.getElementById('bdFormulario');
+    const titulo = document.getElementById('bdFormularioTitulo');
+    const inputNombre = document.getElementById('bdNombreComunidad');
+    const inputToken  = document.getElementById('bdToken');
+    const inputRepo   = document.getElementById('bdRepo');
+    const radios      = document.querySelectorAll('input[name="bdTipoToken"]');
+    const guardarTxt  = document.getElementById('bdGuardarTexto');
+    const ayudaToken  = document.getElementById('bdTokenAyuda');
+    const ayudaRepo   = document.getElementById('bdRepoAyuda');
+    const status      = document.getElementById('bdFormStatus');
+
+    if (status) { status.textContent = ''; status.className = 'config-status'; }
+
+    if (id) {
+        const com = ConfigBD.obtenerComunidadPorId(id);
+        if (!com) return;
+        titulo.textContent = 'Editar comunidad';
+        inputNombre.value = com.nombre || '';
+        inputToken.value = com.githubToken || '';
+        inputRepo.value = com.githubRepo || '';
+        radios.forEach(r => { r.checked = r.value === (com.tipoToken || 'classic'); });
+        guardarTxt.textContent = 'Guardar cambios';
+    } else {
+        titulo.textContent = 'Nueva comunidad';
+        inputNombre.value = '';
+        inputToken.value = '';
+        inputRepo.value = '';
+        radios.forEach(r => { r.checked = r.value === 'classic'; });
+        guardarTxt.textContent = 'Conectar';
+    }
+
+    actualizarAyudaToken();
+    form.style.display = 'block';
+    if (window.lucide) lucide.createIcons();
+}
+
+function cerrarFormularioComunidad() {
+    _editandoId = null;
+    const form = document.getElementById('bdFormulario');
+    if (form) form.style.display = 'none';
+}
+
+function actualizarAyudaToken() {
+    const tipo = document.querySelector('input[name="bdTipoToken"]:checked')?.value || 'classic';
+    const ayudaToken = document.getElementById('bdTokenAyuda');
+    const ayudaRepo  = document.getElementById('bdRepoAyuda');
+    if (!ayudaToken || !ayudaRepo) return;
+
+    if (tipo === 'classic') {
+        ayudaToken.innerHTML = 'Créalo en <code>github.com/settings/tokens</code> con scope <code>repo</code>.';
+        ayudaRepo.textContent = 'Si no existe, se creará automáticamente como privado.';
+    } else {
+        ayudaToken.innerHTML = 'Créalo en <code>github.com/settings/personal-access-tokens</code> con permisos <code>Contents: Read & Write</code>.';
+        ayudaRepo.textContent = 'El repositorio debe existir YA en tu cuenta. Con fine-grained no se crean repos.';
+    }
+}
+
+async function eliminarComunidadUI(id) {
+    const com = ConfigBD.obtenerComunidadPorId(id);
+    if (!com) return;
+    const esActiva = ConfigBD.obtenerIdComunidadActiva() === id;
+    const msg = esActiva
+        ? `¿Eliminar la comunidad "${com.nombre}"? Es la activa. Tus datos siguen a salvo en GitHub; solo se quita de este dispositivo.`
+        : `¿Eliminar la comunidad "${com.nombre}"? Tus datos siguen a salvo en GitHub; solo se quita de este dispositivo.`;
+    if (!confirm(msg)) return;
+
+    const eraActiva = esActiva;
+    await ConfigBD.eliminarComunidad(id);
+
+    if (eraActiva && typeof window.cambiarComunidad === 'function') {
+        // Cambiar a la nueva activa (puede ser null)
+        const nuevaId = ConfigBD.obtenerIdComunidadActiva();
+        if (nuevaId) {
+            await window.cambiarComunidad(nuevaId);
         } else {
-            lista.innerHTML = '';
-            comunidades.forEach(c => {
-                const item = document.createElement('div');
-                const activa = c.id === activaId;
-                item.className = 'bd-comunidad-item' + (activa ? ' activa' : '');
-                item.dataset.id = c.id;
-                item.innerHTML = `
-                    <div class="bd-comunidad-avatar" style="background:${c.avatarColor || '#8B5CF6'}">
-                        ${(c.nombre || c.repo || '?').charAt(0).toUpperCase()}
-                    </div>
-                    <div class="bd-comunidad-info">
-                        <span class="bd-comunidad-nombre">${c.nombre || c.repo}</span>
-                        <span class="bd-comunidad-repo">${c.owner}/${c.repo}</span>
-                    </div>
-                    <div class="bd-comunidad-acciones">
-                        ${activa ? '<span class="bd-comunidad-badge">Activa</span>' : ''}
-                        ${c.token ? '' : '<span class="bd-comunidad-badge sin-token">Sin token</span>'}
-                        <button class="bd-comunidad-del" data-id="${c.id}" title="Eliminar">
-                            <i data-lucide="trash-2"></i>
-                        </button>
-                    </div>
-                `;
-                lista.appendChild(item);
-            });
-            lucide.createIcons();
-
-            // Click: activar comunidad
-            lista.querySelectorAll('.bd-comunidad-item').forEach(el => {
-                el.addEventListener('click', async (e) => {
-                    if (e.target.closest('.bd-comunidad-del')) return;
-                    const id = el.dataset.id;
-                    if (id === activaId) return;
-                    try {
-                        await ConfigBD.cambiarComunidad(id);
-                        // El shell se encarga de recargar la sesión
-                        // desde el listener vicwebos:comunidad.
-                        actualizarUIBD();
-                        if (typeof renderSidebar === 'function') renderSidebar();
-                        if (typeof window.__actualizarUISesion === 'function') window.__actualizarUISesion();
-                        if (window.Notificaciones) window.Notificaciones.recargar().catch(() => {});
-                    } catch (err) { alert('❌ ' + err.message); }
-                });
-            });
-
-            // Click: eliminar
-            lista.querySelectorAll('.bd-comunidad-del').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    if (!confirm('¿Eliminar esta comunidad del dispositivo? Los datos siguen a salvo en GitHub.')) return;
-                    await ConfigBD.eliminarComunidad(btn.dataset.id);
-                    actualizarUIBD();
-                    if (typeof renderSidebar === 'function') renderSidebar();
-                    if (typeof window.__actualizarUISesion === 'function') window.__actualizarUISesion();
-                });
-            });
+            // No quedan comunidades → cerrar sesión y dejar UI limpia
+            if (typeof cerrarSesion === 'function') cerrarSesion();
+            if (typeof window.__renderSidebarComunidad === 'function') window.__renderSidebarComunidad();
+            if (typeof renderSidebar === 'function') renderSidebar();
         }
     }
 
-    // --- Mostrar conectado/sin conectar de la comunidad activa ---
-    if (ConfigBD.estaConectado()) {
-        const info = ConfigBD.obtenerInfo();
-        sinConectar.style.display = 'none';
-        conectado.style.display = 'block';
-        if (repoNombre) repoNombre.textContent = info.repo;
-        if (repoOwner)  repoOwner.textContent = '@' + info.owner + (info.nombre && info.nombre !== info.repo ? ` · ${info.nombre}` : '');
-    } else {
-        sinConectar.style.display = 'block';
-        conectado.style.display = 'none';
-    }
-    lucide.createIcons();
+    renderComunidadesUI();
+    if (window.lucide) lucide.createIcons();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const btnConectar    = document.getElementById('btnConectarGitHub');
-    const btnDesconectar = document.getElementById('btnDesconectarGitHub');
-    const githubToken    = document.getElementById('githubToken');
-    const githubRepo     = document.getElementById('githubRepo');
-    const githubNombre   = document.getElementById('githubNombreComunidad');
-    const githubTipo     = document.getElementById('githubTipoToken');
-    const githubEstado   = document.getElementById('githubEstado');
+    const btnNueva   = document.getElementById('btnNuevaComunidad');
+    const btnGuardar = document.getElementById('bdGuardarComunidad');
+    const btnCancel  = document.getElementById('bdCancelarForm');
+    const btnCerrar  = document.getElementById('bdFormularioCerrar');
+    const radios     = document.querySelectorAll('input[name="bdTipoToken"]');
 
-    actualizarUIBD();
-
-    // Detectar tipo de token al escribir
-    if (githubToken && githubTipo) {
-        githubToken.addEventListener('input', () => {
-            const t = tipoDeToken(githubToken.value.trim());
-            const etiquetas = {
-                'clasico':      'Token clásico',
-                'fine-grained': 'Token fine-grained',
-                'desconocido':  'Detectando…'
-            };
-            const colores = {
-                'clasico':      'info',
-                'fine-grained': 'info',
-                'desconocido':  'help'
-            };
-            githubTipo.textContent = etiquetas[t];
-            githubTipo.className = 'bd-tipo-token ' + colores[t];
-        });
+    if (btnNueva) {
+        btnNueva.addEventListener('click', () => abrirFormularioComunidad(null));
     }
+    if (btnCancel) btnCancel.addEventListener('click', cerrarFormularioComunidad);
+    if (btnCerrar) btnCerrar.addEventListener('click', cerrarFormularioComunidad);
 
-    // Conectar
-    if (btnConectar) {
-        btnConectar.addEventListener('click', async () => {
-            const token  = githubToken.value.trim();
-            const repo   = githubRepo.value.trim();
-            const nombre = githubNombre?.value.trim() || '';
+    radios.forEach(r => r.addEventListener('change', actualizarAyudaToken));
 
-            if (!token) { mostrarEstado('❌ Introduce tu token personal.', 'error'); return; }
-            if (!repo)  { mostrarEstado('❌ Introduce un nombre de repositorio.', 'error'); return; }
+    if (btnGuardar) {
+        btnGuardar.addEventListener('click', async () => {
+            const nombre = document.getElementById('bdNombreComunidad').value.trim();
+            const token  = document.getElementById('bdToken').value.trim();
+            const repo   = document.getElementById('bdRepo').value.trim();
+            const tipo   = document.querySelector('input[name="bdTipoToken"]:checked')?.value || 'classic';
+            const status = document.getElementById('bdFormStatus');
+
+            const setMsg = (txt, tipoClase) => {
+                status.textContent = txt;
+                status.className = 'config-status ' + (tipoClase || '');
+            };
+
+            if (!token) { setMsg('❌ Introduce tu token personal.', 'error'); return; }
+            if (!repo)  { setMsg('❌ Introduce un nombre de repositorio.', 'error'); return; }
             if (!/^[a-zA-Z0-9._-]+$/.test(repo)) {
-                mostrarEstado('❌ El nombre solo puede tener letras, números, puntos, guiones y guiones bajos.', 'error');
+                setMsg('❌ El nombre solo puede tener letras, números, puntos, guiones y guiones bajos.', 'error');
                 return;
             }
 
-            btnConectar.disabled = true;
-            btnConectar.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Conectando...';
-            lucide.createIcons();
-            mostrarEstado('⏳ Verificando token y repositorio...', 'info');
+            if (btnGuardar.disabled) return;
+            btnGuardar.disabled = true;
+            const txtOriginal = btnGuardar.innerHTML;
+            btnGuardar.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Conectando...';
+            if (window.lucide) lucide.createIcons();
+            setMsg('⏳ Verificando token y repositorio...', 'info');
 
             try {
-                const r = await ConfigBD.conectar({ token, repo, nombre });
-
-                if (r.creado) {
-                    mostrarEstado(`✅ Repositorio "${repo}" creado y comunidad "${r.comunidad.nombre}" conectada como ${r.owner}.`, 'success');
+                if (_editandoId) {
+                    const esActiva = ConfigBD.obtenerIdComunidadActiva() === _editandoId;
+                    await ConfigBD.actualizarComunidad(_editandoId, { nombre, token, repo, tipoToken: tipo });
+                    setMsg('✅ Comunidad actualizada.', 'success');
+                    if (esActiva && typeof window.cambiarComunidad === 'function') {
+                        // Re-sincronizar sesión por si cambió el repo
+                        await window.cambiarComunidad(_editandoId);
+                    }
                 } else {
-                    mostrarEstado(`✅ Comunidad "${r.comunidad.nombre}" conectada a ${r.owner}/${repo}.`, 'success');
+                    const res = await ConfigBD.crearComunidad({ nombre, token, repo, tipoToken: tipo });
+                    setMsg(`✅ Comunidad conectada como ${res.owner}.`, 'success');
+                    if (typeof window.cambiarComunidad === 'function') {
+                        await window.cambiarComunidad(res.id);
+                    }
                 }
 
-                actualizarUIBD();
-                if (typeof renderSidebar === 'function') renderSidebar();
-                if (typeof window.__actualizarUISesion === 'function') window.__actualizarUISesion();
-                if (window.Notificaciones) window.Notificaciones.recargar().catch(() => {});
-
-                githubToken.value = '';
-                githubRepo.value = '';
-                if (githubNombre) githubNombre.value = '';
-                if (githubTipo) { githubTipo.textContent = ''; githubTipo.className = 'bd-tipo-token'; }
-
-                setTimeout(() => { if (githubEstado) githubEstado.textContent = ''; }, 2500);
+                renderComunidadesUI();
+                cerrarFormularioComunidad();
+                if (typeof window.__renderSidebarComunidad === 'function') window.__renderSidebarComunidad();
             } catch (err) {
-                mostrarEstado('❌ ' + err.message, 'error');
+                setMsg('❌ ' + err.message, 'error');
             } finally {
-                btnConectar.disabled = false;
-                btnConectar.innerHTML = '<i data-lucide="link-2"></i> Conectar comunidad';
-                lucide.createIcons();
+                btnGuardar.disabled = false;
+                btnGuardar.innerHTML = txtOriginal;
+                if (window.lucide) lucide.createIcons();
             }
         });
     }
 
-    // Desconectar (quita el token de la activa)
-    if (btnDesconectar) {
-        btnDesconectar.addEventListener('click', async () => {
-            if (!confirm('¿Desconectar la comunidad activa? El token se borrará de este dispositivo. Los datos siguen en GitHub.')) return;
-            await ConfigBD.desconectar();
-            if (typeof cerrarSesion === 'function') cerrarSesion();
-            actualizarUIBD();
-            if (typeof renderSidebar === 'function') renderSidebar();
-            if (typeof window.__actualizarUISesion === 'function') window.__actualizarUISesion();
-        });
-    }
-
-    function mostrarEstado(texto, tipo) {
-        if (!githubEstado) return;
-        githubEstado.textContent = texto;
-        githubEstado.className = 'config-status ' + (tipo || '');
-    }
-
-    window.__actualizarUIBD = actualizarUIBD;
+    // Render inicial
+    renderComunidadesUI();
 });
+
+// Alias público que usa configuracion.js
+window.__actualizarUIBD = function () {
+    renderComunidadesUI();
+    if (window.lucide) lucide.createIcons();
+};
