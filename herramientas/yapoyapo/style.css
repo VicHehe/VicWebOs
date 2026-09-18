@@ -488,7 +488,9 @@ html, body {
 /* =====================================================
    CONTROLES MÓVILES
    Solo visibles en touch (pointer: coarse).
-   Orden: [←] [⟳] [↓] [→]
+   Orden: [←:2] [⟳:1] [↓:1] [→:2]
+   Los laterales son el doble de anchos porque mover
+   es la acción más frecuente durante la partida.
    ===================================================== */
 .yp-mobile-controls {
     display: none;
@@ -498,10 +500,12 @@ html, body {
     gap: 8px;
     padding: 6px 12px 12px;
     flex-shrink: 0;
+    width: 100%;
 }
 
 .yp-mc-btn {
-    width: 54px;
+    flex: 1;                 /* base 1 — los laterales lo suben a 2 */
+    min-width: 0;            /* permite encogerse en pantallas chicas */
     height: 54px;
     border-radius: var(--r-lg, 16px);
     background: var(--white, #FFFFFF);
@@ -519,7 +523,7 @@ html, body {
     padding: 0;
 }
 .yp-mc-btn:active {
-    transform: scale(0.94);
+    transform: scale(0.96);
     background: var(--violet-50, #F5F3FF);
     border-color: var(--violet-300, #C4B5FD);
 }
@@ -527,6 +531,12 @@ html, body {
     width: 22px;
     height: 22px;
     stroke-width: 2.5;
+}
+
+/* Laterales al doble de ancho — más fáciles de golpear */
+#mcLeft,
+#mcRight {
+    flex: 2;
 }
 
 .yp-mc-primary {
@@ -756,7 +766,6 @@ html, body {
         gap: 6px;
     }
     .yp-mc-btn {
-        width: 52px;
         height: 52px;
         border-radius: 14px;
     }
@@ -827,7 +836,7 @@ html, body {
         padding: 5px 6px;
     }
 
-    .yp-mc-btn { width: 48px; height: 48px; border-radius: 13px; }
+    .yp-mc-btn { height: 48px; border-radius: 13px; }
     .yp-mc-btn [data-lucide] { width: 20px; height: 20px; }
     .yp-mobile-controls { padding: 4px 8px 8px; gap: 5px; }
 
@@ -859,7 +868,6 @@ html, body {
 
 /* =====================================================
    Ocultar el hint de teclado en dispositivos táctiles
-   (en móvil no aporta: se juega con botones en pantalla)
    ===================================================== */
 @media (pointer: coarse) {
     .yp-controls-hint {
