@@ -1,0 +1,732 @@
+/* ================================================
+   EVmail — Correo interno de VicWebOs
+   Identidad rosa propia, adaptable al tema del padre.
+   ================================================ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body { height: 100%; overflow: hidden; }
+
+body {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg, #FFF5F7);
+    color: var(--text, #4A3343);
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+    color-scheme: light dark;
+    -webkit-tap-highlight-color: transparent;
+}
+
+[data-lucide] { width: 16px; height: 16px; stroke-width: 2; flex-shrink: 0; }
+
+/* Identidad de la app (se mantiene independiente del tema) */
+:root {
+    --ev-accent: #FF7B9C;
+    --ev-accent-light: #FFB6C1;
+    --ev-accent-pale: #FFF0F3;
+    --ev-text: var(--text, #4A3343);
+    --ev-text-soft: var(--text-2, #7A6174);
+    --ev-surface: var(--white, #FFFFFF);
+    --ev-border: var(--border, #ead6dc);
+    --ev-bg: var(--bg, #FFF5F7);
+    --ev-shadow: 0 4px 20px rgba(255,123,156,0.12);
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: var(--gray-200, #ead6dc);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+/* ========== CONTENEDOR ========== */
+.evmail-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    height: 100dvh;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 16px 20px;
+    overflow: hidden;
+    gap: 10px;
+}
+
+/* ========== HEADER ========== */
+.evmail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--ev-border);
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.evmail-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.evmail-logo-mark {
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(135deg, var(--ev-accent), var(--ev-accent-light));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 6px 16px rgba(255,123,156,0.28);
+    flex-shrink: 0;
+}
+.evmail-logo-mark [data-lucide] { width: 22px; height: 22px; stroke-width: 2.5; }
+
+.evmail-logo-text h1 {
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: var(--ev-accent);
+    margin: 0;
+    line-height: 1;
+}
+.evmail-logo-text p {
+    font-size: 11.5px;
+    color: var(--ev-text-soft);
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+.header-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+/* ========== BOTONES ========== */
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    background: linear-gradient(135deg, var(--ev-accent), var(--ev-accent-light));
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 9px 18px;
+    font-weight: 700;
+    font-size: 13px;
+    font-family: 'Nunito', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+    touch-action: manipulation;
+}
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(255,123,156,0.35);
+}
+.btn-primary:active { transform: translateY(0); }
+
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: var(--ev-surface);
+    color: var(--ev-text-soft);
+    border: 1.5px solid var(--ev-border);
+    border-radius: 12px;
+    padding: 9px 16px;
+    font-weight: 700;
+    font-size: 13px;
+    font-family: 'Nunito', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+    touch-action: manipulation;
+}
+.btn-secondary:hover {
+    background: var(--ev-accent-pale);
+    border-color: var(--ev-accent-light);
+}
+.btn-secondary:active { transform: scale(0.98); }
+
+.btn-danger {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+.btn-danger:hover {
+    background: #f8d7da;
+    border-color: #dc3545;
+}
+
+.btn-sm {
+    font-size: 12px;
+    padding: 6px 12px;
+}
+
+/* ========== BÚSQUEDA ========== */
+.search-bar {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--ev-surface);
+    border: 1.5px solid var(--ev-border);
+    border-radius: 999px;
+    padding: 0 14px;
+    height: 40px;
+    transition: all 0.15s;
+}
+.search-bar:focus-within {
+    border-color: var(--ev-accent);
+    box-shadow: 0 0 0 4px rgba(255,123,156,0.10);
+}
+.search-bar .search-icon {
+    color: var(--ev-text-soft);
+    width: 16px;
+    height: 16px;
+}
+.search-bar input {
+    flex: 1;
+    border: none;
+    background: none;
+    outline: none;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    color: var(--ev-text);
+    min-width: 0;
+}
+.search-bar input::placeholder {
+    color: var(--ev-text-soft);
+    opacity: 0.7;
+}
+
+/* ========== TABS ========== */
+.tabs {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+    padding: 4px;
+    background: var(--ev-accent-pale);
+    border-radius: 14px;
+}
+.tab {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 9px 16px;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--ev-text-soft);
+    transition: all 0.15s;
+    touch-action: manipulation;
+}
+.tab:hover { color: var(--ev-text); }
+.tab.active {
+    background: var(--ev-surface);
+    color: var(--ev-accent);
+    box-shadow: 0 2px 8px rgba(255,123,156,0.15);
+}
+.tab [data-lucide] { width: 15px; height: 15px; }
+
+.badge {
+    background: #e05c7a;
+    color: white;
+    font-size: 10.5px;
+    font-weight: 800;
+    padding: 1px 8px;
+    border-radius: 999px;
+    min-width: 20px;
+    text-align: center;
+    display: none;
+    margin-left: 2px;
+}
+.badge.visible { display: inline-block; }
+
+/* ========== LISTA DE MENSAJES ========== */
+.mensajes-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 2px;
+}
+
+.msg-item {
+    background: var(--ev-surface);
+    border: 1.5px solid var(--ev-border);
+    border-radius: 16px;
+    padding: 14px 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    min-height: 76px;
+    flex-shrink: 0;
+}
+.msg-item:hover {
+    box-shadow: var(--ev-shadow);
+    border-color: var(--ev-accent);
+}
+.msg-item.no-leido {
+    border-color: var(--ev-accent);
+    background: var(--ev-accent-pale);
+}
+
+.msg-item .msg-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+.msg-item .msg-titulo {
+    font-weight: 800;
+    font-size: 15px;
+    color: var(--ev-text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.msg-item .msg-titulo [data-lucide] {
+    width: 12px;
+    height: 12px;
+    color: var(--ev-text-soft);
+}
+.msg-item .msg-preview {
+    font-size: 12.5px;
+    color: var(--ev-text-soft);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.msg-item .msg-meta {
+    font-size: 11px;
+    color: var(--ev-text-soft);
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+    align-items: center;
+    white-space: nowrap;
+}
+.msg-item .no-leido-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--ev-accent);
+    flex-shrink: 0;
+    box-shadow: 0 0 6px rgba(255,123,156,0.6);
+}
+.msg-item .leido-tick {
+    display: inline-flex;
+    color: #2e7d32;
+}
+.msg-item .leido-tick [data-lucide] { width: 13px; height: 13px; }
+
+.empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--ev-text-soft);
+    padding: 60px 20px;
+    font-size: 14px;
+    text-align: center;
+}
+.empty-state [data-lucide] {
+    width: 40px;
+    height: 40px;
+    color: var(--ev-accent-light);
+    stroke-width: 1.5;
+}
+
+/* ========== MODALES ========== */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+    overflow-y: auto;
+}
+.modal-overlay.visible {
+    display: flex;
+    animation: evFade 0.15s ease;
+}
+
+@keyframes evFade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.modal-card {
+    background: var(--ev-surface);
+    border-radius: 22px;
+    padding: 24px;
+    width: 100%;
+    max-width: 560px;
+    max-height: 90dvh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+    animation: evZoom 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+}
+
+@keyframes evZoom {
+    from { opacity: 0; transform: scale(0.96) translateY(8px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-titulo {
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--ev-accent);
+    margin-bottom: 16px;
+    flex-shrink: 0;
+}
+
+.modal-card form {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* ========== FORMULARIO ========== */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+.form-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 800;
+    font-size: 12.5px;
+    color: var(--ev-text-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.form-group label [data-lucide] {
+    width: 13px;
+    height: 13px;
+}
+.form-group input[type="text"] {
+    padding: 10px 14px;
+    border: 1.5px solid var(--ev-border);
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    background: var(--ev-bg);
+    color: var(--ev-text);
+    outline: none;
+    transition: border 0.15s;
+}
+.form-group input[type="text"]:focus {
+    border-color: var(--ev-accent);
+    background: var(--ev-surface);
+}
+
+/* ========== DESTINATARIOS ========== */
+.destinatarios-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-height: 130px;
+    overflow-y: auto;
+    padding: 2px;
+}
+.destinatario-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--ev-accent-pale);
+    padding: 6px 12px 6px 8px;
+    border-radius: 999px;
+    border: 1.5px solid var(--ev-border);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 13px;
+    font-weight: 600;
+    user-select: none;
+}
+.destinatario-checkbox:hover {
+    background: var(--ev-surface);
+    border-color: var(--ev-accent-light);
+}
+.destinatario-checkbox input[type="checkbox"] {
+    accent-color: var(--ev-accent);
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+}
+
+/* ========== EDITOR ========== */
+.editor-toolbar {
+    display: flex;
+    gap: 4px;
+    padding: 6px 8px;
+    background: var(--ev-accent-pale);
+    border: 1.5px solid var(--ev-border);
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+}
+.editor-toolbar button {
+    background: transparent;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ev-text-soft);
+    transition: background 0.15s;
+    font-family: inherit;
+}
+.editor-toolbar button:hover {
+    background: var(--ev-surface);
+    color: var(--ev-accent);
+}
+
+.editor-content {
+    border: 1.5px solid var(--ev-border);
+    border-radius: 0 0 12px 12px;
+    padding: 12px 14px;
+    min-height: 140px;
+    max-height: 240px;
+    overflow-y: auto;
+    background: var(--ev-surface);
+    color: var(--ev-text);
+    font-size: 14px;
+    line-height: 1.6;
+    outline: none;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+}
+.editor-content:focus {
+    border-color: var(--ev-accent);
+}
+.editor-content.empty::before {
+    content: attr(data-placeholder);
+    color: var(--ev-text-soft);
+    opacity: 0.6;
+    pointer-events: none;
+}
+.editor-content:not(.empty)::before {
+    content: none;
+}
+
+/* ========== ADJUNTAR IMAGEN ========== */
+.file-upload-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.file-upload-wrapper input[type="file"] {
+    display: none;
+}
+.file-upload-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--ev-surface);
+    border: 1.5px solid var(--ev-accent-light);
+    color: var(--ev-accent);
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Nunito', sans-serif;
+}
+.file-upload-label:hover {
+    background: var(--ev-accent-pale);
+}
+.file-upload-label [data-lucide] {
+    width: 13px;
+    height: 13px;
+}
+.file-name {
+    font-size: 12px;
+    color: var(--ev-text-soft);
+    font-weight: 600;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+#msgImagenPreview {
+    margin-top: 8px;
+    max-width: 160px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px dashed var(--ev-border);
+    background: var(--ev-accent-pale);
+    padding: 4px;
+    display: none;
+}
+#msgImagenPreview img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 8px;
+}
+#msgImagenPreview[data-visible="true"] {
+    display: block;
+}
+
+/* ========== MODAL VER ========== */
+.modal-ver .ver-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    font-size: 12.5px;
+    color: var(--ev-text-soft);
+    margin-bottom: 12px;
+    flex-shrink: 0;
+    align-items: center;
+}
+.modal-ver .ver-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+#verImagenWrap {
+    margin: 8px 0;
+    flex-shrink: 0;
+}
+#verImagenWrap img {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+.ver-texto {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--ev-text);
+    background: var(--ev-accent-pale);
+    padding: 14px 18px;
+    border-radius: 12px;
+    margin-top: 10px;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+    overflow-y: auto;
+    max-height: 320px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+
+/* ========== TOAST ========== */
+.evmail-toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--gray-900, #18181B);
+    color: white;
+    padding: 11px 20px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: 2000;
+    max-width: calc(100% - 40px);
+    white-space: nowrap;
+}
+.evmail-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+.evmail-toast.success { background: #065F46; }
+.evmail-toast.error   { background: #991B1B; }
+.evmail-toast.info    { background: #6D28D9; }
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 640px) {
+    .evmail-container { padding: 12px 14px; gap: 8px; }
+    .evmail-logo-mark { width: 36px; height: 36px; border-radius: 10px; }
+    .evmail-logo-mark [data-lucide] { width: 18px; height: 18px; }
+    .evmail-logo-text h1 { font-size: 1.6rem; }
+    .evmail-logo-text p { font-size: 10.5px; }
+
+    .btn-primary, .btn-secondary { font-size: 12.5px; padding: 8px 14px; }
+
+    .msg-item {
+        padding: 12px 14px;
+        flex-wrap: wrap;
+        min-height: 68px;
+    }
+    .msg-item .msg-meta {
+        width: 100%;
+        justify-content: flex-end;
+        margin-top: 4px;
+    }
+    .msg-item .msg-titulo { font-size: 13.5px; }
+    .msg-item .msg-preview { font-size: 12px; }
+
+    .modal-card { padding: 18px 16px; border-radius: 18px; }
+    .modal-titulo { font-size: 1.4rem; }
+    .editor-content { min-height: 110px; }
+    .destinatario-checkbox { font-size: 12px; padding: 5px 10px 5px 6px; }
+    .destinatarios-checkboxes { max-height: 100px; }
+
+    .modal-actions {
+        flex-direction: column-reverse;
+    }
+    .modal-actions .btn-primary,
+    .modal-actions .btn-secondary {
+        width: 100%;
+    }
+}
+
+@media (max-width: 400px) {
+    .evmail-logo-text p { display: none; }
+    .tab { font-size: 12.5px; padding: 8px 12px; }
+    .tab [data-lucide] { width: 14px; height: 14px; }
+}
