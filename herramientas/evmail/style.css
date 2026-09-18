@@ -20,16 +20,21 @@ body {
 
 [data-lucide] { width: 16px; height: 16px; stroke-width: 2; flex-shrink: 0; }
 
+/* ============================================================
+   Identidad rosa de EVmail.
+   Usa rgba transparente para adaptarse a cualquier tema.
+   ============================================================ */
 :root {
     --ev-accent: #FF7B9C;
     --ev-accent-light: #FFB6C1;
-    --ev-accent-pale: #FFF0F3;
+    --ev-accent-pale: rgba(255, 123, 156, 0.10);
+    --ev-accent-pale-strong: rgba(255, 123, 156, 0.20);
     --ev-text: var(--text, #4A3343);
     --ev-text-soft: var(--text-2, #7A6174);
     --ev-surface: var(--white, #FFFFFF);
     --ev-border: var(--border, #ead6dc);
     --ev-bg: var(--bg, #FFF5F7);
-    --ev-shadow: 0 4px 20px rgba(255,123,156,0.12);
+    --ev-shadow: 0 4px 20px rgba(255, 123, 156, 0.12);
 }
 
 ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -162,7 +167,7 @@ body {
     color: #dc3545;
 }
 .btn-danger:hover {
-    background: #f8d7da;
+    background: rgba(220, 53, 69, 0.12);
     border-color: #dc3545;
 }
 
@@ -186,7 +191,7 @@ body {
 }
 .search-bar:focus-within {
     border-color: var(--ev-accent);
-    box-shadow: 0 0 0 4px rgba(255,123,156,0.10);
+    box-shadow: 0 0 0 4px var(--ev-accent-pale);
 }
 .search-bar .search-icon {
     color: var(--ev-text-soft);
@@ -239,7 +244,7 @@ body {
 .tab.active {
     background: var(--ev-surface);
     color: var(--ev-accent);
-    box-shadow: 0 2px 8px rgba(255,123,156,0.15);
+    box-shadow: 0 2px 8px var(--ev-accent-pale);
 }
 .tab [data-lucide] { width: 15px; height: 15px; }
 
@@ -397,9 +402,10 @@ body {
     max-height: 90dvh;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
     animation: evZoom 0.22s cubic-bezier(0.16, 1, 0.3, 1);
     overflow: hidden;
+    color: var(--ev-text);
 }
 
 @keyframes evZoom {
@@ -481,10 +487,11 @@ body {
     transition: all 0.15s;
     font-size: 13px;
     font-weight: 600;
+    color: var(--ev-text);
     user-select: none;
 }
 .destinatario-checkbox:hover {
-    background: var(--ev-surface);
+    background: var(--ev-accent-pale-strong);
     border-color: var(--ev-accent-light);
 }
 .destinatario-checkbox input[type="checkbox"] {
@@ -517,7 +524,7 @@ body {
     font-family: inherit;
 }
 .editor-toolbar button:hover {
-    background: var(--ev-surface);
+    background: var(--ev-accent-pale-strong);
     color: var(--ev-accent);
 }
 
@@ -637,19 +644,21 @@ body {
     flex-shrink: 0;
 }
 
-/* ========== TOAST ========== */
+/* ========== TOAST ==========
+   Colores fijos para garantizar contraste en cualquier tema.
+   Los colores de éxito/error/info también son fijos. */
 .evmail-toast {
     position: fixed;
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%) translateY(100px);
-    background: var(--gray-900, #18181B);
-    color: white;
+    background: #18181B;
+    color: #FFFFFF;
     padding: 11px 20px;
     border-radius: 999px;
     font-size: 13px;
     font-weight: 700;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
     opacity: 0;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     pointer-events: none;
@@ -661,9 +670,9 @@ body {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
 }
-.evmail-toast.success { background: #065F46; }
-.evmail-toast.error   { background: #991B1B; }
-.evmail-toast.info    { background: #6D28D9; }
+.evmail-toast.success { background: #065F46; color: #FFFFFF; }
+.evmail-toast.error   { background: #991B1B; color: #FFFFFF; }
+.evmail-toast.info    { background: #6D28D9; color: #FFFFFF; }
 
 /* ========== RESPONSIVE ========== */
 @media (max-width: 640px) {
