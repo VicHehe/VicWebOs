@@ -184,7 +184,7 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#0A0A15'
         }
     },
-        {
+    {
         id: 'salon',
         nombre: 'Salón de Noche',
         icono: 'martini',
@@ -235,6 +235,24 @@ const TEMAS_DISPONIBLES = [
             '--violet-500': '#EC4899',
             '--bg':         '#F7FDF9',
             '--bg-alt':     '#F0F9F2',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
+        id: 'celeste',
+        nombre: 'Celeste Nublado',
+        icono: 'cloud',
+        descripcion: 'Cielo pastel tirando a grisáceo con nubes suaves. Estética tranquila y amigable.',
+        categoria: 'Comprables',
+        ruta: 'Temas/celeste.css',
+        espacio: 2,
+        monedas: 30,
+        colores: {
+            '--violet-100': '#E3ECF3',
+            '--violet-300': '#A8C1D4',
+            '--violet-500': '#688DA9',
+            '--bg':         '#F4F8FB',
+            '--bg-alt':     '#EBF1F6',
             '--white':      '#FFFFFF'
         }
     }
