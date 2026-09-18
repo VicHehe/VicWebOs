@@ -46,6 +46,7 @@ function aplicarTemaDelPadre() {
             '--shadow-xs','--shadow-sm','--shadow-md','--shadow-lg','--shadow-xl',
             '--accent-gradient','--accent-gradient-hover',
             '--accent-shadow','--accent-shadow-hover',
+            '--accent-text-gradient',
             '--r-sm','--r-md','--r-lg','--r-xl','--r-full'
         ];
         vars.forEach(v => {
