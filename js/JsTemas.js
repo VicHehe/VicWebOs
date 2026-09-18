@@ -114,7 +114,7 @@ const TEMAS_DISPONIBLES = [
     },
     {
         id: 'ocean',
-        nombre: 'Ocean',
+        nombre: 'Deep Blue Ocean',
         icono: 'droplet',
         descripcion: 'Modo oscuro con azules marinos profundos y destellos teal.',
         categoria: 'Oficiales',
@@ -184,22 +184,22 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#0A0A15'
         }
     },
-    {
+        {
         id: 'salon',
         nombre: 'Salón de Noche',
         icono: 'martini',
-        descripcion: 'Inspirado en los salones de baile de los años 40 y 50. Elegancia nocturna.',
+        descripcion: 'Rojo profundo y dorado. Inspirado en los salones de baile de los 40 y 50.',
         categoria: 'Comprables',
         ruta: 'Temas/salon.css',
         espacio: 2,
         monedas: 25,
         colores: {
-            '--violet-100': '#2E2218',
+            '--violet-100': '#5C0A0A',
             '--violet-300': '#B8860B',
-            '--violet-500': '#E0B84C',
-            '--bg':         '#0F0B08',
-            '--bg-alt':     '#1A1410',
-            '--white':      '#1A1410'
+            '--violet-500': '#F5C518',
+            '--bg':         '#2A0404',
+            '--bg-alt':     '#3A0606',
+            '--white':      '#3A0606'
         }
     },
     {
