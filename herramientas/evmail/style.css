@@ -1,6 +1,7 @@
 /* ================================================
    EVmail — Correo interno de VicWebOs
    Identidad rosa propia, adaptable al tema del padre.
+   Las imágenes se toman de la Galería (imagenId).
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -19,7 +20,6 @@ body {
 
 [data-lucide] { width: 16px; height: 16px; stroke-width: 2; flex-shrink: 0; }
 
-/* Identidad de la app (se mantiene independiente del tema) */
 :root {
     --ev-accent: #FF7B9C;
     --ev-accent-light: #FFB6C1;
@@ -132,6 +132,7 @@ body {
     box-shadow: 0 6px 16px rgba(255,123,156,0.35);
 }
 .btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
 .btn-secondary {
     display: inline-flex;
@@ -418,7 +419,8 @@ body {
 .modal-card form {
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow-y: auto;
+    min-height: 0;
 }
 
 /* ========== FORMULARIO ========== */
@@ -547,65 +549,41 @@ body {
     content: none;
 }
 
-/* ========== ADJUNTAR IMAGEN ========== */
-.file-upload-wrapper {
+/* ========== PICKER DE IMAGEN ========== */
+.imagen-picker-wrap {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+#msgImagenPreview {
     display: flex;
     align-items: center;
     gap: 10px;
-    flex-wrap: wrap;
+    margin-top: 8px;
+    padding: 8px;
+    background: var(--ev-accent-pale);
+    border: 1.5px solid var(--ev-border);
+    border-radius: 12px;
 }
-.file-upload-wrapper input[type="file"] {
-    display: none;
+#msgImagenPreview[hidden] { display: none; }
+#msgImagenPreview img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
+    background: var(--gray-200, #ead6dc);
 }
-.file-upload-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--ev-surface);
-    border: 1.5px solid var(--ev-accent-light);
-    color: var(--ev-accent);
-    padding: 8px 16px;
-    border-radius: 999px;
+.imagen-nombre {
     font-size: 12.5px;
     font-weight: 700;
-    cursor: pointer;
-    transition: all 0.15s;
-    font-family: 'Nunito', sans-serif;
-}
-.file-upload-label:hover {
-    background: var(--ev-accent-pale);
-}
-.file-upload-label [data-lucide] {
-    width: 13px;
-    height: 13px;
-}
-.file-name {
-    font-size: 12px;
     color: var(--ev-text-soft);
-    font-weight: 600;
-    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-}
-#msgImagenPreview {
-    margin-top: 8px;
-    max-width: 160px;
-    border-radius: 12px;
-    overflow: hidden;
-    border: 2px dashed var(--ev-border);
-    background: var(--ev-accent-pale);
-    padding: 4px;
-    display: none;
-}
-#msgImagenPreview img {
-    width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 8px;
-}
-#msgImagenPreview[data-visible="true"] {
-    display: block;
+    min-width: 0;
+    flex: 1;
 }
 
 /* ========== MODAL VER ========== */
@@ -631,7 +609,7 @@ body {
 }
 #verImagenWrap img {
     max-width: 100%;
-    max-height: 300px;
+    max-height: 320px;
     border-radius: 12px;
     object-fit: cover;
 }
