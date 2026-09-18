@@ -1,7 +1,7 @@
 /* ================================================
    Galería — App principal
-   Grid fijo: 6 columnas en PC, 2 en móvil.
-   Imágenes cuadradas con padding-bottom: 100%.
+   Grid con auto-fill (patrón clásico probado).
+   Todas las imágenes cuadradas con padding-bottom.
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -267,6 +267,7 @@ body {
 .gx-main {
     flex: 1;
     min-height: 0;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -286,22 +287,20 @@ body {
 .gx-contador:empty { display: none; }
 
 /* ============================================================
-   GRID — 6 columnas fijas en PC.
-   El cuadrado se hace con padding-bottom: 100% (patrón clásico
-   que funciona en cualquier navegador).
+   GRID — usa auto-fill + minmax, igual que el ejemplo.
+   En PC caben ~6 columnas. En móvil se fuerza a 2.
    ============================================================ */
 .gx-grid {
     flex: 1;
-    min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 10px;
-    padding-right: 4px;
-    padding-bottom: 4px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    padding-top: 4px;
     align-content: start;
     width: 100%;
+    min-height: 0;
 }
 
 .gx-item {
@@ -309,14 +308,14 @@ body {
     width: 100%;
     height: 0;
     padding-bottom: 100%;
-    border-radius: 10px;
+    border-radius: 12px;
     overflow: hidden;
     cursor: pointer;
     background: var(--gray-100, #F4F4F7);
-    transition: transform 0.18s, box-shadow 0.18s;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 .gx-item:hover {
-    transform: translateY(-2px);
+    transform: scale(1.02);
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
 }
 
@@ -327,7 +326,6 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center;
     display: block;
 }
 
@@ -362,7 +360,6 @@ body {
     background-size: 200% 100%;
     animation: gxShimmer 1.4s linear infinite;
     z-index: 1;
-    border-radius: 10px;
 }
 @keyframes gxShimmer {
     from { background-position: 200% 0; }
@@ -954,16 +951,11 @@ body {
    RESPONSIVE
    ============================================================ */
 
-@media (max-width: 1200px) {
-    .gx-grid { grid-template-columns: repeat(5, 1fr); }
-}
-
-@media (max-width: 980px) {
-    .gx-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
-}
-
-@media (max-width: 780px) {
-    .gx-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+@media (max-width: 900px) {
+    .gx-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+    }
 
     .gx-preview-body {
         grid-template-columns: 1fr;
@@ -997,8 +989,11 @@ body {
     .gx-btn-carpeta { padding: 0 12px; font-size: 12.5px; }
     .gx-btn-carpeta span { display: none; }
 
-    /* MÓVIL: 2 columnas */
-    .gx-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    /* MÓVIL: 2 columnas fijas */
+    .gx-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
 
     .gx-empty { padding: 12px; }
     .gx-empty-card { padding: 36px 24px; border-radius: 20px; gap: 10px; }
