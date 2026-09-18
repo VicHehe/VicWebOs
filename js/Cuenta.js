@@ -1,6 +1,8 @@
 // ============================================================
 //  Cuenta.js — Cuentas + apps + temas + widgets + espacio/monedas
-//  Incluye funciones globales de chequera (canjear / gastoBoleta)
+//  ------------------------------------------------------------
+//  Sesiones AHORA son POR COMUNIDAD: cada comunidad tiene su
+//  propio código de usuario activo guardado localmente.
 //
 //  Concurrencia:
 //  - guardarConfigCuenta usa ConfigBD.actualizarArchivo (merge real)
@@ -12,8 +14,11 @@
 const CUENTAS_FILE = 'cuenta.json';
 const CUENTA_CONFIG_FILE = 'cuentaConfig.json';
 const CHEQUERA_FILE_BASE = 'app/chequera/';
-const SESION_KEY = 'vicwebos_cuenta';
-const ULTIMO_CODIGO_KEY = 'vicwebos_ultimo_codigo';
+
+// Sesiones por comunidad: { comId: codigo }
+const SESIONES_KEY = 'vicwebos_sesiones';
+// Últimos códigos usados por comunidad: { comId: codigo }
+const ULTIMOS_CODIGOS_KEY = 'vicwebos_ultimos_codigos';
 
 // ============================================================
 //  CONSTANTES DE ESPACIO Y MONEDAS
@@ -30,9 +35,7 @@ let cuentaActual = null;
 let configCuentaActual = null;
 
 // ------------------------------------------------------------
-//  Lock en memoria: evita que la misma operación se dispare
-//  dos veces si el usuario pulsa el botón muy rápido.
-//  Claves: "instalarApp:id", "instalarTema:id", etc.
+//  Lock en memoria
 // ------------------------------------------------------------
 const _locks = new Set();
 
@@ -49,8 +52,7 @@ async function _conLock(clave, fn) {
 }
 
 // ------------------------------------------------------------
-//  Exponer como getters de window para scripts que no comparten
-//  scope con este archivo.
+//  Getters de window
 // ------------------------------------------------------------
 Object.defineProperty(window, 'cuentaActual', {
     get: () => cuentaActual,
@@ -61,6 +63,117 @@ Object.defineProperty(window, 'configCuentaActual', {
     configurable: true
 });
 
+// ============================================================
+//  SESIONES POR COMUNIDAD
+// ============================================================
+function leerSesiones() {
+    try {
+        const raw = localStorage.getItem(SESIONES_KEY);
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object') return parsed;
+        }
+    } catch (e) { console.warn(e); }
+
+    // Migración desde formato viejo (una sola sesión global)
+    try {
+        const viejo = localStorage.getItem('vicwebos_cuenta');
+        if (viejo) {
+            const com = (typeof window.obtenerComunidadActiva === 'function')
+                ? window.obtenerComunidadActiva() : null;
+            if (com) {
+                const ses = { [com.id]: viejo };
+                localStorage.setItem(SESIONES_KEY, JSON.stringify(ses));
+                localStorage.removeItem('vicwebos_cuenta');
+                return ses;
+            }
+        }
+    } catch (e) { /* silencioso */ }
+
+    return {};
+}
+
+function guardarSesiones(ses) {
+    try {
+        localStorage.setItem(SESIONES_KEY, JSON.stringify(ses || {}));
+    } catch (e) { console.warn(e); }
+}
+
+function obtenerCodigoActivo() {
+    const com = (typeof window.obtenerComunidadActiva === 'function')
+        ? window.obtenerComunidadActiva() : null;
+    if (!com) return null;
+    const ses = leerSesiones();
+    return ses[com.id] || null;
+}
+
+function guardarCodigoActivo(codigo) {
+    const com = (typeof window.obtenerComunidadActiva === 'function')
+        ? window.obtenerComunidadActiva() : null;
+    if (!com) return;
+    const ses = leerSesiones();
+    if (codigo) ses[com.id] = codigo;
+    else delete ses[com.id];
+    guardarSesiones(ses);
+}
+
+// ------------------------------------------------------------
+//  Último código por comunidad (para pre-rellenar el login)
+// ------------------------------------------------------------
+function leerUltimosCodigos() {
+    try {
+        const raw = localStorage.getItem(ULTIMOS_CODIGOS_KEY);
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object') return parsed;
+        }
+    } catch (e) { console.warn(e); }
+
+    // Migración desde formato viejo
+    try {
+        const viejo = localStorage.getItem('vicwebos_ultimo_codigo');
+        if (viejo) {
+            const com = (typeof window.obtenerComunidadActiva === 'function')
+                ? window.obtenerComunidadActiva() : null;
+            if (com) {
+                const map = { [com.id]: viejo };
+                localStorage.setItem(ULTIMOS_CODIGOS_KEY, JSON.stringify(map));
+                localStorage.removeItem('vicwebos_ultimo_codigo');
+                return map;
+            }
+        }
+    } catch (e) { /* silencioso */ }
+
+    return {};
+}
+
+function guardarUltimosCodigos(map) {
+    try {
+        localStorage.setItem(ULTIMOS_CODIGOS_KEY, JSON.stringify(map || {}));
+    } catch (e) { console.warn(e); }
+}
+
+function obtenerUltimoCodigo() {
+    const com = (typeof window.obtenerComunidadActiva === 'function')
+        ? window.obtenerComunidadActiva() : null;
+    if (!com) return null;
+    const map = leerUltimosCodigos();
+    return map[com.id] || null;
+}
+
+function guardarUltimoCodigo(codigo) {
+    const com = (typeof window.obtenerComunidadActiva === 'function')
+        ? window.obtenerComunidadActiva() : null;
+    if (!com) return;
+    const map = leerUltimosCodigos();
+    if (codigo) map[com.id] = codigo;
+    else delete map[com.id];
+    guardarUltimosCodigos(map);
+}
+
+// ============================================================
+//  DEFAULT CONFIG
+// ============================================================
 const CONFIG_CUENTA_DEFAULT = {
     appsInstaladas: ['stor-he', 'chequera'],
     temasInstalados: ['violeta'],
@@ -85,7 +198,9 @@ function clonarConfigDefault() {
     };
 }
 
-// ---------- CUENTAS ----------
+// ============================================================
+//  CUENTAS
+// ============================================================
 async function cargarCuentas() {
     if (!ConfigBD.estaConectado()) return [];
     const data = await ConfigBD.leerArchivo(CUENTAS_FILE);
@@ -101,15 +216,15 @@ async function buscarCuentaPorCodigo(codigo) {
     return cuentas.find(c => c.codigo === codigo.toUpperCase()) || null;
 }
 
-// ---------- CONFIG POR CUENTA ----------
-//  Lectura con caché (rápida, para render).
+// ============================================================
+//  CONFIG POR CUENTA
+// ============================================================
 async function leerTodasConfigCuentas() {
     if (!ConfigBD.estaConectado()) return {};
     const data = await ConfigBD.leerArchivo(CUENTA_CONFIG_FILE);
     return (data && typeof data === 'object') ? data : {};
 }
 
-//  Lectura SIN caché (para operaciones críticas).
 async function leerTodasConfigCuentasFresh() {
     if (!ConfigBD.estaConectado()) return {};
     const data = await ConfigBD.leerArchivoFresh(CUENTA_CONFIG_FILE);
@@ -125,13 +240,6 @@ async function obtenerConfigCuenta(codigo) {
     return cfg;
 }
 
-// ------------------------------------------------------------
-//  Guardar config de UNA cuenta de forma segura (merge real).
-//  Lee fresco, modifica solo la clave del usuario, escribe.
-//  Si otro usuario escribió a la vez, el retry relee y reaplica.
-//  El segundo argumento puede ser un objeto completo (reemplaza)
-//  o una función mutadora (recibe la config actual y devuelve la nueva).
-// ------------------------------------------------------------
 async function guardarConfigCuenta(codigo, configOrMutador) {
     return await ConfigBD.actualizarArchivo(CUENTA_CONFIG_FILE, (all) => {
         if (!all || typeof all !== 'object') all = {};
@@ -269,7 +377,6 @@ function rutaChequera(codigo) {
 async function leerChequeraUsuario() {
     if (!cuentaActual) return { version: 1, movimientos: [] };
     try {
-        // leerArchivoFresh evita que se quede pegado con caché viejo.
         const data = await ConfigBD.leerArchivoFresh(rutaChequera(cuentaActual.codigo));
         if (data && Array.isArray(data.movimientos)) return data;
     } catch (e) { /* no existe */ }
@@ -280,10 +387,6 @@ function generarIdMovimiento() {
     return 'mov_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
 }
 
-// ------------------------------------------------------------
-//  Escribir movimiento en la chequera de forma segura.
-//  Lee fresco, muta, escribe con retry si hay conflicto.
-// ------------------------------------------------------------
 async function _añadirMovimientoChequera(movimiento) {
     if (!cuentaActual) return;
     const ruta = rutaChequera(cuentaActual.codigo);
@@ -301,9 +404,6 @@ async function _añadirMovimientoChequera(movimiento) {
     });
 }
 
-// ------------------------------------------------------------
-//  Notificación de movimiento de monedas
-// ------------------------------------------------------------
 async function _notificarMovimientoMonedas(tipo, fuente, texto, cantidad) {
     try {
         if (!window.Notificaciones) return;
@@ -326,18 +426,14 @@ async function canjear(icono, fuente, texto, cantidad) {
 
     const codigo = cuentaActual.codigo;
 
-    // Lock por si la misma app dispara dos canjes seguidos muy rápido
     return await _conLock(`monedas:${codigo}`, async () => {
-        // 1) Actualizar monedas en configCuenta de forma segura
         await guardarConfigCuenta(codigo, (cfg) => {
             cfg.monedas = (cfg.monedas || 0) + cantidad;
             return cfg;
         });
 
-        // Refrescar config local
         configCuentaActual = await obtenerConfigCuenta(codigo);
 
-        // 2) Añadir movimiento al chequero
         const mov = {
             id: generarIdMovimiento(),
             tipo: 'canje',
@@ -353,7 +449,6 @@ async function canjear(icono, fuente, texto, cantidad) {
             console.warn('[Cuenta] No se pudo guardar en chequera:', e);
         }
 
-        // 3) UI + notificaciones
         if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
         if (typeof window.__notificarCambioChequera === 'function') window.__notificarCambioChequera();
         await _notificarMovimientoMonedas('canje', fuente, texto, cantidad);
@@ -372,7 +467,6 @@ async function gastoBoleta(icono, fuente, texto, cantidad) {
     const codigo = cuentaActual.codigo;
 
     return await _conLock(`monedas:${codigo}`, async () => {
-        // 1) Verificar y descontar de forma segura
         let saldoFinal = 0;
         await guardarConfigCuenta(codigo, (cfg) => {
             const actuales = cfg.monedas || 0;
@@ -388,7 +482,6 @@ async function gastoBoleta(icono, fuente, texto, cantidad) {
 
         configCuentaActual = await obtenerConfigCuenta(codigo);
 
-        // 2) Movimiento
         const mov = {
             id: generarIdMovimiento(),
             tipo: 'gasto',
@@ -434,12 +527,16 @@ async function comprarEspacio() {
     });
 }
 
-// ---------- VALIDACIÓN ----------
+// ============================================================
+//  VALIDACIÓN
+// ============================================================
 function validarFormatoCodigo(codigo) {
     return /^[0-9]{4}[A-Z]$/.test(codigo);
 }
 
-// ---------- FOTO ----------
+// ============================================================
+//  FOTO
+// ============================================================
 function procesarFoto(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -467,10 +564,12 @@ function procesarFoto(file) {
     });
 }
 
-// ---------- CREAR / LOGIN / LOGOUT ----------
+// ============================================================
+//  CREAR / LOGIN / LOGOUT
+// ============================================================
 async function crearCuenta({ foto, nombre, pronombre, codigo }) {
     if (!ConfigBD.estaConectado()) {
-        throw new Error('Conecta GitHub primero desde "Base de datos".');
+        throw new Error('Conecta una comunidad primero desde "Comunidades".');
     }
     const codigoUp = codigo.toUpperCase();
     if (!validarFormatoCodigo(codigoUp)) {
@@ -480,11 +579,10 @@ async function crearCuenta({ foto, nombre, pronombre, codigo }) {
         throw new Error('El nombre es obligatorio.');
     }
 
-    // Lock global para evitar crear dos cuentas con el mismo código
     return await _conLock('crearCuenta', async () => {
         const cuentas = await cargarCuentas();
         if (cuentas.some(c => c.codigo === codigoUp)) {
-            throw new Error('Ese código ya está en uso. Elige otro.');
+            throw new Error('Ese código ya está en uso en esta comunidad. Elige otro.');
         }
         const nueva = {
             codigo: codigoUp,
@@ -496,7 +594,6 @@ async function crearCuenta({ foto, nombre, pronombre, codigo }) {
         cuentas.push(nueva);
         await guardarCuentas(cuentas);
 
-        // Crear config del usuario de forma segura
         await guardarConfigCuenta(codigoUp, clonarConfigDefault());
 
         await iniciarSesion(codigoUp);
@@ -506,7 +603,7 @@ async function crearCuenta({ foto, nombre, pronombre, codigo }) {
 
 async function iniciarSesion(codigo) {
     if (!ConfigBD.estaConectado()) {
-        throw new Error('Conecta GitHub primero desde "Base de datos".');
+        throw new Error('Conecta una comunidad primero.');
     }
     const codigoUp = codigo.toUpperCase();
     if (!validarFormatoCodigo(codigoUp)) {
@@ -514,15 +611,15 @@ async function iniciarSesion(codigo) {
     }
     const cuentas = await cargarCuentas();
     const cuenta = cuentas.find(c => c.codigo === codigoUp);
-    if (!cuenta) throw new Error('Código incorrecto o cuenta no encontrada.');
+    if (!cuenta) throw new Error('Código incorrecto o cuenta no encontrada en esta comunidad.');
 
     cuentaActual = cuenta;
     configCuentaActual = await obtenerConfigCuenta(codigoUp);
 
     await migrarAppsPorDefecto(codigoUp);
 
-    localStorage.setItem(SESION_KEY, codigoUp);
-    localStorage.setItem(ULTIMO_CODIGO_KEY, codigoUp);
+    guardarCodigoActivo(codigoUp);
+    guardarUltimoCodigo(codigoUp);
 
     cargarCSSTema(obtenerTemaActivo());
     actualizarAvatarHeader();
@@ -531,6 +628,7 @@ async function iniciarSesion(codigo) {
     if (typeof renderAccesosRapidos === 'function') renderAccesosRapidos();
     if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
     if (typeof actualizarSaludo === 'function') actualizarSaludo();
+    if (typeof window.__renderSidebarComunidad === 'function') window.__renderSidebarComunidad();
 
     window.dispatchEvent(new CustomEvent('vicwebos:sesion', {
         detail: { codigo: codigoUp, activa: true }
@@ -542,7 +640,7 @@ async function iniciarSesion(codigo) {
 function cerrarSesion() {
     cuentaActual = null;
     configCuentaActual = null;
-    localStorage.removeItem(SESION_KEY);
+    guardarCodigoActivo(null);
 
     cargarCSSTema('violeta');
     actualizarAvatarHeader();
@@ -558,13 +656,32 @@ function cerrarSesion() {
 }
 
 async function restaurarSesion() {
-    if (!ConfigBD.estaConectado()) return null;
-    const codigo = localStorage.getItem(SESION_KEY);
-    if (!codigo) return null;
+    // Si no hay comunidad activa, disparamos igual para que la UI se actualice
+    if (!ConfigBD.estaConectado()) {
+        window.dispatchEvent(new CustomEvent('vicwebos:sesion', {
+            detail: { codigo: null, activa: false }
+        }));
+        return null;
+    }
+
+    const codigo = obtenerCodigoActivo();
+    if (!codigo) {
+        window.dispatchEvent(new CustomEvent('vicwebos:sesion', {
+            detail: { codigo: null, activa: false }
+        }));
+        return null;
+    }
+
     try {
         const cuentas = await cargarCuentas();
         const cuenta = cuentas.find(c => c.codigo === codigo);
-        if (!cuenta) { localStorage.removeItem(SESION_KEY); return null; }
+        if (!cuenta) {
+            guardarCodigoActivo(null);
+            window.dispatchEvent(new CustomEvent('vicwebos:sesion', {
+                detail: { codigo: null, activa: false }
+            }));
+            return null;
+        }
         cuentaActual = cuenta;
         configCuentaActual = await obtenerConfigCuenta(codigo);
 
@@ -580,445 +697,25 @@ async function restaurarSesion() {
         return cuenta;
     } catch (e) {
         console.warn('No se pudo restaurar sesión:', e);
+        window.dispatchEvent(new CustomEvent('vicwebos:sesion', {
+            detail: { codigo: null, activa: false }
+        }));
         return null;
     }
 }
 
-// ---------- APPS ----------
-function obtenerAppsInstaladas() { return configCuentaActual?.appsInstaladas || []; }
-function estaInstalada(id) { return obtenerAppsInstaladas().includes(id); }
+// ============================================================
+//  CAMBIO DE COMUNIDAD
+//  ------------------------------------------------------------
+//  Reemplaza la "activa" en ConfigBD, resetea la sesión local y
+//  restaura la que corresponda a esa comunidad. Cierra pestañas.
+// ============================================================
+async function cambiarComunidad(id) {
+    if (!id) throw new Error('ID de comunidad requerido.');
+    const com = (typeof window.obtenerComunidadPorId === 'function')
+        ? window.obtenerComunidadPorId(id) : null;
+    if (!com) throw new Error('Comunidad no encontrada.');
 
-async function instalarApp(id) {
-    if (!ConfigBD.estaConectado()) throw new Error('Conecta GitHub primero.');
-    if (!cuentaActual) throw new Error('Necesitas una cuenta para instalar apps.');
-
-    const codigo = cuentaActual.codigo;
-    return await _conLock(`instalarApp:${id}`, async () => {
-        const catalogo = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
-        const app = catalogo.find(a => a.id === id);
-        if (!app) throw new Error('App no encontrada.');
-
-        // Reload fresco para ver si ya está instalada
-        configCuentaActual = await obtenerConfigCuenta(codigo);
-        if ((configCuentaActual.appsInstaladas || []).includes(id)) {
-            return { ok: true, yaEstaba: true };
-        }
-
-        const check = puedeInstalar({ espacio: app.espacio || 0, monedas: app.monedas || 0 });
-        if (!check.ok) throw new Error(check.motivo);
-
-        // Cobrar primero si tiene costo
-        if ((app.monedas || 0) > 0) {
-            await gastoBoleta('package', 'stor-he', `App: ${app.nombre}`, app.monedas);
-        }
-
-        await guardarConfigCuenta(codigo, (cfg) => {
-            if (!Array.isArray(cfg.appsInstaladas)) cfg.appsInstaladas = [];
-            if (!cfg.appsInstaladas.includes(id)) cfg.appsInstaladas.push(id);
-            return cfg;
-        });
-        configCuentaActual = await obtenerConfigCuenta(codigo);
-        return { ok: true };
-    });
-}
-
-async function desinstalarApp(id) {
-    if (!ConfigBD.estaConectado()) throw new Error('Conecta GitHub primero.');
-    if (!cuentaActual) throw new Error('Necesitas una cuenta.');
-
-    const codigo = cuentaActual.codigo;
-    return await _conLock(`desinstalarApp:${id}`, async () => {
-        const catalogo = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
-        const app = catalogo.find(a => a.id === id);
-        if (app && app.esBase) throw new Error('Esta app es del sistema y no se puede desinstalar.');
-
-        await guardarConfigCuenta(codigo, (cfg) => {
-            cfg.appsInstaladas = (cfg.appsInstaladas || []).filter(a => a !== id);
-            cfg.accesosRapidos = (cfg.accesosRapidos || []).filter(a => a !== id);
-            return cfg;
-        });
-        configCuentaActual = await obtenerConfigCuenta(codigo);
-    });
-}
-
-// ---------- TEMAS ----------
-function obtenerTemasInstalados() { return configCuentaActual?.temasInstalados || []; }
-function obtenerTemaActivo() { return configCuentaActual?.temaActivo || 'violeta'; }
-
-async function instalarTema(id) {
-    if (!cuentaActual) throw new Error('Necesitas una cuenta.');
-    const codigo = cuentaActual.codigo;
-
-    return await _conLock(`instalarTema:${id}`, async () => {
-        const catalogo = typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : [];
-        const tema = catalogo.find(t => t.id === id);
-        if (!tema) throw new Error('Tema no encontrado.');
-
-        configCuentaActual = await obtenerConfigCuenta(codigo);
-        if ((configCuentaActual.temasInstalados || []).includes(id)) {
-            return { ok: true, yaEstaba: true };
-        }
-
-        const check = puedeInstalar({ espacio: tema.espacio || 0, monedas: tema.monedas || 0 });
-        if (!check.ok) throw new Error(check.motivo);
-
-        if ((tema.monedas || 0) > 0) {
-            await gastoBoleta('palette', 'stor-he', `Tema: ${tema.nombre}`, tema.monedas);
-        }
-
-        await guardarConfigCuenta(codigo, (cfg) => {
-            if (!Array.isArray(cfg.temasInstalados)) cfg.temasInstalados = [];
-            if (!cfg.temasInstalados.includes(id)) cfg.temasInstalados.push(id);
-            return cfg;
-        });
-        configCuentaActual = await obtenerConfigCuenta(codigo);
-        return { ok: true };
-    });
-}
-
-async function desinstalarTema(id) {
-    if (!cuentaActual) throw new Error('Necesitas una cuenta.');
-    const codigo = cuentaActual.codigo;
-
-    return await _conLock(`desinstalarTema:${id}`, async () => {
-        const catalogo = typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : [];
-        const tema = catalogo.find(t => t.id === id);
-        if (tema && tema.esBase) throw new Error('Este tema es base y no se puede desinstalar.');
-
-        let temaActivoQuedo = null;
-        await guardarConfigCuenta(codigo, (cfg) => {
-            cfg.temasInstalados = (cfg.temasInstalados || []).filter(t => t !== id);
-            if (cfg.temaActivo === id) {
-                cfg.temaActivo = 'violeta';
-                temaActivoQuedo = 'violeta';
-            }
-            return cfg;
-        });
-        configCuentaActual = await obtenerConfigCuenta(codigo);
-        if (temaActivoQuedo) cargarCSSTema('violeta');
-    });
-}
-
-async function aplicarTema(id) {
-    if (!cuentaActual) throw new Error('Necesitas una cuenta.');
-    const catalogo = typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : [];
-    const tema = catalogo.find(t => t.id === id);
-    if (!tema) throw new Error('Tema no encontrado.');
-
-    const codigo = cuentaActual.codigo;
-    await guardarConfigCuenta(codigo, (cfg) => {
-        cfg.temaActivo = id;
-        return cfg;
-    });
-    configCuentaActual = await obtenerConfigCuenta(codigo);
-    cargarCSSTema(id);
-}
-
-// ------------------------------------------------------------
-//  Cargar el CSS del tema en el <head> del shell.
-// ------------------------------------------------------------
-function cargarCSSTema(id) {
-    const catalogo = typeof TEMAS_DISPONIBLES !== 'undefined' ? TEMAS_DISPONIBLES : [];
-    const tema = catalogo.find(t => t.id === id);
-    if (!tema || !tema.ruta) return;
-
-    const viejo = document.getElementById('tema-activo');
-    if (viejo) viejo.remove();
-
-    const nuevo = document.createElement('link');
-    nuevo.id = 'tema-activo';
-    nuevo.rel = 'stylesheet';
-    nuevo.href = tema.ruta;
-
-    let notificado = false;
-    const notificar = () => {
-        if (notificado) return;
-        notificado = true;
-        if (typeof window.__notificarCambioTema === 'function') {
-            window.__notificarCambioTema();
-        }
-    };
-
-    nuevo.addEventListener('load', () => {
-        requestAnimationFrame(() => {
-            requestAnimationFrame(notificar);
-        });
-    });
-    setTimeout(notificar, 400);
-
-    document.head.appendChild(nuevo);
-}
-
-// ---------- WIDGETS ----------
-function obtenerWidgetsInstalados() { return configCuentaActual?.widgetsInstalados || []; }
-function obtenerWidgetsActivos() { return configCuentaActual?.widgetsActivos || []; }
-
-async function instalarWidget(id) {
-    if (!cuentaActual) throw new Error('Necesitas una cuenta.');
-    const codigo = cuentaActual.codigo;
-
-    return await _conLock(`instalarWidget:${id}`, async () => {
-        const catalogo = typeof WIDGETS_DISPONIBLES !== 'undefined' ? WIDGETS_DISPONIBLES : [];
-        const w = catalogo.find(x => x.id === id);
-        if (!w) throw new Error('Widget no encontrado.');
-
-        configCuentaActual = await obtenerConfigCuenta(codigo);
-        if ((configCuentaActual.widgetsInstalados || []).includes(id)) {
-            return { ok: true, yaEstaba: true };
-        }
-
-        const check = puedeInstalar({ espacio: w.espacio || 0, monedas: w.monedas || 0 });
-        if (!check.ok) throw new Error(check.motivo);
-
-        if ((w.monedas || 0) > 0) {
-            await gastoBoleta('layout-grid', 'stor-he', `Widget: ${w.nombre}`, w.monedas);
-        }
-
-        await guardarConfigCuenta(codigo, (cfg) => {
-            if (!Array.isArray(cfg.widgetsInstalados)) cfg.widgetsInstalados = [];
-            if (!cfg.widgetsInstalados.includes(id)) cfg.widgetsInstalados.push(id);
-            return cfg;
-        });
-        configCuentaActual = await obtenerConfigCuenta(codigo);
-        return { ok: true };
-    });
-}
-
-async function desinstalarWidget(id) {
-    if (!cuentaActual) throw new Error('Necesitas una cuenta.');
-    const codigo = cuentaActual.codigo;
-
-    return await _conLock(`desinstalarWidget:${id}`, async () => {
-        await guardarConfigCuenta(codigo, (cfg) => {
-            cfg.widgetsInstalados = (cfg.widgetsInstalados || []).filter(w => w !== id);
-            cfg.widgetsActivos = (cfg.widgetsActivos || []).filter(w => w !== id);
-            return cfg;
-        });
-        configCuentaActual = await obtenerConfigCuenta(codigo);
-        if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
-    });
-}
-
-async function activarWidget(id) {
-    if (!cuentaActual) throw new Error('Necesitas una cuenta.');
-    const codigo = cuentaActual.codigo;
-
-    return await _conLock(`activarWidget:${id}`, async () => {
-        await guardarConfigCuenta(codigo, (cfg) => {
-            if (!Array.isArray(cfg.widgetsActivos)) cfg.widgetsActivos = [];
-            if (cfg.widgetsActivos.includes(id)) return cfg;
-            if (cfg.widgetsActivos.length >= MAX_WIDGETS_ACTIVOS) {
-                throw new Error(`Máximo ${MAX_WIDGETS_ACTIVOS} widgets activos. Desactiva uno para activar otro.`);
-            }
-            cfg.widgetsActivos.push(id);
-            return cfg;
-        });
-        configCuentaActual = await obtenerConfigCuenta(codigo);
-        if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
-    });
-}
-
-async function desactivarWidget(id) {
-    if (!cuentaActual) throw new Error('Necesitas una cuenta.');
-    const codigo = cuentaActual.codigo;
-
-    return await _conLock(`desactivarWidget:${id}`, async () => {
-        await guardarConfigCuenta(codigo, (cfg) => {
-            cfg.widgetsActivos = (cfg.widgetsActivos || []).filter(w => w !== id);
-            return cfg;
-        });
-        configCuentaActual = await obtenerConfigCuenta(codigo);
-        if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
-    });
-}
-
-// ---------- AVATAR HEADER ----------
-function actualizarAvatarHeader() {
-    const btn = document.getElementById('btnConfig');
-    if (!btn) return;
-    if (cuentaActual?.foto) {
-        btn.innerHTML = `<img src="${cuentaActual.foto}" alt="" class="avatar-img">`;
-    } else if (cuentaActual) {
-        const inicial = (cuentaActual.nombre || '?').charAt(0).toUpperCase();
-        btn.innerHTML = `<span class="avatar-inicial">${inicial}</span>`;
-    } else {
-        btn.innerHTML = `<i data-lucide="user" class="avatar-icon"></i>`;
-        lucide.createIcons();
-    }
-}
-
-// ---------- UI CUENTA ----------
-function inicializarUICuenta() {
-    const tabs       = document.querySelectorAll('.cuenta-tab');
-    const forms      = document.querySelectorAll('.cuenta-form');
-    const fotoInput  = document.getElementById('cuentaFoto');
-    const fotoPrev   = document.getElementById('cuentaFotoPreview');
-    const inputNom   = document.getElementById('cuentaNombre');
-    const inputPro   = document.getElementById('cuentaPronombre');
-    const inputCod   = document.getElementById('cuentaCodigo');
-    const inputLogin = document.getElementById('loginCodigo');
-    const btnCrear   = document.getElementById('btnCrearCuenta');
-    const btnEntrar  = document.getElementById('btnEntrarCuenta');
-    const btnSalir   = document.getElementById('btnCerrarCuenta');
-    const sinSesion  = document.getElementById('cuentaSinSesion');
-    const conSesion  = document.getElementById('cuentaConSesion');
-    const avisoGH    = document.getElementById('cuentaRequiereGitHub');
-
-    let fotoTemp = null;
-
-    const ultimo = localStorage.getItem(ULTIMO_CODIGO_KEY);
-    if (ultimo && inputLogin) inputLogin.value = ultimo;
-
-    tabs.forEach(t => {
-        t.addEventListener('click', () => {
-            tabs.forEach(x => x.classList.remove('active'));
-            forms.forEach(f => f.classList.remove('active'));
-            t.classList.add('active');
-            const form = document.querySelector(`.cuenta-form[data-form="${t.dataset.tab}"]`);
-            if (form) form.classList.add('active');
-        });
-    });
-
-    if (fotoInput && fotoPrev) {
-        fotoInput.addEventListener('change', async () => {
-            const f = fotoInput.files[0];
-            if (!f) return;
-            try {
-                fotoTemp = await procesarFoto(f);
-                fotoPrev.innerHTML = `<img src="${fotoTemp}" alt="" class="cuenta-foto-img">`;
-            } catch (e) { alert('❌ ' + e.message); }
-        });
-    }
-
-    [inputCod, inputLogin].forEach(inp => {
-        if (!inp) return;
-        inp.addEventListener('input', (e) => {
-            e.target.value = e.target.value.toUpperCase().replace(/[^0-9A-Z]/g, '');
-        });
-    });
-
-    if (btnCrear) {
-        btnCrear.addEventListener('click', async () => {
-            const msg = document.getElementById('cuentaMensaje');
-            const setMsg = (txt, tipo) => {
-                msg.textContent = txt;
-                msg.className = 'config-status ' + (tipo || '');
-            };
-            if (btnCrear.disabled) return;
-            btnCrear.disabled = true;
-            const txtOriginal = btnCrear.innerHTML;
-            btnCrear.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Creando...';
-            lucide.createIcons();
-            try {
-                setMsg('⏳ Creando cuenta...', 'info');
-                await crearCuenta({
-                    foto: fotoTemp,
-                    nombre: inputNom.value,
-                    pronombre: inputPro.value,
-                    codigo: inputCod.value
-                });
-                setMsg('✅ Cuenta creada', 'success');
-                mostrarSesionActiva();
-                setTimeout(() => {
-                    if (typeof renderSidebar === 'function') renderSidebar();
-                    if (typeof renderAccesosRapidos === 'function') renderAccesosRapidos();
-                    if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
-                    if (typeof actualizarSaludo === 'function') actualizarSaludo();
-                    if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
-                }, 200);
-            } catch (e) { setMsg('❌ ' + e.message, 'error'); }
-            finally {
-                btnCrear.disabled = false;
-                btnCrear.innerHTML = txtOriginal;
-                lucide.createIcons();
-            }
-        });
-    }
-
-    if (btnEntrar) {
-        btnEntrar.addEventListener('click', async () => {
-            const msg = document.getElementById('loginMensaje');
-            const setMsg = (txt, tipo) => {
-                msg.textContent = txt;
-                msg.className = 'config-status ' + (tipo || '');
-            };
-            if (btnEntrar.disabled) return;
-            btnEntrar.disabled = true;
-            const txtOriginal = btnEntrar.innerHTML;
-            btnEntrar.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Entrando...';
-            lucide.createIcons();
-            try {
-                setMsg('⏳ Entrando...', 'info');
-                await iniciarSesion(inputLogin.value);
-                setMsg('✅ Sesión iniciada', 'success');
-                mostrarSesionActiva();
-                setTimeout(() => {
-                    if (typeof renderSidebar === 'function') renderSidebar();
-                    if (typeof renderAccesosRapidos === 'function') renderAccesosRapidos();
-                    if (typeof renderWidgetsActivos === 'function') renderWidgetsActivos();
-                    if (typeof actualizarSaludo === 'function') actualizarSaludo();
-                    if (typeof actualizarMonedasHeader === 'function') actualizarMonedasHeader();
-                }, 200);
-            } catch (e) { setMsg('❌ ' + e.message, 'error'); }
-            finally {
-                btnEntrar.disabled = false;
-                btnEntrar.innerHTML = txtOriginal;
-                lucide.createIcons();
-            }
-        });
-    }
-
-    if (btnSalir) {
-        btnSalir.addEventListener('click', () => {
-            if (!confirm('¿Cerrar sesión? Tu cuenta se queda guardada, puedes volver con tu código.')) return;
-            cerrarSesion();
-            mostrarSinSesion();
-        });
-    }
-
-    function mostrarSesionActiva() {
-        if (!sinSesion || !conSesion) return;
-        sinSesion.style.display = 'none';
-        conSesion.style.display = 'block';
-
-        document.getElementById('perfilNombre').textContent = cuentaActual.nombre;
-        document.getElementById('perfilPronombre').textContent = cuentaActual.pronombre;
-        document.getElementById('perfilCodigo').textContent = cuentaActual.codigo;
-
-        const perfilFoto = document.getElementById('perfilFoto');
-        if (cuentaActual.foto) {
-            perfilFoto.innerHTML = `<img src="${cuentaActual.foto}" alt="" class="cuenta-foto-img">`;
-        } else {
-            const inicial = (cuentaActual.nombre || '?').charAt(0).toUpperCase();
-            perfilFoto.innerHTML = `<span class="avatar-inicial">${inicial}</span>`;
-        }
-    }
-
-    function mostrarSinSesion() {
-        if (!sinSesion || !conSesion) return;
-        sinSesion.style.display = 'block';
-        conSesion.style.display = 'none';
-        if (inputCod) inputCod.value = '';
-        if (inputNom) inputNom.value = '';
-        const ultimo = localStorage.getItem(ULTIMO_CODIGO_KEY);
-        if (inputLogin) inputLogin.value = ultimo || '';
-        fotoTemp = null;
-        if (fotoPrev) fotoPrev.innerHTML = '<i data-lucide="camera"></i><span class="cuenta-foto-texto">Subir foto</span>';
-        lucide.createIcons();
-    }
-
-    window.__actualizarUISesion = () => {
-        if (avisoGH) avisoGH.style.display = ConfigBD.estaConectado() ? 'none' : 'flex';
-        if (!ConfigBD.estaConectado()) {
-            if (sinSesion) sinSesion.style.display = 'none';
-            if (conSesion) conSesion.style.display = 'none';
-            lucide.createIcons();
-            return;
-        }
-        if (cuentaActual) mostrarSesionActiva();
-        else mostrarSinSesion();
-        lucide.createIcons();
-    };
-
-    window.__actualizarUISesion();
-}
+    // Cerrar todas las pestañas (una app puede no existir en la nueva comunidad)
+    if (typeof window.__cerrarTodasLasPestanas === 'function') {
+        window.__cerrarTodas
