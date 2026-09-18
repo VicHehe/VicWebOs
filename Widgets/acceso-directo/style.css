@@ -2,7 +2,7 @@
    Widget: Acceso Directo
    4 slots con icono, nombre y URL.
    Persistencia POR USUARIO.
-   Modal con filas "tipo lista" (borde a borde).
+   Modal FULLSCREEN que llena todo el iframe.
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -165,17 +165,18 @@ body {
 }
 .ad-slot-edit [data-lucide] { width: 11px; height: 11px; }
 
-/* ========== MODAL ========== */
+/* ============================================================
+   MODAL — FULLSCREEN
+   El modal y su tarjeta llenan TODO el iframe del widget.
+   ============================================================ */
 .ad-modal {
     position: fixed;
     inset: 0;
-    background: rgba(24, 24, 27, 0.55);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    background: var(--white, #FFFFFF);
     display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
+    align-items: stretch;
+    justify-content: stretch;
+    padding: 0;
     z-index: 100;
     animation: adFade 0.15s ease;
 }
@@ -188,40 +189,44 @@ body {
 
 .ad-modal-card {
     background: var(--white, #FFFFFF);
-    border-radius: var(--r-lg, 16px);
     width: 100%;
-    max-width: 380px;
-    max-height: 90%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 24px 48px rgba(0,0,0,0.28);
-    animation: adZoom 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     overflow: hidden;
-}
-@keyframes adZoom {
-    from { opacity: 0; transform: scale(0.96); }
-    to   { opacity: 1; transform: scale(1); }
+    animation: adSlideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+@keyframes adSlideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ========== HEADER (compacto) ========== */
 .ad-modal-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 16px;
+    padding: 12px 16px;
     border-bottom: 1px solid var(--border, #E8E8EE);
     background: var(--gray-50, #FAFAFB);
     flex-shrink: 0;
+    gap: 8px;
 }
 .ad-modal-header h3 {
     font-size: 14px;
     font-weight: 800;
     color: var(--gray-900, #18181B);
     margin: 0;
+    letter-spacing: -0.01em;
 }
 .ad-modal-cerrar {
     background: none;
     border: none;
-    padding: 4px;
+    padding: 5px;
     border-radius: 6px;
     cursor: pointer;
     color: var(--gray-500, #71717A);
@@ -233,10 +238,9 @@ body {
     background: #FEE2E2;
     color: #991B1B;
 }
+.ad-modal-cerrar [data-lucide] { width: 15px; height: 15px; }
 
-/* ============================================================
-   BODY del modal: SIN padding lateral, filas borde a borde.
-   ============================================================ */
+/* ========== BODY — filas borde a borde, scroll si hace falta ========== */
 .ad-modal-body {
     flex: 1;
     min-height: 0;
@@ -247,17 +251,16 @@ body {
     gap: 0;
 }
 
-/* ============================================================
-   FILA / CAMPO — ocupa todo el ancho del modal.
-   ============================================================ */
+/* ========== FILA / CAMPO ========== */
 .ad-field {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    padding: 12px 16px;
+    padding: 10px 16px;
     background: var(--white, #FFFFFF);
     border-bottom: 1px solid var(--border, #E8E8EE);
     transition: background 0.15s;
+    flex-shrink: 0;
 }
 
 .ad-field:focus-within {
@@ -269,7 +272,7 @@ body {
 }
 
 .ad-field label {
-    font-size: 10.5px;
+    font-size: 10px;
     font-weight: 800;
     color: var(--gray-500, #71717A);
     text-transform: uppercase;
@@ -280,10 +283,9 @@ body {
     color: var(--violet-700, #6D28D9);
 }
 
-/* Input integrado: sin borde, sin fondo, sin padding lateral */
 .ad-field input[type="text"] {
     width: 100%;
-    padding: 6px 0;
+    padding: 4px 0;
     border: none;
     background: transparent;
     font-family: inherit;
@@ -297,16 +299,16 @@ body {
     font-weight: 500;
 }
 
-/* ========== Icono picker (dentro del último field) ========== */
+/* ========== Icono picker (más horizontal, más compacto) ========== */
 .ad-icon-picker {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     align-items: center;
-    padding-top: 4px;
+    padding-top: 2px;
 }
 .ad-icon-preview {
-    width: 52px;
-    height: 52px;
+    width: 44px;
+    height: 44px;
     border-radius: 10px;
     background: var(--gray-100, #F4F4F7);
     border: 1.5px dashed var(--border, #E8E8EE);
@@ -323,14 +325,15 @@ body {
     height: 100%;
     object-fit: cover;
 }
-.ad-icon-preview [data-lucide] { width: 20px; height: 20px; }
+.ad-icon-preview [data-lucide] { width: 18px; height: 18px; }
 
 .ad-icon-acciones {
     display: flex;
-    flex-direction: column;
-    gap: 5px;
+    gap: 6px;
     flex: 1;
     min-width: 0;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
 /* ========== BOTONES ========== */
@@ -341,7 +344,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 6px;
-    padding: 9px 12px;
+    padding: 8px 12px;
     border-radius: 10px;
     font-family: inherit;
     font-size: 12.5px;
@@ -350,6 +353,7 @@ body {
     transition: all 0.15s;
     border: none;
     touch-action: manipulation;
+    white-space: nowrap;
 }
 
 .ad-btn-sec {
@@ -391,14 +395,13 @@ body {
 .ad-btn-pri [data-lucide],
 .ad-btn-peligro [data-lucide] { width: 13px; height: 13px; }
 
-/* ========== ACCIONES ========== */
+/* ========== ACCIONES (sticky abajo) ========== */
 .ad-modal-actions {
     display: flex;
     gap: 8px;
-    padding: 12px 16px;
+    padding: 10px 14px;
     border-top: 1px solid var(--border, #E8E8EE);
     background: var(--gray-50, #FAFAFB);
-    flex-wrap: wrap;
     flex-shrink: 0;
 }
 .ad-modal-actions .ad-btn-sec,
@@ -408,4 +411,14 @@ body {
 }
 .ad-modal-actions .ad-btn-peligro {
     flex: 0 0 auto;
+    padding: 8px 12px;
+}
+
+/* ========== RESPONSIVE: muy angosto ========== */
+@media (max-width: 320px) {
+    .ad-field { padding: 9px 12px; }
+    .ad-modal-header { padding: 10px 12px; }
+    .ad-modal-actions { padding: 8px 12px; gap: 6px; }
+    .ad-icon-preview { width: 40px; height: 40px; }
+    .ad-btn-sec, .ad-btn-pri, .ad-btn-peligro { font-size: 12px; padding: 7px 10px; }
 }
