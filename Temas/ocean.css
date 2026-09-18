@@ -1,0 +1,51 @@
+/* ================================================
+   Tema: Ocean
+   Modo oscuro con azules marinos profundos.
+   Va en Oficiales (gratuito).
+   ================================================ */
+
+:root {
+    /* Acento azul marino con destellos teal */
+    --violet-50:  #0B1F3A;
+    --violet-100: #13294B;
+    --violet-200: #1A3A5C;
+    --violet-300: #17879B;
+    --violet-400: #16A085;
+    --violet-500: #1DAEC4;
+    --violet-600: #1490A8;
+    --violet-700: #10738C;
+
+    /* Neutros azul muy oscuro */
+    --white:   #0A1628;
+    --bg:      #050E1C;
+    --bg-alt:  #0A1628;
+    --gray-50:  #0A1628;
+    --gray-100: #10203A;
+    --gray-200: #1A2E4E;
+    --gray-300: #2A4268;
+    --gray-400: #4A6A94;
+    --gray-500: #7090B8;
+    --gray-600: #9AB0D0;
+    --gray-700: #BED0E8;
+    --gray-800: #DCE8F8;
+    --gray-900: #F0F6FF;
+
+    --border:  #1A2E4E;
+    --text:    #F0F6FF;
+    --text-2:  #9AB0D0;
+    --text-3:  #7090B8;
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.6);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.7);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.8);
+    --shadow-glow: 0 0 0 4px rgba(23, 135, 155, 0.20);
+
+    /* Acento: azul marino profundo → teal */
+    --accent-gradient: linear-gradient(135deg, #13294B, #17879B);
+    --accent-gradient-hover: linear-gradient(135deg, #1A3A5C, #16A085);
+    --accent-shadow: rgba(23, 135, 155, 0.35);
+    --accent-shadow-hover: rgba(23, 135, 155, 0.55);
+    --accent-text-gradient: linear-gradient(135deg, #CFE2F3, #1DAEC4);
+}
