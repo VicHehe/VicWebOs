@@ -75,3 +75,4 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 6,
         monedas: 0
     }
+];
