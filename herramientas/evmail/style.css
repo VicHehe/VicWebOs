@@ -401,8 +401,7 @@ body {
 }
 
 /* ============================================================
-   Tarjeta base del modal — 25% más chica.
-   560px → 420px. Padding reducido.
+   Tarjeta base del modal — 25% más chica que el original.
    ============================================================ */
 .modal-card {
     background: var(--ev-surface);
@@ -426,7 +425,6 @@ body {
 
 /* ============================================================
    MODAL VER MENSAJE — scroll interno de toda la tarjeta.
-   Así el texto nunca se corta y los botones quedan accesibles.
    ============================================================ */
 .modal-card.modal-ver {
     overflow-y: auto;
@@ -434,7 +432,6 @@ body {
     padding-right: 14px;
 }
 
-/* Scrollbar visible del modal ver */
 .modal-card.modal-ver::-webkit-scrollbar {
     width: 12px;
 }
@@ -454,13 +451,11 @@ body {
     border: 3px solid transparent;
 }
 
-/* Firefox */
 .modal-card.modal-ver {
     scrollbar-width: thin;
     scrollbar-color: var(--ev-accent-light) transparent;
 }
 
-/* El título del modal hereda la tipografía del tema. */
 .modal-titulo {
     font-family: inherit;
     font-size: 16px;
@@ -660,10 +655,14 @@ body {
     gap: 4px;
 }
 
-/* Imagen: bajada de 320 a 220px (25% menos) */
+/* Imagen: centrada horizontalmente dentro del modal */
 #verImagenWrap {
     margin: 6px 0;
     flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
 }
 #verImagenWrap img {
     max-width: 100%;
@@ -673,7 +672,6 @@ body {
     display: block;
 }
 
-/* Texto: sin max-height propio, fluye con el scroll del modal */
 .ver-texto {
     font-size: 13.5px;
     line-height: 1.65;
@@ -693,6 +691,24 @@ body {
     margin-top: 16px;
     flex-wrap: wrap;
     flex-shrink: 0;
+}
+
+/* En el modal ver, los botones se ajustan para caber en una fila
+   sin que "Eliminar" quede huérfano abajo. */
+.modal-ver .modal-actions {
+    justify-content: flex-end;
+    gap: 6px;
+}
+.modal-ver .modal-actions .btn-secondary,
+.modal-ver .modal-actions .btn-danger {
+    padding: 8px 12px;
+    font-size: 12px;
+    flex: 0 0 auto;
+}
+.modal-ver .modal-actions .btn-secondary [data-lucide],
+.modal-ver .modal-actions .btn-danger [data-lucide] {
+    width: 13px;
+    height: 13px;
 }
 
 /* ========== SPINNER ========== */
@@ -766,6 +782,20 @@ body {
     .modal-actions .btn-primary,
     .modal-actions .btn-secondary {
         width: 100%;
+    }
+
+    /* En móvil, mantener los botones del ver en fila si se puede,
+       y si no, en columna centrados */
+    .modal-ver .modal-actions {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .modal-ver .modal-actions .btn-secondary,
+    .modal-ver .modal-actions .btn-danger {
+        flex: 1 1 auto;
+        min-width: 90px;
+        max-width: 50%;
     }
 
     #verImagenWrap img { max-height: 180px; }
