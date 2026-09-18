@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Directo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="ad-widget">
+        <div class="ad-header">
+            <div class="ad-titulo">
+                <i data-lucide="link"></i>
+                <span>Acceso Directo</span>
+            </div>
+        </div>
+
+        <div class="ad-grid" id="adGrid"></div>
+    </div>
+
+    <!-- MODAL editar slot -->
+    <div class="ad-modal" id="adModal" hidden>
+        <div class="ad-modal-card">
+            <div class="ad-modal-header">
+                <h3 id="adModalTitulo">Editar acceso</h3>
+                <button class="ad-modal-cerrar" id="adModalCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="ad-modal-body">
+                <div class="ad-field">
+                    <label>Nombre</label>
+                    <input type="text" id="adNombre" maxlength="20" placeholder="Ej: YouTube">
+                </div>
+                <div class="ad-field">
+                    <label>URL</label>
+                    <input type="text" id="adUrl" placeholder="https://...">
+                </div>
+                <div class="ad-field">
+                    <label>Icono (opcional)</label>
+                    <div class="ad-icon-picker">
+                        <div class="ad-icon-preview" id="adIconPreview">
+                            <i data-lucide="image"></i>
+                        </div>
+                        <div class="ad-icon-acciones">
+                            <button type="button" class="ad-btn-sec" id="adBtnElegirIcono">
+                                <i data-lucide="image-plus"></i>
+                                Elegir imagen
+                            </button>
+                            <button type="button" class="ad-btn-sec ad-btn-sm" id="adBtnQuitarIcono" hidden>
+                                <i data-lucide="x"></i>
+                                Quitar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ad-modal-actions">
+                <button class="ad-btn-peligro" id="adBtnEliminar" hidden>
+                    <i data-lucide="trash-2"></i>
+                    Eliminar
+                </button>
+                <button class="ad-btn-sec" id="adBtnCancelar">Cancelar</button>
+                <button class="ad-btn-pri" id="adBtnGuardar">
+                    <i data-lucide="check"></i>
+                    Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
