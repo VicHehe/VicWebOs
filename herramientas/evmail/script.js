@@ -2,9 +2,9 @@
 //  EVmail — Correo interno entre los usuarios de VicWebOs
 //  ------------------------------------------------------------
 //  Datos:
-//    - Mensajes:  app/evmail/evmail.json          (global)
-//    - Imágenes:  app/evmail/evmail(imagen)/      (binarios)
-//    - Usuarios:  cuenta.json                     (raíz del repo)
+//    - Mensajes:  app/evmail/evmail.json        (global)
+//    - Imágenes:  ya NO sube nada. Usa ids de la Galería.
+//    - Usuarios:  cuenta.json (raíz del repo)
 // ============================================================
 
 'use strict';
@@ -12,12 +12,8 @@
 const APP_ID = 'evmail';
 const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const POLL_MS = 15000;
-const MAX_TITULO = 120;
 const MAX_PREVIEW = 60;
 
-// ------------------------------------------------------------
-//  Estado en memoria
-// ------------------------------------------------------------
 let datos = { version: 1, mensajes: [] };
 let usuarioActual = null;
 let tabActual = 'recibidos';
@@ -25,14 +21,10 @@ let filtroBusqueda = '';
 let mensajeActualId = null;
 let editandoId = null;
 let listaUsuarios = [];
-let archivoImagenPendiente = null;   // File si el usuario eligió uno nuevo
-let quitarImagenEnEdicion = false;   // flag para cuando edita y quiere borrar
+let imagenIdPendiente = null;   // id de la imagen elegida en la Galería
 let pollTimer = null;
 let toastTimeout = null;
 
-// ------------------------------------------------------------
-//  Acceso al shell
-// ------------------------------------------------------------
 const API = () => window.parent.__vicwebos || null;
 const BD  = () => window.parent.ConfigBD || null;
 const MH  = () => window.parent.MasterHad || null;
@@ -88,14 +80,8 @@ function rutaJSON() {
     return 'app/evmail/evmail.json';
 }
 
-function rutaImagen(nombre) {
-    const mh = MH();
-    if (mh && mh.rutas) return mh.rutas.imagen(APP_ID, nombre);
-    return 'app/evmail/evmail(imagen)/' + nombre;
-}
-
 // ------------------------------------------------------------
-//  Obtener cuentas registradas
+//  Cuentas
 // ------------------------------------------------------------
 async function obtenerCuentas() {
     const bd = BD();
@@ -103,13 +89,11 @@ async function obtenerCuentas() {
     try {
         const data = await bd.leerArchivo('cuenta.json');
         return Array.isArray(data) ? data : [];
-    } catch (e) {
-        return [];
-    }
+    } catch (e) { return []; }
 }
 
 // ------------------------------------------------------------
-//  Cargar mensajes
+//  Cargar / normalizar mensajes
 // ------------------------------------------------------------
 async function cargarMensajes(desdeCache = false) {
     const bd = BD();
@@ -118,13 +102,9 @@ async function cargarMensajes(desdeCache = false) {
         const data = desdeCache
             ? await bd.leerArchivo(rutaJSON())
             : await bd.leerArchivoFresh(rutaJSON());
-        if (data && Array.isArray(data.mensajes)) {
-            datos = normalizar(data);
-        } else {
-            datos = { version: 1, mensajes: [] };
-        }
+        datos = normalizar(data);
     } catch (e) {
-        console.warn('[EVmail] No se pudieron cargar los mensajes:', e);
+        console.warn('[EVmail] Error cargando:', e);
         datos = { version: 1, mensajes: [] };
     }
 }
@@ -132,7 +112,6 @@ async function cargarMensajes(desdeCache = false) {
 function normalizar(data) {
     if (!data || typeof data !== 'object') return { version: 1, mensajes: [] };
     if (!Array.isArray(data.mensajes)) data.mensajes = [];
-    // Migración: si algún mensaje tiene "destinatario" string, lo pasamos a array
     data.mensajes = data.mensajes.map(m => {
         if (typeof m.destinatario === 'string') {
             m.destinatarios = [m.destinatario];
@@ -145,6 +124,12 @@ function normalizar(data) {
         m.leido = !!m.leido;
         m.editado = !!m.editado;
         if (!m.id) m.id = generarId();
+        // Migración: si hay "imagen" (nombre de archivo viejo), lo descartamos
+        if ('imagen' in m && !('imagenId' in m)) {
+            m.imagenId = null;
+            delete m.imagen;
+        }
+        if (!('imagenId' in m)) m.imagenId = null;
         return m;
     });
     return data;
@@ -155,7 +140,7 @@ function generarId() {
 }
 
 // ------------------------------------------------------------
-//  Escribir cambios de forma segura
+//  Escritura segura con merge
 // ------------------------------------------------------------
 async function mutarMensajes(mutador) {
     const bd = BD();
@@ -169,43 +154,6 @@ async function mutarMensajes(mutador) {
         return actual;
     });
     datos = normalizar(resultado);
-}
-
-// ------------------------------------------------------------
-//  Imágenes
-// ------------------------------------------------------------
-async function subirImagen(file, id) {
-    const mh = MH();
-    if (!mh) throw new Error('MasterHad no disponible.');
-    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-    const nombre = 'ev_' + id + '.' + ext;
-    const res = await mh.publicarImagen(APP_ID, file, { nombre });
-    return res.nombre;
-}
-
-async function cargarImagen(nombre, imgElement) {
-    try {
-        const mh = MH();
-        if (!mh) return;
-        const url = await mh.leerImagenURL(rutaImagen(nombre));
-        if (url) {
-            imgElement.src = url;
-            imgElement.onload = () => URL.revokeObjectURL(url);
-        }
-    } catch (e) {
-        console.warn('[EVmail] No se pudo cargar la imagen:', e);
-    }
-}
-
-async function borrarImagen(nombre) {
-    if (!nombre) return;
-    try {
-        const mh = MH();
-        if (!mh) return;
-        await mh.borrarImagen(rutaImagen(nombre));
-    } catch (e) {
-        console.warn('[EVmail] No se pudo borrar la imagen:', e);
-    }
 }
 
 // ------------------------------------------------------------
@@ -318,7 +266,7 @@ function formatearFecha(iso) {
 }
 
 function escapeHTML(str) {
-    return String(str)
+    return String(str || '')
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
@@ -334,7 +282,6 @@ async function verMensaje(id) {
     if (!m) return;
     mensajeActualId = id;
 
-    // Marcar como leído si corresponde
     if (tabActual === 'recibidos' && !m.leido) {
         try {
             await mutarMensajes(d => {
@@ -348,7 +295,6 @@ async function verMensaje(id) {
         renderizar();
     }
 
-    // Rellenar modal
     document.getElementById('verTitulo').textContent = m.titulo || 'Sin título';
     document.getElementById('verRemitente').innerHTML =
         `<i data-lucide="user"></i> ${escapeHTML(m.remitenteNombre || m.remitente)}`;
@@ -370,19 +316,18 @@ async function verMensaje(id) {
         : '<i data-lucide="circle-dot"></i> No leído';
     leidoSpan.style.marginLeft = 'auto';
 
-    // Imagen
+    // Imagen desde la Galería
     const wrap = document.getElementById('verImagenWrap');
     wrap.innerHTML = '';
-    if (m.imagen) {
+    if (m.imagenId) {
         const img = document.createElement('img');
+        img.alt = '';
         wrap.appendChild(img);
-        cargarImagen(m.imagen, img);
+        cargarImagenGaleria(m.imagenId, img);
     }
 
-    // Texto
     document.getElementById('verTexto').innerHTML = m.texto || '';
 
-    // Botones según quién soy
     const btnResponder = document.getElementById('btnResponder');
     const btnEditar = document.getElementById('btnEditar');
     const btnEliminar = document.getElementById('btnEliminar');
@@ -396,13 +341,30 @@ async function verMensaje(id) {
     if (window.lucide) window.lucide.createIcons();
 }
 
+async function cargarImagenGaleria(imagenId, imgElement) {
+    try {
+        const mh = MH();
+        if (!mh) return;
+        const url = await mh.galeria.leerImagenURL(imagenId);
+        if (!url) {
+            imgElement.alt = 'Imagen no disponible';
+            imgElement.style.display = 'none';
+            return;
+        }
+        imgElement.src = url;
+        imgElement.onload = () => URL.revokeObjectURL(url);
+    } catch (e) {
+        console.warn('[EVmail] No se pudo cargar la imagen:', e);
+    }
+}
+
 function cerrarVer() {
     document.getElementById('modalVer').classList.remove('visible');
     mensajeActualId = null;
 }
 
 // ------------------------------------------------------------
-//  Eliminar mensaje
+//  Eliminar
 // ------------------------------------------------------------
 async function eliminarMensaje() {
     if (!mensajeActualId) return;
@@ -414,10 +376,8 @@ async function eliminarMensaje() {
     }
     if (!confirm('¿Eliminar este mensaje permanentemente?')) return;
 
-    // Si tiene imagen, la borramos del repo
-    if (m.imagen) {
-        await borrarImagen(m.imagen);
-    }
+    // Nota: NO borramos la imagen de la Galería.
+    // Puede estar en otros mensajes o el usuario querer conservarla.
     try {
         await mutarMensajes(d => {
             d.mensajes = d.mensajes.filter(x => x.id !== mensajeActualId);
@@ -433,7 +393,7 @@ async function eliminarMensaje() {
 }
 
 // ------------------------------------------------------------
-//  Editar mensaje
+//  Editar
 // ------------------------------------------------------------
 function editarMensaje() {
     const m = datos.mensajes.find(x => x.id === mensajeActualId);
@@ -445,8 +405,7 @@ function editarMensaje() {
 
     cerrarVer();
     editandoId = m.id;
-    archivoImagenPendiente = null;
-    quitarImagenEnEdicion = false;
+    imagenIdPendiente = m.imagenId || null;
 
     document.getElementById('modalTitulo').textContent = 'Editar mensaje';
     document.getElementById('btnSubmit').innerHTML =
@@ -458,41 +417,19 @@ function editarMensaje() {
     editor.classList.toggle('empty', !editor.textContent.trim());
 
     cargarDestinatarios(m.destinatarios || []);
+    actualizarPreviewImagen();
 
-    // Imagen actual
-    const preview = document.getElementById('msgImagenPreview');
-    const quitarBtn = document.getElementById('btnQuitarImagen');
-    const nombreSpan = document.getElementById('msgImagenNombre');
-    preview.innerHTML = '';
-    preview.dataset.visible = 'false';
-
-    if (m.imagen) {
-        const img = document.createElement('img');
-        preview.appendChild(img);
-        preview.dataset.visible = 'true';
-        preview.dataset.imagenActual = m.imagen;
-        cargarImagen(m.imagen, img);
-        quitarBtn.hidden = false;
-        nombreSpan.textContent = 'Imagen actual';
-    } else {
-        quitarBtn.hidden = true;
-        nombreSpan.textContent = 'Ningún archivo';
-        delete preview.dataset.imagenActual;
-    }
-
-    document.getElementById('msgImagen').value = '';
     document.getElementById('modalNuevo').classList.add('visible');
     if (window.lucide) window.lucide.createIcons();
     setTimeout(() => editor.focus(), 100);
 }
 
 // ------------------------------------------------------------
-//  Nuevo mensaje
+//  Nuevo
 // ------------------------------------------------------------
 function abrirNuevo(titulo = '', destinatarioPref = null) {
     editandoId = null;
-    archivoImagenPendiente = null;
-    quitarImagenEnEdicion = false;
+    imagenIdPendiente = null;
 
     document.getElementById('modalTitulo').textContent = 'Nuevo mensaje';
     document.getElementById('btnSubmit').innerHTML =
@@ -503,15 +440,8 @@ function abrirNuevo(titulo = '', destinatarioPref = null) {
     editor.innerHTML = '';
     editor.classList.add('empty');
 
-    document.getElementById('msgImagen').value = '';
-    document.getElementById('msgImagenNombre').textContent = 'Ningún archivo';
-    const preview = document.getElementById('msgImagenPreview');
-    preview.innerHTML = '';
-    preview.dataset.visible = 'false';
-    delete preview.dataset.imagenActual;
-    document.getElementById('btnQuitarImagen').hidden = true;
-
     cargarDestinatarios(destinatarioPref ? [destinatarioPref] : []);
+    actualizarPreviewImagen();
 
     document.getElementById('modalNuevo').classList.add('visible');
     if (window.lucide) window.lucide.createIcons();
@@ -521,8 +451,7 @@ function abrirNuevo(titulo = '', destinatarioPref = null) {
 function cerrarModalNuevo() {
     document.getElementById('modalNuevo').classList.remove('visible');
     editandoId = null;
-    archivoImagenPendiente = null;
-    quitarImagenEnEdicion = false;
+    imagenIdPendiente = null;
 }
 
 // ------------------------------------------------------------
@@ -531,7 +460,6 @@ function cerrarModalNuevo() {
 async function cargarDestinatarios(seleccionados = []) {
     const cont = document.getElementById('destinatariosContainer');
     if (!cont) return;
-
     const cuentas = await obtenerCuentas();
     listaUsuarios = cuentas.filter(u => u.codigo !== usuarioActual.codigo);
 
@@ -550,7 +478,7 @@ async function cargarDestinatarios(seleccionados = []) {
 }
 
 // ------------------------------------------------------------
-//  Editor visual
+//  Editor
 // ------------------------------------------------------------
 function inicializarEditor() {
     const editor = document.getElementById('msgTexto');
@@ -566,80 +494,77 @@ function inicializarEditor() {
         actualizarPlaceholderEditor();
     });
 
-    editor.addEventListener('focus', () => {
-        editor.classList.remove('empty');
-    });
+    editor.addEventListener('focus', () => editor.classList.remove('empty'));
     editor.addEventListener('blur', actualizarPlaceholderEditor);
-
-    // Refrescar el placeholder tras cualquier input
     editor.addEventListener('input', actualizarPlaceholderEditor);
 }
 
 function actualizarPlaceholderEditor() {
     const editor = document.getElementById('msgTexto');
     if (!editor) return;
-    const vacio = !editor.textContent.trim();
-    editor.classList.toggle('empty', vacio);
+    editor.classList.toggle('empty', !editor.textContent.trim());
 }
 
 // ------------------------------------------------------------
-//  Previsualización de imagen
+//  Imagen: elegir desde Galería
 // ------------------------------------------------------------
-function inicializarInputImagen() {
-    const input = document.getElementById('msgImagen');
-    if (!input) return;
-
-    input.addEventListener('change', function () {
-        const file = this.files[0];
-        const nombreSpan = document.getElementById('msgImagenNombre');
-        const preview = document.getElementById('msgImagenPreview');
-        const quitarBtn = document.getElementById('btnQuitarImagen');
-
-        preview.innerHTML = '';
-        preview.dataset.visible = 'false';
-
-        if (!file) {
-            nombreSpan.textContent = 'Ningún archivo';
-            quitarBtn.hidden = true;
-            archivoImagenPendiente = null;
-            return;
-        }
-
-        archivoImagenPendiente = file;
-        nombreSpan.textContent = file.name;
-
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            const img = document.createElement('img');
-            img.src = ev.target.result;
-            preview.appendChild(img);
-            preview.dataset.visible = 'true';
-            quitarBtn.hidden = false;
-        };
-        reader.readAsDataURL(file);
-    });
+async function elegirImagenDeGaleria() {
+    const mh = MH();
+    if (!mh) {
+        toast('MasterHad no disponible.', 'error');
+        return;
+    }
+    try {
+        const id = await mh.galeria.abrirPicker({
+            multiple: false,
+            titulo: 'Elige una imagen para tu mensaje'
+        });
+        if (!id) return; // cancelado
+        imagenIdPendiente = id;
+        actualizarPreviewImagen();
+    } catch (e) {
+        console.warn('[EVmail] Error en picker:', e);
+        toast('No se pudo abrir la galería', 'error');
+    }
 }
 
-function inicializarBotonQuitarImagen() {
-    const btn = document.getElementById('btnQuitarImagen');
-    if (!btn) return;
+async function actualizarPreviewImagen() {
+    const wrap = document.getElementById('msgImagenPreview');
+    const img = document.getElementById('msgImagenPreviewImg');
+    const nombre = document.getElementById('msgImagenNombre');
+    const btnQuitar = document.getElementById('btnQuitarImagen');
 
-    btn.addEventListener('click', () => {
-        const preview = document.getElementById('msgImagenPreview');
-        const input = document.getElementById('msgImagen');
-        const nombreSpan = document.getElementById('msgImagenNombre');
+    if (!imagenIdPendiente) {
+        wrap.hidden = true;
+        btnQuitar.hidden = true;
+        img.removeAttribute('src');
+        nombre.textContent = '';
+        return;
+    }
 
-        preview.innerHTML = '';
-        preview.dataset.visible = 'false';
-        input.value = '';
-        archivoImagenPendiente = null;
-        nombreSpan.textContent = 'Ningún archivo';
-        btn.hidden = true;
+    wrap.hidden = false;
+    btnQuitar.hidden = false;
 
-        if (editandoId && preview.dataset.imagenActual) {
-            quitarImagenEnEdicion = true;
+    // Cargar datos y miniatura
+    try {
+        const mh = MH();
+        const meta = await mh.galeria.obtenerImagen(imagenIdPendiente);
+        nombre.textContent = meta ? (meta.nombre || meta.archivo) : imagenIdPendiente;
+
+        const url = await mh.galeria.leerImagenURL(imagenIdPendiente);
+        if (url) {
+            img.src = url;
+            img.onload = () => URL.revokeObjectURL(url);
         }
-    });
+    } catch (e) {
+        console.warn('[EVmail] Error preview:', e);
+        nombre.textContent = 'Imagen seleccionada';
+    }
+}
+
+function quitarImagenSeleccionada() {
+    imagenIdPendiente = null;
+    actualizarPreviewImagen();
 }
 
 // ------------------------------------------------------------
@@ -652,21 +577,12 @@ async function enviarMensaje(e) {
     const editor = document.getElementById('msgTexto');
     const textoHTML = editor.innerHTML.trim();
 
-    if (!titulo) {
-        toast('Escribe un título.', 'error');
-        return;
-    }
-    if (!textoHTML || textoHTML === '<br>') {
-        toast('Escribe un mensaje.', 'error');
-        return;
-    }
+    if (!titulo) { toast('Escribe un título.', 'error'); return; }
+    if (!textoHTML || textoHTML === '<br>') { toast('Escribe un mensaje.', 'error'); return; }
 
     const checkboxes = document.querySelectorAll('#destinatariosContainer input[type="checkbox"]:checked');
     const destinatarios = Array.from(checkboxes).map(cb => cb.value);
-    if (destinatarios.length === 0) {
-        toast('Selecciona al menos un destinatario.', 'error');
-        return;
-    }
+    if (destinatarios.length === 0) { toast('Selecciona al menos un destinatario.', 'error'); return; }
 
     const btn = document.getElementById('btnSubmit');
     if (btn.disabled) return;
@@ -697,11 +613,6 @@ async function enviarMensaje(e) {
 
 async function crearMensaje({ titulo, textoHTML, destinatarios }) {
     const id = generarId();
-    let imagenNombre = null;
-    if (archivoImagenPendiente) {
-        imagenNombre = await subirImagen(archivoImagenPendiente, id);
-    }
-
     const nuevo = {
         id,
         remitente: usuarioActual.codigo,
@@ -709,7 +620,7 @@ async function crearMensaje({ titulo, textoHTML, destinatarios }) {
         destinatarios,
         titulo,
         texto: textoHTML,
-        imagen: imagenNombre,
+        imagenId: imagenIdPendiente || null,
         fecha: new Date().toISOString(),
         leido: false,
         editado: false
@@ -738,40 +649,23 @@ async function crearMensaje({ titulo, textoHTML, destinatarios }) {
 }
 
 async function actualizarMensaje(id, { titulo, textoHTML, destinatarios }) {
-    const m = datos.mensajes.find(x => x.id === id);
-    if (!m) throw new Error('El mensaje ya no existe.');
-
-    // Imagen: puede cambiar, quedar igual o eliminarse
-    let imagenFinal = m.imagen;
-
-    // 1) Si el usuario eligió una imagen nueva, borramos la vieja y subimos la nueva
-    if (archivoImagenPendiente) {
-        if (m.imagen) await borrarImagen(m.imagen);
-        imagenFinal = await subirImagen(archivoImagenPendiente, id);
-    }
-    // 2) Si marcó quitar imagen y no subió otra, borramos la vieja
-    else if (quitarImagenEnEdicion && m.imagen) {
-        await borrarImagen(m.imagen);
-        imagenFinal = null;
-    }
-
     await mutarMensajes(d => {
         const msg = d.mensajes.find(x => x.id === id);
-        if (!msg) return d;
+        if (!msg) throw new Error('El mensaje ya no existe.');
         msg.titulo = titulo;
         msg.texto = textoHTML;
+        msg.imagenId = imagenIdPendiente || null;
+        msg.editado = true;
+        msg.editadoFecha = new Date().toISOString();
         if (msg.remitente === usuarioActual.codigo) {
             msg.destinatarios = destinatarios;
         }
-        msg.imagen = imagenFinal;
-        msg.editado = true;
-        msg.editadoFecha = new Date().toISOString();
         return d;
     });
 }
 
 // ------------------------------------------------------------
-//  Tabs y búsqueda
+//  Tabs, búsqueda, polling
 // ------------------------------------------------------------
 function inicializarTabs() {
     document.querySelectorAll('.tab').forEach(tab => {
@@ -793,9 +687,6 @@ function inicializarBusqueda() {
     });
 }
 
-// ------------------------------------------------------------
-//  Polling
-// ------------------------------------------------------------
 function iniciarPolling() {
     detenerPolling();
     pollTimer = setInterval(() => {
@@ -815,7 +706,6 @@ async function checkNuevos() {
         const data = await bd.leerArchivoFresh(rutaJSON());
         if (!data || !Array.isArray(data.mensajes)) return;
         const nuevo = normalizar(data);
-        // Solo re-renderizamos si cambió algo
         if (JSON.stringify(nuevo.mensajes) !== JSON.stringify(datos.mensajes)) {
             datos = nuevo;
             renderizar();
@@ -847,16 +737,12 @@ async function inicializar() {
         return;
     }
 
-    // Cargar mensajes
     await cargarMensajes(true);
     renderizar();
 
-    // Eventos
     inicializarTabs();
     inicializarBusqueda();
     inicializarEditor();
-    inicializarInputImagen();
-    inicializarBotonQuitarImagen();
 
     document.getElementById('btnNuevoMensaje')
         ?.addEventListener('click', () => abrirNuevo());
@@ -877,6 +763,12 @@ async function inicializar() {
         });
     document.getElementById('formMensaje')
         ?.addEventListener('submit', enviarMensaje);
+
+    // Picker de imágenes
+    document.getElementById('btnElegirImagen')
+        ?.addEventListener('click', elegirImagenDeGaleria);
+    document.getElementById('btnQuitarImagen')
+        ?.addEventListener('click', quitarImagenSeleccionada);
 
     // Cerrar modales al hacer click fuera
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
