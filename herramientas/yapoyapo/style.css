@@ -37,7 +37,7 @@ html, body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 20px;
+    padding: 10px 16px;
     background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
     flex-shrink: 0;
     position: relative;
@@ -55,16 +55,16 @@ html, body {
 .yp-header-left {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     min-width: 0;
     position: relative;
     z-index: 1;
 }
 .yp-logo-mark {
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
     background: rgba(255,255,255,0.22);
-    border-radius: 11px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -72,21 +72,24 @@ html, body {
     flex-shrink: 0;
     backdrop-filter: blur(4px);
 }
-.yp-logo-mark [data-lucide] { width: 20px; height: 20px; stroke-width: 2.5; }
+.yp-logo-mark [data-lucide] { width: 18px; height: 18px; stroke-width: 2.5; }
 
 .yp-header-text { display: flex; flex-direction: column; min-width: 0; }
 .yp-header-text h1 {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 800;
     letter-spacing: -0.02em;
     line-height: 1.1;
     margin: 0;
 }
 .yp-badge {
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     font-weight: 700;
     opacity: 0.85;
     margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* ===== SCREENS ===== */
@@ -108,8 +111,8 @@ html, body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 24px 22px;
-    gap: 16px;
+    padding: 20px 22px;
+    gap: 14px;
     overflow-y: auto;
     text-align: center;
 }
@@ -120,8 +123,8 @@ html, body {
     margin-bottom: 4px;
 }
 .yp-chip {
-    width: 52px;
-    height: 52px;
+    width: 46px;
+    height: 46px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -130,7 +133,7 @@ html, body {
     animation: ypBob 2.4s ease-in-out infinite;
     box-shadow: 0 6px 18px rgba(0,0,0,0.12);
 }
-.yp-chip [data-lucide] { width: 24px; height: 24px; stroke-width: 2.5; }
+.yp-chip [data-lucide] { width: 22px; height: 22px; stroke-width: 2.5; }
 .yp-chip.c1 { background: linear-gradient(135deg, #f26b6b, #e63946); animation-delay: 0s;    }
 .yp-chip.c2 { background: linear-gradient(135deg, #ffd166, #f4b400); animation-delay: 0.15s; }
 .yp-chip.c3 { background: linear-gradient(135deg, #6fd68a, #27ae60); animation-delay: 0.3s;  }
@@ -139,11 +142,11 @@ html, body {
 
 @keyframes ypBob {
     0%, 100% { transform: translateY(0); }
-    50%      { transform: translateY(-8px); }
+    50%      { transform: translateY(-6px); }
 }
 
 .yp-title {
-    font-size: 2.4rem;
+    font-size: 2.1rem;
     font-weight: 800;
     letter-spacing: -0.03em;
     background: var(--accent-text-gradient, linear-gradient(135deg, #18181B, #7C3AED));
@@ -153,7 +156,7 @@ html, body {
     line-height: 1;
 }
 .yp-subtitle {
-    font-size: 0.92rem;
+    font-size: 0.88rem;
     color: var(--gray-500, #71717A);
     max-width: 460px;
     line-height: 1.5;
@@ -164,7 +167,7 @@ html, body {
 .yp-rules-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+    gap: 8px;
     width: 100%;
     max-width: 580px;
     margin-top: 4px;
@@ -173,7 +176,7 @@ html, body {
     background: var(--violet-50, #F5F3FF);
     border: 1.5px solid var(--violet-200, #DDD6FE);
     border-radius: var(--r-md, 12px);
-    padding: 12px 8px;
+    padding: 10px 8px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -183,8 +186,8 @@ html, body {
 }
 .yp-rule-card:hover { transform: translateY(-3px); }
 .yp-rule-icon {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
     border-radius: 9px;
     display: flex;
@@ -194,14 +197,14 @@ html, body {
     box-shadow: 0 3px 10px var(--accent-shadow, rgba(139,92,246,0.28));
     margin-bottom: 2px;
 }
-.yp-rule-icon [data-lucide] { width: 16px; height: 16px; stroke-width: 2.5; }
+.yp-rule-icon [data-lucide] { width: 15px; height: 15px; stroke-width: 2.5; }
 .yp-rule-title {
     font-weight: 800;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     color: var(--gray-900, #18181B);
 }
 .yp-rule-desc {
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     color: var(--gray-500, #71717A);
     font-weight: 600;
     line-height: 1.3;
@@ -210,14 +213,14 @@ html, body {
 .yp-controls-hint {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px 14px;
+    gap: 6px 14px;
     justify-content: center;
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     font-weight: 600;
     color: var(--gray-600, #52525B);
     background: var(--gray-50, #FAFAFB);
     border-radius: 30px;
-    padding: 8px 18px;
+    padding: 7px 16px;
     border: 1px solid var(--border, #E8E8EE);
     max-width: 560px;
 }
@@ -226,14 +229,14 @@ html, body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 22px;
-    height: 22px;
+    min-width: 20px;
+    height: 20px;
     padding: 0 5px;
     background: var(--white, #FFFFFF);
     border: 1.5px solid var(--violet-200, #DDD6FE);
     border-radius: 6px;
     font-family: 'Nunito', sans-serif;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 800;
     color: var(--violet-600, #7C3AED);
     box-shadow: 0 1px 0 var(--violet-200, #DDD6FE);
@@ -258,11 +261,11 @@ html, body {
     color: white;
     border: none;
     border-radius: var(--r-md, 12px);
-    padding: 13px 22px;
+    padding: 12px 22px;
     font-weight: 800;
     font-family: inherit;
     cursor: pointer;
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     box-shadow: 0 6px 18px var(--accent-shadow, rgba(139,92,246,0.35));
     transition: transform 0.15s, box-shadow 0.15s;
 }
@@ -281,11 +284,11 @@ html, body {
     color: var(--gray-700, #3F3F46);
     border: 2px solid var(--border, #E8E8EE);
     border-radius: var(--r-md, 12px);
-    padding: 11px 20px;
+    padding: 10px 20px;
     font-weight: 700;
     font-family: inherit;
     cursor: pointer;
-    font-size: 0.88rem;
+    font-size: 0.86rem;
     transition: all 0.15s;
 }
 .yp-btn-secondary:hover {
@@ -301,10 +304,10 @@ html, body {
     flex: 1;
     min-height: 0;
     display: flex;
-    gap: 16px;
-    padding: 14px;
+    gap: 14px;
+    padding: 12px 14px;
     justify-content: center;
-    align-items: center;
+    align-items: stretch;   /* Cambio clave: sidebar ocupa todo el alto */
     overflow: hidden;
 }
 
@@ -318,12 +321,14 @@ html, body {
         0 12px 32px var(--accent-shadow, rgba(0,0,0,0.15));
     flex-shrink: 0;
     background: #1a1520;
+    align-self: center;   /* El tablero sí se centra verticalmente */
 }
 
 #gameCanvas {
     display: block;
     border-radius: 12px;
-    max-height: calc(100vh - 140px);
+    max-height: calc(100vh - 130px);
+    max-height: calc(100dvh - 130px);
     width: auto;
     height: auto;
 }
@@ -361,44 +366,63 @@ html, body {
 .yp-side-panel {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    width: 160px;
+    gap: 8px;
+    width: 150px;
     flex-shrink: 0;
+    max-height: 100%;
+    overflow-y: auto;    /* Red de seguridad si no cabe */
+    overflow-x: hidden;
+    padding-right: 2px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-300, #D4D4DD) transparent;
+}
+.yp-side-panel::-webkit-scrollbar { width: 6px; }
+.yp-side-panel::-webkit-scrollbar-track { background: transparent; }
+.yp-side-panel::-webkit-scrollbar-thumb {
+    background: var(--gray-200, #E8E8EE);
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background-clip: content-box;
 }
 
 .yp-panel-card {
     background: var(--violet-50, #F5F3FF);
     border: 1.5px solid var(--violet-200, #DDD6FE);
     border-radius: var(--r-md, 12px);
-    padding: 9px 12px;
+    padding: 7px 10px;
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 3px;
+    gap: 2px;
     box-shadow: 0 2px 8px var(--accent-shadow, rgba(139,92,246,0.06));
     transition: all 0.3s;
+    flex-shrink: 0;
 }
 .yp-panel-label {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    font-size: 0.66rem;
+    font-size: 0.62rem;
     font-weight: 800;
     color: var(--gray-500, #71717A);
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    line-height: 1.2;
 }
-.yp-panel-label [data-lucide] { width: 11px; height: 11px; }
+.yp-panel-label [data-lucide] { width: 10px; height: 10px; }
 .yp-panel-value {
-    font-size: 1.35rem;
+    font-size: 1.2rem;
     font-weight: 900;
     color: var(--violet-600, #7C3AED);
     line-height: 1;
     font-variant-numeric: tabular-nums;
 }
 
-.yp-next-card { padding: 9px 8px; }
+.yp-next-card {
+    padding: 7px 6px;
+    gap: 4px;
+}
 #nextCanvas {
     display: block;
     border-radius: 8px;
@@ -414,28 +438,31 @@ html, body {
     background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
     border-color: transparent;
     color: white;
+    padding: 8px 10px;
+    gap: 3px;
 }
 .yp-tier-card .yp-panel-label { color: rgba(255,255,255,0.85); }
 .yp-tier-card .yp-panel-value {
     color: white;
-    font-size: 1.6rem;
+    font-size: 1.35rem;
 }
 .yp-tier-bonus {
-    font-size: 0.62rem;
+    font-size: 0.58rem;
     font-weight: 800;
     color: white;
     background: rgba(255,255,255,0.22);
     padding: 2px 8px;
     border-radius: 10px;
-    margin-top: 2px;
+    margin-top: 1px;
+    line-height: 1.2;
 }
 .yp-tier-progress-track {
     width: 100%;
-    height: 5px;
+    height: 4px;
     background: rgba(255,255,255,0.22);
     border-radius: 4px;
     overflow: hidden;
-    margin-top: 4px;
+    margin-top: 3px;
 }
 .yp-tier-progress-fill {
     height: 100%;
@@ -445,43 +472,46 @@ html, body {
     transition: width 0.3s ease;
 }
 .yp-tier-next {
-    font-size: 0.6rem;
-    color: rgba(255,255,255,0.85);
+    font-size: 0.56rem;
+    color: rgba(255,255,255,0.9);
     font-weight: 700;
-    margin-top: 2px;
+    margin-top: 1px;
+    line-height: 1.2;
 }
 
 .yp-btn-retire {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 7px;
+    gap: 6px;
     background: linear-gradient(135deg, #FFE9A8 0%, #FFD86A 100%);
     color: #8a6500;
     border: 2px solid rgba(249,168,37,0.55);
     border-radius: var(--r-md, 12px);
-    padding: 10px 14px;
+    padding: 9px 12px;
     font-weight: 800;
     font-family: inherit;
     cursor: pointer;
-    font-size: 0.82rem;
+    font-size: 0.78rem;
     width: 100%;
     transition: transform 0.15s, box-shadow 0.15s;
     box-shadow: 0 3px 10px rgba(249,168,37,0.25);
+    flex-shrink: 0;
 }
 .yp-btn-retire:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 18px rgba(249,168,37,0.4);
 }
 .yp-btn-retire:active { transform: translateY(0); }
-.yp-btn-retire [data-lucide] { width: 14px; height: 14px; }
+.yp-btn-retire [data-lucide] { width: 13px; height: 13px; }
 
 .yp-btn-small {
-    padding: 8px 14px;
-    font-size: 0.78rem;
+    padding: 7px 12px;
+    font-size: 0.74rem;
     width: 100%;
+    flex-shrink: 0;
 }
-.yp-btn-small [data-lucide] { width: 13px; height: 13px; }
+.yp-btn-small [data-lucide] { width: 12px; height: 12px; }
 
 /* =====================================================
    CONTROLES MÓVILES
@@ -503,10 +533,9 @@ html, body {
 }
 
 .yp-mc-btn {
-    width: 60px;
-    height: 60px;
+    width: 58px;
+    height: 58px;
     border-radius: 18px;
-    border: none;
     background: var(--white, #FFFFFF);
     color: var(--violet-600, #7C3AED);
     border: 2px solid var(--violet-200, #DDD6FE);
@@ -527,8 +556,8 @@ html, body {
     box-shadow: 0 2px 6px var(--accent-shadow, rgba(139,92,246,0.2));
 }
 .yp-mc-btn [data-lucide] {
-    width: 26px;
-    height: 26px;
+    width: 24px;
+    height: 24px;
     stroke-width: 2.5;
 }
 
@@ -544,7 +573,8 @@ html, body {
 
 @media (pointer: coarse) {
     .yp-mobile-controls { display: flex; }
-    #gameCanvas { max-height: 42vh; }
+    #gameCanvas { max-height: 40vh; }
+    #gameCanvas { max-height: 40dvh; }
 }
 
 /* =====================================================
@@ -574,9 +604,11 @@ html, body {
 .yp-modal-card {
     background: var(--white, #FFFFFF);
     border-radius: 24px;
-    padding: 26px 24px 22px;
+    padding: 24px 22px 20px;
     max-width: 400px;
     width: 100%;
+    max-height: 90dvh;
+    overflow-y: auto;
     text-align: center;
     box-shadow: 0 24px 48px rgba(0,0,0,0.28);
     border: 1px solid var(--border, #E8E8EE);
@@ -588,9 +620,9 @@ html, body {
 }
 
 .yp-modal-icon {
-    width: 64px;
-    height: 64px;
-    margin: 0 auto 12px;
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 10px;
     border-radius: 50%;
     background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
     display: flex;
@@ -601,12 +633,12 @@ html, body {
     animation: ypBob 1.8s ease-in-out infinite;
 }
 .yp-modal-icon [data-lucide] {
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
     stroke-width: 2.5;
 }
 .yp-modal-title {
-    font-size: 1.7rem;
+    font-size: 1.55rem;
     font-weight: 800;
     letter-spacing: -0.02em;
     color: var(--gray-900, #18181B);
@@ -614,17 +646,17 @@ html, body {
     margin-bottom: 4px;
 }
 .yp-modal-subtitle {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     color: var(--gray-500, #71717A);
     font-weight: 600;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
 }
 
 .yp-modal-stats {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    margin-bottom: 20px;
+    gap: 7px;
+    margin-bottom: 16px;
 }
 .yp-stat-row {
     display: flex;
@@ -632,9 +664,9 @@ html, body {
     align-items: center;
     background: var(--gray-50, #FAFAFB);
     border-radius: 12px;
-    padding: 10px 14px;
+    padding: 9px 14px;
     font-weight: 700;
-    font-size: 0.88rem;
+    font-size: 0.85rem;
     color: var(--gray-600, #52525B);
     border: 1px solid var(--border, #E8E8EE);
 }
@@ -645,7 +677,7 @@ html, body {
 }
 .yp-stat-row span [data-lucide] { width: 13px; height: 13px; }
 .yp-stat-row strong {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 900;
     color: var(--gray-900, #18181B);
     font-variant-numeric: tabular-nums;
@@ -663,44 +695,86 @@ html, body {
 }
 
 /* =====================================================
-   RESPONSIVE
+   RESPONSIVE — Tablet
+   ===================================================== */
+@media (max-width: 900px) {
+    .yp-game-layout {
+        gap: 10px;
+        padding: 10px 12px;
+    }
+    .yp-side-panel {
+        width: 140px;
+    }
+    #gameCanvas {
+        max-height: calc(100vh - 120px);
+        max-height: calc(100dvh - 120px);
+    }
+}
+
+/* =====================================================
+   RESPONSIVE — Móvil
    ===================================================== */
 @media (max-width: 720px) {
-    .yp-header { padding: 10px 14px; }
-    .yp-header-text h1 { font-size: 1.1rem; }
-    .yp-logo-mark { width: 34px; height: 34px; border-radius: 10px; }
+    .yp-header { padding: 9px 14px; }
+    .yp-header-text h1 { font-size: 1rem; }
+    .yp-badge { font-size: 0.62rem; }
+    .yp-logo-mark { width: 30px; height: 30px; border-radius: 9px; }
+    .yp-logo-mark [data-lucide] { width: 16px; height: 16px; }
 
     .yp-game-layout {
         flex-direction: column;
         gap: 10px;
         padding: 10px;
         justify-content: flex-start;
+        align-items: center;
         overflow-y: auto;
+        overflow-x: hidden;
     }
+
     #gameCanvas {
-        max-height: 52vh;
+        max-height: 48vh;
+        max-height: 48dvh;
     }
+
+    /* Sidebar como franja horizontal abajo */
     .yp-side-panel {
         width: 100%;
+        max-height: none;
+        overflow: visible;
         flex-direction: row;
         justify-content: center;
+        align-items: stretch;
         flex-wrap: wrap;
+        padding-right: 0;
+        gap: 6px;
     }
     .yp-side-panel .yp-panel-card {
-        flex: 1 1 100px;
-        min-width: 100px;
+        flex: 1 1 calc(25% - 6px);
+        min-width: 80px;
+        padding: 6px 8px;
     }
+    .yp-panel-value { font-size: 1.05rem; }
+    .yp-tier-card .yp-panel-value { font-size: 1.15rem; }
+    .yp-tier-bonus { font-size: 0.52rem; padding: 1px 6px; }
+    .yp-tier-next { font-size: 0.5rem; }
+
+    .yp-next-card { flex: 0 0 auto !important; min-width: 70px; padding: 5px; }
+    #nextCanvas { width: 60px; height: 60px; }
+
     .yp-side-panel .yp-btn-retire,
     .yp-side-panel .yp-btn-small {
-        flex: 1 1 45%;
-        max-width: none;
+        flex: 1 1 calc(50% - 3px);
+        min-height: 40px;
+        font-size: 0.78rem;
     }
-    .yp-next-card { padding: 8px; }
 
-    .yp-chip { width: 42px; height: 42px; }
-    .yp-chip [data-lucide] { width: 20px; height: 20px; }
-    .yp-title { font-size: 2rem; }
+    /* Chip de bienvenida */
+    .yp-chip { width: 38px; height: 38px; }
+    .yp-chip [data-lucide] { width: 18px; height: 18px; }
+    .yp-title { font-size: 1.8rem; }
     .yp-subtitle { font-size: 0.82rem; }
+    .yp-showcase { gap: 8px; }
+
     .yp-rules-grid {
         grid-template-columns: 1fr;
         gap: 6px;
@@ -712,27 +786,77 @@ html, body {
         gap: 10px;
         text-align: left;
     }
-    .yp-rule-title, .yp-rule-desc { font-size: 0.76rem; }
+    .yp-rule-icon { margin-bottom: 0; }
+    .yp-rule-title, .yp-rule-desc { font-size: 0.75rem; }
+
     .yp-controls-hint {
-        font-size: 0.7rem;
-        gap: 6px 10px;
+        font-size: 0.68rem;
+        gap: 5px 10px;
         padding: 6px 12px;
     }
-    .yp-controls-hint kbd { font-size: 0.65rem; min-width: 20px; height: 20px; }
+    .yp-controls-hint kbd { font-size: 0.6rem; min-width: 18px; height: 18px; }
+
     .yp-start-actions {
         flex-direction: column;
         gap: 8px;
     }
+    .yp-btn-primary { font-size: 0.88rem; padding: 11px 20px; }
 }
 
-@media (max-width: 420px) {
-    .yp-start-card { padding: 16px 14px; gap: 12px; }
+@media (max-width: 480px) {
+    .yp-start-card { padding: 14px 12px; gap: 10px; }
     .yp-showcase { gap: 6px; }
-    .yp-chip { width: 36px; height: 36px; }
-    .yp-chip [data-lucide] { width: 17px; height: 17px; }
-    .yp-title { font-size: 1.7rem; }
-    .yp-modal-card { padding: 22px 18px 20px; }
+    .yp-chip { width: 34px; height: 34px; }
+    .yp-chip [data-lucide] { width: 16px; height: 16px; }
+    .yp-title { font-size: 1.55rem; }
 
-    .yp-mc-btn { width: 54px; height: 54px; border-radius: 16px; }
+    /* Móvil chico: canvas más pequeño + controles */
+    #gameCanvas { max-height: 42vh; max-height: 42dvh; }
+
+    /* Sidebar aún más compacto */
+    .yp-side-panel .yp-panel-card {
+        flex: 1 1 calc(33% - 4px);
+        padding: 5px 6px;
+        border-radius: 10px;
+    }
+    .yp-panel-label { font-size: 0.55rem; }
+    .yp-panel-value { font-size: 0.95rem; }
+    .yp-tier-card .yp-panel-value { font-size: 1.05rem; }
+
+    .yp-next-card { display: none; }  /* En pantallas muy chicas se oculta el preview del next */
+
+    .yp-side-panel .yp-btn-retire,
+    .yp-side-panel .yp-btn-small {
+        min-height: 38px;
+        font-size: 0.72rem;
+        padding: 6px 10px;
+    }
+    .yp-btn-retire [data-lucide],
+    .yp-btn-small [data-lucide] { width: 11px; height: 11px; }
+
+    .yp-mc-btn { width: 52px; height: 52px; border-radius: 16px; }
     .yp-mc-btn [data-lucide] { width: 22px; height: 22px; }
+
+    .yp-modal-card { padding: 20px 16px 18px; }
+    .yp-modal-title { font-size: 1.35rem; }
+    .yp-modal-icon { width: 52px; height: 52px; margin-bottom: 8px; }
+    .yp-modal-icon [data-lucide] { width: 24px; height: 24px; }
+}
+
+/* Pantallas muy bajas (iframe comprimido) */
+@media (max-height: 500px) and (min-width: 721px) {
+    .yp-header { padding: 7px 14px; }
+    .yp-logo-mark { width: 30px; height: 30px; border-radius: 9px; }
+    .yp-header-text h1 { font-size: 1rem; }
+
+    .yp-game-layout { padding: 8px 10px; gap: 10px; }
+
+    #gameCanvas { max-height: calc(100dvh - 90px); }
+
+    .yp-side-panel { gap: 6px; width: 140px; }
+    .yp-panel-card { padding: 6px 8px; }
+    .yp-panel-value { font-size: 1.05rem; }
+    .yp-tier-card .yp-panel-value { font-size: 1.15rem; }
+    .yp-btn-retire { padding: 7px 10px; font-size: 0.72rem; }
+    .yp-btn-small { padding: 6px 10px; font-size: 0.68rem; }
 }
