@@ -544,18 +544,25 @@ async function inicializar() {
     limpiarTablero();
     actualizarNivelUI();
 
-    // DELEGACIÓN DE EVENTOS: el listener está en el contenedor padre
-    // (.tr-tablero), que nunca se reemplaza. Así no perdemos los clicks
-    // aunque re-rendericemos las celdas internas.
-    const tableroEl = document.getElementById('trTablero');
-    if (tableroEl) {
-        tableroEl.addEventListener('click', (e) => {
-            const celda = e.target.closest('.tr-celda');
-            if (!celda) return;
+    // Listeners individuales por celda. Simple, predecible, sin guard.
+    // Los botones .tr-celda nunca son reemplazados, solo su contenido.
+    document.querySelectorAll('.tr-celda').forEach(celda => {
+        celda.addEventListener('click', () => {
             const idx = parseInt(celda.dataset.idx, 10);
+            if (Number.isNaN(idx)) return;
             jugarCelda(idx);
         });
-    }
+    });
+
+    // Debug: exponer estado interno para inspección desde consola
+    window.__debug = () => ({
+        tablero: tablero.slice(),
+        turno,
+        bloqueado,
+        partidaTerminada,
+        racha,
+        ganadas
+    });
 
     if (window.lucide) window.lucide.createIcons();
 }
