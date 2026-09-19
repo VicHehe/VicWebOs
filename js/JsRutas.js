@@ -59,6 +59,17 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 4,
         monedas: 0
     },
+        {
+    id: 'notas',
+    nombre: 'Notas',
+    icono: 'notebook-pen',
+    ruta: 'herramientas/notas/index.html',
+    descripcion: 'Bloc de notas. Guarda hasta 10 notas gratis con búsqueda y descarga premium.',
+    categoria: 'Herramientas Prácticas',
+    esBase: false,
+    espacio: 6,
+    monedas: 0
+},
     {
         id: 'dino',
         nombre: 'Dino',
@@ -80,5 +91,5 @@ const RUTAS_HERRAMIENTAS = [
         esBase: false,
         espacio: 8,
         monedas: 0
-    }
+    },
 ];
