@@ -404,7 +404,7 @@ body {
     flex: 1;
     min-height: 0;
     display: flex;
-    padding: 20px;
+    padding: 16px;
     overflow-y: auto;
 }
 .nt-vacio-card {
@@ -413,59 +413,59 @@ body {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 12px;
-    padding: 44px 36px;
-    max-width: 420px;
+    gap: 10px;
+    padding: 28px 24px;
+    max-width: 320px;
     width: 100%;
     background: var(--gray-50, #FAFAFB);
     border: 1.5px dashed var(--border, #E8E8EE);
-    border-radius: 22px;
+    border-radius: 18px;
 }
 .nt-vacio-icono {
-    width: 76px;
-    height: 76px;
+    width: 56px;
+    height: 56px;
     background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
-    border-radius: 20px;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    box-shadow: 0 12px 28px var(--accent-shadow, rgba(139,92,246,0.28));
+    box-shadow: 0 10px 22px var(--accent-shadow, rgba(139,92,246,0.28));
 }
-.nt-vacio-icono [data-lucide] { width: 36px; height: 36px; stroke-width: 2; }
+.nt-vacio-icono [data-lucide] { width: 26px; height: 26px; stroke-width: 2; }
 .nt-vacio-card h3 {
-    font-size: 18px;
+    font-size: 15.5px;
     font-weight: 800;
     color: var(--gray-900, #18181B);
     letter-spacing: -0.02em;
 }
 .nt-vacio-card p {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--gray-500, #71717A);
     line-height: 1.5;
-    max-width: 300px;
+    max-width: 240px;
 }
 .nt-vacio-btn {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 11px 22px;
+    gap: 7px;
+    padding: 9px 18px;
     background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
     color: white;
     border: none;
-    border-radius: 12px;
+    border-radius: 11px;
     font-family: inherit;
-    font-size: 13.5px;
+    font-size: 12.5px;
     font-weight: 800;
     cursor: pointer;
     box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
-    margin-top: 6px;
+    margin-top: 4px;
 }
 .nt-vacio-btn:hover {
     transform: translateY(-1px);
     box-shadow: 0 6px 16px var(--accent-shadow-hover, rgba(139,92,246,0.38));
 }
-.nt-vacio-btn [data-lucide] { width: 16px; height: 16px; }
+.nt-vacio-btn [data-lucide] { width: 14px; height: 14px; }
 
 /* ========== AMPLIAR ========== */
 .nt-ampliar {
