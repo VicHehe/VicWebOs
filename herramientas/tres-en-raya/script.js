@@ -1,11 +1,14 @@
 // ============================================================
 //  Tres en Raya — Clásico 3 en línea con dificultad escalonada
 //  ------------------------------------------------------------
-//  - Flujo 100% SÍNCRONO: la CPU juega inmediatamente después
-//    del jugador, sin setTimeout (que se throttlea en iframes
-//    anidados).
-//  - Auto-reset con requestAnimationFrame (no throttled).
-//  - Persistencia en IndexedDB propio del iframe.
+//  FLUJO 100% SÍNCRONO. Sin setTimeout, sin requestAnimationFrame.
+//  La CPU juega inmediatamente después del jugador.
+//
+//  Esto es CRÍTICO: los navegadores throttlean los timers en
+//  iframes anidados (como este, que vive dentro del shell de
+//  VicWebOs). Si usamos setTimeout, la CPU nunca juega.
+//
+//  Persistencia en IndexedDB propio del iframe.
 // ============================================================
 
 'use strict';
@@ -13,7 +16,6 @@
 const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const APP_ID = 'tres-en-raya';
 const MONEDAS_BASE = 2;
-const AUTO_RESET_MS = 1800;
 const IDB_NAME = 'TresEnRayaDB';
 const IDB_VERSION = 1;
 const IDB_STORE = 'estado';
@@ -40,8 +42,6 @@ let empates = 0;
 let monedasGanadas = 0;
 let nivelAnterior = 1;
 let toastTimeout = null;
-let autoResetRAF = null;
-let autoResetInicio = 0;
 let usuarioActual = null;
 
 const API = () => window.parent.__vicwebos || null;
@@ -185,15 +185,7 @@ function multiplicadorRecompensa() {
 // ============================================================
 //  LÓGICA
 // ============================================================
-function cancelarAutoReset() {
-    if (autoResetRAF) {
-        cancelAnimationFrame(autoResetRAF);
-        autoResetRAF = null;
-    }
-}
-
 function limpiarTablero() {
-    cancelarAutoReset();
     tablero = Array(9).fill(null);
     turno = YO;
     partidaTerminada = false;
@@ -323,10 +315,10 @@ function elegirJugadaCPU() {
 }
 
 // ============================================================
-//  FLUJO — 100% SÍNCRONO, sin setTimeout
+//  FLUJO DE PARTIDA — 100% SÍNCRONO
 // ============================================================
 function jugarCelda(idx) {
-    // Si la partida terminó, un click acelera el auto-reset
+    // Si la partida terminó, un click reinicia el juego inmediatamente
     if (partidaTerminada) {
         limpiarTablero();
         actualizarNivelUI();
@@ -347,7 +339,7 @@ function jugarCelda(idx) {
         return;
     }
 
-    // === Turno de la CPU — INMEDIATO, sin delay ===
+    // === Turno de la CPU — INMEDIATO, sin setTimeout ===
     bloqueado = true;
     turno = CPU;
     actualizarTurnoUI();
@@ -356,8 +348,6 @@ function jugarCelda(idx) {
     if (jugada >= 0 && jugada < 9 && tablero[jugada] === null) {
         tablero[jugada] = CPU;
     } else {
-        console.warn('[Tres en Raya] CPU devolvió jugada inválida:', jugada);
-        // Fallback: primera celda vacía
         const vacias = celdasVacias(tablero);
         if (vacias.length) tablero[vacias[0]] = CPU;
     }
@@ -403,14 +393,13 @@ function finalizarPartida(resultado) {
         otorgarMonedas(recompensa, mult);
         monedasGanadas += recompensa;
     } else if (resultado.ganador === CPU) {
-        tipo = 'perdediste';
+        tipo = 'perdiste';
         perdidas++;
         racha = 0;
         texto = 'Perdiste · racha reiniciada';
         icono = 'x';
     }
 
-    // Resaltar línea ganadora
     if (resultado.linea) {
         resultado.linea.forEach(i => {
             const celda = document.querySelector(`.tr-celda[data-idx="${i}"]`);
@@ -418,7 +407,6 @@ function finalizarPartida(resultado) {
         });
     }
 
-    // Mostrar chip de resultado
     if (resultadoEl) {
         resultadoEl.hidden = false;
         resultadoEl.className = 'tr-resultado ' + tipo;
@@ -426,7 +414,6 @@ function finalizarPartida(resultado) {
         if (window.lucide) window.lucide.createIcons();
     }
 
-    // Detección de nivel
     const nivelNuevo = nivelDificultad();
     if (nivelNuevo > nivelAnterior) {
         toast(`¡Nivel ${nivelNuevo} desbloqueado!`, 'success');
@@ -440,9 +427,6 @@ function finalizarPartida(resultado) {
     renderTablero();
 
     guardarEstado();
-
-    // Auto-reset con requestAnimationFrame
-    iniciarAutoReset();
 }
 
 function otorgarMonedas(cantidad, mult) {
@@ -454,32 +438,6 @@ function otorgarMonedas(cantidad, mult) {
 }
 
 // ============================================================
-//  AUTO-RESET con requestAnimationFrame
-//  (no sufre throttling porque está atado al ciclo de render)
-// ============================================================
-function iniciarAutoReset() {
-    cancelarAutoReset();
-    autoResetInicio = performance.now();
-
-    function tick(ahora) {
-        if (partidaTerminada && (ahora - autoResetInicio) >= AUTO_RESET_MS) {
-            autoResetRAF = null;
-            limpiarTablero();
-            actualizarNivelUI();
-            return;
-        }
-        // Si la partida ya no está terminada (el usuario clickeó), parar
-        if (!partidaTerminada) {
-            autoResetRAF = null;
-            return;
-        }
-        autoResetRAF = requestAnimationFrame(tick);
-    }
-
-    autoResetRAF = requestAnimationFrame(tick);
-}
-
-// ============================================================
 //  RENDER
 // ============================================================
 function renderTablero() {
@@ -487,13 +445,11 @@ function renderTablero() {
         const idx = parseInt(celda.dataset.idx, 10);
         const valor = tablero[idx];
 
-        // Resetear SIEMPRE todas las clases de estado
         celda.classList.remove('ocupada', 'deshabilitada', 'ganadora', 'perdedora');
 
         if (valor !== null) celda.classList.add('ocupada');
         if (bloqueado || partidaTerminada) celda.classList.add('deshabilitada');
 
-        // Limpiar contenido
         celda.textContent = '';
 
         if (valor === YO) {
@@ -588,14 +544,18 @@ async function inicializar() {
     limpiarTablero();
     actualizarNivelUI();
 
-    document.querySelectorAll('.tr-celda').forEach(celda => {
-        celda.addEventListener('click', () => {
+    // DELEGACIÓN DE EVENTOS: el listener está en el contenedor padre
+    // (.tr-tablero), que nunca se reemplaza. Así no perdemos los clicks
+    // aunque re-rendericemos las celdas internas.
+    const tableroEl = document.getElementById('trTablero');
+    if (tableroEl) {
+        tableroEl.addEventListener('click', (e) => {
+            const celda = e.target.closest('.tr-celda');
+            if (!celda) return;
             const idx = parseInt(celda.dataset.idx, 10);
             jugarCelda(idx);
         });
-    });
-
-    window.addEventListener('pagehide', cancelarAutoReset);
+    }
 
     if (window.lucide) window.lucide.createIcons();
 }
