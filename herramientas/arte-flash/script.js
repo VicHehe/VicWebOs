@@ -9,7 +9,7 @@
 //    - UI adaptativa: barra inferior + panel flotante en móvil,
 //      panel lateral fijo en PC
 //    - Pan sin botón dedicado:
-//        · Móvil: toque fuera del canvas · 2 dedos
+//        · Móvil: toque fuera del canvas · 2 dedos (pan + zoom)
 //        · PC:    click derecho · click fuera del canvas ·
 //                 botón medio · Space+click · long-press izquierdo
 // ============================================================
@@ -20,8 +20,8 @@ const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const IDB_NAME = 'VicWebOsArteFlash';
 const IDB_VERSION = 1;
 const IDB_STORE = 'dibujos';
-const LONG_PRESS_MS = 400;      // ms para activar pan con long-press
-const LONG_PRESS_MOVE_TOL = 8;  // px de tolerancia de movimiento
+const LONG_PRESS_MS = 400;
+const LONG_PRESS_MOVE_TOL = 8;
 
 const PALETA_BLK_NX64 = [
     '#000000','#12173d','#293268','#464b8c','#6b74b2','#909edd','#c1d9f2','#ffffff',
@@ -34,15 +34,18 @@ const PALETA_BLK_NX64 = [
     '#895654','#61393b','#3f1f3c','#723352','#994c69','#c37289','#f29faa','#ffccd0'
 ];
 
-// ---------- ESTADO GLOBAL ----------
 let usuarioActual = null;
 let dibujoGuardado = null;
 
-// Long-press state
 let longPressTimer = null;
 let longPressStartX = 0;
 let longPressStartY = 0;
 let longPressActivo = false;
+
+// Estado para el gesto de 2 dedos: guardamos centro y distancia del frame anterior
+let gesto2DedosActivo = false;
+let gesto2DedosCentro = { x: 0, y: 0 };
+let gesto2DedosDistancia = 0;
 
 const state = {
     herramienta: 'pincel',
@@ -220,12 +223,10 @@ function setupCanvas() {
 
     fitCanvasToWrapper();
 
-    // Reajustes por si el layout aún no está asentado (crítico en PC)
     requestAnimationFrame(fitCanvasToWrapper);
     setTimeout(fitCanvasToWrapper, 100);
     setTimeout(fitCanvasToWrapper, 300);
 
-    // ResizeObserver: se reajusta cuando cambia el tamaño del wrapper
     if (window.ResizeObserver) {
         const ro = new ResizeObserver(() => {
             fitCanvasToWrapper();
@@ -239,7 +240,6 @@ function fitCanvasToWrapper() {
     const wh = wrapper.clientHeight;
     if (ww <= 0 || wh <= 0) return;
 
-    // Margen interior
     const padding = 40;
     const availW = Math.max(50, ww - padding);
     const availH = Math.max(50, wh - padding);
@@ -283,7 +283,6 @@ function getCanvasCoords(clientX, clientY) {
     };
 }
 
-// ¿El punto está fuera del área del canvas?
 function estaFueraDelCanvas(clientX, clientY) {
     const rect = wrapper.getBoundingClientRect();
     const x = clientX - rect.left - state.panX;
@@ -625,7 +624,6 @@ function endStroke() {
     guardarHistoria();
 }
 
-// Cancela el trazo actual sin commitearlo (usado por long-press → pan)
 function cancelarTrazo() {
     if (!state.dibujando) return;
     state.dibujando = false;
@@ -633,7 +631,7 @@ function cancelarTrazo() {
     state.puntos = [];
     state.presiones = [];
     state.colaPuntos = [];
-    flattenLayers(); // redibuja sin la preview
+    flattenLayers();
 }
 
 // ============================================================
@@ -821,23 +819,32 @@ wrapper.addEventListener('contextmenu', (e) => e.preventDefault());
 function onPointerDown(e) {
     e.preventDefault();
 
-    // Click derecho → pan directo
     const esClickDerecho = e.pointerType === 'mouse' && e.button === 2;
-    // Click fuera del canvas → pan directo
     const fueraDelCanvas = estaFueraDelCanvas(e.clientX, e.clientY);
 
-    // Registro táctil para multi-dedo
     if (e.pointerType === 'touch') {
         state.touches.push({ id: e.pointerId, x: e.clientX, y: e.clientY });
     }
-    if (e.pointerType === 'touch' && state.touches.length >= 2) {
-        state.lastPinchDist = getTouchDist();
+
+    // --- GESTO DE 2 DEDOS: inicializar seguimiento ---
+    if (e.pointerType === 'touch' && state.touches.length === 2) {
+        // Cancelar cualquier trazo/form en curso
         cancelarTrazo();
         cancelarForma();
+
+        // Iniciar el seguimiento del gesto de 2 dedos
+        gesto2DedosActivo = true;
+        const centro = getTouchCenter();
+        gesto2DedosCentro = { x: centro.x, y: centro.y };
+        gesto2DedosDistancia = getTouchDist();
+
         return;
     }
 
-    // Modo pan: click derecho · fuera del canvas · space · botón medio
+    // Si hay 3+ dedos, ignorar
+    if (e.pointerType === 'touch' && state.touches.length >= 3) return;
+
+    // Modo pan manual: click derecho · fuera del canvas · space · botón medio
     if (esClickDerecho || fueraDelCanvas || state.spaceDown || e.button === 1) {
         startPan(e.clientX, e.clientY);
         wrapper.style.cursor = 'grabbing';
@@ -849,14 +856,12 @@ function onPointerDown(e) {
 
     if (state.pipetaActiva) { pipeta(x, y); return; }
 
-    // Iniciar long-press timer (solo para PC, botón izquierdo)
     if (e.pointerType === 'mouse' && e.button === 0) {
         longPressStartX = e.clientX;
         longPressStartY = e.clientY;
         longPressActivo = false;
         clearTimeout(longPressTimer);
         longPressTimer = setTimeout(() => {
-            // Si el usuario no movió el puntero → cancelar trazo y activar pan
             longPressActivo = true;
             cancelarTrazo();
             cancelarForma();
@@ -886,6 +891,43 @@ function onPointerDown(e) {
 function onPointerMove(e) {
     e.preventDefault();
 
+    // --- GESTO DE 2 DEDOS: pan + zoom combinados ---
+    if (e.pointerType === 'touch' && state.touches.length >= 2 && gesto2DedosActivo) {
+        // Actualizar posición del dedo que se movió
+        const t = state.touches.find(t => t.id === e.pointerId);
+        if (t) { t.x = e.clientX; t.y = e.clientY; }
+
+        // Calcular el centro actual y la distancia actual
+        const centro = getTouchCenter();
+        const distancia = getTouchDist();
+
+        if (gesto2DedosDistancia > 0 && distancia > 0) {
+            // 1. PAN: desplazar el lienzo según cuánto se movió el centro de los dedos
+            const dxCentro = centro.x - gesto2DedosCentro.x;
+            const dyCentro = centro.y - gesto2DedosCentro.y;
+            state.panX += dxCentro;
+            state.panY += dyCentro;
+
+            // 2. ZOOM: aplicar el cambio de distancia entre los dedos
+            const factor = distancia / gesto2DedosDistancia;
+            const rect = wrapper.getBoundingClientRect();
+            const wx = centro.x - rect.left;
+            const wy = centro.y - rect.top;
+            const newZoom = Math.min(Math.max(state.zoom * factor, 0.05), 20);
+            const ratio = newZoom / state.zoom;
+            state.panX = wx - ratio * (wx - state.panX);
+            state.panY = wy - ratio * (wy - state.panY);
+            state.zoom = newZoom;
+
+            applyTransform();
+
+            // Actualizar referencia para el siguiente frame
+            gesto2DedosCentro = { x: centro.x, y: centro.y };
+            gesto2DedosDistancia = distancia;
+        }
+        return;
+    }
+
     // Long-press cancelado si el usuario se mueve
     if (longPressTimer && !longPressActivo) {
         const dx = e.clientX - longPressStartX;
@@ -896,22 +938,10 @@ function onPointerMove(e) {
         }
     }
 
-    // Actualización táctil
+    // Actualización táctil (un solo dedo)
     if (e.pointerType === 'touch') {
         const t = state.touches.find(t => t.id === e.pointerId);
         if (t) { t.x = e.clientX; t.y = e.clientY; }
-    }
-
-    // Pinch + pan con 2 dedos
-    if (e.pointerType === 'touch' && state.touches.length >= 2) {
-        const dist = getTouchDist();
-        if (state.lastPinchDist) {
-            const factor = dist / state.lastPinchDist;
-            const center = getTouchCenter();
-            zoomAt(center.x, center.y, factor);
-        }
-        state.lastPinchDist = dist;
-        return;
     }
 
     if (!panStart) updateCursorIndicator(e.clientX, e.clientY);
@@ -941,21 +971,25 @@ function onPointerMove(e) {
 }
 
 function onPointerUp(e) {
-    // Cancelar long-press pendiente
     if (longPressTimer) {
         clearTimeout(longPressTimer);
         longPressTimer = null;
     }
-    const estabaEnLongPress = longPressActivo;
     longPressActivo = false;
 
     if (e && e.pointerType === 'touch') {
         state.touches = state.touches.filter(t => t.id !== e.pointerId);
-        state.lastPinchDist = null;
+
+        // Si quedan menos de 2 dedos, desactivar el gesto
+        if (state.touches.length < 2) {
+            gesto2DedosActivo = false;
+            state.lastPinchDist = null;
+        }
+
+        // Si aún quedan dedos, no procesar el pointerup normal
         if (state.touches.length >= 1) return;
     }
 
-    // Si estaba en modo pan, terminar
     if (panStart) {
         endPan();
         wrapper.style.cursor = getCursorForHerramienta();
@@ -978,7 +1012,6 @@ function onPointerUp(e) {
 }
 
 function onPointerLeave() {
-    // Cancelar long-press si sale del área
     if (longPressTimer) {
         clearTimeout(longPressTimer);
         longPressTimer = null;
@@ -1336,7 +1369,7 @@ async function preguntarContinuarSesion(data) {
 }
 
 // ============================================================
-//  UI MÓVIL — barra inferior + panel flotante + pantalla completa
+//  UI MÓVIL — barra inferior + panel flotante
 // ============================================================
 function inicializarUIMovil() {
     const app = document.getElementById('afApp');
@@ -1402,28 +1435,6 @@ function inicializarUIMovil() {
         });
     });
 
-    // Pantalla completa
-    const btnFull = document.getElementById('btnPantallaCompleta');
-    btnFull?.addEventListener('click', () => {
-        app.classList.add('pantalla-completa');
-
-        let btnSalir = document.getElementById('btnSalirPantallaCompleta');
-        if (!btnSalir) {
-            btnSalir = document.createElement('button');
-            btnSalir.id = 'btnSalirPantallaCompleta';
-            btnSalir.title = 'Salir de pantalla completa';
-            btnSalir.innerHTML = '<i data-lucide="minimize"></i>';
-            btnSalir.addEventListener('click', () => {
-                app.classList.remove('pantalla-completa');
-                btnSalir.remove();
-                setTimeout(() => fitCanvasToWrapper(), 100);
-            });
-            document.body.appendChild(btnSalir);
-        }
-        if (window.lucide) window.lucide.createIcons();
-        setTimeout(() => fitCanvasToWrapper(), 100);
-    });
-
     toolbar.querySelector('.af-tool-btn[data-accion="pincel"]')?.classList.add('activo');
     panel.querySelector('.af-panel-tab[data-tab="color"]')?.classList.add('active');
     panel.querySelector('.af-seccion[data-seccion="color"]')?.classList.add('activa');
@@ -1453,7 +1464,6 @@ async function inicializar() {
 
     inicializarUIMovil();
 
-    // ¿Hay sesión guardada?
     dibujoGuardado = await cargarDibujoGuardado();
     if (dibujoGuardado && dibujoGuardado.blob) {
         const decision = await preguntarContinuarSesion(dibujoGuardado);
