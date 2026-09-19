@@ -148,4 +148,15 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 8,
         monedas: 0
     },
+        {
+        id: 'arte-flash',
+        nombre: 'Arte Flash',
+        icono: 'palette',
+        ruta: 'herramientas/arte-flash/index.html',
+        descripcion: 'Editor de dibujo con capas, pinceles y referencias. Estilo Procreate.',
+        categoria: 'Creatividad',
+        esBase: false,
+        espacio: 10,
+        monedas: 100
+    },
 ];
