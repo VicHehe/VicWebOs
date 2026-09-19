@@ -1,34 +1,43 @@
 // ============================================================
 //  JsTemas.js — Catálogo de TEMAS
 //  ------------------------------------------------------------
-//  ESCALA DE ESPACIO (solo pares 0 / 2 / 4):
-//    0 → base del sistema
-//    2 → solo redefine variables :root (colores, sombras, radios)
-//    4 → añade pseudo-elementos, mask, SVG patterns, texturas
-//        o animaciones. Tiene "algo más" que colores.
+//  ESCALA DE ESPACIO:
+//    0 → tema base del sistema
+//    2 → solo variables :root (colores, sombras, radios)
+//    4 → añade pseudo-elementos, SVG patterns, texturas o animaciones
 //
-//  ESCALA DE PRECIO (monedas):
-//    0   → oficiales gratuitos (calidad garantizada, siempre disponibles)
-//    5   → entrada: recolor simple sin gracia
+//  ESCALA DE PRECIO:
+//    0   → oficiales gratuitos
+//    5   → entrada: recolor simple
 //    10  → recolor icónico o con un detalle propio
-//    15  → efecto visual claro (pattern SVG, scanlines, mask simple)
-//    20  → múltiples efectos (pseudo-elementos, bordes temáticos, animación)
+//    15  → efecto visual claro (pattern SVG, scanlines)
+//    18  → edición especial
+//    20  → múltiples efectos (pseudo-elementos, bordes, animación)
 //    25  → textura + efectos combinados, artesanía
-//    30  → flagship: animación en vivo + múltiples capas + integración
+//    30  → flagship: animación en vivo + múltiples capas
+//
+//  ORGANIZACIÓN (6 categorías, mínimo 4 temas cada una):
+//    Sistema     → los 4 esenciales (violeta es el default)
+//    Cálidos     → paletas cálidas (rojo, dorado, naranjo)
+//    Oscuros     → dark mode sin efectos especiales
+//    Retro       → estéticas de décadas pasadas
+//    Formales    → OS-like, institucionales
+//    Especiales  → flagships con animaciones y ediciones únicas
 //
 //  REGLA DE ORO: cada salto de precio se tiene que VER en la pantalla.
 // ============================================================
 
 const TEMAS_DISPONIBLES = [
+
     // ============================================================
-    //  OFICIALES (gratuitos)
+    //  SISTEMA — Esenciales, base del OS
     // ============================================================
     {
         id: 'violeta',
         nombre: 'Violeta Clásico',
         icono: 'palette',
         descripcion: 'El tema por defecto. Fondo blanco, violeta clásico.',
-        categoria: 'Oficiales',
+        categoria: 'Sistema',
         esBase: true,
         ruta: 'Temas/violeta.css',
         espacio: 0,
@@ -47,7 +56,7 @@ const TEMAS_DISPONIBLES = [
         nombre: 'Rosa Pastel',
         icono: 'flower-2',
         descripcion: 'Tonos rosados suaves y cálidos.',
-        categoria: 'Oficiales',
+        categoria: 'Sistema',
         ruta: 'Temas/rosa.css',
         espacio: 2,
         monedas: 0,
@@ -65,7 +74,7 @@ const TEMAS_DISPONIBLES = [
         nombre: 'Océano',
         icono: 'waves',
         descripcion: 'Azules profundos, tipo mar.',
-        categoria: 'Oficiales',
+        categoria: 'Sistema',
         ruta: 'Temas/oceano.css',
         espacio: 2,
         monedas: 0,
@@ -83,7 +92,7 @@ const TEMAS_DISPONIBLES = [
         nombre: 'Bosque',
         icono: 'trees',
         descripcion: 'Verdes naturales y frescos.',
-        categoria: 'Oficiales',
+        categoria: 'Sistema',
         ruta: 'Temas/bosque.css',
         espacio: 2,
         monedas: 0,
@@ -96,12 +105,16 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFFFF'
         }
     },
+
+    // ============================================================
+    //  CÁLIDOS — Paletas cálidas, rojos, dorados, naranjos
+    // ============================================================
     {
         id: 'atardecer',
         nombre: 'Atardecer',
         icono: 'sunset',
         descripcion: 'Naranjas y ámbar cálidos.',
-        categoria: 'Oficiales',
+        categoria: 'Cálidos',
         ruta: 'Temas/atardecer.css',
         espacio: 2,
         monedas: 0,
@@ -115,11 +128,69 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
+        id: 'rojizo',
+        nombre: 'Rojizo',
+        icono: 'flame',
+        descripcion: 'Rojo clásico, directo y cálido.',
+        categoria: 'Cálidos',
+        ruta: 'Temas/rojizo.css',
+        espacio: 2,
+        monedas: 0,
+        colores: {
+            '--violet-100': '#FEE2E2',
+            '--violet-300': '#FCA5A5',
+            '--violet-500': '#EF4444',
+            '--bg':         '#FFF8F8',
+            '--bg-alt':     '#FFF1F1',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
+        id: 'golden',
+        nombre: 'Golden',
+        icono: 'crown',
+        descripcion: 'Dorado y amarillo cálido, elegancia luminosa.',
+        categoria: 'Cálidos',
+        ruta: 'Temas/golden.css',
+        espacio: 2,
+        monedas: 0,
+        colores: {
+            '--violet-100': '#FEF3C7',
+            '--violet-300': '#FCD34D',
+            '--violet-500': '#F59E0B',
+            '--bg':         '#FFFDF5',
+            '--bg-alt':     '#FFF9E6',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
+        id: 'pumkin',
+        nombre: 'Pumkin',
+        icono: 'ghost',
+        descripcion: 'Naranjo calabaza y morado profundo sobre fondo oscuro.',
+        categoria: 'Cálidos',
+        ruta: 'Temas/pumkin.css',
+        espacio: 2,
+        monedas: 0,
+        colores: {
+            '--violet-100': '#3D1F3A',
+            '--violet-300': '#A0508A',
+            '--violet-500': '#FF7B1F',
+            '--bg':         '#0D0610',
+            '--bg-alt':     '#1A1020',
+            '--white':      '#1A1020'
+        }
+    },
+
+    // ============================================================
+    //  OSCUROS — Dark mode puro, sin efectos especiales
+    // ============================================================
+    {
         id: 'noche',
         nombre: 'Noche Estrellada',
         icono: 'moon',
         descripcion: 'Oscuros con acentos suaves.',
-        categoria: 'Oficiales',
+        categoria: 'Oscuros',
         ruta: 'Temas/noche.css',
         espacio: 2,
         monedas: 0,
@@ -137,7 +208,7 @@ const TEMAS_DISPONIBLES = [
         nombre: 'Deep Blue Ocean',
         icono: 'droplet',
         descripcion: 'Modo oscuro con azules marinos profundos y destellos teal.',
-        categoria: 'Oficiales',
+        categoria: 'Oscuros',
         ruta: 'Temas/ocean.css',
         espacio: 2,
         monedas: 0,
@@ -151,123 +222,51 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
-        id: 'oficina',
-        nombre: 'Oficina',
+        id: 'oficina-dark',
+        nombre: 'Oficina Dark',
         icono: 'briefcase',
-        descripcion: 'Formal y minimalista. Gris pizarra, bordes finos. Para trabajar en serio.',
-        categoria: 'Oficiales',
-        ruta: 'Temas/oficina.css',
+        descripcion: 'La versión nocturna de Oficina. Negro formal, bordes grises. Para trabajar de noche.',
+        categoria: 'Oscuros',
+        ruta: 'Temas/oficina-dark.css',
         espacio: 2,
         monedas: 0,
         colores: {
-            '--violet-100': '#E4E6EA',
-            '--violet-300': '#A8AEB8',
-            '--violet-500': '#4A5260',
-            '--bg':         '#E8E8E5',
-            '--bg-alt':     '#D8D8D4',
-            '--white':      '#FFFFFF'
+            '--violet-100': '#1F1F23',
+            '--violet-300': '#3A3A40',
+            '--violet-500': '#A8A8B3',
+            '--bg':         '#0E0E10',
+            '--bg-alt':     '#171719',
+            '--white':      '#1F1F23'
         }
     },
     {
-    id: 'github-lover',
-    nombre: 'Github Lover',
-    icono: 'github',
-    descripcion: 'Modo oscuro oficial de GitHub. Gris azulado, bordes #30363d y acento azul #58a6ff.',
-    categoria: 'Oficiales',
-    ruta: 'Temas/github-lover.css',
-    espacio: 2,   // ← BAJAR de 4 a 2: ya no tiene pattern SVG
-    monedas: 0,
-    colores: {
-        '--violet-100': '#163d8a',
-        '--violet-300': '#388bfd',
-        '--violet-500': '#58a6ff',
-        '--bg':         '#0d1117',
-        '--bg-alt':     '#161b22',
-        '--white':      '#161b22'
-    }
-},
-{
-    id: 'rojizo',
-    nombre: 'Rojizo',
-    icono: 'flame',
-    descripcion: 'Rojo clásico, directo y cálido.',
-    categoria: 'Oficiales',
-    ruta: 'Temas/rojizo.css',
-    espacio: 2,
-    monedas: 0,
-    colores: {
-        '--violet-100': '#FEE2E2',
-        '--violet-300': '#FCA5A5',
-        '--violet-500': '#EF4444',
-        '--bg':         '#FFF8F8',
-        '--bg-alt':     '#FFF1F1',
-        '--white':      '#FFFFFF'
-    }
-},
-{
-    id: 'golden',
-    nombre: 'Golden',
-    icono: 'crown',
-    descripcion: 'Dorado y amarillo cálido, elegancia luminosa.',
-    categoria: 'Oficiales',
-    ruta: 'Temas/golden.css',
-    espacio: 2,
-    monedas: 0,
-    colores: {
-        '--violet-100': '#FEF3C7',
-        '--violet-300': '#FCD34D',
-        '--violet-500': '#F59E0B',
-        '--bg':         '#FFFDF5',
-        '--bg-alt':     '#FFF9E6',
-        '--white':      '#FFFFFF'
-    }
-},
-{
-    id: 'oficina-dark',
-    nombre: 'Oficina Dark',
-    icono: 'briefcase',
-    descripcion: 'La versión nocturna de Oficina. Negro formal, bordes grises. Para trabajar de noche.',
-    categoria: 'Oficiales',
-    ruta: 'Temas/oficina-dark.css',
-    espacio: 2,
-    monedas: 0,
-    colores: {
-        '--violet-100': '#1F1F23',
-        '--violet-300': '#3A3A40',
-        '--violet-500': '#A8A8B3',
-        '--bg':         '#0E0E10',
-        '--bg-alt':     '#171719',
-        '--white':      '#1F1F23'
-    }
-},
-{
-    id: 'pumkin',
-    nombre: 'Pumkin',
-    icono: 'ghost',
-    descripcion: 'Naranjo calabaza y morado profundo sobre fondo oscuro.',
-    categoria: 'Oficiales',
-    ruta: 'Temas/pumkin.css',
-    espacio: 2,
-    monedas: 0,
-    colores: {
-        '--violet-100': '#3D1F3A',
-        '--violet-300': '#A0508A',
-        '--violet-500': '#FF7B1F',
-        '--bg':         '#0D0610',
-        '--bg-alt':     '#1A1020',
-        '--white':      '#1A1020'
-    }
-},
+        id: 'github-lover',
+        nombre: 'Github Lover',
+        icono: 'github',
+        descripcion: 'Modo oscuro oficial de GitHub. Gris azulado, bordes #30363d y acento azul #58a6ff.',
+        categoria: 'Oscuros',
+        ruta: 'Temas/github-lover.css',
+        espacio: 2,
+        monedas: 0,
+        colores: {
+            '--violet-100': '#163d8a',
+            '--violet-300': '#388bfd',
+            '--violet-500': '#58a6ff',
+            '--bg':         '#0d1117',
+            '--bg-alt':     '#161b22',
+            '--white':      '#161b22'
+        }
+    },
 
     // ============================================================
-    //  COMPRABLES
+    //  RETRO — Estéticas de décadas pasadas
     // ============================================================
     {
         id: 'hacker',
         nombre: 'Hacker',
         icono: 'terminal',
         descripcion: 'Fondo negro, verde terminal. Directo al grano.',
-        categoria: 'Comprables',
+        categoria: 'Retro',
         ruta: 'Temas/hacker.css',
         espacio: 2,
         monedas: 5,
@@ -283,9 +282,9 @@ const TEMAS_DISPONIBLES = [
     {
         id: 'vapor',
         nombre: 'Vapor',
-        icono: 'sunset',
+        icono: 'radio',
         descripcion: 'Fondo negro con paleta vaporwave. Nostalgia de los 80s.',
-        categoria: 'Comprables',
+        categoria: 'Retro',
         ruta: 'Temas/vapor.css',
         espacio: 2,
         monedas: 10,
@@ -303,7 +302,7 @@ const TEMAS_DISPONIBLES = [
         nombre: 'Salón de Noche',
         icono: 'martini',
         descripcion: 'Rojo profundo y dorado. Inspirado en los salones de baile de los 40 y 50.',
-        categoria: 'Comprables',
+        categoria: 'Retro',
         ruta: 'Temas/salon.css',
         espacio: 2,
         monedas: 10,
@@ -317,11 +316,51 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
+        id: 'chiptune',
+        nombre: 'Chiptune',
+        icono: 'gamepad-2',
+        descripcion: 'Paleta Game Boy, scanlines CRT y glitch sutil. Actitud 8-bit.',
+        categoria: 'Retro',
+        ruta: 'Temas/chiptune.css',
+        espacio: 4,
+        monedas: 15,
+        colores: {
+            '--violet-100': '#E0EAA0',
+            '--violet-300': '#9BBC0F',
+            '--violet-500': '#7A9A0F',
+            '--bg':         '#DCE6B8',
+            '--bg-alt':     '#D4E0A0',
+            '--white':      '#E8F0C8'
+        }
+    },
+
+    // ============================================================
+    //  FORMALES — OS-like, institucionales, elegantes
+    // ============================================================
+    {
+        id: 'oficina',
+        nombre: 'Oficina',
+        icono: 'building-2',
+        descripcion: 'Formal y minimalista. Gris pizarra, bordes finos. Para trabajar en serio.',
+        categoria: 'Formales',
+        ruta: 'Temas/oficina.css',
+        espacio: 2,
+        monedas: 0,
+        colores: {
+            '--violet-100': '#E4E6EA',
+            '--violet-300': '#A8AEB8',
+            '--violet-500': '#4A5260',
+            '--bg':         '#E8E8E5',
+            '--bg-alt':     '#D8D8D4',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
         id: 'ventanas',
         nombre: 'Ventanas',
         icono: 'app-window',
         descripcion: 'Windows de barrio. Azul Fluent, esquinas suaves y chrome de ventana.',
-        categoria: 'Comprables',
+        categoria: 'Formales',
         ruta: 'Temas/ventanas.css',
         espacio: 4,
         monedas: 10,
@@ -339,7 +378,7 @@ const TEMAS_DISPONIBLES = [
         nombre: 'Celeste Nublado',
         icono: 'cloud',
         descripcion: 'Cielo pastel grisáceo con nubes suaves vectoriales.',
-        categoria: 'Comprables',
+        categoria: 'Formales',
         ruta: 'Temas/celeste.css',
         espacio: 4,
         monedas: 15,
@@ -353,47 +392,51 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
-        id: 'chiptune',
-        nombre: 'Chiptune',
-        icono: 'gamepad',
-        descripcion: 'Paleta Game Boy, scanlines CRT y glitch sutil. Actitud 8-bit.',
-        categoria: 'Comprables',
-        ruta: 'Temas/chiptune.css',
+        id: 'libro',
+        nombre: 'Libro de Historia',
+        icono: 'book-open',
+        descripcion: 'Cuero, papel envejecido y lomo de encuadernación. Para los que atesoran el pasado.',
+        categoria: 'Formales',
+        ruta: 'Temas/libro.css',
         espacio: 4,
-        monedas: 15,
+        monedas: 25,
         colores: {
-            '--violet-100': '#E0EAA0',
-            '--violet-300': '#9BBC0F',
-            '--violet-500': '#7A9A0F',
-            '--bg':         '#DCE6B8',
-            '--bg-alt':     '#D4E0A0',
-            '--white':      '#E8F0C8'
+            '--violet-100': '#3E2C1C',
+            '--violet-300': '#8B6B4A',
+            '--violet-500': '#C49A6C',
+            '--bg':         '#1A120A',
+            '--bg-alt':     '#2A1F16',
+            '--white':      '#2A1F16'
         }
     },
-        {
-    id: 'consentido',
-    nombre: 'Consentido',
-    icono: 'heart',
-    descripcion: 'Chile en todo su esplendor. Bandera, manta de huaso, copihues y guirnaldas de fonda.',
-    categoria: 'Comprables',
-    ruta: 'Temas/consentido.css',
-    espacio: 4,
-    monedas: 18,
-    colores: {
-        '--violet-100': '#FFE4E4',
-        '--violet-300': '#FCA5A5',
-        '--violet-500': '#D52B1E',
-        '--bg':         '#FFFBF7',
-        '--bg-alt':     '#FFF5EE',
-        '--white':      '#FFFFFF'
-    }
+
+    // ============================================================
+    //  ESPECIALES — Flagships, ediciones únicas
+    // ============================================================
+    {
+        id: 'consentido',
+        nombre: 'Consentido',
+        icono: 'heart',
+        descripcion: 'Chile en todo su esplendor. Bandera, manta de huaso, copihues y guirnaldas de fonda.',
+        categoria: 'Especiales',
+        ruta: 'Temas/consentido.css',
+        espacio: 4,
+        monedas: 18,
+        colores: {
+            '--violet-100': '#FFE4E4',
+            '--violet-300': '#FCA5A5',
+            '--violet-500': '#D52B1E',
+            '--bg':         '#FFFBF7',
+            '--bg-alt':     '#FFF5EE',
+            '--white':      '#FFFFFF'
+        }
     },
     {
         id: 'floral',
         nombre: 'Floral',
         icono: 'flower',
         descripcion: 'Colores vivos, pétalos y verdes frescos. Para los que florecen.',
-        categoria: 'Comprables',
+        categoria: 'Especiales',
         ruta: 'Temas/floral.css',
         espacio: 4,
         monedas: 20,
@@ -411,7 +454,7 @@ const TEMAS_DISPONIBLES = [
         nombre: 'Dreams and Hopes',
         icono: 'sparkles',
         descripcion: 'Fondo negro profundo con bordes arcoíris. Para soñadores.',
-        categoria: 'Comprables',
+        categoria: 'Especiales',
         ruta: 'Temas/dreams.css',
         espacio: 4,
         monedas: 20,
@@ -425,29 +468,11 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
-        id: 'libro',
-        nombre: 'Libro de Historia',
-        icono: 'book-open',
-        descripcion: 'Cuero, papel envejecido y lomo de encuadernación. Para los que atesoran el pasado.',
-        categoria: 'Comprables',
-        ruta: 'Temas/libro.css',
-        espacio: 4,
-        monedas: 25,
-        colores: {
-            '--violet-100': '#3E2C1C',
-            '--violet-300': '#8B6B4A',
-            '--violet-500': '#C49A6C',
-            '--bg':         '#1A120A',
-            '--bg-alt':     '#2A1F16',
-            '--white':      '#2A1F16'
-        }
-    },
-    {
         id: 'break-of-dawn',
         nombre: 'Break of Dawn',
         icono: 'sunrise',
         descripcion: 'Amanecer sobre el mar. Cielo degradado y oleaje animado al fondo.',
-        categoria: 'Comprables',
+        categoria: 'Especiales',
         ruta: 'Temas/break-of-dawn.css',
         espacio: 4,
         monedas: 30,
@@ -461,21 +486,21 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
-    id: 'friend',
-    nombre: '¿¡Friend!?',
-    icono: 'sparkle',
-    descripcion: 'Fondo oscuro con luces amarillas y rosas que titilan, y bordes neón brillantes.',
-    categoria: 'Comprables',
-    ruta: 'Temas/friend.css',
-    espacio: 4,
-    monedas: 30,
-    colores: {
-        '--violet-100': '#2A1A44',
-        '--violet-300': '#E879F9',
-        '--violet-500': '#EC4899',
-        '--bg':         '#050310',
-        '--bg-alt':     '#0A0618',
-        '--white':      '#0F0820'
+        id: 'friend',
+        nombre: '¿¡Friend!?',
+        icono: 'star',
+        descripcion: 'Fondo oscuro con luces amarillas y rosas que titilan, y bordes neón brillantes.',
+        categoria: 'Especiales',
+        ruta: 'Temas/friend.css',
+        espacio: 4,
+        monedas: 30,
+        colores: {
+            '--violet-100': '#2A1A44',
+            '--violet-300': '#E879F9',
+            '--violet-500': '#EC4899',
+            '--bg':         '#050310',
+            '--bg-alt':     '#0A0618',
+            '--white':      '#0F0820'
+        }
     }
-},
 ];
