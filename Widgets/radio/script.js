@@ -10,7 +10,12 @@
 //  Guarda: favoritos, última emisora, volumen.
 //
 //  Los streams son siempre URLs externas — no alojamos audio.
-//  ============================================================
+//
+//  ⚠️ IMPORTANTE: NO agregar presets hardcodeados de emisoras
+//  específicas (SomaFM, etc.). Muchas prohíben la incrustación
+//  sin permiso escrito. Solo consumir emisoras vía la API de
+//  Radio Browser, que ya filtra streams públicos y funcionales.
+// ============================================================
 
 'use strict';
 
@@ -18,37 +23,6 @@ const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const ARCHIVO = 'app/radio/';
 const API_BASE = 'https://all.api.radio-browser.info/json';
 const LIMITE_BUSQUEDA = 40;
-
-// Estaciones preset por si la API falla (streams HTTPS garantizados)
-const PRESETS = [
-    {
-        stationuuid: 'preset-groove-salad',
-        name: 'SomaFM Groove Salad',
-        url_resolved: 'https://ice1.somafm.com/groovesalad-128-mp3',
-        favicon: '',
-        country: 'United States',
-        countrycode: 'US',
-        bitrate: 128
-    },
-    {
-        stationuuid: 'preset-drone-zone',
-        name: 'SomaFM Drone Zone',
-        url_resolved: 'https://ice1.somafm.com/dronezone-128-mp3',
-        favicon: '',
-        country: 'United States',
-        countrycode: 'US',
-        bitrate: 128
-    },
-    {
-        stationuuid: 'preset-secret-agent',
-        name: 'SomaFM Secret Agent',
-        url_resolved: 'https://ice1.somafm.com/secretagent-128-mp3',
-        favicon: '',
-        country: 'United States',
-        countrycode: 'US',
-        bitrate: 128
-    }
-];
 
 // ---------- ESTADO ----------
 let usuarioActual = null;
@@ -183,9 +157,9 @@ function estaEnFavoritos(uuid) {
 
 // ============================================================
 //  API: BUSCAR
+//  Sin presets. Solo lo que devuelve Radio Browser.
 // ============================================================
 async function buscarEmisoras(texto, codigoPais) {
-    // Construir query
     const params = new URLSearchParams();
     params.set('limit', String(LIMITE_BUSQUEDA));
     params.set('hidebroken', 'true');
@@ -207,8 +181,8 @@ async function buscarEmisoras(texto, codigoPais) {
             .filter(Boolean);
     } catch (e) {
         console.warn('[Radio] Error buscando:', e);
-        // Fallback a presets si no hay conexión
-        if (!texto && !codigoPais) return PRESETS.map(normalizarEstacion).filter(Boolean);
+        // Sin presets: si la API falla, devolvemos vacío y la UI
+        // muestra el mensaje de "sin resultados".
         return [];
     }
 }
@@ -285,10 +259,8 @@ function renderWidget() {
     const nombreEl = document.getElementById('rdNombre');
     const subEl = document.getElementById('rdSub');
     const btnPlay = document.getElementById('rdBtnPlay');
-    const btnPlayTexto = document.getElementById('rdBtnPlayTexto');
 
     if (!estacionActual) {
-        // Sin emisora
         portada.innerHTML = '<i data-lucide="radio"></i>';
         portada.style.backgroundImage = 'none';
         portada.classList.remove('reproduciendo');
@@ -297,12 +269,11 @@ function renderWidget() {
         subEl.textContent = 'Pulsa el engranaje para sintonizar';
         btnPlay.disabled = true;
         btnPlay.classList.remove('reproduciendo');
-        btnPlay.innerHTML = '<i data-lucide="play"></i><span id="rdBtnPlayTexto">Reproducir</span>';
+        btnPlay.innerHTML = '<i data-lucide="play"></i><span>Reproducir</span>';
         if (window.lucide) window.lucide.createIcons();
         return;
     }
 
-    // Con emisora
     if (estacionActual.favicon) {
         portada.innerHTML = `<img src="${estacionActual.favicon}" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='<i data-lucide=&quot;radio&quot;></i>';if(window.lucide)window.lucide.createIcons();">`;
     } else {
@@ -406,11 +377,8 @@ async function toggleFavorito(s) {
     await guardar();
     actualizarContadorFav();
 
-    // Re-render de la lista visible
     const buscarTab = document.querySelector('.rd-tab[data-tab="buscar"]');
     if (buscarTab && buscarTab.classList.contains('active')) {
-        // Volver a renderizar lista de búsqueda con estado actualizado
-        // (mantenemos las estaciones actuales en memoria)
         const cont = document.getElementById('rdListaBuscar');
         if (cont._estaciones) {
             renderListaEstaciones(cont, cont._estaciones);
@@ -444,7 +412,6 @@ function abrirModal() {
     actualizarContadorFav();
     renderFavoritos();
 
-    // Búsqueda inicial: mostrar presets si no hay búsqueda activa
     const cont = document.getElementById('rdListaBuscar');
     if (cont && !cont._estaciones) {
         cont.innerHTML = `
@@ -468,15 +435,12 @@ function cerrarModal() {
 //  EVENTOS
 // ============================================================
 function inicializarEventos() {
-    // Play/Pause del widget
     document.getElementById('rdBtnPlay')?.addEventListener('click', togglePlay);
 
-    // Volumen
     document.getElementById('rdVolumen')?.addEventListener('input', (e) => {
         cambiarVolumen(parseFloat(e.target.value));
     });
 
-    // Mute toggle
     document.getElementById('rdVolIcon')?.addEventListener('click', () => {
         const antes = volumen;
         const nuevo = volumen > 0 ? 0 : (antes || 0.7);
@@ -485,7 +449,6 @@ function inicializarEventos() {
         if (slider) slider.value = nuevo;
     });
 
-    // Abrir modal
     document.getElementById('rdBtnSintonizar')?.addEventListener('click', abrirModal);
     document.getElementById('rdModalCerrar')?.addEventListener('click', cerrarModal);
 
@@ -493,7 +456,6 @@ function inicializarEventos() {
         if (e.target.id === 'rdModal') cerrarModal();
     });
 
-    // Tabs
     document.querySelectorAll('.rd-tab').forEach(tab => {
         tab.addEventListener('click', () => {
             document.querySelectorAll('.rd-tab').forEach(t => t.classList.remove('active'));
@@ -505,7 +467,6 @@ function inicializarEventos() {
         });
     });
 
-    // Búsqueda (con debounce)
     const buscar = document.getElementById('rdBuscar');
     const buscarClear = document.getElementById('rdBuscarClear');
     const paisSelect = document.getElementById('rdPaisSelect');
@@ -524,7 +485,6 @@ function inicializarEventos() {
 
     paisSelect?.addEventListener('change', realizarBusqueda);
 
-    // ESC
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && !document.getElementById('rdModal').hidden) cerrarModal();
     });
@@ -537,6 +497,19 @@ async function realizarBusqueda() {
     const texto = (document.getElementById('rdBuscar').value || '').trim();
     const pais = document.getElementById('rdPaisSelect').value || '';
 
+    // Si no hay criterio ni país, no llamamos a la API
+    if (!texto && !pais) {
+        cont._estaciones = null;
+        cont.innerHTML = `
+            <div class="rd-vacio">
+                <i data-lucide="search"></i>
+                <p>Escribe un nombre o elige un país para buscar emisoras</p>
+            </div>
+        `;
+        if (window.lucide) window.lucide.createIcons();
+        return;
+    }
+
     cont.innerHTML = `
         <div class="rd-cargando">
             <div class="rd-spinner"></div>
@@ -545,13 +518,9 @@ async function realizarBusqueda() {
     `;
 
     const estaciones = await buscarEmisoras(texto, pais);
-
-    // Guardar en memoria para re-render al marcar favoritos
     cont._estaciones = estaciones;
 
-    const vacioTexto = texto || pais
-        ? 'Sin resultados. Prueba con otro término o país.'
-        : 'Escribe un nombre o elige un país para buscar emisoras';
+    const vacioTexto = 'Sin resultados. Prueba con otro término o país.';
     renderListaEstaciones(cont, estaciones, vacioTexto);
 }
 
@@ -561,7 +530,6 @@ async function realizarBusqueda() {
 async function inicializar() {
     aplicarTemaDelPadre();
 
-    // Usuario
     try {
         const api = API();
         usuarioActual = (api && typeof api.obtenerCuenta === 'function')
@@ -569,7 +537,6 @@ async function inicializar() {
             : null;
     } catch (e) { usuarioActual = null; }
 
-    // Audio
     audio = document.getElementById('rdAudio');
     if (audio) {
         audio.volume = volumen;
@@ -594,28 +561,19 @@ async function inicializar() {
         });
     }
 
-    // Persistencia
     await cargar();
 
-    // Volumen en UI
     const slider = document.getElementById('rdVolumen');
     if (slider) slider.value = volumen;
     actualizarIconoVolumen();
 
-    // Última estación
     if (ultimaEstacion) {
         estacionActual = ultimaEstacion;
     }
 
-    // Render inicial
     renderWidget();
     actualizarContadorFav();
     inicializarEventos();
-
-    // Reanudar automáticamente la última estación (silencioso)
-    if (estacionActual && audio) {
-        // No auto-play: requiere gesto del usuario. Solo dejamos lista.
-    }
 
     if (window.lucide) window.lucide.createIcons();
 }
