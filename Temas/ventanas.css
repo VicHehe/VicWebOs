@@ -1,0 +1,105 @@
+/* ================================================
+   Tema: Ventanas
+   Windows de marca blanca. Azul Fluent, esquinas
+   suaves, y un toque de chrome en los modales.
+   ================================================ */
+
+:root {
+    /* Acento azul Windows */
+    --violet-50:  #EFF6FC;
+    --violet-100: #D6E8F7;
+    --violet-200: #B3D4F0;
+    --violet-300: #7FB8E6;
+    --violet-400: #4A9BDC;
+    --violet-500: #0078D4;
+    --violet-600: #106EBE;
+    --violet-700: #005A9E;
+
+    /* Neutros Fluent */
+    --white:   #FFFFFF;
+    --bg:      #F3F3F3;
+    --bg-alt:  #EAEAEA;
+    --gray-50:  #FAFAFA;
+    --gray-100: #F0F0F0;
+    --gray-200: #E0E0E0;
+    --gray-300: #C8C8C8;
+    --gray-400: #9A9A9A;
+    --gray-500: #6E6E6E;
+    --gray-600: #4E4E4E;
+    --gray-700: #333333;
+    --gray-800: #1F1F1F;
+    --gray-900: #0F0F0F;
+
+    --border:  #D6D6D6;
+    --text:    #1F1F1F;
+    --text-2:  #4E4E4E;
+    --text-3:  #6E6E6E;
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.10);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.14);
+    --shadow-xl: 0 16px 40px rgba(0, 0, 0, 0.18);
+    --shadow-glow: 0 0 0 3px rgba(0, 120, 212, 0.20);
+
+    --accent-gradient: linear-gradient(135deg, #0078D4, #005A9E);
+    --accent-gradient-hover: linear-gradient(135deg, #106EBE, #005A9E);
+    --accent-shadow: rgba(0, 120, 212, 0.25);
+    --accent-shadow-hover: rgba(0, 120, 212, 0.40);
+    --accent-text-gradient: linear-gradient(135deg, #0F0F0F, #0078D4);
+
+    --r-sm: 4px;
+    --r-md: 8px;
+    --r-lg: 12px;
+    --r-xl: 16px;
+}
+
+/* ================================================
+   Chrome tipo ventana: barra de título en modales
+   y en el welcome. La "ventana" dentro de la ventana.
+   ================================================ */
+.config-card,
+.modal-todas-card {
+    position: relative;
+    overflow: hidden;
+}
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #0078D4 0%, #4A9BDC 50%, #0078D4 100%);
+    pointer-events: none;
+    z-index: 2;
+}
+
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #005A9E, #4A9BDC, #005A9E);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* El header con un sutil degradado Fluent */
+.app-header {
+    background: linear-gradient(180deg, #FFFFFF 0%, #F7F7F7 100%);
+    border-bottom: 1px solid #D6D6D6;
+}
+
+/* Los accesos rápidos se sienten "tarjeta de Windows" */
+.acceso-item {
+    border-radius: var(--r-md);
+    border-width: 1px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.acceso-item:hover {
+    box-shadow: 0 6px 16px rgba(0, 120, 212, 0.18);
+}
