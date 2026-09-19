@@ -48,6 +48,18 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 0,
         monedas: 0
     },
+        {
+        id: 'contactos',
+        nombre: 'Contactos',
+        icono: 'book-user',
+        ruta: 'herramientas/contactos/index.html',
+        descripcion: 'Directorio de la comunidad. Regala monedas a tus amigos.',
+        categoria: 'Sistema',
+        esBase: true,
+        esDefault: true,
+        espacio: 0,
+        monedas: 0
+    },
     {
         id: 'calculadora',
         nombre: 'Calculadora',
