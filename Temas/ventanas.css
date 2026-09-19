@@ -1,7 +1,7 @@
 /* ================================================
    Tema: Ventanas
-   Windows de marca blanca. Azul Fluent, esquinas
-   suaves, y un toque de chrome en los modales.
+   Windows de barrio. Azul Fluent, esquinas suaves
+   y chrome de ventana en los modales.
    ================================================ */
 
 :root {
@@ -54,10 +54,18 @@
     --r-xl: 16px;
 }
 
-/* ================================================
-   Chrome tipo ventana: barra de título en modales
-   y en el welcome. La "ventana" dentro de la ventana.
-   ================================================ */
+/* ------------------------------------------------------------
+   Header tipo barra de aplicación Fluent
+   ------------------------------------------------------------ */
+.app-header {
+    background: linear-gradient(180deg, #FFFFFF 0%, #F7F7F7 100%);
+    border-bottom: 1px solid #D6D6D6;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* ------------------------------------------------------------
+   Modales: barra de título arriba con gradiente azul
+   ------------------------------------------------------------ */
 .config-card,
 .modal-todas-card {
     position: relative;
@@ -76,6 +84,12 @@
     z-index: 2;
 }
 
+/* ------------------------------------------------------------
+   Welcome: franja de "ventana activa" arriba
+   ------------------------------------------------------------ */
+.welcome-placeholder {
+    position: relative;
+}
 .welcome-placeholder::before {
     content: '';
     position: absolute;
@@ -88,18 +102,38 @@
     z-index: 1;
 }
 
-/* El header con un sutil degradado Fluent */
-.app-header {
-    background: linear-gradient(180deg, #FFFFFF 0%, #F7F7F7 100%);
-    border-bottom: 1px solid #D6D6D6;
-}
-
-/* Los accesos rápidos se sienten "tarjeta de Windows" */
+/* ------------------------------------------------------------
+   Accesos rápidos: borde de "ventana" sutil
+   ------------------------------------------------------------ */
 .acceso-item {
     border-radius: var(--r-md);
     border-width: 1px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    position: relative;
+    overflow: hidden;
+}
+.acceso-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #0078D4, #4A9BDC);
+    opacity: 0.55;
+    transition: opacity 0.22s;
+}
+.acceso-item:hover::before {
+    opacity: 1;
 }
 .acceso-item:hover {
     box-shadow: 0 6px 16px rgba(0, 120, 212, 0.18);
+    border-color: #0078D4;
+}
+
+/* ------------------------------------------------------------
+   Pestañas: active como "pestaña de ventana"
+   ------------------------------------------------------------ */
+.tab-item.active {
+    border-top: 2px solid #0078D4;
 }
