@@ -1,6 +1,8 @@
 /* ================================================
    Tema: Consentido
-   Colores chilenos cálidos y elegantes.
+   Chile en todo su esplendor. Bandera, manta de
+   huaso, copihues y guirnaldas de fonda.
+   18 monedas por el 18 de septiembre.
    ================================================ */
 
 :root {
@@ -10,34 +12,367 @@
     --violet-200: #FFCACA;
     --violet-300: #FCA5A5;
     --violet-400: #EF4444;
-    --violet-500: #D52B1E;
+    --violet-500: #D52B1E;   /* rojo chileno oficial */
     --violet-600: #B91C1C;
     --violet-700: #7F1D1D;
 
-    /* Fondos cálidos */
-    --bg:     #FFFBF7;
-    --bg-alt: #FFF5EE;
+    /* Neutros cálidos */
+    --white:   #FFFFFF;
+    --bg:      #FFFBF7;
+    --bg-alt:  #FFF5EE;
+    --gray-50:  #FAF6F2;
+    --gray-100: #F0EAE3;
+    --gray-200: #E0D6CC;
+    --gray-300: #C4B8AC;
+    --gray-400: #8E8278;
+    --gray-500: #6B6158;
+    --gray-600: #4E463F;
+    --gray-700: #332D28;
+    --gray-800: #1F1B18;
+    --gray-900: #0F0D0B;
 
+    --border:  #E0D6CC;
+    --text:    #1F1B18;
+    --text-2:  #4E463F;
+    --text-3:  #6B6158;
+
+    --shadow-xs: 0 1px 2px rgba(60, 30, 20, 0.05);
+    --shadow-sm: 0 1px 3px rgba(60, 30, 20, 0.08);
+    --shadow-md: 0 4px 12px rgba(60, 30, 20, 0.10);
+    --shadow-lg: 0 12px 32px rgba(60, 30, 20, 0.12);
+    --shadow-xl: 0 24px 48px rgba(60, 30, 20, 0.15);
     --shadow-glow: 0 0 0 4px rgba(213, 43, 30, 0.15);
 
-    /* Acento: rojo chileno → azul chileno */
+    /* Acento: rojo chileno → azul chileno (colores de la bandera) */
     --accent-gradient: linear-gradient(135deg, #D52B1E, #0033A0);
     --accent-gradient-hover: linear-gradient(135deg, #EF4444, #1E40AF);
     --accent-shadow: rgba(213, 43, 30, 0.28);
-    --accent-shadow-hover: rgba(213, 43, 30, 0.40);
+    --accent-shadow-hover: rgba(213, 43, 30, 0.42);
     --accent-text-gradient: linear-gradient(135deg, #7F1D1D, #0033A0);
+
+    /* Colores patrios */
+    --chile-rojo:  #D52B1E;
+    --chile-azul:  #0033A0;
+    --chile-blanco:#FFFFFF;
+    --chile-oro:   #D4AF37;
+
+    /* Copihue (flor nacional) — SVG embebido */
+    --theme-copihue: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cg transform='translate(30,30)'%3E%3Cpath d='M0,0 C-12,-8 -18,-20 -12,-28 C-6,-34 0,-28 0,-20 C0,-28 6,-34 12,-28 C18,-20 12,-8 0,0 Z' fill='%23D52B1E'/%3E%3Cpath d='M0,-6 C-6,-12 -8,-18 -5,-22 C-2,-24 0,-21 0,-17 C0,-21 2,-24 5,-22 C8,-18 6,-12 0,-6 Z' fill='%23FF6B6B' opacity='0.65'/%3E%3Ccircle cx='0' cy='-8' r='1.5' fill='%23FFFFFF'/%3E%3Cpath d='M0,-10 L0,-30' stroke='%233E7A4A' stroke-width='1.2'/%3E%3Cpath d='M0,-22 L-6,-26 M0,-22 L6,-26' stroke='%233E7A4A' stroke-width='1' fill='none'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* Guirnalda de fonda (papel picado) — SVG embebido */
+    --theme-guirnalda: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 40'%3E%3Cpath d='M0,4 Q50,14 100,4 Q150,14 200,4' stroke='%23332D28' stroke-width='0.6' fill='none'/%3E%3Cg%3E%3Cpath d='M20,6 L24,18 L32,20 L24,22 L20,34 L16,22 L8,20 L16,18 Z' fill='%23D52B1E'/%3E%3Cpath d='M60,4 L64,16 L72,18 L64,20 L60,32 L56,20 L48,18 L56,16 Z' fill='%23F5C518'/%3E%3Cpath d='M100,6 L104,18 L112,20 L104,22 L100,34 L96,22 L88,20 L96,18 Z' fill='%230033A0'/%3E%3Cpath d='M140,4 L144,16 L152,18 L144,20 L140,32 L136,20 L128,18 L136,16 Z' fill='%23D52B1E'/%3E%3Cpath d='M180,6 L184,18 L192,20 L184,22 L180,34 L176,22 L168,20 L176,18 Z' fill='%23F5C518'/%3E%3C/g%3E%3C/svg%3E");
 }
 
-/* Detalle: la card del tema activo lleva un brillo dorado sutil
-   para el toque "consentido" */
-.config-tema-item.activo {
-    border-color: var(--violet-500);
+/* ================================================================
+   1. Header = bandera chilena
+      Franja azul (1/3 izq) + franja blanca (2/3 der) + estrella,
+      y debajo la franja roja completa.
+   ================================================================ */
+.app-header {
+    position: relative;
+    background: var(--white);
+    border-bottom: 4px solid var(--chile-rojo);
+    padding-top: 4px;
+}
+.app-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background:
+        /* Franja azul con estrella: tercio izquierdo */
+        linear-gradient(90deg,
+            var(--chile-azul) 0%,
+            var(--chile-azul) 33.333%,
+            transparent 33.333%),
+        /* Franja blanca: dos tercios derechos */
+        linear-gradient(90deg,
+            transparent 0%,
+            transparent 33.333%,
+            var(--chile-blanco) 33.333%,
+            var(--chile-blanco) 100%);
+    pointer-events: none;
+    z-index: 1;
+}
+/* Estrella de la bandera en la franja azul */
+.app-header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 12px;
+    width: 8px;
+    height: 6px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10,1 L12.4,7 L18.8,7 L13.6,10.8 L15.6,17 L10,13.2 L4.4,17 L6.4,10.8 L1.2,7 L7.6,7 Z' fill='white'/%3E%3C/svg%3E") center/contain no-repeat;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* ================================================================
+   2. Welcome = manta de huaso + textura de telar
+   ================================================================ */
+.welcome-placeholder {
+    position: relative;
+    background:
+        /* Franjas horizontales tipo manta de huaso */
+        repeating-linear-gradient(
+            180deg,
+            rgba(213, 43, 30, 0.03) 0px,
+            rgba(213, 43, 30, 0.03) 30px,
+            rgba(0, 51, 160, 0.02) 30px,
+            rgba(0, 51, 160, 0.02) 60px,
+            rgba(212, 175, 55, 0.025) 60px,
+            rgba(212, 175, 55, 0.025) 90px
+        ),
+        var(--bg);
+}
+
+/* Textura de telar (puntitos) */
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.35;
+    background-image:
+        radial-gradient(circle, rgba(213, 43, 30, 0.15) 0.7px, transparent 1.2px),
+        radial-gradient(circle, rgba(0, 51, 160, 0.12) 0.7px, transparent 1.2px);
+    background-size: 12px 12px, 18px 18px;
+    background-position: 0 0, 6px 6px;
+}
+
+/* Guirnaldas de fonda arriba del welcome */
+.welcome-placeholder::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background-image: var(--theme-guirnalda);
+    background-size: 200px 40px;
+    background-repeat: repeat-x;
+    background-position: 0 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.85;
+}
+
+/* Hero y secciones por encima */
+.welcome-hero,
+.welcome-section {
+    position: relative;
+    z-index: 2;
+}
+
+/* El brillo se vuelve un halo dorado como un sol de medalla */
+.welcome-glow {
+    background: radial-gradient(
+        circle,
+        rgba(212, 175, 55, 0.18) 0%,
+        rgba(213, 43, 30, 0.08) 35%,
+        transparent 65%
+    );
+}
+
+/* ================================================================
+   3. Accesos rápidos = "medallas" patrias
+      Marco dorado y copihue esquinero al hover
+   ================================================================ */
+.acceso-item {
+    position: relative;
+    border: 1.5px solid var(--chile-oro);
+    border-radius: 10px;
+    background:
+        linear-gradient(135deg, rgba(255, 245, 240, 1) 0%, rgba(255, 255, 255, 1) 100%);
     box-shadow:
-        0 0 0 4px rgba(213, 43, 30, 0.10),
-        0 0 0 6px rgba(212, 175, 55, 0.10);
+        inset 0 0 0 1px rgba(213, 43, 30, 0.10),
+        inset 0 0 0 3px rgba(212, 175, 55, 0.18),
+        0 2px 6px rgba(60, 30, 20, 0.08);
+    overflow: visible;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* La barrita del sidebar activo lleva un toque dorado */
+/* Copihue esquinero al hover */
+.acceso-item::after {
+    content: '';
+    position: absolute;
+    top: -14px;
+    right: -14px;
+    width: 30px;
+    height: 30px;
+    background: var(--theme-copihue) center/contain no-repeat;
+    opacity: 0;
+    transform: scale(0.4) rotate(-20deg);
+    transition: opacity 0.28s, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+    z-index: 3;
+    filter: drop-shadow(0 2px 3px rgba(120, 20, 10, 0.35));
+}
+.acceso-item:hover::after {
+    opacity: 1;
+    transform: scale(1) rotate(-10deg);
+}
+
+.acceso-item:hover {
+    transform: translateY(-3px);
+    border-color: var(--chile-rojo);
+    box-shadow:
+        inset 0 0 0 1px rgba(213, 43, 30, 0.20),
+        inset 0 0 0 3px rgba(212, 175, 55, 0.35),
+        0 12px 24px rgba(213, 43, 30, 0.25),
+        0 4px 8px rgba(0, 51, 160, 0.15);
+}
+
+/* Ícono: círculo con anillo dorado estilo medalla */
+.acceso-icon-wrap {
+    background: linear-gradient(135deg, #FFE4E4, #FFF5F5);
+    border: 1.5px solid var(--chile-oro);
+    box-shadow:
+        inset 0 0 0 2px rgba(255, 255, 255, 0.9),
+        inset 0 0 0 3px rgba(212, 175, 55, 0.30),
+        0 2px 6px rgba(213, 43, 30, 0.15);
+}
+.acceso-item:hover .acceso-icon-wrap {
+    background: var(--accent-gradient);
+    border-color: var(--chile-oro);
+    color: white;
+    box-shadow:
+        0 0 0 3px rgba(212, 175, 55, 0.35),
+        0 6px 14px rgba(213, 43, 30, 0.35);
+}
+
+/* ================================================================
+   4. Widgets con marco de medalla
+   ================================================================ */
+.widget-item {
+    border: 1.5px solid var(--chile-oro);
+    box-shadow:
+        inset 0 0 0 1px rgba(213, 43, 30, 0.10),
+        inset 0 0 0 3px rgba(212, 175, 55, 0.15),
+        var(--shadow-md);
+}
+
+/* ================================================================
+   5. Sidebar = franja con los colores patrios
+   ================================================================ */
+.sidebar {
+    position: relative;
+    background: linear-gradient(180deg, #FFF5EE 0%, #FFE4E4 100%);
+    border-right: 3px solid var(--chile-rojo);
+}
+/* Filete azul+oro paralelo al borde rojo */
+.sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 3px;
+    background: var(--chile-azul);
+    pointer-events: none;
+}
+/* Estrella tenue de fondo en el sidebar */
+.sidebar::after {
+    content: '';
+    position: absolute;
+    top: 24px;
+    right: 16px;
+    width: 26px;
+    height: 26px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10,1 L12.4,7 L18.8,7 L13.6,10.8 L15.6,17 L10,13.2 L4.4,17 L6.4,10.8 L1.2,7 L7.6,7 Z' fill='%23D52B1E' opacity='0.35'/%3E%3C/svg%3E") center/contain no-repeat;
+    pointer-events: none;
+}
+
+/* Nav activo: barrita roja→azul→dorada */
 .nav-item.active::before {
-    background: linear-gradient(180deg, #D52B1E, #D4AF37);
+    background: linear-gradient(180deg, var(--chile-rojo) 0%, var(--chile-azul) 50%, var(--chile-oro) 100%);
+    box-shadow: 0 0 8px rgba(213, 43, 30, 0.4);
+    width: 4px;
+}
+
+/* ================================================================
+   6. Pestañas activas: guirnalda superior
+   ================================================================ */
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 12px;
+    right: 12px;
+    height: 3px;
+    background: linear-gradient(90deg,
+        var(--chile-azul) 0%,
+        var(--chile-azul) 30%,
+        var(--chile-blanco) 30%,
+        var(--chile-blanco) 60%,
+        var(--chile-rojo) 60%,
+        var(--chile-rojo) 100%);
+    border-radius: 3px 3px 0 0;
+}
+
+/* ================================================================
+   7. Modales = escudo nacional (marco dorado + banda bandera arriba)
+   ================================================================ */
+.config-card,
+.modal-todas-card {
+    position: relative;
+    overflow: hidden;
+    border: 2px solid var(--chile-oro);
+    box-shadow:
+        inset 0 0 0 3px rgba(213, 43, 30, 0.08),
+        inset 0 0 0 5px rgba(212, 175, 55, 0.25),
+        var(--shadow-xl);
+}
+/* Banda de la bandera arriba del modal */
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg,
+        var(--chile-azul) 0%,
+        var(--chile-azul) 33%,
+        var(--chile-blanco) 33%,
+        var(--chile-blanco) 66%,
+        var(--chile-rojo) 66%,
+        var(--chile-rojo) 100%);
+    pointer-events: none;
+    z-index: 3;
+}
+/* Estrella en la franja azul del modal */
+.config-card::after,
+.modal-todas-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 12px;
+    width: 10px;
+    height: 4px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10,1 L12.4,7 L18.8,7 L13.6,10.8 L15.6,17 L10,13.2 L4.4,17 L6.4,10.8 L1.2,7 L7.6,7 Z' fill='white'/%3E%3C/svg%3E") center/contain no-repeat;
+    pointer-events: none;
+    z-index: 4;
+}
+
+/* ================================================================
+   8. Botón primario = cinta presidencial
+   ================================================================ */
+.btn-primario {
+    background: linear-gradient(135deg, var(--chile-rojo) 0%, var(--chile-azul) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    box-shadow:
+        0 4px 12px rgba(213, 43, 30, 0.30),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+.btn-primario:hover {
+    background: linear-gradient(135deg, #EF4444 0%, #1E40AF 100%);
+    box-shadow:
+        0 6px 18px rgba(213, 43, 30, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.20),
+        0 0 0 2px rgba(212, 175, 55, 0.35);
 }
