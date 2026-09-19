@@ -28,10 +28,10 @@ body {
     height: 100dvh;
     max-width: 640px;
     margin: 0 auto;
-    padding: 16px 20px 12px;
+    padding: 14px 20px 10px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     overflow: hidden;
 }
 
@@ -47,15 +47,15 @@ body {
 .tr-logo {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 11px;
     min-width: 0;
 }
 
 .tr-logo-mark {
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
     background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
-    border-radius: 11px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -63,13 +63,13 @@ body {
     box-shadow: 0 6px 16px var(--accent-shadow, rgba(139,92,246,0.28));
     flex-shrink: 0;
 }
-.tr-logo-mark [data-lucide] { width: 20px; height: 20px; stroke-width: 2.5; }
+.tr-logo-mark [data-lucide] { width: 19px; height: 19px; stroke-width: 2.5; }
 
 .tr-logo-text {
     min-width: 0;
 }
 .tr-logo-text h1 {
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 800;
     letter-spacing: -0.03em;
     background: var(--accent-text-gradient, linear-gradient(135deg, #18181B, #7C3AED));
@@ -80,10 +80,10 @@ body {
     line-height: 1.15;
 }
 .tr-logo-text p {
-    font-size: 11.5px;
+    font-size: 11px;
     color: var(--gray-500, #71717A);
     font-weight: 600;
-    margin-top: 2px;
+    margin-top: 1px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -93,7 +93,7 @@ body {
     display: flex;
     align-items: center;
     gap: 5px;
-    padding: 7px 12px;
+    padding: 6px 11px;
     background: var(--gray-100, #F4F4F7);
     border: 1.5px solid var(--border, #E8E8EE);
     border-radius: 999px;
@@ -134,7 +134,7 @@ body {
     min-height: 0;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     align-items: center;
     justify-content: center;
     overflow: hidden;
@@ -146,7 +146,9 @@ body {
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    width: min(420px, 100%, 55vh);
+    /* Mismo ancho que el tablero */
+    width: min(420px, 100%, calc(100dvh - 320px));
+    min-width: 220px;
     flex-shrink: 0;
 }
 
@@ -164,8 +166,8 @@ body {
 }
 .tr-info-turno {
     background: var(--violet-50, #F5F3FF);
-    border: 1.5px solid var(--violet-200, #DDD6FE);
-    color: var(--violet-700, #6D28D9);
+    border: 1.5px solid var(--violet-300, #C4B5FD);
+    color: var(--violet-500, #8B5CF6);
     transition: all 0.22s;
 }
 .tr-info-turno [data-lucide] {
@@ -175,14 +177,14 @@ body {
 .tr-info-turno.cpu {
     background: #FEF2F2;
     border-color: #FECACA;
-    color: #991B1B;
+    color: #DC2626;
 }
 .tr-info-turno.cpu [data-lucide] { color: #DC2626; }
 
 .tr-info-nivel {
     background: var(--gray-100, #F4F4F7);
-    border: 1.5px solid var(--border, #E8E8EE);
-    color: var(--gray-600, #52525B);
+    border: 1.5px solid var(--gray-300, #D4D4DD);
+    color: var(--gray-700, #3F3F46);
 }
 .tr-info-nivel [data-lucide] {
     width: 13px;
@@ -195,10 +197,11 @@ body {
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
     gap: 8px;
-    /* Ancho: nunca más que 420px, ni más que el 100% del padre,
-       ni más que el 55% del alto del viewport (para que en pantallas
-       bajas el tablero se achique y todo lo demás quepa). */
-    width: min(420px, 100%, 55vh);
+    /* Ancho: 420px como máximo, 100% del padre como límite,
+       y el alto del viewport menos ~320px (header + info + resultado + stats + acciones + gaps).
+       min-width para que nunca desaparezca en pantallas muy bajas. */
+    width: min(420px, 100%, calc(100dvh - 320px));
+    min-width: 220px;
     aspect-ratio: 1 / 1;
     padding: 8px;
     background: var(--gray-50, #FAFAFB);
@@ -286,10 +289,10 @@ body {
 .tr-resultado {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
+    gap: 7px;
+    padding: 9px 18px;
     border-radius: 999px;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 800;
     letter-spacing: -0.01em;
     animation: trZoom 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -297,8 +300,8 @@ body {
     max-width: 100%;
 }
 .tr-resultado [data-lucide] {
-    width: 17px;
-    height: 17px;
+    width: 16px;
+    height: 16px;
 }
 .tr-resultado span {
     white-space: nowrap;
@@ -339,7 +342,7 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 2px;
-    padding: 8px 4px;
+    padding: 7px 4px;
     background: var(--gray-50, #FAFAFB);
     border: 1.5px solid var(--border, #E8E8EE);
     border-radius: var(--r-md, 12px);
@@ -448,10 +451,18 @@ body {
     .tr-logo-mark [data-lucide] { width: 17px; height: 17px; }
     .tr-logo-text h1 { font-size: 16px; }
     .tr-logo-text p { font-size: 10.5px; }
-    .tr-racha-badge { padding: 6px 10px; font-size: 12px; }
+    .tr-racha-badge { padding: 5px 10px; font-size: 12px; }
     .tr-racha-badge [data-lucide] { width: 12px; height: 12px; }
 
-    .tr-tablero { gap: 6px; padding: 6px; }
+    .tr-tablero {
+        gap: 6px;
+        padding: 6px;
+        /* En móvil es más conservador: viewport menos 300px */
+        width: min(420px, 100%, calc(100dvh - 300px));
+    }
+    .tr-info {
+        width: min(420px, 100%, calc(100dvh - 300px));
+    }
     .tr-info-turno,
     .tr-info-nivel {
         padding: 5px 10px;
@@ -460,11 +471,11 @@ body {
     .tr-info-turno [data-lucide],
     .tr-info-nivel [data-lucide] { width: 12px; height: 12px; }
 
-    .tr-resultado { font-size: 12.5px; padding: 9px 16px; }
+    .tr-resultado { font-size: 12.5px; padding: 8px 15px; }
     .tr-resultado [data-lucide] { width: 15px; height: 15px; }
 
     .tr-stats { gap: 5px; }
-    .tr-stat { padding: 7px 3px; }
+    .tr-stat { padding: 6px 3px; }
     .tr-stat-label { font-size: 8.5px; }
     .tr-stat-valor { font-size: 14px; }
 
