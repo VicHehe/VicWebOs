@@ -13,6 +13,17 @@
 // ============================================================
 
 const WIDGETS_DISPONIBLES = [
+        {
+        id: 'mi-estado',
+        nombre: 'Mi Estado',
+        icono: 'circle-user',
+        ruta: 'Widgets/mi-estado/index.html',
+        descripcion: 'Muestra tu perfil y te deja cambiar tu estado (activo, descansando, desconectado).',
+        categoria: 'Social',
+        esBase: false,
+        espacio: 2,
+        monedas: 0
+    },
     {
         id: 'reloj-mundial',
         nombre: 'Reloj Mundial',
