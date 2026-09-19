@@ -28,10 +28,10 @@ body {
     height: 100dvh;
     max-width: 640px;
     margin: 0 auto;
-    padding: 20px 24px;
+    padding: 16px 20px 12px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
     overflow: hidden;
 }
 
@@ -52,21 +52,24 @@ body {
 }
 
 .tr-logo-mark {
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
     background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
-    border-radius: 12px;
+    border-radius: 11px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    box-shadow: 0 8px 20px var(--accent-shadow, rgba(139,92,246,0.28));
+    box-shadow: 0 6px 16px var(--accent-shadow, rgba(139,92,246,0.28));
     flex-shrink: 0;
 }
-.tr-logo-mark [data-lucide] { width: 22px; height: 22px; stroke-width: 2.5; }
+.tr-logo-mark [data-lucide] { width: 20px; height: 20px; stroke-width: 2.5; }
 
+.tr-logo-text {
+    min-width: 0;
+}
 .tr-logo-text h1 {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 800;
     letter-spacing: -0.03em;
     background: var(--accent-text-gradient, linear-gradient(135deg, #18181B, #7C3AED));
@@ -77,21 +80,24 @@ body {
     line-height: 1.15;
 }
 .tr-logo-text p {
-    font-size: 12px;
+    font-size: 11.5px;
     color: var(--gray-500, #71717A);
     font-weight: 600;
     margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .tr-racha-badge {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
+    gap: 5px;
+    padding: 7px 12px;
     background: var(--gray-100, #F4F4F7);
     border: 1.5px solid var(--border, #E8E8EE);
     border-radius: 999px;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 800;
     color: var(--gray-700, #3F3F46);
     font-variant-numeric: tabular-nums;
@@ -99,8 +105,8 @@ body {
     transition: all 0.22s;
 }
 .tr-racha-badge [data-lucide] {
-    width: 15px;
-    height: 15px;
+    width: 14px;
+    height: 14px;
     color: var(--gray-500, #71717A);
     transition: color 0.22s;
 }
@@ -111,7 +117,6 @@ body {
 }
 .tr-racha-badge.activa [data-lucide] {
     color: #F59E0B;
-    filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.5));
 }
 .tr-racha-badge.brillante {
     background: linear-gradient(135deg, #F59E0B, #DC2626);
@@ -121,7 +126,6 @@ body {
 }
 .tr-racha-badge.brillante [data-lucide] {
     color: white;
-    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.7));
 }
 
 /* ========== MAIN ========== */
@@ -130,9 +134,10 @@ body {
     min-height: 0;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 10px;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
 }
 
 /* ========== INFO ========== */
@@ -141,8 +146,7 @@ body {
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    width: 100%;
-    max-width: 420px;
+    width: min(420px, 100%, 55vh);
     flex-shrink: 0;
 }
 
@@ -151,11 +155,12 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 7px 14px;
-    border-radius: var(--r-md, 12px);
-    font-size: 12.5px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
     font-weight: 800;
     letter-spacing: -0.01em;
+    white-space: nowrap;
 }
 .tr-info-turno {
     background: var(--violet-50, #F5F3FF);
@@ -164,8 +169,8 @@ body {
     transition: all 0.22s;
 }
 .tr-info-turno [data-lucide] {
-    width: 14px;
-    height: 14px;
+    width: 13px;
+    height: 13px;
 }
 .tr-info-turno.cpu {
     background: #FEF2F2;
@@ -180,8 +185,8 @@ body {
     color: var(--gray-600, #52525B);
 }
 .tr-info-nivel [data-lucide] {
-    width: 14px;
-    height: 14px;
+    width: 13px;
+    height: 13px;
 }
 
 /* ========== TABLERO ========== */
@@ -189,11 +194,13 @@ body {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
-    gap: 10px;
-    width: 100%;
-    max-width: 420px;
+    gap: 8px;
+    /* Ancho: nunca más que 420px, ni más que el 100% del padre,
+       ni más que el 55% del alto del viewport (para que en pantallas
+       bajas el tablero se achique y todo lo demás quepa). */
+    width: min(420px, 100%, 55vh);
     aspect-ratio: 1 / 1;
-    padding: 10px;
+    padding: 8px;
     background: var(--gray-50, #FAFAFB);
     border: 1.5px solid var(--border, #E8E8EE);
     border-radius: var(--r-lg, 16px);
@@ -251,15 +258,12 @@ body {
     stroke-linejoin: round;
 }
 
-/* X — violeta del tema */
 .tr-marca-x line { stroke: var(--violet-500, #8B5CF6); }
 .tr-celda.ganadora .tr-marca-x line { stroke: #059669; }
 
-/* O — rosa fijo para diferenciar */
 .tr-marca-o circle { stroke: #EC4899; }
 .tr-celda.perdedora .tr-marca-o circle { stroke: #DC2626; }
 
-/* Animación de aparición */
 @keyframes trPopX {
     0% { stroke-dashoffset: 100; opacity: 0; }
     100% { stroke-dashoffset: 0; opacity: 1; }
@@ -283,17 +287,23 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 12px 22px;
+    padding: 10px 20px;
     border-radius: 999px;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 800;
     letter-spacing: -0.01em;
     animation: trZoom 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
     flex-shrink: 0;
+    max-width: 100%;
 }
 .tr-resultado [data-lucide] {
-    width: 18px;
-    height: 18px;
+    width: 17px;
+    height: 17px;
+}
+.tr-resultado span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .tr-resultado.ganaste {
     background: #ECFDF5;
@@ -319,34 +329,36 @@ body {
 .tr-stats {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
+    gap: 6px;
     flex-shrink: 0;
     width: 100%;
-    max-width: 640px;
-    margin: 0 auto;
 }
 
 .tr-stat {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 3px;
-    padding: 10px 6px;
+    gap: 2px;
+    padding: 8px 4px;
     background: var(--gray-50, #FAFAFB);
     border: 1.5px solid var(--border, #E8E8EE);
     border-radius: var(--r-md, 12px);
     text-align: center;
+    min-width: 0;
 }
 .tr-stat-label {
-    font-size: 10px;
+    font-size: 9.5px;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
     color: var(--gray-500, #71717A);
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 .tr-stat-valor {
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 800;
     color: var(--gray-900, #18181B);
     font-variant-numeric: tabular-nums;
@@ -367,10 +379,10 @@ body {
     align-items: center;
     justify-content: center;
     gap: 7px;
-    padding: 11px 18px;
+    padding: 10px 16px;
     border-radius: var(--r-md, 12px);
     font-family: inherit;
-    font-size: 13px;
+    font-size: 12.5px;
     font-weight: 800;
     cursor: pointer;
     transition: all 0.15s;
@@ -378,7 +390,7 @@ body {
     border: none;
     white-space: nowrap;
 }
-.tr-btn [data-lucide] { width: 15px; height: 15px; }
+.tr-btn [data-lucide] { width: 14px; height: 14px; }
 
 .tr-btn-sec {
     background: var(--white, #FFFFFF);
@@ -431,33 +443,39 @@ body {
 
 /* ========== RESPONSIVE ========== */
 @media (max-width: 640px) {
-    .tr-container { padding: 14px 14px 12px; gap: 10px; }
-    .tr-logo-mark { width: 36px; height: 36px; }
-    .tr-logo-mark [data-lucide] { width: 19px; height: 19px; }
-    .tr-logo-text h1 { font-size: 17px; }
-    .tr-logo-text p { font-size: 11px; }
-    .tr-racha-badge { padding: 6px 12px; font-size: 13px; }
+    .tr-container { padding: 12px 14px 10px; gap: 10px; }
+    .tr-logo-mark { width: 34px; height: 34px; border-radius: 10px; }
+    .tr-logo-mark [data-lucide] { width: 17px; height: 17px; }
+    .tr-logo-text h1 { font-size: 16px; }
+    .tr-logo-text p { font-size: 10.5px; }
+    .tr-racha-badge { padding: 6px 10px; font-size: 12px; }
+    .tr-racha-badge [data-lucide] { width: 12px; height: 12px; }
 
-    .tr-tablero { gap: 8px; padding: 8px; }
-    .tr-info { max-width: 100%; }
-    .tr-info-turno, .tr-info-nivel {
-        padding: 6px 10px;
-        font-size: 11.5px;
+    .tr-tablero { gap: 6px; padding: 6px; }
+    .tr-info-turno,
+    .tr-info-nivel {
+        padding: 5px 10px;
+        font-size: 11px;
     }
+    .tr-info-turno [data-lucide],
+    .tr-info-nivel [data-lucide] { width: 12px; height: 12px; }
 
-    .tr-stats { gap: 6px; }
-    .tr-stat { padding: 8px 4px; }
-    .tr-stat-label { font-size: 9px; }
-    .tr-stat-valor { font-size: 15px; }
+    .tr-resultado { font-size: 12.5px; padding: 9px 16px; }
+    .tr-resultado [data-lucide] { width: 15px; height: 15px; }
+
+    .tr-stats { gap: 5px; }
+    .tr-stat { padding: 7px 3px; }
+    .tr-stat-label { font-size: 8.5px; }
+    .tr-stat-valor { font-size: 14px; }
 
     .tr-acciones { gap: 6px; }
-    .tr-btn { padding: 10px 14px; font-size: 12.5px; flex: 1; min-width: 0; }
+    .tr-btn { padding: 9px 12px; font-size: 12px; flex: 1; min-width: 0; }
     .tr-btn span { display: none; }
     .tr-btn-pri span { display: inline; }
 }
 
 @media (max-width: 400px) {
     .tr-btn-sec span { display: none; }
-    .tr-stat-label { font-size: 8.5px; }
-    .tr-stat-valor { font-size: 14px; }
+    .tr-stat-label { font-size: 8px; }
+    .tr-stat-valor { font-size: 13px; }
 }
