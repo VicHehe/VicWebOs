@@ -1,8 +1,8 @@
 /* ================================================
-   Tres en Raya — Juego clásico con dificultad
-   escalonada por racha.
-   X y O dibujadas con CSS puro.
-   Overlays tipo Dino para inicio y fin de partida.
+   Tres en Raya — Sistema de 3 rondas
+   X y O dibujadas con CSS puro (mismo color).
+   Layout limpio: header, info, tablero, stats.
+   Overlays tipo modal para inicio y fin.
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -24,7 +24,7 @@ body {
 [data-lucide] { width: 18px; height: 18px; stroke-width: 2; flex-shrink: 0; }
 
 /* ============================================================
-   LAYOUT: grid de 4 filas (header, info, tablero, stats)
+   LAYOUT
    ============================================================ */
 .tr-container {
     height: 100dvh;
@@ -86,52 +86,26 @@ body {
     text-overflow: ellipsis;
 }
 
-.tr-racha-badge {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    padding: 6px 11px;
-    background: var(--gray-100, #F4F4F7);
-    border: 1.5px solid var(--border, #E8E8EE);
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 800;
-    color: var(--gray-700, #3F3F46);
-    font-variant-numeric: tabular-nums;
-    flex-shrink: 0;
-    transition: all 0.22s;
-}
-.tr-racha-badge [data-lucide] {
-    width: 14px;
-    height: 14px;
-    color: var(--gray-500, #71717A);
-    transition: color 0.22s;
-}
-.tr-racha-badge.activa {
-    background: #FEF3C7;
-    border-color: #FDE68A;
-    color: #92400E;
-}
-.tr-racha-badge.activa [data-lucide] { color: #F59E0B; }
-.tr-racha-badge.brillante {
-    background: linear-gradient(135deg, #F59E0B, #DC2626);
-    border-color: transparent;
-    color: white;
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
-}
-.tr-racha-badge.brillante [data-lucide] { color: white; }
-
 /* ========== INFO ========== */
 .tr-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 420px;
+    justify-self: center;
+    min-width: 0;
+    min-height: 32px;
+}
+
+.tr-info-chips {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
     width: 100%;
-    max-width: 420px;
-    justify-self: center;
-    min-width: 0;
 }
+
 .tr-info-chip {
     display: inline-flex;
     align-items: center;
@@ -142,8 +116,8 @@ body {
     font-weight: 800;
     letter-spacing: -0.01em;
     white-space: nowrap;
-    transition: all 0.22s;
     min-width: 0;
+    transition: all 0.22s;
 }
 .tr-info-chip [data-lucide] {
     width: 13px;
@@ -154,6 +128,7 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
 .tr-info-turno {
     background: var(--violet-50, #F5F3FF);
     border: 1.5px solid var(--violet-500, #8B5CF6);
@@ -164,22 +139,59 @@ body {
     border-color: #DC2626;
     color: #DC2626;
 }
-.tr-info-nivel {
+
+.tr-info-ronda {
     background: var(--gray-100, #F4F4F7);
     border: 1.5px solid var(--gray-300, #D4D4DD);
     color: var(--gray-800, #27272A);
 }
-.tr-info-nivel em {
+.tr-info-ronda em {
     font-style: normal;
     font-size: 10.5px;
     font-weight: 800;
-    color: var(--gray-500, #71717A);
-    background: var(--white, #FFFFFF);
     padding: 1px 7px;
     border-radius: 999px;
     margin-left: 2px;
-    border: 1px solid var(--border, #E8E8EE);
+    border: 1px solid transparent;
     font-variant-numeric: tabular-nums;
+    transition: all 0.22s;
+}
+.tr-info-ronda.facil em {
+    background: #DCFCE7;
+    color: #166534;
+    border-color: #BBF7D0;
+}
+.tr-info-ronda.media em {
+    background: #FEF3C7;
+    color: #92400E;
+    border-color: #FDE68A;
+}
+.tr-info-ronda.dificil em {
+    background: #FEE2E2;
+    color: #991B1B;
+    border-color: #FECACA;
+}
+
+/* Píldora "toca para seguir" entre rondas */
+.tr-info-continuar {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 16px;
+    background: #ECFDF5;
+    border: 1.5px solid #10B981;
+    color: #065F46;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 800;
+    white-space: nowrap;
+    animation: trPillIn 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.tr-info-continuar [data-lucide] { width: 14px; height: 14px; }
+
+@keyframes trPillIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
 }
 
 /* ========== TABLERO ========== */
@@ -235,7 +247,8 @@ body {
 }
 
 /* ============================================================
-   X y O con CSS puro — mismo color para ambos (violeta)
+   X y O con CSS puro — mismo color (violeta)
+   X: barras gruesas · O: anillo fino
    ============================================================ */
 .tr-marca {
     position: relative;
@@ -246,7 +259,6 @@ body {
     color: var(--violet-500, #8B5CF6);
 }
 
-/* --- X: dos barras gruesas --- */
 .tr-marca-x span {
     position: absolute;
     left: 0;
@@ -263,8 +275,7 @@ body {
 }
 .tr-celda.ganadora .tr-marca-x { color: #059669; }
 
-/* --- O: anillo más fino que la X ---
-   closest-side es OBLIGATORIO: sin él, el 100% del gradiente
+/* closest-side es OBLIGATORIO: sin él, el 100% del gradiente
    cae en la esquina del cuadrado y el anillo desaparece. */
 .tr-marca-o {
     width: 60%;
@@ -288,10 +299,11 @@ body {
 /* ========== STATS ========== */
 .tr-stats {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 6px;
     width: 100%;
-    max-width: 640px;
+    max-width: 420px;
+    justify-self: center;
     min-width: 0;
 }
 .tr-stat {
@@ -326,7 +338,7 @@ body {
 }
 
 /* ============================================================
-   OVERLAYS (inicio y fin)
+   OVERLAYS
    ============================================================ */
 .tr-overlay {
     position: fixed;
@@ -403,7 +415,7 @@ body {
     font-size: 13.5px;
     color: var(--gray-500, #71717A);
     line-height: 1.55;
-    margin: 0 0 20px;
+    margin: 0 0 18px;
     max-width: 320px;
     margin-left: auto;
     margin-right: auto;
@@ -413,7 +425,40 @@ body {
     font-weight: 800;
 }
 
-/* ========== RESUMEN FIN DE PARTIDA ========== */
+/* Preview de las 3 rondas en el overlay de inicio */
+.tr-rondas {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 0 0 20px;
+    flex-wrap: wrap;
+}
+.tr-ronda-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px 5px 5px;
+    background: var(--gray-50, #FAFAFB);
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--gray-700, #3F3F46);
+}
+.tr-ronda-chip span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background: var(--violet-500, #8B5CF6);
+    color: white;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+/* ========== RESUMEN FIN ========== */
 .tr-resumen {
     display: flex;
     flex-direction: column;
@@ -424,7 +469,6 @@ body {
     padding: 16px 18px;
     margin-bottom: 20px;
 }
-
 .tr-resumen-fila {
     display: flex;
     align-items: center;
@@ -446,7 +490,6 @@ body {
     font-variant-numeric: tabular-nums;
     font-size: 16px;
 }
-
 .tr-resumen-destacada {
     padding-top: 10px;
     border-top: 1px solid var(--border, #E8E8EE);
@@ -484,34 +527,6 @@ body {
 .tr-btn-primario:active { transform: translateY(0); }
 .tr-btn-primario [data-lucide] { width: 16px; height: 16px; }
 
-/* ========== TOAST ========== */
-.tr-toast {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background: var(--gray-900, #18181B);
-    color: white;
-    padding: 12px 22px;
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 700;
-    box-shadow: 0 12px 32px rgba(0,0,0,0.2);
-    opacity: 0;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    pointer-events: none;
-    z-index: 200;
-    max-width: calc(100% - 40px);
-    white-space: nowrap;
-}
-.tr-toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-}
-.tr-toast.success { background: #065F46; }
-.tr-toast.error   { background: #991B1B; }
-.tr-toast.info    { background: var(--violet-700, #6D28D9); }
-
 /* ========== RESPONSIVE ========== */
 @media (max-width: 640px) {
     .tr-container { padding: 12px 14px 14px; gap: 12px; }
@@ -519,15 +534,14 @@ body {
     .tr-logo-mark [data-lucide] { width: 17px; height: 17px; }
     .tr-logo-text h1 { font-size: 16px; }
     .tr-logo-text p { font-size: 10.5px; }
-    .tr-racha-badge { padding: 5px 10px; font-size: 12px; }
 
     .tr-info-chip { padding: 5px 10px; font-size: 11px; gap: 5px; }
     .tr-info-chip [data-lucide] { width: 12px; height: 12px; }
-    .tr-info-nivel em { font-size: 9.5px; padding: 1px 6px; }
+    .tr-info-ronda em { font-size: 9.5px; padding: 1px 6px; }
+    .tr-info-continuar { padding: 6px 13px; font-size: 11.5px; }
 
     .tr-tablero { gap: 6px; padding: 6px; }
 
-    .tr-stats { gap: 5px; }
     .tr-stat { padding: 8px 3px; }
     .tr-stat-label { font-size: 8.5px; }
     .tr-stat-valor { font-size: 15px; }
@@ -535,7 +549,7 @@ body {
     .tr-overlay { padding: 16px; }
     .tr-overlay-card { padding: 22px 20px; max-width: 100%; border-radius: 18px; }
     .tr-overlay-card h2 { font-size: 18px; }
-    .tr-overlay-card p { font-size: 12.5px; margin-bottom: 16px; }
+    .tr-overlay-card p { font-size: 12.5px; margin-bottom: 14px; }
     .tr-overlay-icono {
         width: 50px;
         height: 50px;
@@ -543,6 +557,8 @@ body {
         margin-bottom: 12px;
     }
     .tr-overlay-icono [data-lucide] { width: 24px; height: 24px; }
+
+    .tr-ronda-chip { font-size: 10.5px; padding: 4px 10px 4px 4px; }
 
     .tr-resumen { padding: 12px 14px; gap: 8px; }
     .tr-resumen-fila { font-size: 12.5px; }
@@ -555,5 +571,4 @@ body {
 @media (max-width: 400px) {
     .tr-stat-label { font-size: 8px; }
     .tr-stat-valor { font-size: 14px; }
-    .tr-resumen-label { font-size: 11.5px; }
 }
