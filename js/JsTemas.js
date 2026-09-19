@@ -245,24 +245,6 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
-        id: 'consentido',
-        nombre: 'Consentido',
-        icono: 'heart',
-        descripcion: 'Colores chilenos cálidos. Para los que se consienten.',
-        categoria: 'Comprables',
-        ruta: 'Temas/consentido.css',
-        espacio: 2,
-        monedas: 10,
-        colores: {
-            '--violet-100': '#FFE4E4',
-            '--violet-300': '#FCA5A5',
-            '--violet-500': '#D52B1E',
-            '--bg':         '#FFFBF7',
-            '--bg-alt':     '#FFF5EE',
-            '--white':      '#FFFFFF'
-        }
-    },
-    {
         id: 'ventanas',
         nombre: 'Ventanas',
         icono: 'app-window',
@@ -315,6 +297,24 @@ const TEMAS_DISPONIBLES = [
             '--bg-alt':     '#D4E0A0',
             '--white':      '#E8F0C8'
         }
+    },
+        {
+    id: 'consentido',
+    nombre: 'Consentido',
+    icono: 'heart',
+    descripcion: 'Chile en todo su esplendor. Bandera, manta de huaso, copihues y guirnaldas de fonda.',
+    categoria: 'Comprables',
+    ruta: 'Temas/consentido.css',
+    espacio: 4,
+    monedas: 18,
+    colores: {
+        '--violet-100': '#FFE4E4',
+        '--violet-300': '#FCA5A5',
+        '--violet-500': '#D52B1E',
+        '--bg':         '#FFFBF7',
+        '--bg-alt':     '#FFF5EE',
+        '--white':      '#FFFFFF'
+    }
     },
     {
         id: 'floral',
