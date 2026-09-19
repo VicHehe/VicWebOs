@@ -41,7 +41,7 @@ const WIDGETS_DISPONIBLES = [
         icono: 'dice-5',
         ruta: 'Widgets/dados/index.html',
         descripcion: 'Tira 2 dados y suma el resultado.',
-        categoria: 'Utilidades',
+        categoria: 'Azar',
         esBase: false,
         espacio: 2,
         monedas: 10
@@ -74,7 +74,7 @@ const WIDGETS_DISPONIBLES = [
         icono: 'circle-dot-dashed',
         ruta: 'Widgets/ruleta/index.html',
         descripcion: 'Ruleta con hasta 5 opciones. Resultado al azar.',
-        categoria: 'Juegos',
+        categoria: 'Azar',
         esBase: false,
         espacio: 4,
         monedas: 20
