@@ -1,0 +1,26 @@
+/* ================================================
+   Tema: Rojizo
+   Recolor simple, rojo clásico.
+   ================================================ */
+
+:root {
+    --violet-50:  #FEF2F2;
+    --violet-100: #FEE2E2;
+    --violet-200: #FECACA;
+    --violet-300: #FCA5A5;
+    --violet-400: #F87171;
+    --violet-500: #EF4444;
+    --violet-600: #DC2626;
+    --violet-700: #B91C1C;
+
+    --bg:     #FFF8F8;
+    --bg-alt: #FFF1F1;
+
+    --shadow-glow: 0 0 0 4px rgba(239, 68, 68, 0.10);
+
+    --accent-gradient: linear-gradient(135deg, #EF4444, #B91C1C);
+    --accent-gradient-hover: linear-gradient(135deg, #EF4444, #DC2626);
+    --accent-shadow: rgba(239, 68, 68, 0.28);
+    --accent-shadow-hover: rgba(239, 68, 68, 0.38);
+    --accent-text-gradient: linear-gradient(135deg, var(--gray-900), #DC2626);
+}
