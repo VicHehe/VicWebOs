@@ -202,24 +202,6 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
-        id: 'oficina-dark',
-        nombre: 'Oficina Dark',
-        icono: 'building-2',
-        descripcion: 'La versión nocturna de Oficina. Negro formal, bordes grises. Para trabajar de noche.',
-        categoria: 'Oscuros',
-        ruta: 'Temas/oficina-dark.css',
-        espacio: 2,
-        monedas: 0,
-        colores: {
-            '--violet-100': '#1F1F23',
-            '--violet-300': '#3A3A40',
-            '--violet-500': '#A8A8B3',
-            '--bg':         '#0E0E10',
-            '--bg-alt':     '#171719',
-            '--white':      '#1F1F23'
-        }
-    },
-    {
         id: 'github-lover',
         nombre: 'Github Lover',
         icono: 'github',
@@ -276,6 +258,24 @@ const TEMAS_DISPONIBLES = [
             '--bg':         '#E8E8E5',
             '--bg-alt':     '#D8D8D4',
             '--white':      '#FFFFFF'
+        }
+    },
+        {
+        id: 'oficina-dark',
+        nombre: 'Oficina Dark',
+        icono: 'building-2',
+        descripcion: 'La versión nocturna de Oficina. Negro formal, bordes grises. Para trabajar de noche.',
+        categoria: 'Formales',
+        ruta: 'Temas/oficina-dark.css',
+        espacio: 2,
+        monedas: 0,
+        colores: {
+            '--violet-100': '#1F1F23',
+            '--violet-300': '#3A3A40',
+            '--violet-500': '#A8A8B3',
+            '--bg':         '#0E0E10',
+            '--bg-alt':     '#171719',
+            '--white':      '#1F1F23'
         }
     },
     {
