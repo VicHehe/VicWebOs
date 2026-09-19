@@ -169,23 +169,23 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
-        id: 'github-lover',
-        nombre: 'Github Lover',
-        icono: 'github',
-        descripcion: 'Paleta oficial de GitHub. Contribution graph, azul Primer y verdes merge.',
-        categoria: 'Oficiales',
-        ruta: 'Temas/github-lover.css',
-        espacio: 4,
-        monedas: 0,
-        colores: {
-            '--violet-100': '#B6E3FF',
-            '--violet-300': '#54AEFF',
-            '--violet-500': '#0969DA',
-            '--bg':         '#FFFFFF',
-            '--bg-alt':     '#F6F8FA',
-            '--white':      '#FFFFFF'
-        }
-    },
+    id: 'github-lover',
+    nombre: 'Github Lover',
+    icono: 'github',
+    descripcion: 'Modo oscuro oficial de GitHub. Gris azulado, bordes #30363d y acento azul #58a6ff.',
+    categoria: 'Oficiales',
+    ruta: 'Temas/github-lover.css',
+    espacio: 2,   // ← BAJAR de 4 a 2: ya no tiene pattern SVG
+    monedas: 0,
+    colores: {
+        '--violet-100': '#163d8a',
+        '--violet-300': '#388bfd',
+        '--violet-500': '#58a6ff',
+        '--bg':         '#0d1117',
+        '--bg-alt':     '#161b22',
+        '--white':      '#161b22'
+    }
+}
 
     // ============================================================
     //  COMPRABLES
