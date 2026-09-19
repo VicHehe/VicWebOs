@@ -19,16 +19,18 @@ body {
 
 [data-lucide] { width: 16px; height: 16px; stroke-width: 2; flex-shrink: 0; }
 
-/* ========== WIDGET ========== */
+/* ============================================================
+   WIDGET — grid con filas controladas
+   ============================================================ */
 .rd-widget {
     background: var(--white, #FFFFFF);
     border: 1px solid var(--border, #E8E8EE);
     border-radius: var(--r-lg, 16px);
-    padding: 12px 14px;
+    padding: 12px 14px 14px;
     box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
     height: 100%;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: auto 1fr auto auto auto;
     gap: 8px;
     overflow: hidden;
     transition: background 0.3s, color 0.3s, border-color 0.3s;
@@ -40,11 +42,11 @@ body {
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    flex-shrink: 0;
-    min-height: 24px;
-    padding-bottom: 6px;
+    padding-bottom: 8px;
     border-bottom: 1px solid var(--gray-100, #F4F4F7);
+    min-height: 26px;
 }
+
 .rd-titulo {
     display: flex;
     align-items: center;
@@ -55,7 +57,11 @@ body {
     letter-spacing: 0.06em;
     color: var(--gray-500, #71717A);
 }
-.rd-titulo [data-lucide] { color: var(--violet-500, #8B5CF6); width: 14px; height: 14px; }
+.rd-titulo [data-lucide] {
+    color: var(--violet-500, #8B5CF6);
+    width: 14px;
+    height: 14px;
+}
 
 .rd-btn-sintonizar {
     background: none;
@@ -70,6 +76,7 @@ body {
     color: var(--gray-500, #71717A);
     transition: all 0.15s;
     padding: 0;
+    flex-shrink: 0;
 }
 .rd-btn-sintonizar:hover {
     background: var(--violet-50, #F5F3FF);
@@ -78,20 +85,19 @@ body {
 }
 .rd-btn-sintonizar [data-lucide] { width: 13px; height: 13px; }
 
-/* ========== PORTADA ========== */
+/* ========== PORTADA (centro, ocupa el espacio disponible) ========== */
 .rd-portada-wrap {
-    flex: 1;
-    min-height: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-    padding: 2px 0;
+    min-height: 0;
+    padding: 4px 0;
 }
 
 .rd-portada {
-    width: 68px;
-    height: 68px;
+    width: clamp(52px, 42%, 76px);
+    aspect-ratio: 1 / 1;
     border-radius: 50%;
     background: var(--violet-50, #F5F3FF);
     border: 3px solid var(--white, #FFFFFF);
@@ -103,31 +109,40 @@ body {
     justify-content: center;
     color: var(--violet-500, #8B5CF6);
     overflow: hidden;
-    flex-shrink: 0;
     transition: all 0.3s;
     position: relative;
     z-index: 2;
+    max-width: 100%;
+    max-height: 100%;
 }
 .rd-portada img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
-.rd-portada [data-lucide] { width: 28px; height: 28px; stroke-width: 1.75; }
+.rd-portada [data-lucide] {
+    width: 28px;
+    height: 28px;
+    stroke-width: 1.75;
+}
 
 .rd-portada.reproduciendo {
     animation: rdPulse 2s ease-in-out infinite;
 }
 @keyframes rdPulse {
-    0%, 100% { box-shadow:
-        0 0 0 1px var(--border, #E8E8EE),
-        0 6px 18px var(--accent-shadow, rgba(139,92,246,0.20)); }
-    50% { box-shadow:
-        0 0 0 1px var(--violet-300, #C4B5FD),
-        0 8px 24px var(--accent-shadow-hover, rgba(139,92,246,0.38)); }
+    0%, 100% {
+        box-shadow:
+            0 0 0 1px var(--border, #E8E8EE),
+            0 6px 18px var(--accent-shadow, rgba(139,92,246,0.20));
+    }
+    50% {
+        box-shadow:
+            0 0 0 1px var(--violet-300, #C4B5FD),
+            0 8px 24px var(--accent-shadow-hover, rgba(139,92,246,0.38));
+    }
 }
 
-/* Ondas animadas (encima de la portada, cuando suena) */
+/* Ondas animadas */
 .rd-ondas {
     position: absolute;
     inset: 0;
@@ -160,9 +175,13 @@ body {
 /* ========== INFO ========== */
 .rd-info {
     text-align: center;
-    flex-shrink: 0;
-    line-height: 1.2;
+    line-height: 1.25;
     min-height: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1px;
+    padding: 0 4px;
 }
 .rd-nombre {
     font-size: 12.5px;
@@ -177,7 +196,6 @@ body {
     font-size: 10.5px;
     font-weight: 600;
     color: var(--gray-500, #71717A);
-    margin-top: 1px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -188,13 +206,13 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    flex-shrink: 0;
     padding: 0 2px;
+    height: 20px;
 }
 .rd-vol-icon {
     background: none;
     border: none;
-    padding: 4px;
+    padding: 3px;
     border-radius: 6px;
     cursor: pointer;
     color: var(--gray-500, #71717A);
@@ -243,14 +261,14 @@ body {
     cursor: pointer;
 }
 
-/* ========== BOTÓN PLAY ========== */
+/* ========== BOTÓN PLAY (altura fija, no crece) ========== */
 .rd-btn-play {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 7px;
     width: 100%;
-    padding: 9px 16px;
+    height: 38px;
     border: none;
     border-radius: var(--r-md, 12px);
     font-family: inherit;
@@ -261,8 +279,8 @@ body {
     color: white;
     box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
     transition: all 0.15s;
-    flex-shrink: 0;
     touch-action: manipulation;
+    flex-shrink: 0;
 }
 .rd-btn-play [data-lucide] { width: 14px; height: 14px; }
 .rd-btn-play:hover:not(:disabled) {
@@ -319,7 +337,6 @@ body {
     to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ========== MODAL HEADER ========== */
 .rd-modal-header {
     display: flex;
     align-items: center;
@@ -608,7 +625,12 @@ body {
     color: var(--violet-300, #C4B5FD);
     stroke-width: 1.5;
 }
-.rd-vacio p, .rd-cargando span { margin: 0; font-weight: 600; max-width: 240px; line-height: 1.4; }
+.rd-vacio p, .rd-cargando span {
+    margin: 0;
+    font-weight: 600;
+    max-width: 240px;
+    line-height: 1.4;
+}
 
 .rd-spinner {
     width: 28px;
