@@ -90,4 +90,15 @@ const WIDGETS_DISPONIBLES = [
     espacio: 2,
     monedas: 20
 },
+{
+    id: 'mascota',
+    nombre: 'Mascota',
+    icono: 'paw-print',
+    ruta: 'Widgets/mascota/index.html',
+    descripcion: 'Cuida a tu gato o perro. Racha diaria = ingreso pasivo creciente.',
+    categoria: 'Entretenimiento',
+    esBase: false,
+    espacio: 4,
+    monedas: 25
+},
 ];
