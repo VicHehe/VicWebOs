@@ -12,6 +12,7 @@
 
 const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const ARCHIVO_PRESENCIA = 'app/contactos/presencia.json';
+const CUENTAS_FILE = 'cuenta.json';
 const ESTADOS_VALIDOS = ['activo', 'descansando', 'desconectado'];
 
 let usuarioActual = null;
@@ -103,6 +104,24 @@ function escapar(s) {
 }
 
 // ============================================================
+//  CARGAR FOTO REAL DESDE cuenta.json  ← NUEVO
+//  (obtenerCuenta() del shell no incluye la foto)
+// ============================================================
+async function cargarMiFoto() {
+    const bd = BD();
+    if (!bd || !usuarioActual) return;
+    try {
+        const cuentas = await bd.leerArchivoFresh(CUENTAS_FILE);
+        if (!Array.isArray(cuentas)) return;
+        const yo = cuentas.find(c => c.codigo === usuarioActual.codigo);
+        if (yo && yo.foto) {
+            usuarioActual.foto = yo.foto;
+            renderPerfil();
+        }
+    } catch (e) { /* silencioso */ }
+}
+
+// ============================================================
 //  CARGAR ESTADO ACTUAL
 // ============================================================
 async function cargarEstado() {
@@ -182,6 +201,7 @@ async function inicializar() {
     if (!usuarioActual) return;
 
     renderPerfil();
+    await cargarMiFoto();       // ← NUEVO
     await cargarEstado();
 
     document.querySelectorAll('.me-estado-btn').forEach(btn => {
