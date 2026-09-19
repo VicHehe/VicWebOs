@@ -58,6 +58,17 @@ const WIDGETS_DISPONIBLES = [
         monedas: 5
     },
     {
+        id: 'diapositivas',
+        nombre: 'Diapositivas',
+        icono: 'presentation',
+        ruta: 'Widgets/diapositivas/index.html',
+        descripcion: 'Carrusel de hasta 4 imágenes de tu galería. Manual o automático.',
+        categoria: 'Personalización',
+        esBase: false,
+        espacio: 4,
+        monedas: 20
+    },
+    {
         id: 'ruleta',
         nombre: 'Mini Ruleta',
         icono: 'circle-dot-dashed',
