@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Tres en Raya</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="tr-container">
+
+        <header class="tr-header">
+            <div class="tr-logo">
+                <div class="tr-logo-mark">
+                    <i data-lucide="grid-3x3"></i>
+                </div>
+                <div class="tr-logo-text">
+                    <h1>Tres en Raya</h1>
+                    <p id="trUserBadge">—</p>
+                </div>
+            </div>
+            <div class="tr-racha-badge" id="trRachaBadge">
+                <i data-lucide="flame"></i>
+                <span id="trRachaActual">0</span>
+            </div>
+        </header>
+
+        <main class="tr-main">
+
+            <div class="tr-info" id="trInfo">
+                <div class="tr-info-turno" id="trInfoTurno">
+                    <i data-lucide="circle-dot"></i>
+                    <span>Tu turno</span>
+                </div>
+                <div class="tr-info-nivel" id="trInfoNivel" title="Dificultad actual">
+                    <i data-lucide="cpu"></i>
+                    <span>Nivel 1</span>
+                </div>
+            </div>
+
+            <div class="tr-tablero" id="trTablero">
+                <button class="tr-celda" data-idx="0"></button>
+                <button class="tr-celda" data-idx="1"></button>
+                <button class="tr-celda" data-idx="2"></button>
+                <button class="tr-celda" data-idx="3"></button>
+                <button class="tr-celda" data-idx="4"></button>
+                <button class="tr-celda" data-idx="5"></button>
+                <button class="tr-celda" data-idx="6"></button>
+                <button class="tr-celda" data-idx="7"></button>
+                <button class="tr-celda" data-idx="8"></button>
+            </div>
+
+            <div class="tr-resultado" id="trResultado" hidden></div>
+
+        </main>
+
+        <div class="tr-stats">
+            <div class="tr-stat">
+                <span class="tr-stat-label">Racha actual</span>
+                <span class="tr-stat-valor" id="trStatRacha">0</span>
+            </div>
+            <div class="tr-stat">
+                <span class="tr-stat-label">Récord</span>
+                <span class="tr-stat-valor" id="trStatRecord">0</span>
+            </div>
+            <div class="tr-stat">
+                <span class="tr-stat-label">Ganadas</span>
+                <span class="tr-stat-valor" id="trStatGanadas">0</span>
+            </div>
+            <div class="tr-stat">
+                <span class="tr-stat-label">Monedas</span>
+                <span class="tr-stat-valor" id="trStatMonedas">0</span>
+            </div>
+        </div>
+
+        <footer class="tr-acciones">
+            <button class="tr-btn tr-btn-sec" id="btnResetear" title="Reiniciar todo el progreso">
+                <i data-lucide="rotate-ccw"></i>
+                <span>Resetear progreso</span>
+            </button>
+            <button class="tr-btn tr-btn-pri" id="btnNuevaPartida">
+                <i data-lucide="plus"></i>
+                <span>Nueva partida</span>
+            </button>
+        </footer>
+
+    </div>
+
+    <div class="tr-toast" id="trToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
