@@ -1,13 +1,17 @@
 /* ================================================
    Widget: Mascota
-   Gato o perro que cuidas cada día.
-   Ingreso pasivo dependiente de la racha.
+   Compacto para caber en iframes de 220px (Android).
    Todos los colores vienen del tema activo.
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html, body { height: 100%; }
+html, body {
+    height: 100%;
+    overflow: hidden;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
 
 body {
     font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -15,6 +19,8 @@ body {
     color: var(--text, #18181B);
     font-size: 13px;
     overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 [data-lucide] { width: 16px; height: 16px; stroke-width: 2; flex-shrink: 0; }
@@ -24,12 +30,12 @@ body {
     background: var(--white, #FFFFFF);
     border: 1px solid var(--border, #E8E8EE);
     border-radius: var(--r-lg, 16px);
-    padding: 12px 14px;
+    padding: 10px 12px;
     box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
     height: 100%;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     overflow: hidden;
     transition: background 0.3s, color 0.3s, border-color 0.3s;
 }
@@ -39,30 +45,45 @@ body {
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    padding-bottom: 6px;
+    padding-bottom: 5px;
     border-bottom: 1px solid var(--gray-100, #F4F4F7);
     flex-shrink: 0;
-    min-height: 24px;
+    min-height: 20px;
 }
 
 .mg-titulo {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 11px;
+    gap: 5px;
+    font-size: 10.5px;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--gray-500, #71717A);
+    line-height: 1;
 }
-.mg-titulo [data-lucide] { color: var(--violet-500, #8B5CF6); width: 14px; height: 14px; }
+.mg-titulo [data-lucide] {
+    color: var(--violet-500, #8B5CF6);
+    width: 13px;
+    height: 13px;
+}
 
 .mg-zona {
     flex: 1;
     min-height: 0;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    /* Red de seguridad: si el contenido aún rebasa en pantallas
+       extremas, permite scroll en vez de recortar botones. */
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-300, #D4D4DD) transparent;
+}
+.mg-zona::-webkit-scrollbar { width: 4px; }
+.mg-zona::-webkit-scrollbar-thumb {
+    background: var(--gray-300, #D4D4DD);
+    border-radius: 999px;
 }
 
 /* ============================================================
@@ -74,35 +95,40 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     text-align: center;
-    padding: 8px;
+    padding: 6px;
+    min-height: 0;
 }
 
 .mg-vacio p {
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 700;
     color: var(--gray-600, #52525B);
+    line-height: 1.3;
 }
 
 .mg-elecciones {
     display: flex;
-    gap: 8px;
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: nowrap;
 }
 
 .mg-elegir {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    padding: 10px 14px;
+    gap: 3px;
+    padding: 8px 12px;
     border: 1.5px solid var(--border, #E8E8EE);
-    border-radius: 12px;
+    border-radius: 11px;
     background: var(--white, #FFFFFF);
     cursor: pointer;
     font-family: inherit;
     transition: all 0.18s;
     color: var(--gray-700, #3F3F46);
+    touch-action: manipulation;
 }
 .mg-elegir:hover {
     border-color: var(--violet-400, #A78BFA);
@@ -111,12 +137,12 @@ body {
     box-shadow: 0 6px 16px var(--accent-shadow, rgba(139,92,246,0.20));
 }
 .mg-elegir .mg-svg-mini {
-    width: 42px;
-    height: 42px;
+    width: 36px;
+    height: 36px;
     color: var(--violet-500, #8B5CF6);
 }
 .mg-elegir span {
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 800;
     color: var(--gray-900, #18181B);
 }
@@ -128,42 +154,39 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     min-height: 0;
 }
 
 /* Fila superior: avatar + info */
 .mg-top {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     align-items: center;
     flex-shrink: 0;
+    min-height: 0;
 }
 
 .mg-avatar {
-    width: 62px;
-    height: 62px;
+    /* Escala con el ancho del iframe: 44px mínimo, 56px máximo */
+    width: clamp(44px, 15vw, 56px);
+    height: clamp(44px, 15vw, 56px);
     flex-shrink: 0;
     background: var(--violet-50, #F5F3FF);
-    border-radius: 14px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     transition: all 0.3s;
-    animation: mg-float 4s ease-in-out infinite;
-}
-
-@keyframes mg-float {
-    0%, 100% { transform: translateY(0); }
-    50%      { transform: translateY(-2px); }
 }
 
 .mg-svg {
-    width: 52px;
-    height: 52px;
+    width: 90%;
+    height: 90%;
     color: var(--violet-500, #8B5CF6);
     transition: color 0.3s;
+    display: block;
 }
 
 /* Info a la derecha */
@@ -172,7 +195,7 @@ body {
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 2px;
 }
 
 .mg-nombre-wrap {
@@ -180,32 +203,30 @@ body {
     align-items: center;
     gap: 4px;
     cursor: pointer;
-    padding: 2px 4px;
-    margin: -2px -4px;
+    padding: 1px 3px;
+    margin: -1px -3px;
     border-radius: 6px;
     transition: background 0.15s;
     min-width: 0;
 }
-.mg-nombre-wrap:hover {
-    background: var(--violet-50, #F5F3FF);
-}
-.mg-nombre-wrap:hover .mg-edit-icon {
-    opacity: 1;
-}
+.mg-nombre-wrap:hover { background: var(--violet-50, #F5F3FF); }
+.mg-nombre-wrap:hover .mg-edit-icon { opacity: 1; }
 
 .mg-nombre {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 800;
     color: var(--gray-900, #18181B);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     letter-spacing: -0.01em;
+    line-height: 1.2;
+    min-width: 0;
 }
 
 .mg-edit-icon {
-    width: 11px !important;
-    height: 11px !important;
+    width: 10px !important;
+    height: 10px !important;
     color: var(--gray-400, #A1A1AD);
     opacity: 0;
     transition: opacity 0.15s;
@@ -214,7 +235,7 @@ body {
 
 .mg-nombre-input {
     font-family: inherit;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 800;
     color: var(--gray-900, #18181B);
     background: var(--white, #FFFFFF);
@@ -230,37 +251,36 @@ body {
 .mg-meta {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 10.5px;
+    gap: 6px;
+    font-size: 9.5px;
     font-weight: 800;
     color: var(--gray-500, #71717A);
     flex-wrap: wrap;
+    line-height: 1;
 }
 .mg-meta-item {
     display: inline-flex;
     align-items: center;
-    gap: 3px;
+    gap: 2px;
 }
 .mg-meta-item [data-lucide] {
-    width: 11px;
-    height: 11px;
+    width: 10px;
+    height: 10px;
     flex-shrink: 0;
     color: var(--violet-500, #8B5CF6);
 }
 .mg-meta-pago {
     color: var(--violet-700, #6D28D9);
 }
-.mg-meta-pago [data-lucide] {
-    color: var(--violet-500, #8B5CF6);
-}
+.mg-meta-pago [data-lucide] { color: var(--violet-500, #8B5CF6); }
 
 /* ============================================================
-   BARRAS — todos los colores del tema
+   BARRAS
    ============================================================ */
 .mg-barras {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 4px;
     flex: 1;
     min-height: 0;
     justify-content: center;
@@ -268,20 +288,20 @@ body {
 
 .mg-barra {
     display: grid;
-    grid-template-columns: 16px 1fr 34px;
+    grid-template-columns: 14px 1fr 30px;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
 }
 
 .mg-barra-icono {
-    width: 15px;
-    height: 15px;
+    width: 14px;
+    height: 14px;
     flex-shrink: 0;
     color: var(--violet-500, #8B5CF6);
 }
 
 .mg-barra-track {
-    height: 8px;
+    height: 7px;
     background: var(--gray-100, #F4F4F7);
     border-radius: 999px;
     overflow: hidden;
@@ -295,7 +315,6 @@ body {
     position: relative;
 }
 
-/* 3 barras: cada una con un matiz del tema, no colores fijos */
 .mg-barra-fill.hambre {
     background: linear-gradient(90deg,
         var(--violet-400, #A78BFA),
@@ -312,7 +331,6 @@ body {
         var(--violet-700, #6D28D9));
 }
 
-/* Estado crítico: menos de 10% → rojo semántico (fijo) */
 .mg-barra-fill.critico {
     background: linear-gradient(90deg, #EF4444, #DC2626) !important;
     animation: mg-alerta 1s ease-in-out infinite;
@@ -323,15 +341,14 @@ body {
 }
 
 .mg-barra-valor {
-    font-size: 10.5px;
+    font-size: 9.5px;
     font-weight: 800;
     color: var(--gray-600, #52525B);
     text-align: right;
     font-variant-numeric: tabular-nums;
+    line-height: 1;
 }
-.mg-barra-valor.critico {
-    color: #DC2626;
-}
+.mg-barra-valor.critico { color: #DC2626; }
 
 /* ============================================================
    ACCIONES
@@ -339,7 +356,7 @@ body {
 .mg-acciones {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 5px;
+    gap: 4px;
     flex-shrink: 0;
 }
 
@@ -348,45 +365,51 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
-    padding: 7px 4px;
+    gap: 1px;
+    padding: 5px 3px;
     border: 1.5px solid var(--border, #E8E8EE);
-    border-radius: 10px;
+    border-radius: 9px;
     background: var(--white, #FFFFFF);
     cursor: pointer;
     font-family: inherit;
     transition: all 0.15s;
     touch-action: manipulation;
     min-width: 0;
+    min-height: 0;
 }
 .mg-btn > [data-lucide] {
-    width: 15px;
-    height: 15px;
+    width: 14px;
+    height: 14px;
     transition: all 0.2s;
     color: var(--violet-500, #8B5CF6);
 }
 
 .mg-btn-texto {
-    font-size: 10px;
+    font-size: 9.5px;
     font-weight: 800;
     color: var(--gray-900, #18181B);
     line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 .mg-btn-costo {
     display: inline-flex;
     align-items: center;
-    gap: 2px;
-    font-size: 9.5px;
+    gap: 1px;
+    font-size: 9px;
     font-weight: 800;
     color: var(--violet-700, #6D28D9);
     background: var(--violet-50, #F5F3FF);
-    padding: 1px 5px;
+    padding: 0 4px;
     border-radius: 999px;
+    line-height: 1.3;
     margin-top: 1px;
 }
 .mg-btn-costo [data-lucide] {
-    width: 8px !important;
-    height: 8px !important;
+    width: 7px !important;
+    height: 7px !important;
     color: var(--violet-600, #7C3AED) !important;
 }
 
@@ -409,27 +432,60 @@ body {
 /* ========== TOAST ========== */
 .mg-toast {
     position: fixed;
-    bottom: 16px;
+    bottom: 12px;
     left: 50%;
     transform: translateX(-50%) translateY(80px);
     background: var(--gray-900, #18181B);
     color: white;
-    padding: 9px 16px;
+    padding: 8px 14px;
     border-radius: 999px;
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 800;
     box-shadow: 0 12px 32px rgba(0,0,0,0.35);
     opacity: 0;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     pointer-events: none;
     z-index: 200;
-    max-width: calc(100% - 24px);
+    max-width: calc(100% - 20px);
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .mg-toast.show {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
 }
 .mg-toast.success { background: #065F46; }
-.mg-toast.error   { background: #991B1B; }
+.mg-toast.error   { background: #B91C1C; }
 .mg-toast.info    { background: var(--violet-700, #6D28D9); }
+
+/* ============================================================
+   EXTRA COMPACTO — Android muy angosto (≤ 340px de iframe)
+   ============================================================ */
+@media (max-width: 340px) {
+    .mg-widget { padding: 9px 10px; gap: 5px; }
+    .mg-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+    }
+    .mg-nombre { font-size: 12px; }
+    .mg-meta { font-size: 9px; gap: 5px; }
+    .mg-barra { grid-template-columns: 13px 1fr 28px; gap: 4px; }
+    .mg-barra-track { height: 6px; }
+    .mg-barra-icono { width: 13px; height: 13px; }
+    .mg-barra-valor { font-size: 9px; }
+    .mg-btn { padding: 4px 2px; border-radius: 8px; }
+    .mg-btn > [data-lucide] { width: 13px; height: 13px; }
+    .mg-btn-texto { font-size: 9px; }
+    .mg-btn-costo { font-size: 8.5px; }
+}
+
+/* ============================================================
+   EXTRA COMPACTO — Android aún más angosto (≤ 300px)
+   ============================================================ */
+@media (max-width: 300px) {
+    .mg-btn-texto { display: none; }   /* deja solo icono + costo */
+    .mg-acciones { gap: 3px; }
+    .mg-btn { padding: 6px 3px; }
+}
