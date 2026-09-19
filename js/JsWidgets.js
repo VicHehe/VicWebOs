@@ -79,4 +79,26 @@ const WIDGETS_DISPONIBLES = [
     espacio: 4,
     monedas: 35
 },
+{
+    id: 'lector',
+    nombre: 'Lector',
+    icono: 'book-open-text',
+    ruta: 'Widgets/lector/index.html',
+    descripcion: 'Carga una nota o un archivo .txt y tenlo siempre a la vista.',
+    categoria: 'Utilidades',
+    esBase: false,
+    espacio: 2,
+    monedas: 20
+},
+{
+    id: 'hormiguero',
+    nombre: 'Hormiguero',
+    icono: 'bug',
+    ruta: 'Widgets/hormiguero/index.html',
+    descripcion: 'Mini colonia de hormigas. Compra hormigas y túneles con monedas.',
+    categoria: 'Entretenimiento',
+    esBase: false,
+    espacio: 4,
+    monedas: 25
+}
 ];
