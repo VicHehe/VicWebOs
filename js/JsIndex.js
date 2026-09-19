@@ -2,7 +2,7 @@
 //  JsIndex.js — Pestañas + sidebar + widgets + monedas + API
 // ============================================================
 
-var MAX_TABS = 6;
+var MAX_TABS = 5;
 window.MAX_TABS = MAX_TABS;
 
 var tabs = [];
