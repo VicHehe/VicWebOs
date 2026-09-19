@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Hormiguero</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="hg-widget">
+
+        <div class="hg-header">
+            <div class="hg-titulo">
+                <i data-lucide="bug"></i>
+                <span>Hormiguero</span>
+            </div>
+            <div class="hg-stats" id="hgStats">—</div>
+        </div>
+
+        <div class="hg-canvas-wrap">
+            <canvas id="hgCanvas"></canvas>
+        </div>
+
+        <div class="hg-acciones">
+            <button class="hg-btn" id="hgBtnHormiga">
+                <i data-lucide="bug"></i>
+                <span>Hormiga</span>
+                <span class="hg-btn-costo">
+                    <i data-lucide="coins"></i>
+                    15
+                </span>
+            </button>
+            <button class="hg-btn" id="hgBtnTunel">
+                <i data-lucide="route"></i>
+                <span>Túnel</span>
+                <span class="hg-btn-costo">
+                    <i data-lucide="coins"></i>
+                    25
+                </span>
+            </button>
+        </div>
+
+    </div>
+
+    <div class="hg-toast" id="hgToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
