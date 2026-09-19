@@ -67,5 +67,16 @@ const WIDGETS_DISPONIBLES = [
         esBase: false,
         espacio: 4,
         monedas: 35
-    }
+    },
+{
+    id: 'radio',
+    nombre: 'Radio',
+    icono: 'radio',
+    ruta: 'Widgets/radio/index.html',
+    descripcion: 'Emisoras de internet de todo el mundo. Favoritos y última estación guardada.',
+    categoria: 'Entretenimiento',
+    esBase: false,
+    espacio: 4,
+    monedas: 35
+},
 ];
