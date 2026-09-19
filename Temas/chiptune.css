@@ -1,0 +1,111 @@
+/* ================================================
+   Tema: Chiptune
+   Paleta Game Boy + glitch sutil. Actitud 8-bit.
+   ================================================ */
+
+:root {
+    /* Acento verde Game Boy */
+    --violet-50:  #F4F8D8;
+    --violet-100: #E0EAA0;
+    --violet-200: #C4D668;
+    --violet-300: #9BBC0F;
+    --violet-400: #8BAC0F;
+    --violet-500: #7A9A0F;
+    --violet-600: #5E7A0E;
+    --violet-700: #3D5207;
+
+    /* Neutros verde-gameboy */
+    --white:   #E8F0C8;
+    --bg:      #DCE6B8;
+    --bg-alt:  #D4E0A0;
+    --gray-50:  #E8F0C8;
+    --gray-100: #DCE6B8;
+    --gray-200: #C4D08A;
+    --gray-300: #A8B870;
+    --gray-400: #7A8A50;
+    --gray-500: #56603A;
+    --gray-600: #3E4828;
+    --gray-700: #2B3418;
+    --gray-800: #1F2A0E;
+    --gray-900: #0F380F;
+
+    --border:  #C4D08A;
+    --text:    #0F380F;
+    --text-2:  #3E4828;
+    --text-3:  #56603A;
+
+    --shadow-glow: 0 0 0 3px rgba(155, 188, 15, 0.20);
+
+    --accent-gradient: linear-gradient(135deg, #8BAC0F, #3D5207);
+    --accent-gradient-hover: linear-gradient(135deg, #9BBC0F, #5E7A0E);
+    --accent-shadow: rgba(139, 172, 15, 0.35);
+    --accent-shadow-hover: rgba(139, 172, 15, 0.50);
+    --accent-text-gradient: linear-gradient(135deg, #0F380F, #7A9A0F);
+
+    /* Esquinas pixeladas */
+    --r-sm: 2px;
+    --r-md: 4px;
+    --r-lg: 6px;
+    --r-xl: 8px;
+}
+
+/* ------------------------------------------------------------
+   Scanlines CRT sutiles sobre todo el shell
+   ------------------------------------------------------------ */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent 0,
+        transparent 2px,
+        rgba(15, 56, 15, 0.05) 2px,
+        rgba(15, 56, 15, 0.05) 3px
+    );
+}
+
+/* ------------------------------------------------------------
+   Glitch sutil en el título del welcome
+   ------------------------------------------------------------ */
+.welcome-hero h1 {
+    animation: chiptune-glitch 9s steps(1) infinite;
+}
+
+@keyframes chiptune-glitch {
+    0%, 94%, 100% {
+        text-shadow: 0 0 0 transparent;
+        transform: translateX(0);
+    }
+    95% {
+        text-shadow: -2px 0 0 #EC4899, 2px 0 0 #22D3EE;
+        transform: translateX(-1px);
+    }
+    96% {
+        text-shadow: 2px 0 0 #EC4899, -2px 0 0 #22D3EE;
+        transform: translateX(1px);
+    }
+    97% {
+        text-shadow: 0 0 0 transparent;
+        transform: translateX(0);
+    }
+}
+
+/* ------------------------------------------------------------
+   Aire pixelado: esquinas duras en cards y accesos
+   ------------------------------------------------------------ */
+.acceso-item {
+    border-radius: 0;
+    border-width: 2px;
+}
+.acceso-icon-wrap {
+    border-radius: 0;
+}
+.widget-item {
+    border-radius: 0;
+}
+.nav-item.active {
+    border-radius: 0;
+}
