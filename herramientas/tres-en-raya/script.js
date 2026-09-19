@@ -1,25 +1,31 @@
 // ============================================================
-//  Tres en Raya — Clásico 3 en línea con dificultad escalonada
+//  Tres en Raya — Sistema de 3 rondas consecutivas
 //  ------------------------------------------------------------
-//  FLUJO 100% SÍNCRONO. Sin setTimeout, sin requestAnimationFrame.
-//  La CPU juega inmediatamente después del jugador.
+//  Ronda 1 → Fácil
+//  Ronda 2 → Media
+//  Ronda 3 → Difícil
+//  Ganar las 3 → +15 monedas y ciclo completado.
+//  Perder o empatar → vuelves a la ronda 1.
 //
-//  Overlays estilo Dino:
-//    - Start: al cargar la app, invita a jugar.
-//    - Fin:   al terminar, muestra resultado y stats.
+//  Sin toasts, sin notificaciones. Solo la píldora de "toca para
+//  seguir" entre rondas ganadas 1 y 2, y el overlay al final.
 // ============================================================
 
 'use strict';
 
 const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const APP_ID = 'tres-en-raya';
-const MONEDAS_BASE = 2;
+const RONDAS_POR_CICLO = 3;
+const RECOMPENSA_CICLO = 15;
 const IDB_NAME = 'TresEnRayaDB';
 const IDB_VERSION = 1;
 const IDB_STORE = 'estado';
 
 const YO = 'X';
 const CPU = 'O';
+
+const NOMBRE_DIFICULTAD = { 1: 'Fácil', 2: 'Media', 3: 'Difícil' };
+const CLASE_DIFICULTAD  = { 1: 'facil', 2: 'media', 3: 'dificil' };
 
 const LINEAS_GANADORAS = [
     [0, 1, 2], [3, 4, 5], [6, 7, 8],
@@ -32,16 +38,11 @@ let tablero = Array(9).fill(null);
 let turno = YO;
 let partidaTerminada = false;
 let bloqueado = false;
-let juegoActivo = false;           // false hasta pulsar "Empezar"
-let racha = 0;
-let record = 0;
-let ganadas = 0;
-let perdidas = 0;
-let empates = 0;
-let monedasGanadas = 0;            // histórico
-let monedasEstaPartida = 0;        // solo la partida en curso
-let nivelAnterior = 1;
-let toastTimeout = null;
+let juegoActivo = false;
+let esperandoContinuar = false;
+let rondaActual = 1;              // 1..3
+let ciclosCompletados = 0;
+let monedasGanadas = 0;
 let usuarioActual = null;
 let inicializado = false;
 
@@ -82,18 +83,6 @@ window.addEventListener('message', (e) => {
 });
 
 // ============================================================
-//  TOAST
-// ============================================================
-function toast(texto, tipo = 'info') {
-    const el = document.getElementById('trToast');
-    if (!el) return;
-    el.textContent = texto;
-    el.className = 'tr-toast show ' + tipo;
-    clearTimeout(toastTimeout);
-    toastTimeout = setTimeout(() => el.classList.remove('show'), 2600);
-}
-
-// ============================================================
 //  INDEXEDDB
 // ============================================================
 function abrirIDB() {
@@ -101,9 +90,7 @@ function abrirIDB() {
         const req = indexedDB.open(IDB_NAME, IDB_VERSION);
         req.onupgradeneeded = (e) => {
             const db = e.target.result;
-            if (!db.objectStoreNames.contains(IDB_STORE)) {
-                db.createObjectStore(IDB_STORE);
-            }
+            if (!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
         };
         req.onsuccess = (e) => resolve(e.target.result);
         req.onerror = (e) => reject(e.target.error);
@@ -134,69 +121,48 @@ async function idbSet(key, value) {
     } catch (e) { /* silencioso */ }
 }
 
+// Clave "v2_" para ignorar datos del sistema viejo
 function claveEstado() {
     const codigo = (usuarioActual && usuarioActual.codigo) ? usuarioActual.codigo : 'invitado';
-    return 'estado_' + codigo;
+    return 'v2_' + codigo;
 }
 
 async function cargarEstado() {
     const data = await idbGet(claveEstado());
     if (!data || typeof data !== 'object') return;
-    racha          = Number.isFinite(data.racha)          ? data.racha          : 0;
-    record         = Number.isFinite(data.record)         ? data.record         : 0;
-    ganadas        = Number.isFinite(data.ganadas)        ? data.ganadas        : 0;
-    perdidas       = Number.isFinite(data.perdidas)       ? data.perdidas       : 0;
-    empates        = Number.isFinite(data.empates)        ? data.empates        : 0;
-    monedasGanadas = Number.isFinite(data.monedasGanadas) ? data.monedasGanadas : 0;
+    ciclosCompletados = Number.isFinite(data.ciclosCompletados) ? data.ciclosCompletados : 0;
+    monedasGanadas    = Number.isFinite(data.monedasGanadas)    ? data.monedasGanadas    : 0;
 }
 
 function guardarEstado() {
     idbSet(claveEstado(), {
-        racha, record, ganadas, perdidas, empates, monedasGanadas,
+        ciclosCompletados, monedasGanadas,
         actualizado: new Date().toISOString()
     });
 }
 
 // ============================================================
-//  DIFICULTAD Y RECOMPENSAS
+//  DIFICULTAD
 // ============================================================
-function nivelDificultad() {
-    if (racha >= 10) return 4;
-    if (racha >= 6) return 3;
-    if (racha >= 3) return 2;
-    return 1;
+function dificultadActual() {
+    // ronda 1 → fácil, ronda 2 → media, ronda 3 → difícil
+    return rondaActual;
 }
 
-function progresoNivel() {
-    if (racha < 3) return { actual: racha, meta: 3 };
-    if (racha < 6) return { actual: racha, meta: 6 };
-    if (racha < 10) return { actual: racha, meta: 10 };
-    return { actual: racha, meta: racha };
-}
-
-function multiplicadorRecompensa() {
-    if (racha >= 12) return 5;
-    if (racha >= 8) return 4;
-    if (racha >= 5) return 3;
-    if (racha >= 3) return 2;
-    return 1;
+function nombreDificultadActual() {
+    return NOMBRE_DIFICULTAD[dificultadActual()] || 'Fácil';
 }
 
 // ============================================================
-//  LÓGICA
+//  LÓGICA DEL JUEGO
 // ============================================================
 function resetTablero() {
     tablero = Array(9).fill(null);
     turno = YO;
     partidaTerminada = false;
     bloqueado = false;
-
-    document.querySelectorAll('.tr-celda').forEach(c => {
-        c.classList.remove('ganadora', 'perdedora');
-    });
-
+    document.querySelectorAll('.tr-celda').forEach(c => c.classList.remove('ganadora', 'perdedora'));
     renderTablero();
-    actualizarTurnoUI();
 }
 
 function esMovimientoValido(t, i) {
@@ -220,17 +186,17 @@ function celdasVacias(t) {
 }
 
 // ============================================================
-//  CPU — 4 niveles
+//  CPU — 3 niveles
 // ============================================================
-function cpuNivel1(t) {
+function cpuFacil(t) {
     const v = celdasVacias(t);
-    if (v.length === 0) return -1;
+    if (!v.length) return -1;
     return v[Math.floor(Math.random() * v.length)];
 }
 
-function cpuNivel2(t) {
+function cpuMedia(t) {
     const vacias = celdasVacias(t);
-    if (vacias.length === 0) return -1;
+    if (!vacias.length) return -1;
 
     for (const i of vacias) {
         const c = t.slice(); c[i] = CPU;
@@ -241,32 +207,12 @@ function cpuNivel2(t) {
         if (obtenerGanador(c)?.ganador === YO) return i;
     }
     if (t[4] === null) return 4;
-    return cpuNivel1(t);
+    return cpuFacil(t);
 }
 
-function cpuNivel3(t) {
+function cpuDificil(t) {
     const vacias = celdasVacias(t);
-    if (vacias.length === 0) return -1;
-
-    for (const i of vacias) {
-        const c = t.slice(); c[i] = CPU;
-        if (obtenerGanador(c)?.ganador === CPU) return i;
-    }
-    for (const i of vacias) {
-        const c = t.slice(); c[i] = YO;
-        if (obtenerGanador(c)?.ganador === YO) return i;
-    }
-    if (t[4] === null) return 4;
-    const esq = [0, 2, 6, 8].filter(i => t[i] === null);
-    if (esq.length) return esq[Math.floor(Math.random() * esq.length)];
-    const bor = [1, 3, 5, 7].filter(i => t[i] === null);
-    if (bor.length) return bor[Math.floor(Math.random() * bor.length)];
-    return cpuNivel1(t);
-}
-
-function cpuNivel4(t) {
-    const vacias = celdasVacias(t);
-    if (vacias.length === 0) return -1;
+    if (!vacias.length) return -1;
 
     let mejorScore = -Infinity;
     let mejorJugada = vacias[0];
@@ -304,14 +250,13 @@ function minimax(t, esTurnoCPU, prof) {
 }
 
 function elegirJugadaCPU() {
-    const n = nivelDificultad();
+    const d = dificultadActual();
     try {
-        if (n === 1) return cpuNivel1(tablero);
-        if (n === 2) return cpuNivel2(tablero);
-        if (n === 3) return cpuNivel3(tablero);
-        return cpuNivel4(tablero);
+        if (d === 1) return cpuFacil(tablero);
+        if (d === 2) return cpuMedia(tablero);
+        return cpuDificil(tablero);
     } catch (e) {
-        console.error('[Tres en Raya] Error eligiendo jugada:', e);
+        console.error('[Tres en Raya] Error CPU:', e);
         const vacias = celdasVacias(tablero);
         return vacias.length ? vacias[0] : -1;
     }
@@ -321,20 +266,26 @@ function elegirJugadaCPU() {
 //  FLUJO DE PARTIDA
 // ============================================================
 function jugarCelda(idx) {
+    // Si ganó ronda 1 o 2, el click avanza a la siguiente ronda
+    if (esperandoContinuar) {
+        avanzarRonda();
+        return;
+    }
+
     if (!juegoActivo) return;
     if (partidaTerminada) return;
     if (bloqueado) return;
     if (turno !== YO) return;
     if (!esMovimientoValido(tablero, idx)) return;
 
-    // === Turno del jugador ===
+    // Turno del jugador
     tablero[idx] = YO;
     renderTablero();
 
     let resultado = obtenerGanador(tablero);
     if (resultado) { finalizarPartida(resultado); return; }
 
-    // === Turno de la CPU — INMEDIATO, sin setTimeout ===
+    // Turno CPU — SÍNCRONO
     bloqueado = true;
     turno = CPU;
     actualizarTurnoUI();
@@ -362,143 +313,84 @@ function finalizarPartida(resultado) {
     bloqueado = false;
     juegoActivo = false;
 
-    let tipo = 'empate';
-    let titulo = 'Empate';
-    let subtitulo = 'Nadie ganó esta vez.';
-    let icono = 'equal';
-    let botonTexto = 'Reintentar';
-    let botonIcono = 'rotate-ccw';
-
     if (resultado.empate) {
-        empates++;
-    } else if (resultado.ganador === YO) {
-        tipo = 'ganaste';
-        racha++;
-        ganadas++;
-        if (racha > record) record = racha;
-        const mult = multiplicadorRecompensa();
-        const recompensa = MONEDAS_BASE * mult;
-        monedasEstaPartida += recompensa;
-        monedasGanadas += recompensa;
-
-        titulo = '¡Ganaste!';
-        subtitulo = mult > 1
-            ? `Racha ×${racha}. ¡Vas en racha x${mult}!`
-            : `Racha ×${racha}. ¡Sigue así!`;
-        icono = 'trophy';
-        botonTexto = 'Continuar';
-        botonIcono = 'arrow-right';
-
-        otorgarMonedas(recompensa, mult);
-    } else if (resultado.ganador === CPU) {
-        tipo = 'perdiste';
-        perdidas++;
-        racha = 0;
-        titulo = '¡Perdiste!';
-        subtitulo = 'La racha se reinició. ¡Intenta de nuevo!';
-        icono = 'x';
-        botonTexto = 'Reintentar';
-        botonIcono = 'rotate-ccw';
+        const superadas = rondaActual - 1;
+        rondaActual = 1;
+        actualizarInfoUI();
+        renderTablero();
+        mostrarOverlayFin('empate', superadas);
+        return;
     }
 
-    // Pintar la línea ganadora (antes del overlay)
-    if (resultado.linea) {
-        resultado.linea.forEach(i => {
-            const celda = document.querySelector(`.tr-celda[data-idx="${i}"]`);
-            if (celda) {
-                celda.classList.remove('deshabilitada');
-                celda.classList.add(resultado.ganador === YO ? 'ganadora' : 'perdedora');
-            }
-        });
+    if (resultado.ganador === YO) {
+        if (rondaActual >= RONDAS_POR_CICLO) {
+            completarCiclo();
+        } else {
+            // Ganó ronda 1 o 2: esperar click para seguir
+            esperandoContinuar = true;
+            rondaActual++;
+            actualizarInfoUI();
+            mostrarPildoraContinuar();
+            renderTablero();
+            resaltarLineaGanadora(resultado.linea, resultado.ganador);
+        }
+        return;
     }
 
-    // Actualizar UI base
+    if (resultado.ganador === CPU) {
+        const superadas = rondaActual - 1;
+        rondaActual = 1;
+        actualizarInfoUI();
+        renderTablero();
+        resaltarLineaGanadora(resultado.linea, resultado.ganador);
+        mostrarOverlayFin('perdiste', superadas);
+    }
+}
+
+function avanzarRonda() {
+    esperandoContinuar = false;
+    ocultarPildoraContinuar();
+    resetTablero();
+    juegoActivo = true;
+    actualizarInfoUI();
     actualizarTurnoUI();
-    actualizarStatsUI();
-    actualizarBadgeRacha();
-    actualizarNivelUI();
     renderTablero();
-    // Volver a pintar la línea ganadora (renderTablero limpia clases)
-    if (resultado.linea) {
-        resultado.linea.forEach(i => {
-            const celda = document.querySelector(`.tr-celda[data-idx="${i}"]`);
-            if (celda) {
-                celda.classList.remove('deshabilitada');
-                celda.classList.add(resultado.ganador === YO ? 'ganadora' : 'perdedora');
-            }
-        });
-    }
+}
 
-    // Overlay de fin
-    mostrarOverlayFin(tipo, titulo, subtitulo, icono, botonTexto, botonIcono);
-
-    // Toast de nivel nuevo
-    const nivelNuevo = nivelDificultad();
-    if (nivelNuevo > nivelAnterior) {
-        toast(`¡Nivel ${nivelNuevo} desbloqueado!`, 'success');
-    }
-    nivelAnterior = nivelNuevo;
-
+function completarCiclo() {
+    ciclosCompletados++;
+    monedasGanadas += RECOMPENSA_CICLO;
+    otorgarMonedas(RECOMPENSA_CICLO);
     guardarEstado();
+    actualizarStatsUI();
+
+    rondaActual = 1;
+    actualizarInfoUI();
+    renderTablero();
+    mostrarOverlayFin('ciclo', RONDAS_POR_CICLO);
 }
 
-function mostrarOverlayFin(tipo, titulo, subtitulo, icono, botonTexto, botonIcono) {
-    // Título y subtítulo
-    document.getElementById('trFinTitulo').textContent = titulo;
-    document.getElementById('trFinSubtitulo').textContent = subtitulo;
-
-    // Icono del encabezado
-    const iconoEl = document.getElementById('trFinIcono');
-    iconoEl.className = 'tr-overlay-icono tr-overlay-icono-' + tipo;
-    iconoEl.innerHTML = `<i data-lucide="${icono}"></i>`;
-
-    // Stats
-    document.getElementById('trFinRacha').textContent   = racha;
-    document.getElementById('trFinRecord').textContent  = record;
-    document.getElementById('trFinGanadas').textContent = ganadas;
-
-    const monedasFila = document.getElementById('trFinMonedasFila');
-    const monedasEl   = document.getElementById('trFinMonedas');
-    if (monedasEstaPartida > 0) {
-        monedasFila.hidden = false;
-        monedasEl.textContent = `+${monedasEstaPartida}`;
-    } else {
-        monedasFila.hidden = true;
-    }
-
-    // Botón
-    document.getElementById('trBtnReintentarTexto').textContent = botonTexto;
-    const btnIconoEl = document.getElementById('trBtnReintentarIcono');
-    if (btnIconoEl) btnIconoEl.setAttribute('data-lucide', botonIcono);
-
-    // Mostrar overlay
-    document.getElementById('trOverlayFin').hidden = false;
-
-    if (window.lucide) window.lucide.createIcons();
-}
-
-function otorgarMonedas(cantidad, mult) {
+function otorgarMonedas(cantidad) {
     const api = API();
     if (!api || typeof api.canjear !== 'function') return;
-    const desc = mult > 1 ? `Victoria x${mult} (racha ${racha})` : 'Victoria';
-    Promise.resolve(api.canjear('grid-3x3', APP_ID, desc, cantidad))
+    Promise.resolve(api.canjear('grid-3x3', APP_ID, `Ciclo completado (+${cantidad})`, cantidad))
         .catch(e => console.warn('[Tres en Raya] No se pudieron dar monedas:', e));
 }
 
-// ============================================================
-//  INICIAR PARTIDA / REINICIAR
-// ============================================================
-function empezarPartida() {
+function empezarCiclo() {
+    rondaActual = 1;
+    esperandoContinuar = false;
+    ocultarPildoraContinuar();
     resetTablero();
-    monedasEstaPartida = 0;
     juegoActivo = true;
 
     document.getElementById('trOverlayStart').hidden = true;
     document.getElementById('trOverlayFin').hidden = true;
 
-    actualizarNivelUI();
+    actualizarInfoUI();
+    actualizarTurnoUI();
     actualizarStatsUI();
-    actualizarBadgeRacha();
+    renderTablero();
     if (window.lucide) window.lucide.createIcons();
 }
 
@@ -510,9 +402,9 @@ function renderTablero() {
         const idx = parseInt(celda.dataset.idx, 10);
         const valor = tablero[idx];
 
-        celda.classList.remove('ocupada', 'deshabilitada');
+        celda.classList.remove('ocupada', 'deshabilitada', 'ganadora', 'perdedora');
         if (valor !== null) celda.classList.add('ocupada');
-        if (bloqueado || partidaTerminada || !juegoActivo) {
+        if (bloqueado || partidaTerminada || !juegoActivo || esperandoContinuar) {
             celda.classList.add('deshabilitada');
         }
 
@@ -531,11 +423,34 @@ function renderTablero() {
     });
 }
 
+function resaltarLineaGanadora(linea, ganador) {
+    if (!linea) return;
+    linea.forEach(i => {
+        const celda = document.querySelector(`.tr-celda[data-idx="${i}"]`);
+        if (celda) {
+            celda.classList.remove('deshabilitada');
+            celda.classList.add(ganador === YO ? 'ganadora' : 'perdedora');
+        }
+    });
+}
+
+function actualizarInfoUI() {
+    const rondaTexto = document.getElementById('trInfoRondaTexto');
+    const rondaDif = document.getElementById('trInfoRondaDif');
+    const rondaChip = document.getElementById('trInfoRonda');
+    if (rondaTexto) rondaTexto.textContent = `Ronda ${rondaActual}/${RONDAS_POR_CICLO}`;
+    if (rondaDif) rondaDif.textContent = nombreDificultadActual();
+    if (rondaChip) {
+        rondaChip.classList.remove('facil', 'media', 'dificil');
+        rondaChip.classList.add(CLASE_DIFICULTAD[dificultadActual()] || 'facil');
+    }
+}
+
 function actualizarTurnoUI() {
     const el = document.getElementById('trInfoTurno');
     if (!el) return;
     if (!juegoActivo) {
-        el.innerHTML = '<i data-lucide="circle-dot"></i><span>Sin empezar</span>';
+        el.innerHTML = '<i data-lucide="circle-dot"></i><span>Listo</span>';
         el.classList.remove('cpu');
     } else if (partidaTerminada) {
         el.innerHTML = '<i data-lucide="flag"></i><span>Terminada</span>';
@@ -550,36 +465,73 @@ function actualizarTurnoUI() {
     if (window.lucide) window.lucide.createIcons();
 }
 
-function actualizarNivelUI() {
-    const el = document.getElementById('trInfoNivel');
-    const em = document.getElementById('trInfoNivelProgreso');
-    if (!el) return;
-    const n = nivelDificultad();
-    const span = el.querySelector('span');
-    if (span) span.textContent = `Nivel ${n}`;
-    if (em) {
-        const p = progresoNivel();
-        em.textContent = n === 4 ? 'MÁX' : `${p.actual}/${p.meta}`;
-    }
-}
-
 function actualizarStatsUI() {
-    const set = (id, val) => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = val;
-    };
-    set('trStatRacha', racha);
-    set('trStatRecord', record);
-    set('trStatGanadas', ganadas);
-    set('trStatMonedas', monedasGanadas);
-    set('trRachaActual', racha);
+    const ciclos = document.getElementById('trStatCiclos');
+    const monedas = document.getElementById('trStatMonedas');
+    if (ciclos) ciclos.textContent = ciclosCompletados;
+    if (monedas) monedas.textContent = monedasGanadas;
 }
 
-function actualizarBadgeRacha() {
-    const badge = document.getElementById('trRachaBadge');
-    if (!badge) return;
-    badge.classList.toggle('activa', racha >= 1 && racha < 6);
-    badge.classList.toggle('brillante', racha >= 6);
+function mostrarPildoraContinuar() {
+    document.getElementById('trInfoChips').hidden = true;
+    document.getElementById('trInfoContinuar').hidden = false;
+    if (window.lucide) window.lucide.createIcons();
+}
+
+function ocultarPildoraContinuar() {
+    document.getElementById('trInfoChips').hidden = false;
+    document.getElementById('trInfoContinuar').hidden = true;
+}
+
+// ============================================================
+//  OVERLAY DE FIN
+// ============================================================
+function mostrarOverlayFin(tipo, rondasSuperadas) {
+    const icono = document.getElementById('trFinIcono');
+    const titulo = document.getElementById('trFinTitulo');
+    const subtitulo = document.getElementById('trFinSubtitulo');
+    const rondas = document.getElementById('trFinRondas');
+    const monedasFila = document.getElementById('trFinMonedasFila');
+    const monedasEl = document.getElementById('trFinMonedas');
+    const btnTexto = document.getElementById('trBtnReintentarTexto');
+    const btnIcono = document.getElementById('trBtnReintentarIcono');
+
+    if (tipo === 'ciclo') {
+        icono.className = 'tr-overlay-icono tr-overlay-icono-ganaste';
+        icono.innerHTML = '<i data-lucide="trophy"></i>';
+        titulo.textContent = '¡Ciclo completado!';
+        subtitulo.textContent = 'Ganaste las 3 rondas. ¡Excelente!';
+        rondas.textContent = `${RONDAS_POR_CICLO}/${RONDAS_POR_CICLO}`;
+        monedasFila.hidden = false;
+        monedasEl.textContent = `+${RECOMPENSA_CICLO}`;
+        btnTexto.textContent = 'Jugar otra vez';
+        btnIcono.setAttribute('data-lucide', 'rotate-ccw');
+    } else if (tipo === 'perdiste') {
+        icono.className = 'tr-overlay-icono tr-overlay-icono-perdiste';
+        icono.innerHTML = '<i data-lucide="x"></i>';
+        titulo.textContent = '¡Perdiste!';
+        subtitulo.textContent = rondasSuperadas === 0
+            ? 'No pasaste ninguna ronda. Inténtalo de nuevo.'
+            : `Superaste ${rondasSuperadas} ronda${rondasSuperadas === 1 ? '' : 's'}. Vuelves al inicio.`;
+        rondas.textContent = `${rondasSuperadas}/${RONDAS_POR_CICLO}`;
+        monedasFila.hidden = true;
+        btnTexto.textContent = 'Reintentar';
+        btnIcono.setAttribute('data-lucide', 'rotate-ccw');
+    } else if (tipo === 'empate') {
+        icono.className = 'tr-overlay-icono tr-overlay-icono-empate';
+        icono.innerHTML = '<i data-lucide="equal"></i>';
+        titulo.textContent = 'Empate';
+        subtitulo.textContent = rondasSuperadas === 0
+            ? 'No pasaste ninguna ronda. Inténtalo de nuevo.'
+            : `Superaste ${rondasSuperadas} ronda${rondasSuperadas === 1 ? '' : 's'}. Vuelves al inicio.`;
+        rondas.textContent = `${rondasSuperadas}/${RONDAS_POR_CICLO}`;
+        monedasFila.hidden = true;
+        btnTexto.textContent = 'Reintentar';
+        btnIcono.setAttribute('data-lucide', 'rotate-ccw');
+    }
+
+    document.getElementById('trOverlayFin').hidden = false;
+    if (window.lucide) window.lucide.createIcons();
 }
 
 // ============================================================
@@ -591,16 +543,13 @@ async function inicializar() {
 
     aplicarTemaDelPadre();
 
-    // 1) Usuario — OPCIONAL. Si no hay, seguimos como invitado.
+    // Usuario (opcional)
     try {
         const api = API();
         usuarioActual = (api && typeof api.obtenerCuenta === 'function')
             ? api.obtenerCuenta()
             : null;
-    } catch (e) {
-        console.warn('[Tres en Raya] No se pudo obtener la cuenta:', e);
-        usuarioActual = null;
-    }
+    } catch (e) { usuarioActual = null; }
 
     const badge = document.getElementById('trUserBadge');
     if (badge) {
@@ -609,18 +558,15 @@ async function inicializar() {
             : 'Invitado';
     }
 
-    // 2) Estado persistido
     try { await cargarEstado(); } catch (e) { /* silencioso */ }
 
-    // 3) Pintar UI inicial (sin empezar partida)
-    nivelAnterior = nivelDificultad();
     actualizarStatsUI();
-    actualizarBadgeRacha();
-    resetTablero();
+    actualizarInfoUI();
     actualizarTurnoUI();
-    actualizarNivelUI();
+    resetTablero();
+    renderTablero();
 
-    // 4) Listeners de celdas — siempre
+    // Listeners de las celdas
     document.querySelectorAll('.tr-celda').forEach(celda => {
         celda.addEventListener('click', () => {
             const idx = parseInt(celda.dataset.idx, 10);
@@ -629,16 +575,9 @@ async function inicializar() {
         });
     });
 
-    // 5) Listeners de botones
-    document.getElementById('trBtnEmpezar')?.addEventListener('click', empezarPartida);
-    document.getElementById('trBtnReintentar')?.addEventListener('click', empezarPartida);
-
-    // 6) Debug
-    window.__debug = () => ({
-        tablero: tablero.slice(),
-        turno, bloqueado, partidaTerminada, juegoActivo,
-        racha, ganadas, usuarioActual, inicializado
-    });
+    // Botones de los overlays
+    document.getElementById('trBtnEmpezar')?.addEventListener('click', empezarCiclo);
+    document.getElementById('trBtnReintentar')?.addEventListener('click', empezarCiclo);
 
     if (window.lucide) window.lucide.createIcons();
 }
