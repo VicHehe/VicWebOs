@@ -40,6 +40,31 @@
             </div>
         </div>
 
+        <!-- MI BLOQUE: perfil propio + selector de estado -->
+        <div class="ct-yo" id="ctYo">
+            <div class="ct-yo-avatar" id="ctYoAvatar">
+                <i data-lucide="user"></i>
+            </div>
+            <div class="ct-yo-info">
+                <div class="ct-yo-label">Tu estado</div>
+                <div class="ct-yo-nombre" id="ctYoNombre">—</div>
+            </div>
+            <div class="ct-yo-estados" id="ctYoEstados">
+                <button class="ct-yo-btn" data-estado="activo" title="Activo">
+                    <i data-lucide="circle-dot"></i>
+                    <span>Activo</span>
+                </button>
+                <button class="ct-yo-btn" data-estado="descansando" title="Descansando">
+                    <i data-lucide="coffee"></i>
+                    <span>Desc.</span>
+                </button>
+                <button class="ct-yo-btn" data-estado="desconectado" title="Desconectado">
+                    <i data-lucide="circle-off"></i>
+                    <span>Off</span>
+                </button>
+            </div>
+        </div>
+
         <main class="ct-main">
             <div class="ct-grid" id="ctGrid"></div>
 
