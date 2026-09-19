@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Radio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,18 +23,19 @@
             </button>
         </div>
 
-        <div class="rd-portada-wrap" id="rdPortadaWrap">
-            <div class="rd-portada" id="rdPortada">
-                <i data-lucide="radio"></i>
+        <div class="rd-ahora">
+            <div class="rd-portada-wrap">
+                <div class="rd-portada" id="rdPortada">
+                    <i data-lucide="radio"></i>
+                </div>
+                <div class="rd-ondas" id="rdOndas" hidden>
+                    <span></span><span></span><span></span><span></span>
+                </div>
             </div>
-            <div class="rd-ondas" id="rdOndas" hidden>
-                <span></span><span></span><span></span><span></span><span></span>
+            <div class="rd-info">
+                <div class="rd-nombre" id="rdNombre">Sin emisora</div>
+                <div class="rd-sub" id="rdSub">Sintoniza una emisora</div>
             </div>
-        </div>
-
-        <div class="rd-info">
-            <div class="rd-nombre" id="rdNombre">Sin emisora</div>
-            <div class="rd-sub" id="rdSub">Pulsa el engranaje para sintonizar</div>
         </div>
 
         <div class="rd-volumen">
@@ -51,7 +52,7 @@
 
     </div>
 
-    <!-- MODAL: sintonizar (FULLSCREEN) -->
+    <!-- MODAL: sintonizar -->
     <div class="rd-modal" id="rdModal" hidden>
         <div class="rd-modal-card">
 
@@ -76,13 +77,13 @@
                 <div class="rd-filtros">
                     <div class="rd-buscar-wrap">
                         <i data-lucide="search" class="rd-buscar-icono"></i>
-                        <input type="text" class="rd-buscar" id="rdBuscar" placeholder="Buscar emisora por nombre..." autocomplete="off">
+                        <input type="text" class="rd-buscar" id="rdBuscar" placeholder="Buscar emisora..." autocomplete="off">
                         <button class="rd-buscar-clear" id="rdBuscarClear" hidden title="Limpiar">
                             <i data-lucide="x"></i>
                         </button>
                     </div>
                     <select class="rd-pais-select" id="rdPaisSelect">
-                        <option value="">Todos los países</option>
+                        <option value="">Todos</option>
                         <option value="CL">Chile</option>
                         <option value="AR">Argentina</option>
                         <option value="MX">México</option>
@@ -94,9 +95,9 @@
                     </select>
                 </div>
                 <div class="rd-lista" id="rdListaBuscar">
-                    <div class="rd-cargando">
-                        <div class="rd-spinner"></div>
-                        <span>Cargando emisoras...</span>
+                    <div class="rd-vacio">
+                        <i data-lucide="search"></i>
+                        <p>Escribe un nombre o elige un país</p>
                     </div>
                 </div>
             </div>
