@@ -14,9 +14,6 @@
 
     <div class="af-app" id="afApp">
 
-        <!-- ============================================================
-             HEADER
-             ============================================================ -->
         <header class="af-header">
             <div class="af-logo">
                 <div class="af-logo-mark">
@@ -50,18 +47,11 @@
                     <i data-lucide="save"></i>
                     <span>Guardar</span>
                 </button>
-                <button class="af-btn-icono" id="btnPantallaCompleta" title="Pantalla completa">
-                    <i data-lucide="maximize"></i>
-                </button>
             </div>
         </header>
 
-        <!-- ============================================================
-             BODY — Contiene lienzo + panel (juntos)
-             ============================================================ -->
         <div class="af-body">
 
-            <!-- LIENZO -->
             <div class="af-lienzo-wrapper" id="lienzoWrapper">
                 <canvas id="lienzo" width="1600" height="1200"></canvas>
 
@@ -88,7 +78,6 @@
                 <div class="af-cursor-indicator" id="cursorIndicator"></div>
             </div>
 
-            <!-- PANEL (dentro del body) -->
             <aside class="af-panel" id="afPanel">
                 <div class="af-panel-header">
                     <h2 id="afPanelTitulo">
@@ -100,7 +89,6 @@
                     </button>
                 </div>
 
-                <!-- Tabs (solo visibles en móvil) -->
                 <div class="af-panel-tabs">
                     <button class="af-panel-tab active" data-tab="color" title="Color">
                         <i data-lucide="palette"></i>
@@ -119,10 +107,8 @@
                     </button>
                 </div>
 
-                <!-- Contenido -->
                 <div class="af-panel-content">
 
-                    <!-- SECCIÓN: COLOR -->
                     <section class="af-seccion" data-seccion="color">
                         <div class="af-seccion-header">
                             <h3><i data-lucide="palette"></i> Color</h3>
@@ -141,7 +127,6 @@
                         <div class="af-recientes" id="coloresRecientes"></div>
                     </section>
 
-                    <!-- SECCIÓN: HERRAMIENTAS -->
                     <section class="af-seccion" data-seccion="herramientas">
                         <h3><i data-lucide="brush"></i> Herramientas</h3>
                         <div class="af-herramientas-grid">
@@ -166,7 +151,6 @@
                         </div>
                     </section>
 
-                    <!-- SECCIÓN: AJUSTES -->
                     <section class="af-seccion" data-seccion="ajustes">
                         <h3><i data-lucide="sliders-horizontal"></i> Ajustes del pincel</h3>
 
@@ -191,7 +175,6 @@
                         </div>
                     </section>
 
-                    <!-- SECCIÓN: CAPAS -->
                     <section class="af-seccion" data-seccion="capas">
                         <h3><i data-lucide="layers"></i> Capas</h3>
                         <div class="af-capas-control">
@@ -211,7 +194,6 @@
                         <div class="af-lista-capas" id="listaCapas"></div>
                     </section>
 
-                    <!-- SECCIÓN: REFERENCIAS -->
                     <section class="af-seccion" data-seccion="referencias">
                         <h3><i data-lucide="image"></i> Referencias</h3>
                         <button class="af-btn-sec-full" id="btnAnadirReferencia">
@@ -226,9 +208,6 @@
 
         </div>
 
-        <!-- ============================================================
-             BARRA INFERIOR (solo móvil)
-             ============================================================ -->
         <nav class="af-toolbar" id="afToolbar">
             <button class="af-tool-btn" data-accion="pincel" title="Pincel">
                 <i data-lucide="brush"></i>
@@ -262,9 +241,6 @@
 
     </div>
 
-    <!-- ============================================================
-         MODAL: TEXTO
-         ============================================================ -->
     <div class="af-modal" id="modalTexto" hidden>
         <div class="af-modal-card">
             <div class="af-modal-header">
@@ -296,9 +272,6 @@
         </div>
     </div>
 
-    <!-- ============================================================
-         MODAL: SESIÓN GUARDADA
-         ============================================================ -->
     <div class="af-modal" id="modalSesion" hidden>
         <div class="af-modal-card">
             <div class="af-modal-header">
