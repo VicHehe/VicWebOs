@@ -1,0 +1,330 @@
+/* ================================================
+   Tema: ¿¡Friend!?
+   Fondo oscuro con luces amarillas y rosas que
+   titilan en el lobby. Bordes neón brillantes.
+   Flagship con animación en vivo.
+   ================================================ */
+
+:root {
+    --violet-50:  #1A0F2E;
+    --violet-100: #2A1A44;
+    --violet-200: #4A2A6E;
+    --violet-300: #E879F9;
+    --violet-400: #F0ABFC;
+    --violet-500: #EC4899;
+    --violet-600: #DB2777;
+    --violet-700: #BE185D;
+
+    --white:   #0F0820;
+    --bg:      #050310;
+    --bg-alt:  #0A0618;
+    --gray-50:  #0F0820;
+    --gray-100: #1A1030;
+    --gray-200: #2A1A44;
+    --gray-300: #3E2A56;
+    --gray-400: #5E4080;
+    --gray-500: #8A6BA8;
+    --gray-600: #B098C8;
+    --gray-700: #D0C0E0;
+    --gray-800: #E8DDF0;
+    --gray-900: #F5F0FF;
+
+    --border:  #2A1A44;
+    --text:    #F5F0FF;
+    --text-2:  #B098C8;
+    --text-3:  #8A6BA8;
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.50);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.60);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.70);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.80);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.90);
+    --shadow-glow: 0 0 0 4px rgba(236, 72, 153, 0.25);
+
+    /* Acento amarillo + rosa neón */
+    --accent-gradient: linear-gradient(135deg, #FACC15, #EC4899);
+    --accent-gradient-hover: linear-gradient(135deg, #FDE047, #F472B6);
+    --accent-shadow: rgba(236, 72, 153, 0.45);
+    --accent-shadow-hover: rgba(250, 204, 21, 0.55);
+    --accent-text-gradient: linear-gradient(135deg, #FACC15, #EC4899, #FACC15);
+
+    /* Tokens propios del tema */
+    --friend-yellow: #FACC15;
+    --friend-pink:   #EC4899;
+    --friend-purple: #A855F7;
+}
+
+/* ================================================================
+   1. LOBBY: fondo oscuro con luces titilantes
+   ================================================================ */
+.welcome-placeholder {
+    position: relative;
+    background:
+        radial-gradient(ellipse at 20% 25%, rgba(250, 204, 21, 0.08) 0%, transparent 45%),
+        radial-gradient(ellipse at 80% 30%, rgba(236, 72, 153, 0.08) 0%, transparent 45%),
+        radial-gradient(ellipse at 50% 85%, rgba(168, 85, 247, 0.10) 0%, transparent 50%),
+        var(--bg);
+}
+
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+        radial-gradient(circle at 15% 20%, rgba(250, 204, 21, 0.50) 0%, transparent 1.2%),
+        radial-gradient(circle at 42% 12%, rgba(236, 72, 153, 0.40) 0%, transparent 1%),
+        radial-gradient(circle at 78% 22%, rgba(250, 204, 21, 0.45) 0%, transparent 1.3%),
+        radial-gradient(circle at 8% 60%, rgba(236, 72, 153, 0.40) 0%, transparent 1%),
+        radial-gradient(circle at 92% 70%, rgba(250, 204, 21, 0.45) 0%, transparent 1.2%),
+        radial-gradient(circle at 35% 88%, rgba(236, 72, 153, 0.35) 0%, transparent 1%),
+        radial-gradient(circle at 65% 78%, rgba(250, 204, 21, 0.40) 0%, transparent 1%);
+    animation: friend-lights 4s ease-in-out infinite;
+}
+@keyframes friend-lights {
+    0%, 100% { opacity: 0.8; }
+    25%      { opacity: 0.4; }
+    50%      { opacity: 1; }
+    75%      { opacity: 0.5; }
+}
+
+.welcome-placeholder::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+        radial-gradient(circle at 25% 45%, rgba(236, 72, 153, 0.45) 0%, transparent 1%),
+        radial-gradient(circle at 60% 35%, rgba(250, 204, 21, 0.50) 0%, transparent 1.2%),
+        radial-gradient(circle at 88% 50%, rgba(236, 72, 153, 0.40) 0%, transparent 1%);
+    animation: friend-lights-alt 5.5s ease-in-out infinite;
+}
+@keyframes friend-lights-alt {
+    0%, 100% { opacity: 0.5; }
+    20%      { opacity: 1; }
+    45%      { opacity: 0.3; }
+    70%      { opacity: 0.9; }
+}
+
+.welcome-hero,
+.welcome-section {
+    position: relative;
+    z-index: 2;
+}
+
+.welcome-glow {
+    background: radial-gradient(
+        circle,
+        rgba(236, 72, 153, 0.20) 0%,
+        rgba(250, 204, 21, 0.12) 35%,
+        transparent 68%
+    );
+}
+
+/* ================================================================
+   2. TÍTULO: gradiente amarillo-rosa animado
+   ================================================================ */
+.welcome-hero h1 {
+    background: linear-gradient(135deg, var(--friend-yellow), var(--friend-pink), var(--friend-yellow));
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: friend-shift 8s ease-in-out infinite;
+}
+@keyframes friend-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50%      { background-position: 100% 50%; }
+}
+
+/* ================================================================
+   3. ICONO PRINCIPAL: glow pulsante
+   ================================================================ */
+.welcome-icon-wrap {
+    background: linear-gradient(135deg, var(--friend-yellow), var(--friend-pink));
+    animation: friend-glow-pulse 3s ease-in-out infinite;
+}
+@keyframes friend-glow-pulse {
+    0%, 100% {
+        box-shadow:
+            0 12px 28px rgba(236, 72, 153, 0.45),
+            0 4px 8px rgba(250, 204, 21, 0.35),
+            0 0 40px rgba(236, 72, 153, 0.25),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+    }
+    50% {
+        box-shadow:
+            0 12px 28px rgba(236, 72, 153, 0.65),
+            0 4px 8px rgba(250, 204, 21, 0.55),
+            0 0 60px rgba(250, 204, 21, 0.35),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+    }
+}
+
+/* ================================================================
+   4. ACCESOS RÁPIDOS: bordes neón con glow pulsante
+   ================================================================ */
+.acceso-item {
+    position: relative;
+    border: 1.5px solid transparent;
+    background: rgba(15, 8, 32, 0.85);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    transition: all 0.3s;
+}
+
+.acceso-item::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: linear-gradient(135deg, var(--friend-yellow), var(--friend-pink), var(--friend-yellow));
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0.55;
+    transition: opacity 0.3s;
+}
+.acceso-item:hover::after {
+    opacity: 1;
+    animation: friend-pulse-border 2s ease-in-out infinite;
+}
+@keyframes friend-pulse-border {
+    0%, 100% { filter: drop-shadow(0 0 4px rgba(236, 72, 153, 0.6)); }
+    50%      { filter: drop-shadow(0 0 12px rgba(250, 204, 21, 0.8)); }
+}
+
+.acceso-item:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        0 0 24px rgba(236, 72, 153, 0.35),
+        0 0 48px rgba(250, 204, 21, 0.20);
+}
+
+.acceso-icon-wrap {
+    background: rgba(236, 72, 153, 0.15);
+    border: 1px solid rgba(250, 204, 21, 0.35);
+    color: var(--friend-yellow);
+    transition: all 0.3s;
+}
+.acceso-item:hover .acceso-icon-wrap {
+    background: linear-gradient(135deg, var(--friend-yellow), var(--friend-pink));
+    color: #0F0820;
+    box-shadow: 0 0 20px rgba(250, 204, 21, 0.55);
+}
+
+/* ================================================================
+   5. WIDGETS: mismo tratamiento de borde
+   ================================================================ */
+.widget-item {
+    position: relative;
+    border: 1.5px solid transparent;
+}
+.widget-item::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: linear-gradient(135deg, var(--friend-yellow), var(--friend-pink), var(--friend-yellow));
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0.55;
+}
+
+/* ================================================================
+   6. SIDEBAR: oscura con acentos neón
+   ================================================================ */
+.sidebar {
+    background: linear-gradient(180deg, #0A0618 0%, #050310 100%);
+    border-right: 1px solid rgba(236, 72, 153, 0.20);
+}
+
+.nav-item.active::before {
+    background: linear-gradient(180deg, var(--friend-yellow), var(--friend-pink));
+    width: 3px;
+    box-shadow: 0 0 10px rgba(236, 72, 153, 0.6);
+}
+.nav-item.active {
+    background: rgba(236, 72, 153, 0.08);
+}
+
+/* ================================================================
+   7. HEADER: línea con glow sutil
+   ================================================================ */
+.app-header {
+    border-bottom: 1px solid rgba(236, 72, 153, 0.25);
+    box-shadow: 0 1px 12px rgba(236, 72, 153, 0.10);
+}
+
+/* ================================================================
+   8. PESTAÑAS: borde superior gradiente
+   ================================================================ */
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 12px;
+    right: 12px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--friend-yellow), var(--friend-pink), var(--friend-yellow));
+    border-radius: 2px 2px 0 0;
+    box-shadow: 0 0 10px rgba(236, 72, 153, 0.5);
+}
+
+/* ================================================================
+   9. MODALES: borde neón
+   ================================================================ */
+.config-card,
+.modal-todas-card {
+    position: relative;
+    border: 1.5px solid transparent;
+    overflow: hidden;
+    background: #0F0820;
+}
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: linear-gradient(135deg, var(--friend-yellow), var(--friend-pink), var(--friend-yellow));
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 3;
+    opacity: 0.8;
+}
+
+/* ================================================================
+   10. BOTÓN PRIMARIO: amarillo → rosa con glow
+   ================================================================ */
+.btn-primario {
+    background: linear-gradient(135deg, var(--friend-yellow), var(--friend-pink));
+    color: #0F0820;
+    border: none;
+    font-weight: 800;
+    box-shadow:
+        0 4px 16px rgba(236, 72, 153, 0.45),
+        0 0 24px rgba(250, 204, 21, 0.25);
+}
+.btn-primario:hover {
+    background: linear-gradient(135deg, #FDE047, #F472B6);
+    box-shadow:
+        0 6px 24px rgba(236, 72, 153, 0.65),
+        0 0 40px rgba(250, 204, 21, 0.45);
+}
