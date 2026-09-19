@@ -295,6 +295,8 @@ function abrirHerramienta(id) {
     iframe.dataset.id = id;
     iframe.style.display = 'none';
     iframe.className = 'tool-iframe';
+    // Permisos para apps que los necesitan (SillyCalls, futuras apps con media)
+    iframe.setAttribute('allow', 'camera; microphone; display-capture; autoplay; clipboard-read; clipboard-write');
     panelContainer.appendChild(iframe);
 
     tabs.push({
