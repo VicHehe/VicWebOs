@@ -1,0 +1,463 @@
+/* ================================================
+   Tres en Raya — Juego clásico con dificultad
+   escalonada por racha.
+   Compatible con temas (var() + fallbacks).
+   ================================================ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+[hidden] { display: none !important; }
+
+html, body { height: 100%; overflow: hidden; }
+
+body {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--white, #FFFFFF);
+    color: var(--text, #18181B);
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+    color-scheme: light dark;
+    -webkit-tap-highlight-color: transparent;
+}
+
+[data-lucide] { width: 18px; height: 18px; stroke-width: 2; flex-shrink: 0; }
+
+/* ========== LAYOUT ========== */
+.tr-container {
+    height: 100%;
+    height: 100dvh;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    overflow: hidden;
+}
+
+/* ========== HEADER ========== */
+.tr-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.tr-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.tr-logo-mark {
+    width: 42px;
+    height: 42px;
+    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 8px 20px var(--accent-shadow, rgba(139,92,246,0.28));
+    flex-shrink: 0;
+}
+.tr-logo-mark [data-lucide] { width: 22px; height: 22px; stroke-width: 2.5; }
+
+.tr-logo-text h1 {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: var(--accent-text-gradient, linear-gradient(135deg, #18181B, #7C3AED));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+    line-height: 1.15;
+}
+.tr-logo-text p {
+    font-size: 12px;
+    color: var(--gray-500, #71717A);
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+.tr-racha-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: var(--gray-100, #F4F4F7);
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--gray-700, #3F3F46);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+    transition: all 0.22s;
+}
+.tr-racha-badge [data-lucide] {
+    width: 15px;
+    height: 15px;
+    color: var(--gray-500, #71717A);
+    transition: color 0.22s;
+}
+.tr-racha-badge.activa {
+    background: #FEF3C7;
+    border-color: #FDE68A;
+    color: #92400E;
+}
+.tr-racha-badge.activa [data-lucide] {
+    color: #F59E0B;
+    filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.5));
+}
+.tr-racha-badge.brillante {
+    background: linear-gradient(135deg, #F59E0B, #DC2626);
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+}
+.tr-racha-badge.brillante [data-lucide] {
+    color: white;
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.7));
+}
+
+/* ========== MAIN ========== */
+.tr-main {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ========== INFO ========== */
+.tr-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    max-width: 420px;
+    flex-shrink: 0;
+}
+
+.tr-info-turno,
+.tr-info-nivel {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: var(--r-md, 12px);
+    font-size: 12.5px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+}
+.tr-info-turno {
+    background: var(--violet-50, #F5F3FF);
+    border: 1.5px solid var(--violet-200, #DDD6FE);
+    color: var(--violet-700, #6D28D9);
+    transition: all 0.22s;
+}
+.tr-info-turno [data-lucide] {
+    width: 14px;
+    height: 14px;
+}
+.tr-info-turno.cpu {
+    background: #FEF2F2;
+    border-color: #FECACA;
+    color: #991B1B;
+}
+.tr-info-turno.cpu [data-lucide] { color: #DC2626; }
+
+.tr-info-nivel {
+    background: var(--gray-100, #F4F4F7);
+    border: 1.5px solid var(--border, #E8E8EE);
+    color: var(--gray-600, #52525B);
+}
+.tr-info-nivel [data-lucide] {
+    width: 14px;
+    height: 14px;
+}
+
+/* ========== TABLERO ========== */
+.tr-tablero {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 10px;
+    width: 100%;
+    max-width: 420px;
+    aspect-ratio: 1 / 1;
+    padding: 10px;
+    background: var(--gray-50, #FAFAFB);
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: var(--r-lg, 16px);
+    flex-shrink: 0;
+}
+
+.tr-celda {
+    background: var(--white, #FFFFFF);
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: var(--r-md, 12px);
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    position: relative;
+    overflow: hidden;
+    touch-action: manipulation;
+}
+.tr-celda:hover:not(.ocupada):not(.deshabilitada) {
+    border-color: var(--violet-400, #A78BFA);
+    background: var(--violet-50, #F5F3FF);
+    transform: scale(1.02);
+}
+.tr-celda.ocupada {
+    cursor: default;
+}
+.tr-celda.deshabilitada {
+    cursor: not-allowed;
+    opacity: 0.85;
+}
+.tr-celda.ganadora {
+    background: #ECFDF5;
+    border-color: #10B981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+.tr-celda.perdedora {
+    background: #FEF2F2;
+    border-color: #DC2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+
+/* SVG de X y O */
+.tr-marca {
+    width: 60%;
+    height: 60%;
+    display: block;
+}
+.tr-marca line,
+.tr-marca circle {
+    fill: none;
+    stroke-width: 12;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* X — violeta del tema */
+.tr-marca-x line { stroke: var(--violet-500, #8B5CF6); }
+.tr-celda.ganadora .tr-marca-x line { stroke: #059669; }
+
+/* O — rosa fijo para diferenciar */
+.tr-marca-o circle { stroke: #EC4899; }
+.tr-celda.perdedora .tr-marca-o circle { stroke: #DC2626; }
+
+/* Animación de aparición */
+@keyframes trPopX {
+    0% { stroke-dashoffset: 100; opacity: 0; }
+    100% { stroke-dashoffset: 0; opacity: 1; }
+}
+@keyframes trPopO {
+    0% { stroke-dashoffset: 220; opacity: 0; transform: scale(0.7); transform-origin: center; }
+    100% { stroke-dashoffset: 0; opacity: 1; transform: scale(1); }
+}
+
+.tr-marca-x line {
+    stroke-dasharray: 100;
+    animation: trPopX 0.22s ease-out;
+}
+.tr-marca-o circle {
+    stroke-dasharray: 220;
+    animation: trPopO 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+/* ========== RESULTADO ========== */
+.tr-resultado {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    animation: trZoom 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+    flex-shrink: 0;
+}
+.tr-resultado [data-lucide] {
+    width: 18px;
+    height: 18px;
+}
+.tr-resultado.ganaste {
+    background: #ECFDF5;
+    color: #065F46;
+    border: 1.5px solid #A7F3D0;
+}
+.tr-resultado.perdiste {
+    background: #FEF2F2;
+    color: #991B1B;
+    border: 1.5px solid #FECACA;
+}
+.tr-resultado.empate {
+    background: var(--gray-100, #F4F4F7);
+    color: var(--gray-700, #3F3F46);
+    border: 1.5px solid var(--border, #E8E8EE);
+}
+@keyframes trZoom {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* ========== STATS ========== */
+.tr-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    flex-shrink: 0;
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.tr-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 10px 6px;
+    background: var(--gray-50, #FAFAFB);
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: var(--r-md, 12px);
+    text-align: center;
+}
+.tr-stat-label {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--gray-500, #71717A);
+    white-space: nowrap;
+}
+.tr-stat-valor {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--gray-900, #18181B);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+}
+
+/* ========== ACCIONES ========== */
+.tr-acciones {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+.tr-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 11px 18px;
+    border-radius: var(--r-md, 12px);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.15s;
+    touch-action: manipulation;
+    border: none;
+    white-space: nowrap;
+}
+.tr-btn [data-lucide] { width: 15px; height: 15px; }
+
+.tr-btn-sec {
+    background: var(--white, #FFFFFF);
+    border: 1.5px solid var(--border, #E8E8EE);
+    color: var(--gray-700, #3F3F46);
+}
+.tr-btn-sec:hover {
+    background: var(--gray-100, #F4F4F7);
+    border-color: var(--gray-300, #D4D4DD);
+}
+
+.tr-btn-pri {
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: white;
+    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
+}
+.tr-btn-pri:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px var(--accent-shadow-hover, rgba(139,92,246,0.38));
+}
+.tr-btn-pri:active { transform: translateY(0); }
+
+/* ========== TOAST ========== */
+.tr-toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--gray-900, #18181B);
+    color: white;
+    padding: 12px 22px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: 200;
+    max-width: calc(100% - 40px);
+    white-space: nowrap;
+}
+.tr-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+.tr-toast.success { background: #065F46; }
+.tr-toast.error   { background: #991B1B; }
+.tr-toast.info    { background: var(--violet-700, #6D28D9); }
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 640px) {
+    .tr-container { padding: 14px 14px 12px; gap: 10px; }
+    .tr-logo-mark { width: 36px; height: 36px; }
+    .tr-logo-mark [data-lucide] { width: 19px; height: 19px; }
+    .tr-logo-text h1 { font-size: 17px; }
+    .tr-logo-text p { font-size: 11px; }
+    .tr-racha-badge { padding: 6px 12px; font-size: 13px; }
+
+    .tr-tablero { gap: 8px; padding: 8px; }
+    .tr-info { max-width: 100%; }
+    .tr-info-turno, .tr-info-nivel {
+        padding: 6px 10px;
+        font-size: 11.5px;
+    }
+
+    .tr-stats { gap: 6px; }
+    .tr-stat { padding: 8px 4px; }
+    .tr-stat-label { font-size: 9px; }
+    .tr-stat-valor { font-size: 15px; }
+
+    .tr-acciones { gap: 6px; }
+    .tr-btn { padding: 10px 14px; font-size: 12.5px; flex: 1; min-width: 0; }
+    .tr-btn span { display: none; }
+    .tr-btn-pri span { display: inline; }
+}
+
+@media (max-width: 400px) {
+    .tr-btn-sec span { display: none; }
+    .tr-stat-label { font-size: 8.5px; }
+    .tr-stat-valor { font-size: 14px; }
+}
