@@ -1,0 +1,51 @@
+/* ================================================
+   Tema: Pumkin
+   Simple pero atmosférico. Fondo oscuro con naranjo
+   calabaza y morado profundo.
+   ================================================ */
+
+:root {
+    /* Acento naranjo calabaza con morado de apoyo */
+    --violet-50:  #2D1A2E;
+    --violet-100: #3D1F3A;
+    --violet-200: #5C2A50;
+    --violet-300: #A0508A;
+    --violet-400: #D9663D;
+    --violet-500: #FF7B1F;
+    --violet-600: #E5601A;
+    --violet-700: #B84615;
+
+    /* Neutros oscuros con tinte morado */
+    --white:   #1A1020;
+    --bg:      #0D0610;
+    --bg-alt:  #1A1020;
+    --gray-50:  #1A1020;
+    --gray-100: #251730;
+    --gray-200: #352040;
+    --gray-300: #4A2E55;
+    --gray-400: #6E4A7A;
+    --gray-500: #9776A0;
+    --gray-600: #B89DC0;
+    --gray-700: #D5C4DA;
+    --gray-800: #E8DCE8;
+    --gray-900: #F5EEF5;
+
+    --border:  #352040;
+    --text:    #F5EEF5;
+    --text-2:  #B89DC0;
+    --text-3:  #9776A0;
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.50);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.60);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.60);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.70);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.80);
+    --shadow-glow: 0 0 0 4px rgba(255, 123, 31, 0.20);
+
+    /* Naranjo → morado */
+    --accent-gradient: linear-gradient(135deg, #FF7B1F, #7B2D8E);
+    --accent-gradient-hover: linear-gradient(135deg, #FF9533, #9A3FA8);
+    --accent-shadow: rgba(255, 123, 31, 0.35);
+    --accent-shadow-hover: rgba(255, 123, 31, 0.50);
+    --accent-text-gradient: linear-gradient(135deg, #FF9533, #C084FC);
+}
