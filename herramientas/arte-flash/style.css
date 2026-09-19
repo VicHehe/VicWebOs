@@ -1,5 +1,8 @@
 /* ================================================
    Arte Flash — Editor de dibujo por capas
+   Layout adaptativo:
+     · Móvil: lienzo full-screen + barra inferior + paneles flotantes
+     · PC/Tablet: lienzo + panel lateral fijo
    Compatible con todos los temas (var() + fallbacks).
    ================================================ */
 
@@ -31,47 +34,55 @@ body {
     background-clip: content-box;
 }
 
-/* ========== LAYOUT ========== */
-.af-container {
-    height: 100dvh;
+/* ============================================================
+   LAYOUT BASE — Mobile First
+   ============================================================ */
+.af-app {
     display: flex;
     flex-direction: column;
-    padding: 12px 16px 12px;
-    gap: 10px;
+    height: 100dvh;
     overflow: hidden;
 }
 
-/* ========== HEADER ========== */
+/* ============================================================
+   HEADER
+   ============================================================ */
 .af-header {
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 14px;
-    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--white, #FFFFFF);
+    border-bottom: 1px solid var(--border, #E8E8EE);
+    z-index: 20;
+    min-height: 52px;
 }
 
 .af-logo {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     min-width: 0;
 }
 .af-logo-mark {
-    width: 40px;
-    height: 40px;
+    width: 34px;
+    height: 34px;
     background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
-    border-radius: 12px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    box-shadow: 0 6px 16px var(--accent-shadow, rgba(139,92,246,0.28));
+    box-shadow: 0 4px 10px var(--accent-shadow, rgba(139,92,246,0.28));
     flex-shrink: 0;
 }
-.af-logo-mark [data-lucide] { width: 22px; height: 22px; stroke-width: 2.5; }
+.af-logo-mark [data-lucide] { width: 18px; height: 18px; stroke-width: 2.5; }
+
+.af-logo-text { min-width: 0; }
 .af-logo-text h1 {
-    font-size: 19px;
+    font-size: 15px;
     font-weight: 800;
     letter-spacing: -0.03em;
     background: var(--accent-text-gradient, linear-gradient(135deg, #18181B, #7C3AED));
@@ -82,22 +93,26 @@ body {
     line-height: 1.15;
 }
 .af-logo-text p {
-    font-size: 11.5px;
+    font-size: 10.5px;
     color: var(--gray-500, #71717A);
     font-weight: 600;
-    margin-top: 2px;
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
 }
 
 .af-header-actions {
     display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
+    gap: 4px;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .af-btn-icono {
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
     background: var(--white, #FFFFFF);
     border: 1.5px solid var(--border, #E8E8EE);
     border-radius: 10px;
@@ -121,11 +136,12 @@ body {
     border-color: #FECACA;
     color: #991B1B;
 }
+.af-btn-icono [data-lucide] { width: 16px; height: 16px; }
 
+/* Botones de acción (con texto) — solo PC */
 .af-btn-sec,
-.af-btn-pri,
-.af-btn-peligro {
-    display: inline-flex;
+.af-btn-pri {
+    display: none; /* ocultos en móvil por defecto */
     align-items: center;
     gap: 7px;
     padding: 9px 14px;
@@ -158,28 +174,23 @@ body {
     transform: translateY(-1px);
     box-shadow: 0 6px 16px var(--accent-shadow-hover, rgba(139,92,246,0.38));
 }
-.af-btn-peligro {
-    background: #FEF2F2;
-    border: 1.5px solid #FECACA;
-    color: #991B1B;
-}
-.af-btn-peligro:hover:not(:disabled) {
-    background: #FEE2E2;
-}
 .af-btn-sec [data-lucide],
-.af-btn-pri [data-lucide],
-.af-btn-peligro [data-lucide] { width: 14px; height: 14px; }
+.af-btn-pri [data-lucide] { width: 14px; height: 14px; }
 
-/* ========== BODY ========== */
+/* ============================================================
+   BODY — Contiene el lienzo
+   ============================================================ */
 .af-body {
     flex: 1;
     min-height: 0;
     display: flex;
-    gap: 12px;
     overflow: hidden;
+    position: relative;
 }
 
-/* ========== LIENZO ========== */
+/* ============================================================
+   LIENZO
+   ============================================================ */
 .af-lienzo-wrapper {
     flex: 1;
     position: relative;
@@ -187,11 +198,10 @@ body {
     background: var(--gray-100, #F4F4F7);
     background-image: radial-gradient(circle, var(--gray-300, #D4D4DD) 1px, transparent 1px);
     background-size: 20px 20px;
-    border: 1.5px solid var(--border, #E8E8EE);
-    border-radius: 16px;
     cursor: crosshair;
     touch-action: none;
     min-width: 0;
+    min-height: 0;
 }
 
 #lienzo {
@@ -212,10 +222,10 @@ body {
 /* Minimapa */
 .af-minimapa {
     position: absolute;
-    bottom: 60px;
-    right: 12px;
-    width: 120px;
-    height: 90px;
+    bottom: 12px;
+    left: 12px;
+    width: 110px;
+    height: 82px;
     background: var(--white, #FFFFFF);
     border: 1.5px solid var(--border, #E8E8EE);
     border-radius: 8px;
@@ -241,9 +251,9 @@ body {
     bottom: 12px;
     right: 12px;
     display: flex;
-    gap: 4px;
+    gap: 3px;
     background: var(--white, #FFFFFF);
-    padding: 5px 8px;
+    padding: 4px 6px;
     border-radius: 999px;
     border: 1.5px solid var(--border, #E8E8EE);
     box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.08));
@@ -251,11 +261,11 @@ body {
     z-index: 10;
 }
 .af-zoom-btn {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
     border: none;
-    background: var(--violet-50, #F5F3FF);
+    background: transparent;
     color: var(--violet-600, #7C3AED);
     cursor: pointer;
     transition: all 0.15s;
@@ -265,16 +275,16 @@ body {
     padding: 0;
 }
 .af-zoom-btn:hover {
-    background: var(--violet-200, #DDD6FE);
+    background: var(--violet-50, #F5F3FF);
     color: var(--violet-700, #6D28D9);
 }
 .af-zoom-btn [data-lucide] { width: 13px; height: 13px; stroke-width: 2.5; }
 
 #zoomNivel {
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 800;
     color: var(--gray-700, #3F3F46);
-    min-width: 42px;
+    min-width: 40px;
     text-align: center;
     font-variant-numeric: tabular-nums;
 }
@@ -290,37 +300,227 @@ body {
     transform: translate(-50%, -50%);
 }
 
-/* ========== PANEL ========== */
-.af-panel {
-    width: 268px;
+/* ============================================================
+   BARRA INFERIOR (solo móvil)
+   ============================================================ */
+.af-toolbar {
     flex-shrink: 0;
-    overflow-y: auto;
-    background: var(--white, #FFFFFF);
-    border: 1.5px solid var(--border, #E8E8EE);
-    border-radius: 16px;
-    padding: 14px;
     display: flex;
-    flex-direction: column;
-    gap: 14px;
+    justify-content: space-around;
+    align-items: stretch;
+    gap: 2px;
+    padding: 6px 4px 8px;
+    background: var(--white, #FFFFFF);
+    border-top: 1px solid var(--border, #E8E8EE);
+    z-index: 15;
+    min-height: 68px;
+    padding-bottom: max(8px, env(safe-area-inset-bottom, 8px));
 }
 
-.af-seccion {
+.af-tool-btn {
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--gray-100, #F4F4F7);
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 6px 2px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    color: var(--gray-600, #52525B);
+    cursor: pointer;
+    transition: all 0.15s;
+    touch-action: manipulation;
 }
-.af-seccion:last-child {
+.af-tool-btn [data-lucide] {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+}
+.af-tool-btn span {
+    font-size: 9.5px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+.af-tool-btn:hover,
+.af-tool-btn:active {
+    background: var(--violet-50, #F5F3FF);
+    color: var(--violet-600, #7C3AED);
+}
+.af-tool-btn.activo {
+    background: var(--violet-100, #EDE9FE);
+    color: var(--violet-700, #6D28D9);
+}
+.af-tool-btn.activo [data-lucide] {
+    color: var(--violet-600, #7C3AED);
+}
+
+/* ============================================================
+   PANEL — Comportamiento móvil: flotante desde abajo
+   ============================================================ */
+.af-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-height: 60dvh;
+    background: var(--white, #FFFFFF);
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border: 1px solid var(--border, #E8E8EE);
     border-bottom: none;
-    padding-bottom: 0;
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.18);
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: translateY(100%);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    padding-bottom: max(12px, env(safe-area-inset-bottom, 12px));
+    visibility: hidden;
+}
+.af-panel.abierto {
+    transform: translateY(0);
+    visibility: visible;
+}
+
+/* Backdrop cuando el panel está abierto (solo móvil) */
+.af-panel.abierto::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(24, 24, 27, 0.35);
+    z-index: -1;
+    animation: afFade 0.2s ease;
+}
+
+/* Barra superior tipo "handle" */
+.af-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--gray-100, #F4F4F7);
+    flex-shrink: 0;
+    position: relative;
+}
+.af-panel-header::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    background: var(--gray-300, #D4D4DD);
+    border-radius: 2px;
+}
+.af-panel-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--gray-900, #18181B);
+    letter-spacing: -0.01em;
+    margin: 0;
+    padding-top: 4px;
+}
+.af-panel-header h2 [data-lucide] {
+    color: var(--violet-500, #8B5CF6);
+    width: 16px;
+    height: 16px;
+}
+.af-panel-cerrar {
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: none;
+    padding: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--gray-500, #71717A);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    margin-top: 4px;
+}
+.af-panel-cerrar:hover {
+    background: #FEE2E2;
+    color: #991B1B;
+}
+.af-panel-cerrar [data-lucide] { width: 16px; height: 16px; }
+
+/* Tabs (solo móvil) */
+.af-panel-tabs {
+    display: flex;
+    gap: 2px;
+    padding: 8px 12px 0;
+    flex-shrink: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.af-panel-tabs::-webkit-scrollbar { display: none; }
+
+.af-panel-tab {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 4px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 8px 8px 0 0;
+    font-family: inherit;
+    color: var(--gray-500, #71717A);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.af-panel-tab [data-lucide] { width: 18px; height: 18px; }
+.af-panel-tab:hover { color: var(--violet-600, #7C3AED); }
+.af-panel-tab.active {
+    color: var(--violet-700, #6D28D9);
+    border-bottom-color: var(--violet-500, #8B5CF6);
+    background: var(--violet-50, #F5F3FF);
+}
+
+/* Contenido del panel */
+.af-panel-content {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Secciones del panel */
+.af-seccion {
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+}
+.af-seccion.activa {
+    display: flex;
 }
 
 .af-seccion h3 {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 10.5px;
+    gap: 7px;
+    font-size: 11px;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -340,21 +540,25 @@ body {
     gap: 8px;
 }
 
-/* ========== COLOR ========== */
+/* ============================================================
+   COLOR
+   ============================================================ */
 .af-color-row {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     align-items: center;
 }
 #selectorColor {
-    width: 40px;
-    height: 40px;
+    width: 52px;
+    height: 52px;
     border: 2px solid var(--border, #E8E8EE);
     border-radius: 50%;
-    padding: 2px;
+    padding: 3px;
     cursor: pointer;
     background: none;
     flex-shrink: 0;
+    -webkit-appearance: none;
+    appearance: none;
 }
 #selectorColor::-webkit-color-swatch-wrapper { padding: 0; }
 #selectorColor::-webkit-color-swatch { border: none; border-radius: 50%; }
@@ -362,25 +566,27 @@ body {
 
 .af-color-hex {
     font-family: 'SF Mono', Monaco, Consolas, monospace;
-    font-size: 11.5px;
+    font-size: 13px;
     font-weight: 700;
     color: var(--gray-700, #3F3F46);
     background: var(--gray-50, #FAFAFB);
-    padding: 4px 10px;
-    border-radius: 8px;
+    padding: 8px 14px;
+    border-radius: 10px;
     border: 1px solid var(--border, #E8E8EE);
     letter-spacing: 0.04em;
+    flex: 1;
+    text-align: center;
 }
 
 .af-paleta {
     display: grid;
     grid-template-columns: repeat(8, 1fr);
-    gap: 3px;
-    padding: 6px;
+    gap: 5px;
+    padding: 8px;
     background: var(--gray-50, #FAFAFB);
     border: 1px solid var(--border, #E8E8EE);
-    border-radius: 10px;
-    max-height: 160px;
+    border-radius: 12px;
+    max-height: 180px;
     overflow-y: auto;
 }
 .af-color-btn {
@@ -401,26 +607,28 @@ body {
 
 .af-recientes {
     display: flex;
-    gap: 5px;
-    min-height: 20px;
+    gap: 6px;
+    min-height: 24px;
     flex-wrap: wrap;
 }
 .af-recientes .af-color-btn {
-    width: 22px;
-    height: 22px;
+    width: 28px;
+    height: 28px;
     aspect-ratio: auto;
 }
 
-/* ========== HERRAMIENTAS ========== */
+/* ============================================================
+   HERRAMIENTAS
+   ============================================================ */
 .af-herramientas-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 5px;
+    gap: 6px;
 }
 .af-btn-herramienta {
     aspect-ratio: 1/1;
     border: 1.5px solid var(--border, #E8E8EE);
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--white, #FFFFFF);
     color: var(--gray-600, #52525B);
     cursor: pointer;
@@ -429,6 +637,7 @@ body {
     align-items: center;
     justify-content: center;
     padding: 0;
+    touch-action: manipulation;
 }
 .af-btn-herramienta:hover {
     background: var(--violet-50, #F5F3FF);
@@ -440,29 +649,38 @@ body {
     border-color: transparent;
     box-shadow: 0 4px 10px var(--accent-shadow, rgba(139,92,246,0.28));
 }
-.af-btn-herramienta [data-lucide] { width: 17px; height: 17px; }
+.af-btn-herramienta [data-lucide] { width: 20px; height: 20px; }
 
-/* ========== SLIDERS ========== */
+/* ============================================================
+   SLIDERS
+   ============================================================ */
 .af-slider {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 6px;
 }
 .af-slider label {
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 700;
     color: var(--gray-700, #3F3F46);
     display: flex;
     justify-content: space-between;
+    align-items: center;
 }
 .af-slider label span {
     color: var(--violet-600, #7C3AED);
     font-variant-numeric: tabular-nums;
+    font-weight: 800;
+    background: var(--violet-50, #F5F3FF);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
 }
 .af-slider input[type="range"] {
     width: 100%;
-    height: 4px;
+    height: 6px;
     -webkit-appearance: none;
+    appearance: none;
     background: var(--gray-200, #E8E8EE);
     border-radius: 999px;
     outline: none;
@@ -470,34 +688,37 @@ body {
 }
 .af-slider input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 14px;
-    height: 14px;
+    appearance: none;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     background: var(--violet-500, #8B5CF6);
-    border: 2px solid var(--white, #FFFFFF);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    border: 3px solid var(--white, #FFFFFF);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     cursor: pointer;
 }
 .af-slider input[type="range"]::-moz-range-thumb {
-    width: 14px;
-    height: 14px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     background: var(--violet-500, #8B5CF6);
-    border: 2px solid var(--white, #FFFFFF);
+    border: 3px solid var(--white, #FFFFFF);
     cursor: pointer;
 }
 
-/* ========== CAPAS ========== */
+/* ============================================================
+   CAPAS
+   ============================================================ */
 .af-capas-control {
     display: flex;
-    gap: 4px;
+    gap: 6px;
     flex-wrap: wrap;
 }
 .af-btn-mini,
 .af-btn-mini-texto {
-    height: 30px;
+    height: 36px;
     border: 1.5px solid var(--border, #E8E8EE);
-    border-radius: 8px;
+    border-radius: 10px;
     background: var(--white, #FFFFFF);
     color: var(--gray-600, #52525B);
     cursor: pointer;
@@ -505,13 +726,14 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
-    padding: 0 10px;
+    gap: 5px;
+    padding: 0 12px;
     font-family: inherit;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
+    touch-action: manipulation;
 }
-.af-btn-mini { width: 30px; padding: 0; }
+.af-btn-mini { width: 36px; padding: 0; }
 .af-btn-mini:hover,
 .af-btn-mini-texto:hover {
     background: var(--violet-50, #F5F3FF);
@@ -523,27 +745,27 @@ body {
     border-color: #FECACA;
     color: #991B1B;
 }
-.af-btn-mini [data-lucide] { width: 14px; height: 14px; }
-.af-btn-mini-texto [data-lucide] { width: 12px; height: 12px; }
+.af-btn-mini [data-lucide] { width: 15px; height: 15px; }
+.af-btn-mini-texto [data-lucide] { width: 13px; height: 13px; }
 
 .af-lista-capas {
     display: flex;
     flex-direction: column;
-    gap: 3px;
-    max-height: 140px;
+    gap: 4px;
+    max-height: 200px;
     overflow-y: auto;
 }
 .af-capa-item {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 10px;
+    gap: 10px;
+    padding: 9px 12px;
     border: 1.5px solid var(--border, #E8E8EE);
-    border-radius: 8px;
+    border-radius: 10px;
     background: var(--white, #FFFFFF);
     cursor: pointer;
     transition: all 0.15s;
-    font-size: 11.5px;
+    font-size: 12.5px;
     font-weight: 700;
     color: var(--gray-700, #3F3F46);
 }
@@ -557,9 +779,9 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
-    border-radius: 5px;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
     cursor: pointer;
     color: var(--gray-500, #71717A);
     transition: all 0.15s;
@@ -569,7 +791,7 @@ body {
     background: var(--gray-100, #F4F4F7);
     color: var(--violet-600, #7C3AED);
 }
-.af-capa-visibilidad [data-lucide] { width: 13px; height: 13px; }
+.af-capa-visibilidad [data-lucide] { width: 14px; height: 14px; }
 .af-capa-nombre {
     flex: 1;
     min-width: 0;
@@ -578,30 +800,33 @@ body {
     white-space: nowrap;
 }
 
-/* ========== REFERENCIAS ========== */
+/* ============================================================
+   REFERENCIAS
+   ============================================================ */
 .af-btn-sec-full {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 9px 12px;
+    gap: 7px;
+    padding: 11px 14px;
     border: 1.5px dashed var(--border, #E8E8EE);
-    border-radius: 10px;
+    border-radius: 12px;
     background: transparent;
     color: var(--gray-600, #52525B);
     font-family: inherit;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.15s;
     width: 100%;
+    touch-action: manipulation;
 }
 .af-btn-sec-full:hover {
     border-color: var(--violet-400, #A78BFA);
     color: var(--violet-700, #6D28D9);
     background: var(--violet-50, #F5F3FF);
 }
-.af-btn-sec-full [data-lucide] { width: 14px; height: 14px; }
+.af-btn-sec-full [data-lucide] { width: 15px; height: 15px; }
 
 .af-referencias-lista {
     display: flex;
@@ -616,12 +841,12 @@ body {
     background: var(--gray-50, #FAFAFB);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 .af-referencia-item img {
     width: 48px;
     height: 48px;
-    border-radius: 6px;
+    border-radius: 8px;
     object-fit: cover;
     flex-shrink: 0;
     background: var(--gray-200, #E8E8EE);
@@ -629,7 +854,7 @@ body {
 .af-referencia-info {
     flex: 1;
     min-width: 0;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     color: var(--gray-600, #52525B);
     overflow: hidden;
@@ -637,10 +862,10 @@ body {
     white-space: nowrap;
 }
 .af-referencia-remove {
-    width: 26px;
-    height: 26px;
+    width: 30px;
+    height: 30px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     background: transparent;
     color: var(--gray-400, #A1A1AD);
     cursor: pointer;
@@ -655,7 +880,7 @@ body {
     background: #FEE2E2;
     color: #991B1B;
 }
-.af-referencia-remove [data-lucide] { width: 13px; height: 13px; }
+.af-referencia-remove [data-lucide] { width: 14px; height: 14px; }
 
 /* ============================================================
    MODALES
@@ -670,7 +895,7 @@ body {
     align-items: center;
     justify-content: center;
     padding: 20px;
-    z-index: 1000;
+    z-index: 100;
     animation: afFade 0.15s ease;
 }
 @keyframes afFade {
@@ -811,15 +1036,35 @@ body {
 .af-modal-actions .af-btn-sec,
 .af-modal-actions .af-btn-pri,
 .af-modal-actions .af-btn-peligro {
+    display: inline-flex;
     flex: 1;
     min-width: 100px;
     justify-content: center;
+    border-radius: 11px;
+    padding: 11px 16px;
+    font-size: 13px;
 }
+
+.af-btn-peligro {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    background: #FEF2F2;
+    border: 1.5px solid #FECACA;
+    color: #991B1B;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.af-btn-peligro:hover { background: #FEE2E2; }
+.af-btn-peligro [data-lucide] { width: 14px; height: 14px; }
 
 /* ========== TOAST ========== */
 .af-toast {
     position: fixed;
-    bottom: 20px;
+    bottom: 90px;
     left: 50%;
     transform: translateX(-50%) translateY(100px);
     background: var(--gray-900, #18181B);
@@ -832,7 +1077,7 @@ body {
     opacity: 0;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     pointer-events: none;
-    z-index: 2000;
+    z-index: 200;
     max-width: calc(100% - 40px);
     white-space: nowrap;
     overflow: hidden;
@@ -846,84 +1091,162 @@ body {
 .af-toast.error   { background: #991B1B; }
 .af-toast.info    { background: var(--violet-700, #6D28D9); }
 
-/* ========== RESPONSIVE ========== */
-@media (max-width: 900px) {
-    .af-body {
-        flex-direction: column;
-    }
-    .af-panel {
-        width: 100%;
-        max-height: 42vh;
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 12px;
-        padding: 12px;
-    }
-    .af-seccion {
-        flex: 1;
-        min-width: 180px;
-        border-bottom: none;
-        border-right: 1px solid var(--gray-100, #F4F4F7);
-        padding-bottom: 0;
-        padding-right: 12px;
-    }
-    .af-seccion:last-child {
-        border-right: none;
-        padding-right: 0;
-    }
-    .af-paleta {
-        grid-template-columns: repeat(8, 1fr);
-        max-height: 100px;
-    }
-    .af-minimapa { display: none; }
-    .af-lienzo-wrapper { min-height: 240px; }
+/* ============================================================
+   MODO PANTALLA COMPLETA
+   ============================================================ */
+.af-app.pantalla-completa .af-header,
+.af-app.pantalla-completa .af-toolbar {
+    display: none;
+}
+.af-app.pantalla-completa .af-lienzo-wrapper {
+    border-radius: 0;
+}
+.af-app.pantalla-completa #btnSalirPantallaCompleta {
+    display: flex;
 }
 
-@media (max-width: 640px) {
-    .af-container { padding: 10px 12px; gap: 8px; }
-    .af-logo-mark { width: 34px; height: 34px; border-radius: 10px; }
-    .af-logo-mark [data-lucide] { width: 18px; height: 18px; }
-    .af-logo-text h1 { font-size: 17px; }
-    .af-logo-text p { font-size: 10.5px; }
+#btnSalirPantallaCompleta {
+    display: none;
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+    background: var(--white, #FFFFFF);
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--gray-600, #52525B);
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+#btnSalirPantallaCompleta:hover { opacity: 1; }
 
-    .af-header-actions .af-btn-sec span,
-    .af-header-actions .af-btn-pri span { display: none; }
-    .af-header-actions .af-btn-sec,
-    .af-header-actions .af-btn-pri { padding: 10px 12px; }
+/* ============================================================
+   RESPONSIVE — PC / Tablet grande
+   En pantallas ≥ 900px usamos el layout de panel lateral.
+   ============================================================ */
+@media (min-width: 900px) {
 
-    .af-btn-icono { width: 36px; height: 36px; }
-    .af-btn-sec, .af-btn-pri, .af-btn-peligro { padding: 9px 11px; font-size: 12px; }
-
-    .af-panel {
-        max-height: 46vh;
-        padding: 10px;
+    .af-app {
+        flex-direction: column;
+        padding: 12px;
         gap: 10px;
     }
-    .af-seccion {
-        min-width: 150px;
-        padding-right: 10px;
+
+    /* Header completo */
+    .af-header {
+        border-radius: 14px;
+        padding: 10px 16px;
+        min-height: 60px;
+        border: 1.5px solid var(--border, #E8E8EE);
+        box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06));
     }
-    .af-seccion h3 { font-size: 10px; }
-    .af-herramientas-grid { grid-template-columns: repeat(4, 1fr); }
-    .af-paleta { grid-template-columns: repeat(8, 1fr); max-height: 80px; }
+    .af-logo-mark { width: 40px; height: 40px; border-radius: 12px; }
+    .af-logo-mark [data-lucide] { width: 22px; height: 22px; }
+    .af-logo-text h1 { font-size: 19px; }
+    .af-logo-text p { font-size: 11.5px; max-width: none; }
 
-    .af-zoom-controls { padding: 4px 6px; bottom: 8px; right: 8px; }
-    .af-zoom-btn { width: 24px; height: 24px; }
-    .af-zoom-btn [data-lucide] { width: 11px; height: 11px; }
-    #zoomNivel { font-size: 10px; min-width: 34px; }
+    /* Mostrar botones de texto */
+    .af-btn-sec,
+    .af-btn-pri { display: inline-flex; }
 
-    .af-modal-card { border-radius: 16px; }
-    .af-modal-header { padding: 14px 16px; }
-    .af-modal-header h2 { font-size: 14.5px; }
-    .af-modal-body { padding: 16px; }
-    .af-modal-actions { padding: 12px 16px; }
-    .af-modal-actions .af-btn-sec,
-    .af-modal-actions .af-btn-pri,
-    .af-modal-actions .af-btn-peligro { flex: 1 1 100%; }
+    /* Ocultar barra inferior */
+    .af-toolbar { display: none; }
+
+    /* Panel = panel lateral derecho, siempre visible */
+    .af-panel {
+        position: relative;
+        left: auto; right: auto; bottom: auto;
+        width: 300px;
+        max-height: none;
+        height: 100%;
+        transform: none;
+        visibility: visible;
+        border-radius: 14px;
+        border: 1.5px solid var(--border, #E8E8EE);
+        box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06));
+        padding-bottom: 0;
+    }
+    .af-panel.abierto::before { display: none; }
+    .af-panel-header { display: none; }
+    .af-panel-header::before { display: none; }
+    .af-panel-tabs { display: none; }
+
+    /* Todas las secciones apiladas y visibles */
+    .af-panel-content {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding: 16px;
+    }
+    .af-seccion {
+        display: flex;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--gray-100, #F4F4F7);
+    }
+    .af-seccion:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    /* Body en flex horizontal */
+    .af-body {
+        flex-direction: row;
+        gap: 12px;
+        min-height: 0;
+    }
+    .af-lienzo-wrapper {
+        border-radius: 14px;
+        border: 1.5px solid var(--border, #E8E8EE);
+        box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06));
+    }
+
+    /* Toast abajo pero no tapa la toolbar */
+    .af-toast { bottom: 30px; }
 }
 
-@media (max-width: 400px) {
+/* ============================================================
+   RESPONSIVE — Móvil muy angosto
+   ============================================================ */
+@media (max-width: 380px) {
     .af-logo-text p { display: none; }
-    .af-panel { max-height: 50vh; }
-    .af-seccion { min-width: 130px; }
+    .af-logo-mark { width: 32px; height: 32px; }
+    .af-logo-mark [data-lucide] { width: 16px; height: 16px; }
+    .af-logo-text h1 { font-size: 14px; }
+
+    .af-btn-icono { width: 34px; height: 34px; }
+    .af-btn-icono [data-lucide] { width: 15px; height: 15px; }
+
+    .af-tool-btn [data-lucide] { width: 18px; height: 18px; }
+    .af-tool-btn span { font-size: 9px; }
+
+    .af-panel { max-height: 65dvh; }
+    .af-panel-tab [data-lucide] { width: 16px; height: 16px; }
+}
+
+/* ============================================================
+   RESPONSIVE — Tablets (600px - 900px)
+   ============================================================ */
+@media (min-width: 600px) and (max-width: 899px) {
+    .af-paleta { grid-template-columns: repeat(10, 1fr); }
+    .af-herramientas-grid { grid-template-columns: repeat(5, 1fr); }
+}
+
+/* ============================================================
+   RESPONSIVE — Landscape móvil
+   ============================================================ */
+@media (max-height: 500px) and (orientation: landscape) {
+    .af-panel { max-height: 80dvh; }
+    .af-header { min-height: 44px; padding: 6px 10px; }
+    .af-logo-mark { width: 30px; height: 30px; }
+    .af-logo-mark [data-lucide] { width: 15px; height: 15px; }
+    .af-toolbar { min-height: 56px; padding: 4px 4px 6px; }
+    .af-tool-btn [data-lucide] { width: 18px; height: 18px; }
+    .af-tool-btn span { display: none; }
 }
