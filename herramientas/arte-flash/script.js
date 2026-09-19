@@ -8,6 +8,10 @@
 //    - Tema: heredado del padre
 //    - UI adaptativa: barra inferior + panel flotante en móvil,
 //      panel lateral fijo en PC
+//    - Pan sin botón dedicado:
+//        · Móvil: toque fuera del canvas · 2 dedos
+//        · PC:    click derecho · click fuera del canvas ·
+//                 botón medio · Space+click · long-press izquierdo
 // ============================================================
 
 'use strict';
@@ -16,6 +20,8 @@ const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const IDB_NAME = 'VicWebOsArteFlash';
 const IDB_VERSION = 1;
 const IDB_STORE = 'dibujos';
+const LONG_PRESS_MS = 400;      // ms para activar pan con long-press
+const LONG_PRESS_MOVE_TOL = 8;  // px de tolerancia de movimiento
 
 const PALETA_BLK_NX64 = [
     '#000000','#12173d','#293268','#464b8c','#6b74b2','#909edd','#c1d9f2','#ffffff',
@@ -31,6 +37,12 @@ const PALETA_BLK_NX64 = [
 // ---------- ESTADO GLOBAL ----------
 let usuarioActual = null;
 let dibujoGuardado = null;
+
+// Long-press state
+let longPressTimer = null;
+let longPressStartX = 0;
+let longPressStartY = 0;
+let longPressActivo = false;
 
 const state = {
     herramienta: 'pincel',
@@ -63,6 +75,7 @@ const state = {
 };
 
 let referencias = [];
+let panStart = null;
 
 const API = () => window.parent.__vicwebos || null;
 const BD  = () => window.parent.ConfigBD || null;
@@ -204,17 +217,37 @@ function setupCanvas() {
     ctx.fillRect(0, 0, W, H);
     offCtx.fillStyle = '#fff';
     offCtx.fillRect(0, 0, W, H);
+
     fitCanvasToWrapper();
+
+    // Reajustes por si el layout aún no está asentado (crítico en PC)
+    requestAnimationFrame(fitCanvasToWrapper);
+    setTimeout(fitCanvasToWrapper, 100);
+    setTimeout(fitCanvasToWrapper, 300);
+
+    // ResizeObserver: se reajusta cuando cambia el tamaño del wrapper
+    if (window.ResizeObserver) {
+        const ro = new ResizeObserver(() => {
+            fitCanvasToWrapper();
+        });
+        ro.observe(wrapper);
+    }
 }
 
 function fitCanvasToWrapper() {
-    const ww = wrapper.clientWidth - 40;
-    const wh = wrapper.clientHeight - 80;
-    const scaleX = ww / lienzo.width;
-    const scaleY = wh / lienzo.height;
+    const ww = wrapper.clientWidth;
+    const wh = wrapper.clientHeight;
+    if (ww <= 0 || wh <= 0) return;
+
+    // Margen interior
+    const padding = 40;
+    const availW = Math.max(50, ww - padding);
+    const availH = Math.max(50, wh - padding);
+    const scaleX = availW / lienzo.width;
+    const scaleY = availH / lienzo.height;
     state.zoom = Math.min(scaleX, scaleY, 1);
-    state.panX = (wrapper.clientWidth - lienzo.width * state.zoom) / 2;
-    state.panY = (wrapper.clientHeight - lienzo.height * state.zoom) / 2;
+    state.panX = (ww - lienzo.width * state.zoom) / 2;
+    state.panY = (wh - lienzo.height * state.zoom) / 2;
     applyTransform();
 }
 
@@ -248,6 +281,16 @@ function getCanvasCoords(clientX, clientY) {
         x: (clientX - rect.left - state.panX) / state.zoom,
         y: (clientY - rect.top - state.panY) / state.zoom
     };
+}
+
+// ¿El punto está fuera del área del canvas?
+function estaFueraDelCanvas(clientX, clientY) {
+    const rect = wrapper.getBoundingClientRect();
+    const x = clientX - rect.left - state.panX;
+    const y = clientY - rect.top - state.panY;
+    const w = lienzo.width * state.zoom;
+    const h = lienzo.height * state.zoom;
+    return x < 0 || y < 0 || x > w || y > h;
 }
 
 // ============================================================
@@ -582,6 +625,17 @@ function endStroke() {
     guardarHistoria();
 }
 
+// Cancela el trazo actual sin commitearlo (usado por long-press → pan)
+function cancelarTrazo() {
+    if (!state.dibujando) return;
+    state.dibujando = false;
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    state.puntos = [];
+    state.presiones = [];
+    state.colaPuntos = [];
+    flattenLayers(); // redibuja sin la preview
+}
+
 // ============================================================
 //  FORMAS
 // ============================================================
@@ -613,6 +667,17 @@ function endForma(x, y) {
     dibujarForma(capa, state.formaStart.x, state.formaStart.y, x, y);
     flattenLayers();
     guardarHistoria();
+    state.formaStart = null;
+    snapshotParaForma = null;
+    state.dibujando = false;
+}
+
+function cancelarForma() {
+    if (!state.formaStart) return;
+    const capa = capaCtxActiva();
+    capa.clearRect(0, 0, lienzo.width, lienzo.height);
+    if (snapshotParaForma) capa.drawImage(snapshotParaForma, 0, 0);
+    flattenLayers();
     state.formaStart = null;
     snapshotParaForma = null;
     state.dibujando = false;
@@ -730,10 +795,8 @@ function agregarTexto() {
 }
 
 // ============================================================
-//  MOVER
+//  MOVER (PAN)
 // ============================================================
-let panStart = null;
-
 function startPan(clientX, clientY) {
     panStart = { x: clientX, y: clientY, px: state.panX, py: state.panY };
 }
@@ -753,24 +816,29 @@ wrapper.addEventListener('pointermove', onPointerMove, { passive: false });
 wrapper.addEventListener('pointerup', onPointerUp);
 wrapper.addEventListener('pointercancel', onPointerUp);
 wrapper.addEventListener('pointerleave', onPointerLeave);
-
-function esModoMover(e) {
-    return state.herramienta === 'mover' || state.spaceDown || e.button === 1;
-}
+wrapper.addEventListener('contextmenu', (e) => e.preventDefault());
 
 function onPointerDown(e) {
     e.preventDefault();
 
+    // Click derecho → pan directo
+    const esClickDerecho = e.pointerType === 'mouse' && e.button === 2;
+    // Click fuera del canvas → pan directo
+    const fueraDelCanvas = estaFueraDelCanvas(e.clientX, e.clientY);
+
+    // Registro táctil para multi-dedo
     if (e.pointerType === 'touch') {
         state.touches.push({ id: e.pointerId, x: e.clientX, y: e.clientY });
     }
     if (e.pointerType === 'touch' && state.touches.length >= 2) {
         state.lastPinchDist = getTouchDist();
-        if (state.dibujando) endStroke();
+        cancelarTrazo();
+        cancelarForma();
         return;
     }
 
-    if (esModoMover(e)) {
+    // Modo pan: click derecho · fuera del canvas · space · botón medio
+    if (esClickDerecho || fueraDelCanvas || state.spaceDown || e.button === 1) {
         startPan(e.clientX, e.clientY);
         wrapper.style.cursor = 'grabbing';
         return;
@@ -780,6 +848,22 @@ function onPointerDown(e) {
     const pressure = e.pressure || 0.5;
 
     if (state.pipetaActiva) { pipeta(x, y); return; }
+
+    // Iniciar long-press timer (solo para PC, botón izquierdo)
+    if (e.pointerType === 'mouse' && e.button === 0) {
+        longPressStartX = e.clientX;
+        longPressStartY = e.clientY;
+        longPressActivo = false;
+        clearTimeout(longPressTimer);
+        longPressTimer = setTimeout(() => {
+            // Si el usuario no movió el puntero → cancelar trazo y activar pan
+            longPressActivo = true;
+            cancelarTrazo();
+            cancelarForma();
+            startPan(e.clientX, e.clientY);
+            wrapper.style.cursor = 'grabbing';
+        }, LONG_PRESS_MS);
+    }
 
     switch (state.herramienta) {
         case 'pincel':
@@ -802,11 +886,23 @@ function onPointerDown(e) {
 function onPointerMove(e) {
     e.preventDefault();
 
+    // Long-press cancelado si el usuario se mueve
+    if (longPressTimer && !longPressActivo) {
+        const dx = e.clientX - longPressStartX;
+        const dy = e.clientY - longPressStartY;
+        if (Math.sqrt(dx*dx + dy*dy) > LONG_PRESS_MOVE_TOL) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+        }
+    }
+
+    // Actualización táctil
     if (e.pointerType === 'touch') {
         const t = state.touches.find(t => t.id === e.pointerId);
         if (t) { t.x = e.clientX; t.y = e.clientY; }
     }
 
+    // Pinch + pan con 2 dedos
     if (e.pointerType === 'touch' && state.touches.length >= 2) {
         const dist = getTouchDist();
         if (state.lastPinchDist) {
@@ -845,12 +941,21 @@ function onPointerMove(e) {
 }
 
 function onPointerUp(e) {
+    // Cancelar long-press pendiente
+    if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+    }
+    const estabaEnLongPress = longPressActivo;
+    longPressActivo = false;
+
     if (e && e.pointerType === 'touch') {
         state.touches = state.touches.filter(t => t.id !== e.pointerId);
         state.lastPinchDist = null;
         if (state.touches.length >= 1) return;
     }
 
+    // Si estaba en modo pan, terminar
     if (panStart) {
         endPan();
         wrapper.style.cursor = getCursorForHerramienta();
@@ -873,6 +978,11 @@ function onPointerUp(e) {
 }
 
 function onPointerLeave() {
+    // Cancelar long-press si sale del área
+    if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+    }
     const ci = document.getElementById('cursorIndicator');
     if (ci) ci.style.display = 'none';
 }
@@ -910,7 +1020,7 @@ const cursorIndicator = document.getElementById('cursorIndicator');
 
 function updateCursorIndicator(clientX, clientY) {
     if (!cursorIndicator) return;
-    if (state.herramienta === 'mover' || state.herramienta === 'texto' || state.herramienta === 'relleno') {
+    if (state.herramienta === 'texto' || state.herramienta === 'relleno') {
         cursorIndicator.style.display = 'none';
         return;
     }
@@ -947,7 +1057,7 @@ document.addEventListener('keydown', (e) => {
 
     const shortcuts = {
         b: 'pincel', e: 'borrador', l: 'linea',
-        m: 'mover', c: 'circulo', g: 'relleno', t: 'texto'
+        c: 'circulo', g: 'relleno', t: 'texto'
     };
     if (shortcuts[k]) { activarHerramienta(shortcuts[k]); return; }
     if (k === 'i') { activarPipeta(); return; }
@@ -980,7 +1090,6 @@ function getCursorForHerramienta() {
         pincel: 'crosshair',
         borrador: 'cell',
         linea: 'crosshair',
-        mover: 'grab',
         circulo: 'crosshair',
         relleno: 'copy',
         texto: 'text'
@@ -994,7 +1103,6 @@ function activarHerramienta(h) {
         btn.classList.toggle('activo', btn.dataset.herramienta === h);
     });
     wrapper.style.cursor = getCursorForHerramienta();
-    if (h === 'mover' && cursorIndicator) cursorIndicator.style.display = 'none';
 }
 
 function activarPipeta() {
@@ -1238,7 +1346,6 @@ function inicializarUIMovil() {
 
     if (!panel || !toolbar) return;
 
-    // --- Títulos de cada tab ---
     const titulos = {
         color:        { icono: 'palette',              texto: 'Color' },
         herramientas: { icono: 'brush',                texto: 'Herramientas' },
@@ -1247,7 +1354,6 @@ function inicializarUIMovil() {
         referencias:  { icono: 'image',                texto: 'Referencias' }
     };
 
-    // --- Abrir / cerrar panel ---
     function abrirPanel(tab) {
         panel.querySelectorAll('.af-panel-tab').forEach(t => {
             t.classList.toggle('active', t.dataset.tab === tab);
@@ -1267,41 +1373,28 @@ function inicializarUIMovil() {
         panel.classList.remove('abierto');
     }
 
-    // --- Tabs internas ---
     panel.querySelectorAll('.af-panel-tab').forEach(tab => {
         tab.addEventListener('click', () => abrirPanel(tab.dataset.tab));
     });
 
     document.getElementById('afPanelCerrar')?.addEventListener('click', cerrarPanel);
 
-    // Click fuera del panel (en el backdrop)
     panel.addEventListener('click', (e) => {
         if (e.target === panel) cerrarPanel();
     });
 
-    // --- Barra inferior ---
     toolbar.querySelectorAll('.af-tool-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const accion = btn.dataset.accion;
 
-            // Herramientas de dibujo directas
             if (accion === 'pincel' || accion === 'borrador') {
                 toolbar.querySelectorAll('.af-tool-btn').forEach(b => b.classList.remove('activo'));
                 btn.classList.add('activo');
                 activarHerramienta(accion);
                 return;
             }
-
-            if (accion === 'deshacer') {
-                deshacer();
-                return;
-            }
-
-            if (accion === 'formas') {
-                abrirPanel('herramientas');
-                return;
-            }
-
+            if (accion === 'deshacer') { deshacer(); return; }
+            if (accion === 'formas') { abrirPanel('herramientas'); return; }
             if (accion === 'color' || accion === 'capas' || accion === 'ajustes') {
                 abrirPanel(accion);
                 return;
@@ -1309,7 +1402,7 @@ function inicializarUIMovil() {
         });
     });
 
-    // --- Pantalla completa ---
+    // Pantalla completa
     const btnFull = document.getElementById('btnPantallaCompleta');
     btnFull?.addEventListener('click', () => {
         app.classList.add('pantalla-completa');
@@ -1320,38 +1413,18 @@ function inicializarUIMovil() {
             btnSalir.id = 'btnSalirPantallaCompleta';
             btnSalir.title = 'Salir de pantalla completa';
             btnSalir.innerHTML = '<i data-lucide="minimize"></i>';
-            btnSalir.style.cssText = `
-                display: flex; position: fixed; top: 12px; right: 12px;
-                width: 40px; height: 40px; border-radius: 50%;
-                background: white; border: 1.5px solid var(--border, #E8E8EE);
-                cursor: pointer; align-items: center; justify-content: center;
-                padding: 0; z-index: 100;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                opacity: 0.7; transition: opacity 0.2s;
-                color: var(--gray-600, #52525B);
-            `;
-            btnSalir.addEventListener('mouseenter', () => { btnSalir.style.opacity = '1'; });
-            btnSalir.addEventListener('mouseleave', () => { btnSalir.style.opacity = '0.7'; });
             btnSalir.addEventListener('click', () => {
                 app.classList.remove('pantalla-completa');
                 btnSalir.remove();
-                setTimeout(() => {
-                    if (typeof fitCanvasToWrapper === 'function') fitCanvasToWrapper();
-                }, 100);
+                setTimeout(() => fitCanvasToWrapper(), 100);
             });
             document.body.appendChild(btnSalir);
         }
         if (window.lucide) window.lucide.createIcons();
-
-        setTimeout(() => {
-            if (typeof fitCanvasToWrapper === 'function') fitCanvasToWrapper();
-        }, 100);
+        setTimeout(() => fitCanvasToWrapper(), 100);
     });
 
-    // --- Estado inicial: pincel activo en la barra inferior ---
     toolbar.querySelector('.af-tool-btn[data-accion="pincel"]')?.classList.add('activo');
-
-    // --- Estado inicial: sección color activa en el panel ---
     panel.querySelector('.af-panel-tab[data-tab="color"]')?.classList.add('active');
     panel.querySelector('.af-seccion[data-seccion="color"]')?.classList.add('activa');
 }
@@ -1370,7 +1443,6 @@ async function inicializar() {
     const badge = document.getElementById('afUserBadge');
     if (badge) badge.textContent = `@${usuarioActual.codigo} · ${usuarioActual.nombre}`;
 
-    // Setup base
     setupCanvas();
     inicializarPaleta();
     inicializarCapas();
@@ -1379,7 +1451,6 @@ async function inicializar() {
     setColor('#ffa5d5');
     guardarHistoria();
 
-    // UI móvil (barra inferior + panel flotante)
     inicializarUIMovil();
 
     // ¿Hay sesión guardada?
@@ -1400,7 +1471,6 @@ async function inicializar() {
         }
     }
 
-    // Eventos header
     document.getElementById('btnDeshacer')?.addEventListener('click', deshacer);
     document.getElementById('btnRehacer')?.addEventListener('click', rehacer);
     document.getElementById('btnLimpiar')?.addEventListener('click', limpiarLienzo);
@@ -1408,13 +1478,11 @@ async function inicializar() {
     document.getElementById('btnGuardarGaleria')?.addEventListener('click', guardarEnGaleria);
     document.getElementById('btnGuardarSesion')?.addEventListener('click', guardarSesion);
 
-    // Herramientas del panel
     document.querySelectorAll('.af-btn-herramienta').forEach(btn => {
         btn.addEventListener('click', () => activarHerramienta(btn.dataset.herramienta));
     });
     document.getElementById('btnPipeta')?.addEventListener('click', activarPipeta);
 
-    // Capas
     document.getElementById('btnCapaNueva')?.addEventListener('click', () => agregarCapa());
     document.getElementById('btnCapaArriba')?.addEventListener('click', () => {
         const i = state.capaActiva;
@@ -1431,48 +1499,4 @@ async function inicializar() {
         flattenLayers(); renderCapas(); guardarHistoria();
     });
     document.getElementById('btnCapaEliminar')?.addEventListener('click', () => {
-        if (state.capas.length <= 1) { toast('Debe haber al menos 1 capa', 'error'); return; }
-        state.capas.splice(state.capaActiva, 1);
-        state.capaActiva = Math.min(state.capaActiva, state.capas.length - 1);
-        flattenLayers(); renderCapas(); guardarHistoria();
-    });
-
-    // Zoom
-    document.getElementById('zoomIn')?.addEventListener('click', () => { const c = wrapperCenter(); zoomAt(c.x, c.y, 1.25); });
-    document.getElementById('zoomOut')?.addEventListener('click', () => { const c = wrapperCenter(); zoomAt(c.x, c.y, 0.8); });
-    document.getElementById('zoomFit')?.addEventListener('click', fitCanvasToWrapper);
-    document.getElementById('zoomReset')?.addEventListener('click', () => {
-        state.zoom = 1;
-        state.panX = (wrapper.clientWidth - lienzo.width) / 2;
-        state.panY = (wrapper.clientHeight - lienzo.height) / 2;
-        applyTransform();
-    });
-
-    // Texto
-    document.getElementById('btnAgregarTexto')?.addEventListener('click', agregarTexto);
-    document.getElementById('modalTextoCerrar')?.addEventListener('click', cerrarModalTexto);
-    document.getElementById('btnCancelarTexto')?.addEventListener('click', cerrarModalTexto);
-    document.getElementById('inputTexto')?.addEventListener('keydown', e => {
-        if (e.key === 'Enter') agregarTexto();
-        if (e.key === 'Escape') cerrarModalTexto();
-    });
-
-    // Referencias
-    document.getElementById('btnAnadirReferencia')?.addEventListener('click', anadirReferencia);
-
-    // Resize
-    window.addEventListener('resize', () => {
-        fitCanvasToWrapper();
-        actualizarMinimapa();
-    });
-
-    if (window.lucide) window.lucide.createIcons();
-}
-
-document.addEventListener('DOMContentLoaded', inicializar);
-
-window.addEventListener('pagehide', () => {
-    referencias.forEach(r => {
-        try { URL.revokeObjectURL(r.url); } catch (e) {}
-    });
-});
+        if (state.capas.length <= 1) { toast('Debe haber al menos 1
