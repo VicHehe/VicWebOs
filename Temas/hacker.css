@@ -1,0 +1,49 @@
+/* ================================================
+   Tema: Hacker
+   Fondo negro, verde terminal. Simple pero eficaz.
+   ================================================ */
+
+:root {
+    /* Acento verde terminal */
+    --violet-50:  #0A1F0A;
+    --violet-100: #0F2F0F;
+    --violet-200: #154815;
+    --violet-300: #1F6F1F;
+    --violet-400: #2BAA2B;
+    --violet-500: #00FF41;
+    --violet-600: #00CC33;
+    --violet-700: #00A329;
+
+    /* Neutros oscuros con tinte verde */
+    --white:   #0A0E0A;
+    --bg:      #000000;
+    --bg-alt:  #0A0E0A;
+    --gray-50:  #0A0E0A;
+    --gray-100: #101610;
+    --gray-200: #1A241A;
+    --gray-300: #253325;
+    --gray-400: #3A4F3A;
+    --gray-500: #5F7A5F;
+    --gray-600: #8FA98F;
+    --gray-700: #B8CCB8;
+    --gray-800: #D8E6D8;
+    --gray-900: #E8F5E8;
+
+    --border:  #1A241A;
+    --text:    #E8F5E8;
+    --text-2:  #8FA98F;
+    --text-3:  #5F7A5F;
+
+    --shadow-xs: 0 1px 2px rgba(0, 255, 65, 0.05);
+    --shadow-sm: 0 1px 3px rgba(0, 255, 65, 0.08);
+    --shadow-md: 0 4px 12px rgba(0, 255, 65, 0.10);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.8);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.9);
+    --shadow-glow: 0 0 0 3px rgba(0, 255, 65, 0.15);
+
+    --accent-gradient: linear-gradient(135deg, #00FF41, #00A329);
+    --accent-gradient-hover: linear-gradient(135deg, #33FF66, #00CC33);
+    --accent-shadow: rgba(0, 255, 65, 0.35);
+    --accent-shadow-hover: rgba(0, 255, 65, 0.55);
+    --accent-text-gradient: linear-gradient(135deg, #E8F5E8, #00FF41);
+}
