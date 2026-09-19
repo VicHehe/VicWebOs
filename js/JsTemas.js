@@ -6,14 +6,14 @@
 //    2 → solo variables :root (colores, sombras, radios)
 //    4 → añade pseudo-elementos, SVG patterns, texturas o animaciones
 //
-//  ESCALA DE PRECIO:
+//  ESCALA DE PRECIO (0 a 30):
 //    0   → oficiales gratuitos
-//    5   → entrada: recolor simple
-//    10  → recolor icónico o con un detalle propio
-//    15  → efecto visual claro (pattern SVG, scanlines)
-//    18  → edición especial
-//    20  → múltiples efectos (pseudo-elementos, bordes, animación)
-//    25  → textura + efectos combinados, artesanía
+//    5   → entrada: recolor puro :root
+//    10  → pseudo-elementos simples o reescritura de chrome
+//    15  → efecto visual claro (pattern SVG, scanlines, glitch)
+//    18  → 🔒 EXCLUSIVO DE CONSENTIDO (referencia al 18 de septiembre)
+//    20  → múltiples capas combinadas (patterns + hovers únicos)
+//    25  → textura + efectos artesanales
 //    30  → flagship: animación en vivo + múltiples capas
 //
 //  ORGANIZACIÓN POR AFINIDAD TEMÁTICA:
@@ -30,8 +30,7 @@ const TEMAS_DISPONIBLES = [
 
     // ============================================================
     //  BÁSICOS — Recolors simples, light mode
-    //  La entrada. Todos comparten la misma estructura :root
-    //  sin efectos adicionales.
+    //  Todos comparten la misma estructura :root sin efectos.
     // ============================================================
     {
         id: 'violeta',
@@ -208,7 +207,7 @@ const TEMAS_DISPONIBLES = [
         descripcion: 'Modo oscuro oficial de GitHub. Gris azulado, bordes #30363d y acento azul #58a6ff.',
         categoria: 'Oscuros',
         ruta: 'Temas/github-lover.css',
-        espacio: 2,
+        espacio: 4,
         monedas: 0,
         colores: {
             '--violet-100': '#163d8a',
@@ -260,7 +259,7 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFFFF'
         }
     },
-        {
+    {
         id: 'oficina-dark',
         nombre: 'Oficina Dark',
         icono: 'building-2',
@@ -345,7 +344,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Retro',
         ruta: 'Temas/vapor.css',
         espacio: 2,
-        monedas: 10,
+        monedas: 5,
         colores: {
             '--violet-100': '#2A1A44',
             '--violet-300': '#C084FC',
@@ -363,7 +362,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Retro',
         ruta: 'Temas/salon.css',
         espacio: 2,
-        monedas: 10,
+        monedas: 5,
         colores: {
             '--violet-100': '#5C0A0A',
             '--violet-300': '#B8860B',
@@ -404,31 +403,13 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Especiales',
         ruta: 'Temas/consentido.css',
         espacio: 4,
-        monedas: 18,
+        monedas: 18,   // 🔒 precio fijo por el 18 de septiembre
         colores: {
             '--violet-100': '#FFE4E4',
             '--violet-300': '#FCA5A5',
             '--violet-500': '#D52B1E',
             '--bg':         '#FFFBF7',
             '--bg-alt':     '#FFF5EE',
-            '--white':      '#FFFFFF'
-        }
-    },
-    {
-        id: 'floral',
-        nombre: 'Floral',
-        icono: 'flower',
-        descripcion: 'Colores vivos, pétalos y verdes frescos. Para los que florecen.',
-        categoria: 'Especiales',
-        ruta: 'Temas/floral.css',
-        espacio: 4,
-        monedas: 20,
-        colores: {
-            '--violet-100': '#DCFCE7',
-            '--violet-300': '#F9A8D4',
-            '--violet-500': '#EC4899',
-            '--bg':         '#F7FDF9',
-            '--bg-alt':     '#F0F9F2',
             '--white':      '#FFFFFF'
         }
     },
@@ -448,6 +429,24 @@ const TEMAS_DISPONIBLES = [
             '--bg':         '#050510',
             '--bg-alt':     '#0F0F1E',
             '--white':      '#0A0A15'
+        }
+    },
+    {
+        id: 'floral',
+        nombre: 'Floral',
+        icono: 'flower',
+        descripcion: 'Colores vivos, pétalos y verdes frescos. Para los que florecen.',
+        categoria: 'Especiales',
+        ruta: 'Temas/floral.css',
+        espacio: 4,
+        monedas: 20,
+        colores: {
+            '--violet-100': '#DCFCE7',
+            '--violet-300': '#F9A8D4',
+            '--violet-500': '#EC4899',
+            '--bg':         '#F7FDF9',
+            '--bg-alt':     '#F0F9F2',
+            '--white':      '#FFFFFF'
         }
     },
     {
