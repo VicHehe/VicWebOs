@@ -7,8 +7,9 @@
 //  Ganar las 3 → +15 monedas y ciclo completado.
 //  Perder o empatar → vuelves a la ronda 1.
 //
-//  Sin interrupciones: al ganar rondas 1 y 2 el tablero
-//  se reinicia automáticamente y se sigue jugando.
+//  Al ganar rondas 1 y 2 el tablero se reinicia solo y
+//  aparece un aviso flash (CSS puro, sin setTimeout) que
+//  se desvanece por su cuenta.
 // ============================================================
 
 'use strict';
@@ -28,9 +29,8 @@ const NOMBRE_DIFICULTAD = { 1: 'Fácil', 2: 'Media', 3: 'Difícil' };
 const CLASE_DIFICULTAD  = { 1: 'facil', 2: 'media', 3: 'dificil' };
 
 // Probabilidad de jugada aleatoria por dificultad.
-// A mayor probabilidad, más fácil es ganarle a la CPU.
-const AZAR_MEDIA   = 0.40;  // 40 % aleatorio, 60 % estratégico
-const AZAR_DIFICIL = 0.20;  // 20 % aleatorio, 80 % minimax
+const AZAR_MEDIA   = 0.40;
+const AZAR_DIFICIL = 0.20;
 
 const LINEAS_GANADORAS = [
     [0, 1, 2], [3, 4, 5], [6, 7, 8],
@@ -44,7 +44,7 @@ let turno = YO;
 let partidaTerminada = false;
 let bloqueado = false;
 let juegoActivo = false;
-let rondaActual = 1;              // 1..3
+let rondaActual = 1;
 let ciclosCompletados = 0;
 let monedasGanadas = 0;
 let usuarioActual = null;
@@ -85,6 +85,19 @@ function aplicarTemaDelPadre() {
 window.addEventListener('message', (e) => {
     if (e.data && e.data.type === MENSAJE_TEMA) aplicarTemaDelPadre();
 });
+
+// ============================================================
+//  FLASH — aviso auto-desaparece
+// ============================================================
+function mostrarFlash(texto) {
+    const el = document.getElementById('trFlash');
+    if (!el) return;
+    el.textContent = texto;
+    // Forzar reinicio de la animación
+    el.classList.remove('show');
+    void el.offsetWidth;   // reflow
+    el.classList.add('show');
+}
 
 // ============================================================
 //  INDEXEDDB
@@ -190,43 +203,32 @@ function celdasVacias(t) {
 // ============================================================
 //  CPU — 3 niveles con azar controlado
 // ============================================================
-
-// Nivel 1 — Fácil: 100 % aleatorio
 function cpuFacil(t) {
     const v = celdasVacias(t);
     if (!v.length) return -1;
     return v[Math.floor(Math.random() * v.length)];
 }
 
-// Nivel 2 — Media: gana si puede, bloquea si puede,
-// centro/corner si no. Con AZAR_MEDIA de probabilidad de jugar al azar.
 function cpuMedia(t) {
     if (Math.random() < AZAR_MEDIA) return cpuFacil(t);
 
     const vacias = celdasVacias(t);
     if (!vacias.length) return -1;
 
-    // 1) Ganar si es posible
     for (const i of vacias) {
         const c = t.slice(); c[i] = CPU;
         if (obtenerGanador(c)?.ganador === CPU) return i;
     }
-    // 2) Bloquear al jugador si está por ganar
     for (const i of vacias) {
         const c = t.slice(); c[i] = YO;
         if (obtenerGanador(c)?.ganador === YO) return i;
     }
-    // 3) Centro
     if (t[4] === null) return 4;
-    // 4) Esquina aleatoria
     const esq = [0, 2, 6, 8].filter(i => t[i] === null);
     if (esq.length) return esq[Math.floor(Math.random() * esq.length)];
-    // 5) Lo que quede
     return cpuFacil(t);
 }
 
-// Nivel 3 — Difícil: minimax perfecto, con AZAR_DIFICIL
-// de probabilidad de cometer un error no forzado.
 function cpuDificil(t) {
     if (Math.random() < AZAR_DIFICIL) return cpuFacil(t);
 
@@ -291,14 +293,12 @@ function jugarCelda(idx) {
     if (turno !== YO) return;
     if (!esMovimientoValido(tablero, idx)) return;
 
-    // Turno del jugador
     tablero[idx] = YO;
     renderTablero();
 
     let resultado = obtenerGanador(tablero);
     if (resultado) { finalizarPartida(resultado); return; }
 
-    // Turno CPU — SÍNCRONO
     bloqueado = true;
     turno = CPU;
     actualizarTurnoUI();
@@ -322,7 +322,7 @@ function jugarCelda(idx) {
 }
 
 function finalizarPartida(resultado) {
-    // EMPATE → reiniciar ciclo desde ronda 1
+    // EMPATE → reiniciar ciclo
     if (resultado.empate) {
         const superadas = rondaActual - 1;
         rondaActual = 1;
@@ -337,18 +337,18 @@ function finalizarPartida(resultado) {
 
     // GANÓ EL JUGADOR
     if (resultado.ganador === YO) {
-        // Resaltar la línea ganadora brevemente
+        // Resaltar la línea ganadora
         resaltarLineaGanadora(resultado.linea, YO);
 
         if (rondaActual >= RONDAS_POR_CICLO) {
-            // Completó el ciclo
             partidaTerminada = true;
             bloqueado = false;
             juegoActivo = false;
             completarCiclo();
         } else {
-            // Auto-avanzar SIN interrupción a la siguiente ronda
+            // Auto-avance: sube de ronda y avisa con flash
             rondaActual++;
+            mostrarFlash(`¡Ganaste! Ronda ${rondaActual}`);
             resetTablero();
             juegoActivo = true;
             actualizarInfoUI();
