@@ -3,6 +3,10 @@
 //  ------------------------------------------------------------
 //  FLUJO 100% SÍNCRONO. Sin setTimeout, sin requestAnimationFrame.
 //  La CPU juega inmediatamente después del jugador.
+//
+//  Overlays estilo Dino:
+//    - Start: al cargar la app, invita a jugar.
+//    - Fin:   al terminar, muestra resultado y stats.
 // ============================================================
 
 'use strict';
@@ -28,12 +32,14 @@ let tablero = Array(9).fill(null);
 let turno = YO;
 let partidaTerminada = false;
 let bloqueado = false;
+let juegoActivo = false;           // false hasta pulsar "Empezar"
 let racha = 0;
 let record = 0;
 let ganadas = 0;
 let perdidas = 0;
 let empates = 0;
-let monedasGanadas = 0;
+let monedasGanadas = 0;            // histórico
+let monedasEstaPartida = 0;        // solo la partida en curso
 let nivelAnterior = 1;
 let toastTimeout = null;
 let usuarioActual = null;
@@ -128,7 +134,6 @@ async function idbSet(key, value) {
     } catch (e) { /* silencioso */ }
 }
 
-// NUNCA devuelve null → el juego funciona también como invitado
 function claveEstado() {
     const codigo = (usuarioActual && usuarioActual.codigo) ? usuarioActual.codigo : 'invitado';
     return 'estado_' + codigo;
@@ -180,21 +185,18 @@ function multiplicadorRecompensa() {
 // ============================================================
 //  LÓGICA
 // ============================================================
-function limpiarTablero() {
+function resetTablero() {
     tablero = Array(9).fill(null);
     turno = YO;
     partidaTerminada = false;
     bloqueado = false;
 
-    // Quitar resaltados de partida anterior
     document.querySelectorAll('.tr-celda').forEach(c => {
         c.classList.remove('ganadora', 'perdedora');
     });
 
     renderTablero();
     actualizarTurnoUI();
-    const r = document.getElementById('trResultado');
-    if (r) r.hidden = true;
 }
 
 function esMovimientoValido(t, i) {
@@ -316,16 +318,11 @@ function elegirJugadaCPU() {
 }
 
 // ============================================================
-//  FLUJO DE PARTIDA — 100% SÍNCRONO
+//  FLUJO DE PARTIDA
 // ============================================================
 function jugarCelda(idx) {
-    // Si la partida terminó, un click reinicia el juego inmediatamente
-    if (partidaTerminada) {
-        limpiarTablero();
-        actualizarNivelUI();
-        return;
-    }
-
+    if (!juegoActivo) return;
+    if (partidaTerminada) return;
     if (bloqueado) return;
     if (turno !== YO) return;
     if (!esMovimientoValido(tablero, idx)) return;
@@ -335,10 +332,7 @@ function jugarCelda(idx) {
     renderTablero();
 
     let resultado = obtenerGanador(tablero);
-    if (resultado) {
-        finalizarPartida(resultado);
-        return;
-    }
+    if (resultado) { finalizarPartida(resultado); return; }
 
     // === Turno de la CPU — INMEDIATO, sin setTimeout ===
     bloqueado = true;
@@ -355,12 +349,8 @@ function jugarCelda(idx) {
     renderTablero();
 
     resultado = obtenerGanador(tablero);
-    if (resultado) {
-        finalizarPartida(resultado);
-        return;
-    }
+    if (resultado) { finalizarPartida(resultado); return; }
 
-    // Devolver turno al jugador
     turno = YO;
     bloqueado = false;
     actualizarTurnoUI();
@@ -370,14 +360,16 @@ function jugarCelda(idx) {
 function finalizarPartida(resultado) {
     partidaTerminada = true;
     bloqueado = false;
+    juegoActivo = false;
 
-    const resultadoEl = document.getElementById('trResultado');
-    let tipo = '', texto = '', icono = '';
+    let tipo = 'empate';
+    let titulo = 'Empate';
+    let subtitulo = 'Nadie ganó esta vez.';
+    let icono = 'equal';
+    let botonTexto = 'Reintentar';
+    let botonIcono = 'rotate-ccw';
 
     if (resultado.empate) {
-        tipo = 'empate';
-        texto = 'Empate';
-        icono = 'equal';
         empates++;
     } else if (resultado.ganador === YO) {
         tipo = 'ganaste';
@@ -386,29 +378,30 @@ function finalizarPartida(resultado) {
         if (racha > record) record = racha;
         const mult = multiplicadorRecompensa();
         const recompensa = MONEDAS_BASE * mult;
-        texto = mult > 1
-            ? `Ganaste · +${recompensa} (x${mult})`
-            : `Ganaste · +${recompensa}`;
+        monedasEstaPartida += recompensa;
+        monedasGanadas += recompensa;
+
+        titulo = '¡Ganaste!';
+        subtitulo = mult > 1
+            ? `Racha ×${racha}. ¡Vas en racha x${mult}!`
+            : `Racha ×${racha}. ¡Sigue así!`;
         icono = 'trophy';
+        botonTexto = 'Continuar';
+        botonIcono = 'arrow-right';
 
         otorgarMonedas(recompensa, mult);
-        monedasGanadas += recompensa;
     } else if (resultado.ganador === CPU) {
         tipo = 'perdiste';
         perdidas++;
         racha = 0;
-        texto = 'Perdiste · racha reiniciada';
+        titulo = '¡Perdiste!';
+        subtitulo = 'La racha se reinició. ¡Intenta de nuevo!';
         icono = 'x';
+        botonTexto = 'Reintentar';
+        botonIcono = 'rotate-ccw';
     }
 
-    // 1) Actualizar UI base PRIMERO (renderTablero limpia clases)
-    actualizarTurnoUI();
-    actualizarStatsUI();
-    actualizarBadgeRacha();
-    actualizarNivelUI();
-    renderTablero();
-
-    // 2) AHORA resaltar la línea ganadora (después de renderTablero)
+    // Pintar la línea ganadora (antes del overlay)
     if (resultado.linea) {
         resultado.linea.forEach(i => {
             const celda = document.querySelector(`.tr-celda[data-idx="${i}"]`);
@@ -419,14 +412,27 @@ function finalizarPartida(resultado) {
         });
     }
 
-    // 3) Píldora de resultado
-    if (resultadoEl) {
-        resultadoEl.hidden = false;
-        resultadoEl.className = 'tr-resultado ' + tipo;
-        resultadoEl.innerHTML = `<i data-lucide="${icono}"></i><span>${texto}</span>`;
-        if (window.lucide) window.lucide.createIcons();
+    // Actualizar UI base
+    actualizarTurnoUI();
+    actualizarStatsUI();
+    actualizarBadgeRacha();
+    actualizarNivelUI();
+    renderTablero();
+    // Volver a pintar la línea ganadora (renderTablero limpia clases)
+    if (resultado.linea) {
+        resultado.linea.forEach(i => {
+            const celda = document.querySelector(`.tr-celda[data-idx="${i}"]`);
+            if (celda) {
+                celda.classList.remove('deshabilitada');
+                celda.classList.add(resultado.ganador === YO ? 'ganadora' : 'perdedora');
+            }
+        });
     }
 
+    // Overlay de fin
+    mostrarOverlayFin(tipo, titulo, subtitulo, icono, botonTexto, botonIcono);
+
+    // Toast de nivel nuevo
     const nivelNuevo = nivelDificultad();
     if (nivelNuevo > nivelAnterior) {
         toast(`¡Nivel ${nivelNuevo} desbloqueado!`, 'success');
@@ -436,12 +442,64 @@ function finalizarPartida(resultado) {
     guardarEstado();
 }
 
+function mostrarOverlayFin(tipo, titulo, subtitulo, icono, botonTexto, botonIcono) {
+    // Título y subtítulo
+    document.getElementById('trFinTitulo').textContent = titulo;
+    document.getElementById('trFinSubtitulo').textContent = subtitulo;
+
+    // Icono del encabezado
+    const iconoEl = document.getElementById('trFinIcono');
+    iconoEl.className = 'tr-overlay-icono tr-overlay-icono-' + tipo;
+    iconoEl.innerHTML = `<i data-lucide="${icono}"></i>`;
+
+    // Stats
+    document.getElementById('trFinRacha').textContent   = racha;
+    document.getElementById('trFinRecord').textContent  = record;
+    document.getElementById('trFinGanadas').textContent = ganadas;
+
+    const monedasFila = document.getElementById('trFinMonedasFila');
+    const monedasEl   = document.getElementById('trFinMonedas');
+    if (monedasEstaPartida > 0) {
+        monedasFila.hidden = false;
+        monedasEl.textContent = `+${monedasEstaPartida}`;
+    } else {
+        monedasFila.hidden = true;
+    }
+
+    // Botón
+    document.getElementById('trBtnReintentarTexto').textContent = botonTexto;
+    const btnIconoEl = document.getElementById('trBtnReintentarIcono');
+    if (btnIconoEl) btnIconoEl.setAttribute('data-lucide', botonIcono);
+
+    // Mostrar overlay
+    document.getElementById('trOverlayFin').hidden = false;
+
+    if (window.lucide) window.lucide.createIcons();
+}
+
 function otorgarMonedas(cantidad, mult) {
     const api = API();
     if (!api || typeof api.canjear !== 'function') return;
     const desc = mult > 1 ? `Victoria x${mult} (racha ${racha})` : 'Victoria';
     Promise.resolve(api.canjear('grid-3x3', APP_ID, desc, cantidad))
         .catch(e => console.warn('[Tres en Raya] No se pudieron dar monedas:', e));
+}
+
+// ============================================================
+//  INICIAR PARTIDA / REINICIAR
+// ============================================================
+function empezarPartida() {
+    resetTablero();
+    monedasEstaPartida = 0;
+    juegoActivo = true;
+
+    document.getElementById('trOverlayStart').hidden = true;
+    document.getElementById('trOverlayFin').hidden = true;
+
+    actualizarNivelUI();
+    actualizarStatsUI();
+    actualizarBadgeRacha();
+    if (window.lucide) window.lucide.createIcons();
 }
 
 // ============================================================
@@ -454,7 +512,9 @@ function renderTablero() {
 
         celda.classList.remove('ocupada', 'deshabilitada');
         if (valor !== null) celda.classList.add('ocupada');
-        if (bloqueado || partidaTerminada) celda.classList.add('deshabilitada');
+        if (bloqueado || partidaTerminada || !juegoActivo) {
+            celda.classList.add('deshabilitada');
+        }
 
         celda.textContent = '';
 
@@ -474,7 +534,10 @@ function renderTablero() {
 function actualizarTurnoUI() {
     const el = document.getElementById('trInfoTurno');
     if (!el) return;
-    if (partidaTerminada) {
+    if (!juegoActivo) {
+        el.innerHTML = '<i data-lucide="circle-dot"></i><span>Sin empezar</span>';
+        el.classList.remove('cpu');
+    } else if (partidaTerminada) {
         el.innerHTML = '<i data-lucide="flag"></i><span>Terminada</span>';
         el.classList.remove('cpu');
     } else if (turno === YO) {
@@ -549,14 +612,15 @@ async function inicializar() {
     // 2) Estado persistido
     try { await cargarEstado(); } catch (e) { /* silencioso */ }
 
-    // 3) Pintar UI inicial
+    // 3) Pintar UI inicial (sin empezar partida)
     nivelAnterior = nivelDificultad();
     actualizarStatsUI();
     actualizarBadgeRacha();
-    limpiarTablero();
+    resetTablero();
+    actualizarTurnoUI();
     actualizarNivelUI();
 
-    // 4) Listeners — SIEMPRE, antes de cualquier salida anticipada.
+    // 4) Listeners de celdas — siempre
     document.querySelectorAll('.tr-celda').forEach(celda => {
         celda.addEventListener('click', () => {
             const idx = parseInt(celda.dataset.idx, 10);
@@ -565,10 +629,14 @@ async function inicializar() {
         });
     });
 
-    // 5) Debug
+    // 5) Listeners de botones
+    document.getElementById('trBtnEmpezar')?.addEventListener('click', empezarPartida);
+    document.getElementById('trBtnReintentar')?.addEventListener('click', empezarPartida);
+
+    // 6) Debug
     window.__debug = () => ({
         tablero: tablero.slice(),
-        turno, bloqueado, partidaTerminada,
+        turno, bloqueado, partidaTerminada, juegoActivo,
         racha, ganadas, usuarioActual, inicializado
     });
 
