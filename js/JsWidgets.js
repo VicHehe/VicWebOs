@@ -90,15 +90,4 @@ const WIDGETS_DISPONIBLES = [
     espacio: 2,
     monedas: 20
 },
-{
-    id: 'hormiguero',
-    nombre: 'Hormiguero',
-    icono: 'bug',
-    ruta: 'Widgets/hormiguero/index.html',
-    descripcion: 'Colonia de hormigas viva. Depende del clima y la hora real.',
-    categoria: 'Entretenimiento',
-    esBase: false,
-    espacio: 4,
-    monedas: 25
-}
 ];
