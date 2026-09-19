@@ -2,7 +2,8 @@
 //  Golpea el Topo — Whack-a-mole con foto de perfil
 //  ------------------------------------------------------------
 //  Los topos son la foto del usuario (o su inicial si no tiene).
-//  3 dificultades: fácil (1 mon), media (2 mon), difícil (4 mon).
+//  3 dificultades: fácil (0.5 mon), media (1 mon), difícil (2 mon).
+//  Tope de monedas por partida para no romper la economía.
 //  Partidas de 30 segundos. Recompensa al final.
 //
 //  IMPORTANTE: sin setTimeout. Todo el timing se hace con
@@ -21,6 +22,9 @@ const DURACION_MS = 30000;   // 30 segundos
 const MAX_HOYOS = 9;
 
 // Configuración por dificultad
+// El tope de monedas existe para que una partida excepcional no
+// rompa la economía. Difícil sigue siendo el más rentable pero
+// ya no escala infinitamente.
 const DIFICULTADES = {
     facil: {
         nombre: 'Fácil',
@@ -28,7 +32,8 @@ const DIFICULTADES = {
         spawnMin: 700,
         spawnMax: 1100,
         maxSimultaneos: 1,
-        monedasPorTopo: 1
+        monedasPorTopo: 0.5,     // 1 moneda cada 2 topos
+        topeMonedas: 15
     },
     media: {
         nombre: 'Media',
@@ -36,7 +41,8 @@ const DIFICULTADES = {
         spawnMin: 500,
         spawnMax: 800,
         maxSimultaneos: 1,
-        monedasPorTopo: 2
+        monedasPorTopo: 1,
+        topeMonedas: 30
     },
     dificil: {
         nombre: 'Difícil',
@@ -44,7 +50,8 @@ const DIFICULTADES = {
         spawnMin: 300,
         spawnMax: 550,
         maxSimultaneos: 2,
-        monedasPorTopo: 4
+        monedasPorTopo: 2,
+        topeMonedas: 50
     }
 };
 
@@ -309,8 +316,6 @@ function golpearHoyo(idx) {
     const hoyo = document.querySelector(`.wm-hoyo[data-idx="${idx}"]`);
     if (hoyo) {
         hoyo.classList.add('golpe');
-        // el efecto visual se maneja por CSS; removemos clase tras la animación
-        // con un listener de animationend (una vez por evento)
         const cara = hoyo.querySelector('.wm-topo-cara');
         if (cara) {
             const quitar = () => {
@@ -342,7 +347,10 @@ function terminarPartida() {
         }
     }
 
-    const monedas = aciertos * config.monedasPorTopo;
+    // Cálculo con tope: multiplicador × aciertos, limitado por config.topeMonedas
+    const monedasBrutas = Math.floor(aciertos * config.monedasPorTopo);
+    const monedas = Math.min(monedasBrutas, config.topeMonedas);
+
     const esRecord = aciertos > record;
     if (esRecord) {
         record = aciertos;
