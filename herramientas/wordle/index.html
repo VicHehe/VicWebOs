@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Wordle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="wd-container">
+
+        <header class="wd-header">
+            <div class="wd-logo">
+                <div class="wd-logo-mark">
+                    <i data-lucide="type"></i>
+                </div>
+                <div class="wd-logo-text">
+                    <h1>Wordle</h1>
+                    <p id="wdUserBadge">—</p>
+                </div>
+            </div>
+
+            <div class="wd-stats">
+                <div class="wd-stat">
+                    <span class="wd-stat-label">Ganadas</span>
+                    <span class="wd-stat-valor" id="wdStatGanadas">0</span>
+                </div>
+                <div class="wd-stat">
+                    <span class="wd-stat-label">Racha</span>
+                    <span class="wd-stat-valor" id="wdStatRacha">0</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="wd-main">
+            <div class="wd-grid" id="wdGrid"></div>
+            <div class="wd-msg" id="wdMsg"></div>
+        </main>
+
+        <div class="wd-teclado" id="wdTeclado"></div>
+
+        <footer class="wd-footer">
+            <button class="wd-btn-sec" id="wdBtnNueva" title="Nueva palabra">
+                <i data-lucide="rotate-ccw"></i>
+                <span>Nueva palabra</span>
+            </button>
+        </footer>
+
+    </div>
+
+    <!-- Overlay fin de partida -->
+    <div class="wd-overlay" id="wdOverlayFin" hidden>
+        <div class="wd-overlay-card">
+            <div class="wd-overlay-icono" id="wdFinIcono">
+                <i data-lucide="trophy"></i>
+            </div>
+            <h2 id="wdFinTitulo">¡Ganaste!</h2>
+            <p id="wdFinSubtitulo">Adivinaste la palabra.</p>
+
+            <div class="wd-resumen">
+                <div class="wd-resumen-fila">
+                    <span class="wd-resumen-label">Palabra</span>
+                    <span class="wd-resumen-valor wd-resumen-palabra" id="wdFinPalabra">—</span>
+                </div>
+                <div class="wd-resumen-fila">
+                    <span class="wd-resumen-label">Intentos</span>
+                    <span class="wd-resumen-valor" id="wdFinIntentos">0/6</span>
+                </div>
+                <div class="wd-resumen-fila wd-resumen-destacada" id="wdFinMonedasFila">
+                    <span class="wd-resumen-label">
+                        <i data-lucide="coins"></i>
+                        Recompensa
+                    </span>
+                    <span class="wd-resumen-valor wd-resumen-monedas" id="wdFinMonedas">+5</span>
+                </div>
+            </div>
+
+            <button class="wd-btn-primario" id="wdBtnJugarOtra">
+                <i data-lucide="rotate-ccw"></i>
+                <span>Jugar otra vez</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="wd-toast" id="wdToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
