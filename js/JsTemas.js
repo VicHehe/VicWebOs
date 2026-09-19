@@ -16,13 +16,12 @@
 //    25  → textura + efectos combinados, artesanía
 //    30  → flagship: animación en vivo + múltiples capas
 //
-//  ORGANIZACIÓN (6 categorías, mínimo 4 temas cada una):
-//    Sistema     → los 4 esenciales (violeta es el default)
-//    Cálidos     → paletas cálidas (rojo, dorado, naranjo)
-//    Oscuros     → dark mode sin efectos especiales
-//    Retro       → estéticas de décadas pasadas
-//    Formales    → OS-like, institucionales
-//    Especiales  → flagships con animaciones y ediciones únicas
+//  ORGANIZACIÓN POR AFINIDAD TEMÁTICA:
+//    Básicos     → recolors simples, light mode. La entrada del sistema.
+//    Oscuros     → dark mode simple, sin decoración.
+//    Formales    → para trabajar, elegantes, OS-like.
+//    Retro       → referencias a décadas pasadas.
+//    Especiales  → flagships atmosféricos con efectos visuales.
 //
 //  REGLA DE ORO: cada salto de precio se tiene que VER en la pantalla.
 // ============================================================
@@ -30,14 +29,16 @@
 const TEMAS_DISPONIBLES = [
 
     // ============================================================
-    //  SISTEMA — Esenciales, base del OS
+    //  BÁSICOS — Recolors simples, light mode
+    //  La entrada. Todos comparten la misma estructura :root
+    //  sin efectos adicionales.
     // ============================================================
     {
         id: 'violeta',
         nombre: 'Violeta Clásico',
         icono: 'palette',
         descripcion: 'El tema por defecto. Fondo blanco, violeta clásico.',
-        categoria: 'Sistema',
+        categoria: 'Básicos',
         esBase: true,
         ruta: 'Temas/violeta.css',
         espacio: 0,
@@ -56,7 +57,7 @@ const TEMAS_DISPONIBLES = [
         nombre: 'Rosa Pastel',
         icono: 'flower-2',
         descripcion: 'Tonos rosados suaves y cálidos.',
-        categoria: 'Sistema',
+        categoria: 'Básicos',
         ruta: 'Temas/rosa.css',
         espacio: 2,
         monedas: 0,
@@ -74,7 +75,7 @@ const TEMAS_DISPONIBLES = [
         nombre: 'Océano',
         icono: 'waves',
         descripcion: 'Azules profundos, tipo mar.',
-        categoria: 'Sistema',
+        categoria: 'Básicos',
         ruta: 'Temas/oceano.css',
         espacio: 2,
         monedas: 0,
@@ -92,7 +93,7 @@ const TEMAS_DISPONIBLES = [
         nombre: 'Bosque',
         icono: 'trees',
         descripcion: 'Verdes naturales y frescos.',
-        categoria: 'Sistema',
+        categoria: 'Básicos',
         ruta: 'Temas/bosque.css',
         espacio: 2,
         monedas: 0,
@@ -105,16 +106,12 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFFFF'
         }
     },
-
-    // ============================================================
-    //  CÁLIDOS — Paletas cálidas, rojos, dorados, naranjos
-    // ============================================================
     {
         id: 'atardecer',
         nombre: 'Atardecer',
         icono: 'sunset',
         descripcion: 'Naranjas y ámbar cálidos.',
-        categoria: 'Cálidos',
+        categoria: 'Básicos',
         ruta: 'Temas/atardecer.css',
         espacio: 2,
         monedas: 0,
@@ -132,7 +129,7 @@ const TEMAS_DISPONIBLES = [
         nombre: 'Rojizo',
         icono: 'flame',
         descripcion: 'Rojo clásico, directo y cálido.',
-        categoria: 'Cálidos',
+        categoria: 'Básicos',
         ruta: 'Temas/rojizo.css',
         espacio: 2,
         monedas: 0,
@@ -150,7 +147,7 @@ const TEMAS_DISPONIBLES = [
         nombre: 'Golden',
         icono: 'crown',
         descripcion: 'Dorado y amarillo cálido, elegancia luminosa.',
-        categoria: 'Cálidos',
+        categoria: 'Básicos',
         ruta: 'Temas/golden.css',
         espacio: 2,
         monedas: 0,
@@ -163,27 +160,10 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFFFF'
         }
     },
-    {
-        id: 'pumkin',
-        nombre: 'Pumkin',
-        icono: 'ghost',
-        descripcion: 'Naranjo calabaza y morado profundo sobre fondo oscuro.',
-        categoria: 'Cálidos',
-        ruta: 'Temas/pumkin.css',
-        espacio: 2,
-        monedas: 0,
-        colores: {
-            '--violet-100': '#3D1F3A',
-            '--violet-300': '#A0508A',
-            '--violet-500': '#FF7B1F',
-            '--bg':         '#0D0610',
-            '--bg-alt':     '#1A1020',
-            '--white':      '#1A1020'
-        }
-    },
 
     // ============================================================
-    //  OSCUROS — Dark mode puro, sin efectos especiales
+    //  OSCUROS — Dark mode simple, sin decoración
+    //  Base oscura, distintos acentos. Sin efectos visuales.
     // ============================================================
     {
         id: 'noche',
@@ -224,7 +204,7 @@ const TEMAS_DISPONIBLES = [
     {
         id: 'oficina-dark',
         nombre: 'Oficina Dark',
-        icono: 'briefcase',
+        icono: 'building-2',
         descripcion: 'La versión nocturna de Oficina. Negro formal, bordes grises. Para trabajar de noche.',
         categoria: 'Oscuros',
         ruta: 'Temas/oficina-dark.css',
@@ -257,9 +237,87 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#161b22'
         }
     },
+    {
+        id: 'pumkin',
+        nombre: 'Pumkin',
+        icono: 'ghost',
+        descripcion: 'Naranjo calabaza y morado profundo sobre fondo oscuro.',
+        categoria: 'Oscuros',
+        ruta: 'Temas/pumkin.css',
+        espacio: 2,
+        monedas: 0,
+        colores: {
+            '--violet-100': '#3D1F3A',
+            '--violet-300': '#A0508A',
+            '--violet-500': '#FF7B1F',
+            '--bg':         '#0D0610',
+            '--bg-alt':     '#1A1020',
+            '--white':      '#1A1020'
+        }
+    },
 
     // ============================================================
-    //  RETRO — Estéticas de décadas pasadas
+    //  FORMALES — Para trabajar, elegantes, OS-like
+    //  Vibra profesional, limpia, sin estridencias.
+    // ============================================================
+    {
+        id: 'oficina',
+        nombre: 'Oficina',
+        icono: 'briefcase',
+        descripcion: 'Formal y minimalista. Gris pizarra, bordes finos. Para trabajar en serio.',
+        categoria: 'Formales',
+        ruta: 'Temas/oficina.css',
+        espacio: 2,
+        monedas: 0,
+        colores: {
+            '--violet-100': '#E4E6EA',
+            '--violet-300': '#A8AEB8',
+            '--violet-500': '#4A5260',
+            '--bg':         '#E8E8E5',
+            '--bg-alt':     '#D8D8D4',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
+        id: 'ventanas',
+        nombre: 'Ventanas',
+        icono: 'app-window',
+        descripcion: 'Windows de barrio. Azul Fluent, esquinas suaves y chrome de ventana.',
+        categoria: 'Formales',
+        ruta: 'Temas/ventanas.css',
+        espacio: 4,
+        monedas: 10,
+        colores: {
+            '--violet-100': '#D6E8F7',
+            '--violet-300': '#7FB8E6',
+            '--violet-500': '#0078D4',
+            '--bg':         '#F3F3F3',
+            '--bg-alt':     '#EAEAEA',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
+        id: 'celeste',
+        nombre: 'Celeste Nublado',
+        icono: 'cloud',
+        descripcion: 'Cielo pastel grisáceo con nubes suaves vectoriales.',
+        categoria: 'Formales',
+        ruta: 'Temas/celeste.css',
+        espacio: 4,
+        monedas: 15,
+        colores: {
+            '--violet-100': '#DDE9F2',
+            '--violet-300': '#9CB8CD',
+            '--violet-500': '#5E84A0',
+            '--bg':         '#E7EDF3',
+            '--bg-alt':     '#CADEEF',
+            '--white':      '#FFFFFF'
+        }
+    },
+
+    // ============================================================
+    //  RETRO — Referencias a décadas pasadas
+    //  Cada uno evoca una época concreta.
     // ============================================================
     {
         id: 'hacker',
@@ -335,83 +393,8 @@ const TEMAS_DISPONIBLES = [
     },
 
     // ============================================================
-    //  FORMALES — OS-like, institucionales, elegantes
-    // ============================================================
-    {
-        id: 'oficina',
-        nombre: 'Oficina',
-        icono: 'building-2',
-        descripcion: 'Formal y minimalista. Gris pizarra, bordes finos. Para trabajar en serio.',
-        categoria: 'Formales',
-        ruta: 'Temas/oficina.css',
-        espacio: 2,
-        monedas: 0,
-        colores: {
-            '--violet-100': '#E4E6EA',
-            '--violet-300': '#A8AEB8',
-            '--violet-500': '#4A5260',
-            '--bg':         '#E8E8E5',
-            '--bg-alt':     '#D8D8D4',
-            '--white':      '#FFFFFF'
-        }
-    },
-    {
-        id: 'ventanas',
-        nombre: 'Ventanas',
-        icono: 'app-window',
-        descripcion: 'Windows de barrio. Azul Fluent, esquinas suaves y chrome de ventana.',
-        categoria: 'Formales',
-        ruta: 'Temas/ventanas.css',
-        espacio: 4,
-        monedas: 10,
-        colores: {
-            '--violet-100': '#D6E8F7',
-            '--violet-300': '#7FB8E6',
-            '--violet-500': '#0078D4',
-            '--bg':         '#F3F3F3',
-            '--bg-alt':     '#EAEAEA',
-            '--white':      '#FFFFFF'
-        }
-    },
-    {
-        id: 'celeste',
-        nombre: 'Celeste Nublado',
-        icono: 'cloud',
-        descripcion: 'Cielo pastel grisáceo con nubes suaves vectoriales.',
-        categoria: 'Formales',
-        ruta: 'Temas/celeste.css',
-        espacio: 4,
-        monedas: 15,
-        colores: {
-            '--violet-100': '#DDE9F2',
-            '--violet-300': '#9CB8CD',
-            '--violet-500': '#5E84A0',
-            '--bg':         '#E7EDF3',
-            '--bg-alt':     '#CADEEF',
-            '--white':      '#FFFFFF'
-        }
-    },
-    {
-        id: 'libro',
-        nombre: 'Libro de Historia',
-        icono: 'book-open',
-        descripcion: 'Cuero, papel envejecido y lomo de encuadernación. Para los que atesoran el pasado.',
-        categoria: 'Formales',
-        ruta: 'Temas/libro.css',
-        espacio: 4,
-        monedas: 25,
-        colores: {
-            '--violet-100': '#3E2C1C',
-            '--violet-300': '#8B6B4A',
-            '--violet-500': '#C49A6C',
-            '--bg':         '#1A120A',
-            '--bg-alt':     '#2A1F16',
-            '--white':      '#2A1F16'
-        }
-    },
-
-    // ============================================================
-    //  ESPECIALES — Flagships, ediciones únicas
+    //  ESPECIALES — Flagships atmosféricos
+    //  Efectos visuales, texturas, animaciones. Lo premium.
     // ============================================================
     {
         id: 'consentido',
@@ -465,6 +448,24 @@ const TEMAS_DISPONIBLES = [
             '--bg':         '#050510',
             '--bg-alt':     '#0F0F1E',
             '--white':      '#0A0A15'
+        }
+    },
+    {
+        id: 'libro',
+        nombre: 'Libro de Historia',
+        icono: 'book-open',
+        descripcion: 'Cuero, papel envejecido y lomo de encuadernación. Para los que atesoran el pasado.',
+        categoria: 'Especiales',
+        ruta: 'Temas/libro.css',
+        espacio: 4,
+        monedas: 25,
+        colores: {
+            '--violet-100': '#3E2C1C',
+            '--violet-300': '#8B6B4A',
+            '--violet-500': '#C49A6C',
+            '--bg':         '#1A120A',
+            '--bg-alt':     '#2A1F16',
+            '--white':      '#2A1F16'
         }
     },
     {
