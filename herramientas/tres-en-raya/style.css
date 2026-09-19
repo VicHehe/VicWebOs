@@ -1,8 +1,8 @@
 /* ================================================
    Tres en Raya — Juego clásico con dificultad
    escalonada por racha.
-   Layout con CSS Grid: el tablero ocupa el espacio
-   sobrante con aspect-ratio cuadrado.
+   X y O dibujadas con CSS puro (nada de SVG ni fuentes).
+   Layout con CSS Grid: tablero en 1fr con aspect-ratio.
    Compatible con temas (var() + fallbacks).
    ================================================ */
 
@@ -25,17 +25,16 @@ body {
 [data-lucide] { width: 18px; height: 18px; stroke-width: 2; flex-shrink: 0; }
 
 /* ============================================================
-   LAYOUT: grid de 6 filas.
-   Filas: header / info / tablero(1fr) / resultado / stats / acciones
+   LAYOUT: grid de 5 filas (sin acciones)
    ============================================================ */
 .tr-container {
     height: 100dvh;
     max-width: 640px;
     margin: 0 auto;
-    padding: 16px 20px 14px;
+    padding: 16px 20px 18px;
     display: grid;
-    grid-template-rows: auto auto 1fr auto auto auto;
-    gap: 12px;
+    grid-template-rows: auto auto 1fr auto auto;
+    gap: 14px;
     overflow: hidden;
 }
 
@@ -47,7 +46,6 @@ body {
     gap: 12px;
     min-width: 0;
 }
-
 .tr-logo {
     display: flex;
     align-items: center;
@@ -67,7 +65,6 @@ body {
     flex-shrink: 0;
 }
 .tr-logo-mark [data-lucide] { width: 19px; height: 19px; stroke-width: 2.5; }
-
 .tr-logo-text { min-width: 0; }
 .tr-logo-text h1 {
     font-size: 17px;
@@ -116,20 +113,16 @@ body {
     border-color: #FDE68A;
     color: #92400E;
 }
-.tr-racha-badge.activa [data-lucide] {
-    color: #F59E0B;
-}
+.tr-racha-badge.activa [data-lucide] { color: #F59E0B; }
 .tr-racha-badge.brillante {
     background: linear-gradient(135deg, #F59E0B, #DC2626);
     border-color: transparent;
     color: white;
     box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
 }
-.tr-racha-badge.brillante [data-lucide] {
-    color: white;
-}
+.tr-racha-badge.brillante [data-lucide] { color: white; }
 
-/* ========== INFO (chips de turno y nivel) ========== */
+/* ========== INFO ========== */
 .tr-info {
     display: flex;
     align-items: center;
@@ -140,7 +133,6 @@ body {
     justify-self: center;
     min-width: 0;
 }
-
 .tr-info-chip {
     display: inline-flex;
     align-items: center;
@@ -163,8 +155,6 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
 }
-
-/* Chip de turno — contraste fuerte en cualquier tema */
 .tr-info-turno {
     background: var(--violet-50, #F5F3FF);
     border: 1.5px solid var(--violet-500, #8B5CF6);
@@ -175,8 +165,6 @@ body {
     border-color: #DC2626;
     color: #DC2626;
 }
-
-/* Chip de nivel — con subtexto de progreso */
 .tr-info-nivel {
     background: var(--gray-100, #F4F4F7);
     border: 1.5px solid var(--gray-300, #D4D4DD);
@@ -227,7 +215,6 @@ body {
     position: relative;
     overflow: hidden;
     touch-action: manipulation;
-    font-family: inherit;
     min-width: 0;
     min-height: 0;
 }
@@ -235,13 +222,8 @@ body {
     border-color: var(--violet-400, #A78BFA);
     background: var(--violet-50, #F5F3FF);
 }
-.tr-celda.ocupada {
-    cursor: default;
-}
-.tr-celda.deshabilitada {
-    cursor: not-allowed;
-    opacity: 0.85;
-}
+.tr-celda.ocupada { cursor: default; }
+.tr-celda.deshabilitada { cursor: not-allowed; opacity: 0.85; }
 .tr-celda.ganadora {
     background: #ECFDF5;
     border-color: #10B981;
@@ -254,35 +236,51 @@ body {
 }
 
 /* ============================================================
-   X y O como TEXTO — sin SVG, sin animaciones frágiles.
-   Garantía absoluta de visibilidad.
+   X y O con CSS puro
    ============================================================ */
+
+/* Contenedor base: 60% de la celda, cuadrado */
 .tr-marca {
-    font-family: 'Nunito', sans-serif;
-    font-weight: 900;
-    line-height: 1;
-    font-size: clamp(28px, 8vw, 68px);
-    user-select: none;
+    position: relative;
+    width: 60%;
+    aspect-ratio: 1 / 1;
     animation: trPop 0.24s cubic-bezier(0.34, 1.4, 0.64, 1);
     display: block;
 }
 
+/* --- X: dos líneas cruzadas --- */
+.tr-marca-x span {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    /* 15% del ancho, mínimo 3px para que se vea bien en móvil */
+    height: max(3px, 15%);
+    background: currentColor;
+    border-radius: 999px;
+    transform-origin: center;
+    transform: translateY(-50%) rotate(45deg);
+}
+.tr-marca-x span:nth-child(2) {
+    transform: translateY(-50%) rotate(-45deg);
+}
 .tr-marca-x {
     color: var(--violet-500, #8B5CF6);
-    /* El ✕ (U+2715) es un poquito más alto que el círculo,
-       ajustamos para que quede visualmente centrado */
-    transform: translateY(-2%);
 }
-.tr-celda.ganadora .tr-marca-x {
-    color: #059669;
-}
+.tr-celda.ganadora .tr-marca-x { color: #059669; }
 
+/* --- O: círculo con borde --- */
 .tr-marca-o {
+    width: 60%;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    border: max(3px, 15%) solid currentColor;
+    /* ↑ usamos % para que escale con el tamaño; max() garantiza mínimo legible */
     color: #EC4899;
+    /* el borde sólido ocupa espacio, lo compensamos un poco */
+    padding: 0;
 }
-.tr-celda.perdedora .tr-marca-o {
-    color: #DC2626;
-}
+.tr-celda.perdedora .tr-marca-o { color: #DC2626; }
 
 @keyframes trPop {
     0% { transform: scale(0.3); opacity: 0; }
@@ -345,13 +343,12 @@ body {
     max-width: 640px;
     min-width: 0;
 }
-
 .tr-stat {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 3px;
-    padding: 8px 4px;
+    padding: 9px 4px;
     background: var(--gray-50, #FAFAFB);
     border: 1.5px solid var(--border, #E8E8EE);
     border-radius: var(--r-md, 12px);
@@ -370,60 +367,12 @@ body {
     max-width: 100%;
 }
 .tr-stat-valor {
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 800;
     color: var(--gray-900, #18181B);
     font-variant-numeric: tabular-nums;
     line-height: 1;
 }
-
-/* ========== ACCIONES ========== */
-.tr-acciones {
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
-    flex-wrap: wrap;
-    min-width: 0;
-}
-
-.tr-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    padding: 10px 16px;
-    border-radius: var(--r-md, 12px);
-    font-family: inherit;
-    font-size: 12.5px;
-    font-weight: 800;
-    cursor: pointer;
-    transition: all 0.15s;
-    touch-action: manipulation;
-    border: none;
-    white-space: nowrap;
-}
-.tr-btn [data-lucide] { width: 14px; height: 14px; }
-
-.tr-btn-sec {
-    background: var(--white, #FFFFFF);
-    border: 1.5px solid var(--border, #E8E8EE);
-    color: var(--gray-700, #3F3F46);
-}
-.tr-btn-sec:hover {
-    background: var(--gray-100, #F4F4F7);
-    border-color: var(--gray-300, #D4D4DD);
-}
-
-.tr-btn-pri {
-    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
-    color: white;
-    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
-}
-.tr-btn-pri:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px var(--accent-shadow-hover, rgba(139,92,246,0.38));
-}
-.tr-btn-pri:active { transform: translateY(0); }
 
 /* ========== TOAST ========== */
 .tr-toast {
@@ -455,7 +404,7 @@ body {
 
 /* ========== RESPONSIVE ========== */
 @media (max-width: 640px) {
-    .tr-container { padding: 12px 14px 10px; gap: 10px; }
+    .tr-container { padding: 12px 14px 14px; gap: 12px; }
     .tr-logo-mark { width: 34px; height: 34px; border-radius: 10px; }
     .tr-logo-mark [data-lucide] { width: 17px; height: 17px; }
     .tr-logo-text h1 { font-size: 16px; }
@@ -472,18 +421,12 @@ body {
     .tr-resultado [data-lucide] { width: 15px; height: 15px; }
 
     .tr-stats { gap: 5px; }
-    .tr-stat { padding: 7px 3px; }
+    .tr-stat { padding: 8px 3px; }
     .tr-stat-label { font-size: 8.5px; }
-    .tr-stat-valor { font-size: 14px; }
-
-    .tr-acciones { gap: 6px; }
-    .tr-btn { padding: 9px 12px; font-size: 12px; flex: 1; min-width: 0; }
-    .tr-btn span { display: none; }
-    .tr-btn-pri span { display: inline; }
+    .tr-stat-valor { font-size: 15px; }
 }
 
 @media (max-width: 400px) {
-    .tr-btn-sec span { display: none; }
     .tr-stat-label { font-size: 8px; }
-    .tr-stat-valor { font-size: 13px; }
+    .tr-stat-valor { font-size: 14px; }
 }
