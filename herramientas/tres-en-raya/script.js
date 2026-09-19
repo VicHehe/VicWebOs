@@ -7,8 +7,8 @@
 //  Ganar las 3 → +15 monedas y ciclo completado.
 //  Perder o empatar → vuelves a la ronda 1.
 //
-//  Sin toasts, sin notificaciones. Solo la píldora de "toca para
-//  seguir" entre rondas ganadas 1 y 2, y el overlay al final.
+//  Sin interrupciones: al ganar rondas 1 y 2 el tablero
+//  se reinicia automáticamente y se sigue jugando.
 // ============================================================
 
 'use strict';
@@ -27,6 +27,11 @@ const CPU = 'O';
 const NOMBRE_DIFICULTAD = { 1: 'Fácil', 2: 'Media', 3: 'Difícil' };
 const CLASE_DIFICULTAD  = { 1: 'facil', 2: 'media', 3: 'dificil' };
 
+// Probabilidad de jugada aleatoria por dificultad.
+// A mayor probabilidad, más fácil es ganarle a la CPU.
+const AZAR_MEDIA   = 0.40;  // 40 % aleatorio, 60 % estratégico
+const AZAR_DIFICIL = 0.20;  // 20 % aleatorio, 80 % minimax
+
 const LINEAS_GANADORAS = [
     [0, 1, 2], [3, 4, 5], [6, 7, 8],
     [0, 3, 6], [1, 4, 7], [2, 5, 8],
@@ -39,7 +44,6 @@ let turno = YO;
 let partidaTerminada = false;
 let bloqueado = false;
 let juegoActivo = false;
-let esperandoContinuar = false;
 let rondaActual = 1;              // 1..3
 let ciclosCompletados = 0;
 let monedasGanadas = 0;
@@ -121,7 +125,6 @@ async function idbSet(key, value) {
     } catch (e) { /* silencioso */ }
 }
 
-// Clave "v2_" para ignorar datos del sistema viejo
 function claveEstado() {
     const codigo = (usuarioActual && usuarioActual.codigo) ? usuarioActual.codigo : 'invitado';
     return 'v2_' + codigo;
@@ -145,7 +148,6 @@ function guardarEstado() {
 //  DIFICULTAD
 // ============================================================
 function dificultadActual() {
-    // ronda 1 → fácil, ronda 2 → media, ronda 3 → difícil
     return rondaActual;
 }
 
@@ -186,31 +188,48 @@ function celdasVacias(t) {
 }
 
 // ============================================================
-//  CPU — 3 niveles
+//  CPU — 3 niveles con azar controlado
 // ============================================================
+
+// Nivel 1 — Fácil: 100 % aleatorio
 function cpuFacil(t) {
     const v = celdasVacias(t);
     if (!v.length) return -1;
     return v[Math.floor(Math.random() * v.length)];
 }
 
+// Nivel 2 — Media: gana si puede, bloquea si puede,
+// centro/corner si no. Con AZAR_MEDIA de probabilidad de jugar al azar.
 function cpuMedia(t) {
+    if (Math.random() < AZAR_MEDIA) return cpuFacil(t);
+
     const vacias = celdasVacias(t);
     if (!vacias.length) return -1;
 
+    // 1) Ganar si es posible
     for (const i of vacias) {
         const c = t.slice(); c[i] = CPU;
         if (obtenerGanador(c)?.ganador === CPU) return i;
     }
+    // 2) Bloquear al jugador si está por ganar
     for (const i of vacias) {
         const c = t.slice(); c[i] = YO;
         if (obtenerGanador(c)?.ganador === YO) return i;
     }
+    // 3) Centro
     if (t[4] === null) return 4;
+    // 4) Esquina aleatoria
+    const esq = [0, 2, 6, 8].filter(i => t[i] === null);
+    if (esq.length) return esq[Math.floor(Math.random() * esq.length)];
+    // 5) Lo que quede
     return cpuFacil(t);
 }
 
+// Nivel 3 — Difícil: minimax perfecto, con AZAR_DIFICIL
+// de probabilidad de cometer un error no forzado.
 function cpuDificil(t) {
+    if (Math.random() < AZAR_DIFICIL) return cpuFacil(t);
+
     const vacias = celdasVacias(t);
     if (!vacias.length) return -1;
 
@@ -266,12 +285,6 @@ function elegirJugadaCPU() {
 //  FLUJO DE PARTIDA
 // ============================================================
 function jugarCelda(idx) {
-    // Si ganó ronda 1 o 2, el click avanza a la siguiente ronda
-    if (esperandoContinuar) {
-        avanzarRonda();
-        return;
-    }
-
     if (!juegoActivo) return;
     if (partidaTerminada) return;
     if (bloqueado) return;
@@ -309,52 +322,54 @@ function jugarCelda(idx) {
 }
 
 function finalizarPartida(resultado) {
-    partidaTerminada = true;
-    bloqueado = false;
-    juegoActivo = false;
-
+    // EMPATE → reiniciar ciclo desde ronda 1
     if (resultado.empate) {
         const superadas = rondaActual - 1;
         rondaActual = 1;
+        partidaTerminada = true;
+        bloqueado = false;
+        juegoActivo = false;
         actualizarInfoUI();
         renderTablero();
         mostrarOverlayFin('empate', superadas);
         return;
     }
 
+    // GANÓ EL JUGADOR
     if (resultado.ganador === YO) {
+        // Resaltar la línea ganadora brevemente
+        resaltarLineaGanadora(resultado.linea, YO);
+
         if (rondaActual >= RONDAS_POR_CICLO) {
+            // Completó el ciclo
+            partidaTerminada = true;
+            bloqueado = false;
+            juegoActivo = false;
             completarCiclo();
         } else {
-            // Ganó ronda 1 o 2: esperar click para seguir
-            esperandoContinuar = true;
+            // Auto-avanzar SIN interrupción a la siguiente ronda
             rondaActual++;
+            resetTablero();
+            juegoActivo = true;
             actualizarInfoUI();
-            mostrarPildoraContinuar();
+            actualizarTurnoUI();
             renderTablero();
-            resaltarLineaGanadora(resultado.linea, resultado.ganador);
         }
         return;
     }
 
+    // PERDIÓ EL JUGADOR
     if (resultado.ganador === CPU) {
         const superadas = rondaActual - 1;
         rondaActual = 1;
+        partidaTerminada = true;
+        bloqueado = false;
+        juegoActivo = false;
         actualizarInfoUI();
         renderTablero();
-        resaltarLineaGanadora(resultado.linea, resultado.ganador);
+        resaltarLineaGanadora(resultado.linea, CPU);
         mostrarOverlayFin('perdiste', superadas);
     }
-}
-
-function avanzarRonda() {
-    esperandoContinuar = false;
-    ocultarPildoraContinuar();
-    resetTablero();
-    juegoActivo = true;
-    actualizarInfoUI();
-    actualizarTurnoUI();
-    renderTablero();
 }
 
 function completarCiclo() {
@@ -363,8 +378,6 @@ function completarCiclo() {
     otorgarMonedas(RECOMPENSA_CICLO);
     guardarEstado();
     actualizarStatsUI();
-
-    rondaActual = 1;
     actualizarInfoUI();
     renderTablero();
     mostrarOverlayFin('ciclo', RONDAS_POR_CICLO);
@@ -379,10 +392,10 @@ function otorgarMonedas(cantidad) {
 
 function empezarCiclo() {
     rondaActual = 1;
-    esperandoContinuar = false;
-    ocultarPildoraContinuar();
     resetTablero();
     juegoActivo = true;
+    partidaTerminada = false;
+    bloqueado = false;
 
     document.getElementById('trOverlayStart').hidden = true;
     document.getElementById('trOverlayFin').hidden = true;
@@ -404,7 +417,7 @@ function renderTablero() {
 
         celda.classList.remove('ocupada', 'deshabilitada', 'ganadora', 'perdedora');
         if (valor !== null) celda.classList.add('ocupada');
-        if (bloqueado || partidaTerminada || !juegoActivo || esperandoContinuar) {
+        if (bloqueado || partidaTerminada || !juegoActivo) {
             celda.classList.add('deshabilitada');
         }
 
@@ -472,17 +485,6 @@ function actualizarStatsUI() {
     if (monedas) monedas.textContent = monedasGanadas;
 }
 
-function mostrarPildoraContinuar() {
-    document.getElementById('trInfoChips').hidden = true;
-    document.getElementById('trInfoContinuar').hidden = false;
-    if (window.lucide) window.lucide.createIcons();
-}
-
-function ocultarPildoraContinuar() {
-    document.getElementById('trInfoChips').hidden = false;
-    document.getElementById('trInfoContinuar').hidden = true;
-}
-
 // ============================================================
 //  OVERLAY DE FIN
 // ============================================================
@@ -543,7 +545,6 @@ async function inicializar() {
 
     aplicarTemaDelPadre();
 
-    // Usuario (opcional)
     try {
         const api = API();
         usuarioActual = (api && typeof api.obtenerCuenta === 'function')
@@ -566,7 +567,6 @@ async function inicializar() {
     resetTablero();
     renderTablero();
 
-    // Listeners de las celdas
     document.querySelectorAll('.tr-celda').forEach(celda => {
         celda.addEventListener('click', () => {
             const idx = parseInt(celda.dataset.idx, 10);
@@ -575,7 +575,6 @@ async function inicializar() {
         });
     });
 
-    // Botones de los overlays
     document.getElementById('trBtnEmpezar')?.addEventListener('click', empezarCiclo);
     document.getElementById('trBtnReintentar')?.addEventListener('click', empezarCiclo);
 
