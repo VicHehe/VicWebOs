@@ -115,10 +115,10 @@ const RUTAS_HERRAMIENTAS = [
     monedas: 0
 },
 {
-    id: 'wordlhe',
-    nombre: 'Adivin-He',
+    id: 'wordle',                                   // ← ID igual que siempre
+    nombre: 'Adivin-He',                            // ← solo el nombre cambia
     icono: 'type',
-    ruta: 'herramientas/wordle/index.html',
+    ruta: 'herramientas/wordle/index.html',         // ← carpeta igual
     descripcion: 'Adivina la palabra de 5 letras. +5 monedas por victoria.',
     categoria: 'Juegos',
     esBase: false,
