@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Ajedrez</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Librerías de ajedrez -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cm-chessboard@8/src/assets/cm-chessboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chess.js@1.0.0/dist/chess.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-chess-engine@2.4.6/dist/js-chess-engine.min.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="aj-container">
+
+        <header class="aj-header">
+            <div class="aj-logo">
+                <div class="aj-logo-mark">
+                    <i data-lucide="crown"></i>
+                </div>
+                <div class="aj-logo-text">
+                    <h1>Ajedrez</h1>
+                    <p id="ajUserBadge">—</p>
+                </div>
+            </div>
+            <div class="aj-precio-tag" id="ajPrecioTag">
+                <i data-lucide="coins"></i>
+                <span>50</span>
+            </div>
+        </header>
+
+        <div class="aj-selector-dificultad" id="ajSelectorDificultad">
+            <button class="aj-btn-dificultad activo" data-dificultad="media">
+                <i data-lucide="smile"></i>
+                <div>
+                    <span class="aj-dif-nombre">Media</span>
+                    <span class="aj-dif-desc">IA equilibrada</span>
+                </div>
+                <span class="aj-dif-monedas">x1</span>
+            </button>
+            <button class="aj-btn-dificultad" data-dificultad="dificil">
+                <i data-lucide="flame"></i>
+                <div>
+                    <span class="aj-dif-nombre">Difícil</span>
+                    <span class="aj-dif-desc">IA desafiante</span>
+                </div>
+                <span class="aj-dif-monedas">x2</span>
+            </button>
+        </div>
+
+        <div class="aj-layout">
+            <div class="aj-columna-tablero">
+                <div class="aj-tablero-wrapper">
+                    <div id="ajTablero" class="aj-tablero"></div>
+                    <div class="aj-turno-indicador" id="ajTurnoIndicador">
+                        <i data-lucide="circle-dot"></i>
+                        <span>Tu turno</span>
+                    </div>
+                </div>
+                <div class="aj-acciones-partida">
+                    <button class="aj-btn-sec" id="ajBtnNuevaPartida">
+                        <i data-lucide="rotate-ccw"></i>
+                        <span>Nueva partida</span>
+                    </button>
+                    <button class="aj-btn-sec" id="ajBtnRendirse">
+                        <i data-lucide="flag"></i>
+                        <span>Rendirse</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="aj-columna-info">
+                <div class="aj-info-card">
+                    <div class="aj-info-titulo">
+                        <i data-lucide="list"></i>
+                        <span>Movimientos</span>
+                    </div>
+                    <div class="aj-historial" id="ajHistorial">
+                        <div class="aj-historial-vacio">La partida no ha comenzado</div>
+                    </div>
+                </div>
+
+                <div class="aj-info-card">
+                    <div class="aj-info-titulo">
+                        <i data-lucide="coins"></i>
+                        <span>Recompensas</span>
+                    </div>
+                    <div class="aj-recompensas">
+                        <div class="aj-recompensa-fila">
+                            <span>Peón capturado</span>
+                            <span class="aj-recompensa-valor" id="ajMonedasPeon">+0</span>
+                        </div>
+                        <div class="aj-recompensa-fila">
+                            <span>Caballo / Alfil</span>
+                            <span class="aj-recompensa-valor" id="ajMonedasCaballo">+0</span>
+                        </div>
+                        <div class="aj-recompensa-fila">
+                            <span>Torre</span>
+                            <span class="aj-recompensa-valor" id="ajMonedasTorre">+0</span>
+                        </div>
+                        <div class="aj-recompensa-fila">
+                            <span>Dama</span>
+                            <span class="aj-recompensa-valor" id="ajMonedasDama">+0</span>
+                        </div>
+                        <div class="aj-recompensa-fila aj-recompensa-bonus">
+                            <span>Bonus por victoria</span>
+                            <span class="aj-recompensa-valor" id="ajMonedasBonus">+0</span>
+                        </div>
+                        <div class="aj-recompensa-fila aj-recompensa-total">
+                            <span>Total</span>
+                            <span class="aj-recompensa-valor" id="ajMonedasTotal">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="aj-footer">
+            <div class="aj-footer-info">
+                <span id="ajMensaje"></span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Overlay de compra -->
+    <div class="aj-overlay" id="ajOverlayCompra">
+        <div class="aj-overlay-card">
+            <div class="aj-overlay-icono">
+                <i data-lucide="crown"></i>
+            </div>
+            <h2>Desbloquea Ajedrez</h2>
+            <p>Paga una vez y juega para siempre. Gana monedas en cada partida.</p>
+            <div class="aj-precio-grande">
+                <i data-lucide="coins"></i>
+                <span>50</span>
+            </div>
+            <button class="aj-btn-primario" id="ajBtnComprar">
+                <i data-lucide="shopping-cart"></i>
+                <span>Comprar por 50 monedas</span>
+            </button>
+            <div class="aj-status" id="ajCompraStatus"></div>
+        </div>
+    </div>
+
+    <!-- Overlay de fin de partida -->
+    <div class="aj-overlay" id="ajOverlayFin" hidden>
+        <div class="aj-overlay-card">
+            <div class="aj-overlay-icono" id="ajFinIcono">
+                <i data-lucide="trophy"></i>
+            </div>
+            <h2 id="ajFinTitulo">¡Victoria!</h2>
+            <p id="ajFinSubtitulo">Has ganado la partida.</p>
+            <div class="aj-resumen">
+                <div class="aj-resumen-fila">
+                    <span>Piezas capturadas</span>
+                    <span id="ajFinCapturas">0</span>
+                </div>
+                <div class="aj-resumen-fila">
+                    <span>Movimientos</span>
+                    <span id="ajFinMovimientos">0</span>
+                </div>
+                <div class="aj-resumen-fila aj-resumen-total">
+                    <span>Monedas ganadas</span>
+                    <span id="ajFinMonedas">+0</span>
+                </div>
+            </div>
+            <button class="aj-btn-primario" id="ajBtnJugarOtra">
+                <i data-lucide="rotate-ccw"></i>
+                <span>Jugar otra vez</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
