@@ -1499,4 +1499,44 @@ async function inicializar() {
         flattenLayers(); renderCapas(); guardarHistoria();
     });
     document.getElementById('btnCapaEliminar')?.addEventListener('click', () => {
-        if (state.capas.length <= 1) { toast('Debe haber al menos 1
+        if (state.capas.length <= 1) { toast('Debe haber al menos 1 capa', 'error'); return; }
+        state.capas.splice(state.capaActiva, 1);
+        state.capaActiva = Math.min(state.capaActiva, state.capas.length - 1);
+        flattenLayers(); renderCapas(); guardarHistoria();
+    });
+
+    document.getElementById('zoomIn')?.addEventListener('click', () => { const c = wrapperCenter(); zoomAt(c.x, c.y, 1.25); });
+    document.getElementById('zoomOut')?.addEventListener('click', () => { const c = wrapperCenter(); zoomAt(c.x, c.y, 0.8); });
+    document.getElementById('zoomFit')?.addEventListener('click', fitCanvasToWrapper);
+    document.getElementById('zoomReset')?.addEventListener('click', () => {
+        state.zoom = 1;
+        state.panX = (wrapper.clientWidth - lienzo.width) / 2;
+        state.panY = (wrapper.clientHeight - lienzo.height) / 2;
+        applyTransform();
+    });
+
+    document.getElementById('btnAgregarTexto')?.addEventListener('click', agregarTexto);
+    document.getElementById('modalTextoCerrar')?.addEventListener('click', cerrarModalTexto);
+    document.getElementById('btnCancelarTexto')?.addEventListener('click', cerrarModalTexto);
+    document.getElementById('inputTexto')?.addEventListener('keydown', e => {
+        if (e.key === 'Enter') agregarTexto();
+        if (e.key === 'Escape') cerrarModalTexto();
+    });
+
+    document.getElementById('btnAnadirReferencia')?.addEventListener('click', anadirReferencia);
+
+    window.addEventListener('resize', () => {
+        fitCanvasToWrapper();
+        actualizarMinimapa();
+    });
+
+    if (window.lucide) window.lucide.createIcons();
+}
+
+document.addEventListener('DOMContentLoaded', inicializar);
+
+window.addEventListener('pagehide', () => {
+    referencias.forEach(r => {
+        try { URL.revokeObjectURL(r.url); } catch (e) {}
+    });
+});
