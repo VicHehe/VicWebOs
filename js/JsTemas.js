@@ -1,18 +1,22 @@
 // ============================================================
 //  JsTemas.js — Catálogo de TEMAS
 //  ------------------------------------------------------------
-//  ESCALA DE ESPACIO:
-//    0 → base del sistema (violeta)
-//    2 → solo redefine variables :root
-//    4 → añade pseudo-elementos, mask, SVG patterns o texturas
+//  ESCALA DE ESPACIO (solo pares 0 / 2 / 4):
+//    0 → base del sistema
+//    2 → solo redefine variables :root (colores, sombras, radios)
+//    4 → añade pseudo-elementos, mask, SVG patterns, texturas
+//        o animaciones. Tiene "algo más" que colores.
 //
 //  ESCALA DE PRECIO (monedas):
-//    0   → oficiales (siempre disponibles)
-//    5   → variante simple (solo colores, paleta distintiva)
-//    10  → colores + 1-2 detalles propios
-//    15  → efecto visual único (SVG pattern, patrón)
-//    20  → múltiples efectos (mask, pseudo-elementos)
-//    25  → tema muy elaborado (textura + efectos combinados)
+//    0   → oficiales gratuitos (calidad garantizada, siempre disponibles)
+//    5   → entrada: recolor simple sin gracia
+//    10  → recolor icónico o con un detalle propio
+//    15  → efecto visual claro (pattern SVG, scanlines, mask simple)
+//    20  → múltiples efectos (pseudo-elementos, bordes temáticos, animación)
+//    25  → textura + efectos combinados, artesanía
+//    30  → flagship: animación en vivo + múltiples capas + integración
+//
+//  REGLA DE ORO: cada salto de precio se tiene que VER en la pantalla.
 // ============================================================
 
 const TEMAS_DISPONIBLES = [
@@ -159,8 +163,8 @@ const TEMAS_DISPONIBLES = [
             '--violet-100': '#E4E6EA',
             '--violet-300': '#A8AEB8',
             '--violet-500': '#4A5260',
-            '--bg':         '#FAFAF8',
-            '--bg-alt':     '#F2F1EE',
+            '--bg':         '#E8E8E5',
+            '--bg-alt':     '#D8D8D4',
             '--white':      '#FFFFFF'
         }
     },
@@ -168,14 +172,14 @@ const TEMAS_DISPONIBLES = [
         id: 'github-lover',
         nombre: 'Github Lover',
         icono: 'github',
-        descripcion: 'Paleta oficial de GitHub. Una carta de amor al octocat.',
+        descripcion: 'Paleta oficial de GitHub. Contribution graph, azul Primer y verdes merge.',
         categoria: 'Oficiales',
         ruta: 'Temas/github-lover.css',
-        espacio: 2,
+        espacio: 4,
         monedas: 0,
         colores: {
-            '--violet-100': '#DDF4FF',
-            '--violet-300': '#80CCFF',
+            '--violet-100': '#B6E3FF',
+            '--violet-300': '#54AEFF',
             '--violet-500': '#0969DA',
             '--bg':         '#FFFFFF',
             '--bg-alt':     '#F6F8FA',
@@ -187,6 +191,24 @@ const TEMAS_DISPONIBLES = [
     //  COMPRABLES
     // ============================================================
     {
+        id: 'hacker',
+        nombre: 'Hacker',
+        icono: 'terminal',
+        descripcion: 'Fondo negro, verde terminal. Directo al grano.',
+        categoria: 'Comprables',
+        ruta: 'Temas/hacker.css',
+        espacio: 2,
+        monedas: 5,
+        colores: {
+            '--violet-100': '#0F2F0F',
+            '--violet-300': '#1F6F1F',
+            '--violet-500': '#00FF41',
+            '--bg':         '#000000',
+            '--bg-alt':     '#0A0E0A',
+            '--white':      '#0A0E0A'
+        }
+    },
+    {
         id: 'vapor',
         nombre: 'Vapor',
         icono: 'sunset',
@@ -194,7 +216,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Comprables',
         ruta: 'Temas/vapor.css',
         espacio: 2,
-        monedas: 5,
+        monedas: 10,
         colores: {
             '--violet-100': '#2A1A44',
             '--violet-300': '#C084FC',
@@ -212,7 +234,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Comprables',
         ruta: 'Temas/salon.css',
         espacio: 2,
-        monedas: 5,
+        monedas: 10,
         colores: {
             '--violet-100': '#5C0A0A',
             '--violet-300': '#B8860B',
@@ -220,24 +242,6 @@ const TEMAS_DISPONIBLES = [
             '--bg':         '#2A0404',
             '--bg-alt':     '#3A0606',
             '--white':      '#3A0606'
-        }
-    },
-    {
-        id: 'hacker',
-        nombre: 'Hacker',
-        icono: 'terminal',
-        descripcion: 'Fondo negro, verde terminal. Directo al grano.',
-        categoria: 'Comprables',
-        ruta: 'Temas/hacker.css',
-        espacio: 2,
-        monedas: 5,
-        colores: {
-            '--violet-100': '#0F2F0F',
-            '--violet-300': '#1F6F1F',
-            '--violet-500': '#00FF41',
-            '--bg':         '#000000',
-            '--bg-alt':     '#0A0E0A',
-            '--white':      '#0A0E0A'
         }
     },
     {
@@ -259,23 +263,23 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
-    id: 'ventanas',
-    nombre: 'Ventanas',
-    icono: 'app-window',
-    descripcion: 'Windows de barrio. Azul Fluent, esquinas suaves y chrome de ventana.',
-    categoria: 'Comprables',
-    ruta: 'Temas/ventanas.css',
-    espacio: 4,
-    monedas: 15,
-    colores: {
-        '--violet-100': '#D6E8F7',
-        '--violet-300': '#7FB8E6',
-        '--violet-500': '#0078D4',
-        '--bg':         '#F3F3F3',
-        '--bg-alt':     '#EAEAEA',
-        '--white':      '#FFFFFF'
-    }
-},
+        id: 'ventanas',
+        nombre: 'Ventanas',
+        icono: 'app-window',
+        descripcion: 'Windows de barrio. Azul Fluent, esquinas suaves y chrome de ventana.',
+        categoria: 'Comprables',
+        ruta: 'Temas/ventanas.css',
+        espacio: 4,
+        monedas: 10,
+        colores: {
+            '--violet-100': '#D6E8F7',
+            '--violet-300': '#7FB8E6',
+            '--violet-500': '#0078D4',
+            '--bg':         '#F3F3F3',
+            '--bg-alt':     '#EAEAEA',
+            '--white':      '#FFFFFF'
+        }
+    },
     {
         id: 'celeste',
         nombre: 'Celeste Nublado',
@@ -291,6 +295,42 @@ const TEMAS_DISPONIBLES = [
             '--violet-500': '#5E84A0',
             '--bg':         '#E7EDF3',
             '--bg-alt':     '#CADEEF',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
+        id: 'chiptune',
+        nombre: 'Chiptune',
+        icono: 'gamepad',
+        descripcion: 'Paleta Game Boy, scanlines CRT y glitch sutil. Actitud 8-bit.',
+        categoria: 'Comprables',
+        ruta: 'Temas/chiptune.css',
+        espacio: 4,
+        monedas: 15,
+        colores: {
+            '--violet-100': '#E0EAA0',
+            '--violet-300': '#9BBC0F',
+            '--violet-500': '#7A9A0F',
+            '--bg':         '#DCE6B8',
+            '--bg-alt':     '#D4E0A0',
+            '--white':      '#E8F0C8'
+        }
+    },
+    {
+        id: 'floral',
+        nombre: 'Floral',
+        icono: 'flower',
+        descripcion: 'Colores vivos, pétalos y verdes frescos. Para los que florecen.',
+        categoria: 'Comprables',
+        ruta: 'Temas/floral.css',
+        espacio: 4,
+        monedas: 20,
+        colores: {
+            '--violet-100': '#DCFCE7',
+            '--violet-300': '#F9A8D4',
+            '--violet-500': '#EC4899',
+            '--bg':         '#F7FDF9',
+            '--bg-alt':     '#F0F9F2',
             '--white':      '#FFFFFF'
         }
     },
@@ -313,46 +353,10 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
-        id: 'floral',
-        nombre: 'Floral',
-        icono: 'flower',
-        descripcion: 'Colores vivos, pétalos y verdes frescos. Para los que florecen.',
-        categoria: 'Comprables',
-        ruta: 'Temas/floral.css',
-        espacio: 4,
-        monedas: 20,
-        colores: {
-            '--violet-100': '#DCFCE7',
-            '--violet-300': '#F9A8D4',
-            '--violet-500': '#EC4899',
-            '--bg':         '#F7FDF9',
-            '--bg-alt':     '#F0F9F2',
-            '--white':      '#FFFFFF'
-        }
-    },
-    {
-        id: 'chiptune',
-        nombre: 'Chiptune',
-        icono: 'gamepad',
-        descripcion: 'Paleta Game Boy y glitch sutil. Actitud 8-bit en toda la interfaz.',
-        categoria: 'Comprables',
-        ruta: 'Temas/chiptune.css',
-        espacio: 4,
-        monedas: 20,
-        colores: {
-            '--violet-100': '#E0EAA0',
-            '--violet-300': '#9BBC0F',
-            '--violet-500': '#7A9A0F',
-            '--bg':         '#DCE6B8',
-            '--bg-alt':     '#D4E0A0',
-            '--white':      '#E8F0C8'
-        }
-    },
-    {
         id: 'libro',
         nombre: 'Libro de Historia',
         icono: 'book-open',
-        descripcion: 'Cuero, papel viejo y texturas desgastadas. Para los que atesoran el pasado.',
+        descripcion: 'Cuero, papel envejecido y lomo de encuadernación. Para los que atesoran el pasado.',
         categoria: 'Comprables',
         ruta: 'Temas/libro.css',
         espacio: 4,
@@ -374,7 +378,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Comprables',
         ruta: 'Temas/break-of-dawn.css',
         espacio: 4,
-        monedas: 25,
+        monedas: 30,
         colores: {
             '--violet-100': '#FFE0D1',
             '--violet-300': '#FFA07A',
