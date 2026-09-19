@@ -1,0 +1,277 @@
+/* ================================================
+   Widget: Mi Estado
+   Muestra tu perfil y te deja cambiar tu estado.
+   ================================================ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: transparent;
+    color: var(--text, #18181B);
+    font-size: 13px;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+[data-lucide] { width: 16px; height: 16px; stroke-width: 2; flex-shrink: 0; }
+
+/* ========== WIDGET ========== */
+.me-widget {
+    background: var(--white, #FFFFFF);
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: var(--r-lg, 16px);
+    padding: 10px 12px;
+    box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow: hidden;
+    transition: background 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.me-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--gray-100, #F4F4F7);
+    flex-shrink: 0;
+    min-height: 20px;
+}
+
+.me-titulo {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-500, #71717A);
+    line-height: 1;
+}
+.me-titulo [data-lucide] {
+    color: var(--violet-500, #8B5CF6);
+    width: 13px;
+    height: 13px;
+}
+
+.me-zona {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: center;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-300, #D4D4DD) transparent;
+}
+.me-zona::-webkit-scrollbar { width: 4px; }
+.me-zona::-webkit-scrollbar-thumb {
+    background: var(--gray-300, #D4D4DD);
+    border-radius: 999px;
+}
+
+/* ========== PERFIL ========== */
+.me-perfil {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.me-avatar {
+    width: clamp(40px, 14vw, 52px);
+    height: clamp(40px, 14vw, 52px);
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--violet-400, #A78BFA), var(--violet-600, #7C3AED));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid var(--white, #FFFFFF);
+    box-shadow: 0 3px 10px var(--accent-shadow, rgba(139,92,246,0.22));
+}
+.me-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.me-avatar [data-lucide] {
+    width: 22px;
+    height: 22px;
+    stroke-width: 2;
+}
+.me-avatar-inicial {
+    font-size: 20px;
+    font-weight: 800;
+    color: white;
+    line-height: 1;
+}
+
+.me-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.me-nombre {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--gray-900, #18181B);
+    letter-spacing: -0.01em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.2;
+}
+
+.me-codigo {
+    display: inline-block;
+    font-family: 'SF Mono', Monaco, Consolas, monospace;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--violet-700, #6D28D9);
+    background: var(--violet-50, #F5F3FF);
+    padding: 1px 7px;
+    border-radius: 999px;
+    letter-spacing: 0.04em;
+    align-self: flex-start;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ========== ESTADOS ========== */
+.me-estados {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    flex-shrink: 0;
+}
+
+.me-estado-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 8px 4px;
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 10px;
+    background: var(--white, #FFFFFF);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    touch-action: manipulation;
+    min-width: 0;
+    color: var(--gray-600, #52525B);
+}
+.me-estado-btn > [data-lucide] {
+    width: 16px;
+    height: 16px;
+    transition: all 0.2s;
+}
+.me-estado-btn span {
+    font-size: 9.5px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+/* Colores por tipo (aplicados también cuando están inactivos) */
+.me-estado-btn[data-estado="activo"] > [data-lucide]        { color: #10B981; }
+.me-estado-btn[data-estado="descansando"] > [data-lucide]   { color: #F59E0B; }
+.me-estado-btn[data-estado="desconectado"] > [data-lucide]  { color: #71717A; }
+
+.me-estado-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    border-color: var(--gray-300, #D4D4DD);
+}
+
+/* Estado activo (seleccionado) */
+.me-estado-btn.active {
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+.me-estado-btn.active > [data-lucide] { color: white !important; }
+
+.me-estado-btn[data-estado="activo"].active {
+    background: linear-gradient(135deg, #34D399, #10B981);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+.me-estado-btn[data-estado="descansando"].active {
+    background: linear-gradient(135deg, #FBBF24, #F59E0B);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+}
+.me-estado-btn[data-estado="desconectado"].active {
+    background: linear-gradient(135deg, #9CA3AF, #71717A);
+    box-shadow: 0 4px 12px rgba(113, 113, 122, 0.35);
+}
+
+.me-estado-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ========== TOAST ========== */
+.me-toast {
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--gray-900, #18181B);
+    color: white;
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: 200;
+    max-width: calc(100% - 20px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.me-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+.me-toast.success { background: #065F46; }
+.me-toast.error   { background: #B91C1C; }
+
+/* ========== EXTRA COMPACTO ========== */
+@media (max-width: 320px) {
+    .me-widget { padding: 9px 10px; }
+    .me-nombre { font-size: 12px; }
+    .me-estado-btn { padding: 6px 3px; }
+    .me-estado-btn > [data-lucide] { width: 14px; height: 14px; }
+    .me-estado-btn span { font-size: 9px; }
+}
