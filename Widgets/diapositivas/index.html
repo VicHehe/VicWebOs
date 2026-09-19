@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>Diapositivas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="dp-widget">
+
+        <!-- HEADER -->
+        <div class="dp-header">
+            <div class="dp-titulo">
+                <i data-lucide="presentation"></i>
+                <span>Diapositivas</span>
+            </div>
+            <div class="dp-acciones">
+                <button class="dp-icon-btn" id="dpBtnPlay" title="Reproducir/Pausar" hidden>
+                    <i data-lucide="play"></i>
+                </button>
+                <button class="dp-icon-btn" id="dpBtnEditar" title="Editar diapositivas">
+                    <i data-lucide="settings-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- STAGE -->
+        <div class="dp-stage" id="dpStage">
+            <!-- Empty state -->
+            <div class="dp-empty" id="dpEmpty">
+                <i data-lucide="image-plus"></i>
+                <p>Sin imágenes</p>
+                <button class="dp-empty-btn" id="dpBtnAddEmpty">
+                    <i data-lucide="plus"></i>
+                    Añadir imágenes
+                </button>
+            </div>
+
+            <!-- Imagen actual -->
+            <div class="dp-imagen-wrap" id="dpImagenWrap" hidden>
+                <img id="dpImagen" alt="">
+            </div>
+
+            <!-- Flechas -->
+            <button class="dp-flecha dp-flecha-izq" id="dpPrev" hidden title="Anterior">
+                <i data-lucide="chevron-left"></i>
+            </button>
+            <button class="dp-flecha dp-flecha-der" id="dpNext" hidden title="Siguiente">
+                <i data-lucide="chevron-right"></i>
+            </button>
+        </div>
+
+        <!-- DOTS -->
+        <div class="dp-dots" id="dpDots" hidden></div>
+
+    </div>
+
+    <!-- MODAL EDICIÓN -->
+    <div class="dp-modal" id="dpModal" hidden>
+        <div class="dp-modal-card">
+
+            <div class="dp-modal-header">
+                <h2>
+                    <i data-lucide="presentation"></i>
+                    <span>Diapositivas</span>
+                </h2>
+                <button class="dp-modal-cerrar" id="dpModalCerrar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
+            <div class="dp-modal-body">
+
+                <p class="dp-modal-desc">
+                    Añade hasta <strong>4 imágenes</strong> de tu galería.
+                    Puedes navegar manualmente o dejar que cambien solas.
+                </p>
+
+                <!-- Slots -->
+                <div class="dp-slots" id="dpSlots"></div>
+
+                <!-- Autoplay -->
+                <div class="dp-opcion">
+                    <div class="dp-opcion-header">
+                        <i data-lucide="play-circle"></i>
+                        <span>Reproducción automática</span>
+                        <label class="dp-switch">
+                            <input type="checkbox" id="dpAutoToggle">
+                            <span class="dp-switch-track"></span>
+                        </label>
+                    </div>
+                    <div class="dp-opcion-sub" id="dpIntervaloWrap" hidden>
+                        <label>Cambiar cada</label>
+                        <select id="dpIntervalo">
+                            <option value="3">3 segundos</option>
+                            <option value="5" selected>5 segundos</option>
+                            <option value="10">10 segundos</option>
+                            <option value="15">15 segundos</option>
+                            <option value="30">30 segundos</option>
+                            <option value="60">1 minuto</option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="dp-modal-actions">
+                <button class="dp-btn-sec" id="dpBtnLimpiar">Limpiar todo</button>
+                <button class="dp-btn-pri" id="dpBtnListo">
+                    <i data-lucide="check"></i>
+                    Listo
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="dp-toast" id="dpToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
