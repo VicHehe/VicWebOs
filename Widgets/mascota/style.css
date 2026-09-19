@@ -1,0 +1,418 @@
+/* ================================================
+   Widget: Mascota
+   Gato o perro que cuidas cada día.
+   Ingreso pasivo dependiente de la racha.
+   ================================================ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: transparent;
+    color: var(--text, #18181B);
+    font-size: 13px;
+    overflow: hidden;
+}
+
+[data-lucide] { width: 16px; height: 16px; stroke-width: 2; flex-shrink: 0; }
+
+/* ========== WIDGET ========== */
+.mg-widget {
+    background: var(--white, #FFFFFF);
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: var(--r-lg, 16px);
+    padding: 12px 14px;
+    box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow: hidden;
+    transition: background 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.mg-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--gray-100, #F4F4F7);
+    flex-shrink: 0;
+    min-height: 24px;
+}
+
+.mg-titulo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-500, #71717A);
+}
+.mg-titulo [data-lucide] { color: var(--violet-500, #8B5CF6); width: 14px; height: 14px; }
+
+.mg-zona {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* ============================================================
+   ESTADO VACÍO — elegir mascota
+   ============================================================ */
+.mg-vacio {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-align: center;
+    padding: 8px;
+}
+
+.mg-vacio p {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gray-600, #52525B);
+}
+
+.mg-elecciones {
+    display: flex;
+    gap: 8px;
+}
+
+.mg-elegir {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 12px;
+    background: var(--white, #FFFFFF);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.18s;
+    color: var(--gray-700, #3F3F46);
+}
+.mg-elegir:hover {
+    border-color: var(--violet-400, #A78BFA);
+    background: var(--violet-50, #F5F3FF);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px var(--accent-shadow, rgba(139,92,246,0.20));
+}
+.mg-elegir .mg-svg-mini {
+    width: 42px;
+    height: 42px;
+    color: var(--violet-500, #8B5CF6);
+}
+.mg-elegir span {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: var(--gray-900, #18181B);
+}
+
+/* ============================================================
+   MASCOTA ACTIVA
+   ============================================================ */
+.mg-activa {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 0;
+}
+
+/* Fila superior: avatar + info */
+.mg-top {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.mg-avatar {
+    width: 62px;
+    height: 62px;
+    flex-shrink: 0;
+    background: var(--violet-50, #F5F3FF);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.3s;
+    animation: mg-float 4s ease-in-out infinite;
+}
+
+@keyframes mg-float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-2px); }
+}
+
+.mg-svg {
+    width: 52px;
+    height: 52px;
+    color: var(--violet-500, #8B5CF6);
+    transition: color 0.3s;
+}
+
+/* Info a la derecha */
+.mg-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.mg-nombre-wrap {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 2px 4px;
+    margin: -2px -4px;
+    border-radius: 6px;
+    transition: background 0.15s;
+    min-width: 0;
+}
+.mg-nombre-wrap:hover {
+    background: var(--violet-50, #F5F3FF);
+}
+.mg-nombre-wrap:hover .mg-edit-icon {
+    opacity: 1;
+}
+
+.mg-nombre {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--gray-900, #18181B);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    letter-spacing: -0.01em;
+}
+
+.mg-edit-icon {
+    width: 11px !important;
+    height: 11px !important;
+    color: var(--gray-400, #A1A1AD);
+    opacity: 0;
+    transition: opacity 0.15s;
+    flex-shrink: 0;
+}
+
+.mg-nombre-input {
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--gray-900, #18181B);
+    background: var(--white, #FFFFFF);
+    border: 1.5px solid var(--violet-400, #A78BFA);
+    border-radius: 6px;
+    padding: 2px 6px;
+    outline: none;
+    width: 100%;
+    letter-spacing: -0.01em;
+    box-shadow: 0 0 0 3px var(--shadow-glow, rgba(139,92,246,0.10));
+}
+
+.mg-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--gray-500, #71717A);
+    flex-wrap: wrap;
+}
+.mg-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+.mg-meta-item [data-lucide] {
+    width: 11px;
+    height: 11px;
+    flex-shrink: 0;
+}
+.mg-meta-racha [data-lucide] {
+    color: #F97316;
+}
+.mg-meta-pago {
+    color: var(--violet-700, #6D28D9);
+}
+.mg-meta-pago [data-lucide] {
+    color: #D97706;
+}
+
+/* ============================================================
+   BARRAS
+   ============================================================ */
+.mg-barras {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+    min-height: 0;
+    justify-content: center;
+}
+
+.mg-barra {
+    display: grid;
+    grid-template-columns: 16px 1fr 34px;
+    align-items: center;
+    gap: 6px;
+}
+
+.mg-barra-icono {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+}
+.mg-barra-icono.hambre { color: #F59E0B; }
+.mg-barra-icono.juego   { color: #EC4899; }
+.mg-barra-icono.energia { color: #3B82F6; }
+
+.mg-barra-track {
+    height: 8px;
+    background: var(--gray-100, #F4F4F7);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+}
+
+.mg-barra-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s;
+    position: relative;
+}
+.mg-barra-fill.hambre { background: linear-gradient(90deg, #FBBF24, #F59E0B); }
+.mg-barra-fill.juego   { background: linear-gradient(90deg, #F472B6, #EC4899); }
+.mg-barra-fill.energia { background: linear-gradient(90deg, #60A5FA, #3B82F6); }
+
+/* Estado crítico: menos de 10% */
+.mg-barra-fill.critico {
+    background: linear-gradient(90deg, #EF4444, #DC2626) !important;
+    animation: mg-alerta 1s ease-in-out infinite;
+}
+@keyframes mg-alerta {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.6; }
+}
+
+.mg-barra-valor {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--gray-600, #52525B);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+.mg-barra-valor.critico {
+    color: #DC2626;
+}
+
+/* ============================================================
+   ACCIONES
+   ============================================================ */
+.mg-acciones {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    flex-shrink: 0;
+}
+
+.mg-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 7px 4px;
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 10px;
+    background: var(--white, #FFFFFF);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    touch-action: manipulation;
+    min-width: 0;
+}
+.mg-btn > [data-lucide] {
+    width: 15px;
+    height: 15px;
+    transition: all 0.2s;
+}
+.mg-btn[data-tipo="hambre"] > [data-lucide] { color: #F59E0B; }
+.mg-btn[data-tipo="juego"]   > [data-lucide] { color: #EC4899; }
+.mg-btn[data-tipo="energia"] > [data-lucide] { color: #3B82F6; }
+
+.mg-btn-texto {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--gray-900, #18181B);
+    line-height: 1;
+}
+.mg-btn-costo {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 9.5px;
+    font-weight: 800;
+    color: #B45309;
+}
+.mg-btn-costo [data-lucide] {
+    width: 8px !important;
+    height: 8px !important;
+    color: #D97706 !important;
+}
+
+.mg-btn:hover:not(:disabled) {
+    border-color: var(--violet-400, #A78BFA);
+    background: var(--violet-50, #F5F3FF);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px var(--accent-shadow, rgba(139,92,246,0.18));
+}
+.mg-btn:active:not(:disabled) { transform: translateY(0); }
+.mg-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ========== TOAST ========== */
+.mg-toast {
+    position: fixed;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--gray-900, #18181B);
+    color: white;
+    padding: 9px 16px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 800;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: 200;
+    max-width: calc(100% - 24px);
+    white-space: nowrap;
+}
+.mg-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+.mg-toast.success { background: #065F46; }
+.mg-toast.error   { background: #991B1B; }
+.mg-toast.info    { background: var(--violet-700, #6D28D9); }
