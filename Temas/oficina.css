@@ -1,0 +1,87 @@
+/* ================================================
+   Tema: Oficina
+   Minimalista, formal, elegante. Para uso serio.
+   Sin gradientes ni efectos. Solo jerarquía.
+   ================================================ */
+
+:root {
+    /* Acento: gris pizarra oscuro, formal */
+    --violet-50:  #F1F2F4;
+    --violet-100: #E4E6EA;
+    --violet-200: #CED2D9;
+    --violet-300: #A8AEB8;
+    --violet-400: #6E7681;
+    --violet-500: #4A5260;
+    --violet-600: #343B48;
+    --violet-700: #1F242E;
+
+    /* Neutros cálidos muy suaves, tipo papel de oficina */
+    --white:   #FFFFFF;
+    --bg:      #FAFAF8;
+    --bg-alt:  #F2F1EE;
+    --gray-50:  #FAFAF8;
+    --gray-100: #F4F3F0;
+    --gray-200: #E5E4DF;
+    --gray-300: #C8C6BF;
+    --gray-400: #8E8C85;
+    --gray-500: #65635D;
+    --gray-600: #4A4842;
+    --gray-700: #2E2C28;
+    --gray-800: #1C1B18;
+    --gray-900: #0F0E0C;
+
+    --border:  #E0DED8;
+    --text:    #1C1B18;
+    --text-2:  #4A4842;
+    --text-3:  #65635D;
+
+    /* Sombras casi imperceptibles */
+    --shadow-xs: 0 1px 1px rgba(20, 20, 15, 0.04);
+    --shadow-sm: 0 1px 2px rgba(20, 20, 15, 0.05);
+    --shadow-md: 0 2px 6px rgba(20, 20, 15, 0.06);
+    --shadow-lg: 0 6px 16px rgba(20, 20, 15, 0.08);
+    --shadow-xl: 0 12px 32px rgba(20, 20, 15, 0.10);
+    --shadow-glow: 0 0 0 3px rgba(74, 82, 96, 0.10);
+
+    /* Acento sobrio */
+    --accent-gradient: linear-gradient(135deg, #4A5260, #1F242E);
+    --accent-gradient-hover: linear-gradient(135deg, #343B48, #1F242E);
+    --accent-shadow: rgba(31, 36, 46, 0.20);
+    --accent-shadow-hover: rgba(31, 36, 46, 0.30);
+    --accent-text-gradient: linear-gradient(135deg, #0F0E0C, #4A5260);
+
+    /* Radios más secos, más "documento" */
+    --r-sm: 4px;
+    --r-md: 6px;
+    --r-lg: 8px;
+    --r-xl: 10px;
+}
+
+/* Refuerzos formales: header sin sombra, solo línea */
+.app-header {
+    box-shadow: none;
+    border-bottom: 1px solid var(--border);
+}
+
+/* Botones primarios sin blur: sólidos, con borde duro */
+.btn-primario {
+    box-shadow: none;
+    border: 1px solid var(--violet-700);
+}
+.btn-primario:hover {
+    box-shadow: none;
+    transform: none;
+    background: linear-gradient(135deg, #343B48, #1F242E);
+}
+
+/* Los accesos rápidos, muy planos: sin hover exagerado */
+.acceso-item {
+    box-shadow: none;
+    border-width: 1px;
+}
+.acceso-item:hover {
+    transform: none;
+    box-shadow: none;
+    border-color: var(--violet-400);
+    background: var(--gray-50);
+}
