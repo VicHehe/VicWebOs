@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Estado</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="me-widget">
+
+        <div class="me-header">
+            <div class="me-titulo">
+                <i data-lucide="circle-user"></i>
+                <span>Mi Estado</span>
+            </div>
+        </div>
+
+        <div class="me-zona">
+
+            <div class="me-perfil">
+                <div class="me-avatar" id="meAvatar">
+                    <i data-lucide="user"></i>
+                </div>
+                <div class="me-info">
+                    <div class="me-nombre" id="meNombre">—</div>
+                    <div class="me-codigo" id="meCodigo">@—</div>
+                </div>
+            </div>
+
+            <div class="me-estados" id="meEstados">
+                <button class="me-estado-btn" data-estado="activo">
+                    <i data-lucide="circle-dot"></i>
+                    <span>Activo</span>
+                </button>
+                <button class="me-estado-btn" data-estado="descansando">
+                    <i data-lucide="coffee"></i>
+                    <span>Desc.</span>
+                </button>
+                <button class="me-estado-btn" data-estado="desconectado">
+                    <i data-lucide="circle-off"></i>
+                    <span>Off</span>
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="me-toast" id="meToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
