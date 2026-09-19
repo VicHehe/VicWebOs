@@ -16,6 +16,9 @@
 // ============================================================
 
 const TEMAS_DISPONIBLES = [
+    // ============================================================
+    //  OFICIALES (gratuitos)
+    // ============================================================
     {
         id: 'violeta',
         nombre: 'Violeta Clásico',
@@ -144,6 +147,46 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
+        id: 'oficina',
+        nombre: 'Oficina',
+        icono: 'briefcase',
+        descripcion: 'Formal y minimalista. Gris pizarra, bordes finos. Para trabajar en serio.',
+        categoria: 'Oficiales',
+        ruta: 'Temas/oficina.css',
+        espacio: 2,
+        monedas: 0,
+        colores: {
+            '--violet-100': '#E4E6EA',
+            '--violet-300': '#A8AEB8',
+            '--violet-500': '#4A5260',
+            '--bg':         '#FAFAF8',
+            '--bg-alt':     '#F2F1EE',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
+        id: 'github-lover',
+        nombre: 'Github Lover',
+        icono: 'github',
+        descripcion: 'Paleta oficial de GitHub. Una carta de amor al octocat.',
+        categoria: 'Oficiales',
+        ruta: 'Temas/github-lover.css',
+        espacio: 2,
+        monedas: 0,
+        colores: {
+            '--violet-100': '#DDF4FF',
+            '--violet-300': '#80CCFF',
+            '--violet-500': '#0969DA',
+            '--bg':         '#FFFFFF',
+            '--bg-alt':     '#F6F8FA',
+            '--white':      '#FFFFFF'
+        }
+    },
+
+    // ============================================================
+    //  COMPRABLES
+    // ============================================================
+    {
         id: 'vapor',
         nombre: 'Vapor',
         icono: 'sunset',
@@ -180,6 +223,24 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
+        id: 'hacker',
+        nombre: 'Hacker',
+        icono: 'terminal',
+        descripcion: 'Fondo negro, verde terminal. Directo al grano.',
+        categoria: 'Comprables',
+        ruta: 'Temas/hacker.css',
+        espacio: 2,
+        monedas: 5,
+        colores: {
+            '--violet-100': '#0F2F0F',
+            '--violet-300': '#1F6F1F',
+            '--violet-500': '#00FF41',
+            '--bg':         '#000000',
+            '--bg-alt':     '#0A0E0A',
+            '--white':      '#0A0E0A'
+        }
+    },
+    {
         id: 'consentido',
         nombre: 'Consentido',
         icono: 'heart',
@@ -194,6 +255,24 @@ const TEMAS_DISPONIBLES = [
             '--violet-500': '#D52B1E',
             '--bg':         '#FFFBF7',
             '--bg-alt':     '#FFF5EE',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
+        id: 'ventanas',
+        nombre: 'Ventanas',
+        icono: 'app-window',
+        descripcion: 'Windows de marca blanca. Azul Fluent, esquinas suaves y un toque de chrome.',
+        categoria: 'Comprables',
+        ruta: 'Temas/ventanas.css',
+        espacio: 4,
+        monedas: 15,
+        colores: {
+            '--violet-100': '#D6E8F7',
+            '--violet-300': '#7FB8E6',
+            '--violet-500': '#0078D4',
+            '--bg':         '#F3F3F3',
+            '--bg-alt':     '#EAEAEA',
             '--white':      '#FFFFFF'
         }
     },
@@ -252,6 +331,24 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
+        id: 'chiptune',
+        nombre: 'Chiptune',
+        icono: 'gamepad',
+        descripcion: 'Paleta Game Boy y glitch sutil. Actitud 8-bit en toda la interfaz.',
+        categoria: 'Comprables',
+        ruta: 'Temas/chiptune.css',
+        espacio: 4,
+        monedas: 20,
+        colores: {
+            '--violet-100': '#E0EAA0',
+            '--violet-300': '#9BBC0F',
+            '--violet-500': '#7A9A0F',
+            '--bg':         '#DCE6B8',
+            '--bg-alt':     '#D4E0A0',
+            '--white':      '#E8F0C8'
+        }
+    },
+    {
         id: 'libro',
         nombre: 'Libro de Historia',
         icono: 'book-open',
@@ -267,6 +364,24 @@ const TEMAS_DISPONIBLES = [
             '--bg':         '#1A120A',
             '--bg-alt':     '#2A1F16',
             '--white':      '#2A1F16'
+        }
+    },
+    {
+        id: 'break-of-dawn',
+        nombre: 'Break of Dawn',
+        icono: 'sunrise',
+        descripcion: 'Amanecer sobre el mar. Cielo degradado y oleaje animado al fondo.',
+        categoria: 'Comprables',
+        ruta: 'Temas/break-of-dawn.css',
+        espacio: 4,
+        monedas: 25,
+        colores: {
+            '--violet-100': '#FFE0D1',
+            '--violet-300': '#FFA07A',
+            '--violet-500': '#FF7043',
+            '--bg':         '#FFF8F2',
+            '--bg-alt':     '#FFEFE5',
+            '--white':      '#FFFDFB'
         }
     }
 ];
