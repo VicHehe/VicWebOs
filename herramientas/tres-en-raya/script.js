@@ -1,13 +1,11 @@
 // ============================================================
 //  Tres en Raya — Clásico 3 en línea con dificultad escalonada
 //  ------------------------------------------------------------
-//  - Racha de victorias consecutivas sube la dificultad de la CPU
-//  - 2 monedas base por victoria, con multiplicador por racha
-//  - Persistencia en IndexedDB PROPIO del iframe
-//  - Auto-reinicio 1.8s después de terminar la partida
-//  - Watchdog: si la CPU no juega en 2s, la forzamos
-//
-//  Flujo SÍNCRONO (excepto dar monedas, que es fire-and-forget).
+//  - Flujo 100% SÍNCRONO: la CPU juega inmediatamente después
+//    del jugador, sin setTimeout (que se throttlea en iframes
+//    anidados).
+//  - Auto-reset con requestAnimationFrame (no throttled).
+//  - Persistencia en IndexedDB propio del iframe.
 // ============================================================
 
 'use strict';
@@ -16,7 +14,6 @@ const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const APP_ID = 'tres-en-raya';
 const MONEDAS_BASE = 2;
 const AUTO_RESET_MS = 1800;
-const WATCHDOG_MS = 2000;
 const IDB_NAME = 'TresEnRayaDB';
 const IDB_VERSION = 1;
 const IDB_STORE = 'estado';
@@ -43,9 +40,8 @@ let empates = 0;
 let monedasGanadas = 0;
 let nivelAnterior = 1;
 let toastTimeout = null;
-let autoResetTimeout = null;
-let cpuDelayTimeout = null;
-let watchdogTimeout = null;
+let autoResetRAF = null;
+let autoResetInicio = 0;
 let usuarioActual = null;
 
 const API = () => window.parent.__vicwebos || null;
@@ -155,7 +151,6 @@ async function cargarEstado() {
 function guardarEstado() {
     const key = claveEstado();
     if (!key) return;
-    // Fire-and-forget, no bloquea el flujo
     idbSet(key, {
         racha, record, ganadas, perdidas, empates, monedasGanadas,
         actualizado: new Date().toISOString()
@@ -188,16 +183,17 @@ function multiplicadorRecompensa() {
 }
 
 // ============================================================
-//  LÓGICA DEL JUEGO
+//  LÓGICA
 // ============================================================
-function cancelarTimeouts() {
-    if (autoResetTimeout) { clearTimeout(autoResetTimeout); autoResetTimeout = null; }
-    if (cpuDelayTimeout)  { clearTimeout(cpuDelayTimeout);  cpuDelayTimeout = null; }
-    if (watchdogTimeout)  { clearTimeout(watchdogTimeout);  watchdogTimeout = null; }
+function cancelarAutoReset() {
+    if (autoResetRAF) {
+        cancelAnimationFrame(autoResetRAF);
+        autoResetRAF = null;
+    }
 }
 
 function limpiarTablero() {
-    cancelarTimeouts();
+    cancelarAutoReset();
     tablero = Array(9).fill(null);
     turno = YO;
     partidaTerminada = false;
@@ -278,7 +274,7 @@ function cpuNivel4(t) {
     if (vacias.length === 0) return -1;
 
     let mejorScore = -Infinity;
-    let mejorJugada = -1;
+    let mejorJugada = vacias[0];
     for (const i of vacias) {
         const c = t.slice(); c[i] = CPU;
         const score = minimax(c, false, 0);
@@ -321,14 +317,13 @@ function elegirJugadaCPU() {
         return cpuNivel4(tablero);
     } catch (e) {
         console.error('[Tres en Raya] Error eligiendo jugada:', e);
-        // Fallback: cualquier celda vacía
         const vacias = celdasVacias(tablero);
         return vacias.length ? vacias[0] : -1;
     }
 }
 
 // ============================================================
-//  FLUJO DE PARTIDA — 100% síncrono excepto otorgar monedas
+//  FLUJO — 100% SÍNCRONO, sin setTimeout
 // ============================================================
 function jugarCelda(idx) {
     // Si la partida terminó, un click acelera el auto-reset
@@ -342,80 +337,43 @@ function jugarCelda(idx) {
     if (turno !== YO) return;
     if (!esMovimientoValido(tablero, idx)) return;
 
-    // Turno del jugador
+    // === Turno del jugador ===
     tablero[idx] = YO;
     renderTablero();
 
-    const resultado = obtenerGanador(tablero);
+    let resultado = obtenerGanador(tablero);
     if (resultado) {
         finalizarPartida(resultado);
         return;
     }
 
-    // Programar turno de la CPU
-    programarTurnoCPU();
-}
-
-function programarTurnoCPU() {
-    cancelarTimeouts();
-    turno = CPU;
+    // === Turno de la CPU — INMEDIATO, sin delay ===
     bloqueado = true;
+    turno = CPU;
     actualizarTurnoUI();
-    renderTablero();   // re-render con bloqueado=true
 
-    const delay = 250 + Math.random() * 300;
-
-    cpuDelayTimeout = setTimeout(() => {
-        cpuDelayTimeout = null;
-        ejecutarTurnoCPU();
-    }, delay);
-
-    // Watchdog: si en WATCHDOG_MS no se ejecutó, lo forzamos
-    watchdogTimeout = setTimeout(() => {
-        watchdogTimeout = null;
-        if (cpuDelayTimeout) {
-            console.warn('[Tres en Raya] Watchdog disparado');
-            clearTimeout(cpuDelayTimeout);
-            cpuDelayTimeout = null;
-            ejecutarTurnoCPU();
-        }
-    }, WATCHDOG_MS);
-}
-
-function ejecutarTurnoCPU() {
-    // Guardas
-    if (partidaTerminada) return;
-    if (turno !== CPU) return;
-
-    // Cancelar el watchdog si seguía vivo
-    if (watchdogTimeout) {
-        clearTimeout(watchdogTimeout);
-        watchdogTimeout = null;
+    const jugada = elegirJugadaCPU();
+    if (jugada >= 0 && jugada < 9 && tablero[jugada] === null) {
+        tablero[jugada] = CPU;
+    } else {
+        console.warn('[Tres en Raya] CPU devolvió jugada inválida:', jugada);
+        // Fallback: primera celda vacía
+        const vacias = celdasVacias(tablero);
+        if (vacias.length) tablero[vacias[0]] = CPU;
     }
+    renderTablero();
 
-    try {
-        const jugada = elegirJugadaCPU();
-        if (jugada >= 0 && jugada < 9 && tablero[jugada] === null) {
-            tablero[jugada] = CPU;
-            renderTablero();
-        } else {
-            console.warn('[Tres en Raya] CPU devolvió jugada inválida:', jugada);
-        }
-    } catch (e) {
-        console.error('[Tres en Raya] Error en turno CPU:', e);
-    }
-
-    const resultado = obtenerGanador(tablero);
+    resultado = obtenerGanador(tablero);
     if (resultado) {
         finalizarPartida(resultado);
         return;
     }
 
-    // Devolver el turno al jugador
+    // Devolver turno al jugador
     turno = YO;
     bloqueado = false;
     actualizarTurnoUI();
-    renderTablero();   // re-render con bloqueado=false
+    renderTablero();
 }
 
 function finalizarPartida(resultado) {
@@ -442,18 +400,17 @@ function finalizarPartida(resultado) {
             : `Ganaste · +${recompensa}`;
         icono = 'trophy';
 
-        // Fire-and-forget: otorgar monedas no bloquea el flujo
         otorgarMonedas(recompensa, mult);
         monedasGanadas += recompensa;
     } else if (resultado.ganador === CPU) {
-        tipo = 'perdiste';
+        tipo = 'perdediste';
         perdidas++;
         racha = 0;
         texto = 'Perdiste · racha reiniciada';
         icono = 'x';
     }
 
-    // Resaltar la línea ganadora (si la hay)
+    // Resaltar línea ganadora
     if (resultado.linea) {
         resultado.linea.forEach(i => {
             const celda = document.querySelector(`.tr-celda[data-idx="${i}"]`);
@@ -461,7 +418,7 @@ function finalizarPartida(resultado) {
         });
     }
 
-    // Mostrar el chip de resultado
+    // Mostrar chip de resultado
     if (resultadoEl) {
         resultadoEl.hidden = false;
         resultadoEl.className = 'tr-resultado ' + tipo;
@@ -469,39 +426,57 @@ function finalizarPartida(resultado) {
         if (window.lucide) window.lucide.createIcons();
     }
 
-    // Detectar subida de nivel
+    // Detección de nivel
     const nivelNuevo = nivelDificultad();
     if (nivelNuevo > nivelAnterior) {
-        setTimeout(() => {
-            toast(`¡Nivel ${nivelNuevo} desbloqueado!`, 'success');
-        }, 400);
+        toast(`¡Nivel ${nivelNuevo} desbloqueado!`, 'success');
     }
     nivelAnterior = nivelNuevo;
 
-    // UI
     actualizarTurnoUI();
     actualizarStatsUI();
     actualizarBadgeRacha();
     actualizarNivelUI();
-    renderTablero();   // re-render con partidaTerminada=true
+    renderTablero();
 
     guardarEstado();
 
-    // Auto-reset
-    autoResetTimeout = setTimeout(() => {
-        autoResetTimeout = null;
-        limpiarTablero();
-        actualizarNivelUI();
-    }, AUTO_RESET_MS);
+    // Auto-reset con requestAnimationFrame
+    iniciarAutoReset();
 }
 
 function otorgarMonedas(cantidad, mult) {
     const api = API();
     if (!api || typeof api.canjear !== 'function') return;
     const desc = mult > 1 ? `Victoria x${mult} (racha ${racha})` : 'Victoria';
-    // Fire-and-forget: no await, no bloquea el flujo
     Promise.resolve(api.canjear('grid-3x3', APP_ID, desc, cantidad))
         .catch(e => console.warn('[Tres en Raya] No se pudieron dar monedas:', e));
+}
+
+// ============================================================
+//  AUTO-RESET con requestAnimationFrame
+//  (no sufre throttling porque está atado al ciclo de render)
+// ============================================================
+function iniciarAutoReset() {
+    cancelarAutoReset();
+    autoResetInicio = performance.now();
+
+    function tick(ahora) {
+        if (partidaTerminada && (ahora - autoResetInicio) >= AUTO_RESET_MS) {
+            autoResetRAF = null;
+            limpiarTablero();
+            actualizarNivelUI();
+            return;
+        }
+        // Si la partida ya no está terminada (el usuario clickeó), parar
+        if (!partidaTerminada) {
+            autoResetRAF = null;
+            return;
+        }
+        autoResetRAF = requestAnimationFrame(tick);
+    }
+
+    autoResetRAF = requestAnimationFrame(tick);
 }
 
 // ============================================================
@@ -518,7 +493,7 @@ function renderTablero() {
         if (valor !== null) celda.classList.add('ocupada');
         if (bloqueado || partidaTerminada) celda.classList.add('deshabilitada');
 
-        // Limpiar el contenido
+        // Limpiar contenido
         celda.textContent = '';
 
         if (valor === YO) {
@@ -620,8 +595,7 @@ async function inicializar() {
         });
     });
 
-    // Limpiar timeouts al cerrar (por si el iframe se desmonta)
-    window.addEventListener('pagehide', cancelarTimeouts);
+    window.addEventListener('pagehide', cancelarAutoReset);
 
     if (window.lucide) window.lucide.createIcons();
 }
