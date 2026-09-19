@@ -1,7 +1,7 @@
 /* ================================================
    Tres en Raya — Juego clásico con dificultad
    escalonada por racha.
-   X y O dibujadas con CSS puro (nada de SVG ni fuentes).
+   X y O dibujadas con CSS puro.
    Layout con CSS Grid: tablero en 1fr con aspect-ratio.
    Compatible con temas (var() + fallbacks).
    ================================================ */
@@ -25,7 +25,7 @@ body {
 [data-lucide] { width: 18px; height: 18px; stroke-width: 2; flex-shrink: 0; }
 
 /* ============================================================
-   LAYOUT: grid de 5 filas (sin acciones)
+   LAYOUT: grid de 5 filas
    ============================================================ */
 .tr-container {
     height: 100dvh;
@@ -238,8 +238,6 @@ body {
 /* ============================================================
    X y O con CSS puro
    ============================================================ */
-
-/* Contenedor base: 60% de la celda, cuadrado */
 .tr-marca {
     position: relative;
     width: 60%;
@@ -247,14 +245,11 @@ body {
     animation: trPop 0.24s cubic-bezier(0.34, 1.4, 0.64, 1);
     display: block;
 }
-
-/* --- X: dos líneas cruzadas --- */
 .tr-marca-x span {
     position: absolute;
     left: 0;
     right: 0;
     top: 50%;
-    /* 15% del ancho, mínimo 3px para que se vea bien en móvil */
     height: max(3px, 15%);
     background: currentColor;
     border-radius: 999px;
@@ -264,21 +259,15 @@ body {
 .tr-marca-x span:nth-child(2) {
     transform: translateY(-50%) rotate(-45deg);
 }
-.tr-marca-x {
-    color: var(--violet-500, #8B5CF6);
-}
+.tr-marca-x { color: var(--violet-500, #8B5CF6); }
 .tr-celda.ganadora .tr-marca-x { color: #059669; }
 
-/* --- O: círculo con borde --- */
 .tr-marca-o {
     width: 60%;
     aspect-ratio: 1 / 1;
     border-radius: 50%;
     border: max(3px, 15%) solid currentColor;
-    /* ↑ usamos % para que escale con el tamaño; max() garantiza mínimo legible */
     color: #EC4899;
-    /* el borde sólido ocupa espacio, lo compensamos un poco */
-    padding: 0;
 }
 .tr-celda.perdedora .tr-marca-o { color: #DC2626; }
 
