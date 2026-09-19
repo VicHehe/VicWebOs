@@ -10,7 +10,7 @@
 
 const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 
-// Configuración de la app
+// Configuración
 const APP_ID = 'tres-en-raya';
 const MONEDAS_BASE = 2;
 const IDB_NAME = 'TresEnRayaDB';
@@ -23,22 +23,27 @@ const CPU = 'O';
 
 // Combinaciones ganadoras (índices 0-8)
 const LINEAS_GANADORAS = [
-    [0, 1, 2], [3, 4, 5], [6, 7, 8],   // filas
-    [0, 3, 6], [1, 4, 7], [2, 5, 8],   // columnas
-    [0, 4, 8], [2, 4, 6]                // diagonales
+    [0, 1, 2], [3, 4, 5], [6, 7, 8],
+    [0, 3, 6], [1, 4, 7], [2, 5, 8],
+    [0, 4, 8], [2, 4, 6]
 ];
+
+// Símbolos como TEXTO (nada de SVG, cero fragilidad)
+const SIMBOLO_X = '\u2715';   // ✕
+const SIMBOLO_O = '\u25EF';   // ◯
 
 // ---------- ESTADO ----------
 let tablero = Array(9).fill(null);
-let turno = YO;               // 'X' siempre empieza
+let turno = YO;
 let partidaTerminada = false;
-let bloqueado = false;        // mientras la CPU piensa
+let bloqueado = false;
 let racha = 0;
 let record = 0;
 let ganadas = 0;
 let perdidas = 0;
 let empates = 0;
 let monedasGanadas = 0;
+let nivelAnterior = 1;
 let toastTimeout = null;
 let usuarioActual = null;
 
@@ -88,7 +93,7 @@ function toast(texto, tipo = 'info') {
 }
 
 // ============================================================
-//  INDEXEDDB (propio del iframe, aislado del shell)
+//  INDEXEDDB
 // ============================================================
 function abrirIDB() {
     return new Promise((resolve, reject) => {
@@ -169,12 +174,7 @@ async function guardarEstado() {
     const key = claveEstado();
     if (!key) return;
     await idbSet(key, {
-        racha,
-        record,
-        ganadas,
-        perdidas,
-        empates,
-        monedasGanadas,
+        racha, record, ganadas, perdidas, empates, monedasGanadas,
         actualizado: new Date().toISOString()
     });
 }
@@ -189,10 +189,11 @@ async function resetearEstado() {
     perdidas = 0;
     empates = 0;
     monedasGanadas = 0;
+    nivelAnterior = 1;
 }
 
 // ============================================================
-//  DIFICULTAD SEGÚN RACHA
+//  DIFICULTAD
 // ============================================================
 function nivelDificultad() {
     if (racha >= 10) return 4;
@@ -201,13 +202,14 @@ function nivelDificultad() {
     return 1;
 }
 
-function nombreNivel(n) {
-    return `Nivel ${n}`;
+// Cuántas victorias faltan para el siguiente nivel
+function progresoNivel() {
+    if (racha < 3) return { actual: racha, meta: 3 };
+    if (racha < 6) return { actual: racha, meta: 6 };
+    if (racha < 10) return { actual: racha, meta: 10 };
+    return { actual: racha, meta: racha }; // ya es máximo
 }
 
-// ============================================================
-//  MULTIPLICADOR DE RECOMPENSA
-// ============================================================
 function multiplicadorRecompensa() {
     if (racha >= 12) return 5;
     if (racha >= 8) return 4;
@@ -252,68 +254,51 @@ function celdasVacias(t) {
 // ============================================================
 //  CPU — 4 niveles
 // ============================================================
-
-// Nivel 1: al azar
 function cpuNivel1(t) {
     const vacias = celdasVacias(t);
     return vacias[Math.floor(Math.random() * vacias.length)];
 }
 
-// Nivel 2: gana si puede, bloquea si el jugador puede ganar, luego centro, luego random
 function cpuNivel2(t) {
     // 1. Ganar si puede
     for (const i of celdasVacias(t)) {
-        const copia = t.slice();
-        copia[i] = CPU;
-        if (obtenerGanador(copia)?.ganador === CPU) return i;
+        const c = t.slice(); c[i] = CPU;
+        if (obtenerGanador(c)?.ganador === CPU) return i;
     }
     // 2. Bloquear si el jugador puede ganar
     for (const i of celdasVacias(t)) {
-        const copia = t.slice();
-        copia[i] = YO;
-        if (obtenerGanador(copia)?.ganador === YO) return i;
+        const c = t.slice(); c[i] = YO;
+        if (obtenerGanador(c)?.ganador === YO) return i;
     }
-    // 3. Centro si está libre
+    // 3. Centro
     if (t[4] === null) return 4;
     // 4. Random
     return cpuNivel1(t);
 }
 
-// Nivel 3: gana > bloquea > centro > esquinas > bordes
 function cpuNivel3(t) {
-    // 1. Ganar
     for (const i of celdasVacias(t)) {
-        const copia = t.slice();
-        copia[i] = CPU;
-        if (obtenerGanador(copia)?.ganador === CPU) return i;
+        const c = t.slice(); c[i] = CPU;
+        if (obtenerGanador(c)?.ganador === CPU) return i;
     }
-    // 2. Bloquear
     for (const i of celdasVacias(t)) {
-        const copia = t.slice();
-        copia[i] = YO;
-        if (obtenerGanador(copia)?.ganador === YO) return i;
+        const c = t.slice(); c[i] = YO;
+        if (obtenerGanador(c)?.ganador === YO) return i;
     }
-    // 3. Centro
     if (t[4] === null) return 4;
-    // 4. Esquinas
     const esquinas = [0, 2, 6, 8].filter(i => t[i] === null);
     if (esquinas.length) return esquinas[Math.floor(Math.random() * esquinas.length)];
-    // 5. Bordes
     const bordes = [1, 3, 5, 7].filter(i => t[i] === null);
     if (bordes.length) return bordes[Math.floor(Math.random() * bordes.length)];
-    // 6. Cualquier cosa
     return cpuNivel1(t);
 }
 
-// Nivel 4: minimax perfecto
 function cpuNivel4(t) {
     let mejorScore = -Infinity;
     let mejorJugada = null;
-
     for (const i of celdasVacias(t)) {
-        const copia = t.slice();
-        copia[i] = CPU;
-        const score = minimax(copia, false, 0);
+        const c = t.slice(); c[i] = CPU;
+        const score = minimax(c, false, 0);
         if (score > mejorScore) {
             mejorScore = score;
             mejorJugada = i;
@@ -323,27 +308,24 @@ function cpuNivel4(t) {
 }
 
 function minimax(t, esTurnoCPU, profundidad) {
-    const resultado = obtenerGanador(t);
-    if (resultado) {
-        if (resultado.ganador === CPU) return 10 - profundidad;
-        if (resultado.ganador === YO) return profundidad - 10;
-        return 0; // empate
+    const r = obtenerGanador(t);
+    if (r) {
+        if (r.ganador === CPU) return 10 - profundidad;
+        if (r.ganador === YO) return profundidad - 10;
+        return 0;
     }
-
     if (esTurnoCPU) {
         let mejor = -Infinity;
         for (const i of celdasVacias(t)) {
-            const copia = t.slice();
-            copia[i] = CPU;
-            mejor = Math.max(mejor, minimax(copia, false, profundidad + 1));
+            const c = t.slice(); c[i] = CPU;
+            mejor = Math.max(mejor, minimax(c, false, profundidad + 1));
         }
         return mejor;
     } else {
         let mejor = Infinity;
         for (const i of celdasVacias(t)) {
-            const copia = t.slice();
-            copia[i] = YO;
-            mejor = Math.min(mejor, minimax(copia, true, profundidad + 1));
+            const c = t.slice(); c[i] = YO;
+            mejor = Math.min(mejor, minimax(c, true, profundidad + 1));
         }
         return mejor;
     }
@@ -365,28 +347,22 @@ async function jugarCelda(idx) {
     if (turno !== YO) return;
     if (!esMovimientoValido(tablero, idx)) return;
 
-    // Turno del jugador
     tablero[idx] = YO;
     renderTablero();
     const resultado = obtenerGanador(tablero);
-    if (resultado) {
-        await finalizarPartida(resultado);
-        return;
-    }
+    if (resultado) { await finalizarPartida(resultado); return; }
 
-    // Turno de la CPU (con delay para que se sienta natural)
     turno = CPU;
     actualizarTurnoUI();
     bloqueado = true;
 
-    const delay = 250 + Math.random() * 350;
+    const delay = 250 + Math.random() * 300;
     setTimeout(async () => {
         const jugadaCPU = elegirJugadaCPU();
         if (jugadaCPU !== null && jugadaCPU !== undefined) {
             tablero[jugadaCPU] = CPU;
             renderTablero();
         }
-
         const resultadoCPU = obtenerGanador(tablero);
         if (resultadoCPU) {
             await finalizarPartida(resultadoCPU);
@@ -403,9 +379,7 @@ async function finalizarPartida(resultado) {
     bloqueado = false;
 
     const resultadoEl = document.getElementById('trResultado');
-    let tipo = '';
-    let texto = '';
-    let icono = '';
+    let tipo = '', texto = '', icono = '';
 
     if (resultado.empate) {
         tipo = 'empate';
@@ -420,23 +394,19 @@ async function finalizarPartida(resultado) {
         const mult = multiplicadorRecompensa();
         const recompensa = MONEDAS_BASE * mult;
         texto = mult > 1
-            ? `Ganaste · +${recompensa} monedas (x${mult})`
-            : `Ganaste · +${recompensa} monedas`;
+            ? `Ganaste · +${recompensa} (x${mult})`
+            : `Ganaste · +${recompensa}`;
         icono = 'trophy';
 
-        // Dar monedas vía API del shell
         try {
             const api = API();
             if (api && typeof api.canjear === 'function') {
-                const descripcion = mult > 1
-                    ? `Victoria x${mult} (racha ${racha})`
-                    : 'Victoria';
-                await api.canjear('grid-3x3', APP_ID, descripcion, recompensa);
+                const desc = mult > 1 ? `Victoria x${mult} (racha ${racha})` : 'Victoria';
+                await api.canjear('grid-3x3', APP_ID, desc, recompensa);
                 monedasGanadas += recompensa;
             }
         } catch (e) {
             console.warn('[Tres en Raya] No se pudieron otorgar monedas:', e);
-            texto = 'Ganaste · error dando monedas';
         }
     } else if (resultado.ganador === CPU) {
         tipo = 'perdiste';
@@ -448,11 +418,9 @@ async function finalizarPartida(resultado) {
 
     // Resaltar línea ganadora
     if (resultado.linea) {
-        resultado.linea.forEach(idx => {
-            const celda = document.querySelector(`.tr-celda[data-idx="${idx}"]`);
-            if (celda) {
-                celda.classList.add(resultado.ganador === YO ? 'ganadora' : 'perdedora');
-            }
+        resultado.linea.forEach(i => {
+            const celda = document.querySelector(`.tr-celda[data-idx="${i}"]`);
+            if (celda) celda.classList.add(resultado.ganador === YO ? 'ganadora' : 'perdedora');
         });
     }
 
@@ -462,7 +430,15 @@ async function finalizarPartida(resultado) {
     resultadoEl.innerHTML = `<i data-lucide="${icono}"></i><span>${texto}</span>`;
     if (window.lucide) window.lucide.createIcons();
 
-    // Actualizar UI de racha y stats
+    // Detectar subida de nivel
+    const nivelNuevo = nivelDificultad();
+    if (nivelNuevo > nivelAnterior) {
+        setTimeout(() => {
+            toast(`¡Nivel ${nivelNuevo} desbloqueado!`, 'success');
+        }, 500);
+    }
+    nivelAnterior = nivelNuevo;
+
     await guardarEstado();
     actualizarStatsUI();
     actualizarBadgeRacha();
@@ -477,24 +453,21 @@ function renderTablero() {
         const idx = parseInt(celda.dataset.idx, 10);
         const valor = tablero[idx];
 
-        // Limpiar
         celda.classList.toggle('ocupada', valor !== null);
         celda.classList.toggle('deshabilitada', bloqueado || partidaTerminada);
-        celda.innerHTML = '';
 
+        // Limpiar y redibujar
+        celda.textContent = '';
         if (valor === YO) {
-            celda.innerHTML = `
-                <svg class="tr-marca tr-marca-x" viewBox="0 0 100 100">
-                    <line x1="22" y1="22" x2="78" y2="78" />
-                    <line x1="78" y1="22" x2="22" y2="78" />
-                </svg>
-            `;
+            const span = document.createElement('span');
+            span.className = 'tr-marca tr-marca-x';
+            span.textContent = SIMBOLO_X;
+            celda.appendChild(span);
         } else if (valor === CPU) {
-            celda.innerHTML = `
-                <svg class="tr-marca tr-marca-o" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="28" />
-                </svg>
-            `;
+            const span = document.createElement('span');
+            span.className = 'tr-marca tr-marca-o';
+            span.textContent = SIMBOLO_O;
+            celda.appendChild(span);
         }
     });
 }
@@ -503,13 +476,13 @@ function actualizarTurnoUI() {
     const el = document.getElementById('trInfoTurno');
     if (!el) return;
     if (partidaTerminada) {
-        el.innerHTML = '<i data-lucide="flag"></i><span>Partida terminada</span>';
+        el.innerHTML = '<i data-lucide="flag"></i><span>Terminada</span>';
         el.classList.remove('cpu');
     } else if (turno === YO) {
         el.innerHTML = '<i data-lucide="circle-dot"></i><span>Tu turno</span>';
         el.classList.remove('cpu');
     } else {
-        el.innerHTML = '<i data-lucide="cpu"></i><span>Turno de la CPU</span>';
+        el.innerHTML = '<i data-lucide="cpu"></i><span>CPU pensando</span>';
         el.classList.add('cpu');
     }
     if (window.lucide) window.lucide.createIcons();
@@ -517,10 +490,14 @@ function actualizarTurnoUI() {
 
 function actualizarNivelUI() {
     const el = document.getElementById('trInfoNivel');
+    const em = document.getElementById('trInfoNivelProgreso');
     if (!el) return;
     const n = nivelDificultad();
-    el.innerHTML = `<i data-lucide="cpu"></i><span>${nombreNivel(n)}</span>`;
-    if (window.lucide) window.lucide.createIcons();
+    el.querySelector('span').textContent = `Nivel ${n}`;
+    if (em) {
+        const p = progresoNivel();
+        em.textContent = n === 4 ? 'MÁX' : `${p.actual}/${p.meta}`;
+    }
 }
 
 function actualizarStatsUI() {
@@ -551,8 +528,7 @@ function nuevaPartida() {
 }
 
 async function resetearProgreso() {
-    if (!confirm('¿Reiniciar todo el progreso?\n\nSe borrarán: racha, récord, partidas ganadas, monedas contadas. Las monedas YA ganadas siguen en tu cuenta.')) return;
-
+    if (!confirm('¿Reiniciar todo el progreso?\n\nSe borrarán: racha, récord, ganadas, monedas contadas. Las monedas YA ganadas siguen en tu cuenta.')) return;
     await resetearEstado();
     actualizarStatsUI();
     actualizarBadgeRacha();
@@ -586,6 +562,7 @@ async function inicializar() {
     }
 
     await cargarEstado();
+    nivelAnterior = nivelDificultad();
     actualizarStatsUI();
     actualizarBadgeRacha();
     limpiarTablero();
@@ -599,7 +576,6 @@ async function inicializar() {
         });
     });
 
-    // Acciones
     document.getElementById('btnNuevaPartida')?.addEventListener('click', nuevaPartida);
     document.getElementById('btnResetear')?.addEventListener('click', resetearProgreso);
 
