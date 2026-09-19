@@ -1,0 +1,106 @@
+/* ================================================
+   Tema: Oficina Dark
+   Versión nocturna de Oficina. Negro formal,
+   decoraciones gris claro. Sin gradientes ni
+   efectos decorativos.
+   ================================================ */
+
+:root {
+    /* Acento: gris claro sobre fondo negro */
+    --violet-50:  #1A1A1C;
+    --violet-100: #232327;
+    --violet-200: #2E2E33;
+    --violet-300: #4A4A52;
+    --violet-400: #7A7A85;
+    --violet-500: #A8A8B3;
+    --violet-600: #C8C8D0;
+    --violet-700: #E8E8EC;
+
+    /* Neutros oscuros todos en gris oficina nocturna */
+    --white:   #1F1F23;
+    --bg:      #0E0E10;
+    --bg-alt:  #171719;
+    --gray-50:  #171719;
+    --gray-100: #1F1F23;
+    --gray-200: #2A2A2E;
+    --gray-300: #3A3A40;
+    --gray-400: #58585E;
+    --gray-500: #7A7A82;
+    --gray-600: #A0A0A8;
+    --gray-700: #C0C0C8;
+    --gray-800: #E0E0E6;
+    --gray-900: #F5F5F8;
+
+    --border:  #2A2A2E;
+    --text:    #F5F5F8;
+    --text-2:  #A0A0A8;
+    --text-3:  #7A7A82;
+
+    /* Sombras casi imperceptibles */
+    --shadow-xs: 0 1px 1px rgba(0, 0, 0, 0.40);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.50);
+    --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.60);
+    --shadow-lg: 0 6px 16px rgba(0, 0, 0, 0.70);
+    --shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.80);
+    --shadow-glow: 0 0 0 3px rgba(168, 168, 179, 0.15);
+
+    /* Acento sobrio */
+    --accent-gradient: linear-gradient(135deg, #3E3E44, #7A7A85);
+    --accent-gradient-hover: linear-gradient(135deg, #4A4A52, #A8A8B3);
+    --accent-shadow: rgba(168, 168, 179, 0.20);
+    --accent-shadow-hover: rgba(168, 168, 179, 0.30);
+    --accent-text-gradient: linear-gradient(135deg, #F5F5F8, #A8A8B3);
+
+    /* Radios secos, look documento */
+    --r-sm: 4px;
+    --r-md: 6px;
+    --r-lg: 8px;
+    --r-xl: 10px;
+}
+
+/* ------------------------------------------------------------
+   Header sin sombra, solo línea
+   ------------------------------------------------------------ */
+.app-header {
+    box-shadow: none;
+    border-bottom: 1px solid var(--border);
+    background: var(--white);
+}
+
+/* ------------------------------------------------------------
+   Botones primarios: sólidos y con borde duro
+   ------------------------------------------------------------ */
+.btn-primario {
+    box-shadow: none;
+    border: 1px solid var(--violet-500);
+    background: linear-gradient(135deg, #3E3E44, #7A7A85);
+    color: #F5F5F8;
+}
+.btn-primario:hover {
+    box-shadow: none;
+    transform: none;
+    background: linear-gradient(135deg, #4A4A52, #A8A8B3);
+}
+
+/* ------------------------------------------------------------
+   Accesos rápidos: muy planos
+   ------------------------------------------------------------ */
+.acceso-item {
+    box-shadow: none;
+    border-width: 1px;
+    background: var(--white);
+}
+.acceso-item:hover {
+    transform: none;
+    box-shadow: none;
+    border-color: var(--violet-500);
+    background: var(--gray-100);
+}
+
+/* ------------------------------------------------------------
+   Modales: borde seco sin color de acento
+   ------------------------------------------------------------ */
+.config-card,
+.modal-todas-card {
+    border: 1px solid var(--gray-300);
+}
