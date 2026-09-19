@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Golpea el Topo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="wm-container">
+
+        <header class="wm-header">
+            <div class="wm-logo">
+                <div class="wm-logo-mark">
+                    <i data-lucide="hammer"></i>
+                </div>
+                <div class="wm-logo-text">
+                    <h1>Golpea el Topo</h1>
+                    <p id="wmUserBadge">—</p>
+                </div>
+            </div>
+            <div class="wm-record" id="wmRecordBox">
+                <span class="wm-record-label">Récord</span>
+                <span class="wm-record-valor" id="wmRecord">0</span>
+            </div>
+        </header>
+
+        <div class="wm-hud">
+            <div class="wm-hud-tiempo">
+                <i data-lucide="timer"></i>
+                <span id="wmTiempo">30.0s</span>
+            </div>
+            <div class="wm-hud-topos">
+                <i data-lucide="target"></i>
+                <span id="wmAciertos">0</span>
+                <span class="wm-hud-label">topos</span>
+            </div>
+            <div class="wm-hud-dificultad" id="wmHudDif">
+                <span id="wmHudDifNombre">—</span>
+            </div>
+        </div>
+
+        <div class="wm-progreso">
+            <div class="wm-progreso-fill" id="wmProgresoFill"></div>
+        </div>
+
+        <div class="wm-grid" id="wmGrid">
+            <button class="wm-hoyo" data-idx="0"><div class="wm-topo"><div class="wm-topo-cara"></div></div></button>
+            <button class="wm-hoyo" data-idx="1"><div class="wm-topo"><div class="wm-topo-cara"></div></div></button>
+            <button class="wm-hoyo" data-idx="2"><div class="wm-topo"><div class="wm-topo-cara"></div></div></button>
+            <button class="wm-hoyo" data-idx="3"><div class="wm-topo"><div class="wm-topo-cara"></div></div></button>
+            <button class="wm-hoyo" data-idx="4"><div class="wm-topo"><div class="wm-topo-cara"></div></div></button>
+            <button class="wm-hoyo" data-idx="5"><div class="wm-topo"><div class="wm-topo-cara"></div></div></button>
+            <button class="wm-hoyo" data-idx="6"><div class="wm-topo"><div class="wm-topo-cara"></div></div></button>
+            <button class="wm-hoyo" data-idx="7"><div class="wm-topo"><div class="wm-topo-cara"></div></div></button>
+            <button class="wm-hoyo" data-idx="8"><div class="wm-topo"><div class="wm-topo-cara"></div></div></button>
+        </div>
+
+    </div>
+
+    <!-- OVERLAY: elegir dificultad -->
+    <div class="wm-overlay" id="wmOverlayStart">
+        <div class="wm-overlay-card">
+            <div class="wm-overlay-icono">
+                <i data-lucide="target"></i>
+            </div>
+            <h2>Golpea el Topo</h2>
+            <p>Tenés <strong>30 segundos</strong>. Elegí la dificultad y golpeá todos los topos que puedas.</p>
+
+            <div class="wm-dificultades" id="wmDificultades">
+                <button class="wm-dif-card" data-dif="facil">
+                    <div class="wm-dif-icono">
+                        <i data-lucide="smile"></i>
+                    </div>
+                    <div class="wm-dif-info">
+                        <span class="wm-dif-nombre">Fácil</span>
+                        <span class="wm-dif-desc">Mucho tiempo de reacción</span>
+                    </div>
+                    <span class="wm-dif-premio">
+                        <i data-lucide="coins"></i> 1
+                    </span>
+                </button>
+
+                <button class="wm-dif-card" data-dif="media">
+                    <div class="wm-dif-icono">
+                        <i data-lucide="zap"></i>
+                    </div>
+                    <div class="wm-dif-info">
+                        <span class="wm-dif-nombre">Media</span>
+                        <span class="wm-dif-desc">Reacción normal</span>
+                    </div>
+                    <span class="wm-dif-premio">
+                        <i data-lucide="coins"></i> 2
+                    </span>
+                </button>
+
+                <button class="wm-dif-card" data-dif="dificil">
+                    <div class="wm-dif-icono">
+                        <i data-lucide="flame"></i>
+                    </div>
+                    <div class="wm-dif-info">
+                        <span class="wm-dif-nombre">Difícil</span>
+                        <span class="wm-dif-desc">Rápido y dos topos a la vez</span>
+                    </div>
+                    <span class="wm-dif-premio">
+                        <i data-lucide="coins"></i> 4
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- OVERLAY: fin de partida -->
+    <div class="wm-overlay" id="wmOverlayFin" hidden>
+        <div class="wm-overlay-card">
+            <div class="wm-overlay-icono" id="wmFinIcono">
+                <i data-lucide="trophy"></i>
+            </div>
+            <h2 id="wmFinTitulo">¡Terminó!</h2>
+            <p id="wmFinSubtitulo">Golpeaste 0 topos.</p>
+
+            <div class="wm-resumen">
+                <div class="wm-resumen-fila">
+                    <span class="wm-resumen-label">Dificultad</span>
+                    <span class="wm-resumen-valor" id="wmFinDif">—</span>
+                </div>
+                <div class="wm-resumen-fila">
+                    <span class="wm-resumen-label">Topos golpeados</span>
+                    <span class="wm-resumen-valor" id="wmFinAciertos">0</span>
+                </div>
+                <div class="wm-resumen-fila wm-resumen-destacada">
+                    <span class="wm-resumen-label">
+                        <i data-lucide="coins"></i>
+                        Recompensa
+                    </span>
+                    <span class="wm-resumen-valor wm-resumen-monedas" id="wmFinMonedas">+0</span>
+                </div>
+                <div class="wm-resumen-fila" id="wmFinRecordFila" hidden>
+                    <span class="wm-resumen-label">
+                        <i data-lucide="trophy"></i>
+                        ¡Nuevo récord!
+                    </span>
+                    <span class="wm-resumen-valor" id="wmFinRecord">0</span>
+                </div>
+            </div>
+
+            <button class="wm-btn-primario" id="wmBtnReintentar">
+                <i data-lucide="rotate-ccw"></i>
+                Jugar otra vez
+            </button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
