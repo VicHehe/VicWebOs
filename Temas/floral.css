@@ -1,8 +1,8 @@
 /* ================================================
    Tema: Floral
-   Colores vivos, pétalos cayendo y flores
-   vectoriales. Ya no es un recolor con detalles
-   sutiles: es un jardín.
+   Colores vivos, flores grandes en el welcome,
+   hojas en el sidebar y flor esquinera al hover.
+   Sin lluvia de pétalos: solo decoración puntual.
    ================================================ */
 
 :root {
@@ -50,50 +50,15 @@
     --accent-shadow-hover: rgba(236, 72, 153, 0.42);
     --accent-text-gradient: linear-gradient(135deg, #15803D, #EC4899);
 
-    /* Pétalo suelto (para lluvia) */
-    --theme-petalo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 34'%3E%3Cpath d='M12,0 C18,10 23,18 18,27 C14,33 10,33 6,27 C1,18 6,10 12,0 Z' fill='%23F9A8D4' opacity='0.85'/%3E%3Cpath d='M12,4 C15,12 18,18 15,25' stroke='%23F472B6' stroke-width='0.6' fill='none' opacity='0.5'/%3E%3C/svg%3E");
-
     /* Flor completa (5 pétalos + centro verde) */
     --theme-flor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg transform='translate(50,50)'%3E%3Cellipse cx='0' cy='-24' rx='11' ry='22' fill='%23F9A8D4' opacity='0.9'/%3E%3Cellipse cx='0' cy='-24' rx='11' ry='22' fill='%23F9A8D4' opacity='0.9' transform='rotate(72)'/%3E%3Cellipse cx='0' cy='-24' rx='11' ry='22' fill='%23F9A8D4' opacity='0.9' transform='rotate(144)'/%3E%3Cellipse cx='0' cy='-24' rx='11' ry='22' fill='%23F9A8D4' opacity='0.9' transform='rotate(216)'/%3E%3Cellipse cx='0' cy='-24' rx='11' ry='22' fill='%23F9A8D4' opacity='0.9' transform='rotate(288)'/%3E%3Ccircle r='7' fill='%2322C55E'/%3E%3Ccircle r='3' fill='%23FFFFFF'/%3E%3C/g%3E%3C/svg%3E");
 
-    /* Hoja (para decorar esquinas) */
+    /* Hoja (para decorar esquinas del sidebar) */
     --theme-hoja: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 60'%3E%3Cpath d='M20,0 C35,15 38,35 20,55 C2,35 5,15 20,0 Z' fill='%234ADE80' opacity='0.75'/%3E%3Cpath d='M20,8 L20,50' stroke='%2315803D' stroke-width='0.8' fill='none' opacity='0.6'/%3E%3Cpath d='M20,20 L28,26 M20,20 L12,26 M20,32 L28,38 M20,32 L12,38' stroke='%2315803D' stroke-width='0.6' fill='none' opacity='0.5'/%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   1. LLUVIA DE PÉTALOS CAYENDO
-   Dos capas a velocidades distintas para dar sensación de
-   profundidad. Una es más grande y va más rápido, la otra es
-   más chica y lenta.
-   ================================================================ */
-body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.55;
-    background-image:
-        var(--theme-petalo),
-        var(--theme-petalo),
-        var(--theme-petalo);
-    background-size: 22px 32px, 16px 24px, 28px 40px;
-    background-repeat: repeat;
-    background-position: 0 0, 60px 40px, 140px 100px;
-    animation: floral-caida 26s linear infinite;
-}
-
-@keyframes floral-caida {
-    from {
-        background-position: 0 -400px, 60px -360px, 140px -440px;
-    }
-    to {
-        background-position: 0 100vh, 60px 100vh, 140px 100vh;
-    }
-}
-
-/* ================================================================
-   2. WELCOME = jardín con flores grandes al fondo
+   WELCOME = jardín con flores grandes al fondo
    ================================================================ */
 .welcome-placeholder {
     position: relative;
@@ -154,7 +119,7 @@ body::before {
     );
 }
 
-/* Icono del hero con marco de flor */
+/* Icono del hero con marco de anillos concéntricos */
 .welcome-icon-wrap {
     position: relative;
     box-shadow:
@@ -166,14 +131,13 @@ body::before {
 }
 
 /* ================================================================
-   3. ACCESOS RÁPIDOS = cards con forma de pétalo
+   ACCESOS RÁPIDOS = cards con forma de pétalo
    ================================================================ */
 .acceso-item {
     position: relative;
     background:
         linear-gradient(145deg, #FFFFFF 0%, #F0FDF4 100%);
     border: 1.5px solid #BBF7D0;
-    /* Esquinas asimétricas tipo hoja */
     border-radius: 32px 8px 32px 8px;
     box-shadow:
         0 4px 12px rgba(22, 163, 74, 0.10),
@@ -214,7 +178,7 @@ body::before {
         inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
-/* Ícono: círculo con anillo de pétalos al hover */
+/* Ícono con anillo de pétalos al hover */
 .acceso-icon-wrap {
     background: linear-gradient(135deg, #DCFCE7, #F0FDF4);
     border: 1.5px solid #BBF7D0;
@@ -234,7 +198,7 @@ body::before {
 }
 
 /* ================================================================
-   4. WIDGETS = mismo tratamiento de pétalo
+   WIDGETS = mismo tratamiento de pétalo
    ================================================================ */
 .widget-item {
     border: 1.5px solid #BBF7D0;
@@ -252,7 +216,7 @@ body::before {
 }
 
 /* ================================================================
-   5. SIDEBAR = jardín vertical
+   SIDEBAR = jardín vertical
    ================================================================ */
 .sidebar {
     position: relative;
@@ -260,7 +224,7 @@ body::before {
         linear-gradient(180deg, #F0FDF4 0%, #DCFCE7 100%);
     border-right: 2px solid #86EFAC;
 }
-/* Hojas decorativas al fondo del sidebar */
+/* Hojas decorativas al fondo */
 .sidebar::before {
     content: '';
     position: absolute;
@@ -276,7 +240,6 @@ body::before {
     background-position: 15% 8%, 80% 55%, 45% 92%;
     background-repeat: no-repeat;
 }
-/* El sidebar-comunidad y nav-item por encima */
 .sidebar-comunidad,
 .sidebar-label,
 .sidebar-nav,
@@ -285,7 +248,7 @@ body::before {
     z-index: 1;
 }
 
-/* Nav activo: barrita rosa + puntito de flor */
+/* Nav activo: barrita verde→rosa + puntito de flor */
 .nav-item.active::before {
     background: linear-gradient(180deg, #22C55E, #EC4899);
     width: 4px;
@@ -307,7 +270,7 @@ body::before {
 }
 
 /* ================================================================
-   6. PESTAÑAS = subrayado con gradiente floral
+   PESTAÑAS = subrayado con gradiente floral
    ================================================================ */
 .tab-item.active::before {
     content: '';
@@ -327,7 +290,7 @@ body::before {
 }
 
 /* ================================================================
-   7. MODALES = borde floral + flores en las esquinas
+   MODALES = borde floral + flor en la esquina
    ================================================================ */
 .config-card,
 .modal-todas-card {
@@ -339,7 +302,6 @@ body::before {
         0 24px 48px rgba(20, 83, 45, 0.20),
         0 4px 12px rgba(236, 72, 153, 0.15);
 }
-/* Borde con gradiente floral */
 .config-card::before,
 .modal-todas-card::before {
     content: '';
@@ -356,7 +318,6 @@ body::before {
     pointer-events: none;
     z-index: 3;
 }
-/* Flor decorativa en la esquina superior derecha del modal */
 .config-card::after,
 .modal-todas-card::after {
     content: '';
@@ -373,7 +334,7 @@ body::before {
 }
 
 /* ================================================================
-   8. BOTÓN PRIMARIO = con brillo floral
+   BOTÓN PRIMARIO = con brillo floral
    ================================================================ */
 .btn-primario {
     box-shadow:
