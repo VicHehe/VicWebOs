@@ -100,17 +100,9 @@
 
 /* ================================================================
    2. WELCOME = manta de huaso + guirnalda
-   FIX móvil:
-   - min-width: 0 + max-width: 100%
-   - overflow: clip
-   - contain: inline-size
    ================================================================ */
 .welcome-placeholder {
     position: relative;
-    min-width: 0;
-    max-width: 100%;
-    overflow: clip;
-    contain: inline-size;
     background:
         repeating-linear-gradient(
             180deg,
@@ -154,41 +146,18 @@
     opacity: 0.85;
 }
 
-/* Contención de hijos flex */
-.welcome-placeholder > * {
-    max-width: 100%;
-    min-width: 0;
-}
-
 .welcome-hero,
 .welcome-section {
     position: relative;
     z-index: 2;
-    max-width: 100%;
-    min-width: 0;
-    overflow-wrap: break-word;
-    word-break: break-word;
 }
 
-.welcome-hero h1,
-.welcome-hero p,
-.acceso-item,
-.acceso-nombre,
-.btn-ver-todas {
-    max-width: 100%;
-    min-width: 0;
-    overflow-wrap: break-word;
-    word-break: break-word;
-}
-
-/* Glow con min() para no desbordar */
 .welcome-glow {
     position: absolute;
     top: -100px;
     left: 50%;
     transform: translateX(-50%);
     width: min(720px, 100%);
-    max-width: 100%;
     height: 720px;
     background: radial-gradient(
         circle,
@@ -277,6 +246,7 @@
 
 /* ================================================================
    5. SIDEBAR
+   En móvil: restaurar position: fixed (media query abajo)
    ================================================================ */
 .sidebar {
     position: relative;
@@ -315,6 +285,13 @@
     background: linear-gradient(180deg, var(--chile-rojo) 0%, var(--chile-azul) 50%, var(--chile-oro) 100%);
     box-shadow: 0 0 8px rgba(213, 43, 30, 0.4);
     width: 4px;
+}
+
+/* FIX drawer móvil */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+    }
 }
 
 /* ================================================================
