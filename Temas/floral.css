@@ -53,17 +53,9 @@
 
 /* ================================================================
    WELCOME = jardín
-   FIX móvil:
-   - min-width: 0 + max-width: 100%
-   - overflow: clip
-   - contain: inline-size
    ================================================================ */
 .welcome-placeholder {
     position: relative;
-    min-width: 0;
-    max-width: 100%;
-    overflow: clip;
-    contain: inline-size;
     background:
         radial-gradient(ellipse at top left,    rgba(220, 252, 231, 0.6) 0%, transparent 45%),
         radial-gradient(ellipse at top right,   rgba(252, 231, 243, 0.5) 0%, transparent 50%),
@@ -103,41 +95,18 @@
     background-repeat: no-repeat;
 }
 
-/* Contención de hijos flex */
-.welcome-placeholder > * {
-    max-width: 100%;
-    min-width: 0;
-}
-
 .welcome-hero,
 .welcome-section {
     position: relative;
     z-index: 2;
-    max-width: 100%;
-    min-width: 0;
-    overflow-wrap: break-word;
-    word-break: break-word;
 }
 
-.welcome-hero h1,
-.welcome-hero p,
-.acceso-item,
-.acceso-nombre,
-.btn-ver-todas {
-    max-width: 100%;
-    min-width: 0;
-    overflow-wrap: break-word;
-    word-break: break-word;
-}
-
-/* Glow con min() para no desbordar */
 .welcome-glow {
     position: absolute;
     top: -100px;
     left: 50%;
     transform: translateX(-50%);
     width: min(720px, 100%);
-    max-width: 100%;
     height: 720px;
     background: radial-gradient(
         circle,
@@ -244,6 +213,7 @@
 
 /* ================================================================
    SIDEBAR = jardín vertical
+   En móvil: restaurar position: fixed (media query abajo)
    ================================================================ */
 .sidebar {
     position: relative;
@@ -292,6 +262,13 @@
     box-shadow:
         0 0 0 2px rgba(249, 168, 212, 0.5),
         0 0 8px rgba(236, 72, 153, 0.55);
+}
+
+/* FIX drawer móvil */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+    }
 }
 
 /* ================================================================
