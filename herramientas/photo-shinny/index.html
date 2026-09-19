@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Photo Shinny</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="ps-container">
+
+        <!-- HEADER -->
+        <header class="ps-header">
+            <div class="ps-logo">
+                <div class="ps-logo-mark">
+                    <i data-lucide="wand-2"></i>
+                </div>
+                <div class="ps-logo-text">
+                    <h1>Photo Shinny</h1>
+                    <p id="psUserBadge">—</p>
+                </div>
+            </div>
+
+            <div class="ps-header-actions">
+                <button class="ps-btn-sec" id="btnAbrirArchivo" title="Abrir una imagen local">
+                    <i data-lucide="folder-open"></i>
+                    <span>Archivo</span>
+                </button>
+                <button class="ps-btn-sec" id="btnAbrirGaleria" title="Elegir una imagen de tu galería">
+                    <i data-lucide="images"></i>
+                    <span>Galería</span>
+                </button>
+                <button class="ps-btn-sec" id="btnGuardarPNG" title="Descargar como PNG" disabled>
+                    <i data-lucide="download"></i>
+                    <span>PNG</span>
+                </button>
+                <button class="ps-btn-pri" id="btnGuardarGaleria" title="Guardar en tu galería" disabled>
+                    <i data-lucide="image-plus"></i>
+                    <span>Guardar</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- BODY -->
+        <div class="ps-body">
+
+            <!-- CANVAS -->
+            <div class="ps-canvas-wrapper" id="canvasWrapper">
+                <div class="ps-stage" id="canvasStage">
+                    <canvas id="canvasPrincipal"></canvas>
+                    <div class="crop-overlay" id="cropOverlay" hidden>
+                        <div class="crop-box" id="cropBox">
+                            <div class="crop-handle nw" data-dir="nw"></div>
+                            <div class="crop-handle n"  data-dir="n"></div>
+                            <div class="crop-handle ne" data-dir="ne"></div>
+                            <div class="crop-handle e"  data-dir="e"></div>
+                            <div class="crop-handle se" data-dir="se"></div>
+                            <div class="crop-handle s"  data-dir="s"></div>
+                            <div class="crop-handle sw" data-dir="sw"></div>
+                            <div class="crop-handle w"  data-dir="w"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ps-placeholder" id="placeholder">
+                    <i data-lucide="image"></i>
+                    <p>Carga una imagen para empezar</p>
+                </div>
+            </div>
+
+            <!-- PANEL -->
+            <aside class="ps-panel">
+
+                <!-- INFO -->
+                <section class="panel-section" id="infoImagen" hidden>
+                    <div class="info-row"><span>Nombre</span><span id="imgNombre">—</span></div>
+                    <div class="info-row"><span>Dimensiones</span><span id="imgDimensiones">—</span></div>
+                </section>
+
+                <!-- FILTROS -->
+                <section class="panel-section">
+                    <h3><i data-lucide="sliders-horizontal"></i> Ajustes</h3>
+
+                    <div class="slider-group">
+                        <label>Brillo <span id="brilloValor">0</span></label>
+                        <input type="range" id="brilloSlider" min="-100" max="100" value="0">
+                    </div>
+
+                    <div class="slider-group">
+                        <label>Contraste <span id="contrasteValor">0</span></label>
+                        <input type="range" id="contrasteSlider" min="-100" max="100" value="0">
+                    </div>
+
+                    <div class="slider-group">
+                        <label>Saturación <span id="saturacionValor">0</span></label>
+                        <input type="range" id="saturacionSlider" min="-100" max="100" value="0">
+                    </div>
+
+                    <div class="filtros-grid">
+                        <button class="filtro-btn" data-filtro="grises">
+                            <i data-lucide="contrast"></i>
+                            Grises
+                        </button>
+                        <button class="filtro-btn" data-filtro="sepia">
+                            <i data-lucide="coffee"></i>
+                            Sepia
+                        </button>
+                        <button class="filtro-btn" data-filtro="negativo">
+                            <i data-lucide="sun-dim"></i>
+                            Negativo
+                        </button>
+                        <button class="filtro-btn" data-filtro="desenfoque">
+                            <i data-lucide="droplets"></i>
+                            Desenfoque
+                        </button>
+                        <button class="filtro-btn filtro-btn-reset" data-filtro="reset">
+                            <i data-lucide="rotate-ccw"></i>
+                            Resetear
+                        </button>
+                    </div>
+                </section>
+
+                <!-- TRANSFORMAR -->
+                <section class="panel-section">
+                    <h3><i data-lucide="move-3d"></i> Transformar</h3>
+                    <div class="transform-grid">
+                        <button class="ps-btn-sec btn-sm" id="btnVoltearH" title="Voltear horizontal">
+                            <i data-lucide="flip-horizontal"></i>
+                            Horizontal
+                        </button>
+                        <button class="ps-btn-sec btn-sm" id="btnVoltearV" title="Voltear vertical">
+                            <i data-lucide="flip-vertical"></i>
+                            Vertical
+                        </button>
+                        <button class="ps-btn-sec btn-sm" id="btnRotar90" title="Rotar 90°">
+                            <i data-lucide="rotate-cw"></i>
+                            Rotar 90°
+                        </button>
+                        <button class="ps-btn-sec btn-sm" id="btnRecortar" title="Recortar imagen">
+                            <i data-lucide="crop"></i>
+                            Recortar
+                        </button>
+                        <button class="ps-btn-pri btn-sm" id="btnAplicarRecorte" hidden>
+                            <i data-lucide="check"></i>
+                            Aplicar
+                        </button>
+                        <button class="ps-btn-sec btn-sm" id="btnCancelarRecorte" hidden>
+                            <i data-lucide="x"></i>
+                            Cancelar
+                        </button>
+                    </div>
+                </section>
+
+            </aside>
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" accept="image/*" hidden>
+
+    <div class="ps-toast" id="psToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
