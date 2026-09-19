@@ -2,6 +2,7 @@
    Widget: Mascota
    Gato o perro que cuidas cada día.
    Ingreso pasivo dependiente de la racha.
+   Todos los colores vienen del tema activo.
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -244,19 +245,17 @@ body {
     width: 11px;
     height: 11px;
     flex-shrink: 0;
-}
-.mg-meta-racha [data-lucide] {
-    color: #F97316;
+    color: var(--violet-500, #8B5CF6);
 }
 .mg-meta-pago {
     color: var(--violet-700, #6D28D9);
 }
 .mg-meta-pago [data-lucide] {
-    color: #D97706;
+    color: var(--violet-500, #8B5CF6);
 }
 
 /* ============================================================
-   BARRAS
+   BARRAS — todos los colores del tema
    ============================================================ */
 .mg-barras {
     display: flex;
@@ -278,10 +277,8 @@ body {
     width: 15px;
     height: 15px;
     flex-shrink: 0;
+    color: var(--violet-500, #8B5CF6);
 }
-.mg-barra-icono.hambre { color: #F59E0B; }
-.mg-barra-icono.juego   { color: #EC4899; }
-.mg-barra-icono.energia { color: #3B82F6; }
 
 .mg-barra-track {
     height: 8px;
@@ -297,11 +294,25 @@ body {
     transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s;
     position: relative;
 }
-.mg-barra-fill.hambre { background: linear-gradient(90deg, #FBBF24, #F59E0B); }
-.mg-barra-fill.juego   { background: linear-gradient(90deg, #F472B6, #EC4899); }
-.mg-barra-fill.energia { background: linear-gradient(90deg, #60A5FA, #3B82F6); }
 
-/* Estado crítico: menos de 10% */
+/* 3 barras: cada una con un matiz del tema, no colores fijos */
+.mg-barra-fill.hambre {
+    background: linear-gradient(90deg,
+        var(--violet-400, #A78BFA),
+        var(--violet-600, #7C3AED));
+}
+.mg-barra-fill.juego {
+    background: linear-gradient(90deg,
+        var(--violet-300, #C4B5FD),
+        var(--violet-500, #8B5CF6));
+}
+.mg-barra-fill.energia {
+    background: linear-gradient(90deg,
+        var(--violet-500, #8B5CF6),
+        var(--violet-700, #6D28D9));
+}
+
+/* Estado crítico: menos de 10% → rojo semántico (fijo) */
 .mg-barra-fill.critico {
     background: linear-gradient(90deg, #EF4444, #DC2626) !important;
     animation: mg-alerta 1s ease-in-out infinite;
@@ -352,10 +363,8 @@ body {
     width: 15px;
     height: 15px;
     transition: all 0.2s;
+    color: var(--violet-500, #8B5CF6);
 }
-.mg-btn[data-tipo="hambre"] > [data-lucide] { color: #F59E0B; }
-.mg-btn[data-tipo="juego"]   > [data-lucide] { color: #EC4899; }
-.mg-btn[data-tipo="energia"] > [data-lucide] { color: #3B82F6; }
 
 .mg-btn-texto {
     font-size: 10px;
@@ -369,12 +378,16 @@ body {
     gap: 2px;
     font-size: 9.5px;
     font-weight: 800;
-    color: #B45309;
+    color: var(--violet-700, #6D28D9);
+    background: var(--violet-50, #F5F3FF);
+    padding: 1px 5px;
+    border-radius: 999px;
+    margin-top: 1px;
 }
 .mg-btn-costo [data-lucide] {
     width: 8px !important;
     height: 8px !important;
-    color: #D97706 !important;
+    color: var(--violet-600, #7C3AED) !important;
 }
 
 .mg-btn:hover:not(:disabled) {
@@ -382,6 +395,10 @@ body {
     background: var(--violet-50, #F5F3FF);
     transform: translateY(-1px);
     box-shadow: 0 4px 10px var(--accent-shadow, rgba(139,92,246,0.18));
+}
+.mg-btn:hover:not(:disabled) > [data-lucide] {
+    color: var(--violet-600, #7C3AED);
+    transform: scale(1.15);
 }
 .mg-btn:active:not(:disabled) { transform: translateY(0); }
 .mg-btn:disabled {
