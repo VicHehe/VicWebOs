@@ -1,9 +1,11 @@
 // ============================================================
 //  Ajedrez — Juego premium de VicWebOs
 //  ------------------------------------------------------------
+//  La compra se hace desde Stor-He (como cualquier otra app).
+//  Si no está instalada, esta app no debería ni abrirse.
+//
 //  Integra chess.js (lógica) + cm-chessboard (UI) + js-chess-engine (IA).
 //  Dos niveles: Media (x1) y Difícil (x2).
-//  Recompensas por piezas capturadas, victoria y eficiencia.
 //  Sin guardado de partida. Sin setTimeout en el flujo crítico.
 // ============================================================
 
@@ -11,20 +13,17 @@
 
 const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const APP_ID = 'ajedrez';
-const PRECIO_APP = 50;
 
-// Configuración de dificultad
 const DIFICULTADES = {
     media:   { nombre: 'Media',   multiplicador: 1, aiLevel: 3 },
     dificil: { nombre: 'Difícil', multiplicador: 2, aiLevel: 5 }
 };
 
-// Recompensas base (x1)
 const RECOMPENSAS_BASE = {
     peon: 1, caballo: 2, alfil: 2, torre: 3, dama: 5,
     bonusVictoria: 12,
-    bonusEficiencia30: 10,  // Si gana en ≤30 movimientos
-    bonusEficiencia50: 5,   // Si gana en ≤50 movimientos
+    bonusEficiencia30: 10,
+    bonusEficiencia50: 5,
     topeMedia: 60,
     topeDificil: 120
 };
@@ -33,9 +32,9 @@ const RECOMPENSAS_BASE = {
 let usuarioActual = null;
 let dificultadActual = 'media';
 let partidaActiva = false;
-let tablero = null;         // Instancia de cm-chessboard
-let chess = null;           // Instancia de chess.js
-let motor = null;           // Instancia de js-chess-engine
+let tablero = null;
+let chess = null;
+let motor = null;
 let capturas = { peon: 0, caballo: 0, alfil: 0, torre: 0, dama: 0 };
 let movimientos = 0;
 let inicializado = false;
@@ -77,7 +76,7 @@ window.addEventListener('message', (e) => {
 });
 
 // ============================================================
-//  MENSAJES DE ESTADO
+//  MENSAJES
 // ============================================================
 function mostrarMensaje(texto, tipo = 'info') {
     const el = document.getElementById('ajMensaje');
@@ -88,7 +87,7 @@ function mostrarMensaje(texto, tipo = 'info') {
 }
 
 // ============================================================
-//  INICIALIZACIÓN
+//  INIT
 // ============================================================
 async function inicializar() {
     if (inicializado) return;
@@ -96,7 +95,7 @@ async function inicializar() {
 
     aplicarTemaDelPadre();
 
-    // Obtener usuario
+    // Usuario
     try {
         const api = API();
         usuarioActual = (api && typeof api.obtenerCuenta === 'function')
@@ -111,20 +110,9 @@ async function inicializar() {
             : 'Invitado';
     }
 
-    // Inicializar componentes de ajedrez
+    // Inicializar lógica
     chess = new Chess();
     motor = new jsChessEngine.Game();
-
-    // Verificar compra
-    const comprado = await verificarCompra();
-    if (!comprado) {
-        document.getElementById('ajOverlayCompra').hidden = false;
-        document.getElementById('ajBtnComprar').addEventListener('click', comprarApp);
-    } else {
-        // Ya comprado: iniciar directamente
-        document.getElementById('ajOverlayCompra').hidden = true;
-        iniciarPartida();
-    }
 
     // Eventos de dificultad
     document.querySelectorAll('.aj-btn-dificultad').forEach(btn => {
@@ -135,7 +123,6 @@ async function inicializar() {
         });
     });
 
-    // Botones de partida
     document.getElementById('ajBtnNuevaPartida')?.addEventListener('click', iniciarPartida);
     document.getElementById('ajBtnRendirse')?.addEventListener('click', rendirse);
     document.getElementById('ajBtnJugarOtra')?.addEventListener('click', () => {
@@ -143,88 +130,9 @@ async function inicializar() {
         iniciarPartida();
     });
 
+    iniciarPartida();
+
     if (window.lucide) window.lucide.createIcons();
-}
-
-// ============================================================
-//  VERIFICAR COMPRA (indexedDB local del iframe)
-// ============================================================
-function claveCompra() {
-    const cod = usuarioActual && usuarioActual.codigo ? usuarioActual.codigo : 'invitado';
-    return 'ajedrez_comprado_' + cod;
-}
-
-async function verificarCompra() {
-    try {
-        const db = await abrirIDB();
-        return await new Promise((resolve) => {
-            const tx = db.transaction('compras', 'readonly');
-            const req = tx.objectStore('compras').get(claveCompra());
-            req.onsuccess = () => resolve(!!req.result);
-            req.onerror = () => resolve(false);
-        });
-    } catch (e) {
-        return false;
-    }
-}
-
-async function marcarComoComprado() {
-    try {
-        const db = await abrirIDB();
-        return await new Promise((resolve, reject) => {
-            const tx = db.transaction('compras', 'readwrite');
-            tx.objectStore('compras').put(true, claveCompra());
-            tx.oncomplete = () => resolve();
-            tx.onerror = (e) => reject(e.target.error);
-        });
-    } catch (e) { /* silencioso */ }
-}
-
-function abrirIDB() {
-    return new Promise((resolve, reject) => {
-        const req = indexedDB.open('AjedrezDB', 1);
-        req.onupgradeneeded = (e) => {
-            const db = e.target.result;
-            if (!db.objectStoreNames.contains('compras')) db.createObjectStore('compras');
-        };
-        req.onsuccess = (e) => resolve(e.target.result);
-        req.onerror = (e) => reject(e.target.error);
-    });
-}
-
-// ============================================================
-//  COMPRA
-// ============================================================
-async function comprarApp() {
-    const btn = document.getElementById('ajBtnComprar');
-    const status = document.getElementById('ajCompraStatus');
-    if (btn.disabled) return;
-    btn.disabled = true;
-    status.textContent = 'Procesando...';
-    status.className = 'aj-status';
-
-    try {
-        const api = API();
-        if (!api || typeof api.gastoBoleta !== 'function') {
-            throw new Error('Sin conexión con VicWebOs');
-        }
-
-        await api.gastoBoleta('crown', APP_ID, 'Compra de Ajedrez', PRECIO_APP);
-        await marcarComoComprado();
-
-        status.textContent = '¡Compra exitosa!';
-        status.className = 'aj-status success';
-
-        // Iniciar partida tras breve pausa
-        requestAnimationFrame(() => {
-            document.getElementById('ajOverlayCompra').hidden = true;
-            iniciarPartida();
-        });
-    } catch (e) {
-        status.textContent = e.message || 'Error al comprar';
-        status.className = 'aj-status error';
-        btn.disabled = false;
-    }
 }
 
 // ============================================================
@@ -233,22 +141,21 @@ async function comprarApp() {
 function iniciarPartida() {
     if (!chess) return;
 
-    // Reset estado
     chess = new Chess();
     motor = new jsChessEngine.Game();
     capturas = { peon: 0, caballo: 0, alfil: 0, torre: 0, dama: 0 };
     movimientos = 0;
     partidaActiva = true;
 
-    // Reset UI
     document.getElementById('ajHistorial').innerHTML = '<div class="aj-historial-vacio">La partida no ha comenzado</div>';
     actualizarRecompensas();
     actualizarTurnoUI();
 
-    // Inicializar tablero
     if (tablero) {
-        tablero.destroy();
+        try { tablero.destroy(); } catch (e) {}
+        tablero = null;
     }
+
     tablero = new Chessboard(document.getElementById('ajTablero'), {
         position: 'start',
         orientation: 'white',
@@ -264,26 +171,21 @@ function onMovimientoUsuario(from, to) {
     if (!partidaActiva) return;
     if (!esTurnoJugador()) return;
 
-    // Validar movimiento con chess.js
     const movimiento = chess.move({ from, to, promotion: 'q' });
     if (!movimiento) {
         mostrarMensaje('Movimiento inválido', 'error');
         return;
     }
 
-    // Actualizar tablero
     tablero.setPosition(chess.fen());
 
-    // Actualizar estado
     movimientos++;
     registrarCaptura(movimiento);
     actualizarHistorial();
     actualizarRecompensas();
 
-    // Comprobar fin de partida
     if (comprobarFinPartida()) return;
 
-    // Turno de la IA
     actualizarTurnoUI();
     mostrarMensaje('La IA está pensando...');
     requestAnimationFrame(() => turnoIA());
@@ -300,20 +202,23 @@ function turnoIA() {
     const nivel = DIFICULTADES[dificultadActual].aiLevel;
     let movimientoIA = null;
 
-    // Usar js-chess-engine para obtener el mejor movimiento
     try {
         const fen = chess.fen();
         const config = jsChessEngine.getFen ? jsChessEngine.getFen(fen) : fen;
-        // La API de js-chess-engine: ai(config, level) devuelve {from, to}
         const resultado = jsChessEngine.ai(config, nivel);
         if (resultado && resultado.from && resultado.to) {
-            movimientoIA = chess.move({ from: resultado.from, to: resultado.to, promotion: 'q' });
+            // js-chess-engine usa notación "E2" (mayúsculas).
+            // chess.js espera "e2" (minúsculas).
+            movimientoIA = chess.move({
+                from: String(resultado.from).toLowerCase(),
+                to: String(resultado.to).toLowerCase(),
+                promotion: 'q'
+            });
         }
     } catch (e) {
         console.warn('[Ajedrez] Error en motor, usando movimiento aleatorio:', e);
     }
 
-    // Fallback: movimiento aleatorio si falla
     if (!movimientoIA) {
         const movimientosLegales = chess.moves({ verbose: true });
         if (movimientosLegales.length > 0) {
@@ -338,9 +243,8 @@ function turnoIA() {
 
 function registrarCaptura(movimiento) {
     if (movimiento.captured) {
-        const pieza = movimiento.captured; // 'p', 'n', 'b', 'r', 'q'
         const mapa = { p: 'peon', n: 'caballo', b: 'alfil', r: 'torre', q: 'dama' };
-        const clave = mapa[pieza];
+        const clave = mapa[movimiento.captured];
         if (clave && capturas[clave] !== undefined) {
             capturas[clave]++;
         }
@@ -350,11 +254,8 @@ function registrarCaptura(movimiento) {
 function comprobarFinPartida() {
     if (chess.isCheckmate()) {
         const ganador = chess.turn() === 'w' ? 'negras' : 'blancas';
-        if (ganador === 'blancas') {
-            finalizarPartida('victoria');
-        } else {
-            finalizarPartida('derrota');
-        }
+        if (ganador === 'blancas') finalizarPartida('victoria');
+        else finalizarPartida('derrota');
         return true;
     }
     if (chess.isDraw() || chess.isStalemate() || chess.isThreefoldRepetition()) {
@@ -364,9 +265,6 @@ function comprobarFinPartida() {
     return false;
 }
 
-// ============================================================
-//  RENDIRSE
-// ============================================================
 function rendirse() {
     if (!partidaActiva) return;
     if (!confirm('¿Seguro que quieres rendirte?')) return;
@@ -379,7 +277,6 @@ function rendirse() {
 function finalizarPartida(resultado) {
     partidaActiva = false;
 
-    // Calcular recompensas
     const mult = DIFICULTADES[dificultadActual].multiplicador;
     const tope = dificultadActual === 'media' ? RECOMPENSAS_BASE.topeMedia : RECOMPENSAS_BASE.topeDificil;
 
@@ -392,7 +289,6 @@ function finalizarPartida(resultado) {
 
     if (resultado === 'victoria') {
         monedas += RECOMPENSAS_BASE.bonusVictoria * mult;
-        // Bonus por eficiencia
         const movsJugador = Math.ceil(movimientos / 2);
         if (movsJugador <= 30) {
             monedas += RECOMPENSAS_BASE.bonusEficiencia30 * mult;
@@ -403,7 +299,6 @@ function finalizarPartida(resultado) {
 
     monedas = Math.min(monedas, tope);
 
-    // Mostrar overlay
     const icono = document.getElementById('ajFinIcono');
     const titulo = document.getElementById('ajFinTitulo');
     const subtitulo = document.getElementById('ajFinSubtitulo');
@@ -433,7 +328,6 @@ function finalizarPartida(resultado) {
     document.getElementById('ajOverlayFin').hidden = false;
     if (window.lucide) window.lucide.createIcons();
 
-    // Otorgar monedas
     if (monedas > 0) {
         otorgarMonedas(monedas);
     }
@@ -442,7 +336,7 @@ function finalizarPartida(resultado) {
 function otorgarMonedas(cantidad) {
     const api = API();
     if (!api || typeof api.canjear !== 'function') return;
-    const desc = `Ajedrez ${DIFICULTADES[dificultadActual].nombre} (${capturas.peon + capturas.caballo + capturas.alfil + capturas.torre + capturas.dama} capturas)`;
+    const desc = `Ajedrez ${DIFICULTADES[dificultadActual].nombre}`;
     Promise.resolve(api.canjear('crown', APP_ID, desc, cantidad))
         .catch(e => console.warn('[Ajedrez] No se pudieron dar monedas:', e));
 }
@@ -496,7 +390,6 @@ function actualizarRecompensas() {
     set('ajMonedasTorre', capturas.torre * RECOMPENSAS_BASE.torre * mult);
     set('ajMonedasDama', capturas.dama * RECOMPENSAS_BASE.dama * mult);
 
-    // Total (sin bonus hasta que termine)
     let total = 0;
     total += capturas.peon * RECOMPENSAS_BASE.peon * mult;
     total += capturas.caballo * RECOMPENSAS_BASE.caballo * mult;
@@ -507,7 +400,4 @@ function actualizarRecompensas() {
     if (totalEl) totalEl.textContent = total;
 }
 
-// ============================================================
-//  INICIO
-// ============================================================
 document.addEventListener('DOMContentLoaded', inicializar);
