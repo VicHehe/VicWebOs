@@ -6,6 +6,8 @@
 //    - Exportación: PNG local o Galería
 //    - Referencias: picker de la galería de VicWebOs
 //    - Tema: heredado del padre
+//    - UI adaptativa: barra inferior + panel flotante en móvil,
+//      panel lateral fijo en PC
 // ============================================================
 
 'use strict';
@@ -14,6 +16,7 @@ const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const IDB_NAME = 'VicWebOsArteFlash';
 const IDB_VERSION = 1;
 const IDB_STORE = 'dibujos';
+
 const PALETA_BLK_NX64 = [
     '#000000','#12173d','#293268','#464b8c','#6b74b2','#909edd','#c1d9f2','#ffffff',
     '#a293c4','#7b6aa5','#53427f','#3c2c68','#431e66','#5d2f8c','#854cbf','#b483ef',
@@ -27,7 +30,7 @@ const PALETA_BLK_NX64 = [
 
 // ---------- ESTADO GLOBAL ----------
 let usuarioActual = null;
-let dibujoGuardado = null;   // { blob, fecha } desde IDB
+let dibujoGuardado = null;
 
 const state = {
     herramienta: 'pincel',
@@ -59,7 +62,7 @@ const state = {
     coloresRecientes: []
 };
 
-let referencias = []; // [{ id, url, nombre }]
+let referencias = [];
 
 const API = () => window.parent.__vicwebos || null;
 const BD  = () => window.parent.ConfigBD || null;
@@ -277,7 +280,6 @@ function setColor(c) {
 function actualizarPaletaSeleccion() {
     document.querySelectorAll('.af-paleta .af-color-btn').forEach(btn => {
         const bg = btn.style.background;
-        // Comparar normalizado
         const match = bg === state.color || bg === hexToRgb(state.color);
         btn.classList.toggle('seleccionado', match);
     });
@@ -967,7 +969,7 @@ function cambiarTamano(delta) {
     el.value = val;
     state.tamano = val;
     const lbl = document.getElementById('tamanioValor');
-    if (lbl) lbl.textContent = val;
+    if (lbl) lbl.textContent = val + 'px';
 }
 
 // ============================================================
@@ -1008,15 +1010,15 @@ function activarPipeta() {
 function inicializarSliders() {
     document.getElementById('tamanioPincel')?.addEventListener('input', function() {
         state.tamano = parseInt(this.value);
-        document.getElementById('tamanioValor').textContent = this.value;
+        document.getElementById('tamanioValor').textContent = this.value + 'px';
     });
     document.getElementById('opacidadPincel')?.addEventListener('input', function() {
         state.opacidad = parseInt(this.value) / 100;
-        document.getElementById('opacidadValor').textContent = this.value;
+        document.getElementById('opacidadValor').textContent = this.value + '%';
     });
     document.getElementById('durezaPincel')?.addEventListener('input', function() {
         state.dureza = parseInt(this.value) / 100;
-        document.getElementById('durezaValor').textContent = this.value;
+        document.getElementById('durezaValor').textContent = this.value + '%';
     });
     document.getElementById('estabilizador')?.addEventListener('input', function() {
         state.estabilizador = parseInt(this.value);
@@ -1101,7 +1103,7 @@ async function guardarEnGaleria() {
 }
 
 // ============================================================
-//  REFERENCIAS (desde el picker de galería)
+//  REFERENCIAS
 // ============================================================
 async function anadirReferencia() {
     const mh = MH();
@@ -1226,6 +1228,135 @@ async function preguntarContinuarSesion(data) {
 }
 
 // ============================================================
+//  UI MÓVIL — barra inferior + panel flotante + pantalla completa
+// ============================================================
+function inicializarUIMovil() {
+    const app = document.getElementById('afApp');
+    const panel = document.getElementById('afPanel');
+    const panelTitulo = document.getElementById('afPanelTitulo');
+    const toolbar = document.getElementById('afToolbar');
+
+    if (!panel || !toolbar) return;
+
+    // --- Títulos de cada tab ---
+    const titulos = {
+        color:        { icono: 'palette',              texto: 'Color' },
+        herramientas: { icono: 'brush',                texto: 'Herramientas' },
+        ajustes:      { icono: 'sliders-horizontal',   texto: 'Ajustes' },
+        capas:        { icono: 'layers',               texto: 'Capas' },
+        referencias:  { icono: 'image',                texto: 'Referencias' }
+    };
+
+    // --- Abrir / cerrar panel ---
+    function abrirPanel(tab) {
+        panel.querySelectorAll('.af-panel-tab').forEach(t => {
+            t.classList.toggle('active', t.dataset.tab === tab);
+        });
+        panel.querySelectorAll('.af-seccion').forEach(s => {
+            s.classList.toggle('activa', s.dataset.seccion === tab);
+        });
+        const info = titulos[tab] || titulos.color;
+        if (panelTitulo) {
+            panelTitulo.innerHTML = `<i data-lucide="${info.icono}"></i><span>${info.texto}</span>`;
+            if (window.lucide) window.lucide.createIcons();
+        }
+        panel.classList.add('abierto');
+    }
+
+    function cerrarPanel() {
+        panel.classList.remove('abierto');
+    }
+
+    // --- Tabs internas ---
+    panel.querySelectorAll('.af-panel-tab').forEach(tab => {
+        tab.addEventListener('click', () => abrirPanel(tab.dataset.tab));
+    });
+
+    document.getElementById('afPanelCerrar')?.addEventListener('click', cerrarPanel);
+
+    // Click fuera del panel (en el backdrop)
+    panel.addEventListener('click', (e) => {
+        if (e.target === panel) cerrarPanel();
+    });
+
+    // --- Barra inferior ---
+    toolbar.querySelectorAll('.af-tool-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const accion = btn.dataset.accion;
+
+            // Herramientas de dibujo directas
+            if (accion === 'pincel' || accion === 'borrador') {
+                toolbar.querySelectorAll('.af-tool-btn').forEach(b => b.classList.remove('activo'));
+                btn.classList.add('activo');
+                activarHerramienta(accion);
+                return;
+            }
+
+            if (accion === 'deshacer') {
+                deshacer();
+                return;
+            }
+
+            if (accion === 'formas') {
+                abrirPanel('herramientas');
+                return;
+            }
+
+            if (accion === 'color' || accion === 'capas' || accion === 'ajustes') {
+                abrirPanel(accion);
+                return;
+            }
+        });
+    });
+
+    // --- Pantalla completa ---
+    const btnFull = document.getElementById('btnPantallaCompleta');
+    btnFull?.addEventListener('click', () => {
+        app.classList.add('pantalla-completa');
+
+        let btnSalir = document.getElementById('btnSalirPantallaCompleta');
+        if (!btnSalir) {
+            btnSalir = document.createElement('button');
+            btnSalir.id = 'btnSalirPantallaCompleta';
+            btnSalir.title = 'Salir de pantalla completa';
+            btnSalir.innerHTML = '<i data-lucide="minimize"></i>';
+            btnSalir.style.cssText = `
+                display: flex; position: fixed; top: 12px; right: 12px;
+                width: 40px; height: 40px; border-radius: 50%;
+                background: white; border: 1.5px solid var(--border, #E8E8EE);
+                cursor: pointer; align-items: center; justify-content: center;
+                padding: 0; z-index: 100;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                opacity: 0.7; transition: opacity 0.2s;
+                color: var(--gray-600, #52525B);
+            `;
+            btnSalir.addEventListener('mouseenter', () => { btnSalir.style.opacity = '1'; });
+            btnSalir.addEventListener('mouseleave', () => { btnSalir.style.opacity = '0.7'; });
+            btnSalir.addEventListener('click', () => {
+                app.classList.remove('pantalla-completa');
+                btnSalir.remove();
+                setTimeout(() => {
+                    if (typeof fitCanvasToWrapper === 'function') fitCanvasToWrapper();
+                }, 100);
+            });
+            document.body.appendChild(btnSalir);
+        }
+        if (window.lucide) window.lucide.createIcons();
+
+        setTimeout(() => {
+            if (typeof fitCanvasToWrapper === 'function') fitCanvasToWrapper();
+        }, 100);
+    });
+
+    // --- Estado inicial: pincel activo en la barra inferior ---
+    toolbar.querySelector('.af-tool-btn[data-accion="pincel"]')?.classList.add('activo');
+
+    // --- Estado inicial: sección color activa en el panel ---
+    panel.querySelector('.af-panel-tab[data-tab="color"]')?.classList.add('active');
+    panel.querySelector('.af-seccion[data-seccion="color"]')?.classList.add('activa');
+}
+
+// ============================================================
 //  INIT
 // ============================================================
 async function inicializar() {
@@ -1247,6 +1378,9 @@ async function inicializar() {
     activarHerramienta('pincel');
     setColor('#ffa5d5');
     guardarHistoria();
+
+    // UI móvil (barra inferior + panel flotante)
+    inicializarUIMovil();
 
     // ¿Hay sesión guardada?
     dibujoGuardado = await cargarDibujoGuardado();
@@ -1274,7 +1408,7 @@ async function inicializar() {
     document.getElementById('btnGuardarGaleria')?.addEventListener('click', guardarEnGaleria);
     document.getElementById('btnGuardarSesion')?.addEventListener('click', guardarSesion);
 
-    // Herramientas
+    // Herramientas del panel
     document.querySelectorAll('.af-btn-herramienta').forEach(btn => {
         btn.addEventListener('click', () => activarHerramienta(btn.dataset.herramienta));
     });
