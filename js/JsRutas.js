@@ -93,6 +93,17 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 0
     },
     {
+    id: 'whack-a-mole',
+    nombre: 'Golpea el Topo',
+    icono: 'hammer',
+    ruta: 'herramientas/whack-a-mole/index.html',
+    descripcion: 'Golpea los topos. Los topos son tu foto de perfil. 30 segundos por partida.',
+    categoria: 'Juegos',
+    esBase: false,
+    espacio: 2,
+    monedas: 0
+},
+    {
     id: 'tres-en-raya',
     nombre: 'Tres en Raya',
     icono: 'grid-3x3',
@@ -100,7 +111,7 @@ const RUTAS_HERRAMIENTAS = [
     descripcion: 'El clásico 3 en línea. La CPU se vuelve más difícil mientras acumulas victorias.',
     categoria: 'Juegos',
     esBase: false,
-    espacio: 2,
+    espacio: 4,
     monedas: 0
 },
     {
