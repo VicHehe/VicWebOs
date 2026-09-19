@@ -160,6 +160,17 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 0
     },
         {
+        id: 'silly-calls',
+        nombre: 'SillyCalls',
+        icono: 'phone-call',
+        ruta: 'herramientas/silly-calls/index.html',
+        descripcion: 'Videollamadas en tiempo real entre usuarios de la comunidad.',
+        categoria: 'Social',
+        esBase: false,
+        espacio: 10,
+        monedas: 140
+    },
+        {
         id: 'arte-flash',
         nombre: 'Arte Flash',
         icono: 'palette',
