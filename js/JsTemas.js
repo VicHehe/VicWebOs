@@ -275,7 +275,7 @@ const TEMAS_DISPONIBLES = [
         '--bg-alt':     '#EAEAEA',
         '--white':      '#FFFFFF'
     }
-}
+},
     {
         id: 'celeste',
         nombre: 'Celeste Nublado',
