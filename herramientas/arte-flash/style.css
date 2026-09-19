@@ -1,8 +1,8 @@
 /* ================================================
    Arte Flash — Editor de dibujo por capas
    Layout adaptativo:
-     · Móvil: lienzo full-screen + barra inferior + paneles flotantes
-     · PC/Tablet: lienzo + panel lateral fijo
+     · Móvil (<900px): lienzo full-screen + barra inferior + panel flotante
+     · PC (≥900px):    lienzo + panel lateral derecho fijo
    Compatible con todos los temas (var() + fallbacks).
    ================================================ */
 
@@ -141,7 +141,7 @@ body {
 /* Botones de acción (con texto) — solo PC */
 .af-btn-sec,
 .af-btn-pri {
-    display: none; /* ocultos en móvil por defecto */
+    display: none;
     align-items: center;
     gap: 7px;
     padding: 9px 14px;
@@ -178,12 +178,13 @@ body {
 .af-btn-pri [data-lucide] { width: 14px; height: 14px; }
 
 /* ============================================================
-   BODY — Contiene el lienzo
+   BODY — Contiene lienzo + panel
    ============================================================ */
 .af-body {
     flex: 1;
     min-height: 0;
     display: flex;
+    flex-direction: row;
     overflow: hidden;
     position: relative;
 }
@@ -193,6 +194,8 @@ body {
    ============================================================ */
 .af-lienzo-wrapper {
     flex: 1;
+    min-width: 0;
+    min-height: 0;
     position: relative;
     overflow: hidden;
     background: var(--gray-100, #F4F4F7);
@@ -200,8 +203,6 @@ body {
     background-size: 20px 20px;
     cursor: crosshair;
     touch-action: none;
-    min-width: 0;
-    min-height: 0;
 }
 
 #lienzo {
@@ -622,7 +623,7 @@ body {
    ============================================================ */
 .af-herramientas-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 6px;
 }
 .af-btn-herramienta {
@@ -1128,18 +1129,17 @@ body {
 #btnSalirPantallaCompleta:hover { opacity: 1; }
 
 /* ============================================================
-   RESPONSIVE — PC / Tablet grande
-   En pantallas ≥ 900px usamos el layout de panel lateral.
+   RESPONSIVE — PC / Tablet grande (≥900px)
+   En pantallas grandes usamos el panel lateral fijo.
    ============================================================ */
 @media (min-width: 900px) {
 
     .af-app {
-        flex-direction: column;
         padding: 12px;
         gap: 10px;
     }
 
-    /* Header completo */
+    /* Header estilo tarjeta */
     .af-header {
         border-radius: 14px;
         padding: 10px 16px;
@@ -1162,28 +1162,35 @@ body {
     /* Panel = panel lateral derecho, siempre visible */
     .af-panel {
         position: relative;
-        left: auto; right: auto; bottom: auto;
+        left: auto;
+        right: auto;
+        bottom: auto;
         width: 300px;
+        flex-shrink: 0;
         max-height: none;
-        height: 100%;
+        height: auto;
+        align-self: stretch;
         transform: none;
         visibility: visible;
         border-radius: 14px;
         border: 1.5px solid var(--border, #E8E8EE);
         box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06));
         padding-bottom: 0;
+        order: 2;
     }
     .af-panel.abierto::before { display: none; }
     .af-panel-header { display: none; }
     .af-panel-header::before { display: none; }
     .af-panel-tabs { display: none; }
 
-    /* Todas las secciones apiladas y visibles */
+    /* Panel content: todas las secciones apiladas */
     .af-panel-content {
         display: flex;
         flex-direction: column;
         gap: 14px;
         padding: 16px;
+        height: 100%;
+        overflow-y: auto;
     }
     .af-seccion {
         display: flex;
@@ -1195,19 +1202,25 @@ body {
         padding-bottom: 0;
     }
 
-    /* Body en flex horizontal */
+    /* Body con panel a la derecha */
     .af-body {
         flex-direction: row;
         gap: 12px;
         min-height: 0;
     }
     .af-lienzo-wrapper {
+        order: 1;
         border-radius: 14px;
         border: 1.5px solid var(--border, #E8E8EE);
         box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06));
     }
 
-    /* Toast abajo pero no tapa la toolbar */
+    /* Herramientas: en PC el panel es estrecho → 3 columnas */
+    .af-herramientas-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    /* Toast abajo */
     .af-toast { bottom: 30px; }
 }
 
@@ -1235,7 +1248,7 @@ body {
    ============================================================ */
 @media (min-width: 600px) and (max-width: 899px) {
     .af-paleta { grid-template-columns: repeat(10, 1fr); }
-    .af-herramientas-grid { grid-template-columns: repeat(5, 1fr); }
+    .af-herramientas-grid { grid-template-columns: repeat(4, 1fr); }
 }
 
 /* ============================================================
