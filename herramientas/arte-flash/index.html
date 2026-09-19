@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>Arte Flash</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="af-container">
+
+        <!-- HEADER -->
+        <header class="af-header">
+            <div class="af-logo">
+                <div class="af-logo-mark">
+                    <i data-lucide="palette"></i>
+                </div>
+                <div class="af-logo-text">
+                    <h1>Arte Flash</h1>
+                    <p id="afUserBadge">—</p>
+                </div>
+            </div>
+
+            <div class="af-header-actions">
+                <button class="af-btn-icono" id="btnDeshacer" title="Deshacer (Ctrl+Z)">
+                    <i data-lucide="undo-2"></i>
+                </button>
+                <button class="af-btn-icono" id="btnRehacer" title="Rehacer (Ctrl+Y)">
+                    <i data-lucide="redo-2"></i>
+                </button>
+                <button class="af-btn-icono af-btn-peligro" id="btnLimpiar" title="Limpiar lienzo">
+                    <i data-lucide="trash-2"></i>
+                </button>
+                <button class="af-btn-sec" id="btnGuardarPNG">
+                    <i data-lucide="download"></i>
+                    <span>PNG</span>
+                </button>
+                <button class="af-btn-sec" id="btnGuardarGaleria">
+                    <i data-lucide="image-plus"></i>
+                    <span>Galería</span>
+                </button>
+                <button class="af-btn-pri" id="btnGuardarSesion">
+                    <i data-lucide="save"></i>
+                    <span>Guardar</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- BODY -->
+        <div class="af-body">
+
+            <!-- LIENZO -->
+            <div class="af-lienzo-wrapper" id="lienzoWrapper">
+                <canvas id="lienzo" width="1600" height="1200"></canvas>
+
+                <div class="af-minimapa" id="minimapa">
+                    <div class="af-minimapa-vista" id="minimapaVista"></div>
+                </div>
+
+                <div class="af-zoom-controls">
+                    <button class="af-zoom-btn" id="zoomOut" title="Alejar (Ctrl+-)">
+                        <i data-lucide="minus"></i>
+                    </button>
+                    <span id="zoomNivel">100%</span>
+                    <button class="af-zoom-btn" id="zoomIn" title="Acercar (Ctrl++)">
+                        <i data-lucide="plus"></i>
+                    </button>
+                    <button class="af-zoom-btn" id="zoomFit" title="Ajustar">
+                        <i data-lucide="maximize-2"></i>
+                    </button>
+                    <button class="af-zoom-btn" id="zoomReset" title="100%">
+                        <i data-lucide="target"></i>
+                    </button>
+                </div>
+
+                <div class="af-cursor-indicator" id="cursorIndicator"></div>
+            </div>
+
+            <!-- PANEL -->
+            <aside class="af-panel">
+
+                <!-- COLOR -->
+                <section class="af-seccion">
+                    <div class="af-seccion-header">
+                        <h3><i data-lucide="palette"></i> Color</h3>
+                        <button class="af-btn-mini" id="btnPipeta" title="Pipeta (I)">
+                            <i data-lucide="pipette"></i>
+                        </button>
+                    </div>
+
+                    <div class="af-color-row">
+                        <input type="color" id="selectorColor" value="#ffa5d5">
+                        <span class="af-color-hex" id="colorHex">#FFA5D5</span>
+                    </div>
+
+                    <div class="af-paleta" id="paleta"></div>
+
+                    <div class="af-recientes" id="coloresRecientes"></div>
+                </section>
+
+                <!-- HERRAMIENTAS -->
+                <section class="af-seccion">
+                    <h3><i data-lucide="brush"></i> Herramientas</h3>
+                    <div class="af-herramientas-grid">
+                        <button class="af-btn-herramienta activo" data-herramienta="pincel" title="Pincel (B)">
+                            <i data-lucide="brush"></i>
+                        </button>
+                        <button class="af-btn-herramienta" data-herramienta="borrador" title="Borrador (E)">
+                            <i data-lucide="eraser"></i>
+                        </button>
+                        <button class="af-btn-herramienta" data-herramienta="linea" title="Línea (L)">
+                            <i data-lucide="minus"></i>
+                        </button>
+                        <button class="af-btn-herramienta" data-herramienta="circulo" title="Círculo (C)">
+                            <i data-lucide="circle"></i>
+                        </button>
+                        <button class="af-btn-herramienta" data-herramienta="relleno" title="Relleno (G)">
+                            <i data-lucide="paint-bucket"></i>
+                        </button>
+                        <button class="af-btn-herramienta" data-herramienta="texto" title="Texto (T)">
+                            <i data-lucide="type"></i>
+                        </button>
+                        <button class="af-btn-herramienta" data-herramienta="mover" title="Mover lienzo (M)">
+                            <i data-lucide="hand"></i>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- AJUSTES -->
+                <section class="af-seccion">
+                    <h3><i data-lucide="sliders-horizontal"></i> Ajustes</h3>
+
+                    <div class="af-slider">
+                        <label>Tamaño: <span id="tamanioValor">5</span>px</label>
+                        <input type="range" id="tamanioPincel" min="1" max="50" value="5">
+                    </div>
+
+                    <div class="af-slider">
+                        <label>Opacidad: <span id="opacidadValor">100</span>%</label>
+                        <input type="range" id="opacidadPincel" min="5" max="100" value="100">
+                    </div>
+
+                    <div class="af-slider">
+                        <label>Dureza: <span id="durezaValor">100</span>%</label>
+                        <input type="range" id="durezaPincel" min="0" max="100" value="100">
+                    </div>
+
+                    <div class="af-slider">
+                        <label>Estabilizador: <span id="estabilizadorValor">0</span></label>
+                        <input type="range" id="estabilizador" min="0" max="20" value="0">
+                    </div>
+                </section>
+
+                <!-- CAPAS -->
+                <section class="af-seccion">
+                    <h3><i data-lucide="layers"></i> Capas</h3>
+                    <div class="af-capas-control">
+                        <button class="af-btn-mini-texto" id="btnCapaNueva">
+                            <i data-lucide="plus"></i> Nueva
+                        </button>
+                        <button class="af-btn-mini" id="btnCapaArriba" title="Subir capa">
+                            <i data-lucide="arrow-up"></i>
+                        </button>
+                        <button class="af-btn-mini" id="btnCapaAbajo" title="Bajar capa">
+                            <i data-lucide="arrow-down"></i>
+                        </button>
+                        <button class="af-btn-mini af-btn-peligro" id="btnCapaEliminar" title="Eliminar capa">
+                            <i data-lucide="trash-2"></i>
+                        </button>
+                    </div>
+                    <div class="af-lista-capas" id="listaCapas"></div>
+                </section>
+
+                <!-- REFERENCIAS -->
+                <section class="af-seccion">
+                    <h3><i data-lucide="image"></i> Referencias</h3>
+                    <button class="af-btn-sec-full" id="btnAnadirReferencia">
+                        <i data-lucide="plus"></i>
+                        Añadir desde galería
+                    </button>
+                    <div class="af-referencias-lista" id="referenciasLista"></div>
+                </section>
+
+            </aside>
+        </div>
+    </div>
+
+    <!-- MODAL TEXTO -->
+    <div class="af-modal" id="modalTexto" hidden>
+        <div class="af-modal-card">
+            <div class="af-modal-header">
+                <h2>
+                    <i data-lucide="type"></i>
+                    <span>Agregar texto</span>
+                </h2>
+                <button class="af-modal-cerrar" id="modalTextoCerrar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="af-modal-body">
+                <div class="af-field">
+                    <label>Texto</label>
+                    <input type="text" id="inputTexto" placeholder="Escribe aquí..." maxlength="200">
+                </div>
+                <div class="af-field">
+                    <label>Tamaño</label>
+                    <input type="number" id="tamanoTexto" value="24" min="8" max="200">
+                </div>
+            </div>
+            <div class="af-modal-actions">
+                <button class="af-btn-sec" id="btnCancelarTexto">Cancelar</button>
+                <button class="af-btn-pri" id="btnAgregarTexto">
+                    <i data-lucide="check"></i>
+                    Agregar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL SESIÓN GUARDADA -->
+    <div class="af-modal" id="modalSesion" hidden>
+        <div class="af-modal-card">
+            <div class="af-modal-header">
+                <h2>
+                    <i data-lucide="save"></i>
+                    <span>Dibujo guardado</span>
+                </h2>
+            </div>
+            <div class="af-modal-body">
+                <p class="af-modal-desc">
+                    Tienes un dibujo guardado de la sesión anterior.
+                    <strong>Solo puedes guardar 1 dibujo a la vez.</strong>
+                </p>
+                <p class="af-modal-sub" id="modalSesionFecha">—</p>
+            </div>
+            <div class="af-modal-actions">
+                <button class="af-btn-peligro" id="btnDescartarSesion">
+                    <i data-lucide="trash-2"></i>
+                    Descartar
+                </button>
+                <button class="af-btn-sec" id="btnNuevaSesion">Empezar de cero</button>
+                <button class="af-btn-pri" id="btnContinuarSesion">
+                    <i data-lucide="play"></i>
+                    Continuar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="af-toast" id="afToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
