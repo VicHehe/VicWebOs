@@ -57,9 +57,11 @@
         </header>
 
         <!-- ============================================================
-             LIENZO
+             BODY — Contiene lienzo + panel (juntos)
              ============================================================ -->
         <div class="af-body">
+
+            <!-- LIENZO -->
             <div class="af-lienzo-wrapper" id="lienzoWrapper">
                 <canvas id="lienzo" width="1600" height="1200"></canvas>
 
@@ -85,6 +87,143 @@
 
                 <div class="af-cursor-indicator" id="cursorIndicator"></div>
             </div>
+
+            <!-- PANEL (dentro del body) -->
+            <aside class="af-panel" id="afPanel">
+                <div class="af-panel-header">
+                    <h2 id="afPanelTitulo">
+                        <i data-lucide="palette"></i>
+                        <span>Color</span>
+                    </h2>
+                    <button class="af-panel-cerrar" id="afPanelCerrar" title="Cerrar">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
+
+                <!-- Tabs (solo visibles en móvil) -->
+                <div class="af-panel-tabs">
+                    <button class="af-panel-tab active" data-tab="color" title="Color">
+                        <i data-lucide="palette"></i>
+                    </button>
+                    <button class="af-panel-tab" data-tab="herramientas" title="Herramientas">
+                        <i data-lucide="brush"></i>
+                    </button>
+                    <button class="af-panel-tab" data-tab="ajustes" title="Ajustes">
+                        <i data-lucide="sliders-horizontal"></i>
+                    </button>
+                    <button class="af-panel-tab" data-tab="capas" title="Capas">
+                        <i data-lucide="layers"></i>
+                    </button>
+                    <button class="af-panel-tab" data-tab="referencias" title="Referencias">
+                        <i data-lucide="image"></i>
+                    </button>
+                </div>
+
+                <!-- Contenido -->
+                <div class="af-panel-content">
+
+                    <!-- SECCIÓN: COLOR -->
+                    <section class="af-seccion" data-seccion="color">
+                        <div class="af-seccion-header">
+                            <h3><i data-lucide="palette"></i> Color</h3>
+                            <button class="af-btn-mini" id="btnPipeta" title="Pipeta (I)">
+                                <i data-lucide="pipette"></i>
+                            </button>
+                        </div>
+
+                        <div class="af-color-row">
+                            <input type="color" id="selectorColor" value="#ffa5d5">
+                            <span class="af-color-hex" id="colorHex">#FFA5D5</span>
+                        </div>
+
+                        <div class="af-paleta" id="paleta"></div>
+
+                        <div class="af-recientes" id="coloresRecientes"></div>
+                    </section>
+
+                    <!-- SECCIÓN: HERRAMIENTAS -->
+                    <section class="af-seccion" data-seccion="herramientas">
+                        <h3><i data-lucide="brush"></i> Herramientas</h3>
+                        <div class="af-herramientas-grid">
+                            <button class="af-btn-herramienta activo" data-herramienta="pincel" title="Pincel (B)">
+                                <i data-lucide="brush"></i>
+                            </button>
+                            <button class="af-btn-herramienta" data-herramienta="borrador" title="Borrador (E)">
+                                <i data-lucide="eraser"></i>
+                            </button>
+                            <button class="af-btn-herramienta" data-herramienta="linea" title="Línea (L)">
+                                <i data-lucide="minus"></i>
+                            </button>
+                            <button class="af-btn-herramienta" data-herramienta="circulo" title="Círculo (C)">
+                                <i data-lucide="circle"></i>
+                            </button>
+                            <button class="af-btn-herramienta" data-herramienta="relleno" title="Relleno (G)">
+                                <i data-lucide="paint-bucket"></i>
+                            </button>
+                            <button class="af-btn-herramienta" data-herramienta="texto" title="Texto (T)">
+                                <i data-lucide="type"></i>
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- SECCIÓN: AJUSTES -->
+                    <section class="af-seccion" data-seccion="ajustes">
+                        <h3><i data-lucide="sliders-horizontal"></i> Ajustes del pincel</h3>
+
+                        <div class="af-slider">
+                            <label>Tamaño <span id="tamanioValor">5px</span></label>
+                            <input type="range" id="tamanioPincel" min="1" max="50" value="5">
+                        </div>
+
+                        <div class="af-slider">
+                            <label>Opacidad <span id="opacidadValor">100%</span></label>
+                            <input type="range" id="opacidadPincel" min="5" max="100" value="100">
+                        </div>
+
+                        <div class="af-slider">
+                            <label>Dureza <span id="durezaValor">100%</span></label>
+                            <input type="range" id="durezaPincel" min="0" max="100" value="100">
+                        </div>
+
+                        <div class="af-slider">
+                            <label>Estabilizador <span id="estabilizadorValor">0</span></label>
+                            <input type="range" id="estabilizador" min="0" max="20" value="0">
+                        </div>
+                    </section>
+
+                    <!-- SECCIÓN: CAPAS -->
+                    <section class="af-seccion" data-seccion="capas">
+                        <h3><i data-lucide="layers"></i> Capas</h3>
+                        <div class="af-capas-control">
+                            <button class="af-btn-mini-texto" id="btnCapaNueva">
+                                <i data-lucide="plus"></i> Nueva
+                            </button>
+                            <button class="af-btn-mini" id="btnCapaArriba" title="Subir capa">
+                                <i data-lucide="arrow-up"></i>
+                            </button>
+                            <button class="af-btn-mini" id="btnCapaAbajo" title="Bajar capa">
+                                <i data-lucide="arrow-down"></i>
+                            </button>
+                            <button class="af-btn-mini af-btn-peligro" id="btnCapaEliminar" title="Eliminar capa">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                        </div>
+                        <div class="af-lista-capas" id="listaCapas"></div>
+                    </section>
+
+                    <!-- SECCIÓN: REFERENCIAS -->
+                    <section class="af-seccion" data-seccion="referencias">
+                        <h3><i data-lucide="image"></i> Referencias</h3>
+                        <button class="af-btn-sec-full" id="btnAnadirReferencia">
+                            <i data-lucide="plus"></i>
+                            Añadir desde galería
+                        </button>
+                        <div class="af-referencias-lista" id="referenciasLista"></div>
+                    </section>
+
+                </div>
+            </aside>
+
         </div>
 
         <!-- ============================================================
@@ -120,147 +259,6 @@
                 <span>Deshacer</span>
             </button>
         </nav>
-
-        <!-- ============================================================
-             PANEL (lateral en PC · flotante en móvil)
-             ============================================================ -->
-        <aside class="af-panel" id="afPanel">
-            <div class="af-panel-header">
-                <h2 id="afPanelTitulo">
-                    <i data-lucide="palette"></i>
-                    <span>Color</span>
-                </h2>
-                <button class="af-panel-cerrar" id="afPanelCerrar" title="Cerrar">
-                    <i data-lucide="x"></i>
-                </button>
-            </div>
-
-            <!-- Tabs (solo visibles en móvil) -->
-            <div class="af-panel-tabs">
-                <button class="af-panel-tab active" data-tab="color" title="Color">
-                    <i data-lucide="palette"></i>
-                </button>
-                <button class="af-panel-tab" data-tab="herramientas" title="Herramientas">
-                    <i data-lucide="brush"></i>
-                </button>
-                <button class="af-panel-tab" data-tab="ajustes" title="Ajustes">
-                    <i data-lucide="sliders-horizontal"></i>
-                </button>
-                <button class="af-panel-tab" data-tab="capas" title="Capas">
-                    <i data-lucide="layers"></i>
-                </button>
-                <button class="af-panel-tab" data-tab="referencias" title="Referencias">
-                    <i data-lucide="image"></i>
-                </button>
-            </div>
-
-            <!-- Contenido -->
-            <div class="af-panel-content">
-
-                <!-- SECCIÓN: COLOR -->
-                <section class="af-seccion" data-seccion="color">
-                    <div class="af-seccion-header">
-                        <h3><i data-lucide="palette"></i> Color</h3>
-                        <button class="af-btn-mini" id="btnPipeta" title="Pipeta (I)">
-                            <i data-lucide="pipette"></i>
-                        </button>
-                    </div>
-
-                    <div class="af-color-row">
-                        <input type="color" id="selectorColor" value="#ffa5d5">
-                        <span class="af-color-hex" id="colorHex">#FFA5D5</span>
-                    </div>
-
-                    <div class="af-paleta" id="paleta"></div>
-
-                    <div class="af-recientes" id="coloresRecientes"></div>
-                </section>
-
-                <!-- SECCIÓN: HERRAMIENTAS -->
-                <section class="af-seccion" data-seccion="herramientas">
-                    <h3><i data-lucide="brush"></i> Herramientas</h3>
-                    <div class="af-herramientas-grid">
-                        <button class="af-btn-herramienta activo" data-herramienta="pincel" title="Pincel (B)">
-                            <i data-lucide="brush"></i>
-                        </button>
-                        <button class="af-btn-herramienta" data-herramienta="borrador" title="Borrador (E)">
-                            <i data-lucide="eraser"></i>
-                        </button>
-                        <button class="af-btn-herramienta" data-herramienta="linea" title="Línea (L)">
-                            <i data-lucide="minus"></i>
-                        </button>
-                        <button class="af-btn-herramienta" data-herramienta="circulo" title="Círculo (C)">
-                            <i data-lucide="circle"></i>
-                        </button>
-                        <button class="af-btn-herramienta" data-herramienta="relleno" title="Relleno (G)">
-                            <i data-lucide="paint-bucket"></i>
-                        </button>
-                        <button class="af-btn-herramienta" data-herramienta="texto" title="Texto (T)">
-                            <i data-lucide="type"></i>
-                        </button>
-                        <button class="af-btn-herramienta" data-herramienta="mover" title="Mover lienzo (M)">
-                            <i data-lucide="hand"></i>
-                        </button>
-                    </div>
-                </section>
-
-                <!-- SECCIÓN: AJUSTES -->
-                <section class="af-seccion" data-seccion="ajustes">
-                    <h3><i data-lucide="sliders-horizontal"></i> Ajustes del pincel</h3>
-
-                    <div class="af-slider">
-                        <label>Tamaño <span id="tamanioValor">5px</span></label>
-                        <input type="range" id="tamanioPincel" min="1" max="50" value="5">
-                    </div>
-
-                    <div class="af-slider">
-                        <label>Opacidad <span id="opacidadValor">100%</span></label>
-                        <input type="range" id="opacidadPincel" min="5" max="100" value="100">
-                    </div>
-
-                    <div class="af-slider">
-                        <label>Dureza <span id="durezaValor">100%</span></label>
-                        <input type="range" id="durezaPincel" min="0" max="100" value="100">
-                    </div>
-
-                    <div class="af-slider">
-                        <label>Estabilizador <span id="estabilizadorValor">0</span></label>
-                        <input type="range" id="estabilizador" min="0" max="20" value="0">
-                    </div>
-                </section>
-
-                <!-- SECCIÓN: CAPAS -->
-                <section class="af-seccion" data-seccion="capas">
-                    <h3><i data-lucide="layers"></i> Capas</h3>
-                    <div class="af-capas-control">
-                        <button class="af-btn-mini-texto" id="btnCapaNueva">
-                            <i data-lucide="plus"></i> Nueva
-                        </button>
-                        <button class="af-btn-mini" id="btnCapaArriba" title="Subir capa">
-                            <i data-lucide="arrow-up"></i>
-                        </button>
-                        <button class="af-btn-mini" id="btnCapaAbajo" title="Bajar capa">
-                            <i data-lucide="arrow-down"></i>
-                        </button>
-                        <button class="af-btn-mini af-btn-peligro" id="btnCapaEliminar" title="Eliminar capa">
-                            <i data-lucide="trash-2"></i>
-                        </button>
-                    </div>
-                    <div class="af-lista-capas" id="listaCapas"></div>
-                </section>
-
-                <!-- SECCIÓN: REFERENCIAS -->
-                <section class="af-seccion" data-seccion="referencias">
-                    <h3><i data-lucide="image"></i> Referencias</h3>
-                    <button class="af-btn-sec-full" id="btnAnadirReferencia">
-                        <i data-lucide="plus"></i>
-                        Añadir desde galería
-                    </button>
-                    <div class="af-referencias-lista" id="referenciasLista"></div>
-                </section>
-
-            </div>
-        </aside>
 
     </div>
 
