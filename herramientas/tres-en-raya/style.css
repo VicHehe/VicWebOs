@@ -245,12 +245,14 @@ body {
     animation: trPop 0.24s cubic-bezier(0.34, 1.4, 0.64, 1);
     display: block;
 }
+
+/* --- X: dos barras rotadas --- */
 .tr-marca-x span {
     position: absolute;
     left: 0;
     right: 0;
     top: 50%;
-    height: max(3px, 15%);
+    height: clamp(4px, 2.2vw, 9px);
     background: currentColor;
     border-radius: 999px;
     transform-origin: center;
@@ -262,18 +264,23 @@ body {
 .tr-marca-x { color: var(--violet-500, #8B5CF6); }
 .tr-celda.ganadora .tr-marca-x { color: #059669; }
 
+/* --- O: anillo con radial-gradient (sin border, a prueba de balas) --- */
 .tr-marca-o {
     width: 60%;
     aspect-ratio: 1 / 1;
     border-radius: 50%;
-    border: max(3px, 15%) solid currentColor;
+    background: radial-gradient(
+        circle,
+        transparent 0 74%,
+        currentColor 74% 100%
+    );
     color: #EC4899;
 }
 .tr-celda.perdedora .tr-marca-o { color: #DC2626; }
 
 @keyframes trPop {
-    0% { transform: scale(0.3); opacity: 0; }
-    60% { opacity: 1; }
+    0%   { transform: scale(0.3); opacity: 0; }
+    60%  { opacity: 1; }
     100% { transform: scale(1); opacity: 1; }
 }
 
@@ -319,7 +326,7 @@ body {
     border: 1.5px solid var(--border, #E8E8EE);
 }
 @keyframes trZoom {
-    0% { transform: scale(0.7); opacity: 0; }
+    0%   { transform: scale(0.7); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
 }
 
