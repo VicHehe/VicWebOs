@@ -302,7 +302,6 @@ body {
 .nt-card:hover {
     border-color: var(--violet-400, #A78BFA);
     box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.08));
-    transform: translateY(-2px);
 }
 .nt-card-titulo {
     font-size: 14px;
@@ -403,12 +402,13 @@ body {
 /* ========== VACÍO ========== */
 .nt-vacio {
     flex: 1;
+    min-height: 0;
     display: flex;
-    align-items: center;
-    justify-content: center;
     padding: 20px;
+    overflow-y: auto;
 }
 .nt-vacio-card {
+    margin: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
