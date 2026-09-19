@@ -2,11 +2,9 @@
    Tema: Floral
    Colores vivos, flores grandes en el welcome,
    hojas en el sidebar y flor esquinera al hover.
-   Sin lluvia de pétalos: solo decoración puntual.
    ================================================ */
 
 :root {
-    /* Acento verde vibrante → rosa flor */
     --violet-50:  #F0FDF4;
     --violet-100: #DCFCE7;
     --violet-200: #BBF7D0;
@@ -16,7 +14,6 @@
     --violet-600: #DB2777;
     --violet-700: #BE185D;
 
-    /* Neutros claros con tinte verde */
     --white:   #FFFFFF;
     --bg:      #F7FDF9;
     --bg-alt:  #F0F9F2;
@@ -43,25 +40,26 @@
     --shadow-xl: 0 24px 48px rgba(20, 83, 45, 0.15);
     --shadow-glow: 0 0 0 4px rgba(236, 72, 153, 0.15);
 
-    /* Acento: verde vibrante → rosa flor */
     --accent-gradient: linear-gradient(135deg, #22C55E, #EC4899);
     --accent-gradient-hover: linear-gradient(135deg, #16A34A, #DB2777);
     --accent-shadow: rgba(236, 72, 153, 0.28);
     --accent-shadow-hover: rgba(236, 72, 153, 0.42);
     --accent-text-gradient: linear-gradient(135deg, #15803D, #EC4899);
 
-    /* Flor completa (5 pétalos + centro verde) */
     --theme-flor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg transform='translate(50,50)'%3E%3Cellipse cx='0' cy='-24' rx='11' ry='22' fill='%23F9A8D4' opacity='0.9'/%3E%3Cellipse cx='0' cy='-24' rx='11' ry='22' fill='%23F9A8D4' opacity='0.9' transform='rotate(72)'/%3E%3Cellipse cx='0' cy='-24' rx='11' ry='22' fill='%23F9A8D4' opacity='0.9' transform='rotate(144)'/%3E%3Cellipse cx='0' cy='-24' rx='11' ry='22' fill='%23F9A8D4' opacity='0.9' transform='rotate(216)'/%3E%3Cellipse cx='0' cy='-24' rx='11' ry='22' fill='%23F9A8D4' opacity='0.9' transform='rotate(288)'/%3E%3Ccircle r='7' fill='%2322C55E'/%3E%3Ccircle r='3' fill='%23FFFFFF'/%3E%3C/g%3E%3C/svg%3E");
 
-    /* Hoja (para decorar esquinas del sidebar) */
     --theme-hoja: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 60'%3E%3Cpath d='M20,0 C35,15 38,35 20,55 C2,35 5,15 20,0 Z' fill='%234ADE80' opacity='0.75'/%3E%3Cpath d='M20,8 L20,50' stroke='%2315803D' stroke-width='0.8' fill='none' opacity='0.6'/%3E%3Cpath d='M20,20 L28,26 M20,20 L12,26 M20,32 L28,38 M20,32 L12,38' stroke='%2315803D' stroke-width='0.6' fill='none' opacity='0.5'/%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   WELCOME = jardín con flores grandes al fondo
+   WELCOME = jardín
+   FIX móvil: min-width 0 + overflow clip + glow con min()
    ================================================================ */
 .welcome-placeholder {
     position: relative;
+    min-width: 0;
+    max-width: 100%;
+    overflow: clip;
     background:
         radial-gradient(ellipse at top left,    rgba(220, 252, 231, 0.6) 0%, transparent 45%),
         radial-gradient(ellipse at top right,   rgba(252, 231, 243, 0.5) 0%, transparent 50%),
@@ -70,7 +68,6 @@
         var(--bg);
 }
 
-/* Flores grandes vectoriales repartidas */
 .welcome-placeholder::before {
     content: '';
     position: absolute;
@@ -102,24 +99,31 @@
     background-repeat: no-repeat;
 }
 
-/* Hero y secciones por encima */
 .welcome-hero,
 .welcome-section {
     position: relative;
     z-index: 2;
 }
 
-/* Halo del hero: verde → rosa */
+/* FIX: glow con min() para que nunca desborde */
 .welcome-glow {
+    position: absolute;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(720px, 100%);
+    height: 720px;
+    max-width: 100%;
     background: radial-gradient(
         circle,
         rgba(249, 168, 212, 0.30) 0%,
         rgba(134, 239, 172, 0.18) 40%,
         transparent 68%
     );
+    pointer-events: none;
+    z-index: 1;
 }
 
-/* Icono del hero con marco de anillos concéntricos */
 .welcome-icon-wrap {
     position: relative;
     box-shadow:
@@ -146,7 +150,6 @@
     transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Flor esquinera al hover */
 .acceso-item::after {
     content: '';
     position: absolute;
@@ -178,7 +181,6 @@
         inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
-/* Ícono con anillo de pétalos al hover */
 .acceso-icon-wrap {
     background: linear-gradient(135deg, #DCFCE7, #F0FDF4);
     border: 1.5px solid #BBF7D0;
@@ -198,7 +200,7 @@
 }
 
 /* ================================================================
-   WIDGETS = mismo tratamiento de pétalo
+   WIDGETS
    ================================================================ */
 .widget-item {
     border: 1.5px solid #BBF7D0;
@@ -224,7 +226,6 @@
         linear-gradient(180deg, #F0FDF4 0%, #DCFCE7 100%);
     border-right: 2px solid #86EFAC;
 }
-/* Hojas decorativas al fondo */
 .sidebar::before {
     content: '';
     position: absolute;
@@ -248,7 +249,6 @@
     z-index: 1;
 }
 
-/* Nav activo: barrita verde→rosa + puntito de flor */
 .nav-item.active::before {
     background: linear-gradient(180deg, #22C55E, #EC4899);
     width: 4px;
@@ -270,7 +270,7 @@
 }
 
 /* ================================================================
-   PESTAÑAS = subrayado con gradiente floral
+   PESTAÑAS
    ================================================================ */
 .tab-item.active::before {
     content: '';
@@ -290,7 +290,7 @@
 }
 
 /* ================================================================
-   MODALES = borde floral + flor en la esquina
+   MODALES
    ================================================================ */
 .config-card,
 .modal-todas-card {
@@ -334,7 +334,7 @@
 }
 
 /* ================================================================
-   BOTÓN PRIMARIO = con brillo floral
+   BOTÓN PRIMARIO
    ================================================================ */
 .btn-primario {
     box-shadow:
