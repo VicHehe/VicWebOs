@@ -245,9 +245,10 @@ body {
 }
 
 /* ============================================================
-   MODAL EDICIÓN — COMPACTO
-   El modal llena el iframe, pero el contenido es chico para
-   que los slots tengan la mayor superficie visual posible.
+   MODAL EDICIÓN — Ultra compacto
+   El contenido es chico para que los slots dominen.
+   Slots RECTANGULARES (ancho completo, alto fijo) → las
+   imágenes se ven grandes y no hay espacios raros.
    ============================================================ */
 .dp-modal {
     position: fixed;
@@ -267,12 +268,12 @@ body {
     overflow: hidden;
 }
 
-/* -------- HEADER (compacto) -------- */
+/* -------- HEADER -------- */
 .dp-modal-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 6px 10px;
+    padding: 5px 10px;
     border-bottom: 1px solid var(--border, #E8E8EE);
     background: var(--gray-50, #FAFAFB);
     flex-shrink: 0;
@@ -282,7 +283,7 @@ body {
     display: flex;
     align-items: center;
     gap: 5px;
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 800;
     color: var(--gray-900, #18181B);
     margin: 0;
@@ -291,12 +292,12 @@ body {
 }
 .dp-modal-header h2 [data-lucide] {
     color: var(--violet-500, #8B5CF6);
-    width: 13px;
-    height: 13px;
+    width: 12px;
+    height: 12px;
 }
 .dp-modal-cerrar {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     background: none;
     border: none;
     padding: 0;
@@ -313,32 +314,33 @@ body {
     background: #FEE2E2;
     color: #991B1B;
 }
-.dp-modal-cerrar [data-lucide] { width: 12px; height: 12px; }
+.dp-modal-cerrar [data-lucide] { width: 11px; height: 11px; }
 
-/* -------- BODY (compacto) -------- */
+/* -------- BODY -------- */
 .dp-modal-body {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    padding: 6px 8px;
+    padding: 5px 6px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 5px;
 }
 
-/* Descripción: 1 línea ultra compacta */
+/* Descripción: 1 línea muy chica */
 .dp-modal-desc {
-    font-size: 10px;
+    font-size: 9.5px;
     color: var(--gray-500, #71717A);
-    line-height: 1.35;
+    line-height: 1.3;
     margin: 0;
+    text-align: center;
 }
 .dp-modal-desc strong {
     color: var(--violet-700, #6D28D9);
     font-weight: 800;
 }
 
-/* -------- SLOTS (con max-height para no inflarse) -------- */
+/* -------- SLOTS: RECTANGULARES (ancho completo, alto fijo) -------- */
 .dp-slots {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -347,11 +349,8 @@ body {
 
 .dp-slot {
     position: relative;
-    aspect-ratio: 1/1;
-    /* 👇 Esto es la clave: el slot no crece más de 74px de alto,
-       aunque el ancho sea mayor. Permite que 2 filas entren en
-       un widget de 240px. */
-    max-height: 74px;
+    /* 👇 Sin aspect-ratio. Alto fijo, ancho completo del grid. */
+    height: 62px;
     border: 1.5px dashed var(--border, #E8E8EE);
     border-radius: 8px;
     background: var(--gray-50, #FAFAFB);
@@ -448,12 +447,12 @@ body {
     z-index: 2;
 }
 
-/* -------- OPCIONES (compacto) -------- */
+/* -------- OPCIONES -------- */
 .dp-opcion {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    padding: 6px 8px;
+    padding: 5px 8px;
     background: var(--gray-50, #FAFAFB);
     border: 1px solid var(--border, #E8E8EE);
     border-radius: 8px;
@@ -463,14 +462,14 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 700;
     color: var(--gray-800, #27272A);
     line-height: 1;
 }
 .dp-opcion-header > [data-lucide] {
-    width: 13px;
-    height: 13px;
+    width: 12px;
+    height: 12px;
     color: var(--violet-500, #8B5CF6);
     flex-shrink: 0;
 }
@@ -482,8 +481,8 @@ body {
 .dp-switch {
     position: relative;
     display: inline-block;
-    width: 30px;
-    height: 18px;
+    width: 28px;
+    height: 16px;
     cursor: pointer;
     flex-shrink: 0;
 }
@@ -504,8 +503,8 @@ body {
     position: absolute;
     top: 2px;
     left: 2px;
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     background: white;
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
@@ -522,10 +521,10 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
-    padding-left: 19px;
+    padding-left: 18px;
 }
 .dp-opcion-sub label {
-    font-size: 10px;
+    font-size: 9.5px;
     font-weight: 700;
     color: var(--gray-600, #52525B);
     white-space: nowrap;
@@ -538,7 +537,7 @@ body {
     background: var(--white, #FFFFFF);
     color: var(--gray-900, #18181B);
     font-family: inherit;
-    font-size: 10.5px;
+    font-size: 10px;
     font-weight: 700;
     outline: none;
     cursor: pointer;
@@ -548,11 +547,11 @@ body {
     border-color: var(--violet-400, #A78BFA);
 }
 
-/* -------- ACTIONS (compacto) -------- */
+/* -------- ACTIONS -------- */
 .dp-modal-actions {
     display: flex;
     gap: 6px;
-    padding: 6px 8px;
+    padding: 5px 8px;
     border-top: 1px solid var(--border, #E8E8EE);
     background: var(--gray-50, #FAFAFB);
     flex-shrink: 0;
@@ -564,11 +563,11 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 5px;
-    padding: 7px 10px;
+    gap: 4px;
+    padding: 6px 10px;
     border-radius: 8px;
     font-family: inherit;
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 800;
     cursor: pointer;
     transition: all 0.15s;
@@ -596,7 +595,7 @@ body {
 }
 .dp-btn-pri:active { transform: translateY(0); }
 .dp-btn-sec [data-lucide],
-.dp-btn-pri [data-lucide] { width: 12px; height: 12px; }
+.dp-btn-pri [data-lucide] { width: 11px; height: 11px; }
 
 /* ========== TOAST ========== */
 .dp-toast {
@@ -627,10 +626,10 @@ body {
 .dp-toast.success { background: #065F46; }
 .dp-toast.error   { background: #B91C1C; }
 
-/* ========== COMPACTO EXTRA ========== */
+/* ========== COMPACTO EXTRA (widgets muy chicos) ========== */
 @media (max-width: 320px) {
     .dp-widget { padding: 9px 10px; }
-    .dp-modal-body { padding: 5px 7px; gap: 5px; }
+    .dp-modal-body { padding: 4px 5px; gap: 4px; }
     .dp-slots { gap: 3px; }
-    .dp-slot { max-height: 68px; }
+    .dp-slot { height: 56px; }
 }
