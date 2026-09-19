@@ -1,5 +1,5 @@
 /* ================================================
-   Contactos — App del sistema (directorio + regalos)
+   Contactos — App del sistema (directorio + regalos + estado)
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -38,7 +38,7 @@ body {
     padding: 20px 24px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
     overflow: hidden;
 }
 
@@ -148,6 +148,150 @@ body {
     color: #065F46;
 }
 .ct-chip-activos [data-lucide] { color: #10B981; }
+
+/* ============================================================
+   MI BLOQUE (perfil propio + selector de estado)
+   ============================================================ */
+.ct-yo {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, var(--violet-50, #F5F3FF) 0%, var(--white, #FFFFFF) 100%);
+    border: 1.5px solid var(--violet-200, #DDD6FE);
+    border-radius: 16px;
+    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.10));
+}
+
+.ct-yo-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--violet-400, #A78BFA), var(--violet-600, #7C3AED));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid var(--white, #FFFFFF);
+    box-shadow: 0 4px 10px var(--accent-shadow, rgba(139,92,246,0.25));
+}
+.ct-yo-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.ct-yo-avatar [data-lucide] {
+    width: 22px;
+    height: 22px;
+    stroke-width: 2;
+}
+.ct-yo-avatar-inicial {
+    font-size: 22px;
+    font-weight: 800;
+    color: white;
+    line-height: 1;
+}
+
+.ct-yo-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.ct-yo-label {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--violet-600, #7C3AED);
+}
+.ct-yo-nombre {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--gray-900, #18181B);
+    letter-spacing: -0.01em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.2;
+}
+
+.ct-yo-estados {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.ct-yo-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 8px 12px;
+    min-width: 68px;
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 10px;
+    background: var(--white, #FFFFFF);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    touch-action: manipulation;
+    color: var(--gray-600, #52525B);
+}
+.ct-yo-btn > [data-lucide] {
+    width: 15px;
+    height: 15px;
+    transition: all 0.2s;
+}
+.ct-yo-btn span {
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+}
+
+/* Colores de icono por tipo (siempre) */
+.ct-yo-btn[data-estado="activo"] > [data-lucide]       { color: #10B981; }
+.ct-yo-btn[data-estado="descansando"] > [data-lucide]  { color: #F59E0B; }
+.ct-yo-btn[data-estado="desconectado"] > [data-lucide] { color: #71717A; }
+
+.ct-yo-btn:hover:not(:disabled) {
+    border-color: var(--violet-400, #A78BFA);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+}
+
+/* Estado activo (seleccionado) */
+.ct-yo-btn.active {
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+.ct-yo-btn.active > [data-lucide] { color: white !important; }
+
+.ct-yo-btn[data-estado="activo"].active {
+    background: linear-gradient(135deg, #34D399, #10B981);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+.ct-yo-btn[data-estado="descansando"].active {
+    background: linear-gradient(135deg, #FBBF24, #F59E0B);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+}
+.ct-yo-btn[data-estado="desconectado"].active {
+    background: linear-gradient(135deg, #9CA3AF, #71717A);
+    box-shadow: 0 4px 12px rgba(113, 113, 122, 0.35);
+}
+
+.ct-yo-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
 
 /* ========== MAIN ========== */
 .ct-main {
@@ -650,12 +794,32 @@ body {
    RESPONSIVE
    ============================================================ */
 @media (max-width: 640px) {
-    .ct-container { padding: 14px 14px 12px; gap: 12px; }
+    .ct-container { padding: 14px 14px 12px; gap: 10px; }
     .ct-logo-mark { width: 38px; height: 38px; border-radius: 11px; }
     .ct-logo-mark [data-lucide] { width: 19px; height: 19px; }
     .ct-logo-text h1 { font-size: 18px; }
     .ct-logo-text p { font-size: 11px; }
     .ct-btn-refresh { width: 36px; height: 36px; }
+
+    /* Mi bloque en móvil: avatar + nombre arriba, botones abajo */
+    .ct-yo {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 12px 14px;
+        border-radius: 14px;
+    }
+    .ct-yo-avatar { width: 46px; height: 46px; }
+    .ct-yo-avatar-inicial { font-size: 20px; }
+    .ct-yo-nombre { font-size: 14px; }
+    .ct-yo-estados {
+        width: 100%;
+        order: 3;
+    }
+    .ct-yo-btn {
+        flex: 1;
+        min-width: 0;
+        padding: 8px 4px;
+    }
 
     .ct-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -683,4 +847,5 @@ body {
     .ct-montos { gap: 6px; }
     .ct-monto { padding: 12px 6px; border-radius: 12px; }
     .ct-monto-num { font-size: 16px; }
+    .ct-yo-btn span { font-size: 9.5px; }
 }
