@@ -114,6 +114,17 @@ const RUTAS_HERRAMIENTAS = [
     espacio: 4,
     monedas: 0
 },
+{
+    id: 'wordlhe',
+    nombre: 'Wordl-He',
+    icono: 'type',
+    ruta: 'herramientas/wordle/index.html',
+    descripcion: 'Adivina la palabra de 5 letras. +5 monedas por victoria.',
+    categoria: 'Juegos',
+    esBase: false,
+    espacio: 4,
+    monedas: 0
+},
     {
         id: 'evmail',
         nombre: 'EVmail',
