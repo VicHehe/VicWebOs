@@ -24,21 +24,23 @@
                     <p id="trUserBadge">—</p>
                 </div>
             </div>
-            <div class="tr-racha-badge" id="trRachaBadge">
-                <i data-lucide="flame"></i>
-                <span id="trRachaActual">0</span>
-            </div>
         </header>
 
-        <div class="tr-info">
-            <div class="tr-info-chip tr-info-turno" id="trInfoTurno">
-                <i data-lucide="circle-dot"></i>
-                <span>Tu turno</span>
+        <div class="tr-info" id="trInfo">
+            <div class="tr-info-chips" id="trInfoChips">
+                <div class="tr-info-chip tr-info-turno" id="trInfoTurno">
+                    <i data-lucide="circle-dot"></i>
+                    <span>Tu turno</span>
+                </div>
+                <div class="tr-info-chip tr-info-ronda facil" id="trInfoRonda">
+                    <i data-lucide="target"></i>
+                    <span id="trInfoRondaTexto">Ronda 1/3</span>
+                    <em id="trInfoRondaDif">Fácil</em>
+                </div>
             </div>
-            <div class="tr-info-chip tr-info-nivel" id="trInfoNivel" title="Dificultad actual">
-                <i data-lucide="cpu"></i>
-                <span>Nivel 1</span>
-                <em id="trInfoNivelProgreso">1/3</em>
+            <div class="tr-info-continuar" id="trInfoContinuar" hidden>
+                <i data-lucide="check-circle-2"></i>
+                <span>¡Ganaste! Toca para seguir</span>
             </div>
         </div>
 
@@ -56,16 +58,8 @@
 
         <div class="tr-stats">
             <div class="tr-stat">
-                <span class="tr-stat-label">Racha</span>
-                <span class="tr-stat-valor" id="trStatRacha">0</span>
-            </div>
-            <div class="tr-stat">
-                <span class="tr-stat-label">Récord</span>
-                <span class="tr-stat-valor" id="trStatRecord">0</span>
-            </div>
-            <div class="tr-stat">
-                <span class="tr-stat-label">Ganadas</span>
-                <span class="tr-stat-valor" id="trStatGanadas">0</span>
+                <span class="tr-stat-label">Ciclos</span>
+                <span class="tr-stat-valor" id="trStatCiclos">0</span>
             </div>
             <div class="tr-stat">
                 <span class="tr-stat-label">Monedas</span>
@@ -75,16 +69,19 @@
 
     </div>
 
-    <!-- ============================================================
-         OVERLAY DE INICIO — pantalla completa
-         ============================================================ -->
+    <!-- Overlay de inicio -->
     <div class="tr-overlay" id="trOverlayStart">
         <div class="tr-overlay-card">
             <div class="tr-overlay-icono">
-                <i data-lucide="grid-3x3"></i>
+                <i data-lucide="target"></i>
             </div>
-            <h2>¿Listo para jugar?</h2>
-            <p>Consigue <strong>3 en línea</strong> antes que la CPU. Gana partidas seguidas para subir de nivel.</p>
+            <h2>Gana 3 rondas seguidas</h2>
+            <p>La dificultad sube en cada ronda. Complétalas todas y llévate <strong>15 monedas</strong>.</p>
+            <div class="tr-rondas">
+                <div class="tr-ronda-chip"><span>1</span>Fácil</div>
+                <div class="tr-ronda-chip"><span>2</span>Media</div>
+                <div class="tr-ronda-chip"><span>3</span>Difícil</div>
+            </div>
             <button class="tr-btn-primario" id="trBtnEmpezar">
                 <i data-lucide="play"></i>
                 Empezar
@@ -92,47 +89,35 @@
         </div>
     </div>
 
-    <!-- ============================================================
-         OVERLAY DE FIN DE PARTIDA — resultado + stats + botón
-         ============================================================ -->
+    <!-- Overlay de fin de ciclo / derrota -->
     <div class="tr-overlay" id="trOverlayFin" hidden>
         <div class="tr-overlay-card">
             <div class="tr-overlay-icono" id="trFinIcono">
                 <i data-lucide="trophy"></i>
             </div>
-            <h2 id="trFinTitulo">¡Ganaste!</h2>
-            <p id="trFinSubtitulo">Racha ×1. ¡Sigue así!</p>
+            <h2 id="trFinTitulo">¡Ciclo completado!</h2>
+            <p id="trFinSubtitulo">Ganaste las 3 rondas.</p>
 
             <div class="tr-resumen">
                 <div class="tr-resumen-fila">
-                    <span class="tr-resumen-label">Racha actual</span>
-                    <span class="tr-resumen-valor" id="trFinRacha">0</span>
-                </div>
-                <div class="tr-resumen-fila">
-                    <span class="tr-resumen-label">Récord</span>
-                    <span class="tr-resumen-valor" id="trFinRecord">0</span>
-                </div>
-                <div class="tr-resumen-fila">
-                    <span class="tr-resumen-label">Ganadas</span>
-                    <span class="tr-resumen-valor" id="trFinGanadas">0</span>
+                    <span class="tr-resumen-label">Rondas superadas</span>
+                    <span class="tr-resumen-valor" id="trFinRondas">3/3</span>
                 </div>
                 <div class="tr-resumen-fila tr-resumen-destacada" id="trFinMonedasFila">
                     <span class="tr-resumen-label">
                         <i data-lucide="coins"></i>
-                        Monedas ganadas
+                        Recompensa
                     </span>
-                    <span class="tr-resumen-valor tr-resumen-monedas" id="trFinMonedas">+0</span>
+                    <span class="tr-resumen-valor tr-resumen-monedas" id="trFinMonedas">+15</span>
                 </div>
             </div>
 
             <button class="tr-btn-primario" id="trBtnReintentar">
                 <i data-lucide="rotate-ccw" id="trBtnReintentarIcono"></i>
-                <span id="trBtnReintentarTexto">Reintentar</span>
+                <span id="trBtnReintentarTexto">Jugar otra vez</span>
             </button>
         </div>
     </div>
-
-    <div class="tr-toast" id="trToast"></div>
 
     <script src="script.js"></script>
     <script>lucide.createIcons();</script>
