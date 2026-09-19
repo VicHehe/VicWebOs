@@ -1,59 +1,70 @@
 /* ================================================
    Tema: Libro de Historia
-   Un libro abierto: papel pergamino adentro,
-   cuero y oro en los detalles. Textura visible,
-   lomo central y marcos de encuadernación.
+   Grimorio: cuero oscuro cálido, papel envejecido,
+   oro viejo distribuido y lomo sutil.
+   Sin la línea chillona al medio.
    ================================================ */
 
 :root {
-    /* Acento: oro viejo */
-    --violet-50:  #F8F0DC;
-    --violet-100: #F0E2C0;
-    --violet-200: #E0CC98;
-    --violet-300: #C9A85C;
-    --violet-400: #B89040;
-    --violet-500: #A87830;
-    --violet-600: #8A6020;
-    --violet-700: #6A4818;
+    /* Acento: oro viejo, desaturado */
+    --violet-50:  #3E2E1E;
+    --violet-100: #4A3826;
+    --violet-200: #5E4830;
+    --violet-300: #8A6A3A;
+    --violet-400: #A88040;
+    --violet-500: #C9A85C;
+    --violet-600: #B09048;
+    --violet-700: #8A6A30;
 
-    /* Papel pergamino */
-    --white:   #F8F0DC;      /* papel base */
-    --bg:      #F0E2C0;      /* fondo general pergamino */
-    --bg-alt:  #E8D8B0;      /* sidebar pergamino un poco más oscuro */
-    --gray-50:  #F8F0DC;
-    --gray-100: #F0E2C0;
-    --gray-200: #E0CC98;
-    --gray-300: #C9B080;
-    --gray-400: #A08860;
-    --gray-500: #7A6038;
-    --gray-600: #5A4020;
-    --gray-700: #3E2A14;
-    --gray-800: #2A1810;
-    --gray-900: #1A0E08;
+    /* Neutros: cuero oscuro cálido (desaturado, no negro) */
+    --white:   #2E241A;
+    --bg:      #1E1710;
+    --bg-alt:  #261C12;
+    --gray-50:  #261C12;
+    --gray-100: #32261A;
+    --gray-200: #3E3020;
+    --gray-300: #5A4530;
+    --gray-400: #7A6148;
+    --gray-500: #A08A6A;
+    --gray-600: #C0AC88;
+    --gray-700: #D8C8A8;
+    --gray-800: #EADCC0;
+    --gray-900: #F5E6C8;
 
-    --border:  #D8C098;
-    --text:    #2A1810;      /* tinta sepia sobre papel */
-    --text-2:  #5A4020;
-    --text-3:  #7A6038;
+    --border:  #3E3020;
+    --text:    #F5E6C8;
+    --text-2:  #C0AC88;
+    --text-3:  #A08A6A;
 
-    --shadow-xs: 0 1px 2px rgba(60, 30, 10, 0.10);
-    --shadow-sm: 0 1px 3px rgba(60, 30, 10, 0.12);
-    --shadow-md: 0 4px 12px rgba(60, 30, 10, 0.14);
-    --shadow-lg: 0 12px 32px rgba(60, 30, 10, 0.18);
-    --shadow-xl: 0 24px 48px rgba(60, 30, 10, 0.22);
-    --shadow-glow: 0 0 0 4px rgba(168, 120, 48, 0.20);
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.6);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.55);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.65);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.75);
+    --shadow-glow: 0 0 0 4px rgba(200, 168, 92, 0.18);
 
-    --accent-gradient: linear-gradient(135deg, #A87830, #6A4818);
-    --accent-gradient-hover: linear-gradient(135deg, #C9A85C, #8A6020);
-    --accent-shadow: rgba(168, 120, 48, 0.30);
-    --accent-shadow-hover: rgba(168, 120, 48, 0.45);
-    --accent-text-gradient: linear-gradient(135deg, #2A1810, #A87830);
+    --accent-gradient: linear-gradient(135deg, #C9A85C, #8A6A30);
+    --accent-gradient-hover: linear-gradient(135deg, #D8B868, #A88040);
+    --accent-shadow: rgba(200, 168, 92, 0.30);
+    --accent-shadow-hover: rgba(200, 168, 92, 0.48);
+    --accent-text-gradient: linear-gradient(135deg, #F5E6C8, #C9A85C);
 
-    /* Radios más secos, de libro */
+    /* Radios secos */
     --r-sm: 4px;
     --r-md: 6px;
     --r-lg: 8px;
     --r-xl: 12px;
+
+    /* Ornamentos */
+    --libro-oro:      #C9A85C;
+    --libro-oro-dim:  #8A6A30;
+    --libro-cuero:    #3E3020;
+
+    /* Rombo dorado (ornamento de esquina) */
+    --theme-rombo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10,3 L17,10 L10,17 L3,10 Z' fill='none' stroke='%23C9A85C' stroke-width='1.2'/%3E%3Ccircle cx='10' cy='10' r='1.5' fill='%23C9A85C'/%3E%3C/svg%3E");
+
+    /* Floritura para esquinas de modales (más elaborada) */
+    --theme-floritura: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cpath d='M6,6 Q6,26 26,26 M6,6 L26,6 M6,6 L6,26' stroke='%23C9A85C' stroke-width='1.2' fill='none' opacity='0.75'/%3E%3Cpath d='M10,10 L16,16' stroke='%23C9A85C' stroke-width='0.8' opacity='0.6'/%3E%3Ccircle cx='6' cy='6' r='2' fill='%23C9A85C' opacity='0.85'/%3E%3Ccircle cx='18' cy='18' r='1.2' fill='%23C9A85C' opacity='0.6'/%3E%3Cpath d='M14,6 Q14,14 6,14' stroke='%23C9A85C' stroke-width='0.6' fill='none' opacity='0.5'/%3E%3C/svg%3E");
 }
 
 /* ================================================================
@@ -65,157 +76,195 @@ body::before {
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.28;
+    opacity: 0.16;
     background-image:
-        radial-gradient(circle at 20% 30%, rgba(90, 60, 30, 0.35) 0.6px, transparent 1.2px),
-        radial-gradient(circle at 70% 60%, rgba(122, 96, 56, 0.30) 0.6px, transparent 1.2px),
-        radial-gradient(circle at 40% 80%, rgba(90, 60, 30, 0.28) 0.6px, transparent 1.2px),
-        radial-gradient(circle at 85% 15%, rgba(122, 96, 56, 0.30) 0.6px, transparent 1.2px),
-        radial-gradient(circle at 12% 88%, rgba(60, 30, 10, 0.25) 0.5px, transparent 1px),
-        radial-gradient(circle at 55% 45%, rgba(60, 30, 10, 0.20) 0.5px, transparent 1px);
-    background-size:
-        120px 120px,
-        180px 180px,
-        90px 90px,
-        150px 150px,
-        100px 100px,
-        140px 140px;
+        radial-gradient(circle at 20% 30%, rgba(245, 230, 200, 0.35) 0.6px, transparent 1.2px),
+        radial-gradient(circle at 70% 60%, rgba(200, 168, 92, 0.28) 0.6px, transparent 1.2px),
+        radial-gradient(circle at 40% 80%, rgba(245, 230, 200, 0.25) 0.6px, transparent 1.2px),
+        radial-gradient(circle at 85% 15%, rgba(200, 168, 92, 0.28) 0.6px, transparent 1.2px);
+    background-size: 130px 130px, 180px 180px, 100px 100px, 160px 160px;
 }
 
 /* ================================================================
-   2. WELCOME = página de pergamino
-      Textura + viñeteado + lomo central.
+   2. WELCOME = página de grimorio
+      Textura + viñeta suave + marco dorado interior + esquinas.
+      SIN línea central chillona.
    ================================================================ */
 .welcome-placeholder {
     position: relative;
     background:
-        radial-gradient(ellipse at top left,     rgba(90, 60, 30, 0.18) 0%, transparent 45%),
-        radial-gradient(ellipse at top right,    rgba(90, 60, 30, 0.18) 0%, transparent 45%),
-        radial-gradient(ellipse at bottom left,  rgba(90, 60, 30, 0.25) 0%, transparent 50%),
-        radial-gradient(ellipse at bottom right, rgba(90, 60, 30, 0.25) 0%, transparent 50%),
-        linear-gradient(180deg, #F8F0DC 0%, #EFE0BC 100%);
+        radial-gradient(ellipse at center, rgba(62, 48, 32, 0.15) 0%, transparent 70%),
+        radial-gradient(ellipse at top left,     rgba(0, 0, 0, 0.40) 0%, transparent 50%),
+        radial-gradient(ellipse at top right,    rgba(0, 0, 0, 0.40) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom left,  rgba(0, 0, 0, 0.50) 0%, transparent 55%),
+        radial-gradient(ellipse at bottom right, rgba(0, 0, 0, 0.50) 0%, transparent 55%),
+        linear-gradient(180deg, #221A12 0%, #1A130C 100%);
     overflow: hidden;
 }
 
-/* Textura de papel dentro del welcome */
+/* Textura de papel + marco dorado interior + 4 rombos en las esquinas
+   (todo en un solo ::before, con múltiples background-image) */
 .welcome-placeholder::before {
     content: '';
     position: absolute;
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.35;
     background-image:
-        radial-gradient(circle at 30% 20%, rgba(90, 60, 30, 0.30) 0.6px, transparent 1.2px),
-        radial-gradient(circle at 65% 40%, rgba(90, 60, 30, 0.25) 0.5px, transparent 1px),
-        radial-gradient(circle at 15% 70%, rgba(90, 60, 30, 0.25) 0.5px, transparent 1px),
-        radial-gradient(circle at 80% 85%, rgba(90, 60, 30, 0.30) 0.6px, transparent 1.2px),
-        radial-gradient(circle at 45% 55%, rgba(90, 60, 30, 0.20) 0.5px, transparent 1px);
-    background-size: 90px 90px, 110px 110px, 130px 130px, 100px 100px, 120px 120px;
+        /* 4 rombos dorados en las esquinas */
+        var(--theme-rombo),
+        var(--theme-rombo),
+        var(--theme-rombo),
+        var(--theme-rombo),
+        /* Textura de puntos (papel) */
+        radial-gradient(circle at 30% 20%, rgba(245, 230, 200, 0.30) 0.6px, transparent 1.2px),
+        radial-gradient(circle at 65% 40%, rgba(245, 230, 200, 0.22) 0.5px, transparent 1px),
+        radial-gradient(circle at 15% 70%, rgba(245, 230, 200, 0.22) 0.5px, transparent 1px),
+        radial-gradient(circle at 80% 85%, rgba(245, 230, 200, 0.30) 0.6px, transparent 1.2px);
+    background-size:
+        22px 22px, 22px 22px, 22px 22px, 22px 22px,
+        100px 100px, 130px 130px, 90px 90px, 120px 120px;
+    background-position:
+        24px 24px,
+        calc(100% - 24px) 24px,
+        24px calc(100% - 24px),
+        calc(100% - 24px) calc(100% - 24px),
+        0 0, 0 0, 0 0, 0 0;
+    background-repeat:
+        no-repeat, no-repeat, no-repeat, no-repeat,
+        repeat, repeat, repeat, repeat;
+    opacity: 1;
 }
 
-/* Hero y secciones por encima */
+/* Marco dorado fino, separado de los rombos */
+.welcome-placeholder::after {
+    content: '';
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    border: 1px solid rgba(200, 168, 92, 0.28);
+    border-radius: 4px;
+    pointer-events: none;
+    z-index: 1;
+    box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.35);
+}
+
 .welcome-hero,
 .welcome-section {
     position: relative;
     z-index: 3;
 }
 
-/* ================================================================
-   3. LOMO DEL LIBRO (línea central con sombras)
-      Usamos .welcome-glow como el lomo en sí.
-   ================================================================ */
+/* Sutil resplandor cálido detrás del hero, SIN línea central */
 .welcome-glow {
     position: absolute;
-    top: 0;
-    bottom: 0;
+    top: 15%;
     left: 50%;
     transform: translateX(-50%);
-    width: 3px;
-    height: auto;
-    background: linear-gradient(180deg,
-        transparent 0%,
-        rgba(90, 60, 30, 0.30) 6%,
-        rgba(90, 60, 30, 0.55) 50%,
-        rgba(90, 60, 30, 0.30) 94%,
-        transparent 100%);
-    box-shadow:
-        -22px 0 40px rgba(90, 60, 30, 0.16),
-         22px 0 40px rgba(90, 60, 30, 0.16);
-    opacity: 1;
+    width: 500px;
+    height: 400px;
+    background: radial-gradient(
+        circle,
+        rgba(200, 168, 92, 0.10) 0%,
+        rgba(200, 168, 92, 0.05) 35%,
+        transparent 70%
+    );
     pointer-events: none;
     z-index: 1;
 }
 
-/* Título del hero con tinta sepia + sombra impresa */
+/* Título con sutil sombra de tinta sobre cuero */
 .welcome-hero h1 {
-    text-shadow: 0 1px 0 rgba(255, 250, 235, 0.6);
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
     letter-spacing: 0.005em;
-    font-feature-settings: "liga", "kern";
 }
 
 /* ================================================================
-   4. ACCESOS RÁPIDOS = páginas con sombra de libro
+   3. ACCESOS RÁPIDOS = páginas apiladas con filete dorado
    ================================================================ */
 .acceso-item {
     position: relative;
-    border: 1px solid #D8C098;
-    border-radius: 4px;
+    border: 1px solid rgba(200, 168, 92, 0.35);
+    border-radius: 3px;
     background:
-        linear-gradient(180deg, #FBF5E4 0%, #F5E8C8 100%);
+        linear-gradient(180deg, #2E241A 0%, #261C12 100%);
     box-shadow:
-        inset 0 1px 0 rgba(255, 250, 235, 0.8),
-        inset 0 -1px 0 rgba(90, 60, 30, 0.10),
-        2px 2px 0 rgba(90, 60, 30, 0.18),
-        4px 4px 10px rgba(60, 30, 10, 0.15);
+        inset 0 0 0 1px rgba(200, 168, 92, 0.12),
+        inset 0 0 0 2px rgba(0, 0, 0, 0.35),
+        2px 2px 0 rgba(0, 0, 0, 0.5),
+        4px 4px 12px rgba(0, 0, 0, 0.45);
     transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: visible;
 }
+
+/* Pequeña floritura en la esquina superior izquierda */
+.acceso-item::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    width: 22px;
+    height: 22px;
+    background: var(--theme-floritura) center/contain no-repeat;
+    opacity: 0.55;
+    transition: opacity 0.22s;
+    pointer-events: none;
+}
+.acceso-item:hover::before {
+    opacity: 1;
+}
+
 .acceso-item:hover {
-    border-color: var(--violet-400);
+    border-color: rgba(200, 168, 92, 0.70);
     transform: translate(-1px, -1px);
     box-shadow:
-        inset 0 1px 0 rgba(255, 250, 235, 0.9),
-        inset 0 -1px 0 rgba(90, 60, 30, 0.10),
-        3px 3px 0 rgba(90, 60, 30, 0.22),
-        6px 6px 14px rgba(60, 30, 10, 0.20),
-        0 0 0 1px rgba(168, 120, 48, 0.20);
+        inset 0 0 0 1px rgba(200, 168, 92, 0.20),
+        inset 0 0 0 2px rgba(0, 0, 0, 0.35),
+        3px 3px 0 rgba(0, 0, 0, 0.55),
+        6px 6px 16px rgba(0, 0, 0, 0.55),
+        0 0 20px rgba(200, 168, 92, 0.20);
 }
 
 /* Ícono en marco "grabado" */
 .acceso-icon-wrap {
-    background: rgba(232, 216, 176, 0.85);
-    border: 1px solid rgba(168, 120, 48, 0.45);
-    box-shadow: inset 0 1px 2px rgba(90, 60, 30, 0.20);
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(200, 168, 92, 0.40);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 .acceso-item:hover .acceso-icon-wrap {
     background: var(--accent-gradient);
-    border-color: var(--violet-400);
-    color: white;
-    box-shadow: 0 0 12px rgba(168, 120, 48, 0.45);
+    border-color: var(--libro-oro);
+    color: #1E1710;
+    box-shadow:
+        0 0 0 3px rgba(200, 168, 92, 0.25),
+        0 0 12px rgba(200, 168, 92, 0.45);
 }
 
 /* ================================================================
-   5. WIDGETS = mismas páginas
+   4. WIDGETS = mismo tratamiento que las cards
    ================================================================ */
 .widget-item {
-    border: 1px solid #D8C098;
-    border-radius: 4px;
+    position: relative;
+    border: 1px solid rgba(200, 168, 92, 0.35);
+    border-radius: 3px;
     box-shadow:
-        inset 0 1px 0 rgba(255, 250, 235, 0.8),
-        2px 2px 0 rgba(90, 60, 30, 0.18),
-        4px 4px 10px rgba(60, 30, 10, 0.15);
+        inset 0 0 0 1px rgba(200, 168, 92, 0.12),
+        2px 2px 0 rgba(0, 0, 0, 0.5),
+        4px 4px 12px rgba(0, 0, 0, 0.45);
 }
 
 /* ================================================================
-   6. SIDEBAR = canto de cuero del libro
+   5. SIDEBAR = canto de cuero con oro sutil
    ================================================================ */
 .sidebar {
     position: relative;
-    background: linear-gradient(180deg, #E8D8B0 0%, #D8C498 100%);
-    border-right: 2px solid #B89040;
-    box-shadow: inset -8px 0 16px rgba(90, 60, 30, 0.10);
+    background:
+        linear-gradient(180deg, #2A2014 0%, #221A10 100%);
+    border-right: 1px solid rgba(200, 168, 92, 0.28);
+    box-shadow: inset -8px 0 16px rgba(0, 0, 0, 0.4);
 }
-/* Textura de cuero sutil */
 .sidebar::before {
     content: '';
     position: absolute;
@@ -224,9 +273,9 @@ body::before {
     z-index: 0;
     opacity: 0.10;
     background-image:
-        radial-gradient(circle at 20% 30%, rgba(60, 30, 10, 0.6) 0.5px, transparent 1px),
-        radial-gradient(circle at 70% 60%, rgba(60, 30, 10, 0.4) 0.5px, transparent 1px),
-        radial-gradient(circle at 40% 80%, rgba(60, 30, 10, 0.5) 0.5px, transparent 1px);
+        radial-gradient(circle at 20% 30%, rgba(200, 168, 92, 0.6) 0.5px, transparent 1px),
+        radial-gradient(circle at 70% 60%, rgba(0, 0, 0, 0.8) 0.5px, transparent 1px),
+        radial-gradient(circle at 40% 80%, rgba(200, 168, 92, 0.5) 0.5px, transparent 1px);
     background-size: 60px 60px, 80px 80px, 70px 70px;
 }
 .sidebar-comunidad,
@@ -239,57 +288,92 @@ body::before {
 
 /* Nav activo: barrita dorada + brillo suave */
 .nav-item.active::before {
-    background: linear-gradient(180deg, #C9A85C, #8A6020);
-    width: 4px;
-    box-shadow: 0 0 10px rgba(168, 120, 48, 0.55);
+    background: linear-gradient(180deg, #C9A85C, #8A6A30);
+    width: 3px;
+    box-shadow: 0 0 8px rgba(200, 168, 92, 0.5);
+}
+.nav-item.active {
+    background: rgba(200, 168, 92, 0.08);
+    border-radius: 3px;
 }
 
 /* ================================================================
-   7. HEADER = cinta dorada superior sutil
+   6. HEADER = cuero con filete dorado
    ================================================================ */
 .app-header {
-    background: linear-gradient(180deg, #F8F0DC 0%, #EFE0BC 100%);
-    border-bottom: 1px solid #D8C098;
-    box-shadow: inset 0 -1px 0 rgba(168, 120, 48, 0.20);
+    background: linear-gradient(180deg, #2A2014 0%, #221A10 100%);
+    border-bottom: 1px solid rgba(200, 168, 92, 0.30);
+    box-shadow:
+        inset 0 -1px 0 rgba(200, 168, 92, 0.10),
+        0 1px 3px rgba(0, 0, 0, 0.35);
 }
 
 /* ================================================================
-   8. PESTAÑAS = subrayado dorado central
+   7. PESTAÑAS = subrayado dorado central
    ================================================================ */
+.tab-item.active {
+    background: rgba(200, 168, 92, 0.06);
+}
 .tab-item.active::before {
     content: '';
     position: absolute;
     top: 0;
-    left: 12px;
-    right: 12px;
+    left: 20px;
+    right: 20px;
     height: 2px;
-    background: linear-gradient(90deg, transparent, #A87830, transparent);
+    background: linear-gradient(90deg, transparent, #C9A85C, transparent);
     border-radius: 2px 2px 0 0;
-    box-shadow: 0 0 8px rgba(168, 120, 48, 0.45);
+    box-shadow: 0 0 6px rgba(200, 168, 92, 0.55);
 }
 
 /* ================================================================
-   9. MODALES = interior de papel con marco de encuadernación
+   8. MODALES = tapa de cuero con marco de encuadernación
+      Doble filete + florituras en las 4 esquinas.
    ================================================================ */
 .config-card,
 .modal-todas-card {
     position: relative;
-    border: 1px solid #B89040;
-    border-radius: 6px;
-    background: linear-gradient(180deg, #F8F0DC 0%, #F0E2C0 100%);
+    border: 1px solid rgba(200, 168, 92, 0.45);
+    border-radius: 4px;
+    background: linear-gradient(180deg, #2E241A 0%, #261C12 100%);
     box-shadow:
-        inset 0 0 0 3px #E8D8B0,
-        inset 0 0 0 4px rgba(168, 120, 48, 0.35),
-        inset 0 0 0 5px #E8D8B0,
-        0 24px 48px rgba(60, 30, 10, 0.25),
-        0 4px 12px rgba(60, 30, 10, 0.15);
+        inset 0 0 0 3px #1E1710,
+        inset 0 0 0 4px rgba(200, 168, 92, 0.25),
+        inset 0 0 0 5px #1E1710,
+        0 24px 48px rgba(0, 0, 0, 0.75),
+        0 4px 12px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+/* Florituras en las 4 esquinas del modal */
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 3;
+    background-image:
+        var(--theme-floritura),
+        var(--theme-floritura),
+        var(--theme-floritura),
+        var(--theme-floritura);
+    background-size: 34px 34px;
+    background-position:
+        8px 8px,
+        calc(100% - 8px) 8px,
+        8px calc(100% - 8px),
+        calc(100% - 8px) calc(100% - 8px);
+    background-repeat: no-repeat;
+    opacity: 0.7;
 }
 
 /* Cabecera con filete dorado inferior */
 .config-header,
 .modal-todas-header {
-    background: linear-gradient(180deg, #F0E2C0 0%, #E8D8B0 100%);
-    border-bottom: 1px solid rgba(168, 120, 48, 0.35);
+    background: linear-gradient(180deg, #32261A 0%, #2A2014 100%);
+    border-bottom: 1px solid rgba(200, 168, 92, 0.30);
     position: relative;
 }
 .config-header::after,
@@ -297,46 +381,48 @@ body::before {
     content: '';
     position: absolute;
     bottom: -1px;
-    left: 0;
-    right: 0;
+    left: 20px;
+    right: 20px;
     height: 1px;
-    background: linear-gradient(90deg, transparent, #A87830, transparent);
-    opacity: 0.65;
+    background: linear-gradient(90deg, transparent, #C9A85C, transparent);
+    opacity: 0.55;
 }
 
 /* ================================================================
-   10. BOTÓN PRIMARIO = sello dorado con brillo interno
+   9. BOTÓN PRIMARIO = sello dorado con brillo interno
    ================================================================ */
 .btn-primario {
-    background: linear-gradient(135deg, #B89040 0%, #8A6020 100%);
-    border: 1px solid rgba(168, 120, 48, 0.55);
+    background: linear-gradient(135deg, #B09048 0%, #8A6A30 100%);
+    border: 1px solid rgba(200, 168, 92, 0.45);
+    color: #1E1710;
     box-shadow:
-        0 4px 12px rgba(60, 30, 10, 0.30),
-        inset 0 1px 0 rgba(255, 240, 200, 0.25);
+        0 4px 12px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 rgba(255, 240, 200, 0.30);
 }
 .btn-primario:hover {
-    background: linear-gradient(135deg, #C9A85C, #A87830);
+    background: linear-gradient(135deg, #C9A85C, #A88040);
     box-shadow:
-        0 6px 18px rgba(168, 120, 48, 0.45),
-        inset 0 1px 0 rgba(255, 240, 200, 0.30),
-        0 0 0 2px rgba(168, 120, 48, 0.30);
+        0 6px 18px rgba(200, 168, 92, 0.40),
+        inset 0 1px 0 rgba(255, 240, 200, 0.35),
+        0 0 0 2px rgba(200, 168, 92, 0.30);
 }
 
 /* ================================================================
-   11. INPUTS = campos con fondo de "papel interior"
+   10. INPUTS = campos con fondo de cuero claro
    ================================================================ */
 .config-field input,
 .config-field select,
 .config-select {
-    background: #FBF5E4;
-    border: 1px solid #D8C098;
-    box-shadow: inset 0 1px 2px rgba(90, 60, 30, 0.10);
+    background: rgba(0, 0, 0, 0.30);
+    border: 1px solid rgba(200, 168, 92, 0.25);
+    color: var(--text);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 .config-field input:focus,
 .config-field select:focus,
 .config-select:focus {
-    border-color: #A87830;
+    border-color: rgba(200, 168, 92, 0.60);
     box-shadow:
-        inset 0 1px 2px rgba(90, 60, 30, 0.10),
-        0 0 0 3px rgba(168, 120, 48, 0.20);
+        inset 0 1px 3px rgba(0, 0, 0, 0.5),
+        0 0 0 3px rgba(200, 168, 92, 0.15);
 }
