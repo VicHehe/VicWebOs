@@ -115,6 +115,17 @@ const RUTAS_HERRAMIENTAS = [
     monedas: 0
 },
     {
+        id: 'ajedrez',
+        nombre: 'Ajedrez',
+        icono: 'crown',
+        ruta: 'herramientas/ajedrez/index.html',
+        descripcion: 'El juego de reyes. IA en dos niveles, recompensas por capturas y victoria.',
+        categoria: 'Juegos',
+        esBase: false,
+        espacio: 8,
+        monedas: 50
+    },
+    {
         id: 'evmail',
         nombre: 'EVmail',
         icono: 'mail',
