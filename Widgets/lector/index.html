@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Lector</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="lc-widget">
+
+        <div class="lc-header">
+            <div class="lc-titulo">
+                <i data-lucide="book-open-text"></i>
+                <span>Lector</span>
+            </div>
+            <button class="lc-btn-config" id="lcBtnConfig" title="Cargar texto">
+                <i data-lucide="settings-2"></i>
+            </button>
+        </div>
+
+        <div class="lc-titulo-texto" id="lcTituloTexto" hidden></div>
+
+        <div class="lc-zona" id="lcZona">
+            <div class="lc-vacio">
+                <div class="lc-vacio-icono">
+                    <i data-lucide="book-open-text"></i>
+                </div>
+                <p>Sin texto cargado</p>
+                <button class="lc-btn-cargar" id="lcBtnCargarVacio">
+                    <i data-lucide="upload"></i>
+                    Cargar texto
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL: cargar texto -->
+    <div class="lc-modal" id="lcModal" hidden>
+        <div class="lc-modal-card">
+
+            <div class="lc-modal-header">
+                <h3>Cargar texto</h3>
+                <button class="lc-modal-cerrar" id="lcModalCerrar"><i data-lucide="x"></i></button>
+            </div>
+
+            <div class="lc-tabs">
+                <button class="lc-tab active" data-tab="notas">
+                    <i data-lucide="notebook-pen"></i>
+                    <span>Mis Notas</span>
+                </button>
+                <button class="lc-tab" data-tab="archivo">
+                    <i data-lucide="file-up"></i>
+                    <span>Archivo</span>
+                </button>
+            </div>
+
+            <div class="lc-panel active" data-panel="notas">
+                <div class="lc-lista" id="lcNotasLista">
+                    <div class="lc-cargando">
+                        <div class="lc-spinner"></div>
+                        <span>Cargando notas...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lc-panel" data-panel="archivo">
+                <div class="lc-archivo-wrap">
+                    <label class="lc-file-label" for="lcFileInput">
+                        <i data-lucide="file-up"></i>
+                        <span>Subir archivo .txt</span>
+                        <small>o cualquier archivo de texto</small>
+                    </label>
+                    <input type="file" id="lcFileInput" accept=".txt,.md,text/*" hidden>
+
+                    <div class="lc-sep">
+                        <span>o pega el texto aquí</span>
+                    </div>
+
+                    <textarea id="lcPegar" class="lc-textarea" placeholder="Pega o escribe el texto..." spellcheck="false"></textarea>
+                    <button class="lc-btn-guardar" id="lcBtnGuardarPegado">
+                        <i data-lucide="check"></i>
+                        Cargar este texto
+                    </button>
+                </div>
+            </div>
+
+            <div class="lc-modal-footer">
+                <div class="lc-font-ctrl">
+                    <span class="lc-font-label">Tamaño</span>
+                    <button class="lc-font-btn" data-size="sm" title="Pequeño">A</button>
+                    <button class="lc-font-btn active" data-size="md" title="Mediano">A</button>
+                    <button class="lc-font-btn" data-size="lg" title="Grande">A</button>
+                </div>
+                <button class="lc-btn-limpiar" id="lcBtnLimpiar" hidden>
+                    <i data-lucide="trash-2"></i>
+                    Quitar texto
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
