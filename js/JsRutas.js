@@ -93,6 +93,17 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 0
     },
     {
+    id: 'tres-en-raya',
+    nombre: 'Tres en Raya',
+    icono: 'grid-3x3',
+    ruta: 'herramientas/tres-en-raya/index.html',
+    descripcion: 'El clásico 3 en línea. La CPU se vuelve más difícil mientras acumulas victorias.',
+    categoria: 'Juegos',
+    esBase: false,
+    espacio: 2,
+    monedas: 0
+},
+    {
         id: 'evmail',
         nombre: 'EVmail',
         icono: 'mail',
