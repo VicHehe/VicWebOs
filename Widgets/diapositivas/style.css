@@ -245,7 +245,9 @@ body {
 }
 
 /* ============================================================
-   MODAL EDICIÓN
+   MODAL EDICIÓN — COMPACTO
+   El modal llena el iframe, pero el contenido es chico para
+   que los slots tengan la mayor superficie visual posible.
    ============================================================ */
 .dp-modal {
     position: fixed;
@@ -265,38 +267,40 @@ body {
     overflow: hidden;
 }
 
+/* -------- HEADER (compacto) -------- */
 .dp-modal-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 14px;
+    padding: 6px 10px;
     border-bottom: 1px solid var(--border, #E8E8EE);
     background: var(--gray-50, #FAFAFB);
     flex-shrink: 0;
-    gap: 8px;
+    gap: 6px;
 }
 .dp-modal-header h2 {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 13.5px;
+    gap: 5px;
+    font-size: 11.5px;
     font-weight: 800;
     color: var(--gray-900, #18181B);
     margin: 0;
     letter-spacing: -0.01em;
+    line-height: 1;
 }
 .dp-modal-header h2 [data-lucide] {
     color: var(--violet-500, #8B5CF6);
-    width: 16px;
-    height: 16px;
+    width: 13px;
+    height: 13px;
 }
 .dp-modal-cerrar {
-    width: 30px;
-    height: 30px;
+    width: 24px;
+    height: 24px;
     background: none;
     border: none;
     padding: 0;
-    border-radius: 7px;
+    border-radius: 6px;
     cursor: pointer;
     color: var(--gray-500, #71717A);
     display: flex;
@@ -309,22 +313,24 @@ body {
     background: #FEE2E2;
     color: #991B1B;
 }
-.dp-modal-cerrar [data-lucide] { width: 14px; height: 14px; }
+.dp-modal-cerrar [data-lucide] { width: 12px; height: 12px; }
 
+/* -------- BODY (compacto) -------- */
 .dp-modal-body {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    padding: 12px 14px;
+    padding: 6px 8px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 6px;
 }
 
+/* Descripción: 1 línea ultra compacta */
 .dp-modal-desc {
-    font-size: 11.5px;
+    font-size: 10px;
     color: var(--gray-500, #71717A);
-    line-height: 1.5;
+    line-height: 1.35;
     margin: 0;
 }
 .dp-modal-desc strong {
@@ -332,18 +338,22 @@ body {
     font-weight: 800;
 }
 
-/* ========== SLOTS ========== */
+/* -------- SLOTS (con max-height para no inflarse) -------- */
 .dp-slots {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
+    gap: 4px;
 }
 
 .dp-slot {
     position: relative;
     aspect-ratio: 1/1;
+    /* 👇 Esto es la clave: el slot no crece más de 74px de alto,
+       aunque el ancho sea mayor. Permite que 2 filas entren en
+       un widget de 240px. */
+    max-height: 74px;
     border: 1.5px dashed var(--border, #E8E8EE);
-    border-radius: 10px;
+    border-radius: 8px;
     background: var(--gray-50, #FAFAFB);
     cursor: pointer;
     overflow: hidden;
@@ -370,20 +380,20 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
     color: var(--gray-400, #A1A1AD);
     pointer-events: none;
 }
 .dp-slot-plus [data-lucide] {
-    width: 22px;
-    height: 22px;
+    width: 16px;
+    height: 16px;
     color: var(--violet-400, #A78BFA);
 }
 .dp-slot-plus span {
-    font-size: 9.5px;
+    font-size: 8px;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
 }
 
 .dp-slot img {
@@ -395,11 +405,11 @@ body {
 
 .dp-slot-quitar {
     position: absolute;
-    top: 4px;
-    right: 4px;
-    width: 22px;
-    height: 22px;
-    border-radius: 6px;
+    top: 3px;
+    right: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
     border: none;
     background: rgba(0,0,0,0.6);
     backdrop-filter: blur(4px);
@@ -417,15 +427,15 @@ body {
     background: #DC2626;
     transform: scale(1.1);
 }
-.dp-slot-quitar [data-lucide] { width: 11px; height: 11px; stroke-width: 2.5; }
+.dp-slot-quitar [data-lucide] { width: 10px; height: 10px; stroke-width: 2.5; }
 
 .dp-slot-num {
     position: absolute;
-    top: 4px;
-    left: 4px;
-    width: 18px;
-    height: 18px;
-    border-radius: 5px;
+    top: 3px;
+    left: 3px;
+    width: 15px;
+    height: 15px;
+    border-radius: 4px;
     background: rgba(0,0,0,0.55);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
@@ -433,33 +443,34 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 800;
     z-index: 2;
 }
 
-/* ========== OPCIONES ========== */
+/* -------- OPCIONES (compacto) -------- */
 .dp-opcion {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding: 10px 12px;
+    gap: 4px;
+    padding: 6px 8px;
     background: var(--gray-50, #FAFAFB);
     border: 1px solid var(--border, #E8E8EE);
-    border-radius: 10px;
+    border-radius: 8px;
 }
 
 .dp-opcion-header {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 12px;
+    gap: 6px;
+    font-size: 11px;
     font-weight: 700;
     color: var(--gray-800, #27272A);
+    line-height: 1;
 }
 .dp-opcion-header > [data-lucide] {
-    width: 15px;
-    height: 15px;
+    width: 13px;
+    height: 13px;
     color: var(--violet-500, #8B5CF6);
     flex-shrink: 0;
 }
@@ -471,8 +482,8 @@ body {
 .dp-switch {
     position: relative;
     display: inline-block;
-    width: 34px;
-    height: 20px;
+    width: 30px;
+    height: 18px;
     cursor: pointer;
     flex-shrink: 0;
 }
@@ -493,8 +504,8 @@ body {
     position: absolute;
     top: 2px;
     left: 2px;
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
     background: white;
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
@@ -504,30 +515,30 @@ body {
     background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
 }
 .dp-switch input:checked + .dp-switch-track::after {
-    transform: translateX(14px);
+    transform: translateX(12px);
 }
 
 .dp-opcion-sub {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding-left: 23px;
+    gap: 6px;
+    padding-left: 19px;
 }
 .dp-opcion-sub label {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     color: var(--gray-600, #52525B);
     white-space: nowrap;
 }
 .dp-opcion-sub select {
     flex: 1;
-    padding: 6px 10px;
+    padding: 3px 8px;
     border: 1.5px solid var(--border, #E8E8EE);
-    border-radius: 8px;
+    border-radius: 6px;
     background: var(--white, #FFFFFF);
     color: var(--gray-900, #18181B);
     font-family: inherit;
-    font-size: 11.5px;
+    font-size: 10.5px;
     font-weight: 700;
     outline: none;
     cursor: pointer;
@@ -537,11 +548,11 @@ body {
     border-color: var(--violet-400, #A78BFA);
 }
 
-/* ========== MODAL ACTIONS ========== */
+/* -------- ACTIONS (compacto) -------- */
 .dp-modal-actions {
     display: flex;
-    gap: 8px;
-    padding: 10px 14px;
+    gap: 6px;
+    padding: 6px 8px;
     border-top: 1px solid var(--border, #E8E8EE);
     background: var(--gray-50, #FAFAFB);
     flex-shrink: 0;
@@ -553,11 +564,11 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 9px 12px;
-    border-radius: 9px;
+    gap: 5px;
+    padding: 7px 10px;
+    border-radius: 8px;
     font-family: inherit;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 800;
     cursor: pointer;
     transition: all 0.15s;
@@ -585,7 +596,7 @@ body {
 }
 .dp-btn-pri:active { transform: translateY(0); }
 .dp-btn-sec [data-lucide],
-.dp-btn-pri [data-lucide] { width: 13px; height: 13px; }
+.dp-btn-pri [data-lucide] { width: 12px; height: 12px; }
 
 /* ========== TOAST ========== */
 .dp-toast {
@@ -616,9 +627,10 @@ body {
 .dp-toast.success { background: #065F46; }
 .dp-toast.error   { background: #B91C1C; }
 
-/* ========== COMPACTO ========== */
+/* ========== COMPACTO EXTRA ========== */
 @media (max-width: 320px) {
     .dp-widget { padding: 9px 10px; }
-    .dp-modal-body { padding: 10px; }
-    .dp-slots { gap: 6px; }
+    .dp-modal-body { padding: 5px 7px; gap: 5px; }
+    .dp-slots { gap: 3px; }
+    .dp-slot { max-height: 68px; }
 }
