@@ -7,11 +7,28 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    
+
+    <!-- CSS de cm-chessboard -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cm-chessboard@8/src/assets/cm-chessboard.css">
-    <script src="https://cdn.jsdelivr.net/npm/chess.js@1.0.0/dist/chess.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/js-chess-engine@2.4.6/dist/js-chess-engine.min.js"></script>
-    
+
+    <!-- Dependencias ESM (se cargan como módulos y exponen en window) -->
+    <script type="module">
+        Promise.all([
+            import('https://esm.sh/chess.js@1.0.0'),
+            import('https://esm.sh/cm-chessboard@8'),
+            import('https://esm.sh/js-chess-engine@2.4.6')
+        ]).then(([chessMod, boardMod, engineMod]) => {
+            window.Chess           = chessMod.Chess;
+            window.Chessboard      = boardMod.Chessboard;
+            window.INPUT_EVENT_TYPE = boardMod.INPUT_EVENT_TYPE || null;
+            window.jsChessEngine   = engineMod;
+            window.dispatchEvent(new Event('chess-deps-ready'));
+            console.log('[Ajedrez] Dependencias cargadas OK');
+        }).catch(e => {
+            console.error('[Ajedrez] Error cargando dependencias:', e);
+        });
+    </script>
+
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -119,13 +136,12 @@
 
         <div class="aj-footer">
             <div class="aj-footer-info">
-                <span id="ajMensaje"></span>
+                <span id="ajMensaje">Cargando tablero…</span>
             </div>
         </div>
 
     </div>
 
-    <!-- Overlay de fin de partida -->
     <div class="aj-overlay" id="ajOverlayFin" hidden>
         <div class="aj-overlay-card">
             <div class="aj-overlay-icono" id="ajFinIcono">
