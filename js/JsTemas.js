@@ -186,6 +186,78 @@ const TEMAS_DISPONIBLES = [
         '--white':      '#161b22'
     }
 },
+{
+    id: 'rojizo',
+    nombre: 'Rojizo',
+    icono: 'flame',
+    descripcion: 'Rojo clásico, directo y cálido.',
+    categoria: 'Oficiales',
+    ruta: 'Temas/rojizo.css',
+    espacio: 2,
+    monedas: 0,
+    colores: {
+        '--violet-100': '#FEE2E2',
+        '--violet-300': '#FCA5A5',
+        '--violet-500': '#EF4444',
+        '--bg':         '#FFF8F8',
+        '--bg-alt':     '#FFF1F1',
+        '--white':      '#FFFFFF'
+    }
+},
+{
+    id: 'golden',
+    nombre: 'Golden',
+    icono: 'crown',
+    descripcion: 'Dorado y amarillo cálido, elegancia luminosa.',
+    categoria: 'Oficiales',
+    ruta: 'Temas/golden.css',
+    espacio: 2,
+    monedas: 0,
+    colores: {
+        '--violet-100': '#FEF3C7',
+        '--violet-300': '#FCD34D',
+        '--violet-500': '#F59E0B',
+        '--bg':         '#FFFDF5',
+        '--bg-alt':     '#FFF9E6',
+        '--white':      '#FFFFFF'
+    }
+},
+{
+    id: 'oficina-dark',
+    nombre: 'Oficina Dark',
+    icono: 'briefcase',
+    descripcion: 'La versión nocturna de Oficina. Negro formal, bordes grises. Para trabajar de noche.',
+    categoria: 'Oficiales',
+    ruta: 'Temas/oficina-dark.css',
+    espacio: 2,
+    monedas: 0,
+    colores: {
+        '--violet-100': '#1F1F23',
+        '--violet-300': '#3A3A40',
+        '--violet-500': '#A8A8B3',
+        '--bg':         '#0E0E10',
+        '--bg-alt':     '#171719',
+        '--white':      '#1F1F23'
+    }
+},
+{
+    id: 'pumkin',
+    nombre: 'Pumkin',
+    icono: 'ghost',
+    descripcion: 'Naranjo calabaza y morado profundo sobre fondo oscuro.',
+    categoria: 'Oficiales',
+    ruta: 'Temas/pumkin.css',
+    espacio: 2,
+    monedas: 0,
+    colores: {
+        '--violet-100': '#3D1F3A',
+        '--violet-300': '#A0508A',
+        '--violet-500': '#FF7B1F',
+        '--bg':         '#0D0610',
+        '--bg-alt':     '#1A1020',
+        '--white':      '#1A1020'
+    }
+},
 
     // ============================================================
     //  COMPRABLES
@@ -387,5 +459,23 @@ const TEMAS_DISPONIBLES = [
             '--bg-alt':     '#FFEFE5',
             '--white':      '#FFFDFB'
         }
+    },
+    {
+    id: 'friend',
+    nombre: '¿¡Friend!?',
+    icono: 'sparkle',
+    descripcion: 'Fondo oscuro con luces amarillas y rosas que titilan, y bordes neón brillantes.',
+    categoria: 'Comprables',
+    ruta: 'Temas/friend.css',
+    espacio: 4,
+    monedas: 30,
+    colores: {
+        '--violet-100': '#2A1A44',
+        '--violet-300': '#E879F9',
+        '--violet-500': '#EC4899',
+        '--bg':         '#050310',
+        '--bg-alt':     '#0A0618',
+        '--white':      '#0F0820'
     }
+},
 ];
