@@ -1,7 +1,7 @@
 /* ================================================
    Tema: Libro de Historia
-   Texturas desgastadas, colores sepia y cuero.
-   Tema caro con detalles originales.
+   Cuero, papel envejecido y lomo de encuadernación.
+   Un libro abierto, no un recolor oscuro.
    ================================================ */
 
 :root {
@@ -48,86 +48,234 @@
     --accent-shadow: rgba(164, 132, 92, 0.35);
     --accent-shadow-hover: rgba(164, 132, 92, 0.55);
     --accent-text-gradient: linear-gradient(135deg, #EDE2D0, #C49A6C);
+
+    /* Oro viejo para detalles de encuadernación */
+    --libro-oro:       #D4AF37;
+    --libro-oro-suave: #B8963D;
+    --libro-cuero:     #5A3A24;
+    --libro-cuero-osc: #3A2415;
 }
 
 /* ================================================================
-   Efectos originales del tema "Libro de Historia"
-   Simula un libro antiguo con textura de papel.
+   1. Textura de papel envejecido (mucho más visible que antes)
    ================================================================ */
-
-/* Textura de papel sutil sobre el fondo del shell */
 body::before {
     content: '';
     position: fixed;
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.06;
+    opacity: 0.18;
     background-image:
-        radial-gradient(circle at 20% 30%, rgba(255,240,220,0.8) 0.5px, transparent 1px),
-        radial-gradient(circle at 70% 60%, rgba(200,170,140,0.6) 0.5px, transparent 1px),
-        radial-gradient(circle at 40% 80%, rgba(255,240,220,0.5) 0.5px, transparent 1px),
-        radial-gradient(circle at 85% 15%, rgba(200,170,140,0.5) 0.5px, transparent 1px);
-    background-size: 120px 120px, 180px 180px, 90px 90px, 150px 150px;
+        radial-gradient(circle at 20% 30%, rgba(255, 240, 220, 0.9) 0.6px, transparent 1.2px),
+        radial-gradient(circle at 70% 60%, rgba(200, 170, 140, 0.8) 0.6px, transparent 1.2px),
+        radial-gradient(circle at 40% 80%, rgba(255, 240, 220, 0.7) 0.6px, transparent 1.2px),
+        radial-gradient(circle at 85% 15%, rgba(200, 170, 140, 0.7) 0.6px, transparent 1.2px),
+        radial-gradient(circle at 12% 88%, rgba(180, 140, 100, 0.6) 0.5px, transparent 1px),
+        radial-gradient(circle at 55% 45%, rgba(180, 140, 100, 0.5) 0.5px, transparent 1px);
+    background-size:
+        120px 120px,
+        180px 180px,
+        90px 90px,
+        150px 150px,
+        100px 100px,
+        140px 140px;
 }
 
-/* Borde de "libro" en el welcome: como si fuera una página con doblez */
+/* ================================================================
+   2. Welcome = página de libro abierta
+      Con lomo central, esquinas oscurecidas y textura de papel
+   ================================================================ */
 .welcome-placeholder {
     position: relative;
+    background:
+        /* Esquinas "quemadas" por el tiempo */
+        radial-gradient(ellipse at top left, rgba(60, 40, 20, 0.55) 0%, transparent 40%),
+        radial-gradient(ellipse at top right, rgba(60, 40, 20, 0.55) 0%, transparent 40%),
+        radial-gradient(ellipse at bottom left, rgba(60, 40, 20, 0.65) 0%, transparent 45%),
+        radial-gradient(ellipse at bottom right, rgba(60, 40, 20, 0.65) 0%, transparent 45%),
+        /* Papel base */
+        linear-gradient(180deg, #2E2014 0%, #241810 100%);
+    overflow: hidden;
 }
+
+/* Textura de papel dentro del welcome */
 .welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.22;
+    background-image:
+        radial-gradient(circle at 30% 20%, rgba(220, 190, 150, 0.5) 0.6px, transparent 1px),
+        radial-gradient(circle at 65% 40%, rgba(220, 190, 150, 0.4) 0.5px, transparent 1px),
+        radial-gradient(circle at 15% 70%, rgba(220, 190, 150, 0.4) 0.5px, transparent 1px),
+        radial-gradient(circle at 80% 85%, rgba(220, 190, 150, 0.5) 0.6px, transparent 1px);
+    background-size: 90px 90px, 110px 110px, 130px 130px, 100px 100px;
+}
+
+/* Lomo de libro central — grueso, con oro en los bordes */
+.welcome-placeholder::after {
     content: '';
     position: absolute;
     top: 0;
     bottom: 0;
     left: 50%;
-    width: 1px;
+    transform: translateX(-50%);
+    width: 18px;
+    pointer-events: none;
+    z-index: 1;
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(0, 0, 0, 0.35) 20%,
+            rgba(0, 0, 0, 0.55) 50%,
+            rgba(0, 0, 0, 0.35) 80%,
+            transparent 100%
+        );
+    box-shadow:
+        -8px 0 16px rgba(0, 0, 0, 0.45),
+         8px 0 16px rgba(0, 0, 0, 0.45);
+}
+/* Filo dorado del lomo (con pseudo de .welcome-glow, ya que ::after está usado) */
+.welcome-glow {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
     background: linear-gradient(
         180deg,
         transparent 0%,
-        var(--border) 15%,
-        var(--border) 85%,
+        var(--libro-oro-suave) 12%,
+        var(--libro-oro) 50%,
+        var(--libro-oro-suave) 88%,
         transparent 100%
     );
-    opacity: 0.3;
+    filter: blur(0.4px);
+    box-shadow:
+        0 0 8px rgba(212, 175, 55, 0.55),
+        0 0 20px rgba(212, 175, 55, 0.25);
+    opacity: 0.85;
+    z-index: 2;
     pointer-events: none;
-    z-index: 0;
 }
 
-/* Las cards del welcome simulan páginas de un libro */
+/* Hero y secciones por encima del lomo */
+.welcome-hero,
+.welcome-section {
+    position: relative;
+    z-index: 3;
+}
+
+/* El título del hero con sombra de tinta impresa */
+.welcome-hero h1 {
+    text-shadow:
+        0 1px 0 rgba(0, 0, 0, 0.6),
+        0 0 24px rgba(212, 175, 55, 0.15);
+    letter-spacing: 0.01em;
+}
+
+/* ================================================================
+   3. Accesos rápidos = páginas de un libro
+      Con grosor, esquinas duras y borde dorado al hover
+   ================================================================ */
 .acceso-item {
     position: relative;
-    border-color: #4E3E2C;
+    border: 1.5px solid #5A4030;
+    border-radius: 4px;
     background:
-        linear-gradient(135deg, rgba(60,44,30,0.3) 0%, transparent 50%),
+        linear-gradient(135deg, rgba(70, 50, 32, 0.55) 0%, rgba(42, 31, 22, 0.9) 60%),
         var(--white);
     box-shadow:
-        inset 1px 1px 0 rgba(255,240,220,0.05),
-        2px 2px 0 rgba(0,0,0,0.3);
+        inset 1px 1px 0 rgba(255, 240, 220, 0.08),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.4),
+        3px 3px 0 rgba(0, 0, 0, 0.35),
+        6px 6px 12px rgba(0, 0, 0, 0.35);
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .acceso-item:hover {
-    border-color: var(--violet-400);
+    border-color: var(--libro-oro);
+    transform: translate(-1px, -1px);
     box-shadow:
-        inset 1px 1px 0 rgba(255,240,220,0.08),
-        3px 3px 0 rgba(0,0,0,0.35);
+        inset 1px 1px 0 rgba(255, 240, 220, 0.12),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.4),
+        4px 4px 0 rgba(0, 0, 0, 0.4),
+        8px 8px 18px rgba(0, 0, 0, 0.45),
+        0 0 20px rgba(212, 175, 55, 0.20);
 }
 
-/* Los widgets simulan páginas con borde desgastado */
+/* El ícono dentro de un marco "grabado" */
+.acceso-icon-wrap {
+    background: rgba(60, 40, 20, 0.6);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+.acceso-item:hover .acceso-icon-wrap {
+    background: var(--accent-gradient);
+    border-color: var(--libro-oro);
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.4);
+}
+
+/* ================================================================
+   4. Widgets = mismas páginas con grosor
+   ================================================================ */
 .widget-item {
     position: relative;
-    border-color: #4E3E2C;
+    border: 1.5px solid #5A4030;
+    border-radius: 4px;
     box-shadow:
-        inset 1px 1px 0 rgba(255,240,220,0.05),
-        2px 2px 0 rgba(0,0,0,0.3);
+        inset 1px 1px 0 rgba(255, 240, 220, 0.06),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.4),
+        3px 3px 0 rgba(0, 0, 0, 0.35),
+        6px 6px 12px rgba(0, 0, 0, 0.35);
 }
 
-/* El nav-item activo se ve como un marcador dorado */
+/* ================================================================
+   5. Sidebar = cabecera de cuero del libro
+   ================================================================ */
+.sidebar {
+    background:
+        linear-gradient(180deg, #3A2415 0%, #2A1810 100%);
+    border-right: 2px solid #1A0E06;
+    box-shadow: inset -6px 0 12px rgba(0, 0, 0, 0.5);
+}
+/* Textura de cuero sutil */
+.sidebar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.08;
+    background-image:
+        radial-gradient(circle at 20% 30%, rgba(212, 175, 55, 0.6) 0.5px, transparent 1px),
+        radial-gradient(circle at 70% 60%, rgba(0, 0, 0, 0.8) 0.5px, transparent 1px),
+        radial-gradient(circle at 40% 80%, rgba(212, 175, 55, 0.5) 0.5px, transparent 1px);
+    background-size: 60px 60px, 80px 80px, 70px 70px;
+}
+
+/* El nav-item activo es un "marcapáginas dorado" */
 .nav-item.active::before {
-    background: linear-gradient(180deg, #C49A6C, #8B6A3A);
-    box-shadow: 0 0 6px rgba(196,154,108,0.5);
+    background: linear-gradient(180deg, var(--libro-oro), #8B6A3A);
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
+    width: 4px;
 }
 
-/* La pestaña activa tiene un subrayado dorado como un lomo */
+/* ================================================================
+   6. Header = cinta dorada superior
+   ================================================================ */
+.app-header {
+    background: linear-gradient(180deg, #2E2014 0%, #241810 100%);
+    border-bottom: 1px solid #5A4030;
+    box-shadow: inset 0 -1px 0 rgba(212, 175, 55, 0.15);
+}
+
+/* ================================================================
+   7. Pestañas activas = "marcapáginas" con oro
+   ================================================================ */
 .tab-item.active::before {
     content: '';
     position: absolute;
@@ -135,11 +283,14 @@ body::before {
     left: 12px;
     right: 12px;
     height: 2px;
-    background: linear-gradient(90deg, transparent, #C49A6C, transparent);
+    background: linear-gradient(90deg, transparent, var(--libro-oro), transparent);
     border-radius: 2px 2px 0 0;
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
 }
 
-/* Los modales llevan borde doble como una portada encuadernada */
+/* ================================================================
+   8. Modales = tapas de cuero con doble filete dorado
+   ================================================================ */
 .config-card,
 .modal-todas-card {
     position: relative;
@@ -147,12 +298,64 @@ body::before {
     box-shadow:
         inset 0 0 0 4px #2A1F16,
         inset 0 0 0 5px #5A4030,
-        0 24px 48px rgba(0,0,0,0.7);
+        inset 0 0 0 6px rgba(212, 175, 55, 0.35),
+        inset 0 0 0 7px #2A1F16,
+        0 24px 48px rgba(0, 0, 0, 0.8),
+        0 0 0 1px rgba(212, 175, 55, 0.15);
 }
 
-/* El botón primario tiene un brillo dorado como el lomo de un libro */
+/* Cabecera de los modales como cinta de cuero con oro */
+.config-header,
+.modal-todas-header {
+    background: linear-gradient(180deg, #3A2415 0%, #2A1810 100%);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+    position: relative;
+}
+.config-header::after,
+.modal-todas-header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--libro-oro), transparent);
+    opacity: 0.6;
+}
+
+/* ================================================================
+   9. Botones primarios = "sello de lacre" dorado
+   ================================================================ */
 .btn-primario {
+    background: linear-gradient(135deg, #A8845C, #6A4A2A);
+    border: 1px solid rgba(212, 175, 55, 0.45);
     box-shadow:
-        0 4px 12px rgba(164,132,92,0.35),
-        inset 0 1px 0 rgba(255,240,220,0.15);
+        0 4px 12px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 240, 220, 0.15);
+}
+.btn-primario:hover {
+    background: linear-gradient(135deg, #C49A6C, #8B6A3A);
+    box-shadow:
+        0 6px 18px rgba(164, 132, 92, 0.55),
+        inset 0 1px 0 rgba(255, 240, 220, 0.20),
+        0 0 20px rgba(212, 175, 55, 0.30);
+}
+
+/* ================================================================
+   10. Inputs = campos con borde "grabado"
+   ================================================================ */
+.config-field input,
+.config-field select,
+.config-select {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid #5A4030;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+.config-field input:focus,
+.config-field select:focus,
+.config-select:focus {
+    border-color: var(--libro-oro-suave);
+    box-shadow:
+        inset 0 1px 2px rgba(0, 0, 0, 0.5),
+        0 0 0 3px rgba(212, 175, 55, 0.15);
 }
