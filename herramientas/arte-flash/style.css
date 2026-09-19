@@ -34,9 +34,6 @@ body {
     background-clip: content-box;
 }
 
-/* ============================================================
-   LAYOUT BASE — Mobile First
-   ============================================================ */
 .af-app {
     display: flex;
     flex-direction: column;
@@ -44,9 +41,6 @@ body {
     overflow: hidden;
 }
 
-/* ============================================================
-   HEADER
-   ============================================================ */
 .af-header {
     flex-shrink: 0;
     display: flex;
@@ -138,7 +132,6 @@ body {
 }
 .af-btn-icono [data-lucide] { width: 16px; height: 16px; }
 
-/* Botones de acción (con texto) — solo PC */
 .af-btn-sec,
 .af-btn-pri {
     display: none;
@@ -177,9 +170,6 @@ body {
 .af-btn-sec [data-lucide],
 .af-btn-pri [data-lucide] { width: 14px; height: 14px; }
 
-/* ============================================================
-   BODY — Contiene lienzo + panel
-   ============================================================ */
 .af-body {
     flex: 1;
     min-height: 0;
@@ -189,9 +179,6 @@ body {
     position: relative;
 }
 
-/* ============================================================
-   LIENZO
-   ============================================================ */
 .af-lienzo-wrapper {
     flex: 1;
     min-width: 0;
@@ -220,7 +207,6 @@ body {
         0 0 0 1px rgba(0,0,0,0.06);
 }
 
-/* Minimapa */
 .af-minimapa {
     position: absolute;
     bottom: 12px;
@@ -246,7 +232,6 @@ body {
     pointer-events: none;
 }
 
-/* Zoom */
 .af-zoom-controls {
     position: absolute;
     bottom: 12px;
@@ -290,7 +275,6 @@ body {
     font-variant-numeric: tabular-nums;
 }
 
-/* Cursor */
 .af-cursor-indicator {
     position: absolute;
     pointer-events: none;
@@ -301,9 +285,6 @@ body {
     transform: translate(-50%, -50%);
 }
 
-/* ============================================================
-   BARRA INFERIOR (solo móvil)
-   ============================================================ */
 .af-toolbar {
     flex-shrink: 0;
     display: flex;
@@ -363,9 +344,6 @@ body {
     color: var(--violet-600, #7C3AED);
 }
 
-/* ============================================================
-   PANEL — Comportamiento móvil: flotante desde abajo
-   ============================================================ */
 .af-panel {
     position: fixed;
     left: 0;
@@ -392,7 +370,6 @@ body {
     visibility: visible;
 }
 
-/* Backdrop cuando el panel está abierto (solo móvil) */
 .af-panel.abierto::before {
     content: '';
     position: fixed;
@@ -402,7 +379,6 @@ body {
     animation: afFade 0.2s ease;
 }
 
-/* Barra superior tipo "handle" */
 .af-panel-header {
     display: flex;
     align-items: center;
@@ -460,7 +436,6 @@ body {
 }
 .af-panel-cerrar [data-lucide] { width: 16px; height: 16px; }
 
-/* Tabs (solo móvil) */
 .af-panel-tabs {
     display: flex;
     gap: 2px;
@@ -495,7 +470,6 @@ body {
     background: var(--violet-50, #F5F3FF);
 }
 
-/* Contenido del panel */
 .af-panel-content {
     flex: 1;
     min-height: 0;
@@ -507,7 +481,6 @@ body {
     -webkit-overflow-scrolling: touch;
 }
 
-/* Secciones del panel */
 .af-seccion {
     display: none;
     flex-direction: column;
@@ -541,9 +514,6 @@ body {
     gap: 8px;
 }
 
-/* ============================================================
-   COLOR
-   ============================================================ */
 .af-color-row {
     display: flex;
     gap: 12px;
@@ -618,9 +588,6 @@ body {
     aspect-ratio: auto;
 }
 
-/* ============================================================
-   HERRAMIENTAS
-   ============================================================ */
 .af-herramientas-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -652,9 +619,6 @@ body {
 }
 .af-btn-herramienta [data-lucide] { width: 20px; height: 20px; }
 
-/* ============================================================
-   SLIDERS
-   ============================================================ */
 .af-slider {
     display: flex;
     flex-direction: column;
@@ -707,9 +671,6 @@ body {
     cursor: pointer;
 }
 
-/* ============================================================
-   CAPAS
-   ============================================================ */
 .af-capas-control {
     display: flex;
     gap: 6px;
@@ -801,9 +762,6 @@ body {
     white-space: nowrap;
 }
 
-/* ============================================================
-   REFERENCIAS
-   ============================================================ */
 .af-btn-sec-full {
     display: inline-flex;
     align-items: center;
@@ -883,9 +841,6 @@ body {
 }
 .af-referencia-remove [data-lucide] { width: 14px; height: 14px; }
 
-/* ============================================================
-   MODALES
-   ============================================================ */
 .af-modal {
     position: fixed;
     inset: 0;
@@ -1062,7 +1017,6 @@ body {
 .af-btn-peligro:hover { background: #FEE2E2; }
 .af-btn-peligro [data-lucide] { width: 14px; height: 14px; }
 
-/* ========== TOAST ========== */
 .af-toast {
     position: fixed;
     bottom: 90px;
@@ -1093,44 +1047,7 @@ body {
 .af-toast.info    { background: var(--violet-700, #6D28D9); }
 
 /* ============================================================
-   MODO PANTALLA COMPLETA
-   ============================================================ */
-.af-app.pantalla-completa .af-header,
-.af-app.pantalla-completa .af-toolbar {
-    display: none;
-}
-.af-app.pantalla-completa .af-lienzo-wrapper {
-    border-radius: 0;
-}
-.af-app.pantalla-completa #btnSalirPantallaCompleta {
-    display: flex;
-}
-
-#btnSalirPantallaCompleta {
-    display: none;
-    position: fixed;
-    top: 12px;
-    right: 12px;
-    width: 40px;
-    height: 40px;
-    background: var(--white, #FFFFFF);
-    border: 1.5px solid var(--border, #E8E8EE);
-    border-radius: 50%;
-    cursor: pointer;
-    color: var(--gray-600, #52525B);
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    z-index: 100;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    opacity: 0.7;
-    transition: opacity 0.2s;
-}
-#btnSalirPantallaCompleta:hover { opacity: 1; }
-
-/* ============================================================
    RESPONSIVE — PC / Tablet grande (≥900px)
-   En pantallas grandes usamos el panel lateral fijo.
    ============================================================ */
 @media (min-width: 900px) {
 
@@ -1139,7 +1056,6 @@ body {
         gap: 10px;
     }
 
-    /* Header estilo tarjeta */
     .af-header {
         border-radius: 14px;
         padding: 10px 16px;
@@ -1152,14 +1068,11 @@ body {
     .af-logo-text h1 { font-size: 19px; }
     .af-logo-text p { font-size: 11.5px; max-width: none; }
 
-    /* Mostrar botones de texto */
     .af-btn-sec,
     .af-btn-pri { display: inline-flex; }
 
-    /* Ocultar barra inferior */
     .af-toolbar { display: none; }
 
-    /* Panel = panel lateral derecho, siempre visible */
     .af-panel {
         position: relative;
         left: auto;
@@ -1183,7 +1096,6 @@ body {
     .af-panel-header::before { display: none; }
     .af-panel-tabs { display: none; }
 
-    /* Panel content: todas las secciones apiladas */
     .af-panel-content {
         display: flex;
         flex-direction: column;
@@ -1202,7 +1114,6 @@ body {
         padding-bottom: 0;
     }
 
-    /* Body con panel a la derecha */
     .af-body {
         flex-direction: row;
         gap: 12px;
@@ -1215,12 +1126,10 @@ body {
         box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06));
     }
 
-    /* Herramientas: en PC el panel es estrecho → 3 columnas */
     .af-herramientas-grid {
         grid-template-columns: repeat(3, 1fr);
     }
 
-    /* Toast abajo */
     .af-toast { bottom: 30px; }
 }
 
