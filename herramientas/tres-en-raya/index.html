@@ -54,8 +54,6 @@
             <button class="tr-celda" data-idx="8"></button>
         </div>
 
-        <div class="tr-resultado" id="trResultado" hidden></div>
-
         <div class="tr-stats">
             <div class="tr-stat">
                 <span class="tr-stat-label">Racha</span>
@@ -75,6 +73,63 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- ============================================================
+         OVERLAY DE INICIO — pantalla completa
+         ============================================================ -->
+    <div class="tr-overlay" id="trOverlayStart">
+        <div class="tr-overlay-card">
+            <div class="tr-overlay-icono">
+                <i data-lucide="grid-3x3"></i>
+            </div>
+            <h2>¿Listo para jugar?</h2>
+            <p>Consigue <strong>3 en línea</strong> antes que la CPU. Gana partidas seguidas para subir de nivel.</p>
+            <button class="tr-btn-primario" id="trBtnEmpezar">
+                <i data-lucide="play"></i>
+                Empezar
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         OVERLAY DE FIN DE PARTIDA — resultado + stats + botón
+         ============================================================ -->
+    <div class="tr-overlay" id="trOverlayFin" hidden>
+        <div class="tr-overlay-card">
+            <div class="tr-overlay-icono" id="trFinIcono">
+                <i data-lucide="trophy"></i>
+            </div>
+            <h2 id="trFinTitulo">¡Ganaste!</h2>
+            <p id="trFinSubtitulo">Racha ×1. ¡Sigue así!</p>
+
+            <div class="tr-resumen">
+                <div class="tr-resumen-fila">
+                    <span class="tr-resumen-label">Racha actual</span>
+                    <span class="tr-resumen-valor" id="trFinRacha">0</span>
+                </div>
+                <div class="tr-resumen-fila">
+                    <span class="tr-resumen-label">Récord</span>
+                    <span class="tr-resumen-valor" id="trFinRecord">0</span>
+                </div>
+                <div class="tr-resumen-fila">
+                    <span class="tr-resumen-label">Ganadas</span>
+                    <span class="tr-resumen-valor" id="trFinGanadas">0</span>
+                </div>
+                <div class="tr-resumen-fila tr-resumen-destacada" id="trFinMonedasFila">
+                    <span class="tr-resumen-label">
+                        <i data-lucide="coins"></i>
+                        Monedas ganadas
+                    </span>
+                    <span class="tr-resumen-valor tr-resumen-monedas" id="trFinMonedas">+0</span>
+                </div>
+            </div>
+
+            <button class="tr-btn-primario" id="trBtnReintentar">
+                <i data-lucide="rotate-ccw" id="trBtnReintentarIcono"></i>
+                <span id="trBtnReintentarTexto">Reintentar</span>
+            </button>
+        </div>
     </div>
 
     <div class="tr-toast" id="trToast"></div>
