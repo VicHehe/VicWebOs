@@ -1,9 +1,10 @@
 // ============================================================
-//  Contactos — Directorio de la comunidad + regalos
+//  Contactos — Directorio de la comunidad + regalos + estado
 //  ------------------------------------------------------------
 //  Muestra todos los usuarios de la comunidad con su estado
-//  (activo / descansando / desconectado) y permite regalar
-//  monedas (5, 25 o 50) una vez al día por persona.
+//  (activo / descansando / desconectado), permite regalar
+//  monedas (5, 25 o 50) una vez al día por persona, y permite
+//  cambiar TU PROPIO estado sin necesidad del widget.
 //
 //  Datos:
 //    app/contactos/presencia.json
@@ -20,12 +21,14 @@ const CUENTAS_FILE = 'cuenta.json';
 const CONFIG_FILE = 'cuentaConfig.json';
 const MAX_MOVIMIENTOS_CHEQUERA = 500;
 const MONTOS_VALIDOS = [5, 25, 50];
+const ESTADOS_VALIDOS = ['activo', 'descansando', 'desconectado'];
 
 let usuarioActual = null;
 let usuarios = [];
 let presencia = {};
 let regalos = [];
 let monedasPropias = 0;
+let miEstado = null;
 
 // Modal
 let destinatarioRegalo = null;
@@ -138,7 +141,74 @@ async function cargarRegalos() {
 }
 
 // ============================================================
-//  RENDER
+//  MI BLOQUE (perfil propio + estado)
+// ============================================================
+function renderMiBloque() {
+    const avatarEl = document.getElementById('ctYoAvatar');
+    const nombreEl = document.getElementById('ctYoNombre');
+
+    if (nombreEl) nombreEl.textContent = usuarioActual.nombre || 'Sin nombre';
+
+    if (avatarEl) {
+        // Buscar mi entrada en la lista de usuarios para obtener la foto real
+        const yo = usuarios.find(u => u.codigo === usuarioActual.codigo);
+        if (yo && yo.foto) {
+            avatarEl.innerHTML = `<img src="${yo.foto}" alt="">`;
+        } else {
+            const inicial = (usuarioActual.nombre || '?').charAt(0).toUpperCase();
+            avatarEl.innerHTML = `<span class="ct-yo-avatar-inicial">${escapar(inicial)}</span>`;
+        }
+    }
+
+    // Resaltar el botón del estado actual
+    document.querySelectorAll('.ct-yo-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.estado === miEstado);
+    });
+}
+
+async function cambiarMiEstado(nuevoEstado) {
+    if (!ESTADOS_VALIDOS.includes(nuevoEstado)) return;
+    if (nuevoEstado === miEstado) return;
+
+    const bd = BD();
+    if (!bd) {
+        toast('Sin conexión', 'error');
+        return;
+    }
+
+    // Deshabilitar botones temporalmente
+    document.querySelectorAll('.ct-yo-btn').forEach(b => b.disabled = true);
+
+    try {
+        const ahora = new Date().toISOString();
+        await bd.actualizarArchivo(ARCHIVO_PRESENCIA, (actual) => {
+            if (!actual || typeof actual !== 'object') actual = { version: 1, usuarios: {} };
+            if (!actual.usuarios || typeof actual.usuarios !== 'object') actual.usuarios = {};
+            actual.usuarios[usuarioActual.codigo] = {
+                estado: nuevoEstado,
+                desde: ahora
+            };
+            actual.actualizado = ahora;
+            return actual;
+        });
+
+        miEstado = nuevoEstado;
+        presencia[usuarioActual.codigo] = { estado: nuevoEstado, desde: ahora };
+        renderMiBloque();
+        render(); // Refrescar la lista (por si el orden cambia por estados)
+
+        const labels = { activo: 'Activo', descansando: 'Descansando', desconectado: 'Desconectado' };
+        toast(labels[nuevoEstado], 'success');
+
+    } catch (e) {
+        toast('No se pudo guardar', 'error');
+    } finally {
+        document.querySelectorAll('.ct-yo-btn').forEach(b => b.disabled = false);
+    }
+}
+
+// ============================================================
+//  RENDER LISTA DE OTROS
 // ============================================================
 function render() {
     const grid = document.getElementById('ctGrid');
@@ -405,6 +475,7 @@ async function refrescar() {
         usuarios = await cargarUsuarios();
         presencia = await cargarPresencia();
         regalos = await cargarRegalos();
+        miEstado = presencia[usuarioActual.codigo]?.estado || null;
 
         const api = API();
         if (api) {
@@ -412,6 +483,7 @@ async function refrescar() {
             catch (e) { monedasPropias = 0; }
         }
 
+        renderMiBloque();
         render();
     } finally {
         if (btn) setTimeout(() => btn.classList.remove('spin'), 400);
@@ -451,6 +523,14 @@ async function inicializar() {
         btn.addEventListener('click', () => {
             if (btn.disabled) return;
             seleccionarMonto(parseInt(btn.dataset.monto, 10));
+        });
+    });
+
+    // Selector de MI estado
+    document.querySelectorAll('.ct-yo-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (btn.disabled) return;
+            cambiarMiEstado(btn.dataset.estado);
         });
     });
 
