@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Notas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <!-- ===== VISTA: LISTA ===== -->
+    <div class="nt-container" id="vistaLista">
+        <header class="nt-header">
+            <div class="nt-logo">
+                <div class="nt-logo-mark">
+                    <i data-lucide="notebook-pen"></i>
+                </div>
+                <div class="nt-logo-text">
+                    <h1>Notas</h1>
+                    <p id="ntUserBadge">—</p>
+                </div>
+            </div>
+            <div class="nt-header-right">
+                <span class="nt-contador" id="ntContador">0 / 10</span>
+                <button class="nt-btn-nueva" id="btnNueva">
+                    <i data-lucide="plus"></i>
+                    <span>Nueva nota</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="nt-premium" id="ntPremium"></div>
+
+        <div class="nt-buscador-wrap" id="ntBuscadorWrap" hidden>
+            <i data-lucide="search" class="nt-buscador-icono"></i>
+            <input type="text" id="ntBuscador" placeholder="Buscar en títulos y contenido...">
+            <button class="nt-buscador-clear" id="ntBuscadorClear" hidden title="Limpiar">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+
+        <main class="nt-main">
+            <div class="nt-lista" id="ntLista"></div>
+
+            <div class="nt-vacio" id="ntVacio" hidden>
+                <div class="nt-vacio-card">
+                    <div class="nt-vacio-icono">
+                        <i data-lucide="notebook-pen"></i>
+                    </div>
+                    <h3 id="ntVacioTitulo">Aún no tienes notas</h3>
+                    <p id="ntVacioDesc">Pulsa "Nueva nota" para empezar a escribir.</p>
+                    <button class="nt-vacio-btn" id="btnNuevaEmpty">
+                        <i data-lucide="plus"></i>
+                        Crear primera nota
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <button class="nt-ampliar" id="btnAmpliar" hidden>
+            <i data-lucide="plus-circle"></i>
+            <span>Ampliar +10 notas por 35 monedas</span>
+        </button>
+    </div>
+
+    <!-- ===== VISTA: EDITOR ===== -->
+    <div class="nt-editor" id="vistaEditor" hidden>
+        <header class="nt-editor-header">
+            <button class="nt-editor-volver" id="btnVolver" title="Volver">
+                <i data-lucide="arrow-left"></i>
+            </button>
+            <input type="text" class="nt-editor-titulo" id="ntTitulo"
+                   placeholder="Título de la nota" maxlength="120" autocomplete="off">
+            <button class="nt-editor-guardar" id="btnGuardar">
+                <i data-lucide="check"></i>
+                <span>Guardar</span>
+            </button>
+        </header>
+        <textarea class="nt-editor-texto" id="ntTexto"
+                  placeholder="Escribe algo..." spellcheck="false"></textarea>
+        <div class="nt-editor-footer">
+            <span id="ntEditorStats">0 palabras · 0 líneas</span>
+            <button class="nt-editor-borrar" id="btnBorrarNota" hidden>
+                <i data-lucide="trash-2"></i>
+                Eliminar
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: COMPRAR FUNCIÓN / AMPLIAR ===== -->
+    <div class="nt-modal" id="ntModal" hidden>
+        <div class="nt-modal-card">
+            <div class="nt-modal-icono">
+                <i data-lucide="lock" id="ntModalIcono"></i>
+            </div>
+            <h3 id="ntModalTitulo">Función premium</h3>
+            <p id="ntModalDesc">¿Desbloquear esta función?</p>
+            <div class="nt-modal-precio">
+                <i data-lucide="coins"></i>
+                <span id="ntModalPrecio">5</span>
+            </div>
+            <div class="nt-modal-acciones">
+                <button class="nt-btn-sec" id="ntModalCancelar">Cancelar</button>
+                <button class="nt-btn-pri" id="ntModalConfirmar">
+                    <i data-lucide="check"></i>
+                    <span id="ntModalConfirmarTxt">Desbloquear</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="nt-toast" id="ntToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
