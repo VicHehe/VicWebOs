@@ -1,6 +1,7 @@
 /* ================================================
    Tres en Raya — Sistema de 3 rondas
    X y O dibujadas con CSS puro (mismo color).
+   Flash auto-dismiss con animación CSS.
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -243,8 +244,6 @@ body {
 }
 .tr-celda.ganadora .tr-marca-x { color: #059669; }
 
-/* closest-side es OBLIGATORIO: sin él, el 100% del gradiente
-   cae en la esquina del cuadrado y el anillo desaparece. */
 .tr-marca-o {
     width: 60%;
     aspect-ratio: 1 / 1;
@@ -262,6 +261,39 @@ body {
     0%   { transform: scale(0.3); opacity: 0; }
     60%  { opacity: 1; }
     100% { transform: scale(1); opacity: 1; }
+}
+
+/* ============================================================
+   FLASH — aviso auto-desaparece (CSS puro, sin timer JS)
+   ============================================================ */
+.tr-flash {
+    position: fixed;
+    top: 76px;
+    left: 50%;
+    padding: 10px 22px;
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: white;
+    border-radius: 999px;
+    font-size: 13.5px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    box-shadow: 0 10px 28px rgba(16, 185, 129, 0.45);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 150;
+    white-space: nowrap;
+    transform: translateX(-50%) translateY(-20px) scale(0.9);
+    will-change: opacity, transform;
+}
+.tr-flash.show {
+    animation: trFlash 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes trFlash {
+    0%   { opacity: 0; transform: translateX(-50%) translateY(-20px) scale(0.9); }
+    12%  { opacity: 1; transform: translateX(-50%) translateY(0)     scale(1);   }
+    80%  { opacity: 1; transform: translateX(-50%) translateY(0)     scale(1);   }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-8px)  scale(0.96); }
 }
 
 /* ========== STATS ========== */
@@ -393,7 +425,6 @@ body {
     font-weight: 800;
 }
 
-/* Preview de las 3 rondas */
 .tr-rondas {
     display: flex;
     justify-content: center;
@@ -426,7 +457,6 @@ body {
     font-weight: 800;
 }
 
-/* ========== RESUMEN FIN ========== */
 .tr-resumen {
     display: flex;
     flex-direction: column;
@@ -468,7 +498,6 @@ body {
     color: #F59E0B;
 }
 
-/* ========== BOTÓN PRIMARIO ========== */
 .tr-btn-primario {
     display: inline-flex;
     align-items: center;
@@ -512,6 +541,8 @@ body {
     .tr-stat { padding: 8px 3px; }
     .tr-stat-label { font-size: 8.5px; }
     .tr-stat-valor { font-size: 15px; }
+
+    .tr-flash { top: 66px; padding: 9px 18px; font-size: 12.5px; }
 
     .tr-overlay { padding: 16px; }
     .tr-overlay-card { padding: 22px 20px; max-width: 100%; border-radius: 18px; }
