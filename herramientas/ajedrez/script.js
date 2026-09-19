@@ -1,12 +1,13 @@
 // ============================================================
-//  Ajedrez — Juego premium de VicWebOs
+//  Ajedrez — Versión corregida
 //  ------------------------------------------------------------
-//  La compra se hace desde Stor-He (como cualquier otra app).
-//  Si no está instalada, esta app no debería ni abrirse.
-//
-//  Integra chess.js (lógica) + cm-chessboard (UI) + js-chess-engine (IA).
-//  Dos niveles: Media (x1) y Difícil (x2).
-//  Sin guardado de partida. Sin setTimeout en el flujo crítico.
+//  Cambios clave respecto al original:
+//   1. Espera a que las dependencias ESM estén listas.
+//   2. Usa new jsChessEngine.Game(fen) → ai(game, nivel).
+//   3. moveInputHandler devuelve true/false correctamente.
+//   4. Sincroniza el tablero con setPosition() tras cada jugada
+//      (imprescindible para castling / en passant / coronación).
+//   5. La IA se ejecuta fuera del handler para no bloquear.
 // ============================================================
 
 'use strict';
@@ -15,8 +16,9 @@ const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const APP_ID = 'ajedrez';
 
 const DIFICULTADES = {
-    media:   { nombre: 'Media',   multiplicador: 1, aiLevel: 3 },
-    dificil: { nombre: 'Difícil', multiplicador: 2, aiLevel: 5 }
+    // aiLevel: profundidad minimax (1 = muy fácil, 4 = difícil)
+    media:   { nombre: 'Media',   multiplicador: 1, aiLevel: 2 },
+    dificil: { nombre: 'Difícil', multiplicador: 2, aiLevel: 4 }
 };
 
 const RECOMPENSAS_BASE = {
@@ -29,15 +31,15 @@ const RECOMPENSAS_BASE = {
 };
 
 // ---------- ESTADO ----------
-let usuarioActual = null;
-let dificultadActual = 'media';
-let partidaActiva = false;
-let tablero = null;
-let chess = null;
-let motor = null;
-let capturas = { peon: 0, caballo: 0, alfil: 0, torre: 0, dama: 0 };
-let movimientos = 0;
-let inicializado = false;
+let usuarioActual      = null;
+let dificultadActual   = 'media';
+let partidaActiva      = false;
+let tablero            = null;
+let chess              = null;
+let capturas           = { peon: 0, caballo: 0, alfil: 0, torre: 0, dama: 0 };
+let movimientos        = 0;
+let inicializado       = false;
+let esperandoIA        = false;
 
 const API = () => {
     try { return (window.parent && window.parent.__vicwebos) || null; }
@@ -49,7 +51,7 @@ const API = () => {
 // ============================================================
 function aplicarTemaDelPadre() {
     try {
-        const rootPadre = window.parent.document.documentElement;
+        const rootPadre  = window.parent.document.documentElement;
         const stylePadre = getComputedStyle(rootPadre);
         const vars = [
             '--violet-50','--violet-100','--violet-200','--violet-300',
@@ -80,16 +82,45 @@ window.addEventListener('message', (e) => {
 // ============================================================
 function mostrarMensaje(texto, tipo = 'info') {
     const el = document.getElementById('ajMensaje');
-    if (el) {
-        el.textContent = texto;
-        el.style.color = tipo === 'error' ? '#991B1B' : (tipo === 'success' ? '#065F46' : '');
-    }
+    if (!el) return;
+    el.textContent = texto;
+    el.style.color =
+        tipo === 'error'   ? '#991B1B' :
+        tipo === 'success' ? '#065F46' : '';
 }
 
 // ============================================================
-//  INIT
+//  INIT — espera dependencias
 // ============================================================
-async function inicializar() {
+function depsListas() {
+    return typeof window.Chessboard    !== 'undefined' &&
+           typeof window.Chess         !== 'undefined' &&
+           typeof window.jsChessEngine !== 'undefined';
+}
+
+function esperarDependenciasYIniciar() {
+    if (inicializado) return;
+    if (depsListas()) { inicializar(); return; }
+
+    let intentos = 0;
+    const iv = setInterval(() => {
+        intentos++;
+        if (depsListas()) {
+            clearInterval(iv);
+            inicializar();
+        } else if (intentos > 60) {   // 6 segundos
+            clearInterval(iv);
+            mostrarMensaje('No se pudieron cargar las dependencias del ajedrez.', 'error');
+            console.error('[Ajedrez] Dependencias no disponibles');
+        }
+    }, 100);
+
+    window.addEventListener('chess-deps-ready', () => {
+        if (!inicializado) inicializar();
+    }, { once: true });
+}
+
+function inicializar() {
     if (inicializado) return;
     inicializado = true;
 
@@ -110,16 +141,22 @@ async function inicializar() {
             : 'Invitado';
     }
 
-    // Inicializar lógica
-    chess = new Chess();
-    motor = new jsChessEngine.Game();
+    // Crear instancia de chess.js (compatible con varios builds)
+    const ChessClass = window.Chess.Chess || window.Chess;
+    chess = new ChessClass();
 
-    // Eventos de dificultad
+    // Botones de dificultad
     document.querySelectorAll('.aj-btn-dificultad').forEach(btn => {
         btn.addEventListener('click', () => {
-            document.querySelectorAll('.aj-btn-dificultad').forEach(b => b.classList.remove('activo'));
+            if (partidaActiva) {
+                const ok = confirm('Cambiar de dificultad reinicia la partida. ¿Continuar?');
+                if (!ok) return;
+            }
+            document.querySelectorAll('.aj-btn-dificultad')
+                .forEach(b => b.classList.remove('activo'));
             btn.classList.add('activo');
             dificultadActual = btn.dataset.dificultad;
+            iniciarPartida();
         });
     });
 
@@ -141,99 +178,139 @@ async function inicializar() {
 function iniciarPartida() {
     if (!chess) return;
 
-    chess = new Chess();
-    motor = new jsChessEngine.Game();
+    const ChessClass = window.Chess.Chess || window.Chess;
+    chess = new ChessClass();
     capturas = { peon: 0, caballo: 0, alfil: 0, torre: 0, dama: 0 };
     movimientos = 0;
     partidaActiva = true;
+    esperandoIA = false;
 
-    document.getElementById('ajHistorial').innerHTML = '<div class="aj-historial-vacio">La partida no ha comenzado</div>';
+    const hist = document.getElementById('ajHistorial');
+    if (hist) hist.innerHTML = '<div class="aj-historial-vacio">La partida no ha comenzado</div>';
+
     actualizarRecompensas();
     actualizarTurnoUI();
+    actualizarHistorial();
 
+    // Destruir tablero previo
     if (tablero) {
         try { tablero.destroy(); } catch (e) {}
         tablero = null;
     }
 
-    tablero = new Chessboard(document.getElementById('ajTablero'), {
+    const elemento = document.getElementById('ajTablero');
+    if (!elemento) return;
+    elemento.innerHTML = '';
+
+    // Crear el tablero
+    tablero = new window.Chessboard(elemento, {
         position: 'start',
         orientation: 'white',
         responsive: true,
-        sprite: 'https://cdn.jsdelivr.net/npm/cm-chessboard@8/src/assets/pieces/standard.svg',
+        animationDuration: 200,
+        sprite: {
+            url: 'https://cdn.jsdelivr.net/npm/cm-chessboard@8/src/assets/pieces/standard.svg',
+            grid: 40
+        },
         moveInputHandler: onMovimientoUsuario
     });
 
     mostrarMensaje('Tu turno. Mueve una pieza blanca.');
+    if (window.lucide) window.lucide.createIcons();
 }
 
+// ============================================================
+//  INPUT DEL JUGADOR
+//  Devuelve true si el movimiento se acepta, false si se rechaza.
+// ============================================================
 function onMovimientoUsuario(from, to) {
-    if (!partidaActiva) return;
-    if (!esTurnoJugador()) return;
+    if (!partidaActiva) return false;
+    if (esperandoIA)    return false;
+    if (!chess || chess.turn() !== 'w') return false;
 
-    const movimiento = chess.move({ from, to, promotion: 'q' });
-    if (!movimiento) {
-        mostrarMensaje('Movimiento inválido', 'error');
-        return;
+    let movimiento = null;
+    try {
+        movimiento = chess.move({ from, to, promotion: 'q' });
+    } catch (e) {
+        movimiento = null;
     }
 
-    tablero.setPosition(chess.fen());
+    if (!movimiento) {
+        mostrarMensaje('Movimiento inválido', 'error');
+        return false;
+    }
+
+    // CRÍTICO: sincronizar el tablero con chess.js
+    // (necesario para castling, en passant, coronación)
+    if (tablero) tablero.setPosition(chess.fen(), false);
 
     movimientos++;
     registrarCaptura(movimiento);
     actualizarHistorial();
     actualizarRecompensas();
 
-    if (comprobarFinPartida()) return;
+    if (comprobarFinPartida()) return true;
 
+    // Turno de la IA (fuera del handler para que el tablero pinte primero)
+    esperandoIA = true;
     actualizarTurnoUI();
     mostrarMensaje('La IA está pensando...');
-    requestAnimationFrame(() => turnoIA());
+
+    requestAnimationFrame(() => {
+        setTimeout(() => turnoIA(), 30);
+    });
+
+    return true;
 }
 
-function esTurnoJugador() {
-    return chess.turn() === 'w';
-}
-
+// ============================================================
+//  TURNO DE LA IA
+// ============================================================
 function turnoIA() {
     if (!partidaActiva) return;
-    if (chess.turn() !== 'b') return;
+    if (!chess || chess.turn() !== 'b') { esperandoIA = false; return; }
 
     const nivel = DIFICULTADES[dificultadActual].aiLevel;
     let movimientoIA = null;
 
     try {
-        const fen = chess.fen();
-        const config = jsChessEngine.getFen ? jsChessEngine.getFen(fen) : fen;
-        const resultado = jsChessEngine.ai(config, nivel);
+        // js-chess-engine espera un Game, NO un FEN suelto
+        const game = new window.jsChessEngine.Game(chess.fen());
+        const resultado = window.jsChessEngine.ai(game, nivel);
+
         if (resultado && resultado.from && resultado.to) {
-            // js-chess-engine usa notación "E2" (mayúsculas).
-            // chess.js espera "e2" (minúsculas).
+            // js-chess-engine devuelve coordenadas en mayúsculas ("E2"),
+            // chess.js las quiere en minúsculas ("e2")
             movimientoIA = chess.move({
                 from: String(resultado.from).toLowerCase(),
-                to: String(resultado.to).toLowerCase(),
+                to:   String(resultado.to).toLowerCase(),
                 promotion: 'q'
             });
         }
     } catch (e) {
-        console.warn('[Ajedrez] Error en motor, usando movimiento aleatorio:', e);
+        console.warn('[Ajedrez] Error en motor IA, usando fallback aleatorio:', e);
     }
 
+    // Fallback: movimiento legal al azar
     if (!movimientoIA) {
-        const movimientosLegales = chess.moves({ verbose: true });
-        if (movimientosLegales.length > 0) {
-            const m = movimientosLegales[Math.floor(Math.random() * movimientosLegales.length)];
-            movimientoIA = chess.move(m);
-        }
+        try {
+            const legales = chess.moves({ verbose: true });
+            if (legales.length > 0) {
+                const m = legales[Math.floor(Math.random() * legales.length)];
+                movimientoIA = chess.move(m);
+            }
+        } catch (e) { /* nada */ }
     }
 
     if (movimientoIA) {
-        tablero.setPosition(chess.fen());
+        if (tablero) tablero.setPosition(chess.fen());
         movimientos++;
         registrarCaptura(movimientoIA);
         actualizarHistorial();
         actualizarRecompensas();
     }
+
+    esperandoIA = false;
 
     if (comprobarFinPartida()) return;
 
@@ -241,28 +318,33 @@ function turnoIA() {
     mostrarMensaje('Tu turno.');
 }
 
+// ============================================================
+//  HELPERS
+// ============================================================
 function registrarCaptura(movimiento) {
-    if (movimiento.captured) {
-        const mapa = { p: 'peon', n: 'caballo', b: 'alfil', r: 'torre', q: 'dama' };
-        const clave = mapa[movimiento.captured];
-        if (clave && capturas[clave] !== undefined) {
-            capturas[clave]++;
-        }
-    }
+    if (!movimiento || !movimiento.captured) return;
+    const mapa = { p: 'peon', n: 'caballo', b: 'alfil', r: 'torre', q: 'dama' };
+    const clave = mapa[movimiento.captured];
+    if (clave && capturas[clave] !== undefined) capturas[clave]++;
 }
 
 function comprobarFinPartida() {
-    if (chess.isCheckmate()) {
+    let fin = false, resultado = null;
+
+    if (chess.isCheckmate && chess.isCheckmate()) {
         const ganador = chess.turn() === 'w' ? 'negras' : 'blancas';
-        if (ganador === 'blancas') finalizarPartida('victoria');
-        else finalizarPartida('derrota');
-        return true;
+        resultado = (ganador === 'blancas') ? 'victoria' : 'derrota';
+        fin = true;
+    } else if (chess.isDraw && chess.isDraw()) {
+        resultado = 'empate'; fin = true;
+    } else if (chess.isStalemate && chess.isStalemate()) {
+        resultado = 'empate'; fin = true;
+    } else if (chess.isThreefoldRepetition && chess.isThreefoldRepetition()) {
+        resultado = 'empate'; fin = true;
     }
-    if (chess.isDraw() || chess.isStalemate() || chess.isThreefoldRepetition()) {
-        finalizarPartida('empate');
-        return true;
-    }
-    return false;
+
+    if (fin) finalizarPartida(resultado);
+    return fin;
 }
 
 function rendirse() {
@@ -276,32 +358,32 @@ function rendirse() {
 // ============================================================
 function finalizarPartida(resultado) {
     partidaActiva = false;
+    esperandoIA = false;
 
     const mult = DIFICULTADES[dificultadActual].multiplicador;
-    const tope = dificultadActual === 'media' ? RECOMPENSAS_BASE.topeMedia : RECOMPENSAS_BASE.topeDificil;
+    const tope = dificultadActual === 'media'
+        ? RECOMPENSAS_BASE.topeMedia
+        : RECOMPENSAS_BASE.topeDificil;
 
     let monedas = 0;
-    monedas += capturas.peon * RECOMPENSAS_BASE.peon * mult;
+    monedas += capturas.peon    * RECOMPENSAS_BASE.peon    * mult;
     monedas += capturas.caballo * RECOMPENSAS_BASE.caballo * mult;
-    monedas += capturas.alfil * RECOMPENSAS_BASE.alfil * mult;
-    monedas += capturas.torre * RECOMPENSAS_BASE.torre * mult;
-    monedas += capturas.dama * RECOMPENSAS_BASE.dama * mult;
+    monedas += capturas.alfil   * RECOMPENSAS_BASE.alfil   * mult;
+    monedas += capturas.torre   * RECOMPENSAS_BASE.torre   * mult;
+    monedas += capturas.dama    * RECOMPENSAS_BASE.dama    * mult;
 
     if (resultado === 'victoria') {
         monedas += RECOMPENSAS_BASE.bonusVictoria * mult;
         const movsJugador = Math.ceil(movimientos / 2);
-        if (movsJugador <= 30) {
-            monedas += RECOMPENSAS_BASE.bonusEficiencia30 * mult;
-        } else if (movsJugador <= 50) {
-            monedas += RECOMPENSAS_BASE.bonusEficiencia50 * mult;
-        }
+        if (movsJugador <= 30)      monedas += RECOMPENSAS_BASE.bonusEficiencia30 * mult;
+        else if (movsJugador <= 50) monedas += RECOMPENSAS_BASE.bonusEficiencia50 * mult;
     }
 
-    monedas = Math.min(monedas, tope);
+    monedas = Math.max(0, Math.min(monedas, tope));
 
-    const icono = document.getElementById('ajFinIcono');
-    const titulo = document.getElementById('ajFinTitulo');
-    const subtitulo = document.getElementById('ajFinSubtitulo');
+    const icono    = document.getElementById('ajFinIcono');
+    const titulo   = document.getElementById('ajFinTitulo');
+    const subtitulo= document.getElementById('ajFinSubtitulo');
 
     if (resultado === 'victoria') {
         icono.className = 'aj-overlay-icono aj-overlay-icono-ganaste';
@@ -320,7 +402,10 @@ function finalizarPartida(resultado) {
         subtitulo.textContent = 'Tablas.';
     }
 
-    const totalCapturas = capturas.peon + capturas.caballo + capturas.alfil + capturas.torre + capturas.dama;
+    const totalCapturas =
+        capturas.peon + capturas.caballo + capturas.alfil +
+        capturas.torre + capturas.dama;
+
     document.getElementById('ajFinCapturas').textContent = totalCapturas;
     document.getElementById('ajFinMovimientos').textContent = movimientos;
     document.getElementById('ajFinMonedas').textContent = `+${monedas}`;
@@ -328,9 +413,7 @@ function finalizarPartida(resultado) {
     document.getElementById('ajOverlayFin').hidden = false;
     if (window.lucide) window.lucide.createIcons();
 
-    if (monedas > 0) {
-        otorgarMonedas(monedas);
-    }
+    if (monedas > 0) otorgarMonedas(monedas);
 }
 
 function otorgarMonedas(cantidad) {
@@ -357,7 +440,8 @@ function actualizarTurnoUI() {
 
 function actualizarHistorial() {
     const cont = document.getElementById('ajHistorial');
-    if (!cont) return;
+    if (!cont || !chess) return;
+
     const historial = chess.history();
     if (historial.length === 0) {
         cont.innerHTML = '<div class="aj-historial-vacio">La partida no ha comenzado</div>';
@@ -365,9 +449,9 @@ function actualizarHistorial() {
     }
     cont.innerHTML = '';
     for (let i = 0; i < historial.length; i += 2) {
-        const num = (i / 2) + 1;
+        const num    = (i / 2) + 1;
         const blanca = historial[i] || '';
-        const negra = historial[i + 1] || '';
+        const negra  = historial[i + 1] || '';
         const fila = document.createElement('div');
         fila.className = 'aj-historial-fila';
         fila.innerHTML = `
@@ -385,19 +469,27 @@ function actualizarRecompensas() {
         const el = document.getElementById(id);
         if (el) el.textContent = `+${val}`;
     };
-    set('ajMonedasPeon', capturas.peon * RECOMPENSAS_BASE.peon * mult);
+    set('ajMonedasPeon',    capturas.peon    * RECOMPENSAS_BASE.peon    * mult);
     set('ajMonedasCaballo', capturas.caballo * RECOMPENSAS_BASE.caballo * mult);
-    set('ajMonedasTorre', capturas.torre * RECOMPENSAS_BASE.torre * mult);
-    set('ajMonedasDama', capturas.dama * RECOMPENSAS_BASE.dama * mult);
+    set('ajMonedasTorre',   capturas.torre   * RECOMPENSAS_BASE.torre   * mult);
+    set('ajMonedasDama',    capturas.dama    * RECOMPENSAS_BASE.dama    * mult);
 
     let total = 0;
-    total += capturas.peon * RECOMPENSAS_BASE.peon * mult;
+    total += capturas.peon    * RECOMPENSAS_BASE.peon    * mult;
     total += capturas.caballo * RECOMPENSAS_BASE.caballo * mult;
-    total += capturas.alfil * RECOMPENSAS_BASE.alfil * mult;
-    total += capturas.torre * RECOMPENSAS_BASE.torre * mult;
-    total += capturas.dama * RECOMPENSAS_BASE.dama * mult;
+    total += capturas.alfil   * RECOMPENSAS_BASE.alfil   * mult;
+    total += capturas.torre   * RECOMPENSAS_BASE.torre   * mult;
+    total += capturas.dama    * RECOMPENSAS_BASE.dama    * mult;
+
     const totalEl = document.getElementById('ajMonedasTotal');
     if (totalEl) totalEl.textContent = total;
 }
 
-document.addEventListener('DOMContentLoaded', inicializar);
+// ============================================================
+//  ARRANQUE
+// ============================================================
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', esperarDependenciasYIniciar);
+} else {
+    esperarDependenciasYIniciar();
+}
