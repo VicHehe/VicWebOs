@@ -95,7 +95,7 @@ const WIDGETS_DISPONIBLES = [
     nombre: 'Hormiguero',
     icono: 'bug',
     ruta: 'Widgets/hormiguero/index.html',
-    descripcion: 'Mini colonia de hormigas. Compra hormigas y túneles con monedas.',
+    descripcion: 'Colonia de hormigas viva. Depende del clima y la hora real.',
     categoria: 'Entretenimiento',
     esBase: false,
     espacio: 4,
