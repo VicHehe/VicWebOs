@@ -1,0 +1,55 @@
+/* ================================================
+   Tema: Github Lover
+   Una carta de amor a GitHub. Paleta oficial.
+   Sencillo, directo, honesto.
+   ================================================ */
+
+:root {
+    /* Acento azul GitHub */
+    --violet-50:  #DDF4FF;
+    --violet-100: #DDF4FF;
+    --violet-200: #B6E3FF;
+    --violet-300: #80CCFF;
+    --violet-400: #54AEFF;
+    --violet-500: #0969DA;
+    --violet-600: #0550AE;
+    --violet-700: #033D8B;
+
+    /* Neutros GitHub */
+    --white:   #FFFFFF;
+    --bg:      #FFFFFF;
+    --bg-alt:  #F6F8FA;
+    --gray-50:  #F6F8FA;
+    --gray-100: #EAEEF2;
+    --gray-200: #D0D7DE;
+    --gray-300: #AFB8C1;
+    --gray-400: #8C959F;
+    --gray-500: #6E7781;
+    --gray-600: #57606A;
+    --gray-700: #424A53;
+    --gray-800: #32383F;
+    --gray-900: #1F2328;
+
+    --border:  #D0D7DE;
+    --text:    #1F2328;
+    --text-2:  #57606A;
+    --text-3:  #6E7781;
+
+    --shadow-xs: 0 1px 0 rgba(31, 35, 40, 0.04);
+    --shadow-sm: 0 1px 0 rgba(31, 35, 40, 0.04);
+    --shadow-md: 0 3px 6px rgba(140, 149, 159, 0.15);
+    --shadow-lg: 0 8px 24px rgba(140, 149, 159, 0.20);
+    --shadow-xl: 0 12px 28px rgba(140, 149, 159, 0.25);
+    --shadow-glow: 0 0 0 3px rgba(9, 105, 218, 0.15);
+
+    --accent-gradient: linear-gradient(135deg, #0969DA, #0550AE);
+    --accent-gradient-hover: linear-gradient(135deg, #0969DA, #033D8B);
+    --accent-shadow: rgba(9, 105, 218, 0.25);
+    --accent-shadow-hover: rgba(9, 105, 218, 0.35);
+    --accent-text-gradient: linear-gradient(135deg, #1F2328, #0969DA);
+
+    --r-sm: 6px;
+    --r-md: 6px;
+    --r-lg: 8px;
+    --r-xl: 12px;
+}
