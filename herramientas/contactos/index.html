@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Contactos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="ct-container">
+
+        <header class="ct-header">
+            <div class="ct-logo">
+                <div class="ct-logo-mark">
+                    <i data-lucide="book-user"></i>
+                </div>
+                <div class="ct-logo-text">
+                    <h1>Contactos</h1>
+                    <p id="ctUserBadge">—</p>
+                </div>
+            </div>
+            <button class="ct-btn-refresh" id="ctBtnRefresh" title="Actualizar">
+                <i data-lucide="refresh-cw"></i>
+            </button>
+        </header>
+
+        <div class="ct-resumen">
+            <div class="ct-chip">
+                <i data-lucide="users"></i>
+                <span id="ctTotalUsuarios">—</span>
+            </div>
+            <div class="ct-chip ct-chip-activos">
+                <i data-lucide="circle-dot"></i>
+                <span id="ctActivos">—</span>
+            </div>
+        </div>
+
+        <main class="ct-main">
+            <div class="ct-grid" id="ctGrid"></div>
+
+            <div class="ct-empty" id="ctEmpty" hidden>
+                <div class="ct-empty-icon">
+                    <i data-lucide="user-x"></i>
+                </div>
+                <h3>Sin contactos</h3>
+                <p>No hay otros usuarios en esta comunidad todavía.</p>
+            </div>
+        </main>
+
+    </div>
+
+    <!-- MODAL REGALO -->
+    <div class="ct-modal" id="ctModalRegalo" hidden>
+        <div class="ct-modal-card">
+
+            <div class="ct-modal-header">
+                <h2>
+                    <i data-lucide="gift"></i>
+                    <span id="ctRegaloTitulo">Regalar</span>
+                </h2>
+                <button class="ct-modal-cerrar" id="ctRegaloCerrar" title="Cerrar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
+            <div class="ct-modal-body">
+                <p class="ct-modal-desc">
+                    Elige cuántas monedas quieres regalar.
+                    Solo puedes regalarle <strong>una vez al día</strong> a cada persona.
+                </p>
+
+                <div class="ct-montos">
+                    <button class="ct-monto" data-monto="5">
+                        <i data-lucide="coins"></i>
+                        <span class="ct-monto-num">5</span>
+                    </button>
+                    <button class="ct-monto" data-monto="25">
+                        <i data-lucide="coins"></i>
+                        <span class="ct-monto-num">25</span>
+                    </button>
+                    <button class="ct-monto" data-monto="50">
+                        <i data-lucide="coins"></i>
+                        <span class="ct-monto-num">50</span>
+                    </button>
+                </div>
+
+                <div class="ct-saldo-info">
+                    <i data-lucide="wallet"></i>
+                    <span>Tienes <strong id="ctMiSaldo">0</strong> monedas</span>
+                </div>
+            </div>
+
+            <div class="ct-modal-actions">
+                <button class="ct-btn-sec" id="ctRegaloCancelar">Cancelar</button>
+                <button class="ct-btn-pri" id="ctRegaloEnviar" disabled>
+                    <i data-lucide="send"></i>
+                    Enviar
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="ct-toast" id="ctToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
