@@ -80,17 +80,9 @@ body::before {
 
 /* ================================================================
    2. WELCOME = página de grimorio
-   FIX móvil:
-   - min-width: 0 + max-width: 100%
-   - overflow: clip
-   - contain: inline-size (los hijos no expanden el padre)
    ================================================================ */
 .welcome-placeholder {
     position: relative;
-    min-width: 0;
-    max-width: 100%;
-    overflow: clip;
-    contain: inline-size;
     background:
         radial-gradient(ellipse at center, rgba(62, 48, 32, 0.15) 0%, transparent 70%),
         radial-gradient(ellipse at top left,     rgba(0, 0, 0, 0.40) 0%, transparent 50%),
@@ -144,41 +136,18 @@ body::before {
     box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.35);
 }
 
-/* Contención de hijos flex */
-.welcome-placeholder > * {
-    max-width: 100%;
-    min-width: 0;
-}
-
 .welcome-hero,
 .welcome-section {
     position: relative;
     z-index: 3;
-    max-width: 100%;
-    min-width: 0;
-    overflow-wrap: break-word;
-    word-break: break-word;
 }
 
-.welcome-hero h1,
-.welcome-hero p,
-.acceso-item,
-.acceso-nombre,
-.btn-ver-todas {
-    max-width: 100%;
-    min-width: 0;
-    overflow-wrap: break-word;
-    word-break: break-word;
-}
-
-/* Glow con min() para no desbordar */
 .welcome-glow {
     position: absolute;
     top: 15%;
     left: 50%;
     transform: translateX(-50%);
     width: min(500px, 100%);
-    max-width: 100%;
     height: 400px;
     background: radial-gradient(
         circle,
@@ -268,7 +237,9 @@ body::before {
 }
 
 /* ================================================================
-   5. SIDEBAR
+   5. SIDEBAR — usa position: relative para los pseudo-elementos.
+   En móvil se restaura position: fixed (media query abajo)
+   para que la drawer funcione.
    ================================================================ */
 .sidebar {
     position: relative;
@@ -306,6 +277,13 @@ body::before {
 .nav-item.active {
     background: rgba(200, 168, 92, 0.08);
     border-radius: 3px;
+}
+
+/* FIX drawer móvil: restaurar position: fixed */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+    }
 }
 
 /* ================================================================
