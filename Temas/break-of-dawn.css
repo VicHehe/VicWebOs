@@ -1,11 +1,12 @@
 /* ================================================
    Tema: Break of Dawn
-   Amanecer sobre el mar. Cielo degradado y oleaje
-   animado al fondo del welcome. Flagship.
+   Amanecer sobre el mar. Cielo degradado rosa/naranja
+   con oleaje animado celeste-azulado al fondo.
+   Flagship.
    ================================================ */
 
 :root {
-    /* Acento coral/rosa */
+    /* Acento coral/rosa (acento del shell, para botones) */
     --violet-50:  #FFF1EA;
     --violet-100: #FFE0D1;
     --violet-200: #FFC4A8;
@@ -43,64 +44,58 @@
     --accent-shadow-hover: rgba(255, 112, 67, 0.45);
     --accent-text-gradient: linear-gradient(135deg, #3E1F0E, #E64A19);
 
-    /* Oleaje: 3 capas de olas superpuestas */
-    --theme-waves: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 140' preserveAspectRatio='none'%3E%3Cpath d='M0,70 C150,30 350,110 600,70 C850,30 1050,110 1200,70 L1200,140 L0,140 Z' fill='rgba(255,160,122,0.75)'/%3E%3Cpath d='M0,90 C200,60 400,120 600,90 C800,60 1000,120 1200,90 L1200,140 L0,140 Z' fill='rgba(255,112,67,0.85)'/%3E%3Cpath d='M0,110 C150,90 350,130 600,110 C850,90 1050,130 1200,110 L1200,140 L0,140 Z' fill='%23BF360C'/%3E%3C/svg%3E");
+    /* Oleaje: 3 capas de olas en tonos celeste-azulados
+       (agua, no cielo) */
+    --theme-waves: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 180' preserveAspectRatio='none'%3E%3Cpath d='M0,60 C150,20 350,100 600,60 C850,20 1050,100 1200,60 L1200,180 L0,180 Z' fill='%23A8D8EA' fill-opacity='0.75'/%3E%3Cpath d='M0,90 C200,50 400,120 600,90 C800,50 1000,120 1200,90 L1200,180 L0,180 Z' fill='%2366B2CC' fill-opacity='0.9'/%3E%3Cpath d='M0,120 C150,100 350,140 600,120 C850,100 1050,140 1200,120 L1200,180 L0,180 Z' fill='%233E7A99'/%3E%3C/svg%3E");
 }
 
 /* ------------------------------------------------------------
-   Cielo de amanecer en el welcome
+   Welcome: cielo → horizonte → mar, TODO integrado en el fondo
    ------------------------------------------------------------ */
 .welcome-placeholder {
-    background: linear-gradient(
-        180deg,
-        #FFF4E0 0%,
-        #FFE0C4 25%,
-        #FFC4A0 50%,
-        #FFA07A 72%,
-        #FF8C61 100%
-    );
-}
-
-/* El brillo se vuelve un sol cálido */
-.welcome-glow {
-    background: radial-gradient(circle, rgba(255, 200, 140, 0.55) 0%, transparent 60%);
-}
-
-/* Oleaje animado abajo del welcome */
-.welcome-placeholder::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 140px;
-    background-image: var(--theme-waves);
-    background-size: 1200px 140px;
-    background-repeat: repeat-x;
-    background-position: 0 bottom;
-    animation: bod-waves 22s linear infinite;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.95;
+    background:
+        var(--theme-waves) bottom left / 1200px 180px repeat-x,
+        linear-gradient(
+            180deg,
+            #FFF0DC 0%,
+            #FFD9B8 22%,
+            #FFB890 44%,
+            #FF9A76 60%,
+            #F5856E 68%,       /* horizonte naranja */
+            #C99A98 71%,       /* transición */
+            #A8D8EA 74%,       /* agua clara (primer tono del agua) */
+            #7CB4CC 88%,
+            #4A8CA8 100%       /* agua profunda */
+        );
+    background-attachment: scroll;
+    animation: bod-waves 28s linear infinite;
 }
 
 @keyframes bod-waves {
-    from { background-position-x: 0; }
-    to   { background-position-x: -1200px; }
+    from { background-position: 0% bottom, center; }
+    to   { background-position: -1200px bottom, center; }
 }
 
-/* El hero y las secciones quedan por encima del oleaje */
-.welcome-hero,
-.welcome-section {
-    position: relative;
-    z-index: 1;
+/* El brillo se vuelve un sol cálido cerca del horizonte */
+.welcome-glow {
+    background: radial-gradient(
+        circle at 50% 65%,
+        rgba(255, 220, 160, 0.55) 0%,
+        rgba(255, 180, 140, 0.25) 30%,
+        transparent 65%
+    );
 }
 
 /* ------------------------------------------------------------
-   Sidebar: cielo degradado también
+   Sidebar: cielo puro, sin agua
    ------------------------------------------------------------ */
 .sidebar {
-    background: linear-gradient(180deg, #FFF4E0 0%, #FFE0C4 60%, #FFC4A0 100%);
+    background: linear-gradient(
+        180deg,
+        #FFF0DC 0%,
+        #FFD9B8 40%,
+        #FFB890 100%
+    );
 }
 
 /* ------------------------------------------------------------
@@ -118,7 +113,7 @@
 }
 
 /* ------------------------------------------------------------
-   Modales: una franja de horizonte arriba
+   Modales: franja del horizonte arriba
    ------------------------------------------------------------ */
 .config-card,
 .modal-todas-card {
@@ -133,7 +128,7 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #FFC4A0, #FF8C61, #E64A19, #FF8C61, #FFC4A0);
+    background: linear-gradient(90deg, #FFE0C4, #FFA07A, #F5856E, #A8D8EA, #4A8CA8);
     pointer-events: none;
     z-index: 2;
 }
