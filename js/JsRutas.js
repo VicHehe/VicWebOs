@@ -83,7 +83,7 @@ const RUTAS_HERRAMIENTAS = [
 },
     {
         id: 'dino',
-        nombre: 'Dino',
+        nombre: 'Mezosoic Run',
         icono: 'gamepad-2',
         ruta: 'herramientas/dino/index.html',
         descripcion: 'El clásico runner. Gana monedas mientras corres.',
@@ -116,7 +116,7 @@ const RUTAS_HERRAMIENTAS = [
 },
 {
     id: 'wordlhe',
-    nombre: 'Wordl-He',
+    nombre: 'Adivin-He',
     icono: 'type',
     ruta: 'herramientas/wordle/index.html',
     descripcion: 'Adivina la palabra de 5 letras. +5 monedas por victoria.',
