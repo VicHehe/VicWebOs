@@ -1,53 +1,55 @@
 /* ================================================
    Tema: Github Lover
-   Paleta oficial de GitHub (Primer design system).
-   Gris #f6f8fa + azul #0969da + contribution greens.
-   Carta de amor al octocat.
+   Paleta oficial de GitHub en modo oscuro.
+   Sin patrones, sin contribution graph.
+   Solo la paleta real (Primer design system).
    ================================================ */
 
 :root {
-    /* Acento azul GitHub (Primer --fgColor-accent) */
-    --violet-50:  #ddf4ff;   /* accent subtle */
-    --violet-100: #b6e3ff;   /* accent muted */
-    --violet-200: #80ccff;
-    --violet-300: #54aeff;
-    --violet-400: #218bff;
-    --violet-500: #0969da;   /* ← azul GitHub */
-    --violet-600: #0550ae;   /* accent emphasis */
-    --violet-700: #033d8b;
+    /* Acento azul GitHub dark (--fgColor-accent dark) */
+    --violet-50:  #0d2d6b;
+    --violet-100: #163d8a;
+    --violet-200: #1f4ca8;
+    --violet-300: #388bfd;
+    --violet-400: #4a9eff;
+    --violet-500: #58a6ff;   /* azul oficial GitHub dark */
+    --violet-600: #79c0ff;
+    --violet-700: #a5d6ff;
 
-    /* Neutros GitHub (Primer) */
-    --white:    #ffffff;              /* bgColor-default */
-    --bg:       #ffffff;              /* lobby blanco, como GitHub */
-    --bg-alt:   #f6f8fa;              /* bgColor-muted: header, sidebar */
-    --gray-50:  #f6f8fa;
-    --gray-100: #eaeef2;              /* bgColor-inset cálido */
-    --gray-200: #d1d9e0;              /* borderColor-default */
-    --gray-300: #afb8c1;
-    --gray-400: #8c959f;
-    --gray-500: #6e7781;              /* fgColor-muted antiguo */
-    --gray-600: #59636e;              /* fgColor-muted actual */
-    --gray-700: #424a53;
-    --gray-800: #25292e;              /* bgColor-emphasis */
-    --gray-900: #1f2328;              /* fgColor-default */
+    /* Superficies GitHub dark (Primer) */
+    --white:    #161b22;              /* bgColor-default: superficies, cards */
+    --bg:       #0d1117;              /* bgColor-canvas-default: fondo principal */
+    --bg-alt:   #161b22;              /* bgColor-muted: header, sidebar */
+    --gray-50:  #161b22;
+    --gray-100: #21262d;              /* bgColor-inset */
+    --gray-200: #30363d;              /* borderColor-default */
+    --gray-300: #484f58;
+    --gray-400: #6e7681;              /* fgColor-subtle */
+    --gray-500: #8b949e;              /* fgColor-muted */
+    --gray-600: #b1bac4;
+    --gray-700: #c9d1d9;              /* fgColor-default antiguo */
+    --gray-800: #d0d7de;
+    --gray-900: #e6edf3;              /* fgColor-default actual */
 
-    --border:  #d1d9e0;               /* borderColor-default */
-    --text:    #1f2328;
-    --text-2:  #59636e;
-    --text-3:  #818b98;
+    --border:  #30363d;               /* gris azulado, borde oficial */
+    --text:    #e6edf3;
+    --text-2:  #8b949e;
+    --text-3:  #6e7681;
 
-    --shadow-xs: 0 1px 0 rgba(31, 35, 40, 0.04);
-    --shadow-sm: 0 1px 0 rgba(31, 35, 40, 0.04);
-    --shadow-md: 0 3px 6px rgba(140, 149, 159, 0.15);
-    --shadow-lg: 0 8px 24px rgba(140, 149, 159, 0.20);
-    --shadow-xl: 0 12px 28px rgba(140, 149, 159, 0.25);
-    --shadow-glow: 0 0 0 3px rgba(9, 105, 218, 0.15);
+    /* Sombras dark mode: sutiles */
+    --shadow-xs: 0 1px 0 rgba(1, 4, 9, 0.25);
+    --shadow-sm: 0 1px 0 rgba(1, 4, 9, 0.25);
+    --shadow-md: 0 3px 6px rgba(1, 4, 9, 0.40);
+    --shadow-lg: 0 8px 24px rgba(1, 4, 9, 0.55);
+    --shadow-xl: 0 12px 28px rgba(1, 4, 9, 0.65);
+    --shadow-glow: 0 0 0 3px rgba(56, 139, 253, 0.30);
 
-    --accent-gradient: linear-gradient(135deg, #0969da, #0550ae);
-    --accent-gradient-hover: linear-gradient(135deg, #0969da, #033d8b);
-    --accent-shadow: rgba(9, 105, 218, 0.25);
-    --accent-shadow-hover: rgba(9, 105, 218, 0.35);
-    --accent-text-gradient: linear-gradient(135deg, #1f2328, #0969da);
+    /* Acento azul GitHub */
+    --accent-gradient: linear-gradient(135deg, #1f6feb, #388bfd);
+    --accent-gradient-hover: linear-gradient(135deg, #388bfd, #58a6ff);
+    --accent-shadow: rgba(56, 139, 253, 0.35);
+    --accent-shadow-hover: rgba(56, 139, 253, 0.50);
+    --accent-text-gradient: linear-gradient(135deg, #e6edf3, #58a6ff);
 
     /* Radios GitHub (6px casi todo) */
     --r-sm: 6px;
@@ -55,21 +57,15 @@
     --r-lg: 8px;
     --r-xl: 12px;
 
-    /* Contribution graph — paleta exacta */
-    --gh-empty:   #ebedf0;
-    --gh-green-1: #9be9a8;
-    --gh-green-2: #40c463;
-    --gh-green-3: #30a14e;
-    --gh-green-4: #216e39;
-
     /* Semantic (por si luego se usan) */
-    --gh-success: #1a7f37;
-    --gh-danger:  #d1242f;
-    --gh-done:    #8250df;
+    --gh-success: #3fb950;
+    --gh-danger:  #f85149;
+    --gh-done:    #a371f7;
+    --gh-warning: #d29922;
 }
 
 /* ------------------------------------------------------------
-   Header con el gris exacto de GitHub
+   Header y sidebar: mismo gris #161b22
    ------------------------------------------------------------ */
 .app-header {
     background: var(--bg-alt);
@@ -77,58 +73,20 @@
     box-shadow: none;
 }
 
-/* ------------------------------------------------------------
-   Welcome: contribution graph de GitHub a tamaño real.
-   Cuadraditos de 10px con gap de 3px. Se desvanecen hacia
-   abajo para no ensuciar el hero. Usa 4 verdes + vacío.
-   ------------------------------------------------------------ */
-.welcome-placeholder {
-    position: relative;
-    background: var(--white);
-}
-.welcome-placeholder::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    /* Patrón: cuadraditos de 10px, gap 3px, cada uno un color del graph.
-       El "grid" se dibuja con celdas repetidas de 13px (10+3). */
-    background-image:
-        /* Fila 1 — verde 1 */
-        linear-gradient(90deg, var(--gh-green-1) 10px, transparent 10px),
-        linear-gradient(0deg,  var(--gh-green-1) 10px, transparent 10px),
-        /* Fila 2 — verde 2 (desfasada) */
-        linear-gradient(90deg, transparent 13px, var(--gh-green-2) 13px, var(--gh-green-2) 23px, transparent 23px),
-        /* Fila 3 — verde 3 (doble desfase) */
-        linear-gradient(0deg, transparent 26px, var(--gh-green-3) 26px, var(--gh-green-3) 36px, transparent 36px),
-        /* Fila 4 — verde 4 */
-        linear-gradient(90deg, transparent 39px, var(--gh-green-4) 39px, var(--gh-green-4) 49px, transparent 49px),
-        /* Vacíos */
-        linear-gradient(0deg, transparent 52px, var(--gh-empty) 52px, var(--gh-empty) 62px, transparent 62px);
-    background-size: 65px 65px;
-    background-position: 8px 8px;
-    opacity: 0.85;
-    /* Máscara para que se desvanezca hacia abajo */
-    -webkit-mask-image: linear-gradient(180deg,
-        rgba(0,0,0,0.85) 0%,
-        rgba(0,0,0,0.55) 30%,
-        rgba(0,0,0,0.15) 60%,
-        transparent 85%);
-    mask-image: linear-gradient(180deg,
-        rgba(0,0,0,0.85) 0%,
-        rgba(0,0,0,0.55) 30%,
-        rgba(0,0,0,0.15) 60%,
-        transparent 85%);
-}
-.welcome-hero,
-.welcome-section {
-    position: relative;
-    z-index: 1;
+.sidebar {
+    background: var(--bg-alt);
+    border-right: 1px solid var(--border);
 }
 
 /* ------------------------------------------------------------
-   Accesos rápidos: borde exacto GitHub
+   Welcome: fondo #0d1117 puro, sin decoración
+   ------------------------------------------------------------ */
+.welcome-placeholder {
+    background: var(--bg);
+}
+
+/* ------------------------------------------------------------
+   Accesos rápidos: borde GitHub, hover azul
    ------------------------------------------------------------ */
 .acceso-item {
     border-radius: var(--r-md);
@@ -139,33 +97,33 @@
     overflow: hidden;
     transition: all 0.15s;
 }
-.acceso-item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--gh-green-3);
-    opacity: 0.55;
-    transition: opacity 0.15s;
-}
-.acceso-item:hover::before {
-    opacity: 1;
-}
 .acceso-item:hover {
     border-color: var(--violet-500);
     box-shadow: var(--shadow-md);
     transform: translateY(-1px);
 }
 
+/* El icono mantiene su fondo original pero con acento azul */
+.acceso-icon-wrap {
+    background: var(--gray-100);
+    color: var(--violet-500);
+}
+.acceso-item:hover .acceso-icon-wrap {
+    background: var(--violet-500);
+    color: white;
+}
+
 /* ------------------------------------------------------------
-   Modales: barra tipo "branch merged" con los verdes reales
+   Modales: barra azul arriba (como GitHub tabs)
    ------------------------------------------------------------ */
 .config-card,
 .modal-todas-card {
     position: relative;
     overflow: hidden;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-xl);
 }
 .config-card::before,
 .modal-todas-card::before {
@@ -175,12 +133,7 @@
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg,
-        var(--gh-green-4) 0%,
-        var(--gh-green-3) 25%,
-        var(--gh-green-2) 50%,
-        var(--gh-green-1) 75%,
-        var(--gh-empty) 100%);
+    background: var(--violet-500);
     pointer-events: none;
     z-index: 2;
 }
@@ -193,23 +146,29 @@
 }
 
 /* ------------------------------------------------------------
-   Sidebar: mismo gris GitHub, sin decoración
+   Botón primario: azul GitHub (como "New repository")
    ------------------------------------------------------------ */
-.sidebar {
-    background: var(--bg-alt);
-    border-right: 1px solid var(--border);
+.btn-primario {
+    background: var(--violet-500);
+    border: 1px solid rgba(240, 246, 252, 0.1);
+    box-shadow: none;
+    color: #ffffff;
+}
+.btn-primario:hover {
+    background: var(--violet-600);
+    box-shadow: none;
+    transform: none;
 }
 
 /* ------------------------------------------------------------
-   Botones primarios: verde de "merge" de GitHub
+   Botón secundario: gris sutil (como en GitHub)
    ------------------------------------------------------------ */
-.btn-primario {
-    background: linear-gradient(135deg, #2da44e, #1a7f37);
-    box-shadow: none;
-    border: 1px solid rgba(27, 31, 36, 0.15);
+.btn-secundario {
+    background: var(--gray-100);
+    border: 1px solid var(--border);
+    color: var(--text);
 }
-.btn-primario:hover {
-    background: linear-gradient(135deg, #2c974b, #166f2f);
-    box-shadow: none;
-    transform: none;
+.btn-secundario:hover {
+    background: var(--gray-200);
+    border-color: var(--gray-300);
 }
