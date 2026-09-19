@@ -26,11 +26,11 @@ const LIMITE_BUSQUEDA = 40;
 
 // ---------- ESTADO ----------
 let usuarioActual = null;
-let favoritos = [];            // [{ stationuuid, name, url_resolved, favicon, country, countrycode, bitrate }]
+let favoritos = [];
 let ultimaEstacion = null;
 let volumen = 0.7;
 let sonando = false;
-let estacionActual = null;     // { stationuuid, name, url_resolved, ... }
+let estacionActual = null;
 let audio = null;
 let cargandoEstaciones = false;
 let busquedaTimer = null;
@@ -157,7 +157,6 @@ function estaEnFavoritos(uuid) {
 
 // ============================================================
 //  API: BUSCAR
-//  Sin presets. Solo lo que devuelve Radio Browser.
 // ============================================================
 async function buscarEmisoras(texto, codigoPais) {
     const params = new URLSearchParams();
@@ -181,8 +180,6 @@ async function buscarEmisoras(texto, codigoPais) {
             .filter(Boolean);
     } catch (e) {
         console.warn('[Radio] Error buscando:', e);
-        // Sin presets: si la API falla, devolvemos vacío y la UI
-        // muestra el mensaje de "sin resultados".
         return [];
     }
 }
@@ -193,7 +190,6 @@ async function buscarEmisoras(texto, codigoPais) {
 async function reproducir(estacion) {
     if (!audio || !estacion) return;
 
-    // Si ya está sonando la misma → toggle off
     if (estacionActual && estacionActual.stationuuid === estacion.stationuuid && sonando) {
         pausar();
         return;
@@ -255,18 +251,19 @@ function actualizarIconoVolumen() {
 // ============================================================
 function renderWidget() {
     const portada = document.getElementById('rdPortada');
-    const ondas = document.getElementById('rdOndas');
+    const live = document.getElementById('rdLive');
     const nombreEl = document.getElementById('rdNombre');
     const subEl = document.getElementById('rdSub');
     const btnPlay = document.getElementById('rdBtnPlay');
 
+    if (!portada || !nombreEl || !subEl || !btnPlay) return;
+
     if (!estacionActual) {
         portada.innerHTML = '<i data-lucide="radio"></i>';
-        portada.style.backgroundImage = 'none';
         portada.classList.remove('reproduciendo');
-        ondas.hidden = true;
+        if (live) live.hidden = true;
         nombreEl.textContent = 'Sin emisora';
-        subEl.textContent = 'Pulsa el engranaje para sintonizar';
+        subEl.textContent = 'Sintoniza una emisora';
         btnPlay.disabled = true;
         btnPlay.classList.remove('reproduciendo');
         btnPlay.innerHTML = '<i data-lucide="play"></i><span>Reproducir</span>';
@@ -274,6 +271,7 @@ function renderWidget() {
         return;
     }
 
+    // Con emisora
     if (estacionActual.favicon) {
         portada.innerHTML = `<img src="${estacionActual.favicon}" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='<i data-lucide=&quot;radio&quot;></i>';if(window.lucide)window.lucide.createIcons();">`;
     } else {
@@ -284,7 +282,7 @@ function renderWidget() {
     subEl.textContent = metaEstacion(estacionActual);
 
     portada.classList.toggle('reproduciendo', sonando);
-    ondas.hidden = !sonando;
+    if (live) live.hidden = !sonando;
 
     btnPlay.disabled = false;
     btnPlay.classList.toggle('reproduciendo', sonando);
@@ -298,7 +296,7 @@ function renderWidget() {
 function mostrarOverlayCarga() {
     const portada = document.getElementById('rdPortada');
     if (portada) {
-        portada.innerHTML = '<div class="rd-spinner" style="width:24px;height:24px;border-width:2px;"></div>';
+        portada.innerHTML = '<div class="rd-spinner" style="width:20px;height:20px;border-width:2px;"></div>';
     }
 }
 
@@ -380,7 +378,7 @@ async function toggleFavorito(s) {
     const buscarTab = document.querySelector('.rd-tab[data-tab="buscar"]');
     if (buscarTab && buscarTab.classList.contains('active')) {
         const cont = document.getElementById('rdListaBuscar');
-        if (cont._estaciones) {
+        if (cont && cont._estaciones) {
             renderListaEstaciones(cont, cont._estaciones);
         }
     } else {
@@ -497,7 +495,6 @@ async function realizarBusqueda() {
     const texto = (document.getElementById('rdBuscar').value || '').trim();
     const pais = document.getElementById('rdPaisSelect').value || '';
 
-    // Si no hay criterio ni país, no llamamos a la API
     if (!texto && !pais) {
         cont._estaciones = null;
         cont.innerHTML = `
