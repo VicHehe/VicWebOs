@@ -93,6 +93,17 @@ const RUTAS_HERRAMIENTAS = [
     espacio: 2,
     monedas: 5
 },
+        {
+        id: 'photo-shinny',
+        nombre: 'Photo Shinny',
+        icono: 'wand-2',
+        ruta: 'herramientas/photo-shinny/index.html',
+        descripcion: 'Edita tus fotos de la galería: filtros, recortes, rotación y más.',
+        categoria: 'Herramientas Prácticas',
+        esBase: false,
+        espacio: 4,
+        monedas: 40
+    },
     {
         id: 'dino',
         nombre: 'Mezosoic Run',
