@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="rd-widget">
+
+        <div class="rd-header">
+            <div class="rd-titulo">
+                <i data-lucide="radio"></i>
+                <span>Radio</span>
+            </div>
+            <button class="rd-btn-sintonizar" id="rdBtnSintonizar" title="Sintonizar emisora">
+                <i data-lucide="settings-2"></i>
+            </button>
+        </div>
+
+        <div class="rd-portada-wrap" id="rdPortadaWrap">
+            <div class="rd-portada" id="rdPortada">
+                <i data-lucide="radio"></i>
+            </div>
+            <div class="rd-ondas" id="rdOndas" hidden>
+                <span></span><span></span><span></span><span></span><span></span>
+            </div>
+        </div>
+
+        <div class="rd-info">
+            <div class="rd-nombre" id="rdNombre">Sin emisora</div>
+            <div class="rd-sub" id="rdSub">Pulsa el engranaje para sintonizar</div>
+        </div>
+
+        <div class="rd-volumen">
+            <button class="rd-vol-icon" id="rdVolIcon" title="Silenciar">
+                <i data-lucide="volume-2"></i>
+            </button>
+            <input type="range" id="rdVolumen" min="0" max="1" step="0.01" value="0.7">
+        </div>
+
+        <button class="rd-btn-play" id="rdBtnPlay" disabled>
+            <i data-lucide="play"></i>
+            <span id="rdBtnPlayTexto">Reproducir</span>
+        </button>
+
+    </div>
+
+    <!-- MODAL: sintonizar (FULLSCREEN) -->
+    <div class="rd-modal" id="rdModal" hidden>
+        <div class="rd-modal-card">
+
+            <div class="rd-modal-header">
+                <h3>Sintonizar</h3>
+                <button class="rd-modal-cerrar" id="rdModalCerrar"><i data-lucide="x"></i></button>
+            </div>
+
+            <div class="rd-tabs">
+                <button class="rd-tab active" data-tab="buscar">
+                    <i data-lucide="search"></i>
+                    <span>Buscar</span>
+                </button>
+                <button class="rd-tab" data-tab="favoritos">
+                    <i data-lucide="heart"></i>
+                    <span>Favoritos</span>
+                    <span class="rd-tab-count" id="rdFavCount">0</span>
+                </button>
+            </div>
+
+            <div class="rd-panel active" data-panel="buscar">
+                <div class="rd-filtros">
+                    <div class="rd-buscar-wrap">
+                        <i data-lucide="search" class="rd-buscar-icono"></i>
+                        <input type="text" class="rd-buscar" id="rdBuscar" placeholder="Buscar emisora por nombre..." autocomplete="off">
+                        <button class="rd-buscar-clear" id="rdBuscarClear" hidden title="Limpiar">
+                            <i data-lucide="x"></i>
+                        </button>
+                    </div>
+                    <select class="rd-pais-select" id="rdPaisSelect">
+                        <option value="">Todos los países</option>
+                        <option value="CL">Chile</option>
+                        <option value="AR">Argentina</option>
+                        <option value="MX">México</option>
+                        <option value="CO">Colombia</option>
+                        <option value="PE">Perú</option>
+                        <option value="VE">Venezuela</option>
+                        <option value="ES">España</option>
+                        <option value="US">EE.UU.</option>
+                    </select>
+                </div>
+                <div class="rd-lista" id="rdListaBuscar">
+                    <div class="rd-cargando">
+                        <div class="rd-spinner"></div>
+                        <span>Cargando emisoras...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rd-panel" data-panel="favoritos">
+                <div class="rd-lista" id="rdListaFavoritos"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <audio id="rdAudio" preload="none" crossorigin="anonymous"></audio>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
