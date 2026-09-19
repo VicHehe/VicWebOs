@@ -71,6 +71,17 @@ const RUTAS_HERRAMIENTAS = [
     monedas: 0
 },
     {
+    id: 'qr',
+    nombre: 'Generador QR',
+    icono: 'qr-code',
+    ruta: 'herramientas/qr/index.html',
+    descripcion: 'Convierte texto o URLs en códigos QR descargables en PNG.',
+    categoria: 'Herramientas Prácticas',
+    esBase: false,
+    espacio: 2,
+    monedas: 5
+},
+    {
         id: 'dino',
         nombre: 'Dino',
         icono: 'gamepad-2',
