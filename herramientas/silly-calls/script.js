@@ -3,8 +3,8 @@
 //  ------------------------------------------------------------
 //  Usa PeerJS (CDN) para WebRTC.
 //  No guarda ningún dato: no toca ConfigBD, no usa IndexedDB.
-//  Solo hereda el tema del padre y usa el nombre del usuario
-//  para el chat.
+//  Solo hereda el tema del padre y usa el nombre + foto del
+//  usuario para el chat y el avatar de la sidebar.
 // ============================================================
 
 'use strict';
@@ -59,6 +59,10 @@ let pinnedPeerId     = null;
 // --- Volúmenes individuales ---
 const volumes = {};
 const volumeSliders = {};
+
+// --- Fotos de perfil ---
+const participantFotos = {};  // peerId -> base64
+let miFoto = null;            // foto del usuario actual (base64)
 
 // --- Audio pantalla ---
 let originalAudioTrack   = null;
@@ -149,6 +153,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     const api = API();
     usuarioActual = api?.obtenerCuenta?.() || null;
 
+    // Cargar mi foto de perfil desde cuenta.json
+    if (usuarioActual?.codigo) {
+        try {
+            const bd = window.parent.ConfigBD;
+            if (bd) {
+                const cuentas = await bd.leerArchivoFresh('cuenta.json');
+                if (Array.isArray(cuentas)) {
+                    const yo = cuentas.find(c => c.codigo === usuarioActual.codigo);
+                    if (yo && yo.foto) miFoto = yo.foto;
+                }
+            }
+        } catch (e) { /* silencioso */ }
+    }
+
     roomInput.value = usuarioActual?.codigo || 'sillyroom';
 
     btnJoin.addEventListener('click', iniciarLlamada);
@@ -226,13 +244,19 @@ function actualizarSidebar() {
     for (const id in participants) {
         const esLocal = id === myPeerId;
         const nombre  = participantNames[id] || id;
+        const foto    = participantFotos[id];
+
         const item = document.createElement('div');
         item.className = 'participant-item';
+
+        const avatarHTML = foto
+            ? `<img src="${foto}" alt="">`
+            : `<i data-lucide="user"></i>`;
 
         const row = document.createElement('div');
         row.className = 'participant-row';
         row.innerHTML = `
-            <div class="participant-avatar"><i data-lucide="user"></i></div>
+            <div class="participant-avatar">${avatarHTML}</div>
             <span class="participant-name">${esc(nombre)}${esLocal ? ' (tú)' : ''}</span>
             <span class="participant-icons">${esLocal && mutedAudio ? '<i data-lucide="mic-off"></i>' : ''}</span>
         `;
@@ -311,6 +335,7 @@ async function iniciarLlamada() {
     const miNombre = usuarioActual?.nombre || 'Yo';
     myPeerId = isHost ? roomId : ('guest_' + Date.now() + '_' + Math.random().toString(36).substr(2,4));
     participantNames[myPeerId] = miNombre;
+    if (miFoto) participantFotos[myPeerId] = miFoto;
 
     try { peer = new Peer(myPeerId, { debug: 1 }); }
     catch (err) { mostrarMensaje('Error al crear Peer: ' + err.message, 'error'); return; }
@@ -322,7 +347,7 @@ async function iniciarLlamada() {
             const conn = peer.connect(roomId);
             dataConnections[roomId] = conn;
             conn.on('open', () => {
-                conn.send({ type: 'join', peerId: myPeerId, nombre: miNombre });
+                conn.send({ type: 'join', peerId: myPeerId, nombre: miNombre, foto: miFoto });
             });
             conn.on('data', data => manejarData(data, conn));
             conn.on('error', () => { mostrarMensaje('No se pudo conectar al anfitrión.', 'error'); colgarLlamada(); });
@@ -359,19 +384,24 @@ function manejarConexionEntrante(conn) {
     conn.on('data', data => {
         if (data.type === 'join') {
             participantNames[data.peerId] = data.nombre || data.peerId;
+            if (data.foto) participantFotos[data.peerId] = data.foto;
+
             const lista = Object.keys(participants).map(id => ({
                 id: id,
                 nombre: participantNames[id] || id,
-                sharing: participants[id]?.sharingScreen || false
+                sharing: participants[id]?.sharingScreen || false,
+                foto: participantFotos[id] || null
             }));
             conn.send({ type: 'participants', participants: lista });
+
             for (const id in dataConnections) {
                 if (id !== data.peerId && dataConnections[id]?.open) {
                     try {
                         dataConnections[id].send({
                             type: 'new_participant',
                             peerId: data.peerId,
-                            nombre: data.nombre || data.peerId
+                            nombre: data.nombre || data.peerId,
+                            foto: data.foto || null
                         });
                     } catch (e) {}
                 }
@@ -392,6 +422,7 @@ function manejarData(data, conn) {
     if (data.type === 'participants') {
         data.participants.forEach(p => {
             participantNames[p.id] = p.nombre || p.id;
+            if (p.foto) participantFotos[p.id] = p.foto;
             if (p.id !== myPeerId && !participants[p.id]) {
                 iniciarLlamadaHacia(p.id);
                 if (p.sharing) {
@@ -402,6 +433,7 @@ function manejarData(data, conn) {
     }
     if (data.type === 'new_participant' && data.peerId !== myPeerId && !participants[data.peerId]) {
         participantNames[data.peerId] = data.nombre || data.peerId;
+        if (data.foto) participantFotos[data.peerId] = data.foto;
         iniciarLlamadaHacia(data.peerId);
     }
     if (data.type === 'chat')           agregarMensajeChat(data, false);
@@ -568,6 +600,7 @@ function eliminarParticipante(peerId) {
     delete participantNames[peerId];
     delete volumes[peerId];
     delete volumeSliders[peerId];
+    delete participantFotos[peerId];
     actualizarSidebar();
 
     if (videosGrid.children.length === 0) {
@@ -866,6 +899,10 @@ function colgarLlamada() {
     participants     = {};
     dataConnections  = {};
     participantNames = {};
+
+    // Limpiar fotos (mantener la mía para la próxima llamada)
+    for (const k in participantFotos) delete participantFotos[k];
+    if (miFoto && myPeerId) participantFotos[myPeerId] = miFoto;
 
     if (isSharingScreen) {
         detenerCompartirPantalla();
