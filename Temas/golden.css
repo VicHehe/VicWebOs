@@ -1,0 +1,26 @@
+/* ================================================
+   Tema: Golden
+   Recolor simple, dorado y amarillo cálido.
+   ================================================ */
+
+:root {
+    --violet-50:  #FFFBEB;
+    --violet-100: #FEF3C7;
+    --violet-200: #FDE68A;
+    --violet-300: #FCD34D;
+    --violet-400: #FBBF24;
+    --violet-500: #F59E0B;
+    --violet-600: #D97706;
+    --violet-700: #B45309;
+
+    --bg:     #FFFDF5;
+    --bg-alt: #FFF9E6;
+
+    --shadow-glow: 0 0 0 4px rgba(245, 158, 11, 0.12);
+
+    --accent-gradient: linear-gradient(135deg, #F59E0B, #B45309);
+    --accent-gradient-hover: linear-gradient(135deg, #F59E0B, #D97706);
+    --accent-shadow: rgba(245, 158, 11, 0.28);
+    --accent-shadow-hover: rgba(245, 158, 11, 0.38);
+    --accent-text-gradient: linear-gradient(135deg, var(--gray-900), #D97706);
+}
