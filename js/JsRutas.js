@@ -157,6 +157,6 @@ const RUTAS_HERRAMIENTAS = [
         categoria: 'Creatividad',
         esBase: false,
         espacio: 10,
-        monedas: 100
+        monedas: 120
     },
 ];
