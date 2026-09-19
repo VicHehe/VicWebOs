@@ -259,23 +259,23 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
-        id: 'ventanas',
-        nombre: 'Ventanas',
-        icono: 'app-window',
-        descripcion: 'Windows de marca blanca. Azul Fluent, esquinas suaves y un toque de chrome.',
-        categoria: 'Comprables',
-        ruta: 'Temas/ventanas.css',
-        espacio: 4,
-        monedas: 15,
-        colores: {
-            '--violet-100': '#D6E8F7',
-            '--violet-300': '#7FB8E6',
-            '--violet-500': '#0078D4',
-            '--bg':         '#F3F3F3',
-            '--bg-alt':     '#EAEAEA',
-            '--white':      '#FFFFFF'
-        }
-    },
+    id: 'ventanas',
+    nombre: 'Ventanas',
+    icono: 'app-window',
+    descripcion: 'Windows de barrio. Azul Fluent, esquinas suaves y chrome de ventana.',
+    categoria: 'Comprables',
+    ruta: 'Temas/ventanas.css',
+    espacio: 4,
+    monedas: 15,
+    colores: {
+        '--violet-100': '#D6E8F7',
+        '--violet-300': '#7FB8E6',
+        '--violet-500': '#0078D4',
+        '--bg':         '#F3F3F3',
+        '--bg-alt':     '#EAEAEA',
+        '--white':      '#FFFFFF'
+    }
+}
     {
         id: 'celeste',
         nombre: 'Celeste Nublado',
