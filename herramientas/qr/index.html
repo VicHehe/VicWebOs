@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Generador QR</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+</head>
+<body>
+
+    <div class="qr-container">
+
+        <header class="qr-header">
+            <div class="qr-logo">
+                <div class="qr-logo-mark">
+                    <i data-lucide="qr-code"></i>
+                </div>
+                <div class="qr-logo-text">
+                    <h1>Generador QR</h1>
+                    <p id="qrUserBadge">—</p>
+                </div>
+            </div>
+        </header>
+
+        <main class="qr-main">
+
+            <!-- Columna izquierda: input -->
+            <section class="qr-panel qr-panel-input">
+                <label class="qr-label" for="qrTexto">
+                    <i data-lucide="type"></i>
+                    <span>Contenido</span>
+                </label>
+                <textarea id="qrTexto" class="qr-textarea"
+                          placeholder="Escribe una URL, un texto, un número de teléfono, un correo, WiFi, lo que sea..."
+                          spellcheck="false"></textarea>
+                <div class="qr-meta">
+                    <span class="qr-meta-info">
+                        <i data-lucide="text-cursor-input"></i>
+                        <span id="qrContador">0 caracteres</span>
+                    </span>
+                    <div class="qr-tamano">
+                        <label for="qrTamano">Tamaño:</label>
+                        <select id="qrTamano">
+                            <option value="256">256</option>
+                            <option value="384" selected>384</option>
+                            <option value="512">512</option>
+                            <option value="768">768</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Columna derecha: preview -->
+            <section class="qr-panel qr-panel-preview">
+                <div class="qr-preview-wrap" id="qrPreviewWrap">
+                    <canvas id="qrCanvas"></canvas>
+                    <div class="qr-preview-vacio" id="qrVacio">
+                        <i data-lucide="qr-code"></i>
+                        <p>El código aparecerá aquí</p>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="qr-acciones">
+            <button class="qr-btn qr-btn-sec" id="btnCopiar" disabled>
+                <i data-lucide="copy"></i>
+                <span>Copiar contenido</span>
+            </button>
+            <button class="qr-btn qr-btn-sec" id="btnLimpiar" disabled>
+                <i data-lucide="eraser"></i>
+                <span>Limpiar</span>
+            </button>
+            <button class="qr-btn qr-btn-pri" id="btnDescargar" disabled>
+                <i data-lucide="download"></i>
+                <span>Descargar PNG</span>
+            </button>
+        </footer>
+
+    </div>
+
+    <div class="qr-toast" id="qrToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
