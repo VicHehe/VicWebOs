@@ -1,6 +1,7 @@
 /* ================================================
    Tema: Chiptune
-   Paleta Game Boy + glitch sutil. Actitud 8-bit.
+   Paleta Game Boy + glitch sutil + lobby verdoso.
+   Actitud 8-bit en toda la interfaz.
    ================================================ */
 
 :root {
@@ -68,6 +69,37 @@ body::before {
 }
 
 /* ------------------------------------------------------------
+   Lobby verdoso con patrón de píxeles sutil
+   ------------------------------------------------------------ */
+.welcome-placeholder {
+    background: linear-gradient(
+        180deg,
+        #E0EAA0 0%,
+        #D4E0A0 100%
+    );
+    position: relative;
+}
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+    background-image: radial-gradient(
+        circle,
+        rgba(15, 56, 15, 0.10) 1px,
+        transparent 1.5px
+    );
+    background-size: 8px 8px;
+}
+.welcome-hero,
+.welcome-section {
+    position: relative;
+    z-index: 1;
+}
+
+/* ------------------------------------------------------------
    Glitch sutil en el título del welcome
    ------------------------------------------------------------ */
 .welcome-hero h1 {
@@ -94,7 +126,7 @@ body::before {
 }
 
 /* ------------------------------------------------------------
-   Aire pixelado: esquinas duras en cards y accesos
+   Esquinas duras: look 8-bit
    ------------------------------------------------------------ */
 .acceso-item {
     border-radius: 0;
