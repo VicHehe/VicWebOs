@@ -30,38 +30,35 @@
             </div>
         </header>
 
-        <main class="tr-main">
-
-            <div class="tr-info" id="trInfo">
-                <div class="tr-info-turno" id="trInfoTurno">
-                    <i data-lucide="circle-dot"></i>
-                    <span>Tu turno</span>
-                </div>
-                <div class="tr-info-nivel" id="trInfoNivel" title="Dificultad actual">
-                    <i data-lucide="cpu"></i>
-                    <span>Nivel 1</span>
-                </div>
+        <div class="tr-info">
+            <div class="tr-info-chip tr-info-turno" id="trInfoTurno">
+                <i data-lucide="circle-dot"></i>
+                <span>Tu turno</span>
             </div>
-
-            <div class="tr-tablero" id="trTablero">
-                <button class="tr-celda" data-idx="0"></button>
-                <button class="tr-celda" data-idx="1"></button>
-                <button class="tr-celda" data-idx="2"></button>
-                <button class="tr-celda" data-idx="3"></button>
-                <button class="tr-celda" data-idx="4"></button>
-                <button class="tr-celda" data-idx="5"></button>
-                <button class="tr-celda" data-idx="6"></button>
-                <button class="tr-celda" data-idx="7"></button>
-                <button class="tr-celda" data-idx="8"></button>
+            <div class="tr-info-chip tr-info-nivel" id="trInfoNivel" title="Dificultad actual">
+                <i data-lucide="cpu"></i>
+                <span>Nivel 1</span>
+                <em id="trInfoNivelProgreso">1/3</em>
             </div>
+        </div>
 
-            <div class="tr-resultado" id="trResultado" hidden></div>
+        <div class="tr-tablero" id="trTablero">
+            <button class="tr-celda" data-idx="0"></button>
+            <button class="tr-celda" data-idx="1"></button>
+            <button class="tr-celda" data-idx="2"></button>
+            <button class="tr-celda" data-idx="3"></button>
+            <button class="tr-celda" data-idx="4"></button>
+            <button class="tr-celda" data-idx="5"></button>
+            <button class="tr-celda" data-idx="6"></button>
+            <button class="tr-celda" data-idx="7"></button>
+            <button class="tr-celda" data-idx="8"></button>
+        </div>
 
-        </main>
+        <div class="tr-resultado" id="trResultado" hidden></div>
 
         <div class="tr-stats">
             <div class="tr-stat">
-                <span class="tr-stat-label">Racha actual</span>
+                <span class="tr-stat-label">Racha</span>
                 <span class="tr-stat-valor" id="trStatRacha">0</span>
             </div>
             <div class="tr-stat">
@@ -78,7 +75,7 @@
             </div>
         </div>
 
-        <footer class="tr-acciones">
+        <div class="tr-acciones">
             <button class="tr-btn tr-btn-sec" id="btnResetear" title="Reiniciar todo el progreso">
                 <i data-lucide="rotate-ccw"></i>
                 <span>Resetear progreso</span>
@@ -87,7 +84,7 @@
                 <i data-lucide="plus"></i>
                 <span>Nueva partida</span>
             </button>
-        </footer>
+        </div>
 
     </div>
 
