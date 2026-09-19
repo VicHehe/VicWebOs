@@ -5,6 +5,9 @@
 //  - 2 monedas base por victoria, con multiplicador por racha
 //  - Persistencia en IndexedDB PROPIO del iframe
 //  - Auto-reinicio 1.8s después de terminar la partida
+//  - Watchdog: si la CPU no juega en 2s, la forzamos
+//
+//  Flujo SÍNCRONO (excepto dar monedas, que es fire-and-forget).
 // ============================================================
 
 'use strict';
@@ -13,6 +16,7 @@ const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const APP_ID = 'tres-en-raya';
 const MONEDAS_BASE = 2;
 const AUTO_RESET_MS = 1800;
+const WATCHDOG_MS = 2000;
 const IDB_NAME = 'TresEnRayaDB';
 const IDB_VERSION = 1;
 const IDB_STORE = 'estado';
@@ -40,6 +44,8 @@ let monedasGanadas = 0;
 let nivelAnterior = 1;
 let toastTimeout = null;
 let autoResetTimeout = null;
+let cpuDelayTimeout = null;
+let watchdogTimeout = null;
 let usuarioActual = null;
 
 const API = () => window.parent.__vicwebos || null;
@@ -146,10 +152,11 @@ async function cargarEstado() {
     monedasGanadas = Number.isFinite(data.monedasGanadas) ? data.monedasGanadas : 0;
 }
 
-async function guardarEstado() {
+function guardarEstado() {
     const key = claveEstado();
     if (!key) return;
-    await idbSet(key, {
+    // Fire-and-forget, no bloquea el flujo
+    idbSet(key, {
         racha, record, ganadas, perdidas, empates, monedasGanadas,
         actualizado: new Date().toISOString()
     });
@@ -183,20 +190,22 @@ function multiplicadorRecompensa() {
 // ============================================================
 //  LÓGICA DEL JUEGO
 // ============================================================
-function limpiarTablero() {
-    // Cancelar cualquier auto-reset pendiente
-    if (autoResetTimeout) {
-        clearTimeout(autoResetTimeout);
-        autoResetTimeout = null;
-    }
+function cancelarTimeouts() {
+    if (autoResetTimeout) { clearTimeout(autoResetTimeout); autoResetTimeout = null; }
+    if (cpuDelayTimeout)  { clearTimeout(cpuDelayTimeout);  cpuDelayTimeout = null; }
+    if (watchdogTimeout)  { clearTimeout(watchdogTimeout);  watchdogTimeout = null; }
+}
 
+function limpiarTablero() {
+    cancelarTimeouts();
     tablero = Array(9).fill(null);
     turno = YO;
     partidaTerminada = false;
     bloqueado = false;
     renderTablero();
     actualizarTurnoUI();
-    document.getElementById('trResultado').hidden = true;
+    const r = document.getElementById('trResultado');
+    if (r) r.hidden = true;
 }
 
 function esMovimientoValido(t, i) {
@@ -224,15 +233,19 @@ function celdasVacias(t) {
 // ============================================================
 function cpuNivel1(t) {
     const v = celdasVacias(t);
+    if (v.length === 0) return -1;
     return v[Math.floor(Math.random() * v.length)];
 }
 
 function cpuNivel2(t) {
-    for (const i of celdasVacias(t)) {
+    const vacias = celdasVacias(t);
+    if (vacias.length === 0) return -1;
+
+    for (const i of vacias) {
         const c = t.slice(); c[i] = CPU;
         if (obtenerGanador(c)?.ganador === CPU) return i;
     }
-    for (const i of celdasVacias(t)) {
+    for (const i of vacias) {
         const c = t.slice(); c[i] = YO;
         if (obtenerGanador(c)?.ganador === YO) return i;
     }
@@ -241,11 +254,14 @@ function cpuNivel2(t) {
 }
 
 function cpuNivel3(t) {
-    for (const i of celdasVacias(t)) {
+    const vacias = celdasVacias(t);
+    if (vacias.length === 0) return -1;
+
+    for (const i of vacias) {
         const c = t.slice(); c[i] = CPU;
         if (obtenerGanador(c)?.ganador === CPU) return i;
     }
-    for (const i of celdasVacias(t)) {
+    for (const i of vacias) {
         const c = t.slice(); c[i] = YO;
         if (obtenerGanador(c)?.ganador === YO) return i;
     }
@@ -258,9 +274,12 @@ function cpuNivel3(t) {
 }
 
 function cpuNivel4(t) {
+    const vacias = celdasVacias(t);
+    if (vacias.length === 0) return -1;
+
     let mejorScore = -Infinity;
-    let mejorJugada = null;
-    for (const i of celdasVacias(t)) {
+    let mejorJugada = -1;
+    for (const i of vacias) {
         const c = t.slice(); c[i] = CPU;
         const score = minimax(c, false, 0);
         if (score > mejorScore) { mejorScore = score; mejorJugada = i; }
@@ -275,16 +294,17 @@ function minimax(t, esTurnoCPU, prof) {
         if (r.ganador === YO) return prof - 10;
         return 0;
     }
+    const vacias = celdasVacias(t);
     if (esTurnoCPU) {
         let mejor = -Infinity;
-        for (const i of celdasVacias(t)) {
+        for (const i of vacias) {
             const c = t.slice(); c[i] = CPU;
             mejor = Math.max(mejor, minimax(c, false, prof + 1));
         }
         return mejor;
     } else {
         let mejor = Infinity;
-        for (const i of celdasVacias(t)) {
+        for (const i of vacias) {
             const c = t.slice(); c[i] = YO;
             mejor = Math.min(mejor, minimax(c, true, prof + 1));
         }
@@ -294,17 +314,24 @@ function minimax(t, esTurnoCPU, prof) {
 
 function elegirJugadaCPU() {
     const n = nivelDificultad();
-    if (n === 1) return cpuNivel1(tablero);
-    if (n === 2) return cpuNivel2(tablero);
-    if (n === 3) return cpuNivel3(tablero);
-    return cpuNivel4(tablero);
+    try {
+        if (n === 1) return cpuNivel1(tablero);
+        if (n === 2) return cpuNivel2(tablero);
+        if (n === 3) return cpuNivel3(tablero);
+        return cpuNivel4(tablero);
+    } catch (e) {
+        console.error('[Tres en Raya] Error eligiendo jugada:', e);
+        // Fallback: cualquier celda vacía
+        const vacias = celdasVacias(tablero);
+        return vacias.length ? vacias[0] : -1;
+    }
 }
 
 // ============================================================
-//  FLUJO DE PARTIDA
+//  FLUJO DE PARTIDA — 100% síncrono excepto otorgar monedas
 // ============================================================
-async function jugarCelda(idx) {
-    // Si la partida terminó, un click en cualquier celda acelera el auto-reset
+function jugarCelda(idx) {
+    // Si la partida terminó, un click acelera el auto-reset
     if (partidaTerminada) {
         limpiarTablero();
         actualizarNivelUI();
@@ -315,34 +342,83 @@ async function jugarCelda(idx) {
     if (turno !== YO) return;
     if (!esMovimientoValido(tablero, idx)) return;
 
+    // Turno del jugador
     tablero[idx] = YO;
     renderTablero();
+
     const resultado = obtenerGanador(tablero);
-    if (resultado) { await finalizarPartida(resultado); return; }
+    if (resultado) {
+        finalizarPartida(resultado);
+        return;
+    }
 
-    turno = CPU;
-    actualizarTurnoUI();
-    bloqueado = true;
-
-    const delay = 250 + Math.random() * 300;
-    setTimeout(async () => {
-        const jugada = elegirJugadaCPU();
-        if (jugada !== null && jugada !== undefined) {
-            tablero[jugada] = CPU;
-            renderTablero();
-        }
-        const resultadoCPU = obtenerGanador(tablero);
-        if (resultadoCPU) {
-            await finalizarPartida(resultadoCPU);
-        } else {
-            turno = YO;
-            actualizarTurnoUI();
-            bloqueado = false;
-        }
-    }, delay);
+    // Programar turno de la CPU
+    programarTurnoCPU();
 }
 
-async function finalizarPartida(resultado) {
+function programarTurnoCPU() {
+    cancelarTimeouts();
+    turno = CPU;
+    bloqueado = true;
+    actualizarTurnoUI();
+    renderTablero();   // re-render con bloqueado=true
+
+    const delay = 250 + Math.random() * 300;
+
+    cpuDelayTimeout = setTimeout(() => {
+        cpuDelayTimeout = null;
+        ejecutarTurnoCPU();
+    }, delay);
+
+    // Watchdog: si en WATCHDOG_MS no se ejecutó, lo forzamos
+    watchdogTimeout = setTimeout(() => {
+        watchdogTimeout = null;
+        if (cpuDelayTimeout) {
+            console.warn('[Tres en Raya] Watchdog disparado');
+            clearTimeout(cpuDelayTimeout);
+            cpuDelayTimeout = null;
+            ejecutarTurnoCPU();
+        }
+    }, WATCHDOG_MS);
+}
+
+function ejecutarTurnoCPU() {
+    // Guardas
+    if (partidaTerminada) return;
+    if (turno !== CPU) return;
+
+    // Cancelar el watchdog si seguía vivo
+    if (watchdogTimeout) {
+        clearTimeout(watchdogTimeout);
+        watchdogTimeout = null;
+    }
+
+    try {
+        const jugada = elegirJugadaCPU();
+        if (jugada >= 0 && jugada < 9 && tablero[jugada] === null) {
+            tablero[jugada] = CPU;
+            renderTablero();
+        } else {
+            console.warn('[Tres en Raya] CPU devolvió jugada inválida:', jugada);
+        }
+    } catch (e) {
+        console.error('[Tres en Raya] Error en turno CPU:', e);
+    }
+
+    const resultado = obtenerGanador(tablero);
+    if (resultado) {
+        finalizarPartida(resultado);
+        return;
+    }
+
+    // Devolver el turno al jugador
+    turno = YO;
+    bloqueado = false;
+    actualizarTurnoUI();
+    renderTablero();   // re-render con bloqueado=false
+}
+
+function finalizarPartida(resultado) {
     partidaTerminada = true;
     bloqueado = false;
 
@@ -366,16 +442,9 @@ async function finalizarPartida(resultado) {
             : `Ganaste · +${recompensa}`;
         icono = 'trophy';
 
-        try {
-            const api = API();
-            if (api && typeof api.canjear === 'function') {
-                const desc = mult > 1 ? `Victoria x${mult} (racha ${racha})` : 'Victoria';
-                await api.canjear('grid-3x3', APP_ID, desc, recompensa);
-                monedasGanadas += recompensa;
-            }
-        } catch (e) {
-            console.warn('[Tres en Raya] No se pudieron otorgar monedas:', e);
-        }
+        // Fire-and-forget: otorgar monedas no bloquea el flujo
+        otorgarMonedas(recompensa, mult);
+        monedasGanadas += recompensa;
     } else if (resultado.ganador === CPU) {
         tipo = 'perdiste';
         perdidas++;
@@ -384,7 +453,7 @@ async function finalizarPartida(resultado) {
         icono = 'x';
     }
 
-    // Resaltar línea ganadora
+    // Resaltar la línea ganadora (si la hay)
     if (resultado.linea) {
         resultado.linea.forEach(i => {
             const celda = document.querySelector(`.tr-celda[data-idx="${i}"]`);
@@ -392,11 +461,13 @@ async function finalizarPartida(resultado) {
         });
     }
 
-    // Mostrar resultado
-    resultadoEl.hidden = false;
-    resultadoEl.className = 'tr-resultado ' + tipo;
-    resultadoEl.innerHTML = `<i data-lucide="${icono}"></i><span>${texto}</span>`;
-    if (window.lucide) window.lucide.createIcons();
+    // Mostrar el chip de resultado
+    if (resultadoEl) {
+        resultadoEl.hidden = false;
+        resultadoEl.className = 'tr-resultado ' + tipo;
+        resultadoEl.innerHTML = `<i data-lucide="${icono}"></i><span>${texto}</span>`;
+        if (window.lucide) window.lucide.createIcons();
+    }
 
     // Detectar subida de nivel
     const nivelNuevo = nivelDificultad();
@@ -407,20 +478,30 @@ async function finalizarPartida(resultado) {
     }
     nivelAnterior = nivelNuevo;
 
-    // Turno chip: "Terminada"
+    // UI
     actualizarTurnoUI();
-
-    await guardarEstado();
     actualizarStatsUI();
     actualizarBadgeRacha();
     actualizarNivelUI();
+    renderTablero();   // re-render con partidaTerminada=true
 
-    // Auto-reset: 1.8s después de terminar, arranca nueva partida
+    guardarEstado();
+
+    // Auto-reset
     autoResetTimeout = setTimeout(() => {
         autoResetTimeout = null;
         limpiarTablero();
         actualizarNivelUI();
     }, AUTO_RESET_MS);
+}
+
+function otorgarMonedas(cantidad, mult) {
+    const api = API();
+    if (!api || typeof api.canjear !== 'function') return;
+    const desc = mult > 1 ? `Victoria x${mult} (racha ${racha})` : 'Victoria';
+    // Fire-and-forget: no await, no bloquea el flujo
+    Promise.resolve(api.canjear('grid-3x3', APP_ID, desc, cantidad))
+        .catch(e => console.warn('[Tres en Raya] No se pudieron dar monedas:', e));
 }
 
 // ============================================================
@@ -431,15 +512,13 @@ function renderTablero() {
         const idx = parseInt(celda.dataset.idx, 10);
         const valor = tablero[idx];
 
-        // IMPORTANTE: limpiar SIEMPRE las clases de estado antes de
-        // aplicar las correctas. Esto evita que queden restos visuales
-        // de la partida anterior.
+        // Resetear SIEMPRE todas las clases de estado
         celda.classList.remove('ocupada', 'deshabilitada', 'ganadora', 'perdedora');
 
-        celda.classList.toggle('ocupada', valor !== null);
-        celda.classList.toggle('deshabilitada', bloqueado || partidaTerminada);
+        if (valor !== null) celda.classList.add('ocupada');
+        if (bloqueado || partidaTerminada) celda.classList.add('deshabilitada');
 
-        // Limpiar contenido
+        // Limpiar el contenido
         celda.textContent = '';
 
         if (valor === YO) {
@@ -476,7 +555,8 @@ function actualizarNivelUI() {
     const em = document.getElementById('trInfoNivelProgreso');
     if (!el) return;
     const n = nivelDificultad();
-    el.querySelector('span').textContent = `Nivel ${n}`;
+    const span = el.querySelector('span');
+    if (span) span.textContent = `Nivel ${n}`;
     if (em) {
         const p = progresoNivel();
         em.textContent = n === 4 ? 'MÁX' : `${p.actual}/${p.meta}`;
@@ -539,6 +619,9 @@ async function inicializar() {
             jugarCelda(idx);
         });
     });
+
+    // Limpiar timeouts al cerrar (por si el iframe se desmonta)
+    window.addEventListener('pagehide', cancelarTimeouts);
 
     if (window.lucide) window.lucide.createIcons();
 }
