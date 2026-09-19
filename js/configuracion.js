@@ -1,5 +1,5 @@
 // ============================================================
-//  configuracion.js — Modal + navegación + Apps + Apariencia
+//  configuracion.js — Modal + navegación + Apps + Temas + Widgets
 // ============================================================
 
 const CONFIG_KEY = 'vicwebos_config';
@@ -40,8 +40,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const panel = document.querySelector(`.config-panel[data-panel="${seccion}"]`);
             if (panel) panel.classList.add('active');
 
-            if (seccion === 'apps')       renderAppsInstaladas();
-            if (seccion === 'apariencia') renderApariencia();
+            if (seccion === 'temas')   renderApariencia();
+            if (seccion === 'widgets') renderApariencia();
+            if (seccion === 'apps') {
+                renderAppsInstaladas();
+                renderApariencia();
+            }
             if (seccion === 'bd' && typeof window.__actualizarUIBD === 'function') window.__actualizarUIBD();
         });
     });
@@ -55,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="config-empty" style="padding: 30px 12px;">
                     <div class="config-empty-icon"><i data-lucide="database"></i></div>
                     <h4>Conecta GitHub primero</h4>
-                    <p>Ve a la pestaña "Base de datos" y conecta tu repositorio.</p>
+                    <p>Ve a la pestaña "Comunidades" y conecta tu repositorio.</p>
                 </div>`;
             lucide.createIcons();
             return;
@@ -113,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ---------- RENDER: APARIENCIA ----------
+    // ---------- RENDER: TEMAS + WIDGETS + ACCESOS ----------
     function renderApariencia() {
         const temasCont   = document.getElementById('configTemasLista');
         const widgetsCont = document.getElementById('configWidgetsLista');
@@ -225,13 +229,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // --- Accesos rápidos ---
+        // --- Accesos rápidos (Apps destacadas) ---
         if (accesosCont) {
             const catalogo = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
             const instaladas = obtenerAppsInstaladas();
             const activos = obtenerAccesosRapidos();
 
-            // Mostrar TODAS las apps instaladas, con checkbox
             if (instaladas.length === 0) {
                 accesosCont.innerHTML = `<p class="config-ayuda">No tienes apps instaladas. Abre Stor-He.</p>`;
             } else {
@@ -263,11 +266,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             } else {
                                 await desactivarAccesoRapido(id);
                             }
-                            // Refrescar el welcome si está visible
                             if (typeof renderAccesosRapidos === 'function') renderAccesosRapidos();
-                            // Actualizar visual de la label
                             cb.closest('.config-checkbox-label').classList.toggle('activo', cb.checked);
-                            if (footerMsg) footerMsg.textContent = '✅ Accesos rápidos actualizados';
+                            if (footerMsg) footerMsg.textContent = '✅ Apps destacadas actualizadas';
                         } catch (err) {
                             cb.checked = !cb.checked;
                             alert('❌ ' + err.message);
