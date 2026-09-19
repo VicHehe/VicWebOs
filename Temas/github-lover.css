@@ -1,24 +1,24 @@
 /* ================================================
    Tema: Github Lover
-   Una carta de amor a GitHub. Paleta oficial.
-   Sencillo, directo, honesto.
+   Una carta de amor a GitHub. Paleta oficial
+   (azul + verde contribution graph).
    ================================================ */
 
 :root {
-    /* Acento azul GitHub */
-    --violet-50:  #DDF4FF;
-    --violet-100: #DDF4FF;
-    --violet-200: #B6E3FF;
-    --violet-300: #80CCFF;
-    --violet-400: #54AEFF;
-    --violet-500: #0969DA;
-    --violet-600: #0550AE;
-    --violet-700: #033D8B;
+    /* Acento azul GitHub — sin duplicados */
+    --violet-50:  #DDF4FF;   /* azul más claro (subtle bg) */
+    --violet-100: #B6E3FF;   /* azul claro */
+    --violet-200: #80CCFF;   /* azul medio-claro */
+    --violet-300: #54AEFF;   /* azul medio */
+    --violet-400: #218BFF;   /* azul un poco más saturado */
+    --violet-500: #0969DA;   /* azul GitHub accent */
+    --violet-600: #0550AE;   /* azul accent pressed */
+    --violet-700: #033D8B;   /* azul accent dark */
 
     /* Neutros GitHub */
     --white:   #FFFFFF;
     --bg:      #FFFFFF;
-    --bg-alt:  #F6F8FA;
+    --bg-alt:  #F6F8FA;      /* gris header/sidebar GitHub */
     --gray-50:  #F6F8FA;
     --gray-100: #EAEEF2;
     --gray-200: #D0D7DE;
@@ -52,4 +52,74 @@
     --r-md: 6px;
     --r-lg: 8px;
     --r-xl: 12px;
+
+    /* Verde contribution graph de GitHub */
+    --gh-green: #2DA44E;
+    --gh-green-soft: #DAFBE1;
+}
+
+/* ------------------------------------------------------------
+   Header con el gris característico de GitHub
+   ------------------------------------------------------------ */
+.app-header {
+    background: var(--bg-alt);
+    border-bottom: 1px solid var(--border);
+    box-shadow: none;
+}
+
+/* ------------------------------------------------------------
+   Welcome: patrón contribution graph sutil (cuadraditos verdes)
+   ------------------------------------------------------------ */
+.welcome-placeholder {
+    position: relative;
+    background: var(--white);
+}
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.55;
+    background-image:
+        linear-gradient(90deg, var(--gh-green) 5px, transparent 5px),
+        linear-gradient(0deg, var(--gh-green) 5px, transparent 5px);
+    background-size: 14px 14px;
+    background-position: 4px 4px;
+    /* fade vertical para que se sienta sutil arriba */
+    -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.08) 40%, transparent 75%);
+    mask-image: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.08) 40%, transparent 75%);
+}
+.welcome-hero,
+.welcome-section {
+    position: relative;
+    z-index: 1;
+}
+
+/* ------------------------------------------------------------
+   Modales: línea azul superior tipo "PR merged"
+   ------------------------------------------------------------ */
+.config-card,
+.modal-todas-card {
+    position: relative;
+    overflow: hidden;
+}
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #0969DA, #2DA44E, #0969DA);
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* ------------------------------------------------------------
+   Pestañas: active con borde superior azul
+   ------------------------------------------------------------ */
+.tab-item.active {
+    border-top: 2px solid #0969DA;
 }
