@@ -264,13 +264,17 @@ body {
 .tr-marca-x { color: var(--violet-500, #8B5CF6); }
 .tr-celda.ganadora .tr-marca-x { color: #059669; }
 
-/* --- O: anillo con radial-gradient (sin border, a prueba de balas) --- */
+/* --- O: anillo con radial-gradient ---
+   IMPORTANTE: "closest-side" es obligatorio. Sin él, el gradiente
+   usa farthest-corner y el 100% cae en la esquina, así que la
+   parada del 74% queda FUERA del cuadrado y solo se ven las
+   esquinas (recortadas por border-radius) → anillo invisible. */
 .tr-marca-o {
     width: 60%;
     aspect-ratio: 1 / 1;
     border-radius: 50%;
     background: radial-gradient(
-        circle,
+        circle closest-side,
         transparent 0 74%,
         currentColor 74% 100%
     );
