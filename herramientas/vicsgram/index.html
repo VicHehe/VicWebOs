@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>VicsGram</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="vg-container">
+
+        <!-- HEADER -->
+        <header class="vg-header">
+            <div class="vg-logo">
+                <div class="vg-logo-mark">
+                    <i data-lucide="camera"></i>
+                </div>
+                <div class="vg-logo-text">
+                    <h1>VicsGram</h1>
+                    <p id="vgUserBadge">—</p>
+                </div>
+            </div>
+
+            <button class="vg-btn-nuevo" id="vgBtnNuevo">
+                <i data-lucide="plus"></i>
+                <span>Nuevo post</span>
+            </button>
+        </header>
+
+        <!-- TABS -->
+        <div class="vg-tabs">
+            <button class="vg-tab active" data-tab="todos">
+                <i data-lucide="layout-grid"></i>
+                <span>Todos</span>
+            </button>
+            <button class="vg-tab" data-tab="mios">
+                <i data-lucide="user"></i>
+                <span>Mis posts</span>
+                <span class="vg-tab-count" id="vgCountMios">0</span>
+            </button>
+        </div>
+
+        <!-- FEED -->
+        <main class="vg-main">
+            <div class="vg-feed" id="vgFeed"></div>
+
+            <div class="vg-empty" id="vgEmpty" hidden>
+                <div class="vg-empty-icon">
+                    <i data-lucide="camera"></i>
+                </div>
+                <h3 id="vgEmptyTitulo">Aún no hay publicaciones</h3>
+                <p id="vgEmptyDesc">Sé el primero en compartir algo con la comunidad.</p>
+                <button class="vg-empty-btn" id="vgEmptyBtnNuevo">
+                    <i data-lucide="plus"></i>
+                    Crear primer post
+                </button>
+            </div>
+
+            <button class="vg-cargar-mas" id="vgCargarMas" hidden>
+                <i data-lucide="chevrons-down"></i>
+                <span>Cargar más</span>
+            </button>
+        </main>
+
+    </div>
+
+    <!-- MODAL CREAR / EDITAR POST -->
+    <div class="vg-modal" id="vgModalEditor" hidden>
+        <div class="vg-modal-card">
+            <div class="vg-modal-header">
+                <h2>
+                    <i data-lucide="camera"></i>
+                    <span id="vgEditorTitulo">Nuevo post</span>
+                </h2>
+                <button class="vg-modal-cerrar" id="vgEditorCerrar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
+            <div class="vg-modal-body">
+                <!-- Imagen -->
+                <div class="vg-editor-imagen-wrap" id="vgEditorImagenWrap">
+                    <div class="vg-editor-imagen-vacia" id="vgEditorImagenVacia">
+                        <i data-lucide="image-plus"></i>
+                        <p>Elegí una foto de tu galería</p>
+                        <button class="vg-btn-secundario" id="vgBtnElegirImagen">
+                            <i data-lucide="images"></i>
+                            Elegir imagen
+                        </button>
+                    </div>
+                    <img id="vgEditorImagenPreview" alt="">
+                    <button class="vg-editor-imagen-cambiar" id="vgBtnCambiarImagen" hidden>
+                        <i data-lucide="refresh-cw"></i>
+                        Cambiar imagen
+                    </button>
+                </div>
+
+                <!-- Descripción -->
+                <div class="vg-editor-campo">
+                    <label>
+                        Descripción
+                        <span class="vg-editor-contador" id="vgEditorContador">0 / 150</span>
+                    </label>
+                    <textarea id="vgEditorDescripcion"
+                              maxlength="150"
+                              rows="3"
+                              placeholder="Contá algo sobre tu foto..."></textarea>
+                </div>
+
+                <div id="vgEditorMensaje" class="vg-modal-mensaje"></div>
+            </div>
+
+            <div class="vg-modal-actions">
+                <button class="vg-btn-secundario" id="vgEditorCancelar">Cancelar</button>
+                <button class="vg-btn-primario" id="vgEditorGuardar">
+                    <i data-lucide="check"></i>
+                    <span id="vgEditorGuardarTexto">Publicar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL VER POST -->
+    <div class="vg-modal" id="vgModalVer" hidden>
+        <div class="vg-modal-card vg-modal-card-grande">
+            <div class="vg-modal-header vg-modal-header-minimal">
+                <button class="vg-modal-cerrar" id="vgVerCerrar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
+            <div class="vg-ver-body">
+                <!-- Imagen grande -->
+                <div class="vg-ver-imagen-wrap">
+                    <img id="vgVerImagen" alt="">
+                </div>
+
+                <!-- Info + comentarios -->
+                <div class="vg-ver-panel">
+                    <!-- Cabecera del autor -->
+                    <div class="vg-ver-autor" id="vgVerAutor">
+                        <div class="vg-avatar vg-ver-autor-avatar" id="vgVerAutorAvatar">
+                            <i data-lucide="user"></i>
+                        </div>
+                        <div class="vg-ver-autor-info">
+                            <div class="vg-ver-autor-nombre" id="vgVerAutorNombre">—</div>
+                            <div class="vg-ver-autor-tiempo" id="vgVerTiempo">—</div>
+                        </div>
+                    </div>
+
+                    <!-- Descripción -->
+                    <div class="vg-ver-descripcion" id="vgVerDescripcion"></div>
+
+                    <!-- Acciones (like + contador comentarios) -->
+                    <div class="vg-ver-acciones">
+                        <button class="vg-btn-like vg-btn-like-ver" id="vgVerBtnLike">
+                            <i data-lucide="heart"></i>
+                            <span id="vgVerLikesTexto">0</span>
+                        </button>
+                        <span class="vg-ver-comentarios-meta">
+                            <i data-lucide="message-circle"></i>
+                            <span id="vgVerComentariosTexto">0 comentarios</span>
+                        </span>
+                        <div class="vg-ver-acciones-derecha" id="vgVerAccionesAutor" hidden>
+                            <button class="vg-icon-btn" id="vgVerBtnEditar" title="Editar">
+                                <i data-lucide="pencil"></i>
+                            </button>
+                            <button class="vg-icon-btn vg-icon-btn-peligro" id="vgVerBtnBorrar" title="Eliminar">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Lista de comentarios -->
+                    <div class="vg-ver-comentarios" id="vgVerComentarios"></div>
+
+                    <!-- Input de comentario -->
+                    <div class="vg-ver-input-wrap">
+                        <input type="text"
+                               id="vgVerInputComentario"
+                               maxlength="200"
+                               placeholder="Escribí un comentario...">
+                        <button class="vg-btn-enviar" id="vgVerBtnEnviar">
+                            <i data-lucide="send"></i>
+                        </button>
+                    </div>
+                    <div class="vg-ver-input-aviso" id="vgVerInputAviso"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PERFIL -->
+    <div class="vg-modal" id="vgModalPerfil" hidden>
+        <div class="vg-modal-card vg-modal-card-perfil">
+            <div class="vg-modal-header">
+                <h2>
+                    <i data-lucide="user"></i>
+                    <span>Perfil</span>
+                </h2>
+                <button class="vg-modal-cerrar" id="vgPerfilCerrar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
+            <div class="vg-perfil-header">
+                <div class="vg-perfil-avatar" id="vgPerfilAvatar">
+                    <i data-lucide="user"></i>
+                </div>
+                <div class="vg-perfil-info">
+                    <h3 id="vgPerfilNombre">—</h3>
+                    <span class="vg-perfil-codigo" id="vgPerfilCodigo">—</span>
+                    <span class="vg-perfil-stats" id="vgPerfilStats">0 publicaciones</span>
+                </div>
+            </div>
+
+            <div class="vg-perfil-grid" id="vgPerfilGrid"></div>
+
+            <div class="vg-perfil-vacio" id="vgPerfilVacio" hidden>
+                <i data-lucide="camera-off"></i>
+                <p>Este usuario no tiene publicaciones.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="vg-toast" id="vgToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
