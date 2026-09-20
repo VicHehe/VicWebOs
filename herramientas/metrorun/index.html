@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>The MetroRun</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="mr-container">
+
+        <header class="mr-header">
+            <div class="mr-logo">
+                <div class="mr-logo-mark">
+                    <i data-lucide="train-front"></i>
+                </div>
+                <div class="mr-logo-text">
+                    <h1>The MetroRun</h1>
+                    <p id="mrUserBadge">—</p>
+                </div>
+            </div>
+            <div class="mr-record">
+                <span class="mr-record-label">Récord</span>
+                <span class="mr-record-valor" id="mrRecord">0</span>
+            </div>
+        </header>
+
+        <div class="mr-hud">
+            <div class="mr-hud-coins">
+                <i data-lucide="coins"></i>
+                <span class="mr-hud-coins-num" id="mrCoins">0</span>
+                <span class="mr-hud-coins-label">monedas</span>
+            </div>
+            <div class="mr-hud-nivel" id="mrNivelBadge">
+                <i data-lucide="gauge"></i>
+                <span id="mrNivelText">Nivel 1</span>
+            </div>
+        </div>
+
+        <div class="mr-canvas-wrap">
+            <canvas id="mrCanvas"></canvas>
+        </div>
+
+    </div>
+
+    <div class="mr-overlay" id="mrOverlayStart">
+        <div class="mr-overlay-card">
+            <div class="mr-overlay-icono">
+                <i data-lucide="train-front"></i>
+            </div>
+            <h2>The MetroRun</h2>
+            <p>Cambiá de línea para esquivar los vagones y recolectar monedas. Cada moneda vale <strong>1 moneda real</strong>.</p>
+            <div class="mr-hint">
+                <div class="mr-hint-item">
+                    <kbd>←</kbd> <kbd>→</kbd>
+                    <span>o</span>
+                    <kbd>A</kbd> <kbd>D</kbd>
+                </div>
+                <div class="mr-hint-item mr-hint-touch">
+                    <i data-lucide="move-horizontal"></i>
+                    <span>Desliza en pantalla</span>
+                </div>
+            </div>
+            <button class="mr-btn-primario" id="mrBtnEmpezar">
+                <i data-lucide="play"></i>
+                Empezar
+            </button>
+        </div>
+    </div>
+
+    <div class="mr-overlay" id="mrOverlayFin" hidden>
+        <div class="mr-overlay-card">
+            <div class="mr-overlay-icono mr-overlay-icono-error">
+                <i data-lucide="zap-off"></i>
+            </div>
+            <h2>¡Chocaste!</h2>
+            <div class="mr-resumen">
+                <div class="mr-resumen-fila">
+                    <span class="mr-resumen-label">Monedas recolectadas</span>
+                    <span class="mr-resumen-valor" id="mrFinCoins">0</span>
+                </div>
+                <div class="mr-resumen-fila">
+                    <span class="mr-resumen-label">Nivel alcanzado</span>
+                    <span class="mr-resumen-valor" id="mrFinNivel">1</span>
+                </div>
+                <div class="mr-resumen-fila mr-resumen-destacada">
+                    <span class="mr-resumen-label">
+                        <i data-lucide="coins"></i>
+                        Ganancia real
+                    </span>
+                    <span class="mr-resumen-valor mr-resumen-monedas" id="mrFinGanancia">+0</span>
+                </div>
+                <div class="mr-resumen-fila" id="mrFinRecordFila" hidden>
+                    <span class="mr-resumen-label">
+                        <i data-lucide="trophy"></i>
+                        ¡Nuevo récord!
+                    </span>
+                    <span class="mr-resumen-valor" id="mrFinRecord">0</span>
+                </div>
+            </div>
+            <button class="mr-btn-primario" id="mrBtnReintentar">
+                <i data-lucide="rotate-ccw"></i>
+                Reintentar
+            </button>
+        </div>
+    </div>
+
+    <div class="mr-toast" id="mrToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
