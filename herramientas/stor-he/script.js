@@ -85,8 +85,8 @@ function renderAmpliacion() {
 
     const max = api.obtenerEspacioMaximo() ?? 50;
     const monedas = api.obtenerMonedas() ?? 0;
-    const costo = api.COSTO_COMPRA_ESPACIO ?? 2500;
-    const sumar = api.ESPACIO_POR_COMPRA ?? 12;
+    const costo = api.COSTO_COMPRA_ESPACIO ?? 350;
+    const sumar = api.ESPACIO_POR_COMPRA ?? 5;
     const puede = monedas >= costo;
 
     cont.innerHTML = `
