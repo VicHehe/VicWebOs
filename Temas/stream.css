@@ -1,0 +1,376 @@
+/* ================================================
+   Tema: Stream
+   Dark mode puro con acento dual animado.
+   Morado (streaming clásico) ↔ Verde, con un FUASH.
+   Referencia suave a plataformas de streaming.
+   Sin nombres ni colores exactos de marcas.
+   ================================================ */
+
+/* ------------------------------------------------------------
+   Custom properties animables.
+   @property registra la variable como <color> para que el
+   navegador pueda interpolarla en una animation.
+   ------------------------------------------------------------ */
+@property --stream-a1 {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: #9B5DE5;
+}
+@property --stream-a2 {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: #7E3FCC;
+}
+@property --stream-a3 {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: #B57EF8;
+}
+@property --stream-s1 {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: rgba(155, 93, 229, 0.40);
+}
+@property --stream-s2 {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: rgba(155, 93, 229, 0.55);
+}
+@property --stream-glow {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: rgba(155, 93, 229, 0.15);
+}
+@property --stream-bg-1 {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: #17102A;
+}
+@property --stream-bg-2 {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: #241640;
+}
+
+/* ------------------------------------------------------------
+   :root del tema
+   ------------------------------------------------------------ */
+:root {
+    /* Acento dinámico (se anima) */
+    --stream-a1:    #9B5DE5;
+    --stream-a2:    #7E3FCC;
+    --stream-a3:    #B57EF8;
+    --stream-s1:    rgba(155, 93, 229, 0.40);
+    --stream-s2:    rgba(155, 93, 229, 0.55);
+    --stream-glow:  rgba(155, 93, 229, 0.15);
+    --stream-bg-1:  #17102A;
+    --stream-bg-2:  #241640;
+
+    /* Paleta de acento */
+    --violet-50:  var(--stream-bg-1);
+    --violet-100: var(--stream-bg-2);
+    --violet-200: #3B2668;
+    --violet-300: var(--stream-a3);
+    --violet-400: var(--stream-a3);
+    --violet-500: var(--stream-a1);
+    --violet-600: var(--stream-a2);
+    --violet-700: var(--stream-a2);
+
+    /* Superficies oscuras */
+    --white:   #13131E;
+    --bg:      #0A0A10;
+    --bg-alt:  #0E0E16;
+
+    /* Escala de grises azulada */
+    --gray-50:  #13131E;
+    --gray-100: #1A1A28;
+    --gray-200: #24243A;
+    --gray-300: #34344E;
+    --gray-400: #54546E;
+    --gray-500: #8080A0;
+    --gray-600: #A8A8C0;
+    --gray-700: #C8C8DC;
+    --gray-800: #E2E2EC;
+    --gray-900: #F0F0FF;
+
+    /* Tokens semánticos */
+    --border:  #24243A;
+    --text:    #F0F0FF;
+    --text-2:  #A8A8C0;
+    --text-3:  #8080A0;
+
+    /* Sombras oscuras profundas */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.40);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.50);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.50);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.60);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.70);
+    --shadow-glow: 0 0 0 4px var(--stream-glow);
+
+    /* Acento derivado */
+    --accent-gradient: linear-gradient(135deg, var(--stream-a1), var(--stream-a2));
+    --accent-gradient-hover: linear-gradient(135deg, var(--stream-a3), var(--stream-a1));
+    --accent-shadow: var(--stream-s1);
+    --accent-shadow-hover: var(--stream-s2);
+    --accent-text-gradient: linear-gradient(135deg, var(--gray-900), var(--stream-a3));
+
+    /* Ciclo morado ↔ verde cada 16s */
+    animation: stream-cycle 16s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* ------------------------------------------------------------
+   Keyframes del ciclo de color.
+   0-42%   → morado estable
+   42-46%  → FUASH rápido a verde
+   46-92%  → verde estable
+   92-96%  → FUASH rápido a morado
+   96-100% → morado estable (vuelve a arrancar)
+   ------------------------------------------------------------ */
+@keyframes stream-cycle {
+    0%, 42% {
+        --stream-a1:    #9B5DE5;
+        --stream-a2:    #7E3FCC;
+        --stream-a3:    #B57EF8;
+        --stream-s1:    rgba(155, 93, 229, 0.40);
+        --stream-s2:    rgba(155, 93, 229, 0.55);
+        --stream-glow:  rgba(155, 93, 229, 0.15);
+        --stream-bg-1:  #17102A;
+        --stream-bg-2:  #241640;
+    }
+    46%, 92% {
+        --stream-a1:    #22C55E;
+        --stream-a2:    #16A34A;
+        --stream-a3:    #4ADE80;
+        --stream-s1:    rgba(34, 197, 94, 0.40);
+        --stream-s2:    rgba(34, 197, 94, 0.55);
+        --stream-glow:  rgba(34, 197, 94, 0.15);
+        --stream-bg-1:  #0F2A1A;
+        --stream-bg-2:  #164026;
+    }
+    96%, 100% {
+        --stream-a1:    #9B5DE5;
+        --stream-a2:    #7E3FCC;
+        --stream-a3:    #B57EF8;
+        --stream-s1:    rgba(155, 93, 229, 0.40);
+        --stream-s2:    rgba(155, 93, 229, 0.55);
+        --stream-glow:  rgba(155, 93, 229, 0.15);
+        --stream-bg-1:  #17102A;
+        --stream-bg-2:  #241640;
+    }
+}
+
+/* ------------------------------------------------------------
+   Respetar prefers-reduced-motion
+   ------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        animation: none !important;
+    }
+    .logo-mark::before,
+    .welcome-glow,
+    .welcome-icon-wrap::before {
+        animation: none !important;
+    }
+}
+
+
+/* ================================================================
+   1. HEADER — línea "en vivo" y logo con glow pulsante
+   ================================================================ */
+.app-header {
+    position: relative;
+    border-bottom: none;
+}
+.app-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--accent-gradient);
+    opacity: 0.7;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.logo-mark {
+    position: relative;
+    box-shadow: 0 4px 12px var(--stream-s1);
+}
+.logo-mark::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 14px;
+    background: var(--stream-a1);
+    opacity: 0.35;
+    filter: blur(8px);
+    z-index: -1;
+    animation: stream-pulse 3s ease-in-out infinite;
+    pointer-events: none;
+}
+@keyframes stream-pulse {
+    0%, 100% { opacity: 0.25; transform: scale(1); }
+    50%      { opacity: 0.50; transform: scale(1.06); }
+}
+
+
+/* ================================================================
+   2. WELCOME — glow que respira + anillo del icono
+   ================================================================ */
+.welcome-glow {
+    background: radial-gradient(
+        circle,
+        var(--stream-glow) 0%,
+        transparent 65%
+    );
+    animation: stream-breathe 4s ease-in-out infinite;
+}
+@keyframes stream-breathe {
+    0%, 100% { transform: translateX(-50%) scale(1);     opacity: 0.9; }
+    50%      { transform: translateX(-50%) scale(1.10);  opacity: 1; }
+}
+
+.welcome-icon-wrap {
+    box-shadow:
+        0 12px 28px var(--stream-s1),
+        0 4px 8px var(--stream-s2),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+.welcome-icon-wrap::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 32px;
+    border: 2px solid var(--stream-a1);
+    opacity: 0.4;
+    pointer-events: none;
+    animation: stream-ring 2.6s ease-out infinite;
+}
+@keyframes stream-ring {
+    0%   { transform: scale(1);    opacity: 0.50; }
+    100% { transform: scale(1.35); opacity: 0;    }
+}
+
+
+/* ================================================================
+   3. SIDEBAR — nav activo con barra más notoria
+   ================================================================ */
+.nav-item.active::before {
+    width: 4px;
+    height: 22px;
+    background: var(--stream-a1);
+    box-shadow: 0 0 12px var(--stream-a1);
+    border-radius: 0 4px 4px 0;
+}
+
+
+/* ================================================================
+   4. PESTAÑAS — línea superior con acento
+   ================================================================ */
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10px;
+    right: 10px;
+    height: 2px;
+    background: var(--accent-gradient);
+    border-radius: 2px 2px 0 0;
+    box-shadow: 0 0 8px var(--stream-a1);
+    pointer-events: none;
+}
+
+
+/* ================================================================
+   5. ACCESOS RÁPIDOS — hover con más presencia
+   ================================================================ */
+.acceso-item {
+    border-color: var(--border);
+}
+.acceso-item:hover {
+    border-color: var(--stream-a1);
+    box-shadow:
+        0 12px 24px var(--stream-s1),
+        var(--shadow-md);
+}
+.acceso-icon-wrap {
+    background: var(--violet-100);
+    color: var(--stream-a3);
+}
+.acceso-item:hover .acceso-icon-wrap {
+    background: var(--accent-gradient);
+    color: #FFFFFF;
+    box-shadow: 0 6px 14px var(--stream-s1);
+}
+
+
+/* ================================================================
+   6. WIDGETS — borde acento al hover
+   ================================================================ */
+.widget-item {
+    border-color: var(--border);
+    box-shadow: var(--shadow-md);
+}
+.widget-item:hover {
+    border-color: var(--stream-a1);
+    box-shadow:
+        0 12px 24px var(--stream-s1),
+        var(--shadow-lg);
+}
+
+
+/* ================================================================
+   7. MODALES — línea superior de acento
+   ================================================================ */
+.config-card,
+.modal-todas-card {
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+        0 0 0 1px var(--border),
+        var(--shadow-xl);
+}
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--accent-gradient);
+    pointer-events: none;
+    z-index: 5;
+    box-shadow: 0 0 12px var(--stream-a1);
+}
+
+
+/* ================================================================
+   8. BOTÓN PRIMARIO — gradiente dinámico
+   ================================================================ */
+.btn-primario {
+    background: var(--accent-gradient-hover);
+    box-shadow:
+        0 4px 14px var(--stream-s1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.btn-primario:hover {
+    box-shadow:
+        0 8px 22px var(--stream-s2),
+        0 0 0 3px var(--stream-glow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+
+/* ================================================================
+   9. CHIP DE COMUNIDAD — borde acento
+   ================================================================ */
+.sidebar-comunidad {
+    border-color: var(--border);
+}
+.sidebar-comunidad:hover {
+    border-color: var(--stream-a1);
+    box-shadow: 0 0 0 3px var(--stream-glow);
+}
