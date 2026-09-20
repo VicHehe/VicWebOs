@@ -33,12 +33,41 @@
         return btoa(binario);
     }
 
+    // ------------------------------------------------------------
+    //  aBytes: convierte cualquier cosa en Uint8Array.
+    //
+    //  IMPORTANTE: usamos DUCK TYPING en vez de instanceof.
+    //
+    //  Motivo: cuando un iframe (app) crea un Blob y lo pasa al
+    //  padre (shell), el Blob es de OTRO realm/constructor. En JS,
+    //  `iframeBlob instanceof parentBlob` da false. Por eso miramos
+    //  las propiedades (arrayBuffer, size, byteLength, etc.) en vez
+    //  de la clase.
+    // ------------------------------------------------------------
     async function aBytes(fileOrBlob) {
-        if (fileOrBlob instanceof Uint8Array) return fileOrBlob;
-        if (fileOrBlob instanceof ArrayBuffer) return new Uint8Array(fileOrBlob);
-        if (typeof Blob !== 'undefined' && fileOrBlob instanceof Blob) {
+        if (!fileOrBlob) {
+            throw new Error('Se esperaba un File, Blob, ArrayBuffer o Uint8Array.');
+        }
+
+        // File / Blob (cross-realm): tienen .arrayBuffer() que devuelve Promise y .size numérico
+        if (typeof fileOrBlob.arrayBuffer === 'function' && typeof fileOrBlob.size === 'number') {
             return new Uint8Array(await fileOrBlob.arrayBuffer());
         }
+
+        // ArrayBuffer nativo (cross-realm safe)
+        if (Object.prototype.toString.call(fileOrBlob) === '[object ArrayBuffer]') {
+            return new Uint8Array(fileOrBlob);
+        }
+
+        // TypedArray / DataView (Uint8Array, Int16Array, etc.)
+        if (ArrayBuffer.isView(fileOrBlob)) {
+            return new Uint8Array(
+                fileOrBlob.buffer,
+                fileOrBlob.byteOffset,
+                fileOrBlob.byteLength
+            );
+        }
+
         throw new Error('Se esperaba un File, Blob, ArrayBuffer o Uint8Array.');
     }
 
