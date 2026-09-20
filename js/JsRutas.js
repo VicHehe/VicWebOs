@@ -142,7 +142,7 @@ const RUTAS_HERRAMIENTAS = [
         nombre: 'Adivin-He',
         icono: 'type',
         ruta: 'herramientas/wordle/index.html',
-        descripcion: 'Adivina la palabra de 5 letras. +5 monedas por victoria.',
+        descripcion: 'Adivina la palabra de 5 letras. +25 monedas por victoria.',
         categoria: 'Juegos',
         esBase: false,
         espacio: 4,
