@@ -72,7 +72,7 @@ const VELOCIDAD_BASE = 250;              // px/s
 const VELOCIDAD_MAX = 750;               // px/s
 const SPAWN_BASE_MS = 900;
 const SPAWN_MIN_MS = 220;
-const COIN_SPAWN_FACTOR = 2.1;           // monedas un poco más lentas
+const COIN_SPAWN_FACTOR = 2.5;           // monedas un poco más lentas
 
 // ============================================================
 //  ESTADO
