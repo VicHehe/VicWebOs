@@ -674,7 +674,6 @@ body {
     font-variant-numeric: tabular-nums;
 }
 
-/* Aviso de "escribí algo corto" */
 .wth-aviso-limite {
     text-align: center;
     font-size: 10.5px;
@@ -685,7 +684,6 @@ body {
     flex-shrink: 0;
 }
 
-/* Cargando */
 .wth-cargando {
     display: flex;
     flex-direction: column;
@@ -770,6 +768,7 @@ body {
 .wth-btn-grabar {
     background: var(--gray-100, #F4F4F7);
     color: var(--gray-600, #52525B);
+    position: relative;
 }
 .wth-btn-grabar:hover {
     background: #FEE2E2;
@@ -786,41 +785,49 @@ body {
 }
 
 /* ============================================================
-   BARRA DE EMOJIS
+   BARRA DE EMOJIS — agrandada
    ============================================================ */
 .wth-emojis {
     flex-shrink: 0;
     display: flex;
-    gap: 4px;
+    align-items: center;
+    gap: 2px;
     padding: 8px 12px;
     background: var(--gray-50, #FAFAFB);
     border-top: 1px solid var(--border, #E8E8EE);
     overflow-x: auto;
     scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
 }
 .wth-emojis::-webkit-scrollbar { display: none; }
 
 .wth-emoji-btn {
-    font-size: 22px;
+    font-size: 26px;
     line-height: 1;
-    padding: 6px 8px;
+    padding: 6px;
     border: none;
     background: none;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
-    transition: var(--t-fast, 0.15s);
+    transition: all 0.15s;
     flex-shrink: 0;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
 }
 .wth-emoji-btn:hover {
     background: var(--violet-100, #EDE9FE);
-    transform: scale(1.15);
+    transform: scale(1.12);
 }
 .wth-emoji-btn:active {
-    transform: scale(0.95);
+    transform: scale(0.94);
 }
 
 /* ============================================================
-   OVERLAY DE GRABACIÓN
+   OVERLAY DE GRABACIÓN — con botones
    ============================================================ */
 .wth-grabando {
     position: fixed;
@@ -841,9 +848,9 @@ body {
 .wth-grabando-card {
     background: var(--white, #FFFFFF);
     border-radius: 22px;
-    padding: 30px 32px;
+    padding: 28px 30px 22px;
     text-align: center;
-    max-width: 300px;
+    max-width: 320px;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -874,7 +881,7 @@ body {
     100% { transform: scale(2.2); opacity: 0; }
 }
 .wth-grabando-tiempo {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 900;
     color: var(--gray-900, #18181B);
     font-variant-numeric: tabular-nums;
@@ -890,8 +897,46 @@ body {
     font-size: 11px;
     font-weight: 600;
     color: var(--gray-500, #71717A);
-    margin: 0;
+    margin: 0 0 6px;
 }
+.wth-grabando-botones {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    margin-top: 4px;
+}
+.wth-grabando-botones button {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
+}
+.wth-grabando-btn-enviar {
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: white;
+    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
+}
+.wth-grabando-btn-enviar:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px var(--accent-shadow-hover, rgba(139,92,246,0.38));
+}
+.wth-grabando-btn-enviar [data-lucide] { width: 14px; height: 14px; }
+.wth-grabando-btn-cancelar {
+    background: var(--white, #FFFFFF);
+    color: #991B1B;
+    border: 1.5px solid #FECACA;
+}
+.wth-grabando-btn-cancelar:hover { background: #FEF2F2; }
+.wth-grabando-btn-cancelar [data-lucide] { width: 14px; height: 14px; }
 
 /* ============================================================
    MODALES
@@ -1429,4 +1474,9 @@ body {
     .wth-icon-btn { width: 34px; height: 34px; }
     .wth-modal { padding: 10px; }
     .wth-modal-card { max-height: 94dvh; }
+    .wth-emoji-btn {
+        font-size: 24px;
+        min-width: 40px;
+        min-height: 40px;
+    }
 }
