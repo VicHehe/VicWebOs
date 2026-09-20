@@ -1,0 +1,215 @@
+═══════════════════════════════════════════════════════════════════════════════
+  CÓMO ACTUALIZAR LA DOCUMENTACIÓN DE VICWEBOS
+  ─────────────────────────────────────────────────────────────────────────────
+  Este archivo explica el PROCEDIMIENTO para mantener la documentación
+  actualizada. No es documentación del sistema. No es un Document.
+
+  Los Document del sistema son: DOCUMENT_0.1_VicWebOs.txt,
+  DOCUMENT_0.2_VicWebOs.txt, DOCUMENT_0.3_VicWebOs.txt, etc.
+  Este archivo (COMO_ACTUALIZAR.txt) explica cómo se generan esos.
+═══════════════════════════════════════════════════════════════════════════════
+
+
+─── 1. LOS 3 ARCHIVOS BASE ────────────────────────────────────────────────
+
+  Estos tres existen siempre, son el punto de partida:
+
+    REGLAS_APPS.txt
+        Reglas duras vigentes del proyecto. Siempre la última versión.
+
+    DOCUMENT_0.1_VicWebOs.txt
+        Documentación base del sistema. Explica arquitectura, APIs,
+        patrones, catálogos. Es la referencia principal.
+
+    COMO_ACTUALIZAR.txt
+        Este archivo. Explica cómo se mantiene la documentación.
+
+
+─── 2. QUÉ PASA CUANDO EL SISTEMA SE ACTUALIZA ────────────────────────────
+
+  Cuando sale una versión nueva (ej: 0.2), se genera:
+
+    DOCUMENT_0.2_VicWebOs.txt
+
+  Este archivo:
+
+    ● NO reemplaza al 0.1.
+    ● NO re-explica todo el sistema de cero.
+    ● SOLO señala qué cambió respecto al 0.1.
+
+  Cómo se lee el 0.2:
+
+    ● Lo que está en el 0.2 → es lo que aplica ahora.
+    ● Lo que NO está en el 0.2 → sigue igual, se consulta en el 0.1.
+
+  O sea: el 0.1 + el 0.2 juntos son el estado actual del sistema.
+  Después vendrá el 0.3, y el 0.1 + 0.2 + 0.3 serán el estado.
+  Y así.
+
+
+─── 3. POR QUÉ NO SE REESCRIBE EL 0.1 ──────────────────────────────────────
+
+  Si cada versión reescribiera todo desde cero, los Document se volverían
+  gigantes, redundantes y difíciles de mantener. En la práctica, lo que
+  cambia entre versiones es una fracción del total.
+
+  Por eso:
+
+    ● El 0.1 queda CONGELADO como referencia.
+    ● Cada versión nueva agrega un archivo CORTO con solo lo que cambió.
+    ● El lector lee el más nuevo + salta al 0.1 para lo que no se menciona.
+
+
+─── 4. CUÁNDO GENERAR UN DOCUMENT NUEVO ────────────────────────────────────
+
+  Se genera un DOCUMENT_X.Y nuevo cuando:
+
+    ● Se añade una app / widget / tema.
+    ● Se modifica una API pública.
+    ● Se cambia una constante (precios, límites).
+    ● Se modifica una regla dura.
+    ● Se corrige un bug visible para el usuario.
+    ● Se elimina o depreca algo.
+
+  NO se genera cuando:
+
+    ● Se corrige un typo en un comentario.
+    ● Se refactoriza código sin cambiar comportamiento.
+    ● Se toca el README.
+    ● Se hacen cambios internos que nadie nota.
+
+  En esos casos, solo commit y listo.
+
+
+─── 5. CÓMO SE ESCRIBE UN DOCUMENT NUEVO ───────────────────────────────────
+
+  Regla general: si ocupa más de 2-3 pantallas, estás repitiendo info
+  del 0.1. Cortá y referenciá.
+
+  ESTRUCTURA:
+
+    ─── Encabezado ───
+    DOCUMENT_0.X_VicWebOs.txt
+    Versión anterior: 0.(X-1)
+    Versión nueva: 0.X
+    Fecha
+    Tipo: parche / menor / mayor
+
+    ─── Cambios ───
+    Solo las secciones que apliquen:
+      ● Apps añadidas / modificadas / eliminadas
+      ● Widgets añadidos / modificados / eliminados
+      ● Temas añadidos / modificados / eliminados
+      ● Valores modificados (precios, límites, constantes)
+      ● APIs modificadas (añadidas / cambiadas / deprecadas)
+      ● Bugs corregidos
+      ● Reglas modificadas (y actualizar REGLAS_APPS.txt)
+      ● Eliminado
+      ● Deprecado (con versión de eliminación futura)
+
+    ─── Impacto en el 0.1 ───
+    Qué secciones del DOCUMENT_0.1 quedaron desactualizadas con este cambio.
+    Se listan por número (§4.6, §16, etc.), sin copiar contenido.
+
+    ─── Compatibilidad ───
+    ¿Rompe apps viejas? ¿Requiere migración? ¿Cambia formato de JSON?
+
+  NO incluir:
+    ● Explicaciones de cómo funciona el sistema.
+    ● Ejemplos largos de código (a menos que sean críticos).
+    ● Repeticiones de la arquitectura.
+
+  SÍ incluir:
+    ● Lo mínimo para que alguien entienda qué cambió y por qué.
+    ● Referencias (§X.Y) al 0.1 cuando haga falta contexto.
+
+
+─── 6. CÓMO SE LEE EL PROYECTO CON ESTE SISTEMA ────────────────────────────
+
+  Si sos un humano o una IA nueva en el proyecto:
+
+    PASO 1 — Leer COMO_ACTUALIZAR.txt (este archivo).
+             Ya sabés cómo funciona el sistema de docs.
+
+    PASO 2 — Leer REGLAS_APPS.txt.
+             Son las reglas duras vigentes.
+
+    PASO 3 — Leer DOCUMENT_0.1_VicWebOs.txt.
+             Es la base del sistema.
+
+    PASO 4 — Leer los DOCUMENT_X.Y en orden: 0.2, 0.3, 0.4...
+             Cada uno dice qué cambió respecto al anterior.
+
+    PASO 5 — Si hay conflicto entre el 0.1 y un Document más nuevo,
+             GANA el más nuevo. Significa que el 0.1 quedó viejo ahí.
+
+  En la práctica: si estás en la versión 0.5, tenés que leer
+  el 0.1 (base) + 0.2 + 0.3 + 0.4 + 0.5 (deltas).
+
+
+─── 7. TIPOS DE VERSIÓN ───────────────────────────────────────────────────
+
+  PARCHE (0.1 → 0.1.1):
+    Solo bugs. Cero cambios de API. Cero cambios visibles.
+
+  MENOR (0.1 → 0.2):
+    Apps / widgets / temas nuevos. Nuevas APIs. Nuevos valores.
+    Todo aditivo. Nada rompe.
+
+  MAYOR (0.1 → 1.0):
+    Cambios que rompen compatibilidad. APIs eliminadas. Migraciones.
+
+
+─── 8. CONSOLIDACIÓN (OPCIONAL, A FUTURO) ──────────────────────────────────
+
+  Después de muchas versiones menores (digamos 10+), puede que la cadena
+  de Document sea difícil de seguir. En ese momento se puede hacer una
+  consolidación:
+
+    ● Se crea un nuevo DOCUMENT_1.0_VicWebOs.txt con TODO actualizado.
+    ● El 0.1 y los deltas viejos se archivan en /historico/.
+    ● Se sigue desde el 1.0 con nuevos deltas.
+
+  Esto es opcional y no urgente. La cadena de deltas funciona bien
+  mientras no sean más de 10-15 archivos.
+
+
+─── 9. NOMENCLATURA DE ARCHIVOS ───────────────────────────────────────────
+
+  DOCUMENT_0.1_VicWebOs.txt        ← base del sistema
+  DOCUMENT_0.2_VicWebOs.txt        ← cambios de 0.1 → 0.2
+  DOCUMENT_0.3_VicWebOs.txt        ← cambios de 0.2 → 0.3
+  DOCUMENT_0.4_VicWebOs.txt        ← cambios de 0.3 → 0.4
+  ...
+
+  Estructura de carpeta:
+
+    VicWebOs/
+      DOCUMENT_0.1_VicWebOs.txt
+      DOCUMENT_0.2_VicWebOs.txt
+      DOCUMENT_0.3_VicWebOs.txt
+      ...
+      COMO_ACTUALIZAR.txt
+      REGLAS_APPS.txt
+      historico/              ← (solo si se hace consolidación)
+        ...
+
+
+─── 10. CHECKLIST POR CADA VERSIÓN ────────────────────────────────────────
+
+  [ ] Decidir tipo: parche / menor / mayor.
+  [ ] Crear DOCUMENT_{version}_VicWebOs.txt con la estructura mínima.
+  [ ] Completar solo las secciones que apliquen.
+  [ ] Borrar las secciones vacías.
+  [ ] Listar qué secciones del 0.1 quedaron desactualizadas.
+  [ ] Documentar migraciones (si las hay).
+  [ ] Documentar deprecaciones con versión de eliminación.
+  [ ] Actualizar REGLAS_APPS.txt si cambió alguna regla dura.
+  [ ] Commit del Document junto con el código.
+  [ ] (Opcional) Si ya hay 10+ Documents acumulados → planificar
+      consolidación en un DOCUMENT_1.0_VicWebOs.txt.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  FIN DEL ARCHIVO
+═══════════════════════════════════════════════════════════════════════════════
