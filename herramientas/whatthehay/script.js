@@ -8,20 +8,16 @@
 //  - Emojis del navegador (excepción permitida: es un chat).
 //  - Notificación al destinatario.
 //
+//  Polling con ETag:
+//    Se usa If-None-Match para que GitHub devuelva 304 cuando
+//    el archivo no cambió. Los 304 NO cuentan contra el rate
+//    limit (5000 req/hora). Así podemos pollear cada 2s sin
+//    gastar quota real. Cuando hay cambios → 200 y actualizamos.
+//
 //  Datos:
 //    app/whatthehay/whatthehay.json           → índice de chats/grupos
 //    app/whatthehay/chats/{chatId}.json       → mensajes del chat
 //    app/whatthehay/whatthehay(audio)/*.webm  → notas de voz
-//
-//  Reglas:
-//    ● Privados: cualquiera puede crearlos.
-//    ● Grupos: cualquiera puede crearlos. El creador controla si otros
-//      pueden agregar miembros, y es el único que puede eliminarlo.
-//    ● Cualquiera puede salir de un grupo (o abandonar un privado).
-//    ● Mensajes: los puede borrar el emisor, o el admin del grupo.
-//      El borrado es "para todos" automático.
-//    ● Sin ticks de leído/no leído.
-//    ● Orden de la lista: por último mensaje.
 // ============================================================
 
 'use strict';
@@ -36,8 +32,8 @@ const CUENTAS_FILE = 'cuenta.json';
 const MAX_CARACTERES = 120;
 const MAX_MENSAJES_POR_CHAT = 200;
 const MAX_DURACION_AUDIO = 8;      // segundos
-const POLL_MS_CHAT = 10000;        // 10s
-const POLL_MS_INDICE = 15000;      // 15s
+const POLL_MS_CHAT = 2000;         // 2s (con ETag: 304 = gratis)
+const POLL_MS_INDICE = 5000;       // 5s (con ETag)
 
 const EMOJIS = [
     '😀','😂','😍','😎','🤔','😢','😡','👍',
@@ -49,13 +45,18 @@ let usuarioActual = null;
 let cuentaCompleta = null;
 let usuariosPorCodigo = {};
 
-let indice = { version: 1, chats: [] };       // índice de chats/grupos
-let chatActivoId = null;                       // id del chat abierto
-let chatActivoData = null;                     // { mensajes: [...] }
+let indice = { version: 1, chats: [] };
+let chatActivoId = null;
+let chatActivoData = null;
 let filtroBusqueda = '';
 
 let pollChatTimer = null;
 let pollIndiceTimer = null;
+let _pollChatEnCurso = false;
+let _pollIndiceEnCurso = false;
+
+// ETag cache: ruta → etag
+const _etagsArchivos = new Map();
 
 // Audio
 let mediaRecorder = null;
@@ -63,26 +64,20 @@ let audioChunks = [];
 let audioStream = null;
 let grabandoInicio = 0;
 let grabandoTimer = null;
-let audioElements = {};                        // { msgId: <audio> }
+let audioElements = {};
 let _modoFinalGrabacion = 'enviar';
 let _duracionFinalGrabacion = 0;
-let estadoGrabacion = 'idle';                  // idle | esperando | grabando | procesando
+let estadoGrabacion = 'idle';
 let cancelarPeticion = false;
 
-// Menú contextual
-let menuContextoChatId = null;
-
 // Modales
-let grupoFotoId = null;                        // imagenId elegida para el grupo nuevo
-let grupoInfoFotoId = null;                    // imagenId del grupo que se está editando
-let usuariosSeleccionados = new Set();         // para nuevo grupo
-let usuariosAgregarSeleccionados = new Set();  // para agregar al grupo existente
-
-// Editor info grupo
+let grupoFotoId = null;
+let grupoInfoFotoId = null;
+let usuariosSeleccionados = new Set();
+let usuariosAgregarSeleccionados = new Set();
 let editandoGrupo = null;
 
 let toastTimeout = null;
-let urlAudioTemporal = null;
 
 const API = () => window.parent.__vicwebos || null;
 const BD  = () => window.parent.ConfigBD || null;
@@ -166,12 +161,11 @@ function etiquetaFecha(iso) {
     const hoy = new Date();
     const ayer = new Date();
     ayer.setDate(hoy.getDate() - 1);
-
     if (claveFecha(iso) === claveFecha(hoy.toISOString())) return 'Hoy';
     if (claveFecha(iso) === claveFecha(ayer.toISOString())) return 'Ayer';
-
     return d.toLocaleDateString('es-CL', {
-        day: '2-digit', month: 'long', year: d.getFullYear() !== hoy.getFullYear() ? 'numeric' : undefined
+        day: '2-digit', month: 'long',
+        year: d.getFullYear() !== hoy.getFullYear() ? 'numeric' : undefined
     });
 }
 
@@ -185,17 +179,13 @@ function esSoloEmoji(texto) {
 }
 
 function normalizarIndice(data) {
-    if (!data || typeof data !== 'object') {
-        return { version: 1, chats: [] };
-    }
+    if (!data || typeof data !== 'object') return { version: 1, chats: [] };
     if (!Array.isArray(data.chats)) data.chats = [];
     return data;
 }
 
 function normalizarChat(data) {
-    if (!data || typeof data !== 'object') {
-        return { version: 1, mensajes: [] };
-    }
+    if (!data || typeof data !== 'object') return { version: 1, mensajes: [] };
     if (!Array.isArray(data.mensajes)) data.mensajes = [];
     return data;
 }
@@ -248,6 +238,8 @@ async function mutarIndice(mutador) {
         return actual;
     });
     indice = normalizarIndice(resultado);
+    // Tras escribir, el ETag cambió en GitHub → borrar el cache local
+    _etagsArchivos.delete(RUTA_INDICE);
 }
 
 async function cargarChat(chatId, fresh = false) {
@@ -278,7 +270,58 @@ async function mutarChat(chatId, mutador) {
         actual.actualizado = new Date().toISOString();
         return actual;
     });
+    _etagsArchivos.delete(ruta);
     return normalizarChat(resultado);
+}
+
+// ============================================================
+//  LECTURA CON ETAG (polling barato)
+//  ------------------------------------------------------------
+//  Devuelve { cambio: bool, data: objeto|null }.
+//  - 304 → cambio:false, sin gastar quota.
+//  - 200 → cambio:true con data parseada y ETag actualizado.
+//  - 404 → cambio:true con data vacía.
+// ============================================================
+async function leerConETag(ruta) {
+    const bd = BD();
+    if (!bd || !bd.estaConectado()) return { cambio: false };
+
+    const com = window.parent.ConfigBD?.obtenerComunidadActiva?.();
+    if (!com || !com.githubToken || !com.githubOwner || !com.githubRepo) {
+        return { cambio: false };
+    }
+
+    const url = `https://api.github.com/repos/${com.githubOwner}/${com.githubRepo}/contents/${ruta}`;
+    const headers = {
+        'Authorization': `Bearer ${com.githubToken}`,
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28'
+    };
+
+    const etagGuardado = _etagsArchivos.get(ruta);
+    if (etagGuardado) headers['If-None-Match'] = etagGuardado;
+
+    try {
+        const res = await fetch(url, { headers });
+
+        if (res.status === 304) return { cambio: false };
+
+        if (res.status === 404) {
+            _etagsArchivos.delete(ruta);
+            return { cambio: true, data: null };
+        }
+
+        if (!res.ok) return { cambio: false };
+
+        const nuevoETag = res.headers.get('ETag');
+        if (nuevoETag) _etagsArchivos.set(ruta, nuevoETag);
+
+        const json = await res.json();
+        const contenido = decodeURIComponent(escape(atob(json.content)));
+        return { cambio: true, data: JSON.parse(contenido) };
+    } catch (e) {
+        return { cambio: false };
+    }
 }
 
 // ============================================================
@@ -322,21 +365,15 @@ function misChats() {
 
 function chatsFiltrados() {
     let lista = misChats();
-
     if (filtroBusqueda) {
         const f = filtroBusqueda.toLowerCase();
-        lista = lista.filter(c => {
-            const nombre = nombreDeChat(c).toLowerCase();
-            return nombre.includes(f);
-        });
+        lista = lista.filter(c => nombreDeChat(c).toLowerCase().includes(f));
     }
-
     lista.sort((a, b) => {
         const ta = a.ultimoMensaje?.fecha ? new Date(a.ultimoMensaje.fecha).getTime() : new Date(a.creado).getTime();
         const tb = b.ultimoMensaje?.fecha ? new Date(b.ultimoMensaje.fecha).getTime() : new Date(b.creado).getTime();
         return tb - ta;
     });
-
     return lista;
 }
 
@@ -351,9 +388,7 @@ function avatarDeChat(chat) {
         return { tipo: 'grupo', imagenId: chat.imagenId || null, inicial: (chat.nombre || '?').charAt(0).toUpperCase() };
     }
     const otro = chat.miembros.find(c => c !== usuarioActual.codigo);
-    if (otro) {
-        return { tipo: 'usuario', foto: fotoDe(otro), inicial: inicialDe(otro) };
-    }
+    if (otro) return { tipo: 'usuario', foto: fotoDe(otro), inicial: inicialDe(otro) };
     return { tipo: 'vacio', inicial: '?' };
 }
 
@@ -367,10 +402,8 @@ function esAdminDe(chat) {
 // ============================================================
 async function abrirChatPrivado(codigoDestino) {
     if (!codigoDestino || codigoDestino === usuarioActual.codigo) return;
-
     const chatId = idPrivado(usuarioActual.codigo, codigoDestino);
     let chat = indice.chats.find(c => c.id === chatId);
-
     if (!chat) {
         const nuevo = {
             id: chatId,
@@ -380,10 +413,7 @@ async function abrirChatPrivado(codigoDestino) {
             ultimoMensaje: null
         };
         try {
-            await mutarIndice((d) => {
-                d.chats.push(nuevo);
-                return d;
-            });
+            await mutarIndice((d) => { d.chats.push(nuevo); return d; });
             await mutarChat(chatId, (c) => c);
             chat = nuevo;
         } catch (e) {
@@ -391,7 +421,6 @@ async function abrirChatPrivado(codigoDestino) {
             return;
         }
     }
-
     cerrarModalPrivado();
     abrirChat(chatId);
 }
@@ -422,12 +451,10 @@ async function abrirChat(chatId) {
     document.getElementById('wthEmojis').hidden = true;
 
     renderListaChats();
-
     detenerPollChat();
     iniciarPollChat();
 
     if (window.lucide) window.lucide.createIcons();
-
     setTimeout(scrollAlFondo, 60);
 }
 
@@ -445,7 +472,6 @@ function cerrarChat() {
 function renderChatHeader() {
     const chat = indice.chats.find(c => c.id === chatActivoId);
     if (!chat) return;
-
     const avatarData = avatarDeChat(chat);
     const avatarEl = document.getElementById('wthChatAvatar');
 
@@ -488,7 +514,6 @@ function renderListaChats() {
     const cont = document.getElementById('wthChats');
     if (!cont) return;
     cont.innerHTML = '';
-
     const lista = chatsFiltrados();
 
     if (lista.length === 0) {
@@ -501,12 +526,7 @@ function renderListaChats() {
         if (window.lucide) window.lucide.createIcons();
         return;
     }
-
-    lista.forEach(chat => {
-        const item = crearItemChat(chat);
-        cont.appendChild(item);
-    });
-
+    lista.forEach(chat => cont.appendChild(crearItemChat(chat)));
     if (window.lucide) window.lucide.createIcons();
 }
 
@@ -525,7 +545,6 @@ function crearItemChat(chat) {
     if (ultimo) {
         const esMio = ultimo.autor === usuarioActual.codigo;
         const yoStr = esMio ? 'Vos: ' : '';
-
         if (ultimo.tipo === 'audio') {
             iconoPreview = '<i data-lucide="mic"></i>';
             preview = yoStr + 'Nota de voz';
@@ -559,10 +578,8 @@ function crearItemChat(chat) {
     `;
 
     if (avatarData.tipo === 'grupo' && avatarData.imagenId) {
-        const avatarEl = btn.querySelector('.wth-avatar');
-        cargarImagenEnAvatar(avatarEl, avatarData.imagenId);
+        cargarImagenEnAvatar(btn.querySelector('.wth-avatar'), avatarData.imagenId);
     }
-
     btn.addEventListener('click', () => abrirChat(chat.id));
     return btn;
 }
@@ -589,7 +606,6 @@ function renderMensajes() {
 
     const chat = indice.chats.find(c => c.id === chatActivoId);
     const esGrupo = chat?.tipo === 'grupo';
-
     let ultimaFechaClave = '';
 
     chatActivoData.mensajes.forEach((msg) => {
@@ -601,10 +617,8 @@ function renderMensajes() {
             divisor.innerHTML = `<span>${etiquetaFecha(msg.fecha)}</span>`;
             cont.appendChild(divisor);
         }
-
         cont.appendChild(crearMensajeDOM(msg, esGrupo));
     });
-
     if (window.lucide) window.lucide.createIcons();
 }
 
@@ -656,12 +670,10 @@ function crearMensajeDOM(msg, esGrupo) {
     burbuja.appendChild(tiempoEl);
 
     div.appendChild(burbuja);
-
     div.addEventListener('contextmenu', (e) => {
         e.preventDefault();
         mostrarMenuMensaje(msg, div);
     });
-
     return div;
 }
 
@@ -675,34 +687,25 @@ function crearBurbujaAudio(msg) {
 
     const info = document.createElement('div');
     info.className = 'wth-audio-info';
-
     const barra = document.createElement('div');
     barra.className = 'wth-audio-barra';
     const fill = document.createElement('div');
     fill.className = 'wth-audio-barra-fill';
     barra.appendChild(fill);
-
     const tiempo = document.createElement('div');
     tiempo.className = 'wth-audio-tiempo';
     tiempo.textContent = formatearDuracion(msg.audioDuracion || 0);
-
     info.appendChild(barra);
     info.appendChild(tiempo);
-
     wrap.appendChild(btn);
     wrap.appendChild(info);
 
     btn.addEventListener('click', async () => {
         if (audioElements[msg.id]) {
             const a = audioElements[msg.id];
-            if (a.paused) {
-                a.play();
-            } else {
-                a.pause();
-            }
+            if (a.paused) a.play(); else a.pause();
             return;
         }
-
         const mh = MH();
         if (!mh || !msg.audioNombre) {
             toast('No se pudo cargar el audio', 'error');
@@ -711,14 +714,9 @@ function crearBurbujaAudio(msg) {
         try {
             const ruta = mh.rutas.audio(APP_ID, msg.audioNombre);
             const url = await mh.leerAudioURL(ruta);
-            if (!url) {
-                toast('Audio no disponible', 'error');
-                return;
-            }
-
+            if (!url) { toast('Audio no disponible', 'error'); return; }
             const a = new Audio(url);
             audioElements[msg.id] = a;
-
             a.addEventListener('timeupdate', () => {
                 if (a.duration > 0) {
                     fill.style.width = ((a.currentTime / a.duration) * 100) + '%';
@@ -740,13 +738,11 @@ function crearBurbujaAudio(msg) {
                 btn.innerHTML = '<i data-lucide="play"></i>';
                 if (window.lucide) window.lucide.createIcons();
             });
-
             a.play();
         } catch (e) {
             toast('No se pudo cargar el audio', 'error');
         }
     });
-
     return wrap;
 }
 
@@ -756,17 +752,13 @@ function formatearDuracion(seg) {
 }
 
 function pararTodosAudios() {
-    Object.values(audioElements).forEach(a => {
-        try { a.pause(); } catch (e) {}
-    });
+    Object.values(audioElements).forEach(a => { try { a.pause(); } catch (e) {} });
     audioElements = {};
 }
 
 function pararOtrosAudios(exceptId) {
     Object.entries(audioElements).forEach(([id, a]) => {
-        if (id !== exceptId) {
-            try { a.pause(); } catch (e) {}
-        }
+        if (id !== exceptId) { try { a.pause(); } catch (e) {} }
     });
 }
 
@@ -777,7 +769,7 @@ function scrollAlFondo() {
 }
 
 // ============================================================
-//  ENVIAR MENSAJE (texto o emoji)
+//  ENVIAR MENSAJE
 // ============================================================
 async function enviarMensajeTexto() {
     if (!chatActivoId) return;
@@ -788,7 +780,6 @@ async function enviarMensajeTexto() {
         toast(`Máximo ${MAX_CARACTERES} caracteres`, 'error');
         return;
     }
-
     input.value = '';
     document.getElementById('wthBtnEnviar').disabled = true;
 
@@ -801,19 +792,13 @@ async function enviarMensajeTexto() {
         borrado: false,
         editado: null
     };
-
     await _enviarMensaje(msg);
 }
 
 async function _enviarMensaje(msg) {
     const chatId = chatActivoId;
-
     try {
-        await mutarChat(chatId, (c) => {
-            c.mensajes.push(msg);
-            return c;
-        });
-
+        await mutarChat(chatId, (c) => { c.mensajes.push(msg); return c; });
         await mutarIndice((d) => {
             const chat = d.chats.find(c => c.id === chatId);
             if (chat) {
@@ -826,12 +811,10 @@ async function _enviarMensaje(msg) {
             }
             return d;
         });
-
         chatActivoData = await cargarChat(chatId, true);
         renderMensajes();
         renderListaChats();
         scrollAlFondo();
-
         _notificarMiembros(chatId, msg);
     } catch (e) {
         toast('No se pudo enviar', 'error');
@@ -867,19 +850,14 @@ function _notificarMiembros(chatId, msg) {
 // ============================================================
 function mostrarMenuMensaje(msg, msgEl) {
     if (msg.borrado) return;
-
     const chat = indice.chats.find(c => c.id === chatActivoId);
     if (!chat) return;
-
     const esPropio = msg.autor === usuarioActual.codigo;
     const esAdmin = esAdminDe(chat);
     const puedeBorrar = esPropio || (chat.tipo === 'grupo' && esAdmin);
-
     if (!puedeBorrar) return;
-
     const quien = esPropio ? 'tu mensaje' : 'este mensaje';
     if (!confirm(`¿Eliminar ${quien} para todos?`)) return;
-
     _borrarMensaje(msg.id);
 }
 
@@ -896,10 +874,8 @@ async function _borrarMensaje(msgId) {
             }
             return c;
         });
-
         chatActivoData = await cargarChat(chatActivoId, true);
         renderMensajes();
-
         await mutarIndice((d) => {
             const chat = d.chats.find(c => c.id === chatActivoId);
             if (chat && chat.ultimoMensaje) {
@@ -923,10 +899,6 @@ async function _borrarMensaje(msgId) {
 
 // ============================================================
 //  GRABACIÓN DE AUDIO
-//  ------------------------------------------------------------
-//  Flujo: click → pide permiso → graba → overlay con tiempo
-//  Botones: "Enviar" (detiene y envía) / "Cancelar" (descarta)
-//  Auto-stop a los 8 segundos.
 // ============================================================
 function _actualizarUIBotonGrabar() {
     const btn = document.getElementById('wthBtnGrabar');
@@ -946,15 +918,8 @@ async function toggleGrabacion() {
 
 async function _iniciarGrabacion() {
     if (estadoGrabacion !== 'idle') return;
-    if (!chatActivoId) {
-        toast('Abrí un chat primero', 'error');
-        return;
-    }
-
-    if (!window.isSecureContext) {
-        toast('La grabación requiere HTTPS o localhost', 'error');
-        return;
-    }
+    if (!chatActivoId) { toast('Abrí un chat primero', 'error'); return; }
+    if (!window.isSecureContext) { toast('La grabación requiere HTTPS o localhost', 'error'); return; }
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         toast('Tu navegador no soporta grabación', 'error');
         return;
@@ -996,10 +961,7 @@ async function _iniciarGrabacion() {
     let mimeType = '';
     const candidatos = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4'];
     for (const c of candidatos) {
-        if (MediaRecorder.isTypeSupported(c)) {
-            mimeType = c;
-            break;
-        }
+        if (MediaRecorder.isTypeSupported(c)) { mimeType = c; break; }
     }
 
     try {
@@ -1019,13 +981,10 @@ async function _iniciarGrabacion() {
 
     audioStream = stream;
     audioChunks = [];
-
     mediaRecorder.addEventListener('dataavailable', (e) => {
         if (e.data && e.data.size > 0) audioChunks.push(e.data);
     });
-
     mediaRecorder.addEventListener('stop', _finalizarGrabacion);
-
     mediaRecorder.start();
 
     estadoGrabacion = 'grabando';
@@ -1041,15 +1000,12 @@ async function _iniciarGrabacion() {
         const t = (Date.now() - grabandoInicio) / 1000;
         const tiempoEl = document.getElementById('wthGrabandoTiempo');
         if (tiempoEl) tiempoEl.textContent = t.toFixed(1) + 's';
-        if (t >= MAX_DURACION_AUDIO) {
-            _detenerGrabacion('enviar');
-        }
+        if (t >= MAX_DURACION_AUDIO) _detenerGrabacion('enviar');
     }, 100);
 }
 
 async function _detenerGrabacion(modo = 'enviar') {
     if (estadoGrabacion !== 'grabando') return;
-
     estadoGrabacion = 'procesando';
     clearInterval(grabandoTimer);
     grabandoTimer = null;
@@ -1061,13 +1017,8 @@ async function _detenerGrabacion(modo = 'enviar') {
     document.getElementById('wthGrabando').hidden = true;
 
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-        try {
-            mediaRecorder.stop();
-        } catch (e) {
-            console.warn('[WhatTheHay] Error stop:', e);
-        }
+        try { mediaRecorder.stop(); } catch (e) {}
     }
-
     if (audioStream) {
         audioStream.getTracks().forEach(t => t.stop());
         audioStream = null;
@@ -1088,12 +1039,7 @@ async function _finalizarGrabacion() {
         toast('Grabación cancelada', 'info');
         return;
     }
-
-    if (!chunksSnapshot.length) {
-        estadoGrabacion = 'idle';
-        return;
-    }
-
+    if (!chunksSnapshot.length) { estadoGrabacion = 'idle'; return; }
     if (duracion < 0.6) {
         estadoGrabacion = 'idle';
         toast('Grabación muy corta', 'info');
@@ -1101,13 +1047,8 @@ async function _finalizarGrabacion() {
     }
 
     const blob = new Blob(chunksSnapshot, { type: chunksSnapshot[0].type || 'audio/webm' });
-
     const mh = MH();
-    if (!mh) {
-        estadoGrabacion = 'idle';
-        toast('No se pudo guardar el audio', 'error');
-        return;
-    }
+    if (!mh) { estadoGrabacion = 'idle'; toast('No se pudo guardar el audio', 'error'); return; }
 
     toast('Subiendo audio...', 'info');
 
@@ -1129,7 +1070,6 @@ async function _finalizarGrabacion() {
             fecha: new Date().toISOString(),
             borrado: false
         };
-
         await _enviarMensaje(msg);
         estadoGrabacion = 'idle';
     } catch (e) {
@@ -1140,10 +1080,7 @@ async function _finalizarGrabacion() {
 }
 
 function cancelarGrabacion() {
-    if (estadoGrabacion === 'esperando') {
-        cancelarPeticion = true;
-        return;
-    }
+    if (estadoGrabacion === 'esperando') { cancelarPeticion = true; return; }
     if (estadoGrabacion === 'grabando') {
         _modoFinalGrabacion = 'cancelar';
         _duracionFinalGrabacion = (Date.now() - grabandoInicio) / 1000;
@@ -1152,52 +1089,78 @@ function cancelarGrabacion() {
 }
 
 // ============================================================
-//  POLLING
+//  POLLING CON ETAG
 // ============================================================
 function iniciarPollChat() {
     detenerPollChat();
     pollChatTimer = setInterval(async () => {
         if (document.hidden || !chatActivoId) return;
+        if (_pollChatEnCurso) return;
+        _pollChatEnCurso = true;
         try {
-            const nuevo = await cargarChat(chatActivoId, true);
-            const cantActual = chatActivoData?.mensajes?.length || 0;
-            const cantNueva = nuevo.mensajes.length;
-            if (cantNueva !== cantActual || JSON.stringify(nuevo.mensajes) !== JSON.stringify(chatActivoData.mensajes)) {
-                chatActivoData = nuevo;
-                renderMensajes();
-                scrollAlFondo();
+            const ruta = rutaChat(chatActivoId);
+            const res = await leerConETag(ruta);
+            if (res.cambio && res.data) {
+                const nuevo = normalizarChat(res.data);
+                const antes = JSON.stringify(chatActivoData?.mensajes || []);
+                const despues = JSON.stringify(nuevo.mensajes);
+                if (antes !== despues) {
+                    chatActivoData = nuevo;
+                    renderMensajes();
+                    scrollAlFondo();
+                }
+            } else if (res.cambio && res.data === null) {
+                // El archivo fue borrado
+                if (chatActivoData?.mensajes?.length) {
+                    chatActivoData = { version: 1, mensajes: [] };
+                    renderMensajes();
+                }
             }
-        } catch (e) { /* silencioso */ }
+        } catch (e) {
+            // silencioso
+        } finally {
+            _pollChatEnCurso = false;
+        }
     }, POLL_MS_CHAT);
 }
 
 function detenerPollChat() {
-    if (pollChatTimer) {
-        clearInterval(pollChatTimer);
-        pollChatTimer = null;
-    }
+    if (pollChatTimer) { clearInterval(pollChatTimer); pollChatTimer = null; }
+    _pollChatEnCurso = false;
 }
 
 function iniciarPollIndice() {
     detenerPollIndice();
     pollIndiceTimer = setInterval(async () => {
         if (document.hidden) return;
+        if (_pollIndiceEnCurso) return;
+        _pollIndiceEnCurso = true;
         try {
-            const antes = JSON.stringify(indice.chats.map(c => ({ id: c.id, ult: c.ultimoMensaje })));
-            await cargarIndice(true);
-            const despues = JSON.stringify(indice.chats.map(c => ({ id: c.id, ult: c.ultimoMensaje })));
-            if (antes !== despues) {
+            const res = await leerConETag(RUTA_INDICE);
+            if (res.cambio) {
+                indice = normalizarIndice(res.data);
                 renderListaChats();
+                // Si el chat abierto fue eliminado o cambié de miembros, cerrarlo
+                if (chatActivoId) {
+                    const chat = indice.chats.find(c => c.id === chatActivoId);
+                    if (!chat || !chat.miembros.includes(usuarioActual.codigo)) {
+                        cerrarChat();
+                    } else {
+                        renderChatHeader();
+                    }
+                }
             }
-        } catch (e) { /* silencioso */ }
+        } catch (e) {
+            // silencioso
+        } finally {
+            _pollIndiceEnCurso = false;
+        }
     }, POLL_MS_INDICE);
 }
 
 function detenerPollIndice() {
-    if (pollIndiceTimer) {
-        clearInterval(pollIndiceTimer);
-        pollIndiceTimer = null;
-    }
+    if (pollIndiceTimer) { clearInterval(pollIndiceTimer); pollIndiceTimer = null; }
+    _pollIndiceEnCurso = false;
 }
 
 // ============================================================
@@ -1206,7 +1169,6 @@ function detenerPollIndice() {
 function abrirModalPrivado() {
     const cont = document.getElementById('wthPrivadoUsuarios');
     cont.innerHTML = '';
-
     const otros = Object.keys(usuariosPorCodigo).filter(c => c !== usuarioActual.codigo);
 
     if (otros.length === 0) {
@@ -1214,9 +1176,7 @@ function abrirModalPrivado() {
         document.getElementById('wthModalPrivado').hidden = false;
         return;
     }
-
     otros.sort((a, b) => nombreDe(a).localeCompare(nombreDe(b)));
-
     otros.forEach(cod => {
         const btn = document.createElement('button');
         btn.className = 'wth-usuario-item';
@@ -1233,7 +1193,6 @@ function abrirModalPrivado() {
         btn.addEventListener('click', () => abrirChatPrivado(cod));
         cont.appendChild(btn);
     });
-
     document.getElementById('wthModalPrivado').hidden = false;
     if (window.lucide) window.lucide.createIcons();
 }
@@ -1248,16 +1207,12 @@ function cerrarModalPrivado() {
 function abrirModalGrupo() {
     grupoFotoId = null;
     usuariosSeleccionados = new Set();
-
     document.getElementById('wthGrupoNombre').value = '';
     document.getElementById('wthGrupoPermitirAgregar').checked = false;
-
     const fotoPreview = document.getElementById('wthGrupoFotoPreview');
     fotoPreview.classList.remove('con-imagen');
     fotoPreview.innerHTML = '<i data-lucide="image-plus"></i><span>Foto</span>';
-
     renderUsuariosGrupo();
-
     document.getElementById('wthModalGrupo').hidden = false;
     if (window.lucide) window.lucide.createIcons();
     setTimeout(() => document.getElementById('wthGrupoNombre').focus(), 100);
@@ -1282,9 +1237,7 @@ function renderUsuariosGrupo() {
                 <div class="wth-usuario-item-nombre">${escapar(nombreDe(cod))}</div>
                 <div class="wth-usuario-item-cod">@${escapar(cod)}</div>
             </div>
-            <div class="wth-usuario-check">
-                <i data-lucide="check"></i>
-            </div>
+            <div class="wth-usuario-check"><i data-lucide="check"></i></div>
         `;
         btn.addEventListener('click', () => {
             if (usuariosSeleccionados.has(cod)) usuariosSeleccionados.delete(cod);
@@ -1293,7 +1246,6 @@ function renderUsuariosGrupo() {
         });
         cont.appendChild(btn);
     });
-
     if (window.lucide) window.lucide.createIcons();
 }
 
@@ -1305,10 +1257,7 @@ async function elegirFotoGrupo() {
     const mh = MH();
     if (!mh) return;
     try {
-        const id = await mh.galeria.abrirPicker({
-            multiple: false,
-            titulo: 'Elegí una foto para el grupo'
-        });
+        const id = await mh.galeria.abrirPicker({ multiple: false, titulo: 'Elegí una foto para el grupo' });
         if (!id) return;
         grupoFotoId = id;
         const url = await mh.galeria.leerImagenURL(id);
@@ -1318,24 +1267,15 @@ async function elegirFotoGrupo() {
             preview.innerHTML = `<img src="${url}" alt="">`;
             preview.querySelector('img').onload = () => URL.revokeObjectURL(url);
         }
-    } catch (e) {
-        console.warn('[WhatTheHay] Error picker:', e);
-    }
+    } catch (e) {}
 }
 
 async function crearGrupo() {
     const nombre = document.getElementById('wthGrupoNombre').value.trim();
-    if (!nombre) {
-        toast('Ponele un nombre al grupo', 'error');
-        return;
-    }
-    if (usuariosSeleccionados.size === 0) {
-        toast('Elegí al menos un miembro', 'error');
-        return;
-    }
+    if (!nombre) { toast('Ponele un nombre al grupo', 'error'); return; }
+    if (usuariosSeleccionados.size === 0) { toast('Elegí al menos un miembro', 'error'); return; }
 
     const permitirAgregar = document.getElementById('wthGrupoPermitirAgregar').checked;
-
     const miembros = [usuarioActual.codigo, ...usuariosSeleccionados];
     const chatId = 'grupo_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
 
@@ -1356,10 +1296,7 @@ async function crearGrupo() {
     btn.disabled = true;
 
     try {
-        await mutarIndice((d) => {
-            d.chats.push(nuevo);
-            return d;
-        });
+        await mutarIndice((d) => { d.chats.push(nuevo); return d; });
         await mutarChat(chatId, (c) => c);
 
         const api = API();
@@ -1367,14 +1304,9 @@ async function crearGrupo() {
             const miNombre = usuarioActual.nombre || usuarioActual.codigo;
             miembros.forEach(cod => {
                 if (cod === usuarioActual.codigo) return;
-                api.enviarNotificacion(
-                    'whatthehay',
-                    `${miNombre} te agregó al grupo "${nombre}"`,
-                    cod
-                ).catch(() => {});
+                api.enviarNotificacion('whatthehay', `${miNombre} te agregó al grupo "${nombre}"`, cod).catch(() => {});
             });
         }
-
         cerrarModalGrupo();
         renderListaChats();
         abrirChat(chatId);
@@ -1393,23 +1325,17 @@ function abrirMenuChat(x, y) {
     const menu = document.getElementById('wthMenu');
     const overlay = document.getElementById('wthMenuOverlay');
     if (!menu || !overlay) return;
-
     const chat = indice.chats.find(c => c.id === chatActivoId);
     if (!chat) return;
 
     const itemInfo = document.getElementById('wthMenuItemInfo');
     const itemBorrar = document.getElementById('wthMenuItemBorrar');
-
     itemInfo.hidden = chat.tipo !== 'grupo';
 
-    if (chat.tipo === 'grupo') {
-        itemBorrar.hidden = !esAdminDe(chat);
-    } else {
-        itemBorrar.hidden = false;
-    }
+    if (chat.tipo === 'grupo') itemBorrar.hidden = !esAdminDe(chat);
+    else itemBorrar.hidden = false;
 
-    const txtBorrar = chat.tipo === 'grupo' ? 'Eliminar grupo' : 'Eliminar chat';
-    itemBorrar.querySelector('span').textContent = txtBorrar;
+    itemBorrar.querySelector('span').textContent = chat.tipo === 'grupo' ? 'Eliminar grupo' : 'Eliminar chat';
 
     menu.style.left = Math.min(x, window.innerWidth - 200) + 'px';
     menu.style.top = Math.min(y, window.innerHeight - 120) + 'px';
@@ -1431,7 +1357,6 @@ function abrirInfoGrupo() {
     if (!chat || chat.tipo !== 'grupo') return;
 
     editandoGrupo = chat;
-
     document.getElementById('wthInfoNombre').value = chat.nombre || '';
     document.getElementById('wthInfoMiembrosCount').textContent = chat.miembros.length;
     document.getElementById('wthInfoPermitir').checked = !!chat.permitirAgregar;
@@ -1512,10 +1437,7 @@ async function cambiarFotoGrupoExistente() {
     const mh = MH();
     if (!mh || !editandoGrupo) return;
     try {
-        const id = await mh.galeria.abrirPicker({
-            multiple: false,
-            titulo: 'Elegí una nueva foto'
-        });
+        const id = await mh.galeria.abrirPicker({ multiple: false, titulo: 'Elegí una nueva foto' });
         if (!id) return;
         grupoInfoFotoId = id;
         const fotoEl = document.getElementById('wthInfoGrupoFoto');
@@ -1525,7 +1447,7 @@ async function cambiarFotoGrupoExistente() {
             fotoEl.innerHTML = `<img src="${url}" alt="">`;
             fotoEl.querySelector('img').onload = () => URL.revokeObjectURL(url);
         }
-    } catch (e) { /* silencioso */ }
+    } catch (e) {}
 }
 
 async function guardarCambiosGrupo() {
@@ -1533,11 +1455,7 @@ async function guardarCambiosGrupo() {
     const chatId = editandoGrupo.id;
     const nuevoNombre = document.getElementById('wthInfoNombre').value.trim();
     const permitir = document.getElementById('wthInfoPermitir').checked;
-
-    if (!nuevoNombre) {
-        toast('Ponele un nombre', 'error');
-        return;
-    }
+    if (!nuevoNombre) { toast('Ponele un nombre', 'error'); return; }
 
     try {
         await mutarIndice((d) => {
@@ -1562,20 +1480,16 @@ async function salirDelGrupo() {
     if (!editandoGrupo) return;
     const chatId = editandoGrupo.id;
     const esAdmin = editandoGrupo.creador === usuarioActual.codigo;
-
     if (esAdmin) {
         toast('Sos el admin. Si querés irte, primero eliminá el grupo.', 'info');
         return;
     }
-
     if (!confirm('¿Salir del grupo? Dejarás de ver los mensajes.')) return;
 
     try {
         await mutarIndice((d) => {
             const c = d.chats.find(x => x.id === chatId);
-            if (c) {
-                c.miembros = c.miembros.filter(m => m !== usuarioActual.codigo);
-            }
+            if (c) c.miembros = c.miembros.filter(m => m !== usuarioActual.codigo);
             return d;
         });
 
@@ -1585,14 +1499,9 @@ async function salirDelGrupo() {
             const nombreGrupo = editandoGrupo.nombre || 'el grupo';
             editandoGrupo.miembros.forEach(cod => {
                 if (cod === usuarioActual.codigo) return;
-                api.enviarNotificacion(
-                    'whatthehay',
-                    `${miNombre} salió del grupo "${nombreGrupo}"`,
-                    cod
-                ).catch(() => {});
+                api.enviarNotificacion('whatthehay', `${miNombre} salió del grupo "${nombreGrupo}"`, cod).catch(() => {});
             });
         }
-
         cerrarInfoGrupo();
         cerrarChat();
         renderListaChats();
@@ -1613,18 +1522,11 @@ async function eliminarGrupo() {
     const chatId = editandoGrupo.id;
 
     try {
-        await mutarIndice((d) => {
-            d.chats = d.chats.filter(c => c.id !== chatId);
-            return d;
-        });
-
+        await mutarIndice((d) => { d.chats = d.chats.filter(c => c.id !== chatId); return d; });
         const bd = BD();
         if (bd) {
-            try {
-                await bd.eliminarArchivo(rutaChat(chatId));
-            } catch (e) { /* silencioso */ }
+            try { await bd.eliminarArchivo(rutaChat(chatId)); } catch (e) {}
         }
-
         cerrarInfoGrupo();
         cerrarChat();
         renderListaChats();
@@ -1640,19 +1542,15 @@ async function eliminarGrupo() {
 function abrirModalAgregar() {
     if (!editandoGrupo) return;
     usuariosAgregarSeleccionados = new Set();
-
     const cont = document.getElementById('wthAgregarUsuarios');
     cont.innerHTML = '';
 
-    const candidatos = Object.keys(usuariosPorCodigo)
-        .filter(c => !editandoGrupo.miembros.includes(c));
-
+    const candidatos = Object.keys(usuariosPorCodigo).filter(c => !editandoGrupo.miembros.includes(c));
     if (candidatos.length === 0) {
         cont.innerHTML = `<p class="wth-modal-desc">No hay más usuarios para agregar.</p>`;
         document.getElementById('wthModalAgregar').hidden = false;
         return;
     }
-
     candidatos.sort((a, b) => nombreDe(a).localeCompare(nombreDe(b)));
 
     candidatos.forEach(cod => {
@@ -1667,9 +1565,7 @@ function abrirModalAgregar() {
                 <div class="wth-usuario-item-nombre">${escapar(nombreDe(cod))}</div>
                 <div class="wth-usuario-item-cod">@${escapar(cod)}</div>
             </div>
-            <div class="wth-usuario-check">
-                <i data-lucide="check"></i>
-            </div>
+            <div class="wth-usuario-check"><i data-lucide="check"></i></div>
         `;
         btn.addEventListener('click', () => {
             if (usuariosAgregarSeleccionados.has(cod)) {
@@ -1682,14 +1578,12 @@ function abrirModalAgregar() {
         });
         cont.appendChild(btn);
     });
-
     document.getElementById('wthModalAgregar').hidden = false;
     if (window.lucide) window.lucide.createIcons();
 }
 
 async function confirmarAgregarMiembros() {
     if (!editandoGrupo || usuariosAgregarSeleccionados.size === 0) return;
-
     const chatId = editandoGrupo.id;
     const nuevos = Array.from(usuariosAgregarSeleccionados);
 
@@ -1708,11 +1602,7 @@ async function confirmarAgregarMiembros() {
         if (api && typeof api.enviarNotificacion === 'function') {
             const miNombre = usuarioActual.nombre || usuarioActual.codigo;
             nuevos.forEach(cod => {
-                api.enviarNotificacion(
-                    'whatthehay',
-                    `${miNombre} te agregó al grupo "${editandoGrupo.nombre}"`,
-                    cod
-                ).catch(() => {});
+                api.enviarNotificacion('whatthehay', `${miNombre} te agregó al grupo "${editandoGrupo.nombre}"`, cod).catch(() => {});
             });
         }
 
@@ -1722,7 +1612,6 @@ async function confirmarAgregarMiembros() {
             renderMiembrosInfo(grupo);
             document.getElementById('wthInfoMiembrosCount').textContent = grupo.miembros.length;
         }
-
         document.getElementById('wthModalAgregar').hidden = true;
         renderListaChats();
         toast('Miembros agregados', 'success');
@@ -1760,16 +1649,10 @@ async function inicializar() {
     aplicarTemaDelPadre();
 
     const api = API();
-    if (!api) {
-        alert('WhatTheHay necesita estar dentro de VicWebOs.');
-        return;
-    }
+    if (!api) { alert('WhatTheHay necesita estar dentro de VicWebOs.'); return; }
 
     usuarioActual = api.obtenerCuenta?.();
-    if (!usuarioActual) {
-        alert('Necesitas iniciar sesión para usar WhatTheHay.');
-        return;
-    }
+    if (!usuarioActual) { alert('Necesitas iniciar sesión para usar WhatTheHay.'); return; }
 
     const badge = document.getElementById('wthUserBadge');
     if (badge) badge.textContent = `@${usuarioActual.codigo} · ${usuarioActual.nombre}`;
@@ -1779,8 +1662,6 @@ async function inicializar() {
 
     renderListaChats();
     renderEmojisBar();
-
-    // ===== EVENTOS =====
 
     document.getElementById('wthBtnNuevoPrivado')?.addEventListener('click', abrirModalPrivado);
     document.getElementById('wthBtnNuevoGrupo')?.addEventListener('click', abrirModalGrupo);
@@ -1804,9 +1685,8 @@ async function inicializar() {
     document.getElementById('wthChatInfo')?.addEventListener('click', () => {
         const chat = indice.chats.find(c => c.id === chatActivoId);
         if (!chat) return;
-        if (chat.tipo === 'grupo') {
-            abrirInfoGrupo();
-        } else {
+        if (chat.tipo === 'grupo') abrirInfoGrupo();
+        else {
             const otro = chat.miembros.find(c => c !== usuarioActual.codigo);
             toast(`@${otro} · ${nombreDe(otro)}`, 'info');
         }
@@ -1828,7 +1708,6 @@ async function inicializar() {
         cerrarMenuChat();
         const chat = indice.chats.find(c => c.id === chatActivoId);
         if (!chat) return;
-
         if (chat.tipo === 'grupo') {
             if (esAdminDe(chat)) eliminarGrupo();
             else toast('Solo el admin puede eliminar el grupo', 'error');
@@ -1855,10 +1734,7 @@ async function inicializar() {
         btnEnviar.disabled = !input.value.trim() || !chatActivoId;
     });
     input?.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            enviarMensajeTexto();
-        }
+        if (e.key === 'Enter') { e.preventDefault(); enviarMensajeTexto(); }
     });
     btnEnviar?.addEventListener('click', enviarMensajeTexto);
 
@@ -1867,7 +1743,6 @@ async function inicializar() {
         bar.hidden = !bar.hidden;
     });
 
-    // Grabación (click-to-toggle)
     const btnGrabar = document.getElementById('wthBtnGrabar');
     btnGrabar?.addEventListener('click', toggleGrabacion);
 
@@ -1947,7 +1822,5 @@ window.addEventListener('pagehide', () => {
     detenerPollChat();
     detenerPollIndice();
     pararTodosAudios();
-    if (audioStream) {
-        audioStream.getTracks().forEach(t => t.stop());
-    }
+    if (audioStream) audioStream.getTracks().forEach(t => t.stop());
 });
