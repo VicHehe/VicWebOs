@@ -39,7 +39,7 @@ const INTERVALO_CACTUS_MAX = 130;
 const PUNTOS_POR_HITO   = 500;
 const MONEDAS_POR_HITO  = 5;
 const PUNTOS_POR_BONUS  = 5000;
-const MONEDAS_POR_BONUS = 25;
+const MONEDAS_POR_BONUS = 20;
 
 // Ruta de datos del récord
 const ARCHIVO_BASE = 'app/dino/';
