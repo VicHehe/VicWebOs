@@ -2,9 +2,7 @@
 //  Golpea el Topo — Whack-a-mole con foto de perfil
 //  ------------------------------------------------------------
 //  Los topos son la foto del usuario (o su inicial si no tiene).
-//  Topes de monedas por dificultad: 10 / 15 / 20.
-//  Ajustados para que los 3 topes se alcancen con ~20 topos,
-//  así el esfuerzo es equivalente entre dificultades.
+//  Topes de monedas por dificultad: 5 / 10 / 15.
 //  Partidas de 30 segundos. Recompensa al final.
 //
 //  IMPORTANTE: sin setTimeout. Todo el timing se hace con
@@ -25,8 +23,7 @@ const MAX_HOYOS = 9;
 // Configuración por dificultad
 // El tope de monedas existe para que una partida excepcional no
 // rompa la economía. Con los valores actuales (0.5 / 0.75 / 1),
-// los 3 topes se alcanzan con ~20 topos, manteniendo la
-// proporción entre dificultades sin inflar la economía.
+// los topes se alcanzan con: 10 / 13 / 15 topos respectivamente.
 const DIFICULTADES = {
     facil: {
         nombre: 'Fácil',
@@ -35,7 +32,7 @@ const DIFICULTADES = {
         spawnMax: 1100,
         maxSimultaneos: 1,
         monedasPorTopo: 0.5,     // 1 moneda cada 2 topos
-        topeMonedas: 10          // cap: 10 monedas
+        topeMonedas: 5           // cap: 5 monedas
     },
     media: {
         nombre: 'Media',
@@ -44,7 +41,7 @@ const DIFICULTADES = {
         spawnMax: 800,
         maxSimultaneos: 1,
         monedasPorTopo: 0.75,    // 3 monedas cada 4 topos
-        topeMonedas: 15          // cap: 15 monedas
+        topeMonedas: 10          // cap: 10 monedas
     },
     dificil: {
         nombre: 'Difícil',
@@ -53,7 +50,7 @@ const DIFICULTADES = {
         spawnMax: 550,
         maxSimultaneos: 2,
         monedasPorTopo: 1,       // 1 moneda por topo
-        topeMonedas: 20          // cap: 20 monedas
+        topeMonedas: 15          // cap: 15 monedas
     }
 };
 
