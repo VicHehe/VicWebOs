@@ -4,7 +4,7 @@
 //  Mecánica:
 //    - El jugador (con su foto de perfil) corre en una de 3 líneas.
 //    - Debe cambiar de línea para esquivar vagones y tomar monedas.
-//    - Cada moneda recolectada = 1 moneda real de VicWebOs.
+//    - Cada moneda recolectada = 2 monedas reales de VicWebOs.
 //    - Cada 5 monedas sube la dificultad (velocidad + spawn).
 //    - Tope de dificultad a las 35 monedas.
 //
@@ -48,6 +48,11 @@ const OBSTACLE_HITBOX_H = 78;
 const COIN_RADIUS = 14;
 const COIN_HITBOX = 20;
 
+// Valor de cada moneda del juego en monedas reales.
+// El juego de pago debe rendir más que cualquier gratis, así que
+// cada moneda del runner vale 2 monedas reales.
+const MONEDAS_REALES_POR_MONEDA = 2;
+
 // Separación mínima entre el CENTRO de una moneda y el CENTRO de un
 // obstáculo, cuando ambos están cerca del spawn. Se chequea en AMBOS
 // sentidos (al spawnear moneda y al spawnear obstáculo) para que
@@ -67,7 +72,7 @@ const VELOCIDAD_BASE = 250;              // px/s
 const VELOCIDAD_MAX = 750;               // px/s
 const SPAWN_BASE_MS = 900;
 const SPAWN_MIN_MS = 220;
-const COIN_SPAWN_FACTOR = 2.2;           // monedas un poco más lentas
+const COIN_SPAWN_FACTOR = 2.1;           // monedas un poco más lentas
 
 // ============================================================
 //  ESTADO
@@ -88,7 +93,7 @@ let monedas = [];
 let particulas = [];
 let popups = [];
 let scrollY = 0;
-let monedasRecolectadas = 0;
+let monedasRecolectadas = 0;   // collectibles (cada una vale 2 reales)
 let proximoSpawnObs = 0;
 let proximoSpawnMon = 0;
 let recordPersonal = 0;
@@ -331,7 +336,7 @@ function dibujar() {
     // Jugador
     dibujarJugador();
 
-    // Popups (+1)
+    // Popups (muestran el valor REAL de cada moneda)
     for (const cp of popups) {
         ctx.globalAlpha = Math.max(0, cp.life / cp.lifeMax);
         ctx.fillStyle = '#FBBF24';
@@ -340,8 +345,9 @@ function dibujar() {
         ctx.textBaseline = 'middle';
         ctx.strokeStyle = 'rgba(0,0,0,0.5)';
         ctx.lineWidth = 3;
-        ctx.strokeText('+1', cp.x, cp.y);
-        ctx.fillText('+1', cp.x, cp.y);
+        const texto = '+' + MONEDAS_REALES_POR_MONEDA;
+        ctx.strokeText(texto, cp.x, cp.y);
+        ctx.fillText(texto, cp.x, cp.y);
     }
     ctx.globalAlpha = 1;
 }
@@ -670,7 +676,7 @@ function recolectarMoneda(c) {
         });
     }
 
-    // Popup +1
+    // Popup +2 (valor real)
     popups.push({
         x: c.x,
         y: c.y,
@@ -718,8 +724,9 @@ function moverDerecha() {
 //  HUD
 // ============================================================
 function actualizarHUD() {
+    // El HUD muestra el valor REAL (multiplicado)
     const elCoins = document.getElementById('mrCoins');
-    if (elCoins) elCoins.textContent = monedasRecolectadas;
+    if (elCoins) elCoins.textContent = monedasRecolectadas * MONEDAS_REALES_POR_MONEDA;
 
     const nivel = nivelDesdeMonedas() + 1;
     const elNivelText = document.getElementById('mrNivelText');
@@ -785,48 +792,50 @@ function gameOver() {
         rafId = null;
     }
 
-    // Guardar récord
+    const monedasReales = monedasRecolectadas * MONEDAS_REALES_POR_MONEDA;
+
+    // Guardar récord (en collectibles, que es la medida del gameplay)
     const esRecord = monedasRecolectadas > recordPersonal;
     if (esRecord) {
         recordPersonal = monedasRecolectadas;
         const recEl = document.getElementById('mrRecord');
-        if (recEl) recEl.textContent = recordPersonal;
+        if (recEl) recEl.textContent = recordPersonal * MONEDAS_REALES_POR_MONEDA;
         guardarRecord(recordPersonal);
     }
 
-    // Dar monedas
-    otorgarMonedas(monedasRecolectadas);
+    // Dar monedas (valor real)
+    otorgarMonedas(monedasReales);
 
     // Mostrar overlay
-    mostrarOverlayFin(esRecord);
+    mostrarOverlayFin(esRecord, monedasReales);
 }
 
-async function otorgarMonedas(cantidad) {
-    if (cantidad <= 0) return;
+async function otorgarMonedas(cantidadReal) {
+    if (cantidadReal <= 0) return;
     const api = API();
     if (!api || typeof api.canjear !== 'function') return;
     try {
         await api.canjear(
             'train-front',
             APP_ID,
-            `MetroRun: ${cantidad} monedas`,
-            cantidad
+            `MetroRun: ${cantidadReal} monedas`,
+            cantidadReal
         );
     } catch (e) {
         console.warn('[MetroRun] No se pudieron otorgar monedas:', e);
     }
 }
 
-function mostrarOverlayFin(esRecord) {
-    const n = monedasRecolectadas;
+function mostrarOverlayFin(esRecord, monedasReales) {
+    const n = monedasReales;
 
-    document.getElementById('mrFinCoins').textContent = n;
+    document.getElementById('mrFinCoins').textContent = monedasRecolectadas;
     document.getElementById('mrFinNivel').textContent = (nivelDesdeMonedas() + 1);
     document.getElementById('mrFinGanancia').textContent = '+' + n;
 
     const filaRecord = document.getElementById('mrFinRecordFila');
     if (esRecord) {
-        document.getElementById('mrFinRecord').textContent = n;
+        document.getElementById('mrFinRecord').textContent = recordPersonal * MONEDAS_REALES_POR_MONEDA;
         filaRecord.hidden = false;
     } else {
         filaRecord.hidden = true;
@@ -865,7 +874,7 @@ async function inicializar() {
         recordPersonal = await cargarRecord();
     } catch (e) { /* silencioso */ }
     const recEl = document.getElementById('mrRecord');
-    if (recEl) recEl.textContent = recordPersonal;
+    if (recEl) recEl.textContent = recordPersonal * MONEDAS_REALES_POR_MONEDA;
 
     // Canvas
     configurarCanvas();
