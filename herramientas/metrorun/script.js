@@ -6,7 +6,7 @@
 //    - Debe cambiar de línea para esquivar vagones y tomar monedas.
 //    - Cada moneda recolectada = 1 moneda real de VicWebOs.
 //    - Cada 5 monedas sube la dificultad (velocidad + spawn).
-//    - Tope de dificultad a las 55 monedas.
+//    - Tope de dificultad a las 35 monedas.
 //
 //  Persistencia:
 //    - Récord en app/metrorun/{codigo}metrorun.json
@@ -47,10 +47,14 @@ const OBSTACLE_HITBOX_H = 78;
 // ---- Monedas ----
 const COIN_RADIUS = 14;
 const COIN_HITBOX = 20;
+// Separación mínima vertical entre una moneda que spawnea y un
+// obstáculo existente en la misma línea. Evita monedas "pegadas"
+// al auto que el jugador no puede tomar sin chocar.
+const COIN_OBSTACLE_GAP = 180;
 
 // ---- Dificultad ----
 const MONEDAS_POR_NIVEL = 5;
-const NIVEL_MAX = 11;                    // 55 monedas / 5
+const NIVEL_MAX = 7;                     // 35 monedas / 5 por nivel
 const VELOCIDAD_BASE = 250;              // px/s
 const VELOCIDAD_MAX = 750;               // px/s
 const SPAWN_BASE_MS = 900;
@@ -94,11 +98,15 @@ const colores = {
     anden:       '#27272A',
     carretera:   '#1F1F23',
     lineaCarril: '#52525B',
-    bordeAcento: '#8B5CF6'
+    bordeAcento: '#8B5CF6',
+    // Colores del vagón (todos salen del tema)
+    autoCuerpo:  '#3F3F46',
+    autoBorde:   '#18181B',
+    autoDetalle: '#A78BFA'
 };
 
 const API = () => window.parent.__vicwebos || null;
-const BD  = () => window.parent.ConfigBD || null;
+const BD  = () => window.parent.ConfigDB || null;
 
 // ============================================================
 //  TEMA
@@ -142,6 +150,10 @@ function refrescarColores() {
     colores.carretera   = colorVar('--gray-800', '#1F1F23');
     colores.lineaCarril = colorVar('--gray-600', '#52525B');
     colores.bordeAcento = colorVar('--violet-500', '#8B5CF6');
+    // Autos: cuerpo con acento del tema (violet-700 o similar)
+    colores.autoCuerpo  = colorVar('--violet-700', '#3F3F46');
+    colores.autoBorde   = colorVar('--gray-900', '#18181B');
+    colores.autoDetalle = colorVar('--violet-400', '#A78BFA');
 }
 
 window.addEventListener('message', (e) => {
@@ -373,27 +385,29 @@ function dibujarObstaculo(o) {
     const x = o.x - OBSTACLE_W / 2;
     const y = o.y - OBSTACLE_H / 2;
 
-    // Cuerpo del vagón
-    ctx.fillStyle = '#3F3F46';
+    // Cuerpo del vagón (color del tema)
+    ctx.fillStyle = colores.autoCuerpo;
     roundRect(ctx, x, y, OBSTACLE_W, OBSTACLE_H, 8);
     ctx.fill();
 
     // Borde oscuro
-    ctx.strokeStyle = '#18181B';
+    ctx.strokeStyle = colores.autoBorde;
     ctx.lineWidth = 2;
     roundRect(ctx, x, y, OBSTACLE_W, OBSTACLE_H, 8);
     ctx.stroke();
 
-    // Franja de peligro (rojo)
+    // Franja de peligro (rojo, se mantiene fijo)
     ctx.fillStyle = '#DC2626';
     ctx.fillRect(x + 6, y + OBSTACLE_H / 2 - 4, OBSTACLE_W - 12, 8);
 
-    // Detalle superior (líneas)
-    ctx.fillStyle = 'rgba(255,255,255,0.08)';
+    // Detalle superior (líneas con acento claro del tema)
+    ctx.fillStyle = colores.autoDetalle;
+    ctx.globalAlpha = 0.4;
     ctx.fillRect(x + 8, y + 12, OBSTACLE_W - 16, 2);
     ctx.fillRect(x + 8, y + 20, OBSTACLE_W - 16, 2);
+    ctx.globalAlpha = 1;
 
-    // Luces de advertencia (amarillas)
+    // Luces de advertencia (amarillas, se mantienen fijas)
     ctx.fillStyle = '#FBBF24';
     ctx.beginPath();
     ctx.arc(x + 10, y + OBSTACLE_H - 12, 3, 0, Math.PI * 2);
@@ -545,12 +559,17 @@ function spawnObstaculo() {
 }
 
 function spawnMoneda() {
-    // Elegir línea distinta a la de algún obstáculo reciente (para que no
-    // sea imposible tomarla)
+    const SPAWN_Y = -COIN_RADIUS - 10;
+
+    // Filtrar líneas que tengan un obstáculo a menos de COIN_OBSTACLE_GAP
+    // verticales del punto de spawn. Así evitamos monedas pegadas a los autos.
     const lineasOcupadas = new Set();
     for (const o of obstaculos) {
-        if (o.y < 80) lineasOcupadas.add(o.lane);
+        if (Math.abs(o.y - SPAWN_Y) < COIN_OBSTACLE_GAP) {
+            lineasOcupadas.add(o.lane);
+        }
     }
+
     const disponibles = [];
     for (let i = 0; i < LANES; i++) {
         if (!lineasOcupadas.has(i)) disponibles.push(i);
@@ -562,7 +581,7 @@ function spawnMoneda() {
     monedas.push({
         lane,
         x: LANE_CENTERS[lane],
-        y: -COIN_RADIUS - 10,
+        y: SPAWN_Y,
         recolectada: false
     });
 }
@@ -642,7 +661,6 @@ function actualizarHUD() {
 
     const badge = document.getElementById('mrNivelBadge');
     if (badge) {
-        // Quitar clases anteriores
         for (let i = 1; i <= 12; i++) badge.classList.remove('n' + i);
         badge.classList.add('n' + Math.min(nivel, 12));
     }
