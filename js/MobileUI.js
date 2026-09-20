@@ -30,6 +30,18 @@
         sidebar.classList.remove('show');
         overlay.classList.remove('show');
         document.body.style.overflow = '';
+
+        // NUEVO: si estamos en móvil y había texto en la barra de búsqueda,
+        // limpiarlo al cerrar el sidebar (para que la próxima vez arranque limpio).
+        if (window.innerWidth <= BREAKPOINT) {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput && searchInput.value) {
+                searchInput.value = '';
+                if (typeof window.renderSidebar === 'function') {
+                    window.renderSidebar('');
+                }
+            }
+        }
     }
 
     function toggle() {
