@@ -485,6 +485,24 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFDFB'
         }
     },
+        {
+        id: 'stream',
+        nombre: 'Stream',
+        icono: 'signal',
+        descripcion: 'Fondo oscuro con acento morado o verde que cambia con el tiempo. Referencia suave a las plataformas de streaming.',
+        categoria: 'Especiales',
+        ruta: 'Temas/stream.css',
+        espacio: 4,
+        monedas: 30,
+        colores: {
+            '--violet-100': '#241640',
+            '--violet-300': '#B57EF8',
+            '--violet-500': '#9B5DE5',
+            '--bg':         '#0A0A10',
+            '--bg-alt':     '#0E0E16',
+            '--white':      '#13131E'
+        }
+    },
     {
         id: 'friend',
         nombre: '¿¡Friend!?',
