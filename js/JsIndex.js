@@ -686,7 +686,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     iniciarRelojLocal();
     iniciarClimaLocal();
 
-    if (searchInput) searchInput.addEventListener('input', (e) => renderSidebar(e.target.value));
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const valor = e.target.value;
+            renderSidebar(valor);
+
+            // NUEVO: en móvil, si el usuario empieza a escribir, abrir el sidebar
+            // automáticamente para que vea los resultados filtrados.
+            if (valor && window.innerWidth <= 768) {
+                if (window.__mobileUI && typeof window.__mobileUI.abrir === 'function') {
+                    window.__mobileUI.abrir();
+                }
+            }
+        });
+    }
     if (btnVerTodas) btnVerTodas.addEventListener('click', abrirModalTodas);
 
     const cerrar = document.getElementById('modalTodasCerrar');
