@@ -912,6 +912,8 @@ body {
 .modal-todas-header, .config-header {
     display: flex; justify-content: space-between; align-items: flex-start;
     padding: 22px 26px 18px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+    position: relative;   /* NUEVO: crea stacking context */
+    z-index: 10;          /* NUEVO: por encima de decoraciones de temas */
 }
 .modal-todas-header h2, .config-header h2 {
     font-size: 19px; font-weight: 800; letter-spacing: -0.02em;
@@ -932,7 +934,11 @@ body {
 .modal-todas-cerrar:hover, .config-cerrar:hover {
     background: var(--gray-200); color: var(--gray-900);
 }
-.modal-todas-body { flex: 1; overflow-y: auto; padding: 24px 26px; }
+.modal-todas-body {
+    flex: 1; overflow-y: auto; padding: 24px 26px;
+    position: relative;   /* NUEVO */
+    z-index: 10;          /* NUEVO */
+}
 .modal-categoria { margin-bottom: 28px; }
 .modal-categoria:last-child { margin-bottom: 0; }
 .modal-categoria h3 {
@@ -967,7 +973,11 @@ body {
 }
 
 /* ========== CONFIG LAYOUT ========== */
-.config-layout { display: flex; flex: 1; min-height: 0; overflow: hidden; }
+.config-layout {
+    display: flex; flex: 1; min-height: 0; overflow: hidden;
+    position: relative;   /* NUEVO: crea stacking context */
+    z-index: 10;          /* NUEVO: por encima de decoraciones de temas */
+}
 .config-nav {
     width: 200px; flex-shrink: 0; background: var(--gray-50);
     border-right: 1px solid var(--border); padding: 14px 10px;
