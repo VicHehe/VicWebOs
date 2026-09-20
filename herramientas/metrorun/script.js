@@ -47,10 +47,18 @@ const OBSTACLE_HITBOX_H = 78;
 // ---- Monedas ----
 const COIN_RADIUS = 14;
 const COIN_HITBOX = 20;
-// Separación mínima vertical entre una moneda que spawnea y un
-// obstáculo existente en la misma línea. Evita monedas "pegadas"
-// al auto que el jugador no puede tomar sin chocar.
-const COIN_OBSTACLE_GAP = 180;
+
+// Separación mínima entre el CENTRO de una moneda y el CENTRO de un
+// obstáculo, cuando ambos están cerca del spawn. Se chequea en AMBOS
+// sentidos (al spawnear moneda y al spawnear obstáculo) para que
+// nunca salgan pegados.
+const OBSTACLE_COIN_GAP = 200;
+
+// Separación mínima entre monedas en la misma línea (evita apilar).
+const COIN_COIN_GAP = 80;
+
+// Separación mínima entre obstáculos en la misma línea (evita apilar).
+const OBSTACLE_OBSTACLE_GAP = 200;
 
 // ---- Dificultad ----
 const MONEDAS_POR_NIVEL = 5;
@@ -59,7 +67,7 @@ const VELOCIDAD_BASE = 250;              // px/s
 const VELOCIDAD_MAX = 750;               // px/s
 const SPAWN_BASE_MS = 900;
 const SPAWN_MIN_MS = 220;
-const COIN_SPAWN_FACTOR = 1.7;
+const COIN_SPAWN_FACTOR = 2.2;           // monedas un poco más lentas
 
 // ============================================================
 //  ESTADO
@@ -106,7 +114,7 @@ const colores = {
 };
 
 const API = () => window.parent.__vicwebos || null;
-const BD  = () => window.parent.ConfigDB || null;
+const BD  = () => window.parent.ConfigBD || null;
 
 // ============================================================
 //  TEMA
@@ -150,9 +158,10 @@ function refrescarColores() {
     colores.carretera   = colorVar('--gray-800', '#1F1F23');
     colores.lineaCarril = colorVar('--gray-600', '#52525B');
     colores.bordeAcento = colorVar('--violet-500', '#8B5CF6');
-    // Autos: cuerpo con acento del tema (violet-700 o similar)
+    // Autos: cuerpo con acento oscuro del tema
     colores.autoCuerpo  = colorVar('--violet-700', '#3F3F46');
     colores.autoBorde   = colorVar('--gray-900', '#18181B');
+    // Ventanas: acento claro del tema
     colores.autoDetalle = colorVar('--violet-400', '#A78BFA');
 }
 
@@ -396,24 +405,46 @@ function dibujarObstaculo(o) {
     roundRect(ctx, x, y, OBSTACLE_W, OBSTACLE_H, 8);
     ctx.stroke();
 
-    // Franja de peligro (rojo, se mantiene fijo)
+    // Ventanas: rejilla 2x2 con acento claro del tema
+    const winW = 16;
+    const winH = 14;
+    const winGapX = 6;
+    const winGapY = 6;
+    const totalW = winW * 2 + winGapX;
+    const startX = x + (OBSTACLE_W - totalW) / 2;
+    const startY = y + 12;
+
+    for (let row = 0; row < 2; row++) {
+        for (let col = 0; col < 2; col++) {
+            const wx = startX + col * (winW + winGapX);
+            const wy = startY + row * (winH + winGapY);
+
+            // Cristal (acento del tema, semi-transparente)
+            ctx.fillStyle = colores.autoDetalle;
+            ctx.globalAlpha = 0.65;
+            roundRect(ctx, wx, wy, winW, winH, 3);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+
+            // Marco oscuro
+            ctx.strokeStyle = colores.autoBorde;
+            ctx.lineWidth = 1;
+            roundRect(ctx, wx, wy, winW, winH, 3);
+            ctx.stroke();
+        }
+    }
+
+    // Franja de peligro (rojo, fija)
     ctx.fillStyle = '#DC2626';
-    ctx.fillRect(x + 6, y + OBSTACLE_H / 2 - 4, OBSTACLE_W - 12, 8);
+    ctx.fillRect(x + 6, y + OBSTACLE_H - 26, OBSTACLE_W - 12, 7);
 
-    // Detalle superior (líneas con acento claro del tema)
-    ctx.fillStyle = colores.autoDetalle;
-    ctx.globalAlpha = 0.4;
-    ctx.fillRect(x + 8, y + 12, OBSTACLE_W - 16, 2);
-    ctx.fillRect(x + 8, y + 20, OBSTACLE_W - 16, 2);
-    ctx.globalAlpha = 1;
-
-    // Luces de advertencia (amarillas, se mantienen fijas)
+    // Luces de advertencia (amarillas, fijas)
     ctx.fillStyle = '#FBBF24';
     ctx.beginPath();
-    ctx.arc(x + 10, y + OBSTACLE_H - 12, 3, 0, Math.PI * 2);
+    ctx.arc(x + 10, y + OBSTACLE_H - 10, 3, 0, Math.PI * 2);
     ctx.fill();
     ctx.beginPath();
-    ctx.arc(x + OBSTACLE_W - 10, y + OBSTACLE_H - 12, 3, 0, Math.PI * 2);
+    ctx.arc(x + OBSTACLE_W - 10, y + OBSTACLE_H - 10, 3, 0, Math.PI * 2);
     ctx.fill();
 }
 
@@ -538,21 +569,43 @@ function actualizar(dt) {
 }
 
 function spawnObstaculo() {
-    // Elegir línea aleatoria, pero evitar que caigan 3 seguidas en la misma
-    // (así se siente más justo)
-    let lane = Math.floor(Math.random() * LANES);
-    // Si ya hay un obstáculo muy cerca en esa línea, cambiar
-    for (const o of obstaculos) {
-        if (o.lane === lane && o.y < 200) {
-            lane = (lane + 1 + Math.floor(Math.random() * (LANES - 1))) % LANES;
-            break;
+    const SPAWN_Y = -OBSTACLE_H / 2 - 10;
+
+    // Buscar líneas libres: sin monedas cercanas y sin otros obstáculos cercanos
+    const candidatos = [];
+    for (let i = 0; i < LANES; i++) {
+        let bloqueada = false;
+
+        // ¿Hay una moneda muy cerca del spawn en esta línea?
+        for (const c of monedas) {
+            if (c.lane === i && Math.abs(c.y - SPAWN_Y) < OBSTACLE_COIN_GAP) {
+                bloqueada = true;
+                break;
+            }
         }
+        if (bloqueada) continue;
+
+        // ¿Hay un obstáculo muy cerca del spawn en esta línea?
+        for (const o of obstaculos) {
+            if (o.lane === i && Math.abs(o.y - SPAWN_Y) < OBSTACLE_OBSTACLE_GAP) {
+                bloqueada = true;
+                break;
+            }
+        }
+        if (bloqueada) continue;
+
+        candidatos.push(i);
     }
+
+    // Si no hay lugar, esperamos al próximo intento (no spawneamos nada)
+    if (candidatos.length === 0) return;
+
+    const lane = candidatos[Math.floor(Math.random() * candidatos.length)];
 
     obstaculos.push({
         lane,
         x: LANE_CENTERS[lane],
-        y: -OBSTACLE_H / 2 - 10,
+        y: SPAWN_Y,
         w: OBSTACLE_W,
         h: OBSTACLE_H
     });
@@ -561,22 +614,35 @@ function spawnObstaculo() {
 function spawnMoneda() {
     const SPAWN_Y = -COIN_RADIUS - 10;
 
-    // Filtrar líneas que tengan un obstáculo a menos de COIN_OBSTACLE_GAP
-    // verticales del punto de spawn. Así evitamos monedas pegadas a los autos.
-    const lineasOcupadas = new Set();
-    for (const o of obstaculos) {
-        if (Math.abs(o.y - SPAWN_Y) < COIN_OBSTACLE_GAP) {
-            lineasOcupadas.add(o.lane);
-        }
-    }
-
-    const disponibles = [];
+    const candidatos = [];
     for (let i = 0; i < LANES; i++) {
-        if (!lineasOcupadas.has(i)) disponibles.push(i);
-    }
-    if (disponibles.length === 0) return;
+        let bloqueada = false;
 
-    const lane = disponibles[Math.floor(Math.random() * disponibles.length)];
+        // ¿Hay un obstáculo muy cerca del spawn en esta línea?
+        for (const o of obstaculos) {
+            if (o.lane === i && Math.abs(o.y - SPAWN_Y) < OBSTACLE_COIN_GAP) {
+                bloqueada = true;
+                break;
+            }
+        }
+        if (bloqueada) continue;
+
+        // ¿Hay otra moneda muy cerca en la misma línea?
+        for (const c of monedas) {
+            if (c.lane === i && Math.abs(c.y - SPAWN_Y) < COIN_COIN_GAP) {
+                bloqueada = true;
+                break;
+            }
+        }
+        if (bloqueada) continue;
+
+        candidatos.push(i);
+    }
+
+    // Si no hay lugar, esperamos al próximo intento
+    if (candidatos.length === 0) return;
+
+    const lane = candidatos[Math.floor(Math.random() * candidatos.length)];
 
     monedas.push({
         lane,
