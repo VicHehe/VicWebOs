@@ -181,6 +181,17 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 8,
         monedas: 30
     },
+        {
+        id: 'whatthehay',
+        nombre: 'WhatTheHay',
+        icono: 'message-circle',
+        ruta: 'herramientas/whatthehay/index.html',
+        descripcion: 'Chat interno con privados, grupos y notas de voz cortas.',
+        categoria: 'Social',
+        esBase: false,
+        espacio: 8,
+        monedas: 40
+    },
     {
         id: 'silly-calls',
         nombre: 'SillyCalls',
