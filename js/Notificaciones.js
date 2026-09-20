@@ -4,10 +4,8 @@
 //  Cada usuario recibe sus notis en un archivo compartido:
 //      CuentasNotificaciones.json
 //
-//  Cualquier app puede enviar:
-//      const api = window.parent.__vicwebos;
-//      await api.enviarNotificacion('calculadora', 'Has ganado 5 monedas', '1234A');
-//      await api.enviarNotificacion('sistema', 'Bienvenido', null); // a mí mismo
+//  Escritura con merge real (ConfigBD.actualizarArchivo) para
+//  evitar 409 cuando varios usuarios o apps escriben en paralelo.
 //
 //  Sin WebSocket: se relee cada POLL_MS usando leerArchivoFresh()
 //  (bypass del caché de 5 minutos de ConfigBD).
@@ -33,9 +31,6 @@
         return window.ConfigBD;
     }
 
-    // Obtiene el código del usuario actual. Prioriza la API pública
-    // de __vicwebos (más robusto), y cae a window.cuentaActual si
-    // existe (getter expuesto por Cuenta.js).
     function miCodigo() {
         if (window.__vicwebos && typeof window.__vicwebos.obtenerCuenta === 'function') {
             const c = window.__vicwebos.obtenerCuenta();
@@ -93,7 +88,12 @@
             'reloj-mundial':  'globe-2',
             calendario:       'calendar',
             muro:             'message-square',
-            notas:            'sticky-note'
+            notas:            'sticky-note',
+            whatthehay:       'message-circle',
+            vicsgram:         'camera',
+            dino:             'gamepad-2',
+            metrorun:         'train-front',
+            contactos:        'book-user'
         };
         return mapa[f] || 'bell';
     }
@@ -108,19 +108,22 @@
         }
     }
 
-    async function guardarTodo(data, intentos = 3) {
-        let actual = data;
-        for (let i = 0; i < intentos; i++) {
-            try {
-                actual.actualizado = new Date().toISOString();
-                await bd().escribirArchivo(ARCHIVO, actual);
-                return actual;
-            } catch (e) {
-                if (i === intentos - 1) throw e;
-                await new Promise(r => setTimeout(r, 400 * (i + 1)));
-                actual = await leerTodo();
-            }
-        }
+    // ------------------------------------------------------------
+    //  Escritura con merge real
+    //  ------------------------------------------------------------
+    //  El mutador recibe el estado ACTUAL del servidor (fresh) y
+    //  devuelve el nuevo estado. ConfigBD.actualizarArchivo se
+    //  encarga de reintentar con merge si hay 409.
+    // ------------------------------------------------------------
+    async function mutarArchivo(mutador) {
+        const resultado = await bd().actualizarArchivo(ARCHIVO, (actual) => {
+            if (!actual || typeof actual !== 'object') actual = estructuraVacia();
+            if (!actual.usuarios || typeof actual.usuarios !== 'object') actual.usuarios = {};
+            actual = mutador(actual);
+            actual.actualizado = new Date().toISOString();
+            return actual;
+        });
+        return resultado;
     }
 
     // ---------- Recargar ----------
@@ -153,61 +156,63 @@
             fecha:  new Date().toISOString()
         };
 
-        for (let i = 0; i < 3; i++) {
-            try {
-                const data = await leerTodo();
-                if (!Array.isArray(data.usuarios[destino])) data.usuarios[destino] = [];
-                data.usuarios[destino].unshift(noti);
-                if (data.usuarios[destino].length > MAX_POR_USUARIO) {
-                    data.usuarios[destino] = data.usuarios[destino].slice(0, MAX_POR_USUARIO);
-                }
-                await guardarTodo(data);
-                if (destino === miCodigo()) await recargar();
-                return noti;
-            } catch (e) {
-                if (i === 2) throw e;
-                await new Promise(r => setTimeout(r, 400 * (i + 1)));
+        await mutarArchivo((data) => {
+            if (!Array.isArray(data.usuarios[destino])) data.usuarios[destino] = [];
+            data.usuarios[destino].unshift(noti);
+            if (data.usuarios[destino].length > MAX_POR_USUARIO) {
+                data.usuarios[destino] = data.usuarios[destino].slice(0, MAX_POR_USUARIO);
             }
-        }
+            return data;
+        });
+
+        if (destino === miCodigo()) await recargar();
+        return noti;
     }
 
     // ---------- Marcar / borrar ----------
     async function marcarLeida(id) {
         const codigo = miCodigo();
         if (!codigo) return;
-        const data = await leerTodo();
-        const arr = data.usuarios[codigo] || [];
-        const n = arr.find(x => x.id === id);
-        if (!n || n.leida) return;
-        n.leida = true;
-        await guardarTodo(data);
+
+        await mutarArchivo((data) => {
+            const arr = data.usuarios[codigo] || [];
+            const n = arr.find(x => x.id === id);
+            if (n) n.leida = true;
+            return data;
+        });
         await recargar();
     }
 
     async function borrar(id) {
         const codigo = miCodigo();
         if (!codigo) return;
-        const data = await leerTodo();
-        data.usuarios[codigo] = (data.usuarios[codigo] || []).filter(x => x.id !== id);
-        await guardarTodo(data);
+
+        await mutarArchivo((data) => {
+            data.usuarios[codigo] = (data.usuarios[codigo] || []).filter(x => x.id !== id);
+            return data;
+        });
         await recargar();
     }
 
     async function borrarTodas() {
         const codigo = miCodigo();
         if (!codigo) return;
-        const data = await leerTodo();
-        data.usuarios[codigo] = [];
-        await guardarTodo(data);
+
+        await mutarArchivo((data) => {
+            data.usuarios[codigo] = [];
+            return data;
+        });
         await recargar();
     }
 
     async function borrarLeidas() {
         const codigo = miCodigo();
         if (!codigo) return;
-        const data = await leerTodo();
-        data.usuarios[codigo] = (data.usuarios[codigo] || []).filter(n => !n.leida);
-        await guardarTodo(data);
+
+        await mutarArchivo((data) => {
+            data.usuarios[codigo] = (data.usuarios[codigo] || []).filter(n => !n.leida);
+            return data;
+        });
         await recargar();
     }
 
@@ -306,9 +311,10 @@
         panel.querySelector('#notiMarcarTodas')?.addEventListener('click', async () => {
             const codigo = miCodigo();
             if (!codigo) return;
-            const data = await leerTodo();
-            (data.usuarios[codigo] || []).forEach(n => { n.leida = true; });
-            await guardarTodo(data);
+            await mutarArchivo((data) => {
+                (data.usuarios[codigo] || []).forEach(n => { n.leida = true; });
+                return data;
+            });
             await recargar();
         });
 
@@ -403,7 +409,6 @@
             if (!document.hidden) recargar().catch(() => {});
         });
 
-        // Recargar cuando el usuario inicia / cierra sesión
         window.addEventListener('vicwebos:sesion', () => {
             recargar().catch(() => {});
         });
