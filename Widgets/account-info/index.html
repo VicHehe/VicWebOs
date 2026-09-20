@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuenta Info</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="ci-widget">
+
+        <div class="ci-header">
+            <div class="ci-titulo">
+                <i data-lucide="id-card"></i>
+                <span>Cuenta Info</span>
+            </div>
+            <button class="ci-btn-refresh" id="ciBtnRefresh" title="Actualizar">
+                <i data-lucide="refresh-cw"></i>
+            </button>
+        </div>
+
+        <div class="ci-perfil">
+            <div class="ci-avatar" id="ciAvatar">
+                <i data-lucide="user"></i>
+            </div>
+            <div class="ci-perfil-info">
+                <div class="ci-nombre" id="ciNombre">—</div>
+                <div class="ci-meta" id="ciMeta">@—</div>
+            </div>
+        </div>
+
+        <div class="ci-dinero">
+            <div class="ci-stat-dinero">
+                <div class="ci-stat-icono ci-icono-ganado">
+                    <i data-lucide="trending-up"></i>
+                </div>
+                <div class="ci-stat-num ci-num-ganado" id="ciGanado">0</div>
+                <div class="ci-stat-label">Ganado</div>
+            </div>
+            <div class="ci-stat-dinero">
+                <div class="ci-stat-icono ci-icono-gastado">
+                    <i data-lucide="trending-down"></i>
+                </div>
+                <div class="ci-stat-num ci-num-gastado" id="ciGastado">0</div>
+                <div class="ci-stat-label">Gastado</div>
+            </div>
+            <div class="ci-stat-dinero">
+                <div class="ci-stat-icono ci-icono-actual">
+                    <i data-lucide="coins"></i>
+                </div>
+                <div class="ci-stat-num ci-num-actual" id="ciActual">0</div>
+                <div class="ci-stat-label">Actual</div>
+            </div>
+        </div>
+
+        <div class="ci-contenido">
+            <div class="ci-stat-cont">
+                <div class="ci-stat-cont-num" id="ciApps">0</div>
+                <div class="ci-stat-cont-label">Apps</div>
+            </div>
+            <div class="ci-stat-cont">
+                <div class="ci-stat-cont-num" id="ciTemas">0</div>
+                <div class="ci-stat-cont-label">Temas</div>
+            </div>
+            <div class="ci-stat-cont">
+                <div class="ci-stat-cont-num" id="ciWidgets">0</div>
+                <div class="ci-stat-cont-label">Widgets</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
