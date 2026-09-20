@@ -10,6 +10,15 @@
 //    4  → herramienta estándar (DOM + lógica ligera)
 //    6  → app con contenido real (grid, estado, modales)
 //    8  → app compleja (polling, editor, picker, multi-vista)
+//    10 → app muy compleja (WebRTC, MediaRecorder, multi-vista)
+//
+//  ESCALA DE PRECIO (0 a 250):
+//    0     → base del SO (un SO lo trae por defecto)
+//    0     → juegos gratis (excepción: son la base económica)
+//    15    → entrada: app simple no-base
+//    40-90 → media: herramienta útil o entretenimiento
+//    100+  → alta: mucha complejidad técnica o muy pedida
+//    250   → tope del catálogo
 // ============================================================
 
 const RUTAS_HERRAMIENTAS = [
@@ -91,7 +100,7 @@ const RUTAS_HERRAMIENTAS = [
         categoria: 'Herramientas Prácticas',
         esBase: false,
         espacio: 2,
-        monedas: 5
+        monedas: 15
     },
     {
         id: 'photo-shinny',
@@ -102,7 +111,7 @@ const RUTAS_HERRAMIENTAS = [
         categoria: 'Herramientas Prácticas',
         esBase: false,
         espacio: 4,
-        monedas: 40
+        monedas: 70
     },
     {
         id: 'dino',
@@ -170,7 +179,7 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 8,
         monedas: 0
     },
-        {
+    {
         id: 'vicsgram',
         nombre: 'VicsGram',
         icono: 'camera',
@@ -179,9 +188,9 @@ const RUTAS_HERRAMIENTAS = [
         categoria: 'Social',
         esBase: false,
         espacio: 8,
-        monedas: 30
+        monedas: 80
     },
-        {
+    {
         id: 'whatthehay',
         nombre: 'WhatTheHay',
         icono: 'message-circle',
@@ -190,7 +199,7 @@ const RUTAS_HERRAMIENTAS = [
         categoria: 'Social',
         esBase: false,
         espacio: 10,
-        monedas: 60
+        monedas: 160
     },
     {
         id: 'silly-calls',
@@ -201,7 +210,7 @@ const RUTAS_HERRAMIENTAS = [
         categoria: 'Social',
         esBase: false,
         espacio: 10,
-        monedas: 140
+        monedas: 250
     },
     {
         id: 'arte-flash',
@@ -212,6 +221,6 @@ const RUTAS_HERRAMIENTAS = [
         categoria: 'Creatividad',
         esBase: false,
         espacio: 10,
-        monedas: 120
+        monedas: 220
     },
 ];
