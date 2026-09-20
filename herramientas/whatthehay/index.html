@@ -86,7 +86,7 @@
                     <button class="wth-icon-btn" id="wthBtnEmoji" title="Emojis">
                         <i data-lucide="smile"></i>
                     </button>
-                    <button class="wth-icon-btn wth-btn-grabar" id="wthBtnGrabar" title="Mantené para grabar">
+                    <button class="wth-icon-btn wth-btn-grabar" id="wthBtnGrabar" title="Grabar nota de voz">
                         <i data-lucide="mic"></i>
                     </button>
                     <input type="text"
@@ -110,8 +110,18 @@
         <div class="wth-grabando-card">
             <div class="wth-grabando-pulso"></div>
             <div class="wth-grabando-tiempo" id="wthGrabandoTiempo">0.0s</div>
-            <p class="wth-grabando-txt">Grabando audio</p>
-            <p class="wth-grabando-ayuda">Soltá para enviar · Máx 8s</p>
+            <p class="wth-grabando-txt" id="wthGrabandoTxt">Grabando audio</p>
+            <p class="wth-grabando-ayuda">Máx 8s · Se detiene solo</p>
+            <div class="wth-grabando-botones">
+                <button class="wth-grabando-btn-cancelar" id="wthGrabandoCancelar">
+                    <i data-lucide="x"></i>
+                    Cancelar
+                </button>
+                <button class="wth-grabando-btn-enviar" id="wthGrabandoEnviar">
+                    <i data-lucide="send"></i>
+                    Enviar
+                </button>
+            </div>
         </div>
     </div>
 
