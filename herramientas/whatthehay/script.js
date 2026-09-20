@@ -61,10 +61,13 @@ let pollIndiceTimer = null;
 let mediaRecorder = null;
 let audioChunks = [];
 let audioStream = null;
-let grabando = false;
 let grabandoInicio = 0;
 let grabandoTimer = null;
 let audioElements = {};                        // { msgId: <audio> }
+let _modoFinalGrabacion = 'enviar';
+let _duracionFinalGrabacion = 0;
+let estadoGrabacion = 'idle';                  // idle | esperando | grabando | procesando
+let cancelarPeticion = false;
 
 // Menú contextual
 let menuContextoChatId = null;
@@ -174,11 +177,9 @@ function etiquetaFecha(iso) {
 
 function esSoloEmoji(texto) {
     if (!texto) return false;
-    // Test rápido: quitar espacios y ver si todos los code points son emoji
     const limpio = texto.replace(/\s/g, '');
     if (limpio.length === 0) return false;
     if (limpio.length > 12) return false;
-    // Regex: secuencias de emoji, ZWJ, variation selectors, keycaps, etc.
     const re = /^[\p{Extended_Pictographic}\p{Emoji_Component}\u{FE0F}\u{200D}]+$/u;
     return re.test(limpio);
 }
@@ -271,7 +272,6 @@ async function mutarChat(chatId, mutador) {
         if (!actual || typeof actual !== 'object') actual = { version: 1, mensajes: [] };
         if (!Array.isArray(actual.mensajes)) actual.mensajes = [];
         actual = mutador(actual);
-        // Recortar mensajes viejos
         if (actual.mensajes.length > MAX_MENSAJES_POR_CHAT) {
             actual.mensajes = actual.mensajes.slice(-MAX_MENSAJES_POR_CHAT);
         }
@@ -331,7 +331,6 @@ function chatsFiltrados() {
         });
     }
 
-    // Ordenar por último mensaje descendente
     lista.sort((a, b) => {
         const ta = a.ultimoMensaje?.fecha ? new Date(a.ultimoMensaje.fecha).getTime() : new Date(a.creado).getTime();
         const tb = b.ultimoMensaje?.fecha ? new Date(b.ultimoMensaje.fecha).getTime() : new Date(b.creado).getTime();
@@ -343,7 +342,6 @@ function chatsFiltrados() {
 
 function nombreDeChat(chat) {
     if (chat.tipo === 'grupo') return chat.nombre || 'Grupo';
-    // Privado: el nombre del otro
     const otro = chat.miembros.find(c => c !== usuarioActual.codigo);
     return otro ? nombreDe(otro) : 'Chat';
 }
@@ -374,7 +372,6 @@ async function abrirChatPrivado(codigoDestino) {
     let chat = indice.chats.find(c => c.id === chatId);
 
     if (!chat) {
-        // Crear nuevo
         const nuevo = {
             id: chatId,
             tipo: 'privado',
@@ -387,7 +384,6 @@ async function abrirChatPrivado(codigoDestino) {
                 d.chats.push(nuevo);
                 return d;
             });
-            // Crear el JSON del chat vacío
             await mutarChat(chatId, (c) => c);
             chat = nuevo;
         } catch (e) {
@@ -414,32 +410,24 @@ async function abrirChat(chatId) {
     chatActivoId = chatId;
     chatActivoData = await cargarChat(chatId, true);
 
-    // UI
     document.getElementById('wthEmpty').hidden = true;
     document.getElementById('wthChat').hidden = false;
     document.querySelector('.wth-app').classList.add('chat-abierto');
 
-    // Header
     renderChatHeader();
-
-    // Mensajes
     renderMensajes();
 
-    // Input habilitado
     document.getElementById('wthInput').value = '';
     document.getElementById('wthBtnEnviar').disabled = true;
     document.getElementById('wthEmojis').hidden = true;
 
-    // Marcar activo en la lista
     renderListaChats();
 
-    // Poll del chat
     detenerPollChat();
     iniciarPollChat();
 
     if (window.lucide) window.lucide.createIcons();
 
-    // Scroll al fondo
     setTimeout(scrollAlFondo, 60);
 }
 
@@ -471,7 +459,6 @@ function renderChatHeader() {
 
     document.getElementById('wthChatNombre').textContent = nombreDeChat(chat);
 
-    // Subtítulo
     const subEl = document.getElementById('wthChatSub');
     if (chat.tipo === 'grupo') {
         const n = chat.miembros.length;
@@ -543,7 +530,6 @@ function crearItemChat(chat) {
             iconoPreview = '<i data-lucide="mic"></i>';
             preview = yoStr + 'Nota de voz';
         } else {
-            // Truncar
             let txt = ultimo.texto || '';
             if (txt.length > 30) txt = txt.slice(0, 30) + '…';
             preview = yoStr + txt;
@@ -572,7 +558,6 @@ function crearItemChat(chat) {
         </div>
     `;
 
-    // Cargar imagen de grupo si aplica
     if (avatarData.tipo === 'grupo' && avatarData.imagenId) {
         const avatarEl = btn.querySelector('.wth-avatar');
         cargarImagenEnAvatar(avatarEl, avatarData.imagenId);
@@ -607,8 +592,7 @@ function renderMensajes() {
 
     let ultimaFechaClave = '';
 
-    chatActivoData.mensajes.forEach((msg, idx) => {
-        // Divisor de fecha
+    chatActivoData.mensajes.forEach((msg) => {
         const fechaClave = claveFecha(msg.fecha);
         if (fechaClave !== ultimaFechaClave) {
             ultimaFechaClave = fechaClave;
@@ -630,7 +614,6 @@ function crearMensajeDOM(msg, esGrupo) {
     div.className = 'wth-msg ' + (esPropio ? 'propio' : 'ajeno') + (esGrupo ? ' grupo' : '');
     div.dataset.id = msg.id;
 
-    // Avatar (solo ajeno)
     if (!esPropio) {
         const av = document.createElement('div');
         av.className = 'wth-msg-avatar';
@@ -644,7 +627,6 @@ function crearMensajeDOM(msg, esGrupo) {
     const burbuja = document.createElement('div');
     burbuja.className = 'wth-msg-burbuja';
 
-    // Nombre del autor (solo en grupo, solo ajeno)
     if (esGrupo && !esPropio) {
         const autorEl = document.createElement('div');
         autorEl.className = 'wth-msg-autor';
@@ -652,7 +634,6 @@ function crearMensajeDOM(msg, esGrupo) {
         burbuja.appendChild(autorEl);
     }
 
-    // Contenido
     if (msg.borrado) {
         div.classList.add('wth-msg-borrado');
         const c = document.createElement('div');
@@ -669,7 +650,6 @@ function crearMensajeDOM(msg, esGrupo) {
         burbuja.appendChild(c);
     }
 
-    // Hora
     const tiempoEl = document.createElement('div');
     tiempoEl.className = 'wth-msg-tiempo' + (msg.editado ? ' editado' : '');
     tiempoEl.textContent = horaCorta(msg.fecha) + (msg.editado ? ' · editado' : '');
@@ -677,7 +657,6 @@ function crearMensajeDOM(msg, esGrupo) {
 
     div.appendChild(burbuja);
 
-    // Long-press / click derecho para menú
     div.addEventListener('contextmenu', (e) => {
         e.preventDefault();
         mostrarMenuMensaje(msg, div);
@@ -714,7 +693,6 @@ function crearBurbujaAudio(msg) {
     wrap.appendChild(info);
 
     btn.addEventListener('click', async () => {
-        // Si ya hay un audio de este mensaje, togglear
         if (audioElements[msg.id]) {
             const a = audioElements[msg.id];
             if (a.paused) {
@@ -725,7 +703,6 @@ function crearBurbujaAudio(msg) {
             return;
         }
 
-        // Cargar
         const mh = MH();
         if (!mh || !msg.audioNombre) {
             toast('No se pudo cargar el audio', 'error');
@@ -832,13 +809,11 @@ async function _enviarMensaje(msg) {
     const chatId = chatActivoId;
 
     try {
-        // 1. Agregar al chat
         await mutarChat(chatId, (c) => {
             c.mensajes.push(msg);
             return c;
         });
 
-        // 2. Actualizar último mensaje en el índice
         await mutarIndice((d) => {
             const chat = d.chats.find(c => c.id === chatId);
             if (chat) {
@@ -852,13 +827,11 @@ async function _enviarMensaje(msg) {
             return d;
         });
 
-        // 3. Refrescar en vivo
         chatActivoData = await cargarChat(chatId, true);
         renderMensajes();
         renderListaChats();
         scrollAlFondo();
 
-        // 4. Notificar a los demás miembros
         _notificarMiembros(chatId, msg);
     } catch (e) {
         toast('No se pudo enviar', 'error');
@@ -893,7 +866,6 @@ function _notificarMiembros(chatId, msg) {
 //  BORRAR MENSAJE
 // ============================================================
 function mostrarMenuMensaje(msg, msgEl) {
-    // Solo si no está borrado
     if (msg.borrado) return;
 
     const chat = indice.chats.find(c => c.id === chatActivoId);
@@ -905,7 +877,6 @@ function mostrarMenuMensaje(msg, msgEl) {
 
     if (!puedeBorrar) return;
 
-    // Confirmación simple
     const quien = esPropio ? 'tu mensaje' : 'este mensaje';
     if (!confirm(`¿Eliminar ${quien} para todos?`)) return;
 
@@ -929,7 +900,6 @@ async function _borrarMensaje(msgId) {
         chatActivoData = await cargarChat(chatActivoId, true);
         renderMensajes();
 
-        // Actualizar último mensaje si era el último
         await mutarIndice((d) => {
             const chat = d.chats.find(c => c.id === chatActivoId);
             if (chat && chat.ultimoMensaje) {
@@ -953,41 +923,101 @@ async function _borrarMensaje(msgId) {
 
 // ============================================================
 //  GRABACIÓN DE AUDIO
+//  ------------------------------------------------------------
+//  Flujo: click → pide permiso → graba → overlay con tiempo
+//  Botones: "Enviar" (detiene y envía) / "Cancelar" (descarta)
+//  Auto-stop a los 8 segundos.
 // ============================================================
-async function iniciarGrabacion() {
-    if (grabando) return;
-    if (!chatActivoId) return;
+function _actualizarUIBotonGrabar() {
+    const btn = document.getElementById('wthBtnGrabar');
+    if (!btn) return;
+    btn.classList.toggle('grabando', estadoGrabacion === 'grabando' || estadoGrabacion === 'esperando');
+}
 
+async function toggleGrabacion() {
+    if (estadoGrabacion === 'idle') {
+        await _iniciarGrabacion();
+    } else if (estadoGrabacion === 'grabando') {
+        await _detenerGrabacion('enviar');
+    } else if (estadoGrabacion === 'esperando') {
+        cancelarPeticion = true;
+    }
+}
+
+async function _iniciarGrabacion() {
+    if (estadoGrabacion !== 'idle') return;
+    if (!chatActivoId) {
+        toast('Abrí un chat primero', 'error');
+        return;
+    }
+
+    if (!window.isSecureContext) {
+        toast('La grabación requiere HTTPS o localhost', 'error');
+        return;
+    }
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         toast('Tu navegador no soporta grabación', 'error');
         return;
     }
-
-    try {
-        audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    } catch (e) {
-        toast('No se pudo acceder al micrófono', 'error');
+    if (!window.MediaRecorder) {
+        toast('Tu navegador no soporta MediaRecorder', 'error');
         return;
     }
 
-    // Elegir mimeType soportado
+    estadoGrabacion = 'esperando';
+    cancelarPeticion = false;
+    _actualizarUIBotonGrabar();
+
+    let stream;
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (e) {
+        console.warn('[WhatTheHay] Error micrófono:', e);
+        estadoGrabacion = 'idle';
+        _actualizarUIBotonGrabar();
+        if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
+            toast('Permiso de micrófono denegado', 'error');
+        } else if (e.name === 'NotFoundError') {
+            toast('No se encontró micrófono', 'error');
+        } else {
+            toast('No se pudo acceder al micrófono', 'error');
+        }
+        return;
+    }
+
+    if (cancelarPeticion) {
+        stream.getTracks().forEach(t => t.stop());
+        estadoGrabacion = 'idle';
+        cancelarPeticion = false;
+        _actualizarUIBotonGrabar();
+        return;
+    }
+
     let mimeType = '';
-    if (window.MediaRecorder) {
-        const candidatos = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4'];
-        for (const c of candidatos) {
-            if (MediaRecorder.isTypeSupported(c)) {
-                mimeType = c;
-                break;
-            }
+    const candidatos = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4'];
+    for (const c of candidatos) {
+        if (MediaRecorder.isTypeSupported(c)) {
+            mimeType = c;
+            break;
         }
     }
 
     try {
-        mediaRecorder = new MediaRecorder(audioStream, mimeType ? { mimeType } : undefined);
+        mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
     } catch (e) {
-        mediaRecorder = new MediaRecorder(audioStream);
+        console.warn('[WhatTheHay] Fallback sin mimeType:', e);
+        try {
+            mediaRecorder = new MediaRecorder(stream);
+        } catch (e2) {
+            stream.getTracks().forEach(t => t.stop());
+            estadoGrabacion = 'idle';
+            _actualizarUIBotonGrabar();
+            toast('No se pudo iniciar la grabación', 'error');
+            return;
+        }
     }
 
+    audioStream = stream;
     audioChunks = [];
 
     mediaRecorder.addEventListener('dataavailable', (e) => {
@@ -998,69 +1028,83 @@ async function iniciarGrabacion() {
 
     mediaRecorder.start();
 
-    grabando = true;
+    estadoGrabacion = 'grabando';
     grabandoInicio = Date.now();
+    _actualizarUIBotonGrabar();
 
-    // UI
-    const btn = document.getElementById('wthBtnGrabar');
-    btn.classList.add('grabando');
     document.getElementById('wthGrabando').hidden = false;
     document.getElementById('wthGrabandoTiempo').textContent = '0.0s';
+    document.getElementById('wthGrabandoTxt').textContent = 'Grabando audio';
+    if (window.lucide) window.lucide.createIcons();
 
-    // Actualizar tiempo cada 100ms
     grabandoTimer = setInterval(() => {
         const t = (Date.now() - grabandoInicio) / 1000;
-        document.getElementById('wthGrabandoTiempo').textContent = t.toFixed(1) + 's';
+        const tiempoEl = document.getElementById('wthGrabandoTiempo');
+        if (tiempoEl) tiempoEl.textContent = t.toFixed(1) + 's';
         if (t >= MAX_DURACION_AUDIO) {
-            detenerGrabacion(true);
+            _detenerGrabacion('enviar');
         }
     }, 100);
 }
 
-async function detenerGrabacion(auto = false) {
-    if (!grabando || !mediaRecorder) return;
+async function _detenerGrabacion(modo = 'enviar') {
+    if (estadoGrabacion !== 'grabando') return;
 
-    grabando = false;
+    estadoGrabacion = 'procesando';
     clearInterval(grabandoTimer);
     grabandoTimer = null;
 
-    const btn = document.getElementById('wthBtnGrabar');
-    btn.classList.remove('grabando');
+    const duracion = (Date.now() - grabandoInicio) / 1000;
+    _modoFinalGrabacion = modo;
+    _duracionFinalGrabacion = duracion;
+
     document.getElementById('wthGrabando').hidden = true;
 
-    if (mediaRecorder.state !== 'inactive') {
-        mediaRecorder.stop();
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        try {
+            mediaRecorder.stop();
+        } catch (e) {
+            console.warn('[WhatTheHay] Error stop:', e);
+        }
     }
 
     if (audioStream) {
         audioStream.getTracks().forEach(t => t.stop());
         audioStream = null;
     }
-
-    // Si fue tan corto que no cuenta, avisamos
-    const duracion = (Date.now() - grabandoInicio) / 1000;
-    if (duracion < 0.6) {
-        toast('Grabación muy corta', 'info');
-        audioChunks = [];
-        mediaRecorder = null;
-        return;
-    }
 }
 
 async function _finalizarGrabacion() {
-    if (!audioChunks.length) {
-        mediaRecorder = null;
+    const modo = _modoFinalGrabacion;
+    const duracion = _duracionFinalGrabacion;
+
+    const chunksSnapshot = audioChunks;
+    audioChunks = [];
+    mediaRecorder = null;
+    _actualizarUIBotonGrabar();
+
+    if (modo === 'cancelar') {
+        estadoGrabacion = 'idle';
+        toast('Grabación cancelada', 'info');
         return;
     }
 
-    const blob = new Blob(audioChunks, { type: audioChunks[0].type || 'audio/webm' });
-    const duracion = (Date.now() - grabandoInicio) / 1000;
+    if (!chunksSnapshot.length) {
+        estadoGrabacion = 'idle';
+        return;
+    }
 
-    audioChunks = [];
-    mediaRecorder = null;
+    if (duracion < 0.6) {
+        estadoGrabacion = 'idle';
+        toast('Grabación muy corta', 'info');
+        return;
+    }
+
+    const blob = new Blob(chunksSnapshot, { type: chunksSnapshot[0].type || 'audio/webm' });
 
     const mh = MH();
     if (!mh) {
+        estadoGrabacion = 'idle';
         toast('No se pudo guardar el audio', 'error');
         return;
     }
@@ -1068,7 +1112,6 @@ async function _finalizarGrabacion() {
     toast('Subiendo audio...', 'info');
 
     try {
-        // Nombre de archivo con extensión según mimeType
         let ext = 'webm';
         if (blob.type.includes('ogg')) ext = 'ogg';
         else if (blob.type.includes('mp4')) ext = 'm4a';
@@ -1088,9 +1131,23 @@ async function _finalizarGrabacion() {
         };
 
         await _enviarMensaje(msg);
+        estadoGrabacion = 'idle';
     } catch (e) {
         console.warn('[WhatTheHay] Error subiendo audio:', e);
         toast('No se pudo enviar el audio', 'error');
+        estadoGrabacion = 'idle';
+    }
+}
+
+function cancelarGrabacion() {
+    if (estadoGrabacion === 'esperando') {
+        cancelarPeticion = true;
+        return;
+    }
+    if (estadoGrabacion === 'grabando') {
+        _modoFinalGrabacion = 'cancelar';
+        _duracionFinalGrabacion = (Date.now() - grabandoInicio) / 1000;
+        _detenerGrabacion('cancelar');
     }
 }
 
@@ -1103,7 +1160,6 @@ function iniciarPollChat() {
         if (document.hidden || !chatActivoId) return;
         try {
             const nuevo = await cargarChat(chatActivoId, true);
-            // Comparar por cantidad para no re-renderizar de más
             const cantActual = chatActivoData?.mensajes?.length || 0;
             const cantNueva = nuevo.mensajes.length;
             if (cantNueva !== cantActual || JSON.stringify(nuevo.mensajes) !== JSON.stringify(chatActivoData.mensajes)) {
@@ -1306,7 +1362,6 @@ async function crearGrupo() {
         });
         await mutarChat(chatId, (c) => c);
 
-        // Notificar a los miembros
         const api = API();
         if (api && typeof api.enviarNotificacion === 'function') {
             const miNombre = usuarioActual.nombre || usuarioActual.codigo;
@@ -1342,21 +1397,17 @@ function abrirMenuChat(x, y) {
     const chat = indice.chats.find(c => c.id === chatActivoId);
     if (!chat) return;
 
-    // Mostrar/ocultar según tipo
     const itemInfo = document.getElementById('wthMenuItemInfo');
     const itemBorrar = document.getElementById('wthMenuItemBorrar');
 
-    // Info: solo grupos (para privados no hay mucha info)
     itemInfo.hidden = chat.tipo !== 'grupo';
 
-    // Borrar chat: cualquiera puede abandonar un privado, admin puede borrar grupo
     if (chat.tipo === 'grupo') {
         itemBorrar.hidden = !esAdminDe(chat);
     } else {
         itemBorrar.hidden = false;
     }
 
-    // Texto de borrar
     const txtBorrar = chat.tipo === 'grupo' ? 'Eliminar grupo' : 'Eliminar chat';
     itemBorrar.querySelector('span').textContent = txtBorrar;
 
@@ -1385,7 +1436,6 @@ function abrirInfoGrupo() {
     document.getElementById('wthInfoMiembrosCount').textContent = chat.miembros.length;
     document.getElementById('wthInfoPermitir').checked = !!chat.permitirAgregar;
 
-    // Foto
     const fotoEl = document.getElementById('wthInfoGrupoFoto');
     if (chat.imagenId) {
         fotoEl.classList.add('con-imagen');
@@ -1395,10 +1445,8 @@ function abrirInfoGrupo() {
         fotoEl.innerHTML = '<i data-lucide="users"></i>';
     }
 
-    // Miembros
     renderMiembrosInfo(chat);
 
-    // Permisos
     const esAdmin = esAdminDe(chat);
     document.getElementById('wthInfoBtnCambiarFoto').hidden = !esAdmin;
     document.getElementById('wthInfoBtnEliminar').hidden = !esAdmin;
@@ -1436,7 +1484,6 @@ function renderMiembrosInfo(chat) {
         cont.appendChild(div);
     });
 
-    // Botón para agregar miembros (si corresponde)
     const puedeAgregar = chat.creador === usuarioActual.codigo || chat.permitirAgregar;
     if (puedeAgregar) {
         const btnAdd = document.createElement('button');
@@ -1517,7 +1564,7 @@ async function salirDelGrupo() {
     const esAdmin = editandoGrupo.creador === usuarioActual.codigo;
 
     if (esAdmin) {
-        toast('Sos el admin. Si querés irte, primero eliminá el grupo o pasá admin (próximamente).', 'info');
+        toast('Sos el admin. Si querés irte, primero eliminá el grupo.', 'info');
         return;
     }
 
@@ -1532,7 +1579,6 @@ async function salirDelGrupo() {
             return d;
         });
 
-        // Notificar a los demás
         const api = API();
         if (api && typeof api.enviarNotificacion === 'function') {
             const miNombre = usuarioActual.nombre || usuarioActual.codigo;
@@ -1572,7 +1618,6 @@ async function eliminarGrupo() {
             return d;
         });
 
-        // Borrar el JSON de mensajes
         const bd = BD();
         if (bd) {
             try {
@@ -1659,7 +1704,6 @@ async function confirmarAgregarMiembros() {
             return d;
         });
 
-        // Notificar
         const api = API();
         if (api && typeof api.enviarNotificacion === 'function') {
             const miNombre = usuarioActual.nombre || usuarioActual.codigo;
@@ -1672,7 +1716,6 @@ async function confirmarAgregarMiembros() {
             });
         }
 
-        // Refrescar info grupo
         const grupo = indice.chats.find(c => c.id === chatId);
         if (grupo) {
             editandoGrupo = grupo;
@@ -1739,11 +1782,9 @@ async function inicializar() {
 
     // ===== EVENTOS =====
 
-    // Botones de nuevo
     document.getElementById('wthBtnNuevoPrivado')?.addEventListener('click', abrirModalPrivado);
     document.getElementById('wthBtnNuevoGrupo')?.addEventListener('click', abrirModalGrupo);
 
-    // Buscador
     const buscar = document.getElementById('wthBuscar');
     const buscarClear = document.getElementById('wthBuscarClear');
     buscar?.addEventListener('input', (e) => {
@@ -1758,23 +1799,19 @@ async function inicializar() {
         renderListaChats();
     });
 
-    // Volver (móvil)
     document.getElementById('wthBtnVolver')?.addEventListener('click', cerrarChat);
 
-    // Info del chat (click en el header)
     document.getElementById('wthChatInfo')?.addEventListener('click', () => {
         const chat = indice.chats.find(c => c.id === chatActivoId);
         if (!chat) return;
         if (chat.tipo === 'grupo') {
             abrirInfoGrupo();
         } else {
-            // Para privados: mostrar info simple
             const otro = chat.miembros.find(c => c !== usuarioActual.codigo);
             toast(`@${otro} · ${nombreDe(otro)}`, 'info');
         }
     });
 
-    // Menú contextual del chat
     const btnMenu = document.getElementById('wthBtnChatMenu');
     btnMenu?.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -1797,7 +1834,6 @@ async function inicializar() {
             else toast('Solo el admin puede eliminar el grupo', 'error');
         } else {
             if (!confirm('¿Eliminar este chat? Se borrarán los mensajes para vos.')) return;
-            // Para privados: quitarme del chat (no borrar los mensajes del otro)
             try {
                 await mutarIndice((d) => {
                     const c = d.chats.find(x => x.id === chat.id);
@@ -1813,7 +1849,6 @@ async function inicializar() {
         }
     });
 
-    // Input de texto
     const input = document.getElementById('wthInput');
     const btnEnviar = document.getElementById('wthBtnEnviar');
     input?.addEventListener('input', () => {
@@ -1827,36 +1862,25 @@ async function inicializar() {
     });
     btnEnviar?.addEventListener('click', enviarMensajeTexto);
 
-    // Emojis
     document.getElementById('wthBtnEmoji')?.addEventListener('click', () => {
         const bar = document.getElementById('wthEmojis');
         bar.hidden = !bar.hidden;
     });
 
-    // Grabación
+    // Grabación (click-to-toggle)
     const btnGrabar = document.getElementById('wthBtnGrabar');
-    btnGrabar?.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
-        iniciarGrabacion();
-    });
-    btnGrabar?.addEventListener('pointerup', (e) => {
-        e.preventDefault();
-        if (grabando) detenerGrabacion();
-    });
-    btnGrabar?.addEventListener('pointercancel', () => {
-        if (grabando) detenerGrabacion();
-    });
-    btnGrabar?.addEventListener('pointerleave', () => {
-        if (grabando) detenerGrabacion();
-    });
+    btnGrabar?.addEventListener('click', toggleGrabacion);
 
-    // Modal privado
+    document.getElementById('wthGrabandoEnviar')?.addEventListener('click', () => {
+        if (estadoGrabacion === 'grabando') _detenerGrabacion('enviar');
+    });
+    document.getElementById('wthGrabandoCancelar')?.addEventListener('click', cancelarGrabacion);
+
     document.getElementById('wthPrivadoCerrar')?.addEventListener('click', cerrarModalPrivado);
     document.getElementById('wthModalPrivado')?.addEventListener('click', (e) => {
         if (e.target.id === 'wthModalPrivado') cerrarModalPrivado();
     });
 
-    // Modal grupo (crear)
     document.getElementById('wthGrupoCerrar')?.addEventListener('click', cerrarModalGrupo);
     document.getElementById('wthGrupoCancelar')?.addEventListener('click', cerrarModalGrupo);
     document.getElementById('wthBtnGrupoFoto')?.addEventListener('click', elegirFotoGrupo);
@@ -1866,7 +1890,6 @@ async function inicializar() {
         if (e.target.id === 'wthModalGrupo') cerrarModalGrupo();
     });
 
-    // Modal info grupo
     document.getElementById('wthInfoCerrar')?.addEventListener('click', cerrarInfoGrupo);
     document.getElementById('wthInfoBtnCambiarFoto')?.addEventListener('click', cambiarFotoGrupoExistente);
     document.getElementById('wthInfoBtnSalir')?.addEventListener('click', salirDelGrupo);
@@ -1876,7 +1899,6 @@ async function inicializar() {
         if (e.target.id === 'wthModalInfoGrupo') cerrarInfoGrupo();
     });
 
-    // Modal agregar miembros
     document.getElementById('wthAgregarCerrar')?.addEventListener('click', () => {
         document.getElementById('wthModalAgregar').hidden = true;
     });
@@ -1888,9 +1910,9 @@ async function inicializar() {
         if (e.target.id === 'wthModalAgregar') e.target.hidden = true;
     });
 
-    // Escape global
     document.addEventListener('keydown', (e) => {
         if (e.key !== 'Escape') return;
+        if (estadoGrabacion === 'grabando') { cancelarGrabacion(); return; }
         if (!document.getElementById('wthModalPrivado').hidden) { cerrarModalPrivado(); return; }
         if (!document.getElementById('wthModalGrupo').hidden) { cerrarModalGrupo(); return; }
         if (!document.getElementById('wthModalInfoGrupo').hidden) { cerrarInfoGrupo(); return; }
@@ -1900,10 +1922,8 @@ async function inicializar() {
         if (!document.getElementById('wthMenu').hidden) { cerrarMenuChat(); return; }
     });
 
-    // Polling del índice
     iniciarPollIndice();
 
-    // Refresco al volver de pestaña
     document.addEventListener('visibilitychange', () => {
         if (!document.hidden) {
             cargarIndice(true).then(() => {
