@@ -170,6 +170,17 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 8,
         monedas: 0
     },
+        {
+        id: 'vicsgram',
+        nombre: 'VicsGram',
+        icono: 'camera',
+        ruta: 'herramientas/vicsgram/index.html',
+        descripcion: 'Mini-Instagram de la comunidad. Compartí fotos, liks y comentarios.',
+        categoria: 'Social',
+        esBase: false,
+        espacio: 8,
+        monedas: 30
+    },
     {
         id: 'silly-calls',
         nombre: 'SillyCalls',
