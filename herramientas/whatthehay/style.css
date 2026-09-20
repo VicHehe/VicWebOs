@@ -785,45 +785,51 @@ body {
 }
 
 /* ============================================================
-   BARRA DE EMOJIS — agrandada
+   BARRA DE EMOJIS — grid rectangular, emojis compactos
    ============================================================ */
 .wth-emojis {
     flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    padding: 8px 12px;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+    padding: 10px 14px;
     background: var(--gray-50, #FAFAFB);
     border-top: 1px solid var(--border, #E8E8EE);
-    overflow-x: auto;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
+    animation: wthEmojisIn 0.18s ease;
 }
-.wth-emojis::-webkit-scrollbar { display: none; }
+@keyframes wthEmojisIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
 
 .wth-emoji-btn {
-    font-size: 26px;
+    aspect-ratio: 1 / 1;
+    font-size: 20px;
     line-height: 1;
-    padding: 6px;
+    padding: 0;
     border: none;
     background: none;
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.15s;
-    flex-shrink: 0;
-    min-width: 44px;
-    min-height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+    max-width: 44px;
+    max-height: 44px;
+    justify-self: center;
+    align-self: center;
+    width: 100%;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 .wth-emoji-btn:hover {
     background: var(--violet-100, #EDE9FE);
-    transform: scale(1.12);
+    transform: scale(1.10);
 }
 .wth-emoji-btn:active {
-    transform: scale(0.94);
+    transform: scale(0.92);
 }
 
 /* ============================================================
@@ -1474,9 +1480,15 @@ body {
     .wth-icon-btn { width: 34px; height: 34px; }
     .wth-modal { padding: 10px; }
     .wth-modal-card { max-height: 94dvh; }
+
+    .wth-emojis {
+        grid-template-columns: repeat(8, 1fr);
+        gap: 2px;
+        padding: 8px 10px;
+    }
     .wth-emoji-btn {
-        font-size: 24px;
-        min-width: 40px;
-        min-height: 40px;
+        font-size: 18px;
+        max-width: 38px;
+        max-height: 38px;
     }
 }
