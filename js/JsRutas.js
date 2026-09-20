@@ -157,7 +157,7 @@ const RUTAS_HERRAMIENTAS = [
         categoria: 'Juegos',
         esBase: false,
         espacio: 6,
-        monedas: 20
+        monedas: 35
     },
     {
         id: 'evmail',
