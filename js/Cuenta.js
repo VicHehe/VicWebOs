@@ -26,8 +26,8 @@ const ULTIMOS_CODIGOS_KEY = 'vicwebos_ultimos_codigos';
 //  script sin depender del scope léxico global.
 // ============================================================
 var ESPACIO_INICIAL          = 50;
-var ESPACIO_POR_COMPRA       = 12;
-var COSTO_COMPRA_ESPACIO     = 2500;
+var ESPACIO_POR_COMPRA       = 5;
+var COSTO_COMPRA_ESPACIO     = 350;
 var MONEDAS_INICIALES        = 0;
 var MAX_WIDGETS_ACTIVOS      = 3;
 var MAX_MOVIMIENTOS_CHEQUERA = 500;
@@ -528,7 +528,12 @@ async function comprarEspacio() {
     const codigo = cuentaActual.codigo;
 
     return await _conLock(`comprarEspacio:${codigo}`, async () => {
-        await gastoBoleta('hard-drive', 'stor-he', 'Ampliar espacio (+12)', COSTO_COMPRA_ESPACIO);
+        await gastoBoleta(
+            'hard-drive',
+            'stor-he',
+            `Ampliar espacio (+${ESPACIO_POR_COMPRA})`,
+            COSTO_COMPRA_ESPACIO
+        );
 
         await guardarConfigCuenta(codigo, (cfg) => {
             cfg.espacioMaximo = (cfg.espacioMaximo || ESPACIO_INICIAL) + ESPACIO_POR_COMPRA;
