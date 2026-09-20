@@ -1,0 +1,348 @@
+═══════════════════════════════════════════════════════════════════════════════
+  VICWEBOS — REGLAS DEL PROYECTO v0.1
+  ─────────────────────────────────────────────────────────────────────────────
+  Este documento define las REGLAS que todo el código de VicWebOs debe seguir.
+  No es una guía de arquitectura (para eso ver DOCUMENT_0.1_VicWebOs.txt), es
+  una lista de REGLAS DURAS que se hacen cumplir.
+
+  Última actualización: 2026
+  Versión del proyecto: 0.1 (funcional, en producción personal)
+═══════════════════════════════════════════════════════════════════════════════
+
+
+─── 1. ESTRUCTURA DE ARCHIVOS ─────────────────────────────────────────────
+
+R1.1  Cada app vive en herramientas/{id}/ con EXACTAMENTE:
+        index.html
+        style.css
+        script.js
+      Sin subcarpetas, sin excepciones.
+      (Excepción única: herramientas/galeria/ tiene picker.html/css/js para
+      el modal de selección de imágenes, porque el picker debe poder cargarse
+      independientemente.)
+
+R1.2  Cada widget vive en Widgets/{id}/ con la misma estructura.
+
+R1.3  Cada tema es UN archivo CSS: Temas/{id}.css
+
+R1.4  Los temas NO contienen lógica. Solo variables y overrides visuales.
+
+
+─── 2. NOMENCLATURA ───────────────────────────────────────────────────────
+
+R2.1  IDs de apps/widgets/temas:
+        ● minúsculas
+        ● sin espacios
+        ● sin tildes
+        ● sin Ñ
+        ● pueden tener guiones
+        ● sin guiones bajos
+      Válido: calculadora, tres-en-raya, evmail, arte-flash
+      Inválido: Calculadora, tres_en_raya, adivinacion
+
+R2.2  El id de una app NO SE PUEDE CAMBIAR una vez publicada (los datos
+      existentes en los repos de datos usan el id viejo).
+      Si hay que renombrar visualmente, cambiar el campo "nombre" en
+      JsRutas.js pero mantener el id.
+
+R2.3  Los nombres de variables CSS nuevos del tema deben empezar con --.
+
+R2.4  Los nombres de archivos de datos:
+        Global:      {appId}.json
+        Por usuario: {codigo}{appId}.json   (ej: 0308Vnotas.json)
+
+
+─── 3. TEMAS ──────────────────────────────────────────────────────────────
+
+R3.1  TODO tema DEBE definir estas 40 variables en su :root:
+        --violet-50 ... --violet-700       (8)
+        --white, --bg, --bg-alt            (3)
+        --gray-50 ... --gray-900           (10)
+        --border, --text, --text-2, --text-3 (4)
+        --shadow-xs, --shadow-sm, --shadow-md, --shadow-lg,
+        --shadow-xl, --shadow-glow          (6)
+        --accent-gradient, --accent-gradient-hover,
+        --accent-shadow, --accent-shadow-hover,
+        --accent-text-gradient              (5)
+        --r-sm, --r-md, --r-lg, --r-xl, --r-full (5)
+
+R3.2  Si un tema sobreescribe .sidebar con position: relative, DEBE incluir
+      el fix de móvil:
+        @media (max-width: 768px) { .sidebar { position: fixed; } }
+
+R3.3  Un tema puede añadir variables custom (ej: --theme-waves). Deben
+      empezar con --theme- para evitar colisiones.
+
+R3.4  Los temas NO deben romper el layout base. Pueden decorar visualmente
+      (colores, sombras, gradientes, pseudo-elementos) pero no cambiar
+      tamaños, posiciones ni display.
+
+R3.5  Un tema "Básico" es solo :root (recolor puro).
+      Un tema "Especial" añade pseudo-elementos, SVG patterns, animaciones.
+      Un tema "Flagship" (25-30 monedas) tiene animación en vivo + capas.
+
+
+─── 4. APPS Y WIDGETS — HERENCIA DE TEMA ──────────────────────────────────
+
+R4.1  TODA app y widget DEBE incluir la función aplicarTemaDelPadre() que
+      copia las variables CSS del padre a su propio documentElement.
+
+R4.2  TODA app y widget DEBE escuchar el mensaje 'vicwebos_tema_cambio' y
+      re-aplicar el tema cuando llegue.
+
+R4.3  La función aplicarTemaDelPadre() es verbatim. No modificar la lista
+      de variables que lee. (Ver DOCUMENT_0.1 sección 4.4.)
+
+R4.4  El try/catch de aplicarTemaDelPadre() es SILENCIOSO. No debe loggear
+      errores ni romper la app si falla.
+
+R4.5  Si el CSS de la app/widget usa un color hardcodeado (no var()), es un
+      bug. TODOS los colores deben venir de variables con fallback violeta.
+
+
+─── 5. API Y PERSISTENCIA ─────────────────────────────────────────────────
+
+R5.1  Las apps y widgets acceden a la API del shell por:
+        const api = window.parent.__vicwebos;
+        const bd  = window.parent.ConfigBD;
+        const mh  = window.parent.MasterHad;
+
+R5.2  Las apps NO deben acceder directamente a localStorage ni a IndexedDB
+      para datos compartidos. Todo pasa por ConfigBD.
+
+R5.3  Para escribir un JSON con posible concurrencia, usar SIEMPRE:
+        bd.actualizarArchivo(path, mutador)
+      NO usar escribirArchivo() salvo para datos 100% del usuario.
+
+R5.4  Para leer datos actualizados (evitar caché de 5 min):
+        bd.leerArchivoFresh(path)
+
+R5.5  Las apps NO deben guardar base64 en JSON. Excepción única:
+      cuenta.json (foto de perfil, porque es chica).
+
+
+─── 6. IMÁGENES Y BINARIOS ────────────────────────────────────────────────
+
+R6.1  Las apps NUNCA suben imágenes directamente. Usan el picker:
+        const id = await mh.galeria.abrirPicker({ multiple: false });
+
+R6.2  Las apps guardan SOLO el id de la imagen, nunca la ruta.
+
+R6.3  Para mostrar una imagen guardada:
+        const url = await mh.galeria.leerImagenURL(id);
+        img.src = url;
+        img.onload = () => URL.revokeObjectURL(url);   // ← OBLIGATORIO
+
+R6.4  Audio, video y documentos van en subcarpetas de la app:
+        app/{appId}/{appId}(audio)/archivo.mp3
+      usando mh.publicarAudio / publicarVideo / publicarDocumento.
+
+R6.5  TODA URL de objeto (blob:) debe revocarse después de usarla.
+      Esto incluye URLs de imágenes, audio, video, y descargas.
+
+
+─── 7. ECONOMÍA ───────────────────────────────────────────────────────────
+
+R7.1  Para OTORGAR monedas, usar SIEMPRE:
+        api.canjear(icono, fuente, texto, cantidad)
+
+R7.2  Para COBRAR monedas, usar SIEMPRE:
+        api.gastoBoleta(icono, fuente, texto, cantidad)
+      con try/catch (puede fallar si no alcanzan las monedas).
+
+R7.3  NUNCA modificar el campo "monedas" del JSON de la cuenta a mano.
+
+R7.4  El icono debe ser un nombre Lucide válido (sin "icon-").
+
+R7.5  Los precios de apps/temas/widgets deben respetar las escalas:
+      ● Apps:    2 / 4 / 6 / 8 / 10 espacio. Monedas según complejidad.
+      ● Temas:   0 / 2 / 4 espacio. Monedas según escala (0-30).
+      ● Widgets: 2 / 4 espacio. Monedas según utilidad (5-35).
+
+R7.6  Las apps que otorgan monedas deben tener un TOPE por sesión
+      (evitar que un bug o exploit rompa la economía).
+
+
+─── 8. NOTIFICACIONES ─────────────────────────────────────────────────────
+
+R8.1  Para enviar notificación a otro usuario:
+        api.enviarNotificacion('miApp', 'texto', 'CODIGO_DESTINO')
+
+R8.2  Para enviarme notificación a mí mismo:
+        api.enviarNotificacion('miApp', 'texto', null)
+
+R8.3  NO spamear notificaciones. Solo eventos importantes:
+        ● Interacción de otro usuario.
+        ● Recompensa grande.
+        ● Evento significativo.
+
+
+─── 9. UI / UX ────────────────────────────────────────────────────────────
+
+R9.1  Iconos: SIEMPRE Lucide. NUNCA emojis en la UI.
+      Después de insertar nuevos, llamar lucide.createIcons().
+
+R9.2  Colores: NUNCA hardcodear. SIEMPRE var(--xx, fallback).
+      El fallback debe ser el color violeta por defecto.
+
+R9.3  Espaciado: múltiplos de 4 (4, 8, 12, 16, 20, 24, 32).
+
+R9.4  Radios: usar variables --r-sm/md/lg/xl/full.
+
+R9.5  Sombras: usar variables --shadow-xs a --shadow-xl.
+
+R9.6  Touch targets en móvil: ≥ 44x44px.
+
+R9.7  Sin scroll horizontal en móvil.
+
+R9.8  Tipografía: Nunito. Pesos 400, 600, 700, 800, 900.
+
+R9.9  Todo texto visible al usuario debe estar en español (o neutro).
+
+R9.10 Los modales deben cerrarse con:
+        ● Botón X
+        ● Click fuera
+        ● Tecla Escape
+
+R9.11 Los formularios largos deben tener scroll interno (no scroll de página).
+
+
+─── 10. EVENTOS DEL SHELL ─────────────────────────────────────────────────
+
+R10.1 Las apps/widgets deben escuchar estos mensajes postMessage:
+        ● 'vicwebos_tema_cambio'    → re-aplicar tema
+        ● 'vicwebos_chequera_cambio' → refrescar saldo (si aplica)
+
+R10.2 Las apps/widgets pueden escuchar estos CustomEvents en window.parent:
+        ● 'vicwebos:sesion'    → { codigo, activa }
+        ● 'vicwebos:comunidad' → { id }
+
+R10.3 Los mensajes deben incluir siempre un campo "type" para identificarlos.
+
+
+─── 11. CONCURRENCIA ──────────────────────────────────────────────────────
+
+R11.1 Las operaciones que pueden colisionar con otros usuarios deben usar
+      bd.actualizarArchivo() en vez de escribirArchivo().
+
+R11.2 Las operaciones de compra/instalación en Cuenta.js usan un sistema
+      de locks en memoria (_conLock). Las apps NO necesitan replicarlo.
+
+R11.3 Si una app hace polling, debe:
+        ● Usar setInterval de 15-20s.
+        ● Cancelar el interval al ocultarse la pestaña.
+        ● Refrescar al volver a la pestaña (visibilitychange).
+
+
+─── 12. RENDIMIENTO ───────────────────────────────────────────────────────
+
+R12.1 NO crear múltiples pollers que consulten el mismo dato.
+      Compartir via el shell si es posible.
+
+R12.2 Revocar SIEMPRE las URLs de objeto (blob:) después de usarlas.
+
+R12.3 Comprimir imágenes antes de subirlas (mh.comprimirImagen lo hace).
+
+R12.4 En iframes anidados, evitar setTimeout para timing de juego.
+      Usar requestAnimationFrame + performance.now().
+
+
+─── 13. COMPATIBILIDAD CON TEMAS ──────────────────────────────────────────
+
+R13.1 APPS: Recomendado usar var() con fallback, pero no obligatorio.
+
+R13.2 WIDGETS: OBLIGATORIO heredar tema. Deben verse bien en 3+ temas.
+
+R13.3 STOR-HE: Hereda el tema (es una app, pero por coherencia visual con
+      el sistema se comporta como widget).
+
+R13.4 PICKER: Hereda el tema (vive dentro del shell como overlay).
+
+R13.5 Las apps deben probarse con al menos: violeta, hacker, consentido.
+      (Uno claro, uno oscuro, uno decorado.)
+
+
+─── 14. DOCUMENTACIÓN ─────────────────────────────────────────────────────
+
+R14.1 Cuando se añade una función nueva al sistema, actualizar
+      DOCUMENT_0.1_VicWebOs.txt en la sección correspondiente.
+
+R14.2 Cuando se añade una app/widget/tema nuevo, registrarlo en:
+        ● JsRutas.js      (apps)
+        ● JsWidgets.js    (widgets)
+        ● JsTemas.js      (temas)
+
+R14.3 Los IDs deben ser únicos. No puede haber dos apps con el mismo id.
+
+R14.4 Los comentarios en el código deben explicar el POR QUÉ, no el qué.
+
+
+─── 15. CATEGORÍAS ────────────────────────────────────────────────────────
+
+Las categorías válidas para apps son:
+  ● Sistema                 (apps base)
+  ● Herramientas Prácticas  (calculadora, notas, QR, photo-shinny)
+  ● Juegos                  (dino, whack-a-mole, tres-en-raya, wordle)
+  ● Social                  (evmail, silly-calls)
+  ● Creatividad             (arte-flash)
+
+Las categorías válidas para widgets son:
+  ● Utilidades
+  ● Social
+  ● Azar
+  ● Personalización
+  ● Entretenimiento
+
+Las categorías válidas para temas son:
+  ● Básicos      (recolors, light mode)
+  ● Oscuros      (dark mode)
+  ● Formales     (OS-like, para trabajar)
+  ● Retro        (referencias a décadas)
+  ● Especiales   (flagships con efectos)
+
+
+─── 16. LIMITACIONES A RESPETAR ───────────────────────────────────────────
+
+R16.1 GitHub limita a 5000 requests/hora. Cuidar la cantidad de pollers.
+
+R16.2 La caché de ConfigBD dura 5 min. Usar leerArchivoFresh() si se
+      necesita dato actualizado.
+
+R16.3 Sin WebSocket. Todo es polling.
+
+R16.4 Sin persistencia offline. Si GitHub cae, no funciona.
+
+R16.5 Las apps viven en iframes aislados. No comparten estado entre sí.
+
+
+─── 17. LO QUE NO SE PUEDE HACER ─────────────────────────────────────────
+
+  ✗ Cambiar el id de una app publicada.
+  ✗ Subir imágenes fuera de la Galería.
+  ✗ Guardar base64 en JSON (excepto cuenta.json).
+  ✗ Hardcodear colores en apps/widgets.
+  ✗ Usar emojis en la UI.
+  ✗ Modificar monedas a mano.
+  ✗ Crear iframes anidados sin motivo.
+  ✗ Usar setTimeout para timing de juego.
+  ✗ Dejar URLs de objeto sin revocar.
+  ✗ Escribir sin usar actualizarArchivo() cuando hay concurrencia.
+  ✗ Romper el layout del shell desde un tema.
+
+
+─── 18. REFERENCIAS ───────────────────────────────────────────────────────
+
+  Guía maestra:           DOCUMENT_0.1_VicWebOs.txt
+  Catálogo de apps:       js/JsRutas.js
+  Catálogo de temas:      js/JsTemas.js
+  Catálogo de widgets:    js/JsWidgets.js
+  API pública:            js/JsIndex.js (window.__vicwebos)
+  Herramientas globales:  js/MasterHad.js
+  Persistencia:           js/ConfigBD.js + js/ConfigBD.binarios.js
+  Economía y cuentas:     js/Cuenta.js
+  Notificaciones:         js/Notificaciones.js
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  FIN DE LAS REGLAS v0.1
+═══════════════════════════════════════════════════════════════════════════════
