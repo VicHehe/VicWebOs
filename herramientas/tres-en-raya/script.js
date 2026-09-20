@@ -4,7 +4,7 @@
 //  Ronda 1 → Fácil
 //  Ronda 2 → Media
 //  Ronda 3 → Difícil
-//  Ganar las 3 → +15 monedas y ciclo completado.
+//  Ganar las 3 → +10 monedas y ciclo completado.
 //  Perder o empatar → vuelves a la ronda 1.
 //
 //  Al ganar rondas 1 y 2 el tablero se reinicia solo y
@@ -17,7 +17,7 @@
 const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const APP_ID = 'tres-en-raya';
 const RONDAS_POR_CICLO = 3;
-const RECOMPENSA_CICLO = 15;
+const RECOMPENSA_CICLO = 10;
 const IDB_NAME = 'TresEnRayaDB';
 const IDB_VERSION = 1;
 const IDB_STORE = 'estado';
