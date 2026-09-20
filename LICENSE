@@ -1,0 +1,86 @@
+LICENCIA — VicWebOs
+Copyright (c) 2026 VicHe y colaboradores
+Todos los derechos reservados bajo los términos descritos abajo.
+
+Esta licencia describe qué se puede y qué no se puede hacer con
+VicWebOs (el "Software") y cualquier proyecto derivado.
+
+================================================================
+ PERMITIDO
+================================================================
+
+- Usar el Software con cualquier propósito personal o comunitario.
+- Modificar, adaptar y extender el código.
+- Crear forks y proyectos derivados, incluyendo variaciones con
+  nombre propio (por ejemplo, "FernandoWebOs", "MiOsPersonal").
+- Redistribuir el código original o modificado, siempre que se
+  cumplan las condiciones de abajo.
+- Usar el Software sin fines de lucro, tanto a nivel personal
+  como dentro de tu grupo, familia o comunidad.
+
+================================================================
+ CONDICIONES
+================================================================
+
+1. ATRIBUCIÓN
+   Cualquier copia, fork o proyecto derivado debe mantener una
+   mención visible al proyecto original y a su autor. Alcanza con
+   incluir en los créditos o documentación:
+
+       "Basado en VicWebOs · github.com/{usuario}/VicWebOs"
+
+   No es necesario mantener el nombre "VicWebOs" en el proyecto
+   derivado, pero sí acreditar que existe y quién lo creó.
+
+2. NO COMERCIAL
+   No se permite vender VicWebOs ni ningún proyecto derivado,
+   ni cobrar por su uso, acceso o distribución. Esto incluye,
+   entre otros:
+
+   - Vender el código o el acceso al Software.
+   - Ofrecerlo como servicio pago o por suscripción.
+   - Incluirlo dentro de un producto o servicio comercial.
+   - Integrar publicidad obligatoria en la interfaz.
+   - Cobrar por modificaciones, soporte o personalización.
+   - Requerir pago para desbloquear funciones del Software.
+
+   El espíritu de esta regla es simple: si el original es
+   gratuito, los derivados también deben serlo.
+
+3. COMPARTIR IGUAL
+   Cualquier fork o proyecto derivado debe distribuirse bajo
+   esta misma licencia. No se puede relicenciar el Software (ni
+   sus modificaciones) bajo términos más restrictivos ni bajo
+   licencias permisivas que permitan uso comercial.
+
+================================================================
+ NO PERMITIDO
+================================================================
+
+- Vender el Software o cualquier derivado.
+- Cobrar por su uso, acceso o mantenimiento.
+- Retirar los créditos o atribuciones originales.
+- Relicenciar bajo términos incompatibles con esta licencia.
+- Incorporar el Software en un producto comercial sin permiso
+  escrito del autor original.
+
+================================================================
+ SIN GARANTÍA
+================================================================
+
+VicWebOs se distribuye "tal cual" (as is), sin garantías de
+ningún tipo, expresas o implícitas. El autor original no se hace
+responsable por el uso del Software ni por el contenido que los
+usuarios generen con él.
+
+Los datos de cada usuario viven en sus propios repositorios de
+GitHub, bajo su control total. VicWebOs no aloja datos ni opera
+servidores propios.
+
+================================================================
+ CASOS ESPECIALES
+================================================================
+
+Para consultas sobre uso comercial, integración en productos,
+o cualquier caso que no encaje en los términos de arriba,
+contactar al autor original.
