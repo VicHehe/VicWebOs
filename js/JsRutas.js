@@ -189,8 +189,8 @@ const RUTAS_HERRAMIENTAS = [
         descripcion: 'Chat interno con privados, grupos y notas de voz cortas.',
         categoria: 'Social',
         esBase: false,
-        espacio: 8,
-        monedas: 40
+        espacio: 10,
+        monedas: 60
     },
     {
         id: 'silly-calls',
