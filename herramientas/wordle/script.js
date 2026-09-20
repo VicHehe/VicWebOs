@@ -3,7 +3,7 @@
 //  ------------------------------------------------------------
 //  - 6 intentos por palabra.
 //  - Se puede jugar cuantas veces se quiera.
-//  - +5 monedas por cada palabra descubierta.
+//  - +25 monedas por cada palabra descubierta.
 //  - Estadísticas (ganadas + racha) persisten por usuario
 //    en IndexedDB.
 //  - Diccionario propio en español (sin tildes ni Ñ).
@@ -19,7 +19,7 @@ const IDB_STORE = 'estado';
 
 const LARGO = 5;
 const MAX_INTENTOS = 6;
-const MONEDAS_VICTORIA = 5;
+const MONEDAS_VICTORIA = 25;
 
 // ============================================================
 //  DICCIONARIO
