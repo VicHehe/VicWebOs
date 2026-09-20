@@ -1,0 +1,1683 @@
+═══════════════════════════════════════════════════════════════════════════════
+  DOCUMENT 0.1 — VICWEBOS
+  Guía maestra completa del sistema operativo web
+  ─────────────────────────────────────────────────────────────────────────────
+  Propósito: este archivo contiene TODO lo necesario para entender, mantener
+  y extender VicWebOs sin necesidad de leer el código fuente. Si eres una IA
+  o un humano nuevo en el proyecto, LEE ESTE DOCUMENTO COMPLETO antes de
+  tocar una sola línea.
+
+  Última actualización: 2026
+  Estado del proyecto: 0.1 (funcional, en producción personal)
+  Autor: VicHe
+═══════════════════════════════════════════════════════════════════════════════
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  SECCIÓN 0 — CÓMO USAR ESTE DOCUMENTO
+═══════════════════════════════════════════════════════════════════════════════
+
+Si te piden:
+  ● "Hazme una app nueva"          → Sección 5 + Sección 14.1
+  ● "Hazme un widget nuevo"        → Sección 6 + Sección 14.2
+  ● "Hazme un tema nuevo"          → Sección 4 + Sección 14.3
+  ● "Modifica la app X"            → Sección 5 + Sección 7 (APIs)
+  ● "¿Cómo funciona la economía?"  → Sección 8
+  ● "¿Cómo se guardan los datos?"  → Sección 2 + Sección 11
+  ● "¿Por qué mi iframe no se ve     → Sección 4.4 (herencia de tema)
+      con el tema del padre?"
+
+Este documento está pensado para LEERSE POR SECCIONES, no de corrido. Las
+secciones 4, 5, 6 y 7 son las más críticas.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  SECCIÓN 1 — QUÉ ES VICWEBOS
+═══════════════════════════════════════════════════════════════════════════════
+
+VicWebOs es un "sistema operativo web" personal/grupal. NO es una app normal:
+
+  ● Es un SHELL (marco) con apps instalables, temas intercambiables y widgets.
+  ● Está pensado para grupos chicos: pareja, amigos, familia.
+  ● Todo dato vive en un repo privado de GitHub del propio grupo.
+  ● No hay backend. No hay servidor. GitHub ES la base de datos.
+
+FILOSOFÍA:
+  ● Instalable / desinstalable (apps, temas, widgets).
+  ● Persistente (nada se pierde al recargar).
+  ● Personalizable (temas, accesos rápidos, widgets).
+  ● Gamificado (monedas, espacio, chequera).
+  ● Auto-contenido (cada app es un iframe aislado).
+
+USUARIO TÍPICO:
+  Un grupo de 2-8 personas que comparten una "comunidad" (un repo de datos).
+  Cada uno tiene su cuenta (código único de 4 dígitos + 1 letra, ej: 0308V).
+  Los datos de cada uno están aislados por su código.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  SECCIÓN 2 — ARQUITECTURA DE DATOS
+═══════════════════════════════════════════════════════════════════════════════
+
+>>> 2.1 — DOS REPOSITORIOS SEPARADOS
+
+REPO 1 — CÓDIGO (VicWebOs/)
+  Contiene TODO el código fuente del OS y las apps.
+  Puede ser público o privado.
+  Se hostea en GitHub Pages / Vercel / Netlify / local.
+  Se actualiza una sola vez para TODOS los grupos.
+
+REPO 2 — DATOS (vicwebos-data/)
+  Contiene TODOS los datos del grupo (cuentas, configs, apps).
+  DEBE SER PRIVADO. Uno por comunidad.
+  El usuario lo conecta con un token de GitHub desde el OS.
+  Cada grupo tiene el suyo.
+
+Esto significa:
+  ● El código es compartido y público.
+  ● Los datos son privados y por grupo.
+  ● Una app nueva subida al repo de código aparece para todos los grupos
+    automáticamente (sin reinstalar nada).
+
+
+>>> 2.2 — ESTRUCTURA INTERNA DEL REPO DE DATOS
+
+vicwebos-data/
+  cuenta.json                      ← Lista de usuarios de la comunidad
+  cuentaConfig.json                ← Configuración por usuario (apps instaladas, etc.)
+  CuentasNotificaciones.json       ← Notificaciones de todos
+
+  Galeria{CODIGO}/                 ← Carpeta GLOBAL de imágenes por usuario
+    img_xxx.jpg
+    img_yyy.png
+    galeria.json                   ← Índice del usuario
+
+  app/
+    galeria/
+      galeria.json                 ← Índice global (mirror)
+    {nombreApp}/
+      {nombreApp}.json             ← JSON global (todos los usuarios)
+      {codigoUsuario}{nombreApp}.json   ← JSON por usuario (patrón: 0308Vapp.json)
+      {nombreApp}(audio)/          ← Subcarpeta de audios
+      {nombreApp}(video)/          ← Subcarpeta de videos
+      {nombreApp}(documento)/      ← Subcarpeta de docs
+
+
+>>> 2.3 — REGLAS DE DATOS
+
+REGLA 1 — UN JSON POR APP
+  Cada app guarda sus datos en app/{appId}/.
+  ● Global:      app/{appId}/{appId}.json
+  ● Por usuario: app/{appId}/{codigo}{appId}.json
+  Ejemplo (usuario 0308V, app calendario):
+    app/calendario/calendario.json
+    app/calendario/0308Vcalendario.json
+
+  ¿Cuándo usar cuál?
+  ● Global: datos que ven todos (lista de usuarios, directorio, ranking).
+  ● Por usuario: datos privados (notas, dibujos, configuración personal).
+  ● Ambos: cuando hay un índice global + datos personales (ej: correo).
+
+REGLA 2 — IMÁGENES SIEMPRE EN GALERÍA GLOBAL
+  Las imágenes NO se guardan dentro de la carpeta de cada app.
+  Van SIEMPRE a:
+    Galeria{CODIGO}/img_xxx.jpg
+    Galeria{CODIGO}/galeria.json
+
+  Cada app guarda SOLO el id de la imagen (imagenId), nunca la ruta.
+  Al mostrar, se resuelve con MasterHad.galeria.leerImagenURL(id).
+
+  Si el usuario borra una imagen de la Galería, deja de estar disponible
+  en TODAS las apps automáticamente. Esto es intencional.
+
+  PROHIBIDO: subir imágenes dentro de app/{appId}/.
+
+REGLA 3 — OTROS BINARIOS (audio, video, documento)
+  Van en subcarpetas dentro de la carpeta de la app:
+    app/{appId}/{appId}(audio)/archivo.mp3
+    app/{appId}/{appId}(video)/archivo.mp4
+    app/{appId}/{appId}(documento)/archivo.pdf
+  En el JSON se guarda solo el nombre del archivo.
+
+  PROHIBIDO guardar base64 en los JSON (excepción: cuenta.json que puede
+  guardar la foto de perfil del usuario en base64, solo porque es chica
+  y se necesita siempre disponible).
+
+REGLA 4 — CONCURRENCIA
+  Cuando 2 usuarios escriben el mismo JSON al mismo tiempo, GitHub devuelve
+  conflicto. La capa ConfigBD.actualizarArchivo() hace merge + retry
+  automáticamente. Las apps SIEMPRE deben usar:
+    bd.actualizarArchivo(path, mutador)
+  en vez de:
+    bd.escribirArchivo(path, datos)   ← solo si el dato es 100% del usuario
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  SECCIÓN 3 — ESTRUCTURA DE ARCHIVOS
+═══════════════════════════════════════════════════════════════════════════════
+
+>>> 3.1 — REPO DE CÓDIGO
+
+VicWebOs/
+  index.html                       ← Shell principal (una sola página)
+  style.css                        ← Layout base (NO define colores)
+  README.md
+  REGLAS_APPS.txt                  ← Reglas antiguas (referencia histórica)
+  DOCUMENT_0.1_VicWebOs.txt        ← ESTE ARCHIVO
+
+  js/
+    JsRutas.js                     ← Catálogo de APPS (RUTAS_HERRAMIENTAS)
+    JsTemas.js                     ← Catálogo de TEMAS (TEMAS_DISPONIBLES)
+    JsWidgets.js                   ← Catálogo de WIDGETS (WIDGETS_DISPONIBLES)
+    ConfigBD.js                    ← Conexión GitHub + caché IndexedDB
+    ConfigBD.binarios.js           ← Subida/descarga de binarios grandes
+    MasterHad.js                   ← Caja de herramientas global
+    Cuenta.js                      ← Cuentas, apps, temas, widgets, economía
+    configuracion.js               ← Modal de configuración (UI)
+    JsIndex.js                     ← Shell: pestañas, sidebar, API pública
+    Notificaciones.js              ← Sistema de notificaciones global
+    MobileUI.js                    ← Drawer móvil del sidebar
+
+  Temas/
+    violeta.css                    ← 25+ temas, cada uno un CSS de ~40-100 líneas
+    rosa.css
+    oceano.css
+    ... (ver sección 4.6)
+
+  herramientas/
+    {appId}/
+      index.html
+      style.css
+      script.js
+
+    Ejemplo: herramientas/calculadora/index.html
+
+  Widgets/
+    {widgetId}/
+      index.html
+      style.css
+      script.js
+
+    Ejemplo: Widgets/reloj-mundial/index.html
+
+
+>>> 3.2 — REGLA DE ORO DE NOMENCLATURA
+
+  IDs de apps/widgets/temas:
+    ● minúsculas
+    ● sin guiones bajos
+    ● pueden tener guiones (ej: tres-en-raya, whack-a-mole)
+    ● sin espacios, sin tildes, sin Ñ
+
+  Ejemplos válidos: calculadora, tres-en-raya, evmail, arte-flash, radio
+  Ejemplos inválidos: Calculadora, tres_en_raya, adivin-he ✗ (nombre, no id)
+
+  ⚠️ AVISO: el id de una app NO se puede cambiar una vez publicada, porque
+  el repo de datos de cada usuario ya tiene archivos con ese nombre.
+  Ejemplo: wordle tiene nombre "Adivin-He" pero id "wordle" — el id manda.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  SECCIÓN 4 — SISTEMA DE TEMAS (CRÍTICO)
+═══════════════════════════════════════════════════════════════════════════════
+
+Los temas son la columna vertebral visual de VicWebOs. Un tema es UN SOLO
+archivo CSS que reescribe las variables del :root. NADA MÁS.
+
+Los temas NO contienen lógica. Los temas NO modifican el layout base.
+Solo definen variables CSS y, opcionalmente, decoran elementos específicos
+del shell (header, sidebar, welcome, etc.).
+
+
+>>> 4.1 — LAS 40 VARIABLES OBLIGATORIAS
+
+TODO tema DEBE definir exactamente estas 40 variables en su :root.
+Si falta una, el sistema hereda el fallback del style.css base (que es
+el tema violeta), lo que rompe la coherencia visual del tema.
+
+  ─── Paleta de acento (8) ───
+  --violet-50        ← Fondo ultra claro
+  --violet-100       ← Fondo claro (badges, chips)
+  --violet-200       ← Bordes suaves
+  --violet-300       ← Detalles medios
+  --violet-400       ← Hover
+  --violet-500       ← Acento PRINCIPAL (botones, links)
+  --violet-600       ← Acento oscuro
+  --violet-700       ← Acento más oscuro (texto sobre acento)
+
+  ─── Superficies (3) ───
+  --white            ← Tarjetas, modales, superficies elevadas
+  --bg               ← Fondo general del shell
+  --bg-alt           ← Sidebar, tabs bar, fondos secundarios
+
+  ─── Grises (10) ───
+  --gray-50  ... --gray-900 (escala completa de 50 a 900)
+
+  ─── Tokens semánticos (4) ───
+  --border           ← Color de bordes (normalmente = --gray-200)
+  --text             ← Texto principal (normalmente = --gray-900)
+  --text-2           ← Texto secundario (= --gray-600)
+  --text-3           ← Texto terciario (= --gray-500)
+
+  ─── Sombras (6) ───
+  --shadow-xs, --shadow-sm, --shadow-md, --shadow-lg, --shadow-xl
+  --shadow-glow      ← Anillo de foco violeta (rgba(acento, 0.10))
+
+  ─── Acentos derivados (5) ───
+  --accent-gradient          ← Gradiente principal (botones)
+  --accent-gradient-hover    ← Gradiente al hover
+  --accent-shadow            ← Color de sombra del acento (rgba)
+  --accent-shadow-hover      ← Sombra hover
+  --accent-text-gradient     ← Gradiente para texto (logos, títulos)
+
+  ─── Radios (5) ───
+  --r-sm   (8px por defecto)
+  --r-md   (12px)
+  --r-lg   (16px)
+  --r-xl   (20px)
+  --r-full (999px)
+
+
+>>> 4.2 — VARIABLES OPCIONALES
+
+  --t-fast, --t, --t-slow    ← Transiciones (0.15s / 0.22s / 0.35s)
+  Cualquier otra variable custom del tema (ej: --theme-waves, --theme-clouds)
+
+
+>>> 4.3 — ANATOMÍA DE UN TEMA
+
+  Un tema típico tiene 2 partes:
+
+  PARTE 1 — :root { ... }  (siempre obligatorio)
+    Define las 40 variables.
+
+  PARTE 2 — Overrides específicos (opcional)
+    Reglas que decoran elementos del shell:
+    .app-header, .sidebar, .welcome-placeholder, .acceso-item,
+    .widget-item, .nav-item.active, .tab-item.active, .btn-primario, etc.
+
+  EJEMPLO DE TEMA SIMPLE (violeta.css):
+
+    :root {
+        --violet-50:  #F5F3FF;
+        --violet-100: #EDE9FE;
+        ... (las 40 vars)
+    }
+
+  EJEMPLO DE TEMA COMPLEJO (consentido.css):
+    Además del :root, decora:
+    ● Header con bandera chilena (::before + ::after)
+    ● Welcome con manta de huaso (patrón de gradientes)
+    ● Copihues en accesos rápidos al hover (::after con SVG inline)
+    ● Guirnalda de fonda arriba del welcome (background-image)
+    ● Sidebar con gradiente rojo
+    ● Botón primario con gradiente rojo→azul
+
+  Regla: cuanto más caro el tema (en espacio/monedas), más decoración tiene.
+  Los temas "Básicos" son solo :root. Los "Especiales" (25-30 monedas) tienen
+  animaciones, SVG embebidos, pseudo-elementos, etc.
+
+
+>>> 4.4 — HERENCIA DE TEMA EN IFRAMES (CRÍTICO)
+
+⚠️ ESTE ES EL PUNTO MÁS IMPORTANTE PARA APPS Y WIDGETS.
+
+Las apps y los widgets viven en iframes. Los iframes NO heredan el CSS del
+padre automáticamente. Para que un iframe use el tema activo, tiene que:
+
+  1. LEER las variables del padre con getComputedStyle.
+  2. COPIARLAS a su propio document.documentElement.style.
+  3. ESCUCHAR el mensaje 'vicwebos_tema_cambio' para re-aplicar cuando
+     el usuario cambie de tema.
+
+CÓDIGO EXACTO (copiar y pegar en TODA app y widget):
+
+────────────────────────────────────────────────────────────────────────────
+
+function aplicarTemaDelPadre() {
+    try {
+        const rootPadre = window.parent.document.documentElement;
+        const stylePadre = getComputedStyle(rootPadre);
+        const vars = [
+            '--violet-50','--violet-100','--violet-200','--violet-300',
+            '--violet-400','--violet-500','--violet-600','--violet-700',
+            '--white','--bg','--bg-alt',
+            '--gray-50','--gray-100','--gray-200','--gray-300','--gray-400',
+            '--gray-500','--gray-600','--gray-700','--gray-800','--gray-900',
+            '--border','--text','--text-2','--text-3',
+            '--shadow-xs','--shadow-sm','--shadow-md','--shadow-lg','--shadow-xl',
+            '--shadow-glow',
+            '--accent-gradient','--accent-gradient-hover',
+            '--accent-shadow','--accent-shadow-hover',
+            '--accent-text-gradient',
+            '--r-sm','--r-md','--r-lg','--r-xl','--r-full'
+        ];
+        vars.forEach(v => {
+            const val = stylePadre.getPropertyValue(v).trim();
+            if (val) document.documentElement.style.setProperty(v, val);
+        });
+    } catch (e) { /* silencioso */ }
+}
+
+window.addEventListener('message', (e) => {
+    if (e.data && e.data.type === 'vicwebos_tema_cambio') {
+        aplicarTemaDelPadre();
+    }
+});
+
+// Al inicializar:
+document.addEventListener('DOMContentLoaded', () => {
+    aplicarTemaDelPadre();
+    // ... resto de la inicialización
+});
+
+────────────────────────────────────────────────────────────────────────────
+
+CUÁNDO SE APLICA:
+  ● Al cargar el iframe (DOMContentLoaded).
+  ● Cuando el shell cambia de tema y hace broadcast del mensaje.
+  ● El shell hace el broadcast cuando se carga el <link id="tema-activo">.
+    Espera ~2 frames (requestAnimationFrame + requestAnimationFrame) para
+    asegurarse que el CSS se aplicó.
+
+NOTA IMPORTANTE: en el try/catch "silencioso", si el iframe es cross-origin
+o el padre no está listo, no se aplica nada y la app usa los fallbacks del
+style.css local. Esto NO debe romper la app, solo mostrar los colores por
+defecto (violeta).
+
+
+>>> 4.5 — ELEMENTOS DEL SHELL QUE UN TEMA PUEDE DECORAR
+
+Un tema PUEDE (opcionalmente) sobreescribir estilos de estos elementos del
+shell. NO es obligatorio, pero es lo que diferencia un tema "Especial" de
+un tema "Básico".
+
+  HEADER:
+  ● .app-header          ← Barra superior
+  ● .logo-mark           ← Cuadrado con el hexágono
+  ● .search-bar          ← Barra de búsqueda
+  ● .noti-btn            ← Botón de notificaciones
+  ● .avatar-config       ← Avatar del usuario
+
+  SIDEBAR:
+  ● .sidebar             ← Panel lateral completo
+  ● .sidebar-comunidad   ← Chip de comunidad activa
+  ● .nav-item            ← Ítem de navegación
+  ● .nav-item.active     ← Ítem activo (¡muy decorado en varios temas!)
+  ● .nav-icon            ← Icono del ítem
+
+  MAIN:
+  ● .tab-bar             ← Barra de pestañas
+  ● .tab-item.active     ← Pestaña activa
+  ● .panel-container     ← Zona de los iframes
+
+  WELCOME (pantalla de inicio):
+  ● .welcome-placeholder ← Contenedor principal (fondo completo)
+  ● .welcome-glow        ← Círculo de brillo radial
+  ● .welcome-hero        ← Bloque del logo + saludo
+  ● .welcome-icon-wrap   ← Cuadrado con el hexágono grande
+  ● .welcome-section     ← Sección (accesos rápidos / widgets)
+  ● .acceso-item         ← Card de app (¡MUY decorada!)
+  ● .acceso-icon-wrap    ← Cuadrado del icono de la app
+  ● .widget-item         ← Card de widget
+
+  MODALES:
+  ● .config-card         ← Modal de configuración
+  ● .modal-todas-card    ← Modal "ver todas"
+  ● .noti-panel          ← Panel de notificaciones
+
+  BOTONES:
+  ● .btn-primario        ← Botón principal (gradiente)
+  ● .btn-secundario      ← Botón secundario (borde)
+
+  Responsive: varios temas incluyen
+    @media (max-width: 768px) { .sidebar { position: fixed; } }
+  para no romper el drawer móvil si decoran .sidebar con position:relative.
+
+
+>>> 4.6 — CATÁLOGO ACTUAL DE TEMAS
+
+BÁSICOS (gratis, solo :root + mínimos overrides):
+  ● violeta          — Tema por defecto. Fondo blanco, violeta clásico.
+  ● rosa             — Rosa pastel.
+  ● oceano           — Azul claro, tipo mar.
+  ● bosque           — Verde natural.
+  ● atardecer        — Naranja cálido.
+  ● rojizo           — Rojo clásico.
+  ● golden           — Dorado elegante.
+
+OSCUROS (dark mode + recolor):
+  ● noche            — Oscuro con acentos violeta.
+  ● ocean            — Oscuro con acentos azul marino + teal.
+  ● github-lover     — Paleta oficial GitHub dark.
+  ● pumkin           — Naranja calabaza + morado profundo.
+
+FORMALES (estilo OS, para trabajar):
+  ● oficina          — Gris pizarra, minimalista.
+  ● oficina-dark     — Versión nocturna de Oficina.
+  ● ventanas         — Windows Fluent, azul #0078D4.
+  ● celeste          — Cielo pastel con nubes SVG.
+
+RETRO (referencias a décadas):
+  ● hacker           — Fondo negro, verde terminal #00FF41.
+  ● vapor            — Vaporwave, rosa + violeta + cyan.
+  ● salon            — Salón de baile, rojo profundo + dorado.
+  ● chiptune         — Game Boy, verde oliva + scanlines CRT.
+
+ESPECIALES (floritura visual, precio alto):
+  ● consentido       — Chile: bandera, copihues, guirnaldas. 18 monedas.
+  ● dreams           — Negro profundo + arcoíris en bordes. 20 monedas.
+  ● floral           — Flores en welcome + hojas en sidebar. 20 monedas.
+  ● libro            — Grimorio: cuero oscuro + oro viejo. 25 monedas.
+  ● break-of-dawn    — Amanecer sobre el mar, olas animadas. 30 monedas.
+  ● friend           — Neón amarillo/rosa titilante. 30 monedas.
+
+ESCALA DE PRECIOS (monedas):
+  0   → oficiales gratuitos
+  5   → recolor puro :root
+  10  → pseudo-elementos simples o reescritura de chrome
+  15  → efecto visual claro (pattern SVG, scanlines, glitch)
+  18  → 🔒 Consentido (precio fijo por el 18 de septiembre)
+  20  → múltiples capas combinadas
+  25  → textura + efectos artesanales
+  30  → flagship: animación en vivo + múltiples capas
+
+ESPACIO:
+  0 → tema base del sistema
+  2 → solo variables :root
+  4 → añade pseudo-elementos, SVG patterns, texturas o animaciones
+
+>>> 4.7 — EL ARCHIVO JsTemas.js
+
+JsTemas.js es un archivo JS puro que exporta UNA constante global:
+
+  const TEMAS_DISPONIBLES = [ ... ];
+
+Esta constante es un array de objetos. Cada objeto describe UN tema.
+El shell lee este array en varios lugares:
+
+  ● configuracion.js → para pintar la lista de temas instalados.
+  ● JsIndex.js (__vicwebos.obtenerTemas) → expuesto a las apps.
+  ● Cuenta.js → para calcular espacio, aplicar tema, migrar defaults.
+  ● Stor-He (script.js) → para pintar las cards de la pestaña "Temas".
+
+
+>>> 4.8 — ANATOMÍA DE UN OBJETO DE TEMA
+
+Cada tema es un objeto con EXACTAMENTE estos campos:
+
+  {
+      id: 'violeta',                    ← ID único (ver R2.1). NUNCA cambia.
+      nombre: 'Violeta Clásico',        ← Nombre visible en la UI.
+      icono: 'palette',                 ← Icono Lucide (sin "icon-").
+      descripcion: 'El tema por defecto. Fondo blanco, violeta clásico.',
+      categoria: 'Básicos',             ← Ver R15 (categorías válidas).
+      esBase: true,                     ← true = no desinstalable, gratis.
+      ruta: 'Temas/violeta.css',        ← Ruta al archivo CSS.
+      espacio: 0,                       ← Costo en espacio (0, 2 o 4).
+      monedas: 0,                       ← Costo en monedas (ver escala 4.6).
+      colores: {                        ← OBJETO DE PREVIEW (ver 4.9).
+          '--violet-100': '#EDE9FE',
+          '--violet-300': '#C4B5FD',
+          '--violet-500': '#8B5CF6',
+          '--bg':         '#FBFBFD',
+          '--bg-alt':     '#F5F5F8',
+          '--white':      '#FFFFFF'
+      }
+  }
+
+CAMPOS OBLIGATORIOS: todos los de arriba. Sin excepciones.
+
+CAMPOS OPCIONALES: ninguno actualmente. Si en el futuro se añaden (ej:
+"preview: 'url-de-imagen'"), documentarlo acá.
+
+esBase: true → El tema no se puede desinstalar. Solo "violeta" tiene
+               esBase: true actualmente (es el fallback del sistema).
+
+
+>>> 4.9 — EL CAMPO colores (CLAVE PARA EL PREVIEW)
+
+Este campo es lo que permite que Stor-He y Configuración muestren una
+MINIATURA del tema (un cuadradito con colores) sin tener que cargar el
+CSS real.
+
+IMPORTANTE: este objeto NO define el tema. El tema real está en el .css.
+Este objeto es SOLO para el preview visual. Es una "vista reducida".
+
+DEBE CONTENER EXACTAMENTE ESTAS 6 CLAVES:
+
+  --violet-100   → color de fondo suave (chips, badges)
+  --violet-300   → color de detalle medio (líneas, bordes)
+  --violet-500   → color de acento principal (se muestra como el "color del tema")
+  --bg           → fondo general del shell
+  --bg-alt       → fondo secundario (sidebar)
+  --white        → superficie de tarjetas
+
+El preview en Stor-He se dibuja así (stor-he/script.js → renderTemaPreview):
+
+  ┌──────────────────────────────────────────┐
+  │ ▢ ▢ ▢  ← 3 puntos: --violet-500, 300, 100│  (header simulado)
+  ├────────┬─────────────────────────────────┤
+  │        │  ▬▬▬▬▬▬▬▬▬▬   ← --violet-500      │
+  │  side  │  ▬▬▬▬▬▬       ← --violet-300      │
+  │ (bg-alt)│  ▬▬▬▬         ← --violet-100      │
+  │        │  (bg en el fondo de la card)      │
+  └────────┴─────────────────────────────────┘
+
+  El fondo de la card usa --bg, el sidebar --bg-alt, el content --white.
+
+REGLA: los 6 colores del preview DEBEN coincidir con los reales del .css.
+Si el .css tiene --violet-500: #EC4899 (rosa), el preview debe tener
+'--violet-500': '#EC4899'. Si no coinciden, la miniatura miente.
+
+Para temas complejos (como consentido, con bandera chilena), el preview
+NO intenta reflejar toda la decoración: solo el color base. El usuario
+tiene que aplicar el tema para verlo completo. Esto es intencional.
+
+
+>>> 4.10 — CÓMO REGISTRAR UN TEMA NUEVO (PASO A PASO)
+
+Cuando quieras añadir un tema nuevo al catálogo:
+
+  PASO 1 — Crear el archivo CSS
+    Temas/{id}.css
+    Con las 40 variables obligatorias (ver 4.1).
+    Opcionalmente, decoraciones específicas (ver 4.5).
+
+  PASO 2 — Abrir JsTemas.js y añadir el objeto al array
+    Buscar la sección de la categoría correspondiente (Básicos / Oscuros /
+    Formales / Retro / Especiales) y añadir el objeto respetando el orden.
+
+    Ejemplo (tema nuevo "otoño"):
+
+      {
+          id: 'otono',
+          nombre: 'Otoño',
+          icono: 'leaf',
+          descripcion: 'Hojas secas, ámbar y marrón cálido.',
+          categoria: 'Básicos',
+          ruta: 'Temas/otono.css',
+          espacio: 2,
+          monedas: 0,
+          colores: {
+              '--violet-100': '#FEF3C7',
+              '--violet-300': '#FCD34D',
+              '--violet-500': '#D97706',
+              '--bg':         '#FFFBF5',
+              '--bg-alt':     '#FFF7ED',
+              '--white':      '#FFFFFF'
+          }
+      }
+
+  PASO 3 — Verificar que los colores del preview coincidan con el .css
+    Abrir Temas/otono.css, mirar los valores reales de --violet-100,
+    --violet-300, --violet-500, --bg, --bg-alt y --white.
+    Copiarlos EXACTOS al objeto "colores".
+
+  PASO 4 — Probar
+    ● Recargar el shell.
+    ● Abrir Stor-He → pestaña "Temas" → ver que aparezca la card con
+      el preview correcto.
+    ● Instalar el tema (si cuesta monedas, primero canjear desde consola:
+      window.__vicwebos.canjear('coins','test','test',100)).
+    ● Aplicar el tema y verificar que el shell se vea bien.
+    ● Abrir 2-3 apps (Calculadora, Galería, EVmail) para verificar que
+      heredan el tema.
+    ● Cambiar a otro tema y volver, para verificar el postMessage
+      'vicwebos_tema_cambio'.
+
+  PASO 5 — (Opcional) Si el tema decora .sidebar, añadir el fix móvil
+    @media (max-width: 768px) { .sidebar { position: fixed; } }
+    (Ver R3.2.)
+
+
+>>> 4.11 — ORDEN DENTRO DEL ARRAY
+
+Los temas se muestran agrupados por categoría en Stor-He.
+El orden dentro de cada categoría ES el orden en el que aparecen.
+
+Actualmente el array está organizado así:
+
+  BÁSICOS     (7)  → violeta, rosa, oceano, bosque, atardecer, rojizo, golden
+  OSCUROS     (4)  → noche, ocean, github-lover, pumkin
+  FORMALES    (4)  → oficina, oficina-dark, ventanas, celeste
+  RETRO       (4)  → hacker, vapor, salon, chiptune
+  ESPECIALES  (6)  → consentido, dreams, floral, libro, break-of-dawn, friend
+
+Dentro de cada categoría, los temas están ordenados de MÁS BARATO a MÁS
+CARO (en monedas). Mantener este orden al añadir uno nuevo.
+
+REGLA: si añades un tema a una categoría, respetá la posición por precio.
+
+
+>>> 4.12 — TEMAS "ESPEJO" (violeta y otros)
+
+Algunos temas comparten nombre base pero son distintos:
+
+  ● "oceano" (Básico, azul claro)  ← id: oceano,  ruta: Temas/oceano.css
+  ● "ocean"  (Oscuro, azul marino) ← id: ocean,   ruta: Temas/ocean.css
+
+  ● "oficina"      (Formal, claro)
+  ● "oficina-dark" (Formal, oscuro)
+
+CUIDADO: son IDs distintos. No se pueden confundir.
+Si en el futuro se añade otro tema con nombre similar, seguir el mismo
+patrón: el ID debe ser claro y único (sufijo "-dark", "-light", etc.).
+
+
+>>> 4.13 — CHECKLIST RÁPIDO PARA UN TEMA NUEVO
+
+  [ ] Temas/{id}.css creado con las 40 variables
+  [ ] Si decora .sidebar → tiene el @media móvil fix
+  [ ] Objeto añadido a JsTemas.js en la categoría correcta
+  [ ] Campo "colores" con los 6 valores EXACTOS del .css
+  [ ] Precio en monedas según escala 4.6
+  [ ] Precio en espacio (0, 2 o 4) según complejidad
+  [ ] esBase: false (a menos que sea un tema base del sistema)
+  [ ] Probado en Stor-He (aparece la card)
+  [ ] Probado al aplicar (shell + 2-3 apps)
+  [ ] Probado el preview (mini colores coinciden)
+
+═══════════════════════════════════════════════════════════════════════════════
+  SECCIÓN 5 — SISTEMA DE APPS
+═══════════════════════════════════════════════════════════════════════════════
+
+>>> 5.1 — ESTRUCTURA DE UNA APP
+
+Toda app vive en herramientas/{appId}/ y tiene EXACTAMENTE 3 archivos:
+  ● index.html    ← Estructura
+  ● style.css     ← Estilos (compatibles con tema, ver 5.5)
+  ● script.js     ← Lógica
+
+NOMBRES FIJOS. Sin subcarpetas. Sin excepciones.
+(Excepción documentada: la Galería tiene picker.html/picker.css/picker.js
+para el modal de selección de imágenes.)
+
+
+>>> 5.2 — REGISTRO EN JsRutas.js
+
+Toda app DEBE estar en RUTAS_HERRAMIENTAS (JsRutas.js):
+
+  {
+      id: 'calculadora',              ← ID único (minúsculas, sin espacios)
+      nombre: 'Calculadora',          ← Nombre visible
+      icono: 'calculator',            ← Icono Lucide (sin el prefijo "icon-")
+      ruta: 'herramientas/calculadora/index.html',
+      descripcion: 'Calculadora promedio + intereses, fechas y gráficos.',
+      categoria: 'Herramientas Prácticas',
+      esBase: false,                  ← No desinstalable (true/false)
+      esDefault: false,               ← Se instala automáticamente (true/false)
+      espacio: 4,                     ← Costo en espacio
+      monedas: 0                      ← Costo en monedas
+  }
+
+esBase = true  → No se puede desinstalar. Solo Stor-He, Chequera, Galería,
+                 Contactos tienen esBase: true.
+esDefault = true → Se instala automáticamente al crear cuenta, o se añade
+                   a cuentas viejas que no la tengan (migración).
+
+
+>>> 5.3 — BOILERPLATE MÍNIMO DE UNA APP
+
+Toda app arranca con esto (esqueleto sin lógica):
+
+─────── herramientas/{appId}/index.html ───────
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>{Nombre visible}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <!-- UI de la app -->
+    <div class="xx-container">
+        <!-- ... -->
+    </div>
+    <div class="xx-toast" id="xxToast"></div>
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
+
+─────── herramientas/{appId}/style.css ───────
+/* Todos los colores vienen del tema (var() + fallback violeta) */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; }
+body {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--white, #FFFFFF);
+    color: var(--text, #18181B);
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+    color-scheme: light dark;
+    -webkit-tap-highlight-color: transparent;
+}
+/* ... resto de estilos usando var(--xx, fallback) */
+
+─────── herramientas/{appId}/script.js ───────
+'use strict';
+
+const MENSAJE_TEMA = 'vicwebos_tema_cambio';
+
+const API = () => window.parent.__vicwebos || null;
+const BD  = () => window.parent.ConfigBD || null;
+const MH  = () => window.parent.MasterHad || null;
+
+// --- Herencia de tema (verbatim, ver sección 4.4) ---
+function aplicarTemaDelPadre() { ... }
+
+window.addEventListener('message', (e) => {
+    if (e.data && e.data.type === MENSAJE_TEMA) aplicarTemaDelPadre();
+});
+
+// --- Lógica de la app ---
+async function inicializar() {
+    aplicarTemaDelPadre();
+    // ... resto
+    if (window.lucide) window.lucide.createIcons();
+}
+
+document.addEventListener('DOMContentLoaded', inicializar);
+
+
+>>> 5.4 — ANATOMÍA COMPLETA DE UNA APP
+
+Toda app bien hecha tiene estas 7 secciones en su script.js:
+
+1. CONFIGURACIÓN
+   - Constantes (paths, límites, precios)
+   - MENSAJE_TEMA
+
+2. FUNCIONES DE ACCESO A API
+   const API = () => window.parent.__vicwebos || null;
+   const BD  = () => window.parent.ConfigBD || null;
+   const MH  = () => window.parent.MasterHad || null;
+
+3. HERENCIA DE TEMA
+   - aplicarTemaDelPadre()
+   - window.addEventListener('message', ...)
+
+4. HELPERS LOCALES
+   - toast(), escapar(), formatearFecha(), etc.
+   - Cada app define los suyos.
+
+5. PERSISTENCIA
+   - cargar() → lee el JSON del repo de datos
+   - guardar() → escribe el JSON
+
+6. RENDER
+   - render() → pinta toda la UI desde el estado
+   - Se llama cada vez que cambia el estado
+
+7. INICIALIZACIÓN
+   - document.addEventListener('DOMContentLoaded', inicializar)
+   - En inicializar(): aplicarTemaDelPadre, cargar usuario, cargar datos,
+     render, wire eventos, lucide.createIcons()
+
+
+>>> 5.5 — REGLAS VISUALES PARA APPS
+
+  ● Colores: NUNCA hardcodear. SIEMPRE var(--xx, fallback).
+    El fallback debe ser el color del tema violeta por defecto.
+    Ejemplo: background: var(--violet-500, #8B5CF6);
+
+  ● Iconos: SIEMPRE Lucide. NUNCA emojis.
+    <i data-lucide="calculator"></i>
+
+  ● Layout: PC → ancho máximo razonable, grid si aplica.
+            Móvil → apilado, sin scroll horizontal.
+
+  ● Espaciado: usar múltiplos de 4 (4, 8, 12, 16, 20, 24, 32).
+
+  ● Radios: usar variables (--r-sm, --r-md, --r-lg, --r-xl, --r-full).
+
+  ● Sombras: usar variables (--shadow-xs ... --shadow-xl).
+
+  ● Tipografía: Nunito. Importarla con <link> de Google Fonts.
+    Tamaños típicos: 22px título, 14px body, 12px secondary, 10px label.
+
+  ● Botones:
+    - Principal: fondo --accent-gradient-hover, texto blanco, sombra --accent-shadow.
+    - Secundario: fondo --white, borde --border, texto --gray-700.
+
+  ● Inputs: fondo --white, borde 1.5px --border, focus border --violet-400 +
+    box-shadow --shadow-glow.
+
+  ● Toasts: posición fixed bottom, bg --gray-900, texto blanco, border-radius
+    999px, transición suave.
+
+  ● Modales: fondo overlay rgba(24,24,27,0.5) + backdrop-filter blur(8px).
+    Card bg --white, border-radius --r-xl.
+
+  ● Empty state: icono Lucide grande + título + subtítulo + botón de acción.
+
+
+>>> 5.6 — CATEGORÍAS VÁLIDAS
+
+  ● Sistema          — Apps base (Stor-He, Chequera, Galería, Contactos)
+  ● Herramientas Prácticas — Calculadora, Notas, QR, Photo Shinny
+  ● Juegos           — Dino, Whack-a-Mole, Tres en Raya, Wordle
+  ● Social           — EVmail, SillyCalls
+  ● Creatividad      — Arte Flash
+  ● General          — Fallback
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  SECCIÓN 6 — SISTEMA DE WIDGETS
+═══════════════════════════════════════════════════════════════════════════════
+
+>>> 6.1 — DIFERENCIAS CON LAS APPS
+
+  ● Viven en Widgets/{widgetId}/ (NO en herramientas/).
+  ● NO se abren en pestañas, se renderizan en el welcome (inicio).
+  ● Máximo 3 activos simultáneamente.
+  ● Viven en un iframe pequeño (típicamente 280x240).
+  ● SIEMPRE deben heredar el tema (es obligatorio, no recomendado).
+  ● Su CSS debe funcionar en un iframe de 200-240px de alto.
+  ● NO tienen barra superior de app (header). Solo contenido.
+
+>>> 6.2 — REGISTRO EN JsWidgets.js
+
+  {
+      id: 'reloj-mundial',
+      nombre: 'Reloj Mundial',
+      icono: 'globe-2',
+      ruta: 'Widgets/reloj-mundial/index.html',
+      descripcion: 'Muestra la hora en varias ciudades del mundo.',
+      categoria: 'Utilidades',
+      esBase: false,
+      espacio: 4,
+      monedas: 20
+  }
+
+ESCALA DE ESPACIO:
+  2 → widget mínimo (muestra info, 1 acción simple)
+  4 → widget interactivo (animación, modales, varios estados)
+
+ESCALA DE PRECIO (monedas):
+  5   → mínimo simbólico (decorativo pero con trabajo detrás)
+  10  → entretenimiento puro (no resuelve problema real)
+  20  → utilidad media o complejidad alta
+  35  → el más útil del catálogo
+
+
+>>> 6.3 — CATÁLOGO ACTUAL DE WIDGETS
+
+  ● mi-estado        — Tu perfil + cambiar estado (activo/descansando/off)
+  ● reloj-mundial    — Hora en varias ciudades
+  ● dados            — Tira 2 dados 3D con CSS real
+  ● bubble-image     — Muestra una imagen de la galería en un círculo
+  ● diapositivas     — Carrusel de hasta 4 imágenes, manual o auto
+  ● ruleta           — Ruleta con hasta 5 opciones
+  ● acceso-directo   — 4 atajos a páginas web con icono
+  ● radio            — Emisoras de internet (Radio Browser API)
+  ● lector           — Carga una nota o .txt y lo muestra
+  ● mascota          — Cuida un gato/perro, racha diaria = monedas
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  SECCIÓN 7 — APIS PÚBLICAS
+═══════════════════════════════════════════════════════════════════════════════
+
+Desde el iframe de cualquier app/widget, se accede a:
+
+  const api = window.parent.__vicwebos;   ← Catálogo, estado, economía, acciones
+  const bd  = window.parent.ConfigBD;     ← Persistencia (leer/escribir archivos)
+  const mh  = window.parent.MasterHad;    ← Utilidades, rutas, galería, binarios
+  const nt  = window.parent.Notificaciones; ← Notificaciones (uso interno)
+
+
+>>> 7.1 — window.parent.__vicwebos
+
+CATÁLOGO
+  api.obtenerCatalogo()     → Array de apps (RUTAS_HERRAMIENTAS)
+  api.obtenerTemas()        → Array de temas (TEMAS_DISPONIBLES)
+  api.obtenerWidgets()      → Array de widgets (WIDGETS_DISPONIBLES)
+
+ESTADO DEL USUARIO
+  api.obtenerInstaladas()        → ['stor-he', 'chequera', ...]
+  api.obtenerTemasInstalados()   → ['violeta', 'rosa']
+  api.obtenerWidgetsInstalados() → ['reloj-mundial']
+  api.obtenerWidgetsActivos()    → ['reloj-mundial', 'dados']
+  api.obtenerTemaActivo()        → 'violeta'
+  api.obtenerAccesosRapidos()    → ['stor-he', 'galeria']
+  api.estaInstalada(id)          → bool
+  api.tieneCuenta()              → bool
+  api.estaConectado()            → bool (¿hay comunidad activa?)
+  api.obtenerCuenta()            → { nombre, codigo } | null
+  api.obtenerComunidadActiva()   → { id, nombre, repo, owner } | null
+
+ECONOMÍA
+  api.obtenerEspacioMaximo()  → number (espacio total)
+  api.obtenerEspacioUsado()   → number (espacio ocupado)
+  api.obtenerEspacioLibre()   → number
+  api.obtenerMonedas()        → number
+  api.puedeInstalar({espacio, monedas})  → { ok: true } | { ok: false, motivo }
+  api.comprarEspacio()        → Promise (compra +12 espacio por 2500 monedas)
+
+  api.COSTO_COMPRA_ESPACIO    → 2500
+  api.ESPACIO_INICIAL         → 50
+  api.ESPACIO_POR_COMPRA      → 12
+  api.MAX_WIDGETS_ACTIVOS     → 3
+  api.MAX_ACCESOS_RAPIDOS     → 10
+
+CHEQUERA
+  api.chequeraLeer()                → Promise<{ version, movimientos }>
+  api.canjear(icono, fuente, texto, cantidad)     → Promise (suma monedas)
+  api.gastoBoleta(icono, fuente, texto, cantidad) → Promise (resta monedas)
+    ● icono:   nombre Lucide (ej: 'calculator', 'gamepad-2', 'paint-brush')
+    ● fuente:  id de la app (ej: 'calculadora', 'dino')
+    ● texto:   descripción corta (ej: 'Partida: 1500 pts')
+    ● cantidad: número positivo (la función decide sumar/restar)
+
+NOTIFICACIONES
+  api.enviarNotificacion(fuente, texto, usuarioDestino) → Promise
+    ● fuente: id de la app o 'sistema'
+    ● texto: mensaje corto
+    ● usuarioDestino: código del usuario (ej: '0308V') o null para mí mismo
+  api.notificacionesRecargar()  → Promise (forzar recarga)
+
+ACCIONES (todas Promise)
+  api.instalar(id)
+  api.desinstalar(id)
+  api.abrirApp(id)
+  api.instalarTema(id)
+  api.desinstalarTema(id)
+  api.aplicarTema(id)
+  api.instalarWidget(id)
+  api.desinstalarWidget(id)
+  api.activarWidget(id)
+  api.desactivarWidget(id)
+  api.activarAccesoRapido(id)
+  api.desactivarAccesoRapido(id)
+
+
+>>> 7.2 — window.parent.ConfigBD
+
+  bd.estaConectado()                  → bool
+  bd.obtenerInfo()                    → { owner, repo, nombre, id }
+
+  bd.leerArchivo(path)                → Promise<data|null>   (con caché 5 min)
+  bd.leerArchivoFresh(path)           → Promise<data|null>   (sin caché)
+  bd.escribirArchivo(path, data)      → Promise
+  bd.actualizarArchivo(path, mutador) → Promise (merge + retry, usar SIEMPRE)
+
+  bd.subirArchivo(path, blob)         → Promise
+  bd.leerArchivoBinario(path)         → Promise<Blob>
+  bd.leerArchivoBinarioComoURL(path)  → Promise<blob: URL>
+  bd.existeArchivo(path)              → Promise<bool>
+  bd.eliminarArchivo(path)            → Promise
+
+  bd.invalidarCache(nombre)           → Promise
+  bd.invalidarTodo()                  → Promise
+
+
+>>> 7.3 — window.parent.MasterHad
+
+JSON
+  mh.leerJSON / escribirJSON / borrarJSON / vaciarJSON / existeJSON
+  mh.actualizarJSON(path, fn)
+
+RUTAS
+  mh.rutas.jsonGlobal(appId)                 → 'app/{appId}/{appId}.json'
+  mh.rutas.jsonUsuario(appId, codigo?)       → 'app/{appId}/{codigo}{appId}.json'
+  mh.rutas.audio(appId, nombre)              → 'app/{appId}/{appId}(audio)/{nombre}'
+  mh.rutas.video(appId, nombre)
+  mh.rutas.documento(appId, nombre)
+
+UTILIDADES
+  mh.comprimirImagen(file, maxLado?, calidad?)  → Promise<Blob>
+  mh.formatearBytes(n)                          → '1.2 MB'
+  mh.generarNombre(ext?)                        → 'kx3f2a_8b1c.jpg'
+  mh.generarId(prefijo?)                        → 'img_kx3f2a_8b1c'
+  mh.extensionDe(nombre)
+  mh.tipoMimeDe(nombre)
+
+GALERÍA
+  mh.galeria.listarImagenes(codigo?, { fresh?, carpetaId? })  → Array<metadata>
+  mh.galeria.listarCarpetas(codigo?, { fresh? })              → Array<carpeta>
+  mh.galeria.obtenerImagen(id, codigo?)                       → metadata|null
+  mh.galeria.leerImagenURL(id, codigo?)  → blob: URL          (para <img src>)
+  mh.galeria.leerImagenBlob(id, codigo?) → Blob
+  mh.galeria.subirImagen(file, { codigo?, carpeta?, maxLado?, calidad? }) → metadata
+  mh.galeria.borrarImagen(id, codigo?)
+  mh.galeria.renombrarImagen(id, nuevoNombre, codigo?)
+  mh.galeria.moverACarpeta(id, carpetaId, codigo?)
+  mh.galeria.crearCarpeta(nombre, codigo?)  → carpeta
+  mh.galeria.abrirPicker({ multiple?, titulo?, carpetaId? })  → Promise<id|ids|null>
+
+BINARIOS AUXILIARES (audio, video, documento)
+  mh.publicarAudio(appId, file, opts)     → { ruta, nombre, tamano }
+  mh.publicarVideo / mh.publicarDocumento (idem)
+  mh.reemplazarAudio / mh.reemplazarVideo / mh.reemplazarDocumento (ruta, file)
+  mh.borrarAudio / mh.borrarVideo / mh.borrarDocumento (ruta)
+  mh.leerAudioURL / mh.leerVideoURL / mh.leerDocumentoURL (ruta)
+  mh.leerAudioBlob / mh.leerVideoBlob / mh.leerDocumentoBlob (ruta)
+
+
+>>> 7.4 — window.parent.Notificaciones
+
+  nt.enviar(fuente, texto, usuarioDestino)  → Promise<noti>
+  nt.recargar()                             → Promise
+  nt.marcarLeida(id)                        → Promise
+  nt.borrar(id)                             → Promise
+  nt.borrarTodas()                          → Promise
+  nt.borrarLeidas()                         → Promise
+  nt.abrirPanel() / nt.cerrarPanel() / nt.togglePanel()
+
+  (Normalmente se usa api.enviarNotificacion, que delega acá.)
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  SECCIÓN 8 — ECONOMÍA
+═══════════════════════════════════════════════════════════════════════════════
+
+>>> 8.1 — CONSTANTES
+
+  ESPACIO_INICIAL          = 50     (espacio gratis al crear cuenta)
+  ESPACIO_POR_COMPRA       = 12     (espacio ganado al comprar)
+  COSTO_COMPRA_ESPACIO     = 2500   (monedas por compra de espacio)
+  MONEDAS_INICIALES        = 0
+  MAX_WIDGETS_ACTIVOS      = 3
+  MAX_ACCESOS_RAPIDOS      = 10
+  MAX_MOVIMIENTOS_CHEQUERA = 500    (los más viejos se eliminan)
+  MAX_TABS                 = 5      (pestañas simultáneas)
+
+
+>>> 8.2 — CÓMO OTORGAR MONEDAS
+
+Toda app que otorgue monedas DEBE usar api.canjear():
+
+  const api = window.parent.__vicwebos;
+  await api.canjear(
+      'gamepad-2',                // icono Lucide
+      'dino',                     // id de la app
+      'Partida: 1500 pts',        // texto corto
+      25                          // cantidad positiva
+  );
+
+El shell automáticamente:
+  ● Suma las monedas al usuario.
+  ● Añade un movimiento a la chequera.
+  ● Envía una notificación al usuario.
+  ● Actualiza el contador del header.
+
+
+>>> 8.3 — CÓMO COBRAR MONEDAS
+
+Toda app que cobre DEBE usar api.gastoBoleta():
+
+  try {
+      await api.gastoBoleta('calculator', 'calculadora', 'Función Intereses', 5);
+      // ... acción post-cobro
+  } catch (e) {
+      // e.message = 'No tienes suficientes monedas (...)'
+      toast(e.message, 'error');
+  }
+
+El shell automáticamente:
+  ● Resta las monedas.
+  ● Añade movimiento a la chequera.
+  ● Envía notificación.
+  ● Si no alcanza, LANZA ERROR (por eso el try/catch).
+
+REGLA DE ORO: NUNCA modificar monedas a mano. Siempre canjear/gastoBoleta.
+
+
+>>> 8.4 — PATRÓN DE COMPRA DE FUNCIÓN
+
+Cuando una app tiene funciones "premium" que se compran UNA VEZ:
+
+  1. Guardar el estado de compra en el JSON de la app:
+     { compras: { funcionA: true, funcionB: false } }
+  2. Antes de usar la función, verificar:
+     if (!compras.funcionA) { abrirModalCompra('funcionA'); return; }
+  3. Al confirmar, gastoBoleta + setear flag + guardar JSON.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  SECCIÓN 9 — GALERÍA Y PICKER
+═══════════════════════════════════════════════════════════════════════════════
+
+La Galería es una app BASE (no desinstalable) que centraliza TODAS las
+imágenes del usuario. Otras apps NUNCA suben ni borran imágenes directamente:
+usan el picker.
+
+>>> 9.1 — CÓMO USAR EL PICKER DESDE UNA APP
+
+  const mh = window.parent.MasterHad;
+
+  // Selección simple (1 imagen):
+  const id = await mh.galeria.abrirPicker({
+      multiple: false,
+      titulo: 'Elige una imagen para tu mensaje'
+  });
+  if (id) {
+      // Guardar el id en el JSON de la app
+      await mh.actualizarJSON(ruta, (data) => {
+          data.imagenId = id;
+          return data;
+      });
+  }
+
+  // Selección múltiple:
+  const ids = await mh.galeria.abrirPicker({ multiple: true });
+  // ids = ['img_xxx', 'img_yyy'] | null
+
+COMPORTAMIENTO:
+  ● El picker se inyecta como overlay fixed en el shell (no en el iframe).
+  ● Devuelve una Promise que resuelve con id | [ids] | null.
+  ● Mientras está abierto, otra llamada a abrirPicker() espera a la misma
+    promesa.
+  ● Se cierra con Escape o con el botón Cancelar.
+
+
+>>> 9.2 — CÓMO MOSTRAR UNA IMAGEN GUARDADA
+
+  const url = await mh.galeria.leerImagenURL(imagenId);
+  if (url) {
+      img.src = url;
+      img.onload = () => URL.revokeObjectURL(url);   // ← limpiar
+  }
+
+REGLA: SIEMPRE revocar la URL de objeto después de usarla, si no se
+acumulan en memoria.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  SECCIÓN 10 — NOTIFICACIONES
+═══════════════════════════════════════════════════════════════════════════════
+
+>>> 10.1 — CÓMO ENVIAR NOTIFICACIÓN
+
+  const api = window.parent.__vicwebos;
+
+  // Notificación a otro usuario:
+  await api.enviarNotificacion(
+      'evmail',                              // fuente (id de app)
+      'Nicolás: Hola, ¿cómo estás?',         // texto
+      '0308V'                                // código destino
+  );
+
+  // Notificación a mí mismo:
+  await api.enviarNotificacion('sistema', 'Bienvenido', null);
+
+>>> 10.2 — CUÁNDO NOTIFICAR
+
+  ● Cuando el usuario gana/cobra monedas: AUTOMÁTICO (lo hace canjear/gasto).
+  ● Cuando otra persona interactúa: SÍ (ej: "X te regaló monedas").
+  ● Cuando pasa algo importante: SÍ (ej: "Nuevo mensaje de X").
+  ● Cuando pasa algo trivial: NO (no spamear).
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  SECCIÓN 11 — SESIONES Y COMUNIDADES
+═══════════════════════════════════════════════════════════════════════════════
+
+>>> 11.1 — MULTI-COMUNIDAD
+
+Un mismo dispositivo puede tener varias comunidades (pareja, amigos, familia).
+Cada comunidad tiene SU PROPIO:
+  ● Token de GitHub
+  ● Repo de datos (vicwebos-data)
+  ● Sesión de usuario (código activo)
+  ● Configuración de cuenta
+  ● Monedas, apps, temas, widgets
+
+Los datos están TOTALMENTE aislados. En cada comunidad tienes un perfil
+distinto (con código distinto).
+
+ESTRUCTURA EN localStorage:
+  vicwebos_bd:
+    comunidades: {
+      com_xxx: { id, nombre, githubToken, githubRepo, githubOwner, conectado }
+    },
+    activa: com_xxx
+
+  vicwebos_sesiones:
+    { com_xxx: '0308V', com_yyy: '1234A' }   ← código activo por comunidad
+
+  vicwebos_ultimos_codigos:
+    { com_xxx: '0308V' }   ← para pre-rellenar el login
+
+
+>>> 11.2 — EVENTOS DEL SHELL
+
+El shell dispara estos CustomEvents para que las apps se enteren:
+
+  'vicwebos:sesion'     → { codigo, activa }
+  'vicwebos:comunidad'  → { id }
+
+Y estos postMessage a todos los iframes:
+
+  { type: 'vicwebos_tema_cambio' }       → cambiar tema
+  { type: 'vicwebos_chequera_cambio' }   → cambió la chequera (monedas)
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  SECCIÓN 12 — CONVENCIONES DE UI/UX
+═══════════════════════════════════════════════════════════════════════════════
+
+>>> 12.1 — ICONOS
+
+  ● SIEMPRE Lucide (https://lucide.dev).
+  ● NUNCA emojis en la UI (regla estricta).
+  ● Sintaxis HTML: <i data-lucide="nombre"></i>
+  ● Después de insertar nuevos, llamar lucide.createIcons().
+  ● Iconos comunes: calculator, palette, store, wallet, images, mail,
+    gamepad-2, brush, layers, search, x, check, plus, trash-2, download,
+    upload, folder, folder-plus, image, image-plus, type, save, settings-2,
+    circle, square, sparkles, coins, trophy, target, zap, flame, heart,
+    bell, user, user-circle, log-in, log-out, refresh-cw, loader-2, etc.
+
+
+>>> 12.2 — COLORES
+
+  ● NUNCA hardcodear en CSS de apps.
+  ● SIEMPRE var(--xx, fallback).
+  ● El fallback debe ser el color violeta por defecto.
+  ● Ejemplos:
+      background: var(--violet-500, #8B5CF6);
+      color: var(--text, #18181B);
+      border: 1.5px solid var(--border, #E8E8EE);
+      box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
+
+
+>>> 12.3 — ESPACIADO
+
+  Sistema: múltiplos de 4.
+  4, 8, 12, 16, 20, 24, 32, 40, 48.
+
+  Ejemplos:
+    gap: 8px;  padding: 12px 16px;  margin-bottom: 20px;
+
+
+>>> 12.4 — LAYOUT
+
+  PC:
+    ● Ancho máximo razonable (900-1600px según app).
+    ● Grid cuando aplique.
+    ● Sidebar cuando aplique.
+
+  Móvil:
+    ● Apilado vertical.
+    ● SIN scroll horizontal.
+    ● Touch targets ≥ 44px.
+    ● Breakpoints típicos: 640px, 900px, 1200px.
+
+
+>>> 12.5 — TIPOGRAFÍA
+
+  ● Fuente: Nunito (Google Fonts).
+  ● Pesos: 400, 600, 700, 800, 900.
+  ● Importar con:
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  Tamaños típicos:
+    h1 logo:      20-22px, peso 800, letter-spacing -0.03em
+    h2 título:    16-18px, peso 800
+    body:         13-14px, peso 500-600
+    secondary:    11-12px, peso 600
+    label chico:  10-10.5px, peso 800, uppercase, letter-spacing 0.06em
+
+
+>>> 12.6 — TRANSICIONES
+
+  Típicas:
+    transition: all 0.15s;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+  Para animaciones de entrada:
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes zoomIn { from { transform: scale(0.96); } to { transform: scale(1); } }
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  SECCIÓN 13 — PATRONES DE CÓDIGO COMUNES
+═══════════════════════════════════════════════════════════════════════════════
+
+>>> 13.1 — TOAST
+
+let toastTimeout = null;
+function toast(texto, tipo = 'info') {
+    const el = document.getElementById('xxToast');
+    if (!el) return;
+    el.textContent = texto;
+    el.className = 'xx-toast show ' + tipo;
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+CSS:
+  .xx-toast {
+      position: fixed; bottom: 20px; left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--gray-900, #18181B); color: white;
+      padding: 12px 22px; border-radius: 999px;
+      font-size: 13px; font-weight: 700;
+      opacity: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none; z-index: 200;
+  }
+  .xx-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .xx-toast.success { background: #065F46; }
+  .xx-toast.error   { background: #991B1B; }
+
+
+>>> 13.2 — MODAL
+
+HTML:
+  <div class="xx-modal" id="xxModal" hidden>
+      <div class="xx-modal-card">
+          <div class="xx-modal-header">
+              <h2>Título</h2>
+              <button class="xx-modal-cerrar" id="xxModalCerrar">
+                  <i data-lucide="x"></i>
+              </button>
+          </div>
+          <div class="xx-modal-body">...</div>
+          <div class="xx-modal-actions">
+              <button class="xx-btn-sec">Cancelar</button>
+              <button class="xx-btn-pri">Aceptar</button>
+          </div>
+      </div>
+  </div>
+
+CSS:
+  .xx-modal { position: fixed; inset: 0; background: rgba(24,24,27,0.6);
+              backdrop-filter: blur(8px); display: flex;
+              align-items: center; justify-content: center;
+              padding: 20px; z-index: 100; }
+  .xx-modal[hidden] { display: none; }
+  .xx-modal-card { background: var(--white); border-radius: var(--r-xl);
+                   max-width: 440px; width: 100%; max-height: 90dvh;
+                   display: flex; flex-direction: column;
+                   box-shadow: 0 24px 48px rgba(0,0,0,0.2); overflow: hidden; }
+
+JS (abrir/cerrar):
+  document.getElementById('xxModal').hidden = false;
+  document.getElementById('xxModal').hidden = true;
+
+  // Cerrar al hacer click fuera:
+  document.getElementById('xxModal').addEventListener('click', (e) => {
+      if (e.target.id === 'xxModal') closeModal();
+  });
+
+  // Cerrar con Escape:
+  document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !document.getElementById('xxModal').hidden) {
+          closeModal();
+      }
+  });
+
+
+>>> 13.3 — LOADING STATE
+
+  <div class="xx-cargando">
+      <div class="xx-spinner"></div>
+      <span>Cargando...</span>
+  </div>
+
+  .xx-spinner {
+      width: 20px; height: 20px;
+      border: 2.5px solid var(--gray-200, #E8E8EE);
+      border-top-color: var(--violet-500, #8B5CF6);
+      border-radius: 50%;
+      animation: xxSpin 0.8s linear infinite;
+  }
+  @keyframes xxSpin { to { transform: rotate(360deg); } }
+
+
+>>> 13.4 — EMPTY STATE
+
+  <div class="xx-empty">
+      <div class="xx-empty-icon">
+          <i data-lucide="package-open"></i>
+      </div>
+      <h3>No hay nada aquí</h3>
+      <p>Sube contenido para empezar.</p>
+      <button class="xx-btn-primario">
+          <i data-lucide="plus"></i> Crear primero
+      </button>
+  </div>
+
+
+>>> 13.5 — LOCK ANTI DOBLE-CLICK
+
+  const _locks = new Set();
+
+  async function _conLock(clave, fn) {
+      if (_locks.has(clave)) {
+          throw new Error('Operación en curso. Espera un momento.');
+      }
+      _locks.add(clave);
+      try {
+          return await fn();
+      } finally {
+          _locks.delete(clave);
+      }
+  }
+
+  // Uso:
+  await _conLock('comprar:' + id, async () => {
+      await api.gastoBoleta(...);
+      // ...
+  });
+
+
+>>> 13.6 — POLLING (para datos compartidos)
+
+  let pollTimer = null;
+
+  function iniciarPolling() {
+      detenerPolling();
+      pollTimer = setInterval(() => {
+          if (document.hidden) return;   // no pollear si la pestaña no está visible
+          refrescar().catch(() => {});
+      }, 15000);   // cada 15-20s
+  }
+
+  function detenerPolling() {
+      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  }
+
+  document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) refrescar().catch(() => {});
+  });
+
+OJO: GitHub limita a 5000 requests/hora. No abusar del polling.
+
+
+>>> 13.7 — ESCAPE HTML
+
+  function escapeHTML(str) {
+      return String(str || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+  }
+
+
+>>> 13.8 — TEMPLATE DE HERENCIA DE TEMA (recordatorio)
+
+  Este bloque VA EN TODA APP Y WIDGET, sin excepción:
+
+  function aplicarTemaDelPadre() { ... }   // ver sección 4.4
+  window.addEventListener('message', (e) => {
+      if (e.data && e.data.type === 'vicwebos_tema_cambio') {
+          aplicarTemaDelPadre();
+      }
+  });
+  document.addEventListener('DOMContentLoaded', aplicarTemaDelPadre);
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  SECCIÓN 14 — CHECKLISTS
+═══════════════════════════════════════════════════════════════════════════════
+
+>>> 14.1 — NUEVA APP
+
+  [ ] Decidir el id (minúsculas, sin espacios, sin tildes)
+  [ ] Crear herramientas/{id}/index.html
+  [ ] Crear herramientas/{id}/style.css
+  [ ] Crear herramientas/{id}/script.js
+  [ ] Copiar el boilerplate (sección 5.3)
+  [ ] Copiar aplicarTemaDelPadre() + listener (sección 4.4)
+  [ ] Definir las funciones API / BD / MH (sección 7)
+  [ ] Definir la lógica de carga / guardado (sección 2)
+  [ ] Definir el render (repinta la UI desde el estado)
+  [ ] Wire eventos
+  [ ] lucide.createIcons() al final
+  [ ] Registrar en JsRutas.js (sección 5.2)
+  [ ] Decidir qué guarda la app:
+        ● Nada / Global / Por usuario / Ambos
+  [ ] ¿Usa imágenes?   → Usar mh.galeria.abrirPicker()
+  [ ] ¿Usa audio/video?→ Usar mh.publicarAudio/Video/Documento
+  [ ] ¿Otorga monedas? → Usar api.canjear()
+  [ ] ¿Cobra monedas?  → Usar api.gastoBoleta() + try/catch
+  [ ] ¿Envía notificaciones? → api.enviarNotificacion()
+  [ ] Probar en PC + móvil
+  [ ] Probar con 2-3 temas distintos (violeta, hacker, consentido)
+
+
+>>> 14.2 — NUEVO WIDGET
+
+  [ ] Decidir el id
+  [ ] Crear Widgets/{id}/index.html
+  [ ] Crear Widgets/{id}/style.css
+  [ ] Crear Widgets/{id}/script.js
+  [ ] Copiar boilerplate (sección 5.3)
+  [ ] Copiar aplicarTemaDelPadre() + listener (OBLIGATORIO, sección 4.4)
+  [ ] CSS: verificar que se ve bien en iframe de 240px de alto
+  [ ] Registrar en JsWidgets.js (sección 6.2)
+  [ ] Decidir qué guarda:
+        ● Nada (efímero como dados)
+        ● Por usuario (como reloj-mundial)
+        ● Global (raro)
+  [ ] Probar con 3+ temas distintos
+
+
+>>> 14.3 — NUEVO TEMA
+
+  [ ] Decidir el id (minúsculas, sin espacios)
+  [ ] Decidir el precio (monedas) según escala (sección 4.6)
+  [ ] Decidir el espacio (2 o 4)
+  [ ] Decidir la categoría (Básicos / Oscuros / Formales / Retro / Especiales)
+  [ ] Crear Temas/{id}.css
+  [ ] Definir las 40 variables obligatorias (sección 4.1)
+  [ ] Opcional: decorar elementos del shell (sección 4.5)
+  [ ] Verificar contraste de texto (WCAG AA si se puede)
+  [ ] Registrar en JsTemas.js (con colores para preview)
+  [ ] Probar el preview en el modal de temas
+  [ ] Probar con 3-4 apps abiertas
+
+
+>>> 14.4 — NUEVA VERSIÓN DE UNA APP
+
+  [ ] Si cambia la estructura del JSON → escribir migración
+  [ ] Si cambia el id → NO SE PUEDE (rompe datos)
+  [ ] Si añade nuevas imágenes → usar picker, no subir
+  [ ] Si añade nuevas monedas → revisar economía (no inflar)
+  [ ] Bump del campo "version" en el JSON
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  SECCIÓN 15 — LIMITACIONES CONOCIDAS
+═══════════════════════════════════════════════════════════════════════════════
+
+  1. CONCURRENCIA DE ESCRITURA
+     Mitigado con ConfigBD.actualizarArchivo (reintentos + merge).
+     No hay locking real distribuido. Puede haber race conditions raros.
+
+  2. SIN TIEMPO REAL
+     Polling cada 15-20s en apps que lo necesitan. NO hay WebSocket.
+
+  3. LÍMITE DE 5000 requests/hora de GitHub
+     Cuidar cantidad de pollers activos simultáneos.
+
+  4. CACHÉ DE 5 MINUTOS
+     ConfigBD.leerArchivo() tiene caché de 5 min. Usar leerArchivoFresh()
+     si se necesita dato actualizado.
+
+  5. IFRAMES AISLADOS
+     Las apps no comparten estado entre sí. Todo pasa por el shell.
+
+  6. GITHUB COMO DB
+     Si GitHub cae, el OS no funciona. No hay fallback offline.
+
+  7. CROSS-ORIGIN
+     Si el iframe del picker está en otro origen, postMessage con '*'
+     funciona, pero getComputedStyle puede fallar. Ya está en try/catch.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  SECCIÓN 16 — CONSTANTES DEL SISTEMA
+═══════════════════════════════════════════════════════════════════════════════
+
+  // Economía
+  ESPACIO_INICIAL          = 50
+  ESPACIO_POR_COMPRA       = 12
+  COSTO_COMPRA_ESPACIO     = 2500
+  MONEDAS_INICIALES        = 0
+
+  // Límites
+  MAX_WIDGETS_ACTIVOS      = 3
+  MAX_ACCESOS_RAPIDOS      = 10
+  MAX_MOVIMIENTOS_CHEQUERA = 500
+  MAX_TABS                 = 5
+
+  // Caché
+  CACHE_TTL                = 5 * 60 * 1000  (5 minutos)
+
+  // Binarios
+  UMBRAL_CONTENTS          = 900 KB   (a partir de acá, Git Data API)
+  MAX_ARCHIVO_BINARIO      = 50 MB
+
+  // Notificaciones
+  POLL_MS_NOTIFICACIONES   = 20000  (20s)
+  MAX_NOTIS_POR_USUARIO    = 100
+
+  // Galería
+  POR_PAGINA_PICKER        = 6   (6 imágenes por página en el picker)
+  MAX_ARCHIVO_MB_GALERIA   = 25
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  SECCIÓN 17 — GLOSARIO
+═══════════════════════════════════════════════════════════════════════════════
+
+  SHELL       → El marco principal de VicWebOs (index.html + style.css).
+  APP         → Herramienta instalable (vive en herramientas/).
+  WIDGET      → Elemento visual del welcome (vive en Widgets/).
+  TEMA        → Archivo CSS que reescribe variables (vive en Temas/).
+  COMUNIDAD   → Grupo con su propio repo de datos (pareja, amigos, familia).
+  CUENTA      → Usuario dentro de una comunidad (nombre + código único).
+  CÓDIGO      → Identificador de usuario (4 dígitos + 1 letra, ej: 0308V).
+  CHEQUERA    → Registro de movimientos de monedas.
+  CANJE       → Sumar monedas (api.canjear).
+  GASTO       → Restar monedas (api.gastoBoleta).
+  PICKER      → Modal para elegir imágenes de la galería.
+  GALERÍA     → App base que centraliza todas las imágenes del usuario.
+  MASTERHAD   → Caja de herramientas global (rutas, JSON, galería, binarios).
+  CONFIGBD    → Capa de persistencia (GitHub + caché).
+  STOR-HE     → Tienda, única forma de instalar/desinstalar.
+  ESPACIO     → Recurso limitado que consumen las apps instaladas.
+  MONEDAS     → Recurso ganable/gastable (economía interna).
+  ACCESO RÁPIDO → App destacada en el welcome (máx 10).
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  FIN DEL DOCUMENTO 0.1
+═══════════════════════════════════════════════════════════════════════════════
+
+Si algo de este documento no coincide con el código, GANA EL CÓDIGO y hay
+que actualizar el documento. Si vas a añadir una función nueva al sistema,
+actualiza este documento en la sección correspondiente.
