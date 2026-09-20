@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>WhatTheHay</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="wth-app">
+
+        <!-- ============ SIDEBAR: lista de chats ============ -->
+        <aside class="wth-sidebar" id="wthSidebar">
+
+            <div class="wth-header">
+                <div class="wth-logo">
+                    <div class="wth-logo-mark">
+                        <i data-lucide="message-circle"></i>
+                    </div>
+                    <div class="wth-logo-text">
+                        <h1>WhatTheHay</h1>
+                        <p id="wthUserBadge">—</p>
+                    </div>
+                </div>
+                <div class="wth-header-actions">
+                    <button class="wth-icon-btn" id="wthBtnNuevoPrivado" title="Nuevo chat privado">
+                        <i data-lucide="user-plus"></i>
+                    </button>
+                    <button class="wth-icon-btn" id="wthBtnNuevoGrupo" title="Nuevo grupo">
+                        <i data-lucide="users"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="wth-buscar-wrap">
+                <i data-lucide="search"></i>
+                <input type="text" id="wthBuscar" placeholder="Buscar chats..." maxlength="40">
+                <button class="wth-buscar-clear" id="wthBuscarClear" hidden>
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
+            <div class="wth-chats" id="wthChats"></div>
+
+        </aside>
+
+        <!-- ============ MAIN: conversación ============ -->
+        <main class="wth-main" id="wthMain">
+
+            <div class="wth-empty" id="wthEmpty">
+                <div class="wth-empty-icon">
+                    <i data-lucide="messages-square"></i>
+                </div>
+                <h3>Elegí un chat</h3>
+                <p>Seleccioná una conversación de la lista o creá una nueva.</p>
+            </div>
+
+            <div class="wth-chat" id="wthChat" hidden>
+
+                <header class="wth-chat-header">
+                    <button class="wth-icon-btn wth-btn-volver" id="wthBtnVolver" title="Volver">
+                        <i data-lucide="arrow-left"></i>
+                    </button>
+                    <div class="wth-chat-info" id="wthChatInfo">
+                        <div class="wth-avatar wth-chat-avatar" id="wthChatAvatar"></div>
+                        <div class="wth-chat-info-text">
+                            <div class="wth-chat-nombre" id="wthChatNombre">—</div>
+                            <div class="wth-chat-sub" id="wthChatSub">—</div>
+                        </div>
+                    </div>
+                    <button class="wth-icon-btn" id="wthBtnChatMenu" title="Opciones">
+                        <i data-lucide="more-vertical"></i>
+                    </button>
+                </header>
+
+                <div class="wth-mensajes" id="wthMensajes"></div>
+
+                <div class="wth-emojis" id="wthEmojis" hidden></div>
+
+                <footer class="wth-input-bar">
+                    <button class="wth-icon-btn" id="wthBtnEmoji" title="Emojis">
+                        <i data-lucide="smile"></i>
+                    </button>
+                    <button class="wth-icon-btn wth-btn-grabar" id="wthBtnGrabar" title="Mantené para grabar">
+                        <i data-lucide="mic"></i>
+                    </button>
+                    <input type="text"
+                           id="wthInput"
+                           maxlength="120"
+                           placeholder="Escribí un mensaje corto..."
+                           autocomplete="off">
+                    <button class="wth-btn-enviar" id="wthBtnEnviar" disabled title="Enviar">
+                        <i data-lucide="send"></i>
+                    </button>
+                </footer>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- ============ Overlay de grabación ============ -->
+    <div class="wth-grabando" id="wthGrabando" hidden>
+        <div class="wth-grabando-card">
+            <div class="wth-grabando-pulso"></div>
+            <div class="wth-grabando-tiempo" id="wthGrabandoTiempo">0.0s</div>
+            <p class="wth-grabando-txt">Grabando audio</p>
+            <p class="wth-grabando-ayuda">Soltá para enviar · Máx 8s</p>
+        </div>
+    </div>
+
+    <!-- ============ MODAL: nuevo privado ============ -->
+    <div class="wth-modal" id="wthModalPrivado" hidden>
+        <div class="wth-modal-card">
+            <div class="wth-modal-header">
+                <h2>
+                    <i data-lucide="user-plus"></i>
+                    <span>Nuevo chat privado</span>
+                </h2>
+                <button class="wth-modal-cerrar" id="wthPrivadoCerrar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="wth-modal-body">
+                <p class="wth-modal-desc">Elegí un usuario de la comunidad para chatear 1 a 1.</p>
+                <div class="wth-usuarios-lista" id="wthPrivadoUsuarios"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL: nuevo grupo ============ -->
+    <div class="wth-modal" id="wthModalGrupo" hidden>
+        <div class="wth-modal-card">
+            <div class="wth-modal-header">
+                <h2>
+                    <i data-lucide="users"></i>
+                    <span>Nuevo grupo</span>
+                </h2>
+                <button class="wth-modal-cerrar" id="wthGrupoCerrar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="wth-modal-body">
+
+                <div class="wth-grupo-foto-wrap">
+                    <div class="wth-grupo-foto" id="wthGrupoFotoPreview">
+                        <i data-lucide="image-plus"></i>
+                        <span>Foto</span>
+                    </div>
+                    <button class="wth-btn-secundario" id="wthBtnGrupoFoto">
+                        <i data-lucide="images"></i>
+                        Elegir foto (opcional)
+                    </button>
+                </div>
+
+                <div class="wth-field">
+                    <label>Nombre del grupo</label>
+                    <input type="text" id="wthGrupoNombre" maxlength="30" placeholder="Ej: Los panas">
+                </div>
+
+                <div class="wth-field">
+                    <label>Miembros</label>
+                    <div class="wth-usuarios-lista" id="wthGrupoUsuarios"></div>
+                </div>
+
+                <label class="wth-checkbox">
+                    <input type="checkbox" id="wthGrupoPermitirAgregar">
+                    <span class="wth-checkbox-mark"></span>
+                    <span class="wth-checkbox-texto">Permitir que los miembros agreguen a otros</span>
+                </label>
+
+            </div>
+            <div class="wth-modal-actions">
+                <button class="wth-btn-secundario" id="wthGrupoCancelar">Cancelar</button>
+                <button class="wth-btn-primario" id="wthGrupoCrear">
+                    <i data-lucide="check"></i>
+                    Crear grupo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL: info del grupo ============ -->
+    <div class="wth-modal" id="wthModalInfoGrupo" hidden>
+        <div class="wth-modal-card">
+            <div class="wth-modal-header">
+                <h2>
+                    <i data-lucide="info"></i>
+                    <span>Info del grupo</span>
+                </h2>
+                <button class="wth-modal-cerrar" id="wthInfoCerrar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="wth-modal-body">
+
+                <div class="wth-grupo-foto-wrap">
+                    <div class="wth-grupo-foto wth-grupo-foto-grande" id="wthInfoGrupoFoto">
+                        <i data-lucide="users"></i>
+                    </div>
+                    <button class="wth-btn-secundario" id="wthInfoBtnCambiarFoto" hidden>
+                        <i data-lucide="images"></i>
+                        Cambiar foto
+                    </button>
+                </div>
+
+                <div class="wth-field">
+                    <label>Nombre</label>
+                    <input type="text" id="wthInfoNombre" maxlength="30">
+                </div>
+
+                <div class="wth-field">
+                    <label>Miembros <span id="wthInfoMiembrosCount">0</span></label>
+                    <div class="wth-usuarios-lista" id="wthInfoMiembros"></div>
+                </div>
+
+                <label class="wth-checkbox" id="wthInfoPermitirWrap">
+                    <input type="checkbox" id="wthInfoPermitir">
+                    <span class="wth-checkbox-mark"></span>
+                    <span class="wth-checkbox-texto">Permitir que los miembros agreguen a otros</span>
+                </label>
+
+                <div class="wth-info-acciones">
+                    <button class="wth-btn-peligro" id="wthInfoBtnSalir">
+                        <i data-lucide="log-out"></i>
+                        Salir del grupo
+                    </button>
+                    <button class="wth-btn-peligro" id="wthInfoBtnEliminar" hidden>
+                        <i data-lucide="trash-2"></i>
+                        Eliminar grupo
+                    </button>
+                </div>
+
+                <div class="wth-info-acciones" id="wthInfoGuardarWrap" hidden>
+                    <button class="wth-btn-primario" id="wthInfoBtnGuardar">
+                        <i data-lucide="save"></i>
+                        Guardar cambios
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL: agregar miembros (grupo existente) ============ -->
+    <div class="wth-modal" id="wthModalAgregar" hidden>
+        <div class="wth-modal-card">
+            <div class="wth-modal-header">
+                <h2>
+                    <i data-lucide="user-plus"></i>
+                    <span>Agregar miembros</span>
+                </h2>
+                <button class="wth-modal-cerrar" id="wthAgregarCerrar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="wth-modal-body">
+                <div class="wth-usuarios-lista" id="wthAgregarUsuarios"></div>
+            </div>
+            <div class="wth-modal-actions">
+                <button class="wth-btn-secundario" id="wthAgregarCancelar">Cancelar</button>
+                <button class="wth-btn-primario" id="wthAgregarConfirmar">
+                    <i data-lucide="check"></i>
+                    Agregar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MENÚ CONTEXTUAL DE CHAT ============ -->
+    <div class="wth-menu" id="wthMenu" hidden>
+        <button class="wth-menu-item" id="wthMenuItemInfo">
+            <i data-lucide="info"></i>
+            <span>Ver info</span>
+        </button>
+        <button class="wth-menu-item wth-menu-item-peligro" id="wthMenuItemBorrar">
+            <i data-lucide="trash-2"></i>
+            <span>Borrar chat</span>
+        </button>
+    </div>
+
+    <!-- ============ Overlay para menú contextual ============ -->
+    <div class="wth-menu-overlay" id="wthMenuOverlay" hidden></div>
+
+    <div class="wth-toast" id="wthToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
