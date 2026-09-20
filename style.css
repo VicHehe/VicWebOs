@@ -2173,3 +2173,55 @@ body {
     }
     .creditos-texto { font-size: 12px; padding: 12px 14px; }
 }
+
+/* ============================================================
+   FIX: Modal de configuración — asegurar que el contenido quede
+   SIEMPRE por encima de decoraciones ::before de los temas.
+   ------------------------------------------------------------
+   Temas como "libro", "consentido", "friend" y "floral" pintan
+   un pseudo-elemento ::before sobre .config-card / .modal-todas-card
+   con z-index > 0. Aunque tienen pointer-events: none, en ciertos
+   repintados (p.ej. al actualizar contenido dinámicamente) pueden
+   quedar visualmente por encima del contenido.
+
+   Solución:
+     1. Aislar el stacking context del modal-card con isolation.
+     2. Forzar el ::before a z-index: 0 con !important.
+     3. Elevar TODOS los hijos directos del card por encima.
+   ============================================================ */
+.config-card,
+.modal-todas-card {
+    isolation: isolate;
+}
+
+.config-card::before,
+.modal-todas-card::before {
+    z-index: 0 !important;
+    pointer-events: none !important;
+}
+
+.config-header,
+.config-layout,
+.config-footer,
+.modal-todas-header,
+.modal-todas-body {
+    position: relative;
+    z-index: 10;
+}
+
+.config-nav,
+.config-content {
+    position: relative;
+    z-index: 1;
+}
+
+/* Responsive: en móvil el layout pasa a column y el nav a grid.
+   Mantenemos el mismo blindaje de z-index. */
+@media (max-width: 768px) {
+    .config-header,
+    .config-layout,
+    .config-footer {
+        position: relative;
+        z-index: 10;
+    }
+}
