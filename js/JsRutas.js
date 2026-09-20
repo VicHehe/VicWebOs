@@ -48,7 +48,7 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 0,
         monedas: 0
     },
-        {
+    {
         id: 'contactos',
         nombre: 'Contactos',
         icono: 'book-user',
@@ -71,29 +71,29 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 4,
         monedas: 0
     },
-        {
-    id: 'notas',
-    nombre: 'Notas',
-    icono: 'notebook-pen',
-    ruta: 'herramientas/notas/index.html',
-    descripcion: 'Bloc de notas. Guarda hasta 10 notas gratis con búsqueda y descarga premium.',
-    categoria: 'Herramientas Prácticas',
-    esBase: false,
-    espacio: 6,
-    monedas: 0
-},
     {
-    id: 'qr',
-    nombre: 'Generador QR',
-    icono: 'qr-code',
-    ruta: 'herramientas/qr/index.html',
-    descripcion: 'Convierte texto o URLs en códigos QR descargables en PNG.',
-    categoria: 'Herramientas Prácticas',
-    esBase: false,
-    espacio: 2,
-    monedas: 5
-},
-        {
+        id: 'notas',
+        nombre: 'Notas',
+        icono: 'notebook-pen',
+        ruta: 'herramientas/notas/index.html',
+        descripcion: 'Bloc de notas. Guarda hasta 10 notas gratis con búsqueda y descarga premium.',
+        categoria: 'Herramientas Prácticas',
+        esBase: false,
+        espacio: 6,
+        monedas: 0
+    },
+    {
+        id: 'qr',
+        nombre: 'Generador QR',
+        icono: 'qr-code',
+        ruta: 'herramientas/qr/index.html',
+        descripcion: 'Convierte texto o URLs en códigos QR descargables en PNG.',
+        categoria: 'Herramientas Prácticas',
+        esBase: false,
+        espacio: 2,
+        monedas: 5
+    },
+    {
         id: 'photo-shinny',
         nombre: 'Photo Shinny',
         icono: 'wand-2',
@@ -116,38 +116,49 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 0
     },
     {
-    id: 'whack-a-mole',
-    nombre: 'Golpea el Topo',
-    icono: 'hammer',
-    ruta: 'herramientas/whack-a-mole/index.html',
-    descripcion: 'Golpea los topos. Los topos son tu foto de perfil. 30 segundos por partida.',
-    categoria: 'Juegos',
-    esBase: false,
-    espacio: 2,
-    monedas: 0
-},
+        id: 'whack-a-mole',
+        nombre: 'Golpea el Topo',
+        icono: 'hammer',
+        ruta: 'herramientas/whack-a-mole/index.html',
+        descripcion: 'Golpea los topos. Los topos son tu foto de perfil. 30 segundos por partida.',
+        categoria: 'Juegos',
+        esBase: false,
+        espacio: 2,
+        monedas: 0
+    },
     {
-    id: 'tres-en-raya',
-    nombre: 'Tres en Raya',
-    icono: 'grid-3x3',
-    ruta: 'herramientas/tres-en-raya/index.html',
-    descripcion: 'El clásico 3 en línea. La CPU se vuelve más difícil mientras acumulas victorias.',
-    categoria: 'Juegos',
-    esBase: false,
-    espacio: 4,
-    monedas: 0
-},
-{
-    id: 'wordle',                                   // ← ID igual que siempre
-    nombre: 'Adivin-He',                            // ← solo el nombre cambia
-    icono: 'type',
-    ruta: 'herramientas/wordle/index.html',         // ← carpeta igual
-    descripcion: 'Adivina la palabra de 5 letras. +5 monedas por victoria.',
-    categoria: 'Juegos',
-    esBase: false,
-    espacio: 4,
-    monedas: 0
-},
+        id: 'tres-en-raya',
+        nombre: 'Tres en Raya',
+        icono: 'grid-3x3',
+        ruta: 'herramientas/tres-en-raya/index.html',
+        descripcion: 'El clásico 3 en línea. La CPU se vuelve más difícil mientras acumulas victorias.',
+        categoria: 'Juegos',
+        esBase: false,
+        espacio: 4,
+        monedas: 0
+    },
+    {
+        id: 'wordle',
+        nombre: 'Adivin-He',
+        icono: 'type',
+        ruta: 'herramientas/wordle/index.html',
+        descripcion: 'Adivina la palabra de 5 letras. +5 monedas por victoria.',
+        categoria: 'Juegos',
+        esBase: false,
+        espacio: 4,
+        monedas: 0
+    },
+    {
+        id: 'metrorun',
+        nombre: 'The MetroRun',
+        icono: 'train-front',
+        ruta: 'herramientas/metrorun/index.html',
+        descripcion: 'Runner de 3 líneas, vista aérea. Esquivá vagones y recolectá monedas reales.',
+        categoria: 'Juegos',
+        esBase: false,
+        espacio: 6,
+        monedas: 20
+    },
     {
         id: 'evmail',
         nombre: 'EVmail',
@@ -159,7 +170,7 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 8,
         monedas: 0
     },
-        {
+    {
         id: 'silly-calls',
         nombre: 'SillyCalls',
         icono: 'phone-call',
@@ -170,7 +181,7 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 10,
         monedas: 140
     },
-        {
+    {
         id: 'arte-flash',
         nombre: 'Arte Flash',
         icono: 'palette',
