@@ -550,6 +550,54 @@ function iniciarClimaLocal() {
 }
 
 // ============================================================
+//  WATCHER DE TEMA DINÁMICO
+//  ------------------------------------------------------------
+//  Algunos temas (como "Stream") tienen paletas que cambian en
+//  el tiempo mediante animaciones CSS. Las apps dentro de los
+//  iframes solo leen el tema al cargarse, así que no se enteran
+//  si el acento cambia después.
+//
+//  Este watcher lee el acento del tema cada 500ms y, si cambió,
+//  hace broadcast a los iframes para que re-apliquen el tema.
+//
+//  Costo: 1 lectura de getComputedStyle cada 500ms, y solo si
+//  hay al menos una app abierta y la pestaña está visible.
+//  En temas estáticos (todos menos Stream) no dispara nunca.
+// ============================================================
+let _watcherTemaId = null;
+let _ultimoAcento = '';
+
+function iniciarWatcherTemaDinamico() {
+    if (_watcherTemaId) return;
+
+    const leerAcento = () => {
+        try {
+            const s = getComputedStyle(document.documentElement);
+            return s.getPropertyValue('--violet-500').trim();
+        } catch (e) {
+            return '';
+        }
+    };
+
+    _ultimoAcento = leerAcento();
+
+    _watcherTemaId = setInterval(() => {
+        // Solo tiene sentido si hay al menos una app abierta
+        if (!panelContainer.querySelector('iframe.tool-iframe')) return;
+        // No gastar ciclos si la pestaña está oculta
+        if (document.hidden) return;
+
+        const actual = leerAcento();
+        if (actual && actual !== _ultimoAcento) {
+            _ultimoAcento = actual;
+            if (typeof window.__notificarCambioTema === 'function') {
+                window.__notificarCambioTema();
+            }
+        }
+    }, 500);
+}
+
+// ============================================================
 //  NOTIFICAR CAMBIOS A IFRAMES
 // ============================================================
 window.__notificarCambioTema = function() {
@@ -685,6 +733,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     actualizarSaludo();
     iniciarRelojLocal();
     iniciarClimaLocal();
+    iniciarWatcherTemaDinamico();
 
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
