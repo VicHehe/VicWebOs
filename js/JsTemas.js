@@ -6,15 +6,15 @@
 //    2 → solo variables :root (colores, sombras, radios)
 //    4 → añade pseudo-elementos, SVG patterns, texturas o animaciones
 //
-//  ESCALA DE PRECIO (0 a 30):
+//  ESCALA DE PRECIO (0 a 50):
 //    0   → oficiales gratuitos
 //    5   → entrada: recolor puro :root
-//    10  → pseudo-elementos simples o reescritura de chrome
-//    15  → efecto visual claro (pattern SVG, scanlines, glitch)
+//    15  → pseudo-elementos simples o reescritura de chrome
+//    20  → efecto visual claro (pattern SVG, scanlines, glitch)
 //    18  → 🔒 EXCLUSIVO DE CONSENTIDO (referencia al 18 de septiembre)
-//    20  → múltiples capas combinadas (patterns + hovers únicos)
-//    25  → textura + efectos artesanales
-//    30  → flagship: animación en vivo + múltiples capas
+//    30  → múltiples capas combinadas (patterns + hovers únicos)
+//    40  → textura + efectos artesanales
+//    50  → flagship: animación en vivo + múltiples capas
 //
 //  ORGANIZACIÓN POR AFINIDAD TEMÁTICA:
 //    Básicos     → recolors simples, light mode. La entrada del sistema.
@@ -285,7 +285,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Formales',
         ruta: 'Temas/ventanas.css',
         espacio: 4,
-        monedas: 10,
+        monedas: 15,
         colores: {
             '--violet-100': '#D6E8F7',
             '--violet-300': '#7FB8E6',
@@ -303,7 +303,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Formales',
         ruta: 'Temas/celeste.css',
         espacio: 4,
-        monedas: 15,
+        monedas: 20,
         colores: {
             '--violet-100': '#DDE9F2',
             '--violet-300': '#9CB8CD',
@@ -380,7 +380,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Retro',
         ruta: 'Temas/chiptune.css',
         espacio: 4,
-        monedas: 15,
+        monedas: 20,
         colores: {
             '--violet-100': '#E0EAA0',
             '--violet-300': '#9BBC0F',
@@ -421,7 +421,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Especiales',
         ruta: 'Temas/dreams.css',
         espacio: 4,
-        monedas: 20,
+        monedas: 30,
         colores: {
             '--violet-100': '#2E1A44',
             '--violet-300': '#7C4DE8',
@@ -439,7 +439,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Especiales',
         ruta: 'Temas/floral.css',
         espacio: 4,
-        monedas: 20,
+        monedas: 30,
         colores: {
             '--violet-100': '#DCFCE7',
             '--violet-300': '#F9A8D4',
@@ -457,7 +457,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Especiales',
         ruta: 'Temas/libro.css',
         espacio: 4,
-        monedas: 25,
+        monedas: 40,
         colores: {
             '--violet-100': '#3E2C1C',
             '--violet-300': '#8B6B4A',
@@ -475,7 +475,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Especiales',
         ruta: 'Temas/break-of-dawn.css',
         espacio: 4,
-        monedas: 30,
+        monedas: 50,
         colores: {
             '--violet-100': '#FFE0D1',
             '--violet-300': '#FFA07A',
@@ -485,7 +485,7 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFDFB'
         }
     },
-        {
+    {
         id: 'stream',
         nombre: 'Stream',
         icono: 'signal',
@@ -493,7 +493,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Especiales',
         ruta: 'Temas/stream.css',
         espacio: 4,
-        monedas: 30,
+        monedas: 50,
         colores: {
             '--violet-100': '#241640',
             '--violet-300': '#B57EF8',
@@ -511,7 +511,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Especiales',
         ruta: 'Temas/friend.css',
         espacio: 4,
-        monedas: 30,
+        monedas: 50,
         colores: {
             '--violet-100': '#2A1A44',
             '--violet-300': '#E879F9',
