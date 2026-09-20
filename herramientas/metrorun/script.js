@@ -343,4 +343,529 @@ function dibujarJugador() {
     ctx.arc(x, y, r, 0, Math.PI * 2);
     ctx.stroke();
 
-    //
+    // Foto de perfil (clip circular)
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x, y, r - 2, 0, Math.PI * 2);
+    ctx.clip();
+    if (fotoCargada && fotoImg) {
+        ctx.drawImage(fotoImg, x - r, y - r, r * 2, r * 2);
+    } else {
+        ctx.fillStyle = colorVar('--violet-600', '#7C3AED');
+        ctx.fillRect(x - r, y - r, r * 2, r * 2);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 22px Nunito, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(inicialUsuario, x, y + 1);
+    }
+    ctx.restore();
+
+    // Brillo interior
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(x, y, r - 1, 0, Math.PI * 2);
+    ctx.stroke();
+}
+
+function dibujarObstaculo(o) {
+    const x = o.x - OBSTACLE_W / 2;
+    const y = o.y - OBSTACLE_H / 2;
+
+    // Cuerpo del vagón
+    ctx.fillStyle = '#3F3F46';
+    roundRect(ctx, x, y, OBSTACLE_W, OBSTACLE_H, 8);
+    ctx.fill();
+
+    // Borde oscuro
+    ctx.strokeStyle = '#18181B';
+    ctx.lineWidth = 2;
+    roundRect(ctx, x, y, OBSTACLE_W, OBSTACLE_H, 8);
+    ctx.stroke();
+
+    // Franja de peligro (rojo)
+    ctx.fillStyle = '#DC2626';
+    ctx.fillRect(x + 6, y + OBSTACLE_H / 2 - 4, OBSTACLE_W - 12, 8);
+
+    // Detalle superior (líneas)
+    ctx.fillStyle = 'rgba(255,255,255,0.08)';
+    ctx.fillRect(x + 8, y + 12, OBSTACLE_W - 16, 2);
+    ctx.fillRect(x + 8, y + 20, OBSTACLE_W - 16, 2);
+
+    // Luces de advertencia (amarillas)
+    ctx.fillStyle = '#FBBF24';
+    ctx.beginPath();
+    ctx.arc(x + 10, y + OBSTACLE_H - 12, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x + OBSTACLE_W - 10, y + OBSTACLE_H - 12, 3, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function dibujarMoneda(c) {
+    const r = COIN_RADIUS;
+
+    // Glow dorado
+    ctx.save();
+    ctx.shadowColor = '#F59E0B';
+    ctx.shadowBlur = 14;
+    ctx.fillStyle = '#FBBF24';
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // Borde más oscuro
+    ctx.strokeStyle = '#D97706';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, r - 1, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Símbolo $
+    ctx.fillStyle = '#92400E';
+    ctx.font = 'bold 16px Nunito, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('$', c.x, c.y + 1);
+}
+
+// ============================================================
+//  ACTUALIZAR
+// ============================================================
+function nivelDesdeMonedas() {
+    return Math.min(Math.floor(monedasRecolectadas / MONEDAS_POR_NIVEL), NIVEL_MAX);
+}
+
+function velocidadActual() {
+    const t = nivelDesdeMonedas() / NIVEL_MAX;
+    return VELOCIDAD_BASE + (VELOCIDAD_MAX - VELOCIDAD_BASE) * t;
+}
+
+function spawnMsActual() {
+    const t = nivelDesdeMonedas() / NIVEL_MAX;
+    return SPAWN_BASE_MS + (SPAWN_MIN_MS - SPAWN_BASE_MS) * t;
+}
+
+function actualizar(dt) {
+    const vel = velocidadActual();
+    const spawnMs = spawnMsActual();
+
+    // Scroll de la carretera
+    scrollY += vel * dt;
+
+    // Suavizado del jugador
+    jugador.x += (jugador.targetX - jugador.x) * Math.min(dt * 14, 1);
+
+    // Mover obstáculos
+    for (const o of obstaculos) o.y += vel * dt;
+    obstaculos = obstaculos.filter(o => o.y < CANVAS_H + 100);
+
+    // Mover monedas
+    for (const c of monedas) c.y += vel * dt;
+    monedas = monedas.filter(c => c.y < CANVAS_H + 50);
+
+    // Spawn obstáculos
+    proximoSpawnObs -= dt * 1000;
+    if (proximoSpawnObs <= 0) {
+        spawnObstaculo();
+        proximoSpawnObs = spawnMs * (0.85 + Math.random() * 0.3);
+    }
+
+    // Spawn monedas
+    proximoSpawnMon -= dt * 1000;
+    if (proximoSpawnMon <= 0) {
+        spawnMoneda();
+        proximoSpawnMon = spawnMs * COIN_SPAWN_FACTOR * (0.8 + Math.random() * 0.6);
+    }
+
+    // Colisión con obstáculos
+    for (const o of obstaculos) {
+        if (colisionCircRect(
+            jugador.x, PLAYER_Y, PLAYER_HITBOX,
+            o.x - OBSTACLE_HITBOX_W / 2,
+            o.y - OBSTACLE_HITBOX_H / 2,
+            OBSTACLE_HITBOX_W,
+            OBSTACLE_HITBOX_H
+        )) {
+            gameOver();
+            return;
+        }
+    }
+
+    // Colisión con monedas
+    for (const c of monedas) {
+        if (c.recolectada) continue;
+        const dx = jugador.x - c.x;
+        const dy = PLAYER_Y - c.y;
+        if (dx * dx + dy * dy < (PLAYER_RADIUS + COIN_HITBOX) ** 2) {
+            recolectarMoneda(c);
+        }
+    }
+
+    // Partículas
+    for (const p of particulas) {
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.vy += 380 * dt;
+        p.life -= dt;
+    }
+    particulas = particulas.filter(p => p.life > 0);
+
+    // Popups
+    for (const cp of popups) {
+        cp.y -= 70 * dt;
+        cp.life -= dt;
+    }
+    popups = popups.filter(cp => cp.life > 0);
+
+    actualizarHUD();
+}
+
+function spawnObstaculo() {
+    // Elegir línea aleatoria, pero evitar que caigan 3 seguidas en la misma
+    // (así se siente más justo)
+    let lane = Math.floor(Math.random() * LANES);
+    // Si ya hay un obstáculo muy cerca en esa línea, cambiar
+    for (const o of obstaculos) {
+        if (o.lane === lane && o.y < 200) {
+            lane = (lane + 1 + Math.floor(Math.random() * (LANES - 1))) % LANES;
+            break;
+        }
+    }
+
+    obstaculos.push({
+        lane,
+        x: LANE_CENTERS[lane],
+        y: -OBSTACLE_H / 2 - 10,
+        w: OBSTACLE_W,
+        h: OBSTACLE_H
+    });
+}
+
+function spawnMoneda() {
+    // Elegir línea distinta a la de algún obstáculo reciente (para que no
+    // sea imposible tomarla)
+    const lineasOcupadas = new Set();
+    for (const o of obstaculos) {
+        if (o.y < 80) lineasOcupadas.add(o.lane);
+    }
+    const disponibles = [];
+    for (let i = 0; i < LANES; i++) {
+        if (!lineasOcupadas.has(i)) disponibles.push(i);
+    }
+    if (disponibles.length === 0) return;
+
+    const lane = disponibles[Math.floor(Math.random() * disponibles.length)];
+
+    monedas.push({
+        lane,
+        x: LANE_CENTERS[lane],
+        y: -COIN_RADIUS - 10,
+        recolectada: false
+    });
+}
+
+function recolectarMoneda(c) {
+    c.recolectada = true;
+
+    // Efecto: partículas doradas
+    for (let i = 0; i < 8; i++) {
+        const angulo = (Math.PI * 2 * i) / 8 + Math.random() * 0.5;
+        particulas.push({
+            x: c.x,
+            y: c.y,
+            vx: Math.cos(angulo) * (80 + Math.random() * 80),
+            vy: Math.sin(angulo) * (80 + Math.random() * 80) - 50,
+            size: 2 + Math.random() * 2.5,
+            color: i % 2 === 0 ? '#FBBF24' : '#F59E0B',
+            life: 0.5,
+            lifeMax: 0.5
+        });
+    }
+
+    // Popup +1
+    popups.push({
+        x: c.x,
+        y: c.y,
+        life: 0.8,
+        lifeMax: 0.8
+    });
+
+    monedasRecolectadas++;
+
+    // Quitar la moneda del array tras un frame para que no vuelva a contar
+    monedas = monedas.filter(x => x !== c);
+}
+
+// ============================================================
+//  COLISIONES
+// ============================================================
+function colisionCircRect(cx, cy, r, rx, ry, rw, rh) {
+    const closestX = Math.max(rx, Math.min(cx, rx + rw));
+    const closestY = Math.max(ry, Math.min(cy, ry + rh));
+    const dx = cx - closestX;
+    const dy = cy - closestY;
+    return dx * dx + dy * dy < r * r;
+}
+
+// ============================================================
+//  CONTROL
+// ============================================================
+function moverIzquierda() {
+    if (gameState !== 'jugando') return;
+    if (jugador.lane > 0) {
+        jugador.lane--;
+        jugador.targetX = LANE_CENTERS[jugador.lane];
+    }
+}
+
+function moverDerecha() {
+    if (gameState !== 'jugando') return;
+    if (jugador.lane < LANES - 1) {
+        jugador.lane++;
+        jugador.targetX = LANE_CENTERS[jugador.lane];
+    }
+}
+
+// ============================================================
+//  HUD
+// ============================================================
+function actualizarHUD() {
+    const elCoins = document.getElementById('mrCoins');
+    if (elCoins) elCoins.textContent = monedasRecolectadas;
+
+    const nivel = nivelDesdeMonedas() + 1;
+    const elNivelText = document.getElementById('mrNivelText');
+    if (elNivelText) elNivelText.textContent = 'Nivel ' + nivel;
+
+    const badge = document.getElementById('mrNivelBadge');
+    if (badge) {
+        // Quitar clases anteriores
+        for (let i = 1; i <= 12; i++) badge.classList.remove('n' + i);
+        badge.classList.add('n' + Math.min(nivel, 12));
+    }
+}
+
+// ============================================================
+//  LOOP
+// ============================================================
+function loop(now) {
+    if (gameState !== 'jugando') return;
+
+    if (!ultimoFrameMs) ultimoFrameMs = now;
+    const deltaMs = Math.min(now - ultimoFrameMs, 50);
+    ultimoFrameMs = now;
+
+    actualizar(deltaMs / 1000);
+    dibujar();
+
+    if (gameState === 'jugando') {
+        rafId = requestAnimationFrame(loop);
+    }
+}
+
+// ============================================================
+//  ESTADOS DE PARTIDA
+// ============================================================
+function empezar() {
+    // Reset
+    jugador.lane = 1;
+    jugador.x = LANE_CENTERS[1];
+    jugador.targetX = LANE_CENTERS[1];
+
+    obstaculos = [];
+    monedas = [];
+    particulas = [];
+    popups = [];
+    scrollY = 0;
+    monedasRecolectadas = 0;
+    proximoSpawnObs = 600;
+    proximoSpawnMon = 900;
+    ultimoFrameMs = 0;
+    gameState = 'jugando';
+
+    document.getElementById('mrOverlayStart').hidden = true;
+    document.getElementById('mrOverlayFin').hidden = true;
+
+    actualizarHUD();
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(loop);
+}
+
+function gameOver() {
+    gameState = 'gameover';
+    if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+    }
+
+    // Guardar récord
+    const esRecord = monedasRecolectadas > recordPersonal;
+    if (esRecord) {
+        recordPersonal = monedasRecolectadas;
+        const recEl = document.getElementById('mrRecord');
+        if (recEl) recEl.textContent = recordPersonal;
+        guardarRecord(recordPersonal);
+    }
+
+    // Dar monedas
+    otorgarMonedas(monedasRecolectadas);
+
+    // Mostrar overlay
+    mostrarOverlayFin(esRecord);
+}
+
+async function otorgarMonedas(cantidad) {
+    if (cantidad <= 0) return;
+    const api = API();
+    if (!api || typeof api.canjear !== 'function') return;
+    try {
+        await api.canjear(
+            'train-front',
+            APP_ID,
+            `MetroRun: ${cantidad} monedas`,
+            cantidad
+        );
+    } catch (e) {
+        console.warn('[MetroRun] No se pudieron otorgar monedas:', e);
+    }
+}
+
+function mostrarOverlayFin(esRecord) {
+    const n = monedasRecolectadas;
+
+    document.getElementById('mrFinCoins').textContent = n;
+    document.getElementById('mrFinNivel').textContent = (nivelDesdeMonedas() + 1);
+    document.getElementById('mrFinGanancia').textContent = '+' + n;
+
+    const filaRecord = document.getElementById('mrFinRecordFila');
+    if (esRecord) {
+        document.getElementById('mrFinRecord').textContent = n;
+        filaRecord.hidden = false;
+    } else {
+        filaRecord.hidden = true;
+    }
+
+    document.getElementById('mrOverlayFin').hidden = false;
+    if (window.lucide) window.lucide.createIcons();
+
+    if (n > 0) {
+        toast(`+${n} monedas`, 'success');
+    }
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+async function inicializar() {
+    aplicarTemaDelPadre();
+    refrescarColores();
+
+    // Badge del usuario
+    const api = API();
+    const cuenta = api?.obtenerCuenta?.();
+    const badge = document.getElementById('mrUserBadge');
+    if (badge) {
+        badge.textContent = cuenta
+            ? `@${cuenta.codigo} · ${cuenta.nombre}`
+            : '—';
+    }
+
+    // Foto de perfil (para el sprite del jugador)
+    cargarFotoPerfil();
+
+    // Récord
+    try {
+        recordPersonal = await cargarRecord();
+    } catch (e) { /* silencioso */ }
+    const recEl = document.getElementById('mrRecord');
+    if (recEl) recEl.textContent = recordPersonal;
+
+    // Canvas
+    configurarCanvas();
+    dibujar();
+
+    // ====== CONTROLES ======
+
+    // Teclado
+    document.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+        if (gameState === 'idle' || gameState === 'gameover') {
+            if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                empezar();
+            }
+            return;
+        }
+
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+            e.preventDefault();
+            moverIzquierda();
+        } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+            e.preventDefault();
+            moverDerecha();
+        }
+    });
+
+    // Touch: swipe o tap
+    if (canvas) {
+        let tStartX = 0;
+        let tStartY = 0;
+        let tStartTime = 0;
+
+        canvas.addEventListener('touchstart', (e) => {
+            if (gameState !== 'jugando') return;
+            e.preventDefault();
+            const t = e.touches[0];
+            tStartX = t.clientX;
+            tStartY = t.clientY;
+            tStartTime = Date.now();
+        }, { passive: false });
+
+        canvas.addEventListener('touchend', (e) => {
+            if (gameState !== 'jugando') return;
+            e.preventDefault();
+            if (!e.changedTouches || e.changedTouches.length === 0) return;
+
+            const t = e.changedTouches[0];
+            const dx = t.clientX - tStartX;
+            const dy = t.clientY - tStartY;
+            const dt = Date.now() - tStartTime;
+
+            // Swipe horizontal
+            if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) && dt < 500) {
+                if (dx > 0) moverDerecha();
+                else moverIzquierda();
+                return;
+            }
+
+            // Tap (toque corto y sin movimiento)
+            if (Math.abs(dx) < 20 && Math.abs(dy) < 20 && dt < 250) {
+                const rect = canvas.getBoundingClientRect();
+                const tapX = t.clientX - rect.left;
+                if (tapX < rect.width / 2) moverIzquierda();
+                else moverDerecha();
+            }
+        }, { passive: false });
+
+        // Mouse click (para probar en PC)
+        canvas.addEventListener('click', (e) => {
+            if (gameState !== 'jugando') return;
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            if (clickX < rect.width / 2) moverIzquierda();
+            else moverDerecha();
+        });
+    }
+
+    // Botones
+    document.getElementById('mrBtnEmpezar')?.addEventListener('click', empezar);
+    document.getElementById('mrBtnReintentar')?.addEventListener('click', empezar);
+
+    if (window.lucide) window.lucide.createIcons();
+}
+
+document.addEventListener('DOMContentLoaded', inicializar);
