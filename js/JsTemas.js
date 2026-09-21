@@ -495,7 +495,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Especiales',
         ruta: 'Temas/wuu.css',
         espacio: 4,
-        monedas: 35,
+        monedas: 40,
         colores: {
             '--violet-100': '#B2EBF2',
             '--violet-300': '#4DD0E1',
