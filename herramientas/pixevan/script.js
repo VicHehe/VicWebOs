@@ -4,6 +4,13 @@
 //  Adaptado desde PixelFlash (demo) al sistema VicWebOs.
 //  Motor de dibujo original preservado.
 //
+//  Pan/zoom (patrón Arte Flash):
+//    · PC:      click derecho · botón medio · space sostenido ·
+//               long-press izquierdo · click fuera del canvas ·
+//               rueda del mouse (zoom)
+//    · Móvil:   2 dedos = pan + zoom discreto
+//    · Botones flotantes +/- para zoom
+//
 //  Persistencia:
 //    · IndexedDB local → proyecto en curso (por usuario)
 //    · mh.galeria.subirImagen() → exportar PNG a la Galería
@@ -18,6 +25,11 @@ const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const IDB_NAME = 'VicWebOsPixEvan';
 const IDB_VERSION = 1;
 const IDB_STORE = 'proyectos';
+
+const LONG_PRESS_MS = 400;
+const LONG_PRESS_MOVE_TOL = 8;
+const PINCH_ZOOM_UMBRAL_ARRIBA = 1.30;
+const PINCH_ZOOM_UMBRAL_ABAJO  = 0.70;
 
 // ============================================================
 //  PALETA PICO-8 (default)
@@ -40,7 +52,7 @@ const MH  = () => window.parent.MasterHad || null;
 const state = {
     ancho: 32,
     alto: 32,
-    frames: [],           // [{ capas: [{nombre, pixeles, visible, opacidad}], historia, historiaIdx }]
+    frames: [],
     frameActivo: 0,
     capaActiva: 0,
     color: '#000000',
@@ -60,10 +72,26 @@ const state = {
     exportEscala: 1,
     exportModo: 'horizontal',
     exportPadding: 0,
-    MAX_HISTORIA: 50
+    MAX_HISTORIA: 50,
+    // Pan/zoom extendido
+    spaceDown: false,
+    touches: [],
+    gesto2DedosActivo: false,
+    gesto2DedosCentro: { x: 0, y: 0 },
+    gesto2DedosDistancia: 0,
+    gesto2DedosFactorAcumulado: 1
 };
 
 let usuarioActual = null;
+
+// Estado de long-press para pan con mouse
+let longPressTimer = null;
+let longPressStartX = 0;
+let longPressStartY = 0;
+let longPressActivo = false;
+
+// Estado de pan activo
+let panStart = null;
 
 // ============================================================
 //  TEMA: heredar variables del padre
@@ -312,6 +340,11 @@ function coordsDeCliente(clientX, clientY) {
     return { x, y };
 }
 
+function estaFueraDelCanvas(clientX, clientY) {
+    const r = canvas.getBoundingClientRect();
+    return clientX < r.left || clientY < r.top || clientX > r.right || clientY > r.bottom;
+}
+
 // ============================================================
 //  FRAME / CAPA HELPERS
 // ============================================================
@@ -518,22 +551,91 @@ function rehacer() {
 }
 
 // ============================================================
-//  POINTER EVENTS
+//  PAN / ZOOM helpers
 // ============================================================
-let panStart = null;
+function cancelarOperacionActual() {
+    if (!state.dibujando) return;
+    state.dibujando = false;
+    if (state.formaStart) {
+        // Era una forma en preview → restaurar el snapshot
+        if (state.formaSnapshot) restaurarSnapshot(state.formaSnapshot);
+        state.formaStart = null;
+        state.formaSnapshot = null;
+    }
+    // Si era un trazo, lo que se haya pintado queda
+}
 
-canvas.addEventListener('pointerdown', (e) => {
+function getTouchDist() {
+    if (state.touches.length < 2) return 0;
+    const dx = state.touches[0].x - state.touches[1].x;
+    const dy = state.touches[0].y - state.touches[1].y;
+    return Math.sqrt(dx*dx + dy*dy);
+}
+
+function getTouchCenter() {
+    if (state.touches.length < 2) return { x: 0, y: 0 };
+    return {
+        x: (state.touches[0].x + state.touches[1].x) / 2,
+        y: (state.touches[0].y + state.touches[1].y) / 2
+    };
+}
+
+// ============================================================
+//  POINTER EVENTS (en wrapper, no en canvas)
+// ============================================================
+wrapper.addEventListener('pointerdown', onPointerDown, { passive: false });
+wrapper.addEventListener('pointermove', onPointerMove, { passive: false });
+wrapper.addEventListener('pointerup', onPointerUp);
+wrapper.addEventListener('pointercancel', onPointerUp);
+wrapper.addEventListener('contextmenu', (e) => e.preventDefault());
+
+function onPointerDown(e) {
     e.preventDefault();
-    try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+    try { wrapper.setPointerCapture(e.pointerId); } catch (_) {}
 
-    if (state.herramienta === 'mover' || e.button === 1 || e.shiftKey) {
+    const esClickDerecho = e.pointerType === 'mouse' && e.button === 2;
+    const fueraDelCanvas = estaFueraDelCanvas(e.clientX, e.clientY);
+
+    if (e.pointerType === 'touch') {
+        state.touches.push({ id: e.pointerId, x: e.clientX, y: e.clientY });
+    }
+
+    // ---------- GESTO 2 DEDOS ----------
+    if (e.pointerType === 'touch' && state.touches.length === 2) {
+        cancelarOperacionActual();
+        state.gesto2DedosActivo = true;
+        const centro = getTouchCenter();
+        state.gesto2DedosCentro = { x: centro.x, y: centro.y };
+        state.gesto2DedosDistancia = getTouchDist();
+        state.gesto2DedosFactorAcumulado = 1;
+        return;
+    }
+
+    if (e.pointerType === 'touch' && state.touches.length >= 3) return;
+
+    // ---------- PAN MANUAL (PC) ----------
+    if (esClickDerecho || fueraDelCanvas || state.spaceDown || e.button === 1) {
         panStart = { x: e.clientX, y: e.clientY, panX: state.panX, panY: state.panY };
-        canvas.style.cursor = 'grabbing';
+        wrapper.style.cursor = 'grabbing';
         return;
     }
 
     const { x, y } = coordsDeCliente(e.clientX, e.clientY);
     const color = state.herramienta === 'borrador' ? null : state.color;
+
+    // Long-press izquierdo → pan (solo mouse, solo dentro del canvas)
+    if (e.pointerType === 'mouse' && e.button === 0) {
+        longPressStartX = e.clientX;
+        longPressStartY = e.clientY;
+        longPressActivo = false;
+        clearTimeout(longPressTimer);
+        longPressTimer = setTimeout(() => {
+            longPressActivo = true;
+            cancelarOperacionActual();
+            panStart = { x: e.clientX, y: e.clientY, panX: state.panX, panY: state.panY };
+            wrapper.style.cursor = 'grabbing';
+        }, LONG_PRESS_MS);
+    }
 
     if (state.herramienta === 'pipeta') {
         const capa = capaActual();
@@ -556,13 +658,73 @@ canvas.addEventListener('pointerdown', (e) => {
 
     state.dibujando = true;
     if (pintarPincel(x, y, color)) render();
-});
+}
 
-canvas.addEventListener('pointermove', (e) => {
+function onPointerMove(e) {
     const { x, y } = coordsDeCliente(e.clientX, e.clientY);
     const coordEl = document.getElementById('coordsIndicator');
     if (coordEl) coordEl.textContent = `${x}, ${y}`;
 
+    // ---------- GESTO 2 DEDOS: pan + zoom ----------
+    if (e.pointerType === 'touch' && state.touches.length >= 2 && state.gesto2DedosActivo) {
+        const t = state.touches.find(t => t.id === e.pointerId);
+        if (t) { t.x = e.clientX; t.y = e.clientY; }
+
+        const centro = getTouchCenter();
+        const distancia = getTouchDist();
+
+        if (state.gesto2DedosDistancia > 0 && distancia > 0) {
+            // PAN
+            const dxCentro = centro.x - state.gesto2DedosCentro.x;
+            const dyCentro = centro.y - state.gesto2DedosCentro.y;
+            state.panX += dxCentro;
+            state.panY += dyCentro;
+
+            // ZOOM discreto con acumulador
+            const factor = distancia / state.gesto2DedosDistancia;
+            state.gesto2DedosFactorAcumulado *= factor;
+
+            if (state.gesto2DedosFactorAcumulado > PINCH_ZOOM_UMBRAL_ARRIBA) {
+                const nuevo = Math.min(64, state.zoom + 2);
+                if (nuevo !== state.zoom) {
+                    state.zoom = nuevo;
+                    redimensionarCanvas();
+                }
+                state.gesto2DedosFactorAcumulado = 1;
+            } else if (state.gesto2DedosFactorAcumulado < PINCH_ZOOM_UMBRAL_ABAJO) {
+                const nuevo = Math.max(1, state.zoom - 2);
+                if (nuevo !== state.zoom) {
+                    state.zoom = nuevo;
+                    redimensionarCanvas();
+                }
+                state.gesto2DedosFactorAcumulado = 1;
+            } else {
+                aplicarPanZoom();
+            }
+
+            state.gesto2DedosCentro = { x: centro.x, y: centro.y };
+            state.gesto2DedosDistancia = distancia;
+        }
+        return;
+    }
+
+    // Cancelar long-press si el usuario se mueve demasiado
+    if (longPressTimer && !longPressActivo) {
+        const dx = e.clientX - longPressStartX;
+        const dy = e.clientY - longPressStartY;
+        if (Math.sqrt(dx*dx + dy*dy) > LONG_PRESS_MOVE_TOL) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+        }
+    }
+
+    // Actualización táctil (un solo dedo)
+    if (e.pointerType === 'touch') {
+        const t = state.touches.find(t => t.id === e.pointerId);
+        if (t) { t.x = e.clientX; t.y = e.clientY; }
+    }
+
+    // ---------- PAN activo ----------
     if (panStart) {
         state.panX = panStart.panX + (e.clientX - panStart.x);
         state.panY = panStart.panY + (e.clientY - panStart.y);
@@ -584,14 +746,32 @@ canvas.addEventListener('pointermove', (e) => {
 
     const color = state.herramienta === 'borrador' ? null : state.color;
     if (pintarPincel(x, y, color)) render();
-});
+}
 
-canvas.addEventListener('pointerup', (e) => {
+function onPointerUp(e) {
+    if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+    }
+    longPressActivo = false;
+
+    if (e && e.pointerType === 'touch') {
+        state.touches = state.touches.filter(t => t.id !== e.pointerId);
+
+        if (state.touches.length < 2) {
+            state.gesto2DedosActivo = false;
+        }
+
+        // Si todavía queda algún dedo, no procesamos el up normal
+        if (state.touches.length >= 1) return;
+    }
+
     if (panStart) {
         panStart = null;
-        canvas.style.cursor = cursorHerramienta();
+        wrapper.style.cursor = cursorHerramienta();
         return;
     }
+
     if (state.dibujando) {
         state.dibujando = false;
         if (state.herramienta === 'linea' || state.herramienta === 'rect' || state.herramienta === 'elipse') {
@@ -601,17 +781,9 @@ canvas.addEventListener('pointerup', (e) => {
         guardarHistoria();
         renderFrames();
     }
-});
+}
 
-canvas.addEventListener('pointercancel', () => {
-    if (panStart) { panStart = null; canvas.style.cursor = cursorHerramienta(); }
-    if (state.dibujando) {
-        state.dibujando = false;
-        state.formaStart = null;
-        state.formaSnapshot = null;
-    }
-});
-
+// Zoom con rueda
 wrapper.addEventListener('wheel', (e) => {
     e.preventDefault();
     const delta = e.deltaY < 0 ? 2 : -2;
@@ -623,7 +795,7 @@ wrapper.addEventListener('wheel', (e) => {
 }, { passive: false });
 
 function cursorHerramienta() {
-    if (state.herramienta === 'mover') return 'grab';
+    if (state.spaceDown) return 'grab';
     return 'crosshair';
 }
 
@@ -639,7 +811,17 @@ document.addEventListener('keydown', (e) => {
 
     if (e.ctrlKey || e.metaKey) return;
 
-    const shortcuts = { b: 'lapiz', e: 'borrador', g: 'relleno', l: 'linea', r: 'rect', o: 'elipse', i: 'pipeta', m: 'mover' };
+    // Space para pan temporal
+    if (e.key === ' ') {
+        e.preventDefault();
+        if (!state.spaceDown) {
+            state.spaceDown = true;
+            wrapper.style.cursor = 'grab';
+        }
+        return;
+    }
+
+    const shortcuts = { b: 'lapiz', e: 'borrador', g: 'relleno', l: 'linea', r: 'rect', o: 'elipse', i: 'pipeta' };
     const k = e.key.toLowerCase();
     if (shortcuts[k]) activarHerramienta(shortcuts[k]);
     if (k === 'x') toggleEspejoX();
@@ -647,6 +829,13 @@ document.addEventListener('keydown', (e) => {
     if (k === 'h') toggleGrid();
     if (k === '+' || k === '=') { state.zoom = Math.min(64, state.zoom + 2); redimensionarCanvas(); }
     if (k === '-') { state.zoom = Math.max(1, state.zoom - 2); redimensionarCanvas(); }
+});
+
+document.addEventListener('keyup', (e) => {
+    if (e.key === ' ') {
+        state.spaceDown = false;
+        wrapper.style.cursor = cursorHerramienta();
+    }
 });
 
 // ============================================================
@@ -662,7 +851,7 @@ function activarHerramienta(h) {
             b.classList.toggle('activo', b.dataset.accion === h);
         }
     });
-    canvas.style.cursor = cursorHerramienta();
+    wrapper.style.cursor = cursorHerramienta();
 }
 
 // ============================================================
@@ -708,7 +897,6 @@ function parsearPaleta(texto) {
 
     const primera = lineas[0].toUpperCase();
 
-    // JASC-PAL
     if (primera.startsWith('JASC-PAL')) {
         const cantidad = parseInt(lineas[2]) || 0;
         const colores = [];
@@ -724,7 +912,6 @@ function parsearPaleta(texto) {
         return colores.length ? colores : null;
     }
 
-    // GIMP .gpl
     if (primera.startsWith('GIMP PALETTE')) {
         const colores = [];
         for (let i = 1; i < lineas.length; i++) {
@@ -741,7 +928,6 @@ function parsearPaleta(texto) {
         return colores.length ? colores : null;
     }
 
-    // Formato simple
     const colores = [];
     for (const l of lineas) {
         const m = l.match(/#?([0-9a-fA-F]{6})/);
@@ -1015,7 +1201,6 @@ async function guardarEnGaleriaHandler() {
         const blob = await new Promise(r => c.toBlob(r, 'image/png'));
         if (!blob) throw new Error('No se pudo generar el PNG.');
 
-        // IMPORTANTE: comprimir: false para preservar bordes duros del pixel art
         await mh.galeria.subirImagen(blob, {
             codigo: usuarioActual.codigo,
             nombre: titulo + '.png',
@@ -1162,7 +1347,6 @@ async function inicializar() {
     const badge = document.getElementById('pxUserBadge');
     if (badge) badge.textContent = `@${usuarioActual.codigo} · ${usuarioActual.nombre}`;
 
-    // Estado inicial
     state.paleta = [...PALETA_PICO8];
     state.paletaNombre = 'PICO-8';
     renderizarPaleta();
@@ -1170,7 +1354,6 @@ async function inicializar() {
 
     inicializarUIMovil();
 
-    // Proyecto: ¿hay uno guardado?
     let proyectoRecuperado = false;
     try {
         const guardado = await cargarProyectoLocal();
@@ -1196,7 +1379,6 @@ async function inicializar() {
 
     // ============ WIRING ============
 
-    // Header
     document.getElementById('btnNuevoProyecto')?.addEventListener('click', () => {
         document.getElementById('modalNuevo').hidden = false;
         if (window.lucide) window.lucide.createIcons();
@@ -1218,7 +1400,6 @@ async function inicializar() {
         if (window.lucide) window.lucide.createIcons();
     });
 
-    // Zoom / mirror / grid
     document.getElementById('zoomIn')?.addEventListener('click', () => {
         state.zoom = Math.min(64, state.zoom + 2);
         redimensionarCanvas();
@@ -1232,7 +1413,6 @@ async function inicializar() {
     document.getElementById('btnEspejoX')?.addEventListener('click', toggleEspejoX);
     document.getElementById('btnEspejoY')?.addEventListener('click', toggleEspejoY);
 
-    // Herramientas
     document.querySelectorAll('.px-tool-btn').forEach(b => {
         b.addEventListener('click', () => activarHerramienta(b.dataset.tool));
     });
@@ -1244,12 +1424,10 @@ async function inicializar() {
         });
     });
 
-    // Color
     document.getElementById('colorPicker')?.addEventListener('input', (e) => {
         setColor(e.target.value);
     });
 
-    // Paleta: input archivo
     document.getElementById('inputPaleta')?.addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -1274,7 +1452,6 @@ async function inicializar() {
         toast('Paleta restaurada', 'info');
     });
 
-    // Capas
     document.getElementById('btnCapaNueva')?.addEventListener('click', () => {
         const frame = frameActual();
         frame.capas.push(crearCapaVacia(`Capa ${frame.capas.length + 1}`));
@@ -1305,7 +1482,6 @@ async function inicializar() {
         render(); renderCapas(); renderFrames(); guardarHistoria();
     });
 
-    // Frames
     document.getElementById('btnFrameNuevo')?.addEventListener('click', () => {
         state.frames.push(crearFrameNuevo());
         state.frameActivo = state.frames.length - 1;
@@ -1440,7 +1616,7 @@ async function inicializar() {
     });
     document.getElementById('btnConfirmarGuardarGaleria')?.addEventListener('click', guardarEnGaleriaHandler);
 
-    // ============ ESC general para modales ============
+    // ============ ESC para modales ============
     document.addEventListener('keydown', (e) => {
         if (e.key !== 'Escape') return;
         const abiertos = ['modalNuevo','modalExportar','modalGuardarGaleria'];
@@ -1450,7 +1626,6 @@ async function inicializar() {
         }
     });
 
-    // Click fuera para cerrar
     ['modalNuevo','modalExportar','modalGuardarGaleria'].forEach(id => {
         const m = document.getElementById(id);
         if (!m) return;
@@ -1467,7 +1642,6 @@ async function inicializar() {
 document.addEventListener('DOMContentLoaded', inicializar);
 
 window.addEventListener('pagehide', () => {
-    // Guardar silenciosamente por si el usuario cierra sin apretar Guardar
     if (usuarioActual && state.frames.length > 0) {
         guardarProyectoLocal().catch(() => {});
     }
