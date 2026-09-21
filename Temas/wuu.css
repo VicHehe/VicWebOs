@@ -1,8 +1,8 @@
 /* ================================================
    Tema: Wuu
-   Estética limpia de consola de salón. Blancos puros,
-   grises suaves y un celeste brillante (cian) con
-   efectos de cristal (glossy). Referencia suave.
+   Estética de consola 2006. Blancos puros, botones
+   de cristal (glossy), formas de píldora y el
+   icónico borde celeste brillante en todo.
    ================================================ */
 
 :root {
@@ -16,13 +16,13 @@
     --violet-600: #0097A7;
     --violet-700: #006064;
 
-    /* Neutros inmaculados (mucho blanco y gris claro) */
+    /* Neutros inmaculados */
     --white:   #FFFFFF;
     --bg:      #F0F0F0;
-    --bg-alt:  #E6E6E6;
+    --bg-alt:  #E8E8E8;
     --gray-50:  #FFFFFF;
-    --gray-100: #FAFAFA;
-    --gray-200: #EAEAEA;
+    --gray-100: #F5F5F5;
+    --gray-200: #E0E0E0;
     --gray-300: #D4D4D4;
     --gray-400: #A3A3A3;
     --gray-500: #737373;
@@ -31,124 +31,175 @@
     --gray-800: #262626;
     --gray-900: #171717;
 
-    --border:  #D4D4D4;
-    --text:    #525252; /* Texto gris oscuro por defecto para lectura suave */
+    --border:  #E0E0E0;
+    --text:    #525252;
     --text-2:  #737373;
     --text-3:  #A3A3A3;
 
-    /* Sombras más definidas y glow celeste */
-    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
-    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
-    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
-    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
-    --shadow-xl: 0 16px 40px rgba(0, 0, 0, 0.20);
-    --shadow-glow: 0 0 0 4px rgba(0, 188, 212, 0.25);
+    /* Sombras más definidas y glow celeste omnipresente */
+    --shadow-xs: 0 2px 4px rgba(0, 0, 0, 0.04);
+    --shadow-sm: 0 4px 8px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 8px 16px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.12);
+    --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.15);
+    --shadow-glow: 0 0 0 4px rgba(38, 198, 218, 0.4);
 
-    --accent-gradient: linear-gradient(180deg, #26C6DA 0%, #0097A7 100%);
-    --accent-gradient-hover: linear-gradient(180deg, #4DD0E1 0%, #00BCD4 100%);
-    --accent-shadow: rgba(0, 188, 212, 0.30);
-    --accent-shadow-hover: rgba(0, 188, 212, 0.45);
-    --accent-text-gradient: linear-gradient(135deg, #171717, #0097A7);
+    --accent-gradient: linear-gradient(180deg, #4DD0E1 0%, #0097A7 100%);
+    --accent-gradient-hover: linear-gradient(180deg, #80DEEA 0%, #00BCD4 100%);
+    --accent-shadow: rgba(0, 188, 212, 0.35);
+    --accent-shadow-hover: rgba(0, 188, 212, 0.50);
+    --accent-text-gradient: linear-gradient(135deg, #171717, #00BCD4);
 
-    /* Formas más redondeadas (tipo pastilla) */
-    --r-sm: 8px;
-    --r-md: 16px;
-    --r-lg: 20px;
-    --r-xl: 24px;
+    /* Formas ultrarredondeadas (tipo pastilla Wii) */
+    --r-sm: 12px;
+    --r-md: 20px;
+    --r-lg: 24px;
+    --r-xl: 32px;
+    --r-full: 999px;
 
     /* Fondo rayado sutil (estilo menú de canales) */
     --theme-scanlines: repeating-linear-gradient(
         45deg,
         transparent,
         transparent 4px,
-        rgba(0,0,0, 0.02) 4px,
-        rgba(0,0,0, 0.02) 8px
+        rgba(0,0,0, 0.03) 4px,
+        rgba(0,0,0, 0.03) 8px
     );
 }
 
 /* ================================================================
-   1. WELCOME — Fondo gris con líneas diagonales
+   1. WELCOME — Fondo gris con scanlines y glow central
    ================================================================ */
 .welcome-placeholder {
     background: var(--bg);
     background-image: var(--theme-scanlines);
 }
 .welcome-glow {
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, transparent 60%);
-    box-shadow: 0 0 100px 50px rgba(255, 255, 255, 0.6);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, transparent 65%);
+    box-shadow: 0 0 120px 60px rgba(255, 255, 255, 0.8);
+}
+.welcome-hero {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(8px);
+    border: 3px solid var(--white);
+    border-radius: var(--r-xl);
+    box-shadow: 
+        0 8px 32px rgba(0,0,0,0.05),
+        inset 0 0 0 2px var(--violet-100);
 }
 
 /* ================================================================
-   2. BOTONES Y ACCESOS — Efecto Glossy/Cristal
+   2. ACCESOS RÁPIDOS Y WIDGETS — Borde celeste al interactuar
+   ================================================================ */
+.acceso-item,
+.widget-item {
+    background: var(--white);
+    border: 3px solid var(--gray-200); /* Borde grueso inactivo */
+    border-radius: var(--r-lg);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.acceso-item:hover,
+.widget-item:hover {
+    border-color: var(--violet-400); /* El clásico borde celeste */
+    box-shadow: 
+        0 8px 24px rgba(0, 188, 212, 0.2),
+        0 0 0 4px rgba(38, 198, 218, 0.3); /* Resplandor (Glow) exterior */
+    transform: scale(1.03);
+}
+
+/* Icono dentro del acceso rápido */
+.acceso-icon-wrap {
+    background: var(--gray-100);
+    border: 2px solid var(--gray-200);
+    color: var(--gray-500);
+    border-radius: 50%;
+}
+.acceso-item:hover .acceso-icon-wrap {
+    background: var(--accent-gradient);
+    border-color: var(--violet-200);
+    color: var(--white);
+    box-shadow: inset 0 2px 4px rgba(255,255,255,0.5); /* Brillo interno */
+}
+
+/* ================================================================
+   3. BOTÓN PRIMARIO — Efecto Cristal / Glossy absoluto
    ================================================================ */
 .btn-primario {
     position: relative;
     overflow: hidden;
     background: var(--accent-gradient);
-    border: 1px solid #006064;
+    border: 2px solid var(--violet-200);
+    border-radius: 999px; /* Forma de píldora estricta */
     color: white;
+    box-shadow: 
+        0 4px 12px var(--accent-shadow),
+        inset 0 -2px 6px rgba(0, 96, 100, 0.4); /* Sombra base interna */
 }
-/* Reflejo de cristal superior */
+
+/* Reflejo superior de cristal */
 .btn-primario::before {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0; height: 50%;
-    background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.05) 100%);
+    top: 2px; left: 2px; right: 2px; height: 45%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.1) 100%);
+    border-radius: 999px 999px 0 0;
     pointer-events: none;
 }
+
 .btn-primario:hover {
+    border-color: var(--white);
     box-shadow: 
-        0 4px 12px var(--accent-shadow),
-        0 0 0 3px rgba(0, 188, 212, 0.3);
-}
-
-.acceso-item {
-    background: #FFFFFF;
-    border: 2px solid var(--gray-200);
-    border-radius: 16px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-}
-.acceso-item:hover {
-    border-color: var(--violet-400);
-    box-shadow: 
-        0 6px 16px rgba(0, 188, 212, 0.15),
-        0 0 0 4px rgba(0, 188, 212, 0.1);
-    transform: scale(1.02);
+        0 6px 16px var(--accent-shadow-hover),
+        0 0 0 4px rgba(38, 198, 218, 0.4); /* Glow celeste al hacer hover */
 }
 
 /* ================================================================
-   3. SIDEBAR Y PESTAÑAS — Selección celeste
-   ================================================================ */
-.nav-item.active {
-    background: var(--violet-50);
-    color: var(--violet-700);
-    box-shadow: inset 0 0 0 2px var(--violet-400);
-}
-.nav-item.active::before {
-    display: none; /* Quitamos la línea lateral clásica, usamos borde interior */
-}
-
-.tab-item.active {
-    color: var(--violet-600);
-    background: var(--white);
-}
-.tab-item.active::before {
-    content: '';
-    position: absolute;
-    bottom: -1px; left: 0; right: 0; height: 3px;
-    background: var(--violet-500);
-    border-radius: 4px 4px 0 0;
-}
-
-/* ================================================================
-   4. MODALES — Bordes gruesos y redondeados
+   4. MODALES — Bordes celestes omnipresentes
    ================================================================ */
 .config-card,
 .modal-todas-card {
-    border: 3px solid var(--gray-200);
-    border-radius: 24px;
+    background: var(--white);
+    border: 4px solid var(--violet-300); /* Borde celeste grueso permanente */
+    border-radius: 28px;
+    box-shadow: 
+        0 24px 48px rgba(0,0,0,0.15),
+        inset 0 0 0 2px var(--violet-100); /* Doble borde interno suave */
 }
-.config-header {
-    border-bottom: 2px solid var(--gray-200);
+
+.config-header,
+.modal-todas-header {
     background: var(--gray-50);
+    border-bottom: 2px solid var(--violet-100);
+    border-radius: 24px 24px 0 0;
+}
+
+/* ================================================================
+   5. SIDEBAR Y PESTAÑAS — "Burbujas" de selección
+   ================================================================ */
+.nav-item.active {
+    background: var(--white);
+    color: var(--violet-600);
+    border: 2px solid var(--violet-400);
+    border-radius: 999px; /* Píldora en el sidebar */
+    box-shadow: 0 0 12px rgba(38, 198, 218, 0.3);
+}
+.nav-item.active::before {
+    display: none; /* Adiós a la línea vertical aburrida */
+}
+
+.tab-item {
+    border-radius: 12px 12px 0 0;
+    transition: all 0.2s;
+}
+.tab-item.active {
+    background: var(--white);
+    color: var(--violet-600);
+    border: 2px solid var(--violet-300);
+    border-bottom: none;
+    box-shadow: 0 -4px 12px rgba(38, 198, 218, 0.15);
+}
+.tab-item.active::before {
+    display: none;
 }
