@@ -6,7 +6,7 @@
     <title>Mi Estado</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -23,8 +23,10 @@
         <div class="me-zona">
 
             <div class="me-perfil">
-                <div class="me-avatar" id="meAvatar">
-                    <i data-lucide="user"></i>
+                <div class="me-avatar-wrap">
+                    <div class="me-avatar" id="meAvatar">
+                        <i data-lucide="user"></i>
+                    </div>
                 </div>
                 <div class="me-info">
                     <div class="me-nombre" id="meNombre">—</div>
@@ -34,15 +36,21 @@
 
             <div class="me-estados" id="meEstados">
                 <button class="me-estado-btn" data-estado="activo">
-                    <i data-lucide="circle-dot"></i>
+                    <div class="me-estado-icono">
+                        <i data-lucide="circle-dot"></i>
+                    </div>
                     <span>Activo</span>
                 </button>
                 <button class="me-estado-btn" data-estado="descansando">
-                    <i data-lucide="coffee"></i>
+                    <div class="me-estado-icono">
+                        <i data-lucide="coffee"></i>
+                    </div>
                     <span>Desc.</span>
                 </button>
                 <button class="me-estado-btn" data-estado="desconectado">
-                    <i data-lucide="circle-off"></i>
+                    <div class="me-estado-icono">
+                        <i data-lucide="circle-off"></i>
+                    </div>
                     <span>Off</span>
                 </button>
             </div>
