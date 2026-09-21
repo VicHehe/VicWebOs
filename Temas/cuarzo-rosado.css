@@ -1,0 +1,127 @@
+/* ================================================
+   Tema: Cuarzo Rosado
+   Inspirado en la magia de las gemas. Tonos pastel,
+   destellos de estrellas de 4 puntas y diamantes.
+   Referencias suaves, sin copyright.
+   ================================================ */
+
+:root {
+    /* Paleta de acento: Rosado mágico a lila */
+    --violet-50:  #FDF2F8;
+    --violet-100: #FCE7F3;
+    --violet-200: #FBCFE8;
+    --violet-300: #F9A8D4;
+    --violet-400: #F472B6;
+    --violet-500: #EC4899;
+    --violet-600: #DB2777;
+    --violet-700: #BE185D;
+
+    /* Neutros cálidos y arenosos muy sutiles */
+    --white:   #FFFFFF;
+    --bg:      #FFF9FB;
+    --bg-alt:  #FEF0F5;
+    --gray-50:  #FAFAFC;
+    --gray-100: #F4F1F5;
+    --gray-200: #EADCE4;
+    --gray-300: #D8C3D2;
+    --gray-400: #A88EA1;
+    --gray-500: #806076;
+    --gray-600: #624659;
+    --gray-700: #4B3343;
+    --gray-800: #33202D;
+    --gray-900: #1F111B;
+
+    --border:  #EADCE4;
+    --text:    #33202D;
+    --text-2:  #624659;
+    --text-3:  #806076;
+
+    --shadow-xs: 0 1px 2px rgba(236, 72, 153, 0.05);
+    --shadow-sm: 0 2px 4px rgba(236, 72, 153, 0.06);
+    --shadow-md: 0 4px 12px rgba(236, 72, 153, 0.08);
+    --shadow-lg: 0 12px 32px rgba(236, 72, 153, 0.12);
+    --shadow-xl: 0 24px 48px rgba(236, 72, 153, 0.15);
+    --shadow-glow: 0 0 0 4px rgba(236, 72, 153, 0.15);
+
+    /* Gradiente que mezcla el rosado con un toque lila (fusión) */
+    --accent-gradient: linear-gradient(135deg, #EC4899, #A855F7);
+    --accent-gradient-hover: linear-gradient(135deg, #F472B6, #C084FC);
+    --accent-shadow: rgba(236, 72, 153, 0.25);
+    --accent-shadow-hover: rgba(236, 72, 153, 0.40);
+    --accent-text-gradient: linear-gradient(135deg, #BE185D, #A855F7);
+
+    /* Patrón de estrellas de 4 puntas y diamantes */
+    --theme-gems: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M20 5 Q20 20 35 20 Q20 20 20 35 Q20 20 5 20 Q20 20 20 5 Z' fill='%23F9A8D4' opacity='0.3'/%3E%3Cpath d='M75 60 L85 75 L75 90 L65 75 Z' fill='%23C084FC' opacity='0.2'/%3E%3Ccircle cx='80' cy='20' r='2' fill='%23FBCFE8' opacity='0.5'/%3E%3Ccircle cx='30' cy='80' r='1.5' fill='%23FBCFE8' opacity='0.6'/%3E%3C/svg%3E");
+}
+
+/* ================================================================
+   1. WELCOME — Lluvia de estrellas y destellos
+   ================================================================ */
+.welcome-placeholder {
+    position: relative;
+    background: var(--bg);
+}
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: var(--theme-gems);
+    background-size: 140px 140px;
+    background-position: center;
+    opacity: 0.8;
+    pointer-events: none;
+    z-index: 0;
+}
+.welcome-glow {
+    background: radial-gradient(circle, rgba(236, 72, 153, 0.15) 0%, rgba(168, 85, 247, 0.05) 40%, transparent 70%);
+}
+
+/* ================================================================
+   2. ACCESOS RÁPIDOS Y WIDGETS — Aura mágica
+   ================================================================ */
+.acceso-item,
+.widget-item {
+    border: 1px solid var(--violet-100);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(4px);
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.acceso-item:hover,
+.widget-item:hover {
+    border-color: var(--violet-300);
+    box-shadow: 
+        0 8px 24px rgba(236, 72, 153, 0.15),
+        0 0 0 2px rgba(249, 168, 212, 0.3);
+    transform: translateY(-2px);
+}
+.acceso-icon-wrap {
+    background: linear-gradient(135deg, var(--violet-50), var(--violet-100));
+    color: var(--violet-500);
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; /* Forma orgánica "gem-like" */
+}
+.acceso-item:hover .acceso-icon-wrap {
+    background: var(--accent-gradient);
+    color: white;
+}
+
+/* ================================================================
+   3. HEADER Y MODALES
+   ================================================================ */
+.app-header {
+    border-bottom: 2px solid var(--violet-100);
+    background: linear-gradient(180deg, #FFFFFF 0%, #FFF9FB 100%);
+}
+.config-card,
+.modal-todas-card {
+    border-radius: 16px;
+    border: 2px solid var(--violet-50);
+    box-shadow: 0 16px 40px rgba(236, 72, 153, 0.10);
+}
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: var(--accent-gradient);
+    border-radius: 16px 16px 0 0;
+}
