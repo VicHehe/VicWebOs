@@ -1,182 +1,200 @@
-// ============================================================
-//  Widget: Wiki Lector
-//  ------------------------------------------------------------
-//  Buscador y lector rápido conectando a la API de Wikipedia.
-//  Usa llamadas CORS permitidas por Wikimedia Foundation.
-// ============================================================
+/* ================================================
+   Widget: Wiki Lector
+   Buscador y lector de resúmenes de Wikipedia.
+   ================================================ */
 
-'use strict';
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
 
-const MENSAJE_TEMA = 'vicwebos_tema_cambio';
-let inicializado = false;
-
-// ============================================================
-//  TEMA
-// ============================================================
-function aplicarTemaDelPadre() {
-    try {
-        const rootPadre = window.parent.document.documentElement;
-        const stylePadre = getComputedStyle(rootPadre);
-        const vars = [
-            '--violet-50','--violet-100','--violet-200','--violet-300',
-            '--violet-400','--violet-500','--violet-600','--violet-700',
-            '--white','--bg','--bg-alt',
-            '--gray-50','--gray-100','--gray-200','--gray-300','--gray-400',
-            '--gray-500','--gray-600','--gray-700','--gray-800','--gray-900',
-            '--border','--text','--text-2','--text-3',
-            '--shadow-xs','--shadow-sm','--shadow-md','--shadow-lg','--shadow-xl',
-            '--accent-gradient','--accent-gradient-hover',
-            '--accent-shadow','--accent-shadow-hover',
-            '--accent-text-gradient',
-            '--r-sm','--r-md','--r-lg','--r-xl','--r-full'
-        ];
-        vars.forEach(v => {
-            const val = stylePadre.getPropertyValue(v).trim();
-            if (val) document.documentElement.style.setProperty(v, val);
-        });
-    } catch (e) { /* silencioso */ }
+body {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: transparent;
+    color: var(--text, #18181B);
+    font-size: 13px;
+    overflow: hidden;
 }
 
-window.addEventListener('message', (e) => {
-    if (e.data && e.data.type === MENSAJE_TEMA) aplicarTemaDelPadre();
-});
+[data-lucide] { width: 16px; height: 16px; stroke-width: 2; flex-shrink: 0; }
 
-// ============================================================
-//  LÓGICA WIKIPEDIA
-// ============================================================
-const DOM = {
-    input: document.getElementById('wikiInput'),
-    btnSearch: document.getElementById('wikiBtnSearch'),
-    zona: document.getElementById('wikiZona')
-};
-
-function setEstado(tipo, texto = '') {
-    if (tipo === 'cargando') {
-        DOM.zona.innerHTML = `
-            <div class="wiki-estado">
-                <i data-lucide="loader-2" style="animation: spin 1s linear infinite;"></i>
-                <p>Buscando en la enciclopedia...</p>
-            </div>
-        `;
-    } else if (tipo === 'error') {
-        DOM.zona.innerHTML = `
-            <div class="wiki-estado error">
-                <i data-lucide="alert-circle"></i>
-                <p>${texto}</p>
-            </div>
-        `;
-    } else if (tipo === 'vacio') {
-        DOM.zona.innerHTML = `
-            <div class="wiki-estado">
-                <i data-lucide="compass"></i>
-                <p>Busca un concepto, lugar o personaje histórico para empezar.</p>
-            </div>
-        `;
-    }
-    if (window.lucide) window.lucide.createIcons();
-    
-    // Inyectar animación de spin si no existe
-    if (!document.getElementById('wikiSpin')) {
-        const style = document.createElement('style');
-        style.id = 'wikiSpin';
-        style.textContent = '@keyframes spin { 100% { transform: rotate(360deg); } }';
-        document.head.appendChild(style);
-    }
+/* ========== WIDGET ========== */
+.wiki-widget {
+    background: var(--white, #FFFFFF);
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: var(--r-lg, 16px);
+    padding: 12px 14px;
+    box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: hidden;
+    transition: background 0.3s, color 0.3s, border-color 0.3s;
 }
 
-async function buscarEnWikipedia(query) {
-    if (!query.trim()) {
-        setEstado('vacio');
-        return;
-    }
-
-    DOM.input.disabled = true;
-    DOM.btnSearch.disabled = true;
-    setEstado('cargando');
-
-    try {
-        // 1. Buscar el título exacto más relevante usando la API de búsqueda
-        const searchUrl = `https://es.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&utf8=&format=json&origin=*`;
-        const searchRes = await fetch(searchUrl);
-        const searchData = await searchRes.json();
-
-        if (!searchData.query.search || searchData.query.search.length === 0) {
-            setEstado('error', 'No se encontraron artículos con esa búsqueda.');
-            return;
-        }
-
-        const tituloExacto = searchData.query.search[0].title;
-
-        // 2. Obtener el resumen (Extracto) e imagen del artículo encontrado (REST API)
-        const summaryUrl = `https://es.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(tituloExacto)}`;
-        const summaryRes = await fetch(summaryUrl);
-        const summaryData = await summaryRes.json();
-
-        renderizarArticulo(summaryData);
-
-    } catch (error) {
-        setEstado('error', 'Hubo un error al conectar con Wikipedia.');
-    } finally {
-        DOM.input.disabled = false;
-        DOM.btnSearch.disabled = false;
-        DOM.input.focus();
-    }
+/* ========== HEADER ========== */
+.wiki-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--gray-100, #F4F4F7);
+    flex-shrink: 0;
 }
 
-function renderizarArticulo(data) {
-    const imagen = data.thumbnail 
-        ? `<img src="${data.thumbnail.source}" class="wiki-img" alt="${data.title}">` 
-        : '';
-    
-    const descripcion = data.description 
-        ? `<div class="wiki-art-desc">${data.description}</div>` 
-        : '';
-        
-    const link = data.content_urls && data.content_urls.desktop 
-        ? data.content_urls.desktop.page 
-        : `https://es.wikipedia.org/wiki/${encodeURIComponent(data.title)}`;
+.wiki-titulo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-500, #71717A);
+}
+.wiki-titulo [data-lucide] { color: var(--violet-500, #8B5CF6); width: 14px; height: 14px; }
 
-    DOM.zona.innerHTML = `
-        <div class="wiki-articulo">
-            ${imagen}
-            <h3 class="wiki-art-titulo">${data.title}</h3>
-            ${descripcion}
-            <p class="wiki-art-texto">${data.extract}</p>
-            <a href="${link}" target="_blank" class="wiki-link">
-                Leer en Wikipedia <i data-lucide="external-link"></i>
-            </a>
-        </div>
-    `;
-    
-    if (window.lucide) window.lucide.createIcons();
-    DOM.zona.scrollTop = 0; // Resetear scroll
+.wiki-badge {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--gray-500, #71717A);
+    background: var(--gray-100, #F4F4F7);
+    padding: 3px 6px;
+    border-radius: 6px;
 }
 
-// ============================================================
-//  INIT
-// ============================================================
-function inicializarEventos() {
-    const dispararBusqueda = () => {
-        const val = DOM.input.value.trim();
-        if (val) buscarEnWikipedia(val);
-    };
+/* ========== INPUT ZONA ========== */
+.wiki-input-wrap {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+.wiki-input {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 10px;
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: var(--r-md, 10px);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--gray-900, #18181B);
+    background: var(--bg-alt, #F5F5F8);
+    transition: all 0.15s;
+    outline: none;
+}
+.wiki-input:focus {
+    border-color: var(--violet-400, #A78BFA);
+    background: var(--white, #FFFFFF);
+}
+.wiki-input::placeholder { color: var(--gray-400, #A1A1AD); font-weight: 500; }
+.wiki-input:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    DOM.btnSearch.addEventListener('click', dispararBusqueda);
-    DOM.input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') dispararBusqueda();
-    });
+.wiki-btn-search {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    border: none;
+    border-radius: var(--r-md, 10px);
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: white;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: 0 4px 10px var(--accent-shadow, rgba(139,92,246,0.28));
+}
+.wiki-btn-search:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px var(--accent-shadow-hover, rgba(139,92,246,0.38));
+}
+.wiki-btn-search:disabled {
+    background: var(--gray-300, #D4D4D8);
+    box-shadow: none;
+    cursor: not-allowed;
+    color: var(--gray-500, #71717A);
 }
 
-function inicializar() {
-    if (inicializado) return;
-    inicializado = true;
-    aplicarTemaDelPadre();
-    inicializarEventos();
-    if (window.lucide) window.lucide.createIcons();
+/* ========== CONTENIDO / RESULTADO ========== */
+.wiki-zona {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding-right: 4px;
+}
+.wiki-zona::-webkit-scrollbar { width: 6px; }
+.wiki-zona::-webkit-scrollbar-thumb {
+    background: var(--gray-200, #E8E8EE);
+    border-radius: 3px;
+    border: 2px solid transparent;
+    background-clip: content-box;
 }
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', inicializar);
-} else {
-    inicializar();
+.wiki-estado {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 8px;
+    color: var(--gray-400, #A1A1AD);
+    text-align: center;
+    padding: 10px;
 }
+.wiki-estado [data-lucide] { width: 32px; height: 32px; stroke-width: 1.5; color: var(--border, #E8E8EE); }
+.wiki-estado p { font-size: 11.5px; font-weight: 700; margin: 0; line-height: 1.4; }
+.wiki-estado.error { color: #991B1B; }
+.wiki-estado.error [data-lucide] { color: #FCA5A5; }
+
+/* Artículo cargado */
+.wiki-articulo {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-bottom: 10px;
+}
+.wiki-img {
+    width: 100%;
+    max-height: 140px;
+    object-fit: cover;
+    border-radius: var(--r-md, 10px);
+    border: 1px solid var(--border, #E8E8EE);
+}
+.wiki-art-titulo {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--gray-900, #18181B);
+    line-height: 1.2;
+}
+.wiki-art-desc {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--violet-600, #7C3AED);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+}
+.wiki-art-texto {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--gray-700, #3F3F46);
+    line-height: 1.5;
+}
+.wiki-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--violet-500, #8B5CF6);
+    text-decoration: none;
+    margin-top: 4px;
+    align-self: flex-start;
+    padding: 4px 8px;
+    background: var(--violet-50, #F5F3FF);
+    border-radius: 6px;
+    transition: background 0.15s;
+}
+.wiki-link:hover { background: var(--violet-100, #EDE9FE); }
+.wiki-link [data-lucide] { width: 12px; height: 12px; }
