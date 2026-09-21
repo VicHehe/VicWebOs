@@ -2,7 +2,7 @@
 //  Widget: Wiki Lector
 //  ------------------------------------------------------------
 //  Buscador y lector rápido conectando a la API de Wikipedia.
-//  Usa llamadas CORS permitidas por Wikimedia Foundation.
+//  Diseñado para integrarse en iframes de VicWebOS.
 // ============================================================
 
 'use strict';
@@ -34,7 +34,7 @@ function aplicarTemaDelPadre() {
             const val = stylePadre.getPropertyValue(v).trim();
             if (val) document.documentElement.style.setProperty(v, val);
         });
-    } catch (e) { /* silencioso */ }
+    } catch (e) { /* silencioso si falla el acceso cross-origin */ }
 }
 
 window.addEventListener('message', (e) => {
@@ -73,9 +73,9 @@ function setEstado(tipo, texto = '') {
             </div>
         `;
     }
+    
     if (window.lucide) window.lucide.createIcons();
     
-    // Inyectar animación de spin si no existe
     if (!document.getElementById('wikiSpin')) {
         const style = document.createElement('style');
         style.id = 'wikiSpin';
@@ -95,7 +95,6 @@ async function buscarEnWikipedia(query) {
     setEstado('cargando');
 
     try {
-        // 1. Buscar el título exacto más relevante usando la API de búsqueda
         const searchUrl = `https://es.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&utf8=&format=json&origin=*`;
         const searchRes = await fetch(searchUrl);
         const searchData = await searchRes.json();
@@ -106,8 +105,6 @@ async function buscarEnWikipedia(query) {
         }
 
         const tituloExacto = searchData.query.search[0].title;
-
-        // 2. Obtener el resumen (Extracto) e imagen del artículo encontrado (REST API)
         const summaryUrl = `https://es.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(tituloExacto)}`;
         const summaryRes = await fetch(summaryUrl);
         const summaryData = await summaryRes.json();
@@ -149,7 +146,7 @@ function renderizarArticulo(data) {
     `;
     
     if (window.lucide) window.lucide.createIcons();
-    DOM.zona.scrollTop = 0; // Resetear scroll
+    DOM.zona.scrollTop = 0; 
 }
 
 // ============================================================
