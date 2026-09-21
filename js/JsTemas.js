@@ -18,12 +18,9 @@
 //    50  → flagship: animaciones en vivo + múltiples capas
 //    18  → 🔒 EXCLUSIVO DE CONSENTIDO (referencia al 18 de septiembre)
 //
-//  ORGANIZACIÓN POR AFINIDAD TEMÁTICA:
-//    Básicos     → recolors simples, light mode. La entrada del sistema.
-//    Oscuros     → dark mode simple, sin decoración.
-//    Formales    → para trabajar, elegantes, OS-like.
-//    Retro       → referencias a décadas pasadas.
-//    Especiales  → flagships atmosféricos con efectos visuales.
+//  ORGANIZACIÓN:
+//    Cada categoría ordenada por PRECIO de MENOR a MAYOR.
+//    Dentro del mismo precio, orden por afinidad temática.
 //
 //  REGLA DE ORO: cada salto de precio se tiene que VER en la pantalla.
 // ============================================================
@@ -203,24 +200,6 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
-        id: 'github-lover',
-        nombre: 'Github Lover',
-        icono: 'github',
-        descripcion: 'Modo oscuro oficial de GitHub. Gris azulado, bordes #30363d y acento azul #58a6ff.',
-        categoria: 'Oscuros',
-        ruta: 'Temas/github-lover.css',
-        espacio: 4,
-        monedas: 20,
-        colores: {
-            '--violet-100': '#163d8a',
-            '--violet-300': '#388bfd',
-            '--violet-500': '#58a6ff',
-            '--bg':         '#0d1117',
-            '--bg-alt':     '#161b22',
-            '--white':      '#161b22'
-        }
-    },
-    {
         id: 'pumkin',
         nombre: 'Pumkin',
         icono: 'ghost',
@@ -236,6 +215,24 @@ const TEMAS_DISPONIBLES = [
             '--bg':         '#0D0610',
             '--bg-alt':     '#1A1020',
             '--white':      '#1A1020'
+        }
+    },
+    {
+        id: 'github-lover',
+        nombre: 'Github Lover',
+        icono: 'github',
+        descripcion: 'Modo oscuro oficial de GitHub. Gris azulado, bordes #30363d y acento azul #58a6ff.',
+        categoria: 'Oscuros',
+        ruta: 'Temas/github-lover.css',
+        espacio: 4,
+        monedas: 20,
+        colores: {
+            '--violet-100': '#163d8a',
+            '--violet-300': '#388bfd',
+            '--violet-500': '#58a6ff',
+            '--bg':         '#0d1117',
+            '--bg-alt':     '#161b22',
+            '--white':      '#161b22'
         }
     },
 
@@ -396,6 +393,7 @@ const TEMAS_DISPONIBLES = [
     // ============================================================
     //  ESPECIALES — Flagships atmosféricos
     //  Efectos visuales, texturas, animaciones. Lo premium.
+    //  Ordenados por precio ascendente.
     // ============================================================
     {
         id: 'consentido',
@@ -452,6 +450,24 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
+        id: 'break-of-dawn',
+        nombre: 'Break of Dawn',
+        icono: 'sunrise',
+        descripcion: 'Amanecer sobre el mar. Cielo degradado y oleaje animado al fondo.',
+        categoria: 'Especiales',
+        ruta: 'Temas/break-of-dawn.css',
+        espacio: 4,
+        monedas: 40,
+        colores: {
+            '--violet-100': '#FFE0D1',
+            '--violet-300': '#FFA07A',
+            '--violet-500': '#FF7043',
+            '--bg':         '#FFF8F2',
+            '--bg-alt':     '#FFEFE5',
+            '--white':      '#FFFDFB'
+        }
+    },
+    {
         id: 'charla',
         nombre: 'Charla',
         icono: 'message-circle',
@@ -459,7 +475,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Especiales',
         ruta: 'Temas/charla.css',
         espacio: 4,
-        monedas: 50,
+        monedas: 45,
         colores: {
             '--violet-100': '#D1FAE5',
             '--violet-300': '#6EE7B7',
@@ -488,6 +504,24 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
+        id: 'friend',
+        nombre: '¿¡Friend!?',
+        icono: 'star',
+        descripcion: 'Fondo oscuro con luces amarillas y rosas que titilan, y bordes neón brillantes.',
+        categoria: 'Especiales',
+        ruta: 'Temas/friend.css',
+        espacio: 4,
+        monedas: 45,
+        colores: {
+            '--violet-100': '#2A1A44',
+            '--violet-300': '#E879F9',
+            '--violet-500': '#EC4899',
+            '--bg':         '#050310',
+            '--bg-alt':     '#0A0618',
+            '--white':      '#0F0820'
+        }
+    },
+    {
         id: 'pop-owner',
         nombre: 'Pop Owner',
         icono: 'music-2',
@@ -506,24 +540,6 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
-        id: 'break-of-dawn',
-        nombre: 'Break of Dawn',
-        icono: 'sunrise',
-        descripcion: 'Amanecer sobre el mar. Cielo degradado y oleaje animado al fondo.',
-        categoria: 'Especiales',
-        ruta: 'Temas/break-of-dawn.css',
-        espacio: 4,
-        monedas: 40,
-        colores: {
-            '--violet-100': '#FFE0D1',
-            '--violet-300': '#FFA07A',
-            '--violet-500': '#FF7043',
-            '--bg':         '#FFF8F2',
-            '--bg-alt':     '#FFEFE5',
-            '--white':      '#FFFDFB'
-        }
-    },
-    {
         id: 'stream',
         nombre: 'Stream',
         icono: 'signal',
@@ -539,24 +555,6 @@ const TEMAS_DISPONIBLES = [
             '--bg':         '#0A0A10',
             '--bg-alt':     '#0E0E16',
             '--white':      '#13131E'
-        }
-    },
-    {
-        id: 'friend',
-        nombre: '¿¡Friend!?',
-        icono: 'star',
-        descripcion: 'Fondo oscuro con luces amarillas y rosas que titilan, y bordes neón brillantes.',
-        categoria: 'Especiales',
-        ruta: 'Temas/friend.css',
-        espacio: 4,
-        monedas: 45,
-        colores: {
-            '--violet-100': '#2A1A44',
-            '--violet-300': '#E879F9',
-            '--violet-500': '#EC4899',
-            '--bg':         '#050310',
-            '--bg-alt':     '#0A0618',
-            '--white':      '#0F0820'
         }
     }
 ];
