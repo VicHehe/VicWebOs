@@ -1,0 +1,154 @@
+/* ================================================
+   Tema: Wuu
+   Estética limpia de consola de salón. Blancos puros,
+   grises suaves y un celeste brillante (cian) con
+   efectos de cristal (glossy). Referencia suave.
+   ================================================ */
+
+:root {
+    /* Cian Wuu brillante */
+    --violet-50:  #E0F7FA;
+    --violet-100: #B2EBF2;
+    --violet-200: #80DEEA;
+    --violet-300: #4DD0E1;
+    --violet-400: #26C6DA;
+    --violet-500: #00BCD4;
+    --violet-600: #0097A7;
+    --violet-700: #006064;
+
+    /* Neutros inmaculados (mucho blanco y gris claro) */
+    --white:   #FFFFFF;
+    --bg:      #F0F0F0;
+    --bg-alt:  #E6E6E6;
+    --gray-50:  #FFFFFF;
+    --gray-100: #FAFAFA;
+    --gray-200: #EAEAEA;
+    --gray-300: #D4D4D4;
+    --gray-400: #A3A3A3;
+    --gray-500: #737373;
+    --gray-600: #525252;
+    --gray-700: #404040;
+    --gray-800: #262626;
+    --gray-900: #171717;
+
+    --border:  #D4D4D4;
+    --text:    #525252; /* Texto gris oscuro por defecto para lectura suave */
+    --text-2:  #737373;
+    --text-3:  #A3A3A3;
+
+    /* Sombras más definidas y glow celeste */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
+    --shadow-xl: 0 16px 40px rgba(0, 0, 0, 0.20);
+    --shadow-glow: 0 0 0 4px rgba(0, 188, 212, 0.25);
+
+    --accent-gradient: linear-gradient(180deg, #26C6DA 0%, #0097A7 100%);
+    --accent-gradient-hover: linear-gradient(180deg, #4DD0E1 0%, #00BCD4 100%);
+    --accent-shadow: rgba(0, 188, 212, 0.30);
+    --accent-shadow-hover: rgba(0, 188, 212, 0.45);
+    --accent-text-gradient: linear-gradient(135deg, #171717, #0097A7);
+
+    /* Formas más redondeadas (tipo pastilla) */
+    --r-sm: 8px;
+    --r-md: 16px;
+    --r-lg: 20px;
+    --r-xl: 24px;
+
+    /* Fondo rayado sutil (estilo menú de canales) */
+    --theme-scanlines: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 4px,
+        rgba(0,0,0, 0.02) 4px,
+        rgba(0,0,0, 0.02) 8px
+    );
+}
+
+/* ================================================================
+   1. WELCOME — Fondo gris con líneas diagonales
+   ================================================================ */
+.welcome-placeholder {
+    background: var(--bg);
+    background-image: var(--theme-scanlines);
+}
+.welcome-glow {
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, transparent 60%);
+    box-shadow: 0 0 100px 50px rgba(255, 255, 255, 0.6);
+}
+
+/* ================================================================
+   2. BOTONES Y ACCESOS — Efecto Glossy/Cristal
+   ================================================================ */
+.btn-primario {
+    position: relative;
+    overflow: hidden;
+    background: var(--accent-gradient);
+    border: 1px solid #006064;
+    color: white;
+}
+/* Reflejo de cristal superior */
+.btn-primario::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 50%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.05) 100%);
+    pointer-events: none;
+}
+.btn-primario:hover {
+    box-shadow: 
+        0 4px 12px var(--accent-shadow),
+        0 0 0 3px rgba(0, 188, 212, 0.3);
+}
+
+.acceso-item {
+    background: #FFFFFF;
+    border: 2px solid var(--gray-200);
+    border-radius: 16px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+.acceso-item:hover {
+    border-color: var(--violet-400);
+    box-shadow: 
+        0 6px 16px rgba(0, 188, 212, 0.15),
+        0 0 0 4px rgba(0, 188, 212, 0.1);
+    transform: scale(1.02);
+}
+
+/* ================================================================
+   3. SIDEBAR Y PESTAÑAS — Selección celeste
+   ================================================================ */
+.nav-item.active {
+    background: var(--violet-50);
+    color: var(--violet-700);
+    box-shadow: inset 0 0 0 2px var(--violet-400);
+}
+.nav-item.active::before {
+    display: none; /* Quitamos la línea lateral clásica, usamos borde interior */
+}
+
+.tab-item.active {
+    color: var(--violet-600);
+    background: var(--white);
+}
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0; right: 0; height: 3px;
+    background: var(--violet-500);
+    border-radius: 4px 4px 0 0;
+}
+
+/* ================================================================
+   4. MODALES — Bordes gruesos y redondeados
+   ================================================================ */
+.config-card,
+.modal-todas-card {
+    border: 3px solid var(--gray-200);
+    border-radius: 24px;
+}
+.config-header {
+    border-bottom: 2px solid var(--gray-200);
+    background: var(--gray-50);
+}
