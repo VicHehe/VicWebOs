@@ -8,13 +8,15 @@
 //
 //  ESCALA DE PRECIO (0 a 50):
 //    0   → oficiales gratuitos
-//    5   → entrada: recolor puro :root
-//    15  → pseudo-elementos simples o reescritura de chrome
-//    20  → efecto visual claro (pattern SVG, scanlines, glitch)
+//    10  → recolor puro :root
+//    20  → chrome reescrito (header, sidebar, tabs, botones)
+//    25  → chrome + un detalle decorativo (nubes, franja)
+//    30  → efecto visual claro (pattern SVG, scanlines, glitch)
+//    35  → múltiples capas combinadas (patterns + hovers únicos)
+//    40  → textura + animación en vivo
+//    45  → artesanal (marcos, florituras, decoración por sección)
+//    50  → flagship: animaciones en vivo + múltiples capas
 //    18  → 🔒 EXCLUSIVO DE CONSENTIDO (referencia al 18 de septiembre)
-//    30  → múltiples capas combinadas (patterns + hovers únicos)
-//    40  → textura + efectos artesanales
-//    50  → flagship: animación en vivo + múltiples capas
 //
 //  ORGANIZACIÓN POR AFINIDAD TEMÁTICA:
 //    Básicos     → recolors simples, light mode. La entrada del sistema.
@@ -172,7 +174,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Oscuros',
         ruta: 'Temas/noche.css',
         espacio: 2,
-        monedas: 0,
+        monedas: 10,
         colores: {
             '--violet-100': '#312E81',
             '--violet-300': '#4C1D95',
@@ -190,7 +192,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Oscuros',
         ruta: 'Temas/ocean.css',
         espacio: 2,
-        monedas: 0,
+        monedas: 10,
         colores: {
             '--violet-100': '#13294B',
             '--violet-300': '#17879B',
@@ -208,7 +210,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Oscuros',
         ruta: 'Temas/github-lover.css',
         espacio: 4,
-        monedas: 0,
+        monedas: 20,
         colores: {
             '--violet-100': '#163d8a',
             '--violet-300': '#388bfd',
@@ -226,7 +228,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Oscuros',
         ruta: 'Temas/pumkin.css',
         espacio: 2,
-        monedas: 0,
+        monedas: 10,
         colores: {
             '--violet-100': '#3D1F3A',
             '--violet-300': '#A0508A',
@@ -249,7 +251,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Formales',
         ruta: 'Temas/oficina.css',
         espacio: 2,
-        monedas: 0,
+        monedas: 20,
         colores: {
             '--violet-100': '#E4E6EA',
             '--violet-300': '#A8AEB8',
@@ -267,7 +269,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Formales',
         ruta: 'Temas/oficina-dark.css',
         espacio: 2,
-        monedas: 0,
+        monedas: 20,
         colores: {
             '--violet-100': '#1F1F23',
             '--violet-300': '#3A3A40',
@@ -285,7 +287,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Formales',
         ruta: 'Temas/ventanas.css',
         espacio: 4,
-        monedas: 15,
+        monedas: 25,
         colores: {
             '--violet-100': '#D6E8F7',
             '--violet-300': '#7FB8E6',
@@ -303,7 +305,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Formales',
         ruta: 'Temas/celeste.css',
         espacio: 4,
-        monedas: 20,
+        monedas: 25,
         colores: {
             '--violet-100': '#DDE9F2',
             '--violet-300': '#9CB8CD',
@@ -326,7 +328,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Retro',
         ruta: 'Temas/hacker.css',
         espacio: 2,
-        monedas: 5,
+        monedas: 10,
         colores: {
             '--violet-100': '#0F2F0F',
             '--violet-300': '#1F6F1F',
@@ -344,7 +346,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Retro',
         ruta: 'Temas/vapor.css',
         espacio: 2,
-        monedas: 5,
+        monedas: 10,
         colores: {
             '--violet-100': '#2A1A44',
             '--violet-300': '#C084FC',
@@ -362,7 +364,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Retro',
         ruta: 'Temas/salon.css',
         espacio: 2,
-        monedas: 5,
+        monedas: 10,
         colores: {
             '--violet-100': '#5C0A0A',
             '--violet-300': '#B8860B',
@@ -380,7 +382,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Retro',
         ruta: 'Temas/chiptune.css',
         espacio: 4,
-        monedas: 20,
+        monedas: 30,
         colores: {
             '--violet-100': '#E0EAA0',
             '--violet-300': '#9BBC0F',
@@ -439,7 +441,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Especiales',
         ruta: 'Temas/floral.css',
         espacio: 4,
-        monedas: 30,
+        monedas: 35,
         colores: {
             '--violet-100': '#DCFCE7',
             '--violet-300': '#F9A8D4',
@@ -448,9 +450,8 @@ const TEMAS_DISPONIBLES = [
             '--bg-alt':     '#F0F9F2',
             '--white':      '#FFFFFF'
         }
-
     },
-        {
+    {
         id: 'charla',
         nombre: 'Charla',
         icono: 'message-circle',
@@ -458,7 +459,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Especiales',
         ruta: 'Temas/charla.css',
         espacio: 4,
-        monedas: 35,
+        monedas: 50,
         colores: {
             '--violet-100': '#D1FAE5',
             '--violet-300': '#6EE7B7',
@@ -468,7 +469,6 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFFFF'
         }
     },
-    
     {
         id: 'libro',
         nombre: 'Libro de Historia',
@@ -477,7 +477,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Especiales',
         ruta: 'Temas/libro.css',
         espacio: 4,
-        monedas: 40,
+        monedas: 45,
         colores: {
             '--violet-100': '#3E2C1C',
             '--violet-300': '#8B6B4A',
@@ -487,7 +487,7 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#2A1F16'
         }
     },
-        {
+    {
         id: 'pop-owner',
         nombre: 'Pop Owner',
         icono: 'music-2',
@@ -495,7 +495,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Especiales',
         ruta: 'Temas/pop-owner.css',
         espacio: 4,
-        monedas: 45,
+        monedas: 50,
         colores: {
             '--violet-100': '#3F0F0F',
             '--violet-300': '#991B1B',
@@ -513,7 +513,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Especiales',
         ruta: 'Temas/break-of-dawn.css',
         espacio: 4,
-        monedas: 50,
+        monedas: 40,
         colores: {
             '--violet-100': '#FFE0D1',
             '--violet-300': '#FFA07A',
@@ -549,7 +549,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Especiales',
         ruta: 'Temas/friend.css',
         espacio: 4,
-        monedas: 50,
+        monedas: 45,
         colores: {
             '--violet-100': '#2A1A44',
             '--violet-300': '#E879F9',
