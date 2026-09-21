@@ -1,0 +1,326 @@
+/* ================================================
+   Tema: Charla
+   Inspirado en apps de mensajería. Referencia suave
+   a la vibra de WhatsApp, sin usar nombre, logo ni
+   colores exactos de la marca.
+
+   Concepto: el shell se ve sobrio y cálido (beige,
+   verde suave), pero cuando el usuario abre
+   WhatTheHay las variables heredadas hacen que la
+   app se vea como un chat premium: burbujas verdes,
+   fondo beige, avatares circulares.
+   ================================================ */
+
+:root {
+    /* Paleta verde mensajería (Emerald, no exacta de WhatsApp) */
+    --violet-50:  #ECFDF5;
+    --violet-100: #D1FAE5;
+    --violet-200: #A7F3D0;
+    --violet-300: #6EE7B7;
+    --violet-400: #34D399;
+    --violet-500: #10B981;
+    --violet-600: #059669;
+    --violet-700: #047857;
+
+    /* Superficies: blanco limpio + beige cálido */
+    --white:   #FFFFFF;
+    --bg:      #EFE9E0;
+    --bg-alt:  #F7F3ED;
+
+    /* Grises con tinte cálido */
+    --gray-50:  #FAF8F4;
+    --gray-100: #F2EDE5;
+    --gray-200: #E5DFD5;
+    --gray-300: #CFC7BA;
+    --gray-400: #9E9585;
+    --gray-500: #6B6358;
+    --gray-600: #4A4339;
+    --gray-700: #332D24;
+    --gray-800: #1F1B14;
+    --gray-900: #0F0D09;
+
+    /* Tokens semánticos */
+    --border:  #E0D9CC;
+    --text:    #0F0D09;
+    --text-2:  #4A4339;
+    --text-3:  #6B6358;
+
+    /* Sombras cálidas */
+    --shadow-xs: 0 1px 2px rgba(60, 40, 20, 0.05);
+    --shadow-sm: 0 1px 3px rgba(60, 40, 20, 0.07), 0 1px 2px rgba(60, 40, 20, 0.04);
+    --shadow-md: 0 4px 12px rgba(60, 40, 20, 0.08), 0 2px 4px rgba(60, 40, 20, 0.05);
+    --shadow-lg: 0 12px 32px rgba(60, 40, 20, 0.12), 0 4px 8px rgba(60, 40, 20, 0.06);
+    --shadow-xl: 0 24px 48px rgba(60, 40, 20, 0.16), 0 8px 16px rgba(60, 40, 20, 0.08);
+    --shadow-glow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+
+    /* Acento verde mensajería */
+    --accent-gradient: linear-gradient(135deg, #10B981, #047857);
+    --accent-gradient-hover: linear-gradient(135deg, #34D399, #10B981);
+    --accent-shadow: rgba(16, 185, 129, 0.28);
+    --accent-shadow-hover: rgba(16, 185, 129, 0.42);
+    --accent-text-gradient: linear-gradient(135deg, #065F46, #10B981);
+
+    /* Custom del tema */
+    --theme-chat-cream: #EFE9E0;
+    --theme-chat-dark:  #0F5545;
+    --theme-chat-beige-soft: #F5EFE5;
+
+    /* Patrón de doodles abstractos — referencia suave al
+       "papel estampado" típico de los chats */
+    --theme-doodles: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' stroke='%2310B981' stroke-opacity='0.055' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 24 C20 22 22 20 24 20 L44 20 C46 20 48 22 48 24 L48 34 C48 36 46 38 44 38 L32 38 L28 42 L29 38 L24 38 C22 38 20 36 20 34 Z'/%3E%3Cpath d='M76 24 L80 28 L88 20'/%3E%3Cpath d='M120 20 C116 20 114 24 114 28 C114 34 120 38 124 42 C128 38 134 34 134 28 C134 24 132 20 128 20 C126 20 125 21 124 22 C123 21 122 20 120 20 Z'/%3E%3Cpath d='M64 76 C64 74 66 72 68 72 L88 72 C90 72 92 74 92 76 L92 86 C92 88 90 90 88 90 L76 90 L72 94 L73 90 L68 90 C66 90 64 88 64 86 Z'/%3E%3Cpath d='M118 84 L118 68 L132 64 L132 80 M118 84 C118 87 115 88 113 88 C111 88 109 87 109 85 C109 83 111 82 113 82 C115 82 117 83 118 84 Z M132 80 C132 83 129 84 127 84 C125 84 123 83 123 81 C123 79 125 78 127 78 C129 78 131 79 132 80 Z'/%3E%3Cpath d='M24 124 L30 130 L44 116'/%3E%3Cpath d='M120 128 C120 126 122 124 124 124 L144 124 C146 124 148 126 148 128 L148 138 C148 140 146 142 144 142 L132 142 L128 146 L129 142 L124 142 C122 142 120 140 120 138 Z'/%3E%3Cpath d='M68 148 L80 160 M80 148 L68 160'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ================================================================
+   1. HEADER — franja verde degradada abajo (guiño al header de chat)
+   ================================================================ */
+.app-header {
+    position: relative;
+    border-bottom: none;
+}
+.app-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--accent-gradient);
+    opacity: 0.85;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.logo-mark {
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+
+/* ================================================================
+   2. WELCOME — fondo beige con doodles sutilísimos
+   ================================================================ */
+.welcome-placeholder {
+    background:
+        var(--theme-doodles) 0 0 / 160px 160px repeat,
+        var(--bg);
+}
+
+.welcome-glow {
+    background: radial-gradient(
+        circle,
+        rgba(16, 185, 129, 0.18) 0%,
+        rgba(16, 185, 129, 0.05) 40%,
+        transparent 65%
+    );
+}
+
+.welcome-icon-wrap {
+    box-shadow:
+        0 12px 28px rgba(16, 185, 129, 0.35),
+        0 4px 8px rgba(16, 185, 129, 0.20),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+
+/* ================================================================
+   3. SIDEBAR — tono beige cálido con acento verde
+   ================================================================ */
+.sidebar {
+    background: linear-gradient(180deg, var(--bg-alt) 0%, #F0FAF3 100%);
+    border-right-color: var(--border);
+}
+
+.sidebar-comunidad {
+    background: linear-gradient(135deg, var(--white) 0%, var(--violet-50) 100%);
+    border-color: var(--violet-200);
+}
+.sidebar-comunidad:hover {
+    border-color: var(--violet-400);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+.sidebar-comunidad-icono {
+    background: var(--violet-100);
+    color: var(--violet-700);
+}
+
+.nav-item:hover {
+    background: var(--white);
+    color: var(--gray-900);
+    box-shadow: var(--shadow-xs);
+}
+.nav-item.active {
+    background: var(--white);
+    color: var(--violet-700);
+    box-shadow: var(--shadow-xs), inset 0 0 0 1px var(--violet-200);
+}
+.nav-item.active::before {
+    background: var(--violet-500);
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+    width: 4px;
+}
+
+/* ================================================================
+   4. ACCESOS RÁPIDOS — forma de BURBUJA + doble check al hover
+   ================================================================ */
+.acceso-item {
+    /* Asimetría inferior derecha: como una burbuja enviada */
+    border-radius: 16px 16px 4px 16px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    position: relative;
+}
+
+.acceso-item:hover {
+    transform: translateY(-4px);
+    border-color: var(--violet-300);
+    box-shadow:
+        0 12px 24px rgba(16, 185, 129, 0.18),
+        var(--shadow-md);
+}
+
+.acceso-icon-wrap {
+    background: var(--violet-50);
+    color: var(--violet-600);
+    border-radius: 12px;
+}
+.acceso-item:hover .acceso-icon-wrap {
+    background: var(--accent-gradient);
+    color: white;
+    transform: scale(1.08) rotate(-4deg);
+    box-shadow: 0 6px 14px var(--accent-shadow);
+}
+
+/* Doble check que aparece al hover — el detalle "curioso" */
+.acceso-item::after {
+    content: '';
+    position: absolute;
+    bottom: 8px;
+    right: 10px;
+    width: 18px;
+    height: 10px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 12'%3E%3Cpath d='M1 6 L5 10 L11 2 M10 6 L14 10 L21 2' fill='none' stroke='%2310B981' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0;
+    transform: scale(0.5) translateY(4px);
+    transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+}
+.acceso-item:hover::after {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+}
+
+/* ================================================================
+   5. WIDGETS — mismo lenguaje visual que las cards de acceso
+   ================================================================ */
+.widget-item {
+    border-radius: 16px 16px 4px 16px;
+    border-color: var(--border);
+    box-shadow: var(--shadow-md);
+}
+.widget-item:hover {
+    transform: translateY(-2px);
+    border-color: var(--violet-300);
+    box-shadow: 0 12px 24px rgba(16, 185, 129, 0.15), var(--shadow-lg);
+}
+
+/* ================================================================
+   6. PESTAÑAS — línea superior verde en la activa
+   ================================================================ */
+.tab-item.active {
+    background: var(--white);
+    color: var(--gray-900);
+    border-color: var(--border);
+    box-shadow: 0 -1px 0 var(--border) inset, 0 -1px 0 var(--border);
+}
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10px;
+    right: 10px;
+    height: 2px;
+    background: var(--accent-gradient);
+    border-radius: 2px 2px 0 0;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+    pointer-events: none;
+}
+.tab-item.active [data-lucide] {
+    color: var(--violet-600);
+}
+
+/* ================================================================
+   7. MODALES — franja verde arriba + sombra cálida
+   ================================================================ */
+.config-card,
+.modal-todas-card {
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+}
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--accent-gradient);
+    pointer-events: none;
+    z-index: 5;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+}
+
+.modal-todas-header,
+.config-header {
+    background: var(--gray-50);
+    border-bottom-color: var(--border);
+}
+
+/* ================================================================
+   8. BOTÓN PRIMARIO — gradiente verde mensajería
+   ================================================================ */
+.btn-primario {
+    background: var(--accent-gradient-hover);
+    box-shadow:
+        0 4px 14px rgba(16, 185, 129, 0.30),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+.btn-primario:hover {
+    transform: translateY(-1px);
+    box-shadow:
+        0 8px 22px rgba(16, 185, 129, 0.45),
+        0 0 0 3px rgba(16, 185, 129, 0.12);
+}
+
+/* ================================================================
+   9. CHIP DE COMUNIDAD / ACCESOS — acentos verdes
+   ================================================================ */
+.sidebar-comunidad-nombre {
+    color: var(--violet-700);
+}
+
+.search-bar:focus-within {
+    border-color: var(--violet-400);
+    box-shadow: var(--shadow-glow);
+}
+
+.search-bar:focus-within .search-icon {
+    color: var(--violet-500);
+}
+
+.noti-btn.tiene-no-leidas {
+    background: var(--violet-50);
+    color: var(--violet-600);
+}
+.noti-btn.tiene-no-leidas:hover {
+    background: var(--violet-100);
+    color: var(--violet-700);
+}
+
+/* ================================================================
+   10. RESPONSIVE — el drawer móvil del sidebar no se rompe
+   ----------------------------------------------------------------
+   El sidebar decorado como gradiente NO necesita position:fixed
+   porque el base ya lo maneja. Solo confirmamos que no lo pisamos.
+   ================================================================ */
