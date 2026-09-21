@@ -1,8 +1,7 @@
 /* ================================================
    Widget: Cuenta Info
-   Rediseño con más personalidad.
-   Balance con código de color (verde/rojo/ámbar).
-   Contenido con acento del tema.
+   Rediseño con personalidad, compacto.
+   Debe entrar en iframe de ~240px.
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -31,12 +30,12 @@ body {
     background: var(--white, #FFFFFF);
     border: 1px solid var(--border, #E8E8EE);
     border-radius: var(--r-lg, 16px);
-    padding: 12px 12px 10px;
+    padding: 8px 10px 8px;
     box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
     height: 100%;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     overflow: hidden;
     transition: background 0.3s, color 0.3s, border-color 0.3s;
     animation: ciFadeIn 0.35s ease;
@@ -64,35 +63,35 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
-    padding-bottom: 6px;
+    gap: 6px;
+    padding-bottom: 4px;
     border-bottom: 1px solid var(--gray-100, #F4F4F7);
     flex-shrink: 0;
-    min-height: 22px;
+    min-height: 18px;
 }
 
 .ci-titulo {
     display: flex;
     align-items: center;
-    gap: 5px;
-    font-size: 10.5px;
+    gap: 4px;
+    font-size: 10px;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.07em;
     color: var(--gray-500, #71717A);
     line-height: 1;
 }
 .ci-titulo [data-lucide] {
     color: var(--violet-500, #8B5CF6);
-    width: 13px;
-    height: 13px;
+    width: 12px;
+    height: 12px;
 }
 
 .ci-btn-refresh {
     background: none;
     border: none;
-    padding: 5px;
-    border-radius: 8px;
+    padding: 3px;
+    border-radius: 6px;
     cursor: pointer;
     color: var(--gray-400, #A1A1AD);
     display: flex;
@@ -104,7 +103,7 @@ body {
     color: var(--violet-600, #7C3AED);
     transform: rotate(180deg);
 }
-.ci-btn-refresh [data-lucide] { width: 12px; height: 12px; }
+.ci-btn-refresh [data-lucide] { width: 11px; height: 11px; }
 .ci-btn-refresh.spin [data-lucide] {
     animation: ciSpin 0.8s linear infinite;
     transform: none;
@@ -116,23 +115,22 @@ body {
 .ci-perfil {
     display: flex;
     align-items: center;
-    gap: 11px;
+    gap: 9px;
     flex-shrink: 0;
-    padding: 2px 0;
 }
 
 .ci-avatar-wrap {
     position: relative;
     flex-shrink: 0;
-    width: 46px;
-    height: 46px;
+    width: 38px;
+    height: 38px;
 }
 
 /* Anillo de gradiente alrededor del avatar */
 .ci-avatar-wrap::before {
     content: '';
     position: absolute;
-    inset: -3px;
+    inset: -2px;
     border-radius: 50%;
     background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
     z-index: 0;
@@ -159,13 +157,13 @@ body {
     object-fit: cover;
 }
 .ci-avatar [data-lucide] {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     stroke-width: 2;
     color: var(--violet-500, #8B5CF6);
 }
 .ci-avatar-inicial {
-    font-size: 19px;
+    font-size: 16px;
     font-weight: 900;
     color: white;
     line-height: 1;
@@ -180,10 +178,10 @@ body {
 /* Punto de estado "en línea" */
 .ci-avatar-status {
     position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 12px;
-    height: 12px;
+    bottom: -1px;
+    right: -1px;
+    width: 11px;
+    height: 11px;
     border-radius: 50%;
     background: #10B981;
     border: 2px solid var(--white, #FFFFFF);
@@ -200,7 +198,7 @@ body {
 }
 
 .ci-nombre {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 900;
     color: var(--gray-900, #18181B);
     letter-spacing: -0.02em;
@@ -212,7 +210,7 @@ body {
 
 .ci-meta {
     font-family: 'SF Mono', Monaco, Consolas, monospace;
-    font-size: 10.5px;
+    font-size: 10px;
     font-weight: 800;
     color: var(--violet-700, #6D28D9);
     letter-spacing: 0.03em;
@@ -222,30 +220,17 @@ body {
     line-height: 1.2;
     background: var(--violet-50, #F5F3FF);
     border: 1px solid var(--violet-200, #DDD6FE);
-    padding: 2px 8px;
+    padding: 1px 7px;
     border-radius: 999px;
     align-self: flex-start;
     max-width: 100%;
-}
-
-/* ========== ETIQUETA DE SECCIÓN ========== */
-.ci-seccion-label {
-    font-size: 8.5px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--gray-400, #A1A1AD);
-    padding: 0 2px;
-    margin-top: 2px;
-    margin-bottom: -3px;
-    flex-shrink: 0;
 }
 
 /* ========== DINERO ========== */
 .ci-dinero {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 5px;
+    gap: 4px;
     flex-shrink: 0;
 }
 
@@ -254,11 +239,11 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 3px;
-    padding: 8px 2px 6px;
+    gap: 2px;
+    padding: 5px 2px 4px;
     background: var(--gray-50, #FAFAFB);
     border: 1px solid var(--border, #E8E8EE);
-    border-radius: 10px;
+    border-radius: 9px;
     min-width: 0;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
@@ -272,38 +257,36 @@ body {
     content: '';
     position: absolute;
     left: 0;
-    top: 15%;
-    bottom: 15%;
+    top: 18%;
+    bottom: 18%;
     width: 3px;
     border-radius: 0 3px 3px 0;
 }
-
 .ci-stat-ganado::before  { background: #16A34A; }
 .ci-stat-gastado::before { background: #DC2626; }
 .ci-stat-actual::before  { background: #D97706; }
 
 .ci-stat-icono {
-    width: 22px;
-    height: 22px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    margin-bottom: 1px;
 }
 .ci-stat-ganado .ci-stat-icono  { background: #DCFCE7; color: #16A34A; }
 .ci-stat-gastado .ci-stat-icono { background: #FEE2E2; color: #DC2626; }
 .ci-stat-actual .ci-stat-icono  { background: #FEF3C7; color: #D97706; }
 
 .ci-stat-icono [data-lucide] {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     stroke-width: 2.5;
 }
 
 .ci-stat-num {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 900;
     font-variant-numeric: tabular-nums;
     line-height: 1;
@@ -318,10 +301,10 @@ body {
 .ci-stat-actual .ci-stat-num  { color: #D97706; }
 
 .ci-stat-label {
-    font-size: 8px;
+    font-size: 7.5px;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
     color: var(--gray-500, #71717A);
     line-height: 1;
     white-space: nowrap;
@@ -335,15 +318,12 @@ body {
     border-color: #FCD34D;
     border-width: 1.5px;
 }
-.ci-stat-actual:hover {
-    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.15);
-}
 
 /* ========== CONTENIDO ========== */
 .ci-contenido {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 5px;
+    gap: 4px;
     flex-shrink: 0;
 }
 
@@ -352,11 +332,11 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 3px;
-    padding: 7px 2px 6px;
+    gap: 2px;
+    padding: 5px 2px 4px;
     background: var(--violet-50, #F5F3FF);
     border: 1.5px solid var(--violet-200, #DDD6FE);
-    border-radius: 10px;
+    border-radius: 9px;
     min-width: 0;
     overflow: hidden;
     transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
@@ -367,25 +347,10 @@ body {
     box-shadow: 0 4px 10px var(--accent-shadow, rgba(139,92,246,0.18));
 }
 
-/* Brillo sutil arriba */
-.ci-stat-cont::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 40%;
-    background: linear-gradient(180deg,
-        rgba(255, 255, 255, 0.5) 0%,
-        transparent 100%);
-    pointer-events: none;
-    opacity: 0.6;
-}
-
 .ci-stat-cont-icono {
     position: relative;
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
     color: white;
@@ -393,18 +358,18 @@ body {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    box-shadow: 0 2px 6px var(--accent-shadow, rgba(139,92,246,0.28));
+    box-shadow: 0 2px 5px var(--accent-shadow, rgba(139,92,246,0.28));
     z-index: 1;
 }
 .ci-stat-cont-icono [data-lucide] {
-    width: 11px;
-    height: 11px;
+    width: 10px;
+    height: 10px;
     stroke-width: 2.5;
 }
 
 .ci-stat-cont-num {
     position: relative;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 900;
     color: var(--violet-700, #6D28D9);
     font-variant-numeric: tabular-nums;
@@ -415,10 +380,10 @@ body {
 
 .ci-stat-cont-label {
     position: relative;
-    font-size: 8px;
+    font-size: 7.5px;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
     color: var(--violet-600, #7C3AED);
     line-height: 1;
     white-space: nowrap;
@@ -427,37 +392,32 @@ body {
 
 /* ========== COMPACTO EXTRA (≤ 300px) ========== */
 @media (max-width: 300px) {
-    .ci-widget { padding: 10px 10px 8px; gap: 6px; }
-    .ci-seccion-label { font-size: 8px; }
-
-    .ci-avatar-wrap { width: 40px; height: 40px; }
-    .ci-avatar-inicial { font-size: 17px; }
-    .ci-avatar-status { width: 10px; height: 10px; }
-    .ci-nombre { font-size: 13.5px; }
-    .ci-meta { font-size: 9.5px; padding: 1px 6px; }
-
-    .ci-stat-dinero { padding: 6px 2px 5px; gap: 2px; }
-    .ci-stat-icono { width: 18px; height: 18px; }
-    .ci-stat-icono [data-lucide] { width: 10px; height: 10px; }
-    .ci-stat-num { font-size: 13.5px; }
-    .ci-stat-label { font-size: 7.5px; }
-
-    .ci-stat-cont { padding: 6px 2px 5px; gap: 2px; }
-    .ci-stat-cont-icono { width: 18px; height: 18px; }
-    .ci-stat-cont-icono [data-lucide] { width: 10px; height: 10px; }
-    .ci-stat-cont-num { font-size: 14px; }
-    .ci-stat-cont-label { font-size: 7.5px; }
+    .ci-widget { padding: 7px 9px; gap: 5px; }
+    .ci-avatar-wrap { width: 34px; height: 34px; }
+    .ci-avatar-inicial { font-size: 14px; }
+    .ci-avatar-status { width: 9px; height: 9px; }
+    .ci-nombre { font-size: 13px; }
+    .ci-meta { font-size: 9px; padding: 1px 6px; }
+    .ci-stat-dinero { padding: 4px 2px 3px; }
+    .ci-stat-icono { width: 16px; height: 16px; }
+    .ci-stat-icono [data-lucide] { width: 9px; height: 9px; }
+    .ci-stat-num { font-size: 13px; }
+    .ci-stat-label { font-size: 7px; }
+    .ci-stat-cont { padding: 4px 2px 3px; }
+    .ci-stat-cont-icono { width: 16px; height: 16px; }
+    .ci-stat-cont-icono [data-lucide] { width: 9px; height: 9px; }
+    .ci-stat-cont-num { font-size: 13px; }
+    .ci-stat-cont-label { font-size: 7px; }
 }
 
 /* ========== ULTRA COMPACTO (≤ 260px) ========== */
 @media (max-width: 260px) {
-    .ci-seccion-label { display: none; }
-    .ci-perfil { gap: 8px; }
-    .ci-avatar-wrap { width: 36px; height: 36px; }
-    .ci-avatar-inicial { font-size: 15px; }
-    .ci-nombre { font-size: 12.5px; }
-    .ci-meta { font-size: 9px; }
-    .ci-stat-dinero, .ci-stat-cont { padding: 5px 1px 4px; }
-    .ci-stat-num { font-size: 12.5px; }
-    .ci-stat-cont-num { font-size: 13px; }
+    .ci-perfil { gap: 7px; }
+    .ci-avatar-wrap { width: 30px; height: 30px; }
+    .ci-avatar-inicial { font-size: 13px; }
+    .ci-nombre { font-size: 12px; }
+    .ci-meta { font-size: 8.5px; }
+    .ci-stat-num { font-size: 12px; }
+    .ci-stat-cont-num { font-size: 12px; }
+    .ci-stat-dinero, .ci-stat-cont { padding: 3px 1px; }
 }
