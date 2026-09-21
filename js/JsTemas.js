@@ -449,6 +449,25 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#0A0A15'
         }
     },
+    // (Va justo después de "Dreams and Hopes")
+    {
+        id: 'cuarzo-rosado',
+        nombre: 'Cuarzo Rosado',
+        icono: 'gem',
+        descripcion: 'Magia, diamantes y tonos pastel. Inspirado en el poder de las gemas.',
+        categoria: 'Especiales',
+        ruta: 'Temas/cuarzo-rosado.css',
+        espacio: 4,
+        monedas: 30,
+        colores: {
+            '--violet-100': '#FCE7F3',
+            '--violet-300': '#F9A8D4',
+            '--violet-500': '#EC4899',
+            '--bg':         '#FFF9FB',
+            '--bg-alt':     '#FEF0F5',
+            '--white':      '#FFFFFF'
+        }
+    },
     {
         id: 'floral',
         nombre: 'Floral',
@@ -464,6 +483,25 @@ const TEMAS_DISPONIBLES = [
             '--violet-500': '#EC4899',
             '--bg':         '#F7FDF9',
             '--bg-alt':     '#F0F9F2',
+            '--white':      '#FFFFFF'
+        }
+    },
+    // (Va justo después de "Floral")
+    {
+        id: 'wuu',
+        nombre: 'Wuu',
+        icono: 'monitor', /* Usamos monitor para no repetir gamepad-2 de Chiptune */
+        descripcion: 'Estética limpia de consola de salón. Blancos puros, grises suaves y un celeste brillante con efectos de cristal.',
+        categoria: 'Especiales',
+        ruta: 'Temas/wuu.css',
+        espacio: 4,
+        monedas: 35,
+        colores: {
+            '--violet-100': '#B2EBF2',
+            '--violet-300': '#4DD0E1',
+            '--violet-500': '#00BCD4',
+            '--bg':         '#F0F0F0',
+            '--bg-alt':     '#E6E6E6',
             '--white':      '#FFFFFF'
         }
     },
