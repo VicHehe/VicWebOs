@@ -2,7 +2,7 @@
 //  Widget: Wiki Lector
 //  ------------------------------------------------------------
 //  Buscador y lector rápido conectando a la API de Wikipedia.
-//  Diseñado para integrarse en iframes de VicWebOS.
+//  Construcción de DOM segura para evitar falsos positivos de AV.
 // ============================================================
 
 'use strict';
@@ -34,7 +34,7 @@ function aplicarTemaDelPadre() {
             const val = stylePadre.getPropertyValue(v).trim();
             if (val) document.documentElement.style.setProperty(v, val);
         });
-    } catch (e) { /* silencioso si falla el acceso cross-origin */ }
+    } catch (e) { /* Fallo silencioso si hay bloqueo cross-origin */ }
 }
 
 window.addEventListener('message', (e) => {
@@ -42,7 +42,7 @@ window.addEventListener('message', (e) => {
 });
 
 // ============================================================
-//  LÓGICA WIKIPEDIA
+//  LÓGICA WIKIPEDIA (Segura contra heurística)
 // ============================================================
 const DOM = {
     input: document.getElementById('wikiInput'),
@@ -51,37 +51,31 @@ const DOM = {
 };
 
 function setEstado(tipo, texto = '') {
+    DOM.zona.innerHTML = '';
+    const container = document.createElement('div');
+    const icon = document.createElement('i');
+    const p = document.createElement('p');
+    
     if (tipo === 'cargando') {
-        DOM.zona.innerHTML = `
-            <div class="wiki-estado">
-                <i data-lucide="loader-2" style="animation: spin 1s linear infinite;"></i>
-                <p>Buscando en la enciclopedia...</p>
-            </div>
-        `;
+        container.className = 'wiki-estado';
+        icon.setAttribute('data-lucide', 'loader-2');
+        icon.className = 'wiki-spin'; // Usa la clase CSS en lugar de estilo en línea
+        p.textContent = 'Buscando en la enciclopedia...';
     } else if (tipo === 'error') {
-        DOM.zona.innerHTML = `
-            <div class="wiki-estado error">
-                <i data-lucide="alert-circle"></i>
-                <p>${texto}</p>
-            </div>
-        `;
+        container.className = 'wiki-estado error';
+        icon.setAttribute('data-lucide', 'alert-circle');
+        p.textContent = texto;
     } else if (tipo === 'vacio') {
-        DOM.zona.innerHTML = `
-            <div class="wiki-estado">
-                <i data-lucide="compass"></i>
-                <p>Busca un concepto, lugar o personaje histórico para empezar.</p>
-            </div>
-        `;
+        container.className = 'wiki-estado';
+        icon.setAttribute('data-lucide', 'compass');
+        p.textContent = 'Busca un concepto, lugar o personaje histórico para empezar.';
     }
-    
+
+    container.appendChild(icon);
+    container.appendChild(p);
+    DOM.zona.appendChild(container);
+
     if (window.lucide) window.lucide.createIcons();
-    
-    if (!document.getElementById('wikiSpin')) {
-        const style = document.createElement('style');
-        style.id = 'wikiSpin';
-        style.textContent = '@keyframes spin { 100% { transform: rotate(360deg); } }';
-        document.head.appendChild(style);
-    }
 }
 
 async function buscarEnWikipedia(query) {
@@ -95,17 +89,20 @@ async function buscarEnWikipedia(query) {
     setEstado('cargando');
 
     try {
-        const searchUrl = `https://es.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&utf8=&format=json&origin=*`;
+        const querySeguro = encodeURIComponent(query);
+        const searchUrl = 'https://es.wikipedia.org/w/api.php?action=query&list=search&srsearch=' + querySeguro + '&utf8=&format=json&origin=*';
+        
         const searchRes = await fetch(searchUrl);
         const searchData = await searchRes.json();
 
-        if (!searchData.query.search || searchData.query.search.length === 0) {
+        if (!searchData.query || !searchData.query.search || searchData.query.search.length === 0) {
             setEstado('error', 'No se encontraron artículos con esa búsqueda.');
             return;
         }
 
         const tituloExacto = searchData.query.search[0].title;
-        const summaryUrl = `https://es.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(tituloExacto)}`;
+        const summaryUrl = 'https://es.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(tituloExacto);
+        
         const summaryRes = await fetch(summaryUrl);
         const summaryData = await summaryRes.json();
 
@@ -121,30 +118,51 @@ async function buscarEnWikipedia(query) {
 }
 
 function renderizarArticulo(data) {
-    const imagen = data.thumbnail 
-        ? `<img src="${data.thumbnail.source}" class="wiki-img" alt="${data.title}">` 
-        : '';
-    
-    const descripcion = data.description 
-        ? `<div class="wiki-art-desc">${data.description}</div>` 
-        : '';
-        
-    const link = data.content_urls && data.content_urls.desktop 
-        ? data.content_urls.desktop.page 
-        : `https://es.wikipedia.org/wiki/${encodeURIComponent(data.title)}`;
+    DOM.zona.innerHTML = ''; // Limpiar zona
 
-    DOM.zona.innerHTML = `
-        <div class="wiki-articulo">
-            ${imagen}
-            <h3 class="wiki-art-titulo">${data.title}</h3>
-            ${descripcion}
-            <p class="wiki-art-texto">${data.extract}</p>
-            <a href="${link}" target="_blank" class="wiki-link">
-                Leer en Wikipedia <i data-lucide="external-link"></i>
-            </a>
-        </div>
-    `;
-    
+    const articulo = document.createElement('div');
+    articulo.className = 'wiki-articulo';
+
+    // Imagen (si existe)
+    if (data.thumbnail && data.thumbnail.source) {
+        const img = document.createElement('img');
+        img.src = data.thumbnail.source;
+        img.alt = data.title || 'Imagen Wikipedia';
+        img.className = 'wiki-img';
+        articulo.appendChild(img);
+    }
+
+    // Título
+    const titulo = document.createElement('h3');
+    titulo.className = 'wiki-art-titulo';
+    titulo.textContent = data.title || '';
+    articulo.appendChild(titulo);
+
+    // Descripción corta (si existe)
+    if (data.description) {
+        const desc = document.createElement('div');
+        desc.className = 'wiki-art-desc';
+        desc.textContent = data.description;
+        articulo.appendChild(desc);
+    }
+
+    // Texto de resumen
+    const texto = document.createElement('p');
+    texto.className = 'wiki-art-texto';
+    texto.textContent = data.extract || 'Resumen no disponible.';
+    articulo.appendChild(texto);
+
+    // Enlace
+    const link = document.createElement('a');
+    link.href = (data.content_urls && data.content_urls.desktop) 
+        ? data.content_urls.desktop.page 
+        : 'https://es.wikipedia.org/wiki/' + encodeURIComponent(data.title || '');
+    link.target = '_blank';
+    link.className = 'wiki-link';
+    link.innerHTML = 'Leer en Wikipedia <i data-lucide="external-link"></i>';
+    articulo.appendChild(link);
+
+    DOM.zona.appendChild(articulo);
     if (window.lucide) window.lucide.createIcons();
     DOM.zona.scrollTop = 0; 
 }
