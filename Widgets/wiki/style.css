@@ -156,10 +156,12 @@ body {
 }
 .wiki-img {
     width: 100%;
-    max-height: 140px;
+    max-width: 130px; /* Limita el ancho */
+    max-height: 85px; /* Reduce la altura */
     object-fit: cover;
     border-radius: var(--r-md, 10px);
     border: 1px solid var(--border, #E8E8EE);
+    align-self: center; /* Centra la miniatura en el widget */
 }
 .wiki-art-titulo {
     font-size: 14px;
