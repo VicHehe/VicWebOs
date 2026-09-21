@@ -22,7 +22,18 @@ const WIDGETS_DISPONIBLES = [
         icono: 'circle-user',
         ruta: 'Widgets/mi-estado/index.html',
         descripcion: 'Muestra tu perfil y te deja cambiar tu estado (activo, descansando, desconectado).',
-        categoria: 'Social',
+        categoria: 'Gratuitas',
+        esBase: false,
+        espacio: 2,
+        monedas: 0
+    },
+    {
+        id: 'account-info',
+        nombre: 'Cuenta Info',
+        icono: 'id-card',
+        ruta: 'Widgets/account-info/index.html',
+        descripcion: 'Resumen de tu cuenta: perfil, dinero ganado/gastado y qué tenés instalado.',
+        categoria: 'Gratuitas',
         esBase: false,
         espacio: 2,
         monedas: 0
@@ -71,17 +82,7 @@ const WIDGETS_DISPONIBLES = [
         espacio: 4,
         monedas: 30
     },
-            {
-        id: 'account-info',
-        nombre: 'Cuenta Info',
-        icono: 'id-card',
-        ruta: 'Widgets/account-info/index.html',
-        descripcion: 'Resumen de tu cuenta: perfil, dinero ganado/gastado y qué tenés instalado.',
-        categoria: 'Utilidades',
-        esBase: false,
-        espacio: 2,
-        monedas: 0
-    },
+
     {
         id: 'reloj-mundial',
         nombre: 'Reloj Mundial',
