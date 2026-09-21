@@ -106,6 +106,17 @@ const WIDGETS_DISPONIBLES = [
         monedas: 40
     },
     {
+        id: 'wiki-lector',
+        nombre: 'Wiki Lector',
+        icono: 'book-open',
+        ruta: 'Widgets/wiki-lector/index.html',
+        descripcion: 'Busca y lee resúmenes rápidos de Wikipedia directamente desde tu escritorio.',
+        categoria: 'Utilidades',
+        esBase: false,
+        espacio: 4,
+        monedas: 80
+    },
+    {
         id: 'mascota',
         nombre: 'Mascota',
         icono: 'paw-print',
