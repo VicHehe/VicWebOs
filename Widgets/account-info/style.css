@@ -1,0 +1,270 @@
+/* ================================================
+   Widget: Cuenta Info
+   Resumen compacto del perfil + stats + dinero.
+   ================================================ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: transparent;
+    color: var(--text, #18181B);
+    font-size: 13px;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+}
+
+[data-lucide] { width: 16px; height: 16px; stroke-width: 2; flex-shrink: 0; }
+
+/* ========== WIDGET ========== */
+.ci-widget {
+    background: var(--white, #FFFFFF);
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: var(--r-lg, 16px);
+    padding: 10px 12px 12px;
+    box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow: hidden;
+    transition: background 0.3s, color 0.3s, border-color 0.3s;
+}
+
+/* ========== HEADER ========== */
+.ci-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--gray-100, #F4F4F7);
+    flex-shrink: 0;
+    min-height: 20px;
+}
+
+.ci-titulo {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-500, #71717A);
+    line-height: 1;
+}
+.ci-titulo [data-lucide] {
+    color: var(--violet-500, #8B5CF6);
+    width: 13px;
+    height: 13px;
+}
+
+.ci-btn-refresh {
+    background: none;
+    border: none;
+    padding: 4px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--gray-400, #A1A1AD);
+    display: flex;
+    align-items: center;
+    transition: all 0.15s;
+}
+.ci-btn-refresh:hover {
+    background: var(--violet-50, #F5F3FF);
+    color: var(--violet-600, #7C3AED);
+}
+.ci-btn-refresh [data-lucide] { width: 12px; height: 12px; }
+.ci-btn-refresh.spin [data-lucide] { animation: ciSpin 0.8s linear infinite; }
+@keyframes ciSpin { to { transform: rotate(360deg); } }
+
+/* ========== PERFIL ========== */
+.ci-perfil {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.ci-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--violet-400, #A78BFA), var(--violet-600, #7C3AED));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid var(--white, #FFFFFF);
+    box-shadow: 0 3px 8px var(--accent-shadow, rgba(139,92,246,0.22));
+}
+.ci-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.ci-avatar [data-lucide] {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+}
+.ci-avatar-inicial {
+    font-size: 18px;
+    font-weight: 800;
+    color: white;
+    line-height: 1;
+}
+
+.ci-perfil-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.ci-nombre {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--gray-900, #18181B);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.15;
+}
+
+.ci-meta {
+    font-family: 'SF Mono', Monaco, Consolas, monospace;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--violet-700, #6D28D9);
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+/* ========== DINERO ========== */
+.ci-dinero {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    flex-shrink: 0;
+}
+
+.ci-stat-dinero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 2px;
+    background: var(--gray-50, #FAFAFB);
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: 8px;
+    min-width: 0;
+}
+
+.ci-stat-icono {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.ci-icono-ganado { background: #DCFCE7; color: #16A34A; }
+.ci-icono-gastado { background: #FEE2E2; color: #DC2626; }
+.ci-icono-actual { background: #FEF3C7; color: #D97706; }
+
+.ci-stat-icono [data-lucide] {
+    width: 10px;
+    height: 10px;
+    stroke-width: 3;
+}
+
+.ci-stat-num {
+    font-size: 14px;
+    font-weight: 900;
+    color: var(--gray-900, #18181B);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+.ci-num-ganado { color: #16A34A; }
+.ci-num-gastado { color: #DC2626; }
+.ci-num-actual { color: #D97706; }
+
+.ci-stat-label {
+    font-size: 8.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--gray-500, #71717A);
+    line-height: 1;
+    white-space: nowrap;
+}
+
+/* ========== CONTENIDO (apps/temas/widgets) ========== */
+.ci-contenido {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    flex-shrink: 0;
+}
+
+.ci-stat-cont {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 7px 2px;
+    background: var(--violet-50, #F5F3FF);
+    border: 1.5px solid var(--violet-200, #DDD6FE);
+    border-radius: 8px;
+    min-width: 0;
+}
+
+.ci-stat-cont-num {
+    font-size: 15px;
+    font-weight: 900;
+    color: var(--violet-700, #6D28D9);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+}
+
+.ci-stat-cont-label {
+    font-size: 8.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--violet-600, #7C3AED);
+    line-height: 1;
+    white-space: nowrap;
+}
+
+/* ========== COMPACTO EXTRA ========== */
+@media (max-width: 300px) {
+    .ci-widget { padding: 9px 10px 10px; gap: 6px; }
+    .ci-avatar { width: 36px; height: 36px; }
+    .ci-nombre { font-size: 13px; }
+    .ci-stat-dinero { padding: 5px 2px; }
+    .ci-stat-num { font-size: 13px; }
+    .ci-stat-cont { padding: 6px 2px; }
+    .ci-stat-cont-num { font-size: 14px; }
+}
