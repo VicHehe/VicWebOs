@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>To-Do List</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="td-widget">
+        <!-- HEADER -->
+        <div class="td-header">
+            <div class="td-titulo">
+                <i data-lucide="list-todo"></i>
+                <span>To-Do List</span>
+            </div>
+            <div class="td-header-acciones">
+                <span class="td-contador" id="tdContador">0/6</span>
+                <button class="td-icon-btn" id="tdBtnConfig" title="Configuración">
+                    <i data-lucide="settings-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- INPUT ZONA -->
+        <div class="td-input-wrap">
+            <input type="text" id="tdInput" class="td-input" placeholder="Añadir nueva tarea..." maxlength="50" autocomplete="off">
+            <button class="td-btn-add" id="tdBtnAdd" title="Añadir">
+                <i data-lucide="plus"></i>
+            </button>
+        </div>
+
+        <!-- LISTA ZONA -->
+        <div class="td-zona" id="tdZona">
+            <!-- Renderizado dinámico -->
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIGURACIÓN -->
+    <div class="td-modal" id="tdModal" hidden>
+        <div class="td-modal-card">
+            <div class="td-modal-header">
+                <h3>Configuración</h3>
+                <button class="td-modal-cerrar" id="tdModalCerrar"><i data-lucide="x"></i></button>
+            </div>
+            
+            <div class="td-modal-body">
+                <div class="td-setting-group">
+                    <label class="td-setting-label">Eliminar tareas "Hechas"</label>
+                    <p class="td-setting-desc">Elige qué hacer cuando marcas una tarea como completada.</p>
+                    
+                    <div class="td-radio-group">
+                        <label class="td-radio-label">
+                            <input type="radio" name="tdAutoDelete" value="nunca">
+                            <span class="td-radio-custom"></span>
+                            Nunca (borrar manual)
+                        </label>
+                        <label class="td-radio-label">
+                            <input type="radio" name="tdAutoDelete" value="0">
+                            <span class="td-radio-custom"></span>
+                            Inmediatamente
+                        </label>
+                        <label class="td-radio-label">
+                            <input type="radio" name="tdAutoDelete" value="5000">
+                            <span class="td-radio-custom"></span>
+                            Tras 5 segundos
+                        </label>
+                        <label class="td-radio-label">
+                            <input type="radio" name="tdAutoDelete" value="60000">
+                            <span class="td-radio-custom"></span>
+                            Tras 1 minuto
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="td-modal-footer">
+                <button class="td-btn-guardar" id="tdBtnGuardarConfig">
+                    <i data-lucide="check"></i>
+                    Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
