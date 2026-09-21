@@ -125,7 +125,7 @@ const WIDGETS_DISPONIBLES = [
         categoria: 'Utilidades',
         esBase: false,
         espacio: 4,
-        monedas: 60
+        monedas: 80
     },
     {
         id: 'acceso-directo',
