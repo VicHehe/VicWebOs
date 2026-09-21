@@ -1,0 +1,614 @@
+/* ================================================
+   Tema: Mucho Besame
+   México en todo su esplendor. Bandera, papel picado,
+   cempasúchil, talavera, sombrero y nopal.
+   15 monedas por el 15 de septiembre.
+   ================================================ */
+
+:root {
+    /* Verde bandera mexicana (acento principal) */
+    --violet-50:  #F0FDF4;
+    --violet-100: #DCFCE7;
+    --violet-200: #BBF7D0;
+    --violet-300: #4ADE80;
+    --violet-400: #22C55E;
+    --violet-500: #006847;   /* verde bandera MX */
+    --violet-600: #00553A;
+    --violet-700: #00422C;
+
+    /* Neutros cálidos (papel / manta) */
+    --white:   #FFFFFF;
+    --bg:      #FFFCF5;
+    --bg-alt:  #FFF6E8;
+    --gray-50:  #FAF5EB;
+    --gray-100: #F2E9D6;
+    --gray-200: #E5D5B8;
+    --gray-300: #C7B58C;
+    --gray-400: #9A8860;
+    --gray-500: #6F5F40;
+    --gray-600: #4F4328;
+    --gray-700: #382F1C;
+    --gray-800: #221C11;
+    --gray-900: #0F0C07;
+
+    --border:  #E5D5B8;
+    --text:    #221C11;
+    --text-2:  #4F4328;
+    --text-3:  #6F5F40;
+
+    --shadow-xs: 0 1px 2px rgba(80, 40, 10, 0.06);
+    --shadow-sm: 0 1px 3px rgba(80, 40, 10, 0.08);
+    --shadow-md: 0 4px 12px rgba(80, 40, 10, 0.10);
+    --shadow-lg: 0 12px 32px rgba(80, 40, 10, 0.12);
+    --shadow-xl: 0 24px 48px rgba(80, 40, 10, 0.15);
+    --shadow-glow: 0 0 0 4px rgba(206, 17, 38, 0.15);
+
+    /* Rojo bandera → verde bandera */
+    --accent-gradient: linear-gradient(135deg, #CE1126, #006847);
+    --accent-gradient-hover: linear-gradient(135deg, #EF4444, #22C55E);
+    --accent-shadow: rgba(206, 17, 38, 0.30);
+    --accent-shadow-hover: rgba(206, 17, 38, 0.45);
+    --accent-text-gradient: linear-gradient(135deg, #7F1D1D, #006847);
+
+    /* Colores bandera México */
+    --mx-verde:  #006847;
+    --mx-rojo:   #CE1126;
+    --mx-blanco: #FFFFFF;
+    --mx-oro:    #E8B54B;   /* dorado de talavera / cempasúchil */
+    --mx-rosa:   #E63946;   /* rosa mexicano fuerte */
+    --mx-naranja:#F77F00;   /* cempasúchil */
+    --mx-magenta:#B01478;   /* bugambilia */
+
+    /* ============================================================
+       Papel picado — el ícono #1 del 15 de septiembre.
+       Tira de papel con calados geométricos en colores vivos.
+       ============================================================ */
+    --theme-papel-picado: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 40'%3E%3Cpath d='M0,2 L240,2' stroke='%23382F1C' stroke-width='0.5' fill='none'/%3E%3Cg%3E%3Cpath d='M8,4 L32,4 L32,36 L28,32 L24,36 L20,32 L16,36 L12,32 L8,36 Z' fill='%23CE1126'/%3E%3Ccircle cx='20' cy='14' r='2.5' fill='%23FFFCF5'/%3E%3Ccircle cx='20' cy='22' r='2.5' fill='%23FFFCF5'/%3E%3C/g%3E%3Cg%3E%3Cpath d='M40,4 L64,4 L64,36 L60,32 L56,36 L52,32 L48,36 L44,32 L40,36 Z' fill='%23F77F00'/%3E%3Cpath d='M52,10 L44,22 L60,22 Z' fill='%23FFFCF5'/%3E%3C/g%3E%3Cg%3E%3Cpath d='M72,4 L96,4 L96,36 L92,32 L88,36 L84,32 L80,36 L76,32 L72,36 Z' fill='%23006847'/%3E%3Ccircle cx='84' cy='16' r='3.5' fill='%23FFFCF5'/%3E%3Ccircle cx='84' cy='26' r='2' fill='%23FFFCF5'/%3E%3C/g%3E%3Cg%3E%3Cpath d='M104,4 L128,4 L128,36 L124,32 L120,36 L116,32 L112,36 L108,32 L104,36 Z' fill='%23B01478'/%3E%3Cpath d='M116,10 L108,22 L124,22 Z' fill='%23FFFCF5'/%3E%3C/g%3E%3Cg%3E%3Cpath d='M136,4 L160,4 L160,36 L156,32 L152,36 L148,32 L144,36 L140,32 L136,36 Z' fill='%23E8B54B'/%3E%3Ccircle cx='148' cy='14' r='2.5' fill='%23382F1C'/%3E%3Ccircle cx='148' cy='24' r='2.5' fill='%23382F1C'/%3E%3C/g%3E%3Cg%3E%3Cpath d='M168,4 L192,4 L192,36 L188,32 L184,36 L180,32 L176,36 L172,32 L168,36 Z' fill='%23CE1126'/%3E%3Cpath d='M180,10 L172,22 L188,22 Z' fill='%23FFFCF5'/%3E%3C/g%3E%3Cg%3E%3Cpath d='M200,4 L224,4 L224,36 L220,32 L216,36 L212,32 L208,36 L204,32 L200,36 Z' fill='%23006847'/%3E%3Ccircle cx='212' cy='18' r='3' fill='%23FFFCF5'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* ============================================================
+       Cempasúchil — flor de muerto, naranja intenso.
+       Usada en el hero como acento vivo.
+       ============================================================ */
+    --theme-cempasuchil: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg transform='translate(50,50)'%3E%3Ccircle r='24' fill='%23F77F00'/%3E%3Cg fill='%23E8B54B'%3E%3Cellipse cx='0' cy='-18' rx='5' ry='12'/%3E%3Cellipse cx='0' cy='-18' rx='5' ry='12' transform='rotate(45)'/%3E%3Cellipse cx='0' cy='-18' rx='5' ry='12' transform='rotate(90)'/%3E%3Cellipse cx='0' cy='-18' rx='5' ry='12' transform='rotate(135)'/%3E%3Cellipse cx='0' cy='-18' rx='5' ry='12' transform='rotate(180)'/%3E%3Cellipse cx='0' cy='-18' rx='5' ry='12' transform='rotate(225)'/%3E%3Cellipse cx='0' cy='-18' rx='5' ry='12' transform='rotate(270)'/%3E%3Cellipse cx='0' cy='-18' rx='5' ry='12' transform='rotate(315)'/%3E%3C/g%3E%3Ccircle r='8' fill='%23CE1126'/%3E%3Ccircle r='3' fill='%23FFFCF5'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* ============================================================
+       Talavera — azulejo poblano, patrón geométrico.
+       Se usa como textura sutil de fondo.
+       ============================================================ */
+    --theme-talavera: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%23006847' stroke-width='0.7' stroke-opacity='0.35'%3E%3Crect x='2' y='2' width='36' height='36'/%3E%3Cpath d='M20,4 L36,20 L20,36 L4,20 Z'/%3E%3Ccircle cx='20' cy='20' r='6'/%3E%3Ccircle cx='20' cy='20' r='2' fill='%23CE1126' fill-opacity='0.5'/%3E%3Cpath d='M6,6 L10,10 M34,6 L30,10 M6,34 L10,30 M34,34 L30,30'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* ============================================================
+       Sombrero — silueta minimalista, para el hero.
+       ============================================================ */
+    --theme-sombrero: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'%3E%3Cpath d='M8,42 Q50,52 92,42 Q92,50 92,52 Q50,62 8,52 Q8,50 8,42 Z' fill='%23382F1C'/%3E%3Cpath d='M30,42 Q30,10 50,8 Q70,10 70,42 Z' fill='%23382F1C'/%3E%3Cpath d='M30,36 Q50,30 70,36' fill='none' stroke='%23E8B54B' stroke-width='2'/%3E%3C/svg%3E");
+}
+
+/* ================================================================
+   1. HEADER = bandera mexicana (verde-blanco-rojo vertical)
+   ================================================================ */
+.app-header {
+    position: relative;
+    background: var(--white);
+    border-bottom: 4px solid var(--mx-verde);
+    padding-top: 4px;
+}
+.app-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background:
+        linear-gradient(90deg,
+            var(--mx-verde) 0%,
+            var(--mx-verde) 33.333%,
+            transparent 33.333%,
+            transparent 66.666%,
+            var(--mx-rojo) 66.666%,
+            var(--mx-rojo) 100%),
+        var(--mx-blanco);
+    pointer-events: none;
+    z-index: 1;
+}
+.app-header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 6px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Ccircle cx='10' cy='10' r='7' fill='%23E8B54B'/%3E%3Cpath d='M10,4 Q13,7 10,10 Q7,7 10,4 Z' fill='%23CE1126'/%3E%3Cpath d='M10,16 Q7,13 10,10 Q13,13 10,16 Z' fill='%23006847'/%3E%3C/svg%3E") center/contain no-repeat;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* ================================================================
+   2. WELCOME = plaza mexicana con papel picado y cempasúchil
+   ================================================================ */
+.welcome-placeholder {
+    position: relative;
+    background:
+        var(--theme-talavera) 0 0 / 80px 80px repeat,
+        repeating-linear-gradient(
+            180deg,
+            rgba(0, 104, 71, 0.03) 0px,
+            rgba(0, 104, 71, 0.03) 40px,
+            rgba(206, 17, 38, 0.025) 40px,
+            rgba(206, 17, 38, 0.025) 80px
+        ),
+        var(--bg);
+}
+
+/* Textura de puntos + cempasúchil en las esquinas */
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.40;
+    background-image:
+        var(--theme-cempasuchil),
+        var(--theme-cempasuchil),
+        radial-gradient(circle, rgba(206, 17, 38, 0.15) 0.7px, transparent 1.2px),
+        radial-gradient(circle, rgba(0, 104, 71, 0.12) 0.7px, transparent 1.2px);
+    background-size:
+        120px 120px,
+        90px 90px,
+        14px 14px,
+        20px 20px;
+    background-position:
+        4% 78%,
+        96% 82%,
+        0 0,
+        7px 7px;
+    background-repeat: no-repeat, no-repeat, repeat, repeat;
+}
+
+/* TIRA DE PAPEL PICADO en la parte superior */
+.welcome-placeholder::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background-image: var(--theme-papel-picado);
+    background-size: 240px 40px;
+    background-repeat: repeat-x;
+    background-position: 0 0;
+    pointer-events: none;
+    z-index: 1;
+    filter: drop-shadow(0 3px 4px rgba(80, 40, 10, 0.20));
+}
+
+.welcome-hero,
+.welcome-section {
+    position: relative;
+    z-index: 2;
+}
+
+.welcome-glow {
+    position: absolute;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(720px, 100%);
+    height: 720px;
+    background: radial-gradient(
+        circle,
+        rgba(232, 181, 75, 0.20) 0%,
+        rgba(247, 127, 0, 0.10) 35%,
+        transparent 65%
+    );
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Hero con marco tipo talavera */
+.welcome-hero {
+    position: relative;
+    padding: 32px 28px;
+    background:
+        linear-gradient(180deg,
+            rgba(255, 252, 245, 0.92) 0%,
+            rgba(255, 246, 232, 0.96) 100%);
+    border: 2px solid var(--mx-verde);
+    border-radius: 6px;
+    box-shadow:
+        inset 0 0 0 3px var(--mx-blanco),
+        inset 0 0 0 4px var(--mx-rojo),
+        inset 0 0 0 6px var(--mx-blanco),
+        0 12px 32px rgba(80, 40, 10, 0.15),
+        0 0 40px rgba(232, 181, 75, 0.15);
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Sombrero minimalista en la esquina superior derecha del hero */
+.welcome-hero::after {
+    content: '';
+    position: absolute;
+    top: -14px;
+    right: 24px;
+    width: 54px;
+    height: 32px;
+    background: var(--theme-sombrero) center/contain no-repeat;
+    pointer-events: none;
+    z-index: 3;
+    filter: drop-shadow(0 2px 4px rgba(80, 40, 10, 0.30));
+    transform: rotate(-6deg);
+}
+
+/* Icono del hero: círculo con los 3 colores bandera */
+.welcome-icon-wrap {
+    background:
+        linear-gradient(90deg,
+            var(--mx-verde) 0%,
+            var(--mx-verde) 33.333%,
+            var(--mx-blanco) 33.333%,
+            var(--mx-blanco) 66.666%,
+            var(--mx-rojo) 66.666%,
+            var(--mx-rojo) 100%);
+    border-radius: 50%;
+    box-shadow:
+        0 12px 28px rgba(206, 17, 38, 0.35),
+        0 4px 8px rgba(0, 104, 71, 0.25),
+        0 0 0 4px var(--mx-blanco),
+        0 0 0 5px var(--mx-oro);
+}
+.welcome-icon-wrap [data-lucide] {
+    color: #FFFFFF;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
+
+/* ================================================================
+   3. SECCIONES = páginas con borde talavera
+   ================================================================ */
+.welcome-section {
+    position: relative;
+    background: rgba(255, 252, 245, 0.85);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1.5px solid var(--mx-verde);
+    border-radius: 4px;
+    padding: 18px 20px;
+    box-shadow:
+        inset 0 0 0 2px var(--mx-blanco),
+        inset 0 0 0 3px rgba(206, 17, 38, 0.35),
+        0 6px 18px rgba(80, 40, 10, 0.08);
+}
+
+/* Línea de papel picado mini bajo las secciones */
+.welcome-section::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 20px;
+    right: 20px;
+    height: 4px;
+    background: repeating-linear-gradient(
+        90deg,
+        var(--mx-verde) 0,
+        var(--mx-verde) 8px,
+        var(--mx-blanco) 8px,
+        var(--mx-blanco) 16px,
+        var(--mx-rojo) 16px,
+        var(--mx-rojo) 24px
+    );
+    border-radius: 2px;
+    opacity: 0.85;
+    pointer-events: none;
+}
+
+/* ================================================================
+   4. ACCESOS RÁPIDOS = calaveritas / tarjetas con cempasúchil
+   ================================================================ */
+.acceso-item {
+    position: relative;
+    border: 1.5px solid var(--mx-oro);
+    border-radius: 10px;
+    background:
+        linear-gradient(135deg,
+            rgba(255, 250, 240, 1) 0%,
+            rgba(255, 255, 255, 1) 100%);
+    box-shadow:
+        inset 0 0 0 1px rgba(0, 104, 71, 0.10),
+        inset 0 0 0 3px rgba(232, 181, 75, 0.20),
+        0 2px 6px rgba(80, 40, 10, 0.10);
+    overflow: visible;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Cempasúchil que brota al hover */
+.acceso-item::after {
+    content: '';
+    position: absolute;
+    top: -16px;
+    right: -16px;
+    width: 34px;
+    height: 34px;
+    background: var(--theme-cempasuchil) center/contain no-repeat;
+    opacity: 0;
+    transform: scale(0.4) rotate(-30deg);
+    transition:
+        opacity 0.28s,
+        transform 0.40s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+    z-index: 3;
+    filter: drop-shadow(0 2px 4px rgba(206, 17, 38, 0.35));
+}
+.acceso-item:hover::after {
+    opacity: 1;
+    transform: scale(1) rotate(-12deg);
+}
+
+.acceso-item:hover {
+    transform: translateY(-3px);
+    border-color: var(--mx-rojo);
+    box-shadow:
+        inset 0 0 0 1px rgba(206, 17, 38, 0.20),
+        inset 0 0 0 3px rgba(232, 181, 75, 0.40),
+        0 12px 24px rgba(206, 17, 38, 0.25),
+        0 4px 8px rgba(0, 104, 71, 0.18);
+}
+
+/* Icono: fondo verde bandera, al hover se rellena con la bandera */
+.acceso-icon-wrap {
+    background: linear-gradient(135deg, #DCFCE7, #F0FDF4);
+    border: 1.5px solid var(--mx-oro);
+    box-shadow:
+        inset 0 0 0 2px rgba(255, 255, 255, 0.9),
+        inset 0 0 0 3px rgba(232, 181, 75, 0.30),
+        0 2px 6px rgba(0, 104, 71, 0.18);
+}
+.acceso-item:hover .acceso-icon-wrap {
+    background: var(--accent-gradient);
+    border-color: var(--mx-oro);
+    color: white;
+    box-shadow:
+        0 0 0 3px rgba(232, 181, 75, 0.40),
+        0 6px 14px rgba(206, 17, 38, 0.40);
+}
+
+/* ================================================================
+   5. WIDGETS = mismo tratamiento talavera
+   ================================================================ */
+.widget-item {
+    border: 1.5px solid var(--mx-oro);
+    box-shadow:
+        inset 0 0 0 1px rgba(0, 104, 71, 0.10),
+        inset 0 0 0 3px rgba(232, 181, 75, 0.18),
+        var(--shadow-md);
+}
+
+/* ================================================================
+   6. SIDEBAR = rebozo con franjas
+   En móvil: restaurar position: fixed (media query abajo)
+   ================================================================ */
+.sidebar {
+    position: relative;
+    background:
+        var(--theme-talavera) 0 0 / 70px 70px repeat,
+        linear-gradient(180deg, #FFF6E8 0%, #F0E4CC 100%);
+    border-right: 3px solid var(--mx-rojo);
+}
+
+/* Franja verde a la derecha */
+.sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 3px;
+    background: var(--mx-verde);
+    pointer-events: none;
+}
+
+/* Sombrero mini en la esquina superior */
+.sidebar::after {
+    content: '';
+    position: absolute;
+    top: 24px;
+    right: 16px;
+    width: 32px;
+    height: 20px;
+    background: var(--theme-sombrero) center/contain no-repeat;
+    opacity: 0.55;
+    pointer-events: none;
+    transform: rotate(-6deg);
+}
+
+.sidebar-comunidad,
+.sidebar-label,
+.sidebar-nav,
+.sidebar-mobile-header {
+    position: relative;
+    z-index: 1;
+}
+
+/* Nav activo: barra tricolor vertical */
+.nav-item.active::before {
+    background: linear-gradient(180deg,
+        var(--mx-verde) 0%,
+        var(--mx-verde) 33%,
+        var(--mx-blanco) 33%,
+        var(--mx-blanco) 66%,
+        var(--mx-rojo) 66%,
+        var(--mx-rojo) 100%);
+    box-shadow: 0 0 10px rgba(206, 17, 38, 0.45);
+    width: 4px;
+}
+
+/* FIX drawer móvil */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+    }
+}
+
+/* ================================================================
+   7. PESTAÑAS = franja tricolor arriba
+   ================================================================ */
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 12px;
+    right: 12px;
+    height: 3px;
+    background: linear-gradient(90deg,
+        var(--mx-verde) 0%,
+        var(--mx-verde) 33%,
+        var(--mx-blanco) 33%,
+        var(--mx-blanco) 66%,
+        var(--mx-rojo) 66%,
+        var(--mx-rojo) 100%);
+    border-radius: 3px 3px 0 0;
+    box-shadow: 0 0 6px rgba(206, 17, 38, 0.30);
+}
+
+/* ================================================================
+   8. MODALES = marco talavera con sombrero
+   ================================================================ */
+.config-card,
+.modal-todas-card {
+    position: relative;
+    overflow: hidden;
+    border: 2px solid var(--mx-oro);
+    border-radius: 6px;
+    box-shadow:
+        inset 0 0 0 3px rgba(0, 104, 71, 0.10),
+        inset 0 0 0 5px rgba(232, 181, 75, 0.28),
+        var(--shadow-xl);
+}
+
+/* Franja tricolor arriba del modal */
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg,
+        var(--mx-verde) 0%,
+        var(--mx-verde) 33%,
+        var(--mx-blanco) 33%,
+        var(--mx-blanco) 66%,
+        var(--mx-rojo) 66%,
+        var(--mx-rojo) 100%);
+    pointer-events: none;
+    z-index: 3;
+    box-shadow: 0 0 12px rgba(206, 17, 38, 0.35);
+}
+
+/* Emblema dorado en el centro superior */
+.config-card::after,
+.modal-todas-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 4px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Ccircle cx='10' cy='10' r='7' fill='%23E8B54B'/%3E%3Cpath d='M10,4 Q13,7 10,10 Q7,7 10,4 Z' fill='%23CE1126'/%3E%3Cpath d='M10,16 Q7,13 10,10 Q13,13 10,16 Z' fill='%23006847'/%3E%3C/svg%3E") center/contain no-repeat;
+    pointer-events: none;
+    z-index: 4;
+}
+
+.config-header,
+.modal-todas-header {
+    background: linear-gradient(180deg, #FFFBF2 0%, #FFF6E8 100%);
+    border-bottom-color: var(--mx-oro);
+    position: relative;
+}
+
+/* ================================================================
+   9. BOTÓN PRIMARIO = rojo bandera → verde bandera
+   ================================================================ */
+.btn-primario {
+    background: linear-gradient(135deg, var(--mx-rojo) 0%, var(--mx-verde) 100%);
+    border: 1px solid rgba(232, 181, 75, 0.55);
+    box-shadow:
+        0 4px 12px rgba(206, 17, 38, 0.32),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+.btn-primario:hover {
+    background: linear-gradient(135deg, #EF4444 0%, #22C55E 100%);
+    box-shadow:
+        0 6px 18px rgba(206, 17, 38, 0.48),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        0 0 0 2px rgba(232, 181, 75, 0.40);
+    transform: translateY(-1px);
+}
+
+/* ================================================================
+   10. INPUTS
+   ================================================================ */
+.config-field input,
+.config-field select,
+.config-select {
+    background: #FFFCF5;
+    border: 1px solid var(--border);
+    color: var(--text);
+}
+.config-field input:focus,
+.config-field select:focus,
+.config-select:focus {
+    border-color: var(--mx-verde);
+    box-shadow:
+        0 0 0 3px rgba(0, 104, 71, 0.15);
+}
+
+/* ================================================================
+   11. AVATAR Y NOTIFICACIONES
+   ================================================================ */
+.avatar-config {
+    background: linear-gradient(135deg, var(--mx-verde), var(--mx-rojo));
+    border: 2px solid var(--mx-oro);
+    box-shadow:
+        var(--shadow-sm),
+        0 0 0 1px var(--mx-blanco),
+        0 0 0 3px rgba(232, 181, 75, 0.35);
+}
+.avatar-config:hover {
+    transform: translateY(-1px) scale(1.05);
+    box-shadow:
+        0 6px 16px rgba(206, 17, 38, 0.45),
+        0 0 0 1px var(--mx-oro),
+        0 0 0 4px rgba(232, 181, 75, 0.25);
+}
+
+.noti-btn.tiene-no-leidas {
+    background: rgba(206, 17, 38, 0.12);
+    color: var(--mx-rojo);
+}
+.noti-btn.tiene-no-leidas:hover {
+    background: rgba(206, 17, 38, 0.20);
+    color: var(--mx-rojo);
+}
+
+.search-bar:focus-within {
+    border-color: var(--mx-verde);
+    box-shadow: 0 0 0 4px rgba(0, 104, 71, 0.15);
+}
+.search-bar:focus-within .search-icon {
+    color: var(--mx-verde);
+}
+
+/* ================================================================
+   12. RESPETO prefers-reduced-motion
+   ================================================================ */
+@media (prefers-reduced-motion: reduce) {
+    .acceso-item,
+    .btn-primario {
+        transition: none !important;
+    }
+}
