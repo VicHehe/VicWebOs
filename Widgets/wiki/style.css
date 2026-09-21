@@ -16,6 +16,10 @@ body {
 
 [data-lucide] { width: 16px; height: 16px; stroke-width: 2; flex-shrink: 0; }
 
+/* Animación de carga segura */
+@keyframes wikiSpin { 100% { transform: rotate(360deg); } }
+.wiki-spin { animation: wikiSpin 1s linear infinite; }
+
 /* ========== WIDGET ========== */
 .wiki-widget {
     background: var(--white, #FFFFFF);
@@ -156,12 +160,12 @@ body {
 }
 .wiki-img {
     width: 100%;
-    max-width: 130px; /* Limita el ancho */
-    max-height: 85px; /* Reduce la altura */
+    max-width: 130px;
+    max-height: 85px;
     object-fit: cover;
     border-radius: var(--r-md, 10px);
     border: 1px solid var(--border, #E8E8EE);
-    align-self: center; /* Centra la miniatura en el widget */
+    align-self: center;
 }
 .wiki-art-titulo {
     font-size: 14px;
