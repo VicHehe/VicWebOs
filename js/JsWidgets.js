@@ -71,6 +71,17 @@ const WIDGETS_DISPONIBLES = [
         espacio: 4,
         monedas: 30
     },
+            {
+        id: 'account-info',
+        nombre: 'Cuenta Info',
+        icono: 'id-card',
+        ruta: 'Widgets/account-info/index.html',
+        descripcion: 'Resumen de tu cuenta: perfil, dinero ganado/gastado y qué tenés instalado.',
+        categoria: 'Utilidades',
+        esBase: false,
+        espacio: 2,
+        monedas: 0
+    },
     {
         id: 'reloj-mundial',
         nombre: 'Reloj Mundial',
@@ -103,17 +114,6 @@ const WIDGETS_DISPONIBLES = [
         esBase: false,
         espacio: 4,
         monedas: 60
-    },
-        {
-        id: 'account-info',
-        nombre: 'Cuenta Info',
-        icono: 'id-card',
-        ruta: 'Widgets/account-info/index.html',
-        descripcion: 'Resumen de tu cuenta: perfil, dinero ganado/gastado y qué tenés instalado.',
-        categoria: 'Utilidades',
-        esBase: false,
-        espacio: 2,
-        monedas: 0
     },
     {
         id: 'acceso-directo',
