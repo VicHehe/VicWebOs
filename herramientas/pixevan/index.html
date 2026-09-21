@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>PixEvan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="px-app" id="pxApp">
+
+        <header class="px-header">
+            <div class="px-logo">
+                <div class="px-logo-mark">
+                    <i data-lucide="grid-3x3"></i>
+                </div>
+                <div class="px-logo-text">
+                    <h1>PixEvan</h1>
+                    <p id="pxUserBadge">—</p>
+                </div>
+            </div>
+
+            <div class="px-header-actions">
+                <button class="px-btn-icono" id="btnNuevoProyecto" title="Nuevo proyecto">
+                    <i data-lucide="file-plus"></i>
+                </button>
+                <button class="px-btn-icono" id="btnDeshacer" title="Deshacer (Ctrl+Z)">
+                    <i data-lucide="undo-2"></i>
+                </button>
+                <button class="px-btn-icono" id="btnRehacer" title="Rehacer (Ctrl+Y)">
+                    <i data-lucide="redo-2"></i>
+                </button>
+                <button class="px-btn-icono px-btn-peligro" id="btnLimpiarFrame" title="Limpiar frame actual">
+                    <i data-lucide="trash-2"></i>
+                </button>
+                <button class="px-btn-sec" id="btnGuardarProyecto" title="Guardar proyecto">
+                    <i data-lucide="save"></i>
+                    <span>Guardar</span>
+                </button>
+                <button class="px-btn-pri" id="btnExportar" title="Exportar">
+                    <i data-lucide="download"></i>
+                    <span>Exportar</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="px-body">
+
+            <div class="px-lienzo-wrapper" id="canvasWrapper">
+                <canvas id="pxCanvas"></canvas>
+
+                <div class="px-coords-indicator" id="coordsIndicator">0, 0</div>
+
+                <div class="px-mirror-controls">
+                    <button class="px-ctrl-btn" id="btnEspejoX" title="Espejo horizontal (X)">
+                        <i data-lucide="flip-horizontal"></i>
+                    </button>
+                    <button class="px-ctrl-btn" id="btnEspejoY" title="Espejo vertical (Y)">
+                        <i data-lucide="flip-vertical"></i>
+                    </button>
+                </div>
+
+                <div class="px-zoom-controls">
+                    <button class="px-ctrl-btn" id="zoomOut" title="Alejar">
+                        <i data-lucide="minus"></i>
+                    </button>
+                    <span id="zoomNivel">16×</span>
+                    <button class="px-ctrl-btn" id="zoomIn" title="Acercar">
+                        <i data-lucide="plus"></i>
+                    </button>
+                    <button class="px-ctrl-btn" id="zoomFit" title="Ajustar">
+                        <i data-lucide="maximize-2"></i>
+                    </button>
+                    <button class="px-ctrl-btn activo" id="btnGrid" title="Cuadrícula (H)">
+                        <i data-lucide="layout-grid"></i>
+                    </button>
+                </div>
+            </div>
+
+            <aside class="px-panel" id="pxPanel">
+                <div class="px-panel-header">
+                    <h2 id="pxPanelTitulo">
+                        <i data-lucide="palette"></i>
+                        <span>Paleta</span>
+                    </h2>
+                    <button class="px-panel-cerrar" id="pxPanelCerrar" title="Cerrar">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
+
+                <div class="px-panel-tabs">
+                    <button class="px-panel-tab active" data-tab="paleta" title="Paleta">
+                        <i data-lucide="palette"></i>
+                    </button>
+                    <button class="px-panel-tab" data-tab="herramientas" title="Herramientas">
+                        <i data-lucide="brush"></i>
+                    </button>
+                    <button class="px-panel-tab" data-tab="capas" title="Capas">
+                        <i data-lucide="layers"></i>
+                    </button>
+                    <button class="px-panel-tab" data-tab="frames" title="Frames">
+                        <i data-lucide="film"></i>
+                    </button>
+                </div>
+
+                <div class="px-panel-content">
+
+                    <!-- ============ PALETA ============ -->
+                    <section class="px-seccion activa" data-seccion="paleta">
+                        <div class="px-seccion-header">
+                            <h3><i data-lucide="palette"></i> Paleta</h3>
+                            <div class="px-seccion-header-acciones">
+                                <label class="px-btn-icono-mini" title="Cargar paleta desde archivo">
+                                    <i data-lucide="folder-open"></i>
+                                    <input type="file" id="inputPaleta" accept=".txt,.hex,.pal,.gpl,text/plain" hidden>
+                                </label>
+                                <button class="px-btn-icono-mini" id="btnPaletaDefault" title="Paleta por defecto">
+                                    <i data-lucide="rotate-ccw"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="px-color-actual">
+                            <input type="color" id="colorPicker" value="#000000">
+                            <span class="px-color-hex" id="colorHex">#000000</span>
+                        </div>
+
+                        <div class="px-paleta-grid" id="paletaGrid"></div>
+                        <div class="px-paleta-info" id="paletaInfo">PICO-8 · 16 colores</div>
+                    </section>
+
+                    <!-- ============ HERRAMIENTAS ============ -->
+                    <section class="px-seccion" data-seccion="herramientas">
+                        <h3><i data-lucide="brush"></i> Herramientas</h3>
+                        <div class="px-tools-grid">
+                            <button data-tool="lapiz" class="px-tool-btn activo" title="Lápiz (B)">
+                                <i data-lucide="pencil"></i>
+                            </button>
+                            <button data-tool="borrador" class="px-tool-btn" title="Borrador (E)">
+                                <i data-lucide="eraser"></i>
+                            </button>
+                            <button data-tool="relleno" class="px-tool-btn" title="Relleno (G)">
+                                <i data-lucide="paint-bucket"></i>
+                            </button>
+                            <button data-tool="linea" class="px-tool-btn" title="Línea (L)">
+                                <i data-lucide="minus"></i>
+                            </button>
+                            <button data-tool="rect" class="px-tool-btn" title="Rectángulo (R)">
+                                <i data-lucide="square"></i>
+                            </button>
+                            <button data-tool="elipse" class="px-tool-btn" title="Elipse (O)">
+                                <i data-lucide="circle"></i>
+                            </button>
+                            <button data-tool="pipeta" class="px-tool-btn" title="Cuentagotas (I)">
+                                <i data-lucide="pipette"></i>
+                            </button>
+                            <button data-tool="mover" class="px-tool-btn" title="Mover (M)">
+                                <i data-lucide="move"></i>
+                            </button>
+                        </div>
+                        <div class="px-tamano-selector">
+                            <span class="px-tamano-label">Tamaño</span>
+                            <button data-size="1" class="px-size-btn activo">1</button>
+                            <button data-size="2" class="px-size-btn">2</button>
+                            <button data-size="3" class="px-size-btn">3</button>
+                            <button data-size="4" class="px-size-btn">4</button>
+                        </div>
+                    </section>
+
+                    <!-- ============ CAPAS ============ -->
+                    <section class="px-seccion" data-seccion="capas">
+                        <h3><i data-lucide="layers"></i> Capas</h3>
+                        <div class="px-acciones">
+                            <button class="px-btn-small" id="btnCapaNueva" title="Nueva capa">
+                                <i data-lucide="plus"></i> Nueva
+                            </button>
+                            <button class="px-btn-icono-mini" id="btnCapaArriba" title="Subir capa">
+                                <i data-lucide="arrow-up"></i>
+                            </button>
+                            <button class="px-btn-icono-mini" id="btnCapaAbajo" title="Bajar capa">
+                                <i data-lucide="arrow-down"></i>
+                            </button>
+                            <button class="px-btn-icono-mini px-btn-peligro" id="btnCapaEliminar" title="Eliminar capa">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                        </div>
+                        <div class="px-lista-capas" id="capasLista"></div>
+                    </section>
+
+                    <!-- ============ FRAMES ============ -->
+                    <section class="px-seccion" data-seccion="frames">
+                        <h3>
+                            <i data-lucide="film"></i> Frames
+                            <span class="px-frames-count" id="framesCount">1</span>
+                        </h3>
+                        <div class="px-acciones">
+                            <button class="px-btn-small" id="btnFrameNuevo" title="Nuevo frame">
+                                <i data-lucide="plus"></i> Nuevo
+                            </button>
+                            <button class="px-btn-small" id="btnFrameDuplicar" title="Duplicar frame">
+                                <i data-lucide="copy"></i> Duplicar
+                            </button>
+                            <button class="px-btn-icono-mini px-btn-peligro" id="btnFrameEliminar" title="Eliminar frame">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                        </div>
+                        <div class="px-lista-frames" id="framesLista"></div>
+                    </section>
+
+                </div>
+            </aside>
+
+        </div>
+
+        <nav class="px-toolbar" id="pxToolbar">
+            <button class="px-tool-nav" data-accion="lapiz" title="Lápiz">
+                <i data-lucide="pencil"></i>
+                <span>Lápiz</span>
+            </button>
+            <button class="px-tool-nav" data-accion="borrador" title="Borrador">
+                <i data-lucide="eraser"></i>
+                <span>Borrar</span>
+            </button>
+            <button class="px-tool-nav" data-accion="relleno" title="Relleno">
+                <i data-lucide="paint-bucket"></i>
+                <span>Relleno</span>
+            </button>
+            <button class="px-tool-nav" data-accion="paleta" title="Paleta">
+                <i data-lucide="palette"></i>
+                <span>Paleta</span>
+            </button>
+            <button class="px-tool-nav" data-accion="capas" title="Capas">
+                <i data-lucide="layers"></i>
+                <span>Capas</span>
+            </button>
+            <button class="px-tool-nav" data-accion="frames" title="Frames">
+                <i data-lucide="film"></i>
+                <span>Frames</span>
+            </button>
+            <button class="px-tool-nav" data-accion="deshacer" title="Deshacer">
+                <i data-lucide="undo-2"></i>
+                <span>Deshacer</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <!-- ============ MODAL: NUEVO PROYECTO ============ -->
+    <div class="px-modal" id="modalNuevo" hidden>
+        <div class="px-modal-card">
+            <div class="px-modal-header">
+                <h2><i data-lucide="file-plus"></i> Nuevo proyecto</h2>
+                <button class="px-modal-cerrar" id="modalNuevoCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="px-modal-body">
+                <div class="px-field">
+                    <label>Tamaño del lienzo</label>
+                    <div class="px-presets-grid">
+                        <button class="px-preset-btn" data-size="16">16×16</button>
+                        <button class="px-preset-btn" data-size="24">24×24</button>
+                        <button class="px-preset-btn activo" data-size="32">32×32</button>
+                        <button class="px-preset-btn" data-size="48">48×48</button>
+                        <button class="px-preset-btn" data-size="64">64×64</button>
+                        <button class="px-preset-btn" data-size="96">96×96</button>
+                        <button class="px-preset-btn" data-size="128">128×128</button>
+                    </div>
+                </div>
+                <div class="px-field">
+                    <label>Tamaño personalizado (8–256)</label>
+                    <div class="px-custom-size-row">
+                        <input type="number" id="customSize" min="8" max="256" placeholder="32">
+                        <button class="px-btn-sec" id="btnCustomSize">Usar</button>
+                    </div>
+                </div>
+                <p class="px-modal-warning">
+                    <i data-lucide="alert-triangle"></i>
+                    Se perderá el proyecto actual si no lo guardaste.
+                </p>
+            </div>
+            <div class="px-modal-actions">
+                <button class="px-btn-sec" id="btnCancelarNuevo">Cancelar</button>
+                <button class="px-btn-pri" id="btnConfirmarNuevo">
+                    <i data-lucide="check"></i> Crear
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL: EXPORTAR ============ -->
+    <div class="px-modal" id="modalExportar" hidden>
+        <div class="px-modal-card px-modal-card-grande">
+            <div class="px-modal-header">
+                <h2><i data-lucide="download"></i> Exportar</h2>
+                <button class="px-modal-cerrar" id="modalExportarCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="px-modal-body">
+                <div class="px-field">
+                    <label>Escala</label>
+                    <div class="px-escala-grid">
+                        <button class="px-escala-btn activo" data-escala="1">1×</button>
+                        <button class="px-escala-btn" data-escala="2">2×</button>
+                        <button class="px-escala-btn" data-escala="4">4×</button>
+                        <button class="px-escala-btn" data-escala="8">8×</button>
+                        <button class="px-escala-btn" data-escala="16">16×</button>
+                    </div>
+                </div>
+
+                <div class="px-field">
+                    <label>Modo</label>
+                    <div class="px-modo-grid">
+                        <button class="px-modo-btn" data-modo="frame">
+                            <i data-lucide="image"></i>
+                            <span>Frame actual</span>
+                        </button>
+                        <button class="px-modo-btn activo" data-modo="horizontal">
+                            <i data-lucide="arrow-right"></i>
+                            <span>Spritesheet horizontal</span>
+                        </button>
+                        <button class="px-modo-btn" data-modo="vertical">
+                            <i data-lucide="arrow-down"></i>
+                            <span>Spritesheet vertical</span>
+                        </button>
+                        <button class="px-modo-btn" data-modo="grid">
+                            <i data-lucide="layout-grid"></i>
+                            <span>Grid</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="px-field" id="grupoPadding" hidden>
+                    <label>Padding entre frames (px)</label>
+                    <input type="number" id="inputPadding" min="0" max="64" value="0">
+                </div>
+
+                <div class="px-preview-info" id="previewInfo">—</div>
+            </div>
+            <div class="px-modal-actions">
+                <button class="px-btn-sec" id="btnCancelarExportar">Cancelar</button>
+                <button class="px-btn-sec" id="btnDescargarPNG">
+                    <i data-lucide="download"></i> Descargar PNG
+                </button>
+                <button class="px-btn-pri" id="btnGuardarGaleria">
+                    <i data-lucide="image-plus"></i> Guardar en Galería
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL: GUARDAR EN GALERÍA ============ -->
+    <div class="px-modal" id="modalGuardarGaleria" hidden>
+        <div class="px-modal-card">
+            <div class="px-modal-header">
+                <h2><i data-lucide="image-plus"></i> Guardar en Galería</h2>
+                <button class="px-modal-cerrar" id="modalGuardarCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="px-modal-body">
+                <div class="px-field">
+                    <label>Título</label>
+                    <input type="text" id="inputTituloObra" placeholder="Mi pixel art..." maxlength="60">
+                </div>
+                <div class="px-mini-preview" id="miniPreviewGaleria"></div>
+            </div>
+            <div class="px-modal-actions">
+                <button class="px-btn-sec" id="btnCancelarGaleria">Cancelar</button>
+                <button class="px-btn-pri" id="btnConfirmarGuardarGaleria">
+                    <i data-lucide="save"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL: SESIÓN GUARDADA ============ -->
+    <div class="px-modal" id="modalSesion" hidden>
+        <div class="px-modal-card">
+            <div class="px-modal-header">
+                <h2><i data-lucide="folder-open"></i> Proyecto guardado</h2>
+            </div>
+            <div class="px-modal-body">
+                <p class="px-modal-desc">
+                    Tienes un proyecto guardado de la sesión anterior.
+                    ¿Quieres continuar donde lo dejaste?
+                </p>
+                <p class="px-modal-sub" id="modalSesionFecha">—</p>
+            </div>
+            <div class="px-modal-actions">
+                <button class="px-btn-peligro" id="btnDescartarSesion">
+                    <i data-lucide="trash-2"></i> Descartar
+                </button>
+                <button class="px-btn-sec" id="btnNuevaSesion">Empezar de cero</button>
+                <button class="px-btn-pri" id="btnContinuarSesion">
+                    <i data-lucide="play"></i> Continuar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="px-toast" id="pxToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
