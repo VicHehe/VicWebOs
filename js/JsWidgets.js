@@ -126,7 +126,7 @@ const WIDGETS_DISPONIBLES = [
         esBase: false,
         espacio: 4,
         monedas: 60
-    }
+    },
     {
         id: 'acceso-directo',
         nombre: 'Acceso Directo',
