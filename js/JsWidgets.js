@@ -117,6 +117,17 @@ const WIDGETS_DISPONIBLES = [
         monedas: 60
     },
     {
+        id: 'to-do-list',
+        nombre: 'To-Do List',
+        icono: 'list-todo',
+        ruta: 'Widgets/to-do-list/index.html',
+        descripcion: 'Lista de hasta 6 tareas con estados y auto-eliminación configurable. Se guarda localmente.',
+        categoria: 'Utilidades',
+        esBase: false,
+        espacio: 4,
+        monedas: 60
+    }
+    {
         id: 'acceso-directo',
         nombre: 'Acceso Directo',
         icono: 'link',
