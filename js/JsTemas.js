@@ -395,6 +395,24 @@ const TEMAS_DISPONIBLES = [
     //  Efectos visuales, texturas, animaciones. Lo premium.
     //  Ordenados por precio ascendente.
     // ============================================================
+        {
+        id: 'mucho-besame',
+        nombre: 'Mucho Besame',
+        icono: 'sun',
+        descripcion: 'México en todo su esplendor. Papel picado, cempasúchil, talavera y sombrero. Para gritar ¡Viva México!',
+        categoria: 'Especiales',
+        ruta: 'Temas/mucho-besame.css',
+        espacio: 4,
+        monedas: 15,   // 🔒 precio fijo por el 15 de septiembre
+        colores: {
+            '--violet-100': '#DCFCE7',
+            '--violet-300': '#4ADE80',
+            '--violet-500': '#006847',
+            '--bg':         '#FFFCF5',
+            '--bg-alt':     '#FFF6E8',
+            '--white':      '#FFFFFF'
+        }
+    },
     {
         id: 'consentido',
         nombre: 'Consentido',
