@@ -449,6 +449,24 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFFFF'
         }
     },
+        {
+        id: 'charla',
+        nombre: 'Charla',
+        icono: 'message-circle',
+        descripcion: 'Verde mensajería y beige cálido. Los accesos rápidos se vuelven burbujas y aparecen dobles checks al pasar el mouse. En WhatTheHay brilla como en casa.',
+        categoria: 'Especiales',
+        ruta: 'Temas/charla.css',
+        espacio: 4,
+        monedas: 35,
+        colores: {
+            '--violet-100': '#D1FAE5',
+            '--violet-300': '#6EE7B7',
+            '--violet-500': '#10B981',
+            '--bg':         '#EFE9E0',
+            '--bg-alt':     '#F7F3ED',
+            '--white':      '#FFFFFF'
+        }
+    },
     {
         id: 'libro',
         nombre: 'Libro de Historia',
