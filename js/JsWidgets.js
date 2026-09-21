@@ -109,7 +109,7 @@ const WIDGETS_DISPONIBLES = [
         id: 'wiki-lector',
         nombre: 'Wiki Lector',
         icono: 'book-open',
-        ruta: 'Widgets/wiki-lector/index.html',
+        ruta: 'Widgets/wiki/index.html',
         descripcion: 'Busca y lee resúmenes rápidos de Wikipedia directamente desde tu escritorio.',
         categoria: 'Utilidades',
         esBase: false,
