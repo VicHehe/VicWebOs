@@ -449,6 +449,24 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFFFF'
         }
     },
+    {
+        id: 'pop-owner',
+        nombre: 'Pop Owner',
+        icono: 'music-2',
+        descripcion: 'Luces de escenario, rojo profundo y destellos dorados que recorren las cards. Para cuando querés que todo brille.',
+        categoria: 'Especiales',
+        ruta: 'Temas/pop-owner.css',
+        espacio: 4,
+        monedas: 30,
+        colores: {
+            '--violet-100': '#3F0F0F',
+            '--violet-300': '#991B1B',
+            '--violet-500': '#EF4444',
+            '--bg':         '#0A0A0A',
+            '--bg-alt':     '#0F0F0F',
+            '--white':      '#141414'
+        }
+    },
         {
         id: 'charla',
         nombre: 'Charla',
@@ -467,6 +485,7 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFFFF'
         }
     },
+    
     {
         id: 'libro',
         nombre: 'Libro de Historia',
