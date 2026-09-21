@@ -403,7 +403,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Especiales',
         ruta: 'Temas/mucho-besame.css',
         espacio: 4,
-        monedas: 15,   // 🔒 precio fijo por el 15 de septiembre
+        monedas: 16,   // 🔒 precio fijo por el 15 de septiembre
         colores: {
             '--violet-100': '#DCFCE7',
             '--violet-300': '#4ADE80',
