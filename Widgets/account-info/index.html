@@ -24,8 +24,11 @@
         </div>
 
         <div class="ci-perfil">
-            <div class="ci-avatar" id="ciAvatar">
-                <i data-lucide="user"></i>
+            <div class="ci-avatar-wrap">
+                <div class="ci-avatar" id="ciAvatar">
+                    <i data-lucide="user"></i>
+                </div>
+                <span class="ci-avatar-status" title="En línea"></span>
             </div>
             <div class="ci-perfil-info">
                 <div class="ci-nombre" id="ciNombre">—</div>
@@ -33,40 +36,53 @@
             </div>
         </div>
 
+        <div class="ci-seccion-label">Balance</div>
+
         <div class="ci-dinero">
-            <div class="ci-stat-dinero">
-                <div class="ci-stat-icono ci-icono-ganado">
+            <div class="ci-stat-dinero ci-stat-ganado">
+                <div class="ci-stat-icono">
                     <i data-lucide="trending-up"></i>
                 </div>
-                <div class="ci-stat-num ci-num-ganado" id="ciGanado">0</div>
+                <div class="ci-stat-num" id="ciGanado">0</div>
                 <div class="ci-stat-label">Ganado</div>
             </div>
-            <div class="ci-stat-dinero">
-                <div class="ci-stat-icono ci-icono-gastado">
+            <div class="ci-stat-dinero ci-stat-gastado">
+                <div class="ci-stat-icono">
                     <i data-lucide="trending-down"></i>
                 </div>
-                <div class="ci-stat-num ci-num-gastado" id="ciGastado">0</div>
+                <div class="ci-stat-num" id="ciGastado">0</div>
                 <div class="ci-stat-label">Gastado</div>
             </div>
-            <div class="ci-stat-dinero">
-                <div class="ci-stat-icono ci-icono-actual">
+            <div class="ci-stat-dinero ci-stat-actual">
+                <div class="ci-stat-icono">
                     <i data-lucide="coins"></i>
                 </div>
-                <div class="ci-stat-num ci-num-actual" id="ciActual">0</div>
+                <div class="ci-stat-num" id="ciActual">0</div>
                 <div class="ci-stat-label">Actual</div>
             </div>
         </div>
 
+        <div class="ci-seccion-label">Contenido</div>
+
         <div class="ci-contenido">
             <div class="ci-stat-cont">
+                <div class="ci-stat-cont-icono">
+                    <i data-lucide="package"></i>
+                </div>
                 <div class="ci-stat-cont-num" id="ciApps">0</div>
                 <div class="ci-stat-cont-label">Apps</div>
             </div>
             <div class="ci-stat-cont">
+                <div class="ci-stat-cont-icono">
+                    <i data-lucide="palette"></i>
+                </div>
                 <div class="ci-stat-cont-num" id="ciTemas">0</div>
                 <div class="ci-stat-cont-label">Temas</div>
             </div>
             <div class="ci-stat-cont">
+                <div class="ci-stat-cont-icono">
+                    <i data-lucide="layout-grid"></i>
+                </div>
                 <div class="ci-stat-cont-num" id="ciWidgets">0</div>
                 <div class="ci-stat-cont-label">Widgets</div>
             </div>
