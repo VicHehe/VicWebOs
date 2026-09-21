@@ -448,7 +448,7 @@ const TEMAS_DISPONIBLES = [
             '--bg-alt':     '#F0F9F2',
             '--white':      '#FFFFFF'
         }
-    },
+
     },
         {
         id: 'charla',
