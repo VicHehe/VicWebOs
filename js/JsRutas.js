@@ -223,4 +223,15 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 10,
         monedas: 220
     },
+        {
+        id: 'pixevan',
+        nombre: 'PixEvan',
+        icono: 'grid-3x3',
+        ruta: 'herramientas/pixevan/index.html',
+        descripcion: 'Editor de pixel art por capas y frames. Exporta spritesheets.',
+        categoria: 'Creatividad',
+        esBase: false,
+        espacio: 8,
+        monedas: 130
+    },
 ];
