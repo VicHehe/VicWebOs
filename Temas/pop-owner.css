@@ -1,20 +1,22 @@
 /* ================================================
    Tema: Pop Owner
-   Homenaje suave a Michael Jackson (referencias
-   culturales, sin nombre ni colores exactos).
+   Luces de escenario, rojo profundo y destellos
+   dorados. Referencias culturales suaves, sin
+   nombre ni colores exactos de marcas registradas.
 
    Guiños traducidos a CSS:
-     · Fedora + chaqueta Thriller → paleta negro/rojo/dorado
-     · Lean de 45°                → rotaciones diagonales al hover
-     · Guante de lentejuelas      → destello que recorre las cards
-     · Moonwalk                  → luna + estrellas en el welcome
-     · Billie Jean               → baldosas iluminadas
-     · Guantes/tachas de Bad     → puntos dorados en sidebar
-     · Smooth criminal           → pestañas inclinadas
+     · Fedora                → ala curva en el header
+     · Inclinación 45°       → iconos que se inclinan
+     · Guante de lentejuelas → destellos que cruzan
+     · Baldosas Billie Jean  → cuadrícula que se ilumina
+     · Chaqueta Thriller     → paneles en V + hombros
+     · Calcetines blancos    → líneas blancas en cards
+     · Moonwalk              → luna + estela
+     · Zapatos anti-gravedad → ribetes en modales
    ================================================ */
 
 :root {
-    /* Rojos escenario (Thriller, Beat It) */
+    /* Rojos escenario */
     --violet-50:  #2A0A0A;
     --violet-100: #3F0F0F;
     --violet-200: #5C1515;
@@ -57,30 +59,34 @@
     --accent-shadow-hover: rgba(220, 38, 38, 0.55);
     --accent-text-gradient: linear-gradient(135deg, #FFFFFF, #EF4444);
 
-    /* Custom */
     --mj-gold:       #EAB308;
     --mj-gold-light: #FBBF24;
     --mj-red:        #DC2626;
     --mj-red-dark:   #7F1D1D;
 
-    /* ============================================================
-       Patrones SVG embebidos
-       ============================================================ */
+    /* Fedora: forma de ala con corona pinzada */
+    --theme-fedora: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 24'%3E%3Cpath d='M8,16 Q40,8 72,16 Q78,17 76,19 Q40,24 4,19 Q2,17 8,16 Z' fill='%23141414' stroke='%23EAB308' stroke-width='0.6' stroke-opacity='0.35'/%3E%3Cpath d='M28,14 Q40,4 52,14' fill='%23141414' stroke='%23EAB308' stroke-width='0.5' stroke-opacity='0.30'/%3E%3Cpath d='M36,13 Q40,8 44,13' fill='%230A0A0A' stroke='%23EAB308' stroke-width='0.4' stroke-opacity='0.25'/%3E%3C/svg%3E");
 
-    /* Guiño al guante de lentejuelas: destello alargado */
+    /* Lentejuelas: múltiples destellos pequeños */
+    --theme-sequins: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='%23FBBF24'%3E%3Ccircle cx='20' cy='30' r='1.5' fill-opacity='0.9'/%3E%3Ccircle cx='60' cy='15' r='1' fill-opacity='0.6'/%3E%3Ccircle cx='120' cy='25' r='1.8' fill-opacity='0.85'/%3E%3Ccircle cx='170' cy='18' r='1.2' fill-opacity='0.7'/%3E%3Ccircle cx='35' cy='80' r='1.3' fill-opacity='0.75'/%3E%3Ccircle cx='95' cy='70' r='2' fill-opacity='0.95'/%3E%3Ccircle cx='155' cy='85' r='1.1' fill-opacity='0.6'/%3E%3Ccircle cx='15' cy='140' r='1.7' fill-opacity='0.8'/%3E%3Ccircle cx='75' cy='130' r='1.4' fill-opacity='0.7'/%3E%3Ccircle cx='135' cy='145' r='1.9' fill-opacity='0.9'/%3E%3Ccircle cx='185' cy='135' r='1' fill-opacity='0.55'/%3E%3Ccircle cx='50' cy='180' r='1.6' fill-opacity='0.8'/%3E%3Ccircle cx='110' cy='175' r='1.2' fill-opacity='0.65'/%3E%3Ccircle cx='165' cy='185' r='1.5' fill-opacity='0.75'/%3E%3C/g%3E%3Cg fill='%23FFFFFF'%3E%3Ccircle cx='45' cy='50' r='0.8' fill-opacity='0.9'/%3E%3Ccircle cx='140' cy='55' r='0.9' fill-opacity='0.85'/%3E%3Ccircle cx='90' cy='105' r='1' fill-opacity='0.95'/%3E%3Ccircle cx='30' cy='160' r='0.7' fill-opacity='0.8'/%3E%3Ccircle cx='150' cy='170' r='0.8' fill-opacity='0.85'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* Baldosas que se iluminan (Billie Jean) */
+    --theme-tile: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect x='1' y='1' width='38' height='38' fill='none' stroke='%23DC2626' stroke-width='0.8' stroke-opacity='0.18'/%3E%3Crect x='2' y='2' width='36' height='36' fill='url(%23tileGlow)' fill-opacity='0.15'/%3E%3Cdefs%3E%3CradialGradient id='tileGlow'%3E%3Cstop offset='0%25' stop-color='%23DC2626' stop-opacity='0.35'/%3E%3Cstop offset='100%25' stop-color='%23DC2626' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3C/svg%3E");
+
+    /* Estrella de destello */
     --theme-sparkle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M20 4 L22 18 L36 20 L22 22 L20 36 L18 22 L4 20 L18 18 Z' fill='%23FBBF24' opacity='0.95'/%3E%3C/svg%3E");
 
-    /* Guiño a Billie Jean: baldosa iluminada que se apaga alrededor */
-    --theme-tile: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect x='1' y='1' width='38' height='38' fill='none' stroke='%23DC2626' stroke-width='0.8' stroke-opacity='0.20'/%3E%3C/svg%3E");
-
-    /* Guiño al fedora/moonwalk: luna creciente */
+    /* Luna creciente (moonwalk) */
     --theme-moon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M62,20 C42,24 28,42 28,60 C28,78 42,92 62,96 C50,80 46,70 46,58 C46,44 52,32 62,20 Z' fill='%23FBBF24' opacity='0.85'/%3E%3C/svg%3E");
 
-    /* Guiño a Thriller: rayas diagonales rojas (tipo chaqueta) */
-    --theme-stripe: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 12' preserveAspectRatio='none'%3E%3Crect width='40' height='12' fill='%23DC2626'/%3E%3Cpath d='M0,0 L20,12 M20,0 L40,12' stroke='%230A0A0A' stroke-width='2' opacity='0.55'/%3E%3C/svg%3E");
+    /* Chaqueta Thriller: rayas diagonales rojas con paneles negros en V */
+    --theme-stripe: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 12' preserveAspectRatio='none'%3E%3Crect width='40' height='12' fill='%23DC2626'/%3E%3Cpath d='M0,0 L20,12 M20,0 L40,12' stroke='%230A0A0A' stroke-width='2.5' opacity='0.60'/%3E%3Cpath d='M0,12 L20,0 M20,12 L40,0' stroke='%230A0A0A' stroke-width='1.5' opacity='0.35'/%3E%3C/svg%3E");
 
-    /* Guiño a las tachas de la chaqueta Bad: puntos dorados */
-    --theme-studs: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Ccircle cx='10' cy='10' r='1.5' fill='%23EAB308' fill-opacity='0.55'/%3E%3C/svg%3E");
+    /* Chaqueta Bad: tachas doradas */
+    --theme-studs: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Ccircle cx='10' cy='10' r='1.5' fill='%23EAB308' fill-opacity='0.55'/%3E%3Ccircle cx='10' cy='10' r='0.6' fill='%23FBBF24' fill-opacity='0.9'/%3E%3C/svg%3E");
+
+    /* Calcetines blancos: línea blanca con brillo */
+    --theme-socks: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 6' preserveAspectRatio='none'%3E%3Crect width='100' height='6' fill='%23FFFFFF' fill-opacity='0.95'/%3E%3Crect y='2' width='100' height='2' fill='%23FBBF24' fill-opacity='0.60'/%3E%3C/svg%3E");
 
     --r-sm: 6px;
     --r-md: 10px;
@@ -89,11 +95,25 @@
 }
 
 /* ================================================================
-   1. HEADER — franja Thriller (rayas diagonales rojas)
+   1. HEADER — ala de FEDORA curva + franja Thriller
+   El borde inferior del header tiene forma de ala de sombrero.
    ================================================================ */
 .app-header {
     position: relative;
     border-bottom: none;
+}
+.app-header::before {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: var(--theme-fedora) repeat-x;
+    background-size: 80px 8px;
+    pointer-events: none;
+    z-index: 2;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
 }
 .app-header::after {
     content: '';
@@ -101,40 +121,42 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 5px;
+    height: 4px;
     background: var(--theme-stripe) repeat-x;
-    background-size: 40px 5px;
+    background-size: 40px 4px;
     pointer-events: none;
     z-index: 1;
-    box-shadow: 0 0 12px rgba(220, 38, 38, 0.35);
+    box-shadow: 0 0 12px rgba(220, 38, 38, 0.45);
 }
 
+/* Logo con destello de lentejuelas y forma de disco */
 .logo-mark {
     background: linear-gradient(135deg, #DC2626 0%, #0A0A0A 100%);
     box-shadow:
         0 4px 12px rgba(220, 38, 38, 0.45),
         inset 0 0 0 1px rgba(234, 179, 8, 0.25);
     position: relative;
+    overflow: visible;
 }
 .logo-mark::after {
     content: '';
     position: absolute;
-    top: -4px;
-    right: -4px;
-    width: 14px;
-    height: 14px;
+    top: -6px;
+    right: -6px;
+    width: 18px;
+    height: 18px;
     background: var(--theme-sparkle) center/contain no-repeat;
-    animation: mj-sparkle-twinkle 3s ease-in-out infinite;
+    animation: mj-sparkle-twinkle 2.8s ease-in-out infinite;
     pointer-events: none;
-    filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.85));
+    filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.95));
 }
 @keyframes mj-sparkle-twinkle {
-    0%, 100% { opacity: 0.35; transform: scale(0.9) rotate(0deg); }
-    50%      { opacity: 1;    transform: scale(1.15) rotate(45deg); }
+    0%, 100% { opacity: 0.40; transform: scale(0.9) rotate(0deg); }
+    50%      { opacity: 1;    transform: scale(1.20) rotate(45deg); }
 }
 
 /* ================================================================
-   2. WELCOME — escenario nocturno con luna y estrellas
+   2. WELCOME — escenario con BALDOSAS ILUMINADAS + luna + estrellas
    ================================================================ */
 .welcome-placeholder {
     position: relative;
@@ -144,7 +166,7 @@
         var(--bg);
 }
 
-/* Luna creciente en la esquina + estrellitas repartidas */
+/* Luna + estrellas + destellos de lentejuelas repartidos */
 .welcome-placeholder::before {
     content: '';
     position: absolute;
@@ -157,22 +179,39 @@
         var(--theme-sparkle),
         var(--theme-sparkle),
         var(--theme-sparkle),
+        var(--theme-sparkle),
         var(--theme-sparkle);
     background-size:
-        140px 140px,
-        24px 24px, 18px 18px, 20px 20px, 16px 16px, 22px 22px;
+        150px 150px,
+        28px 28px, 20px 20px, 24px 24px, 18px 18px, 22px 22px, 16px 16px;
     background-position:
-        88% 12%,
-        12% 18%, 22% 34%, 8% 62%, 90% 48%, 82% 74%;
+        86% 10%,
+        10% 16%, 24% 32%, 6% 58%, 92% 44%, 80% 72%, 48% 88%;
     background-repeat: no-repeat;
-    opacity: 0.85;
+    opacity: 0.90;
+}
+
+/* Segunda capa: LENTEJUELLAS en las esquinas para dar profundidad */
+.welcome-placeholder::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.35;
+    background-image:
+        var(--theme-sequins),
+        var(--theme-sequins);
+    background-size: 300px 300px, 220px 220px;
+    background-position: -40px -40px, calc(100% + 30px) calc(100% + 30px);
+    background-repeat: no-repeat;
 }
 
 .welcome-glow {
     background: radial-gradient(
         circle at 50% 40%,
-        rgba(220, 38, 38, 0.20) 0%,
-        rgba(234, 179, 8, 0.06) 40%,
+        rgba(220, 38, 38, 0.22) 0%,
+        rgba(234, 179, 8, 0.08) 40%,
         transparent 68%
     );
 }
@@ -183,7 +222,7 @@
     z-index: 2;
 }
 
-/* Hero con forma de "cartel de gira" */
+/* Hero con forma de "cartel de gira" con marco de chaqueta */
 .welcome-hero {
     position: relative;
     padding: 32px 28px;
@@ -205,7 +244,7 @@
     margin-right: auto;
 }
 
-/* Marco doble interno (como las chaquetas con ribete) */
+/* Marco doble + HOMBROS ALADOS (esquinas superiores sobresalen) */
 .welcome-hero::before {
     content: '';
     position: absolute;
@@ -216,14 +255,7 @@
     z-index: 0;
 }
 
-.welcome-hero h1 {
-    text-shadow:
-        0 0 20px rgba(220, 38, 38, 0.45),
-        0 1px 0 rgba(0, 0, 0, 0.8);
-    letter-spacing: 0.005em;
-}
-
-/* Icono del hero: el cubo violeta ahora es un "disco de vinilo" */
+/* El icono del hero: VINILO GIRANDO con anillo dorado */
 .welcome-icon-wrap {
     background:
         radial-gradient(circle, #0A0A0A 30%, #1A1A1A 30%, #1A1A1A 34%, #0A0A0A 34%),
@@ -245,8 +277,46 @@
     to   { transform: rotate(360deg); }
 }
 
+.welcome-hero h1 {
+    text-shadow:
+        0 0 20px rgba(220, 38, 38, 0.45),
+        0 1px 0 rgba(0, 0, 0, 0.8);
+    letter-spacing: 0.005em;
+}
+
 /* ================================================================
-   3. SIDEBAR — cuero negro con tachas doradas
+   3. SECCIONES = páginas del programa con calcetines blancos
+   ================================================================ */
+.welcome-section {
+    position: relative;
+    background: rgba(20, 20, 20, 0.65);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(220, 38, 38, 0.15);
+    border-radius: 4px;
+    padding: 18px 20px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+/* Línea de calcetín blanco abajo */
+.welcome-section::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 20px;
+    right: 20px;
+    height: 2px;
+    background: var(--theme-socks);
+    background-size: 100% 100%;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.welcome-section-header h2 {
+    color: var(--mj-gold-light);
+}
+
+/* ================================================================
+   4. SIDEBAR — cuero negro con tachas doradas
    ================================================================ */
 .sidebar {
     position: relative;
@@ -285,7 +355,7 @@
     color: var(--mj-gold-light);
 }
 
-/* Nav activo: inclinación de 45° (guiño al lean) */
+/* Nav activo: inclinación 45° (Lean de Smooth Criminal) */
 .nav-item {
     transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -302,6 +372,7 @@
     height: 22px;
     box-shadow: 0 0 10px rgba(220, 38, 38, 0.55);
 }
+/* Icono activo se inclina 45° y gira */
 .nav-item.active .nav-icon {
     color: var(--mj-gold-light);
     transform: rotate(-45deg);
@@ -313,7 +384,8 @@
 }
 
 /* ================================================================
-   4. ACCESOS RÁPIDOS — cards con DESTELLO de lentejuela al hover
+   5. ACCESOS RÁPIDOS — cards con destello de LENTEJUELAS
+   Múltiples partículas doradas que cruzan al hover.
    ================================================================ */
 .acceso-item {
     position: relative;
@@ -326,36 +398,29 @@
     transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* DESTELLO: barra diagonal que cruza la card al hover */
+/* Capa de LENTEJUELAS: partículas que cruzan al hover */
 .acceso-item::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: -150%;
-    width: 60%;
-    height: 100%;
-    background: linear-gradient(
-        115deg,
-        transparent 0%,
-        rgba(251, 191, 36, 0.00) 30%,
-        rgba(251, 191, 36, 0.55) 50%,
-        rgba(255, 255, 255, 0.75) 55%,
-        rgba(251, 191, 36, 0.55) 60%,
-        rgba(251, 191, 36, 0.00) 70%,
-        transparent 100%
-    );
-    transform: skewX(-20deg);
+    inset: 0;
+    background: var(--theme-sequins);
+    background-size: 160px 160px;
+    opacity: 0;
     pointer-events: none;
     z-index: 2;
-    transition: left 0.7s cubic-bezier(0.4, 0, 0.2, 1);
-    opacity: 0;
+    transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    mix-blend-mode: screen;
 }
 .acceso-item:hover::before {
-    left: 150%;
     opacity: 1;
+    animation: mj-sequin-drift 1.4s linear infinite;
+}
+@keyframes mj-sequin-drift {
+    from { background-position: 0 0; }
+    to   { background-position: 160px 0; }
 }
 
-/* Estrellita decorativa en la esquina superior derecha */
+/* Estrellita en la esquina superior derecha */
 .acceso-item::after {
     content: '';
     position: absolute;
@@ -385,7 +450,7 @@
         inset 0 0 0 1px rgba(234, 179, 8, 0.20);
 }
 
-/* Icono: al hover, rotación 45° (guiño al lean) */
+/* Icono: al hover, inclinación 45° (Lean) + destello */
 .acceso-icon-wrap {
     background: rgba(220, 38, 38, 0.12);
     color: var(--mj-red);
@@ -403,41 +468,32 @@
 }
 
 /* ================================================================
-   5. WIDGETS — misma vibra
+   6. WIDGETS — misma vibra de lentejuelas
    ================================================================ */
 .widget-item {
+    position: relative;
     border: 1px solid rgba(220, 38, 38, 0.20);
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.04),
         0 4px 12px rgba(0, 0, 0, 0.5);
     transition: all 0.22s;
-    position: relative;
     overflow: hidden;
 }
 .widget-item::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: -150%;
-    width: 60%;
-    height: 100%;
-    background: linear-gradient(
-        115deg,
-        transparent 0%,
-        rgba(251, 191, 36, 0.35) 50%,
-        rgba(255, 255, 255, 0.55) 55%,
-        rgba(251, 191, 36, 0.35) 60%,
-        transparent 100%
-    );
-    transform: skewX(-20deg);
+    inset: 0;
+    background: var(--theme-sequins);
+    background-size: 140px 140px;
+    opacity: 0;
     pointer-events: none;
     z-index: 2;
-    transition: left 0.7s cubic-bezier(0.4, 0, 0.2, 1);
-    opacity: 0;
+    transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    mix-blend-mode: screen;
 }
 .widget-item:hover::before {
-    left: 150%;
     opacity: 1;
+    animation: mj-sequin-drift 1.4s linear infinite;
 }
 .widget-item:hover {
     transform: translateY(-2px);
@@ -448,7 +504,7 @@
 }
 
 /* ================================================================
-   6. PESTAÑAS — pestaña activa con line dorada
+   7. PESTAÑAS — pestaña activa con línea dorada + calcetín blanco
    ================================================================ */
 .tab-item.active {
     background: linear-gradient(180deg, #141414 0%, #0A0A0A 100%);
@@ -457,6 +513,7 @@
     box-shadow:
         0 -1px 0 rgba(234, 179, 8, 0.35) inset,
         0 -1px 0 rgba(220, 38, 38, 0.25);
+    position: relative;
 }
 .tab-item.active::before {
     content: '';
@@ -477,7 +534,7 @@
 }
 
 /* ================================================================
-   7. MODALES — marco dorado doble (como las chaquetas)
+   8. MODALES — marco de chaqueta con CIERRES y ribetes
    ================================================================ */
 .config-card,
 .modal-todas-card {
@@ -493,18 +550,27 @@
         0 24px 48px rgba(0, 0, 0, 0.85),
         0 0 60px rgba(220, 38, 38, 0.15);
 }
+
+/* Línea de "cierre" central vertical (chaqueta Bad) */
 .config-card::before,
 .modal-todas-card::before {
     content: '';
     position: absolute;
     top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #7F1D1D, #DC2626, #EAB308, #DC2626, #7F1D1D);
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(234, 179, 8, 0.15) 15%,
+        rgba(234, 179, 8, 0.25) 50%,
+        rgba(234, 179, 8, 0.15) 85%,
+        transparent 100%
+    );
     pointer-events: none;
     z-index: 5;
-    box-shadow: 0 0 14px rgba(220, 38, 38, 0.55);
+    transform: translateX(-0.5px);
 }
 
 /* Estrellita en la esquina inferior derecha */
@@ -542,9 +608,11 @@
 }
 
 /* ================================================================
-   8. BOTÓN PRIMARIO — rojo escenario con destello
+   9. BOTÓN PRIMARIO — rojo escenario con lentejuelas
    ================================================================ */
 .btn-primario {
+    position: relative;
+    overflow: hidden;
     background: linear-gradient(135deg, #DC2626 0%, #7F1D1D 100%);
     border: 1px solid rgba(234, 179, 8, 0.35);
     color: #FFFFFF;
@@ -552,30 +620,21 @@
         0 4px 14px rgba(220, 38, 38, 0.45),
         inset 0 1px 0 rgba(255, 255, 255, 0.15),
         inset 0 -1px 0 rgba(0, 0, 0, 0.30);
-    position: relative;
-    overflow: hidden;
 }
 .btn-primario::after {
     content: '';
     position: absolute;
-    top: -50%;
-    left: -150%;
-    width: 60%;
-    height: 200%;
-    background: linear-gradient(
-        115deg,
-        transparent 0%,
-        rgba(251, 191, 36, 0.35) 50%,
-        rgba(255, 255, 255, 0.65) 55%,
-        rgba(251, 191, 36, 0.35) 60%,
-        transparent 100%
-    );
-    transform: skewX(-20deg);
+    inset: 0;
+    background: var(--theme-sequins);
+    background-size: 120px 120px;
+    opacity: 0;
     pointer-events: none;
-    transition: left 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    mix-blend-mode: screen;
 }
 .btn-primario:hover::after {
-    left: 150%;
+    opacity: 1;
+    animation: mj-sequin-drift 1.2s linear infinite;
 }
 .btn-primario:hover {
     transform: translateY(-1px);
@@ -586,7 +645,7 @@
 }
 
 /* ================================================================
-   9. INPUTS
+   10. INPUTS
    ================================================================ */
 .config-field input,
 .config-field select,
@@ -606,7 +665,7 @@
 }
 
 /* ================================================================
-   10. NOTIFICACIONES Y AVATAR
+   11. NOTIFICACIONES Y AVATAR
    ================================================================ */
 .noti-btn.tiene-no-leidas {
     background: rgba(220, 38, 38, 0.12);
@@ -642,7 +701,7 @@
 }
 
 /* ================================================================
-   11. RESPETO prefers-reduced-motion
+   12. RESPETO prefers-reduced-motion
    ================================================================ */
 @media (prefers-reduced-motion: reduce) {
     .logo-mark::after,
@@ -652,6 +711,7 @@
     .acceso-item::before,
     .widget-item::before,
     .btn-primario::after {
+        animation: none !important;
         transition: none !important;
     }
 }
