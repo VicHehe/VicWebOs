@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Lector PDF</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+
+    <!-- ============ BIBLIOTECA ============ -->
+    <div class="lp-container" id="lpVistaBiblioteca">
+
+        <header class="lp-header">
+            <div class="lp-logo">
+                <div class="lp-logo-mark">
+                    <i data-lucide="file-text"></i>
+                </div>
+                <div class="lp-logo-text">
+                    <h1>Lector PDF</h1>
+                    <p id="lpUserBadge">—</p>
+                </div>
+            </div>
+
+            <div class="lp-header-actions">
+                <span class="lp-contador" id="lpContador">0 / 10</span>
+                <button class="lp-btn-premium" id="lpBtnPremium" title="Premium">
+                    <i data-lucide="crown"></i>
+                    <span id="lpPremiumTexto">Premium</span>
+                </button>
+                <button class="lp-btn-nuevo" id="lpBtnAñadir">
+                    <i data-lucide="plus"></i>
+                    <span>Añadir PDF</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="lp-main" id="lpDropZona">
+            <div class="lp-lista" id="lpLista"></div>
+
+            <div class="lp-vacio" id="lpVacio" hidden>
+                <div class="lp-vacio-card">
+                    <div class="lp-vacio-icono">
+                        <i data-lucide="file-text"></i>
+                    </div>
+                    <h3 id="lpVacioTitulo">Aún no tienes PDFs</h3>
+                    <p id="lpVacioDesc">Pulsa "Añadir PDF" para empezar. Se guardan <strong>solo en este dispositivo</strong>, no se sincronizan.</p>
+                    <button class="lp-vacio-btn" id="lpVacioBtn">
+                        <i data-lucide="plus"></i>
+                        Añadir primer PDF
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <input type="file" id="lpFileInput" accept=".pdf,application/pdf" hidden>
+
+    </div>
+
+    <!-- ============ VISOR ============ -->
+    <div class="lp-visualizador" id="lpVistaVisor" hidden>
+
+        <header class="lp-vis-header">
+            <button class="lp-vis-btn" id="lpVisVolver" title="Volver">
+                <i data-lucide="arrow-left"></i>
+            </button>
+            <div class="lp-vis-titulo" id="lpVisTitulo">—</div>
+            <div class="lp-vis-acciones">
+                <button class="lp-vis-btn" id="lpVisBtnBuscar" title="Buscar">
+                    <i data-lucide="search"></i>
+                </button>
+                <button class="lp-vis-btn" id="lpVisBtnMarcador" title="Marcar página">
+                    <i data-lucide="bookmark"></i>
+                </button>
+                <button class="lp-vis-btn" id="lpVisBtnExportar" title="Exportar">
+                    <i data-lucide="download"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="lp-vis-buscar" id="lpVisBuscarPanel" hidden>
+            <div class="lp-vis-buscar-header">
+                <i data-lucide="search"></i>
+                <input type="text" id="lpVisBuscarInput" placeholder="Buscar texto dentro del PDF..." autocomplete="off">
+                <button id="lpVisBuscarCerrar" title="Cerrar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="lp-vis-buscar-resultados" id="lpVisBuscarResultados">
+                <p class="lp-vis-buscar-ayuda">Escribí algo para buscar.</p>
+            </div>
+        </div>
+
+        <div class="lp-vis-canvas-wrap" id="lpVisCanvasWrap">
+            <div class="lp-vis-canvas-stage" id="lpVisCanvasStage">
+                <canvas id="lpVisCanvas"></canvas>
+            </div>
+        </div>
+
+        <div class="lp-vis-cargando" id="lpVisCargando" hidden>
+            <div class="lp-spinner"></div>
+            <span id="lpVisCargandoTxt">Cargando...</span>
+        </div>
+
+        <footer class="lp-vis-controles">
+            <div class="lp-vis-controles-grupo">
+                <button class="lp-vis-ctrl" id="lpVisPrev" title="Anterior">
+                    <i data-lucide="chevron-left"></i>
+                </button>
+                <div class="lp-vis-pag">
+                    <input type="number" id="lpVisPagActual" value="1" min="1" max="1" inputmode="numeric">
+                    <span>/</span>
+                    <span id="lpVisPagTotal">1</span>
+                </div>
+                <button class="lp-vis-ctrl" id="lpVisNext" title="Siguiente">
+                    <i data-lucide="chevron-right"></i>
+                </button>
+            </div>
+            <div class="lp-vis-controles-grupo">
+                <button class="lp-vis-ctrl" id="lpVisZoomOut" title="Alejar">
+                    <i data-lucide="zoom-out"></i>
+                </button>
+                <span class="lp-vis-zoom-nivel" id="lpVisZoomNivel">100%</span>
+                <button class="lp-vis-ctrl" id="lpVisZoomIn" title="Acercar">
+                    <i data-lucide="zoom-in"></i>
+                </button>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- ============ MODAL PREMIUM ============ -->
+    <div class="lp-modal" id="lpModalPremium" hidden>
+        <div class="lp-modal-card">
+            <div class="lp-modal-icono">
+                <i data-lucide="crown"></i>
+            </div>
+            <h3>Lector PDF Premium</h3>
+            <p>Desbloqueá funciones avanzadas de lectura para siempre:</p>
+
+            <ul class="lp-modal-lista">
+                <li>
+                    <i data-lucide="bookmark"></i>
+                    <span>Recordar la última página leída</span>
+                </li>
+                <li>
+                    <i data-lucide="search"></i>
+                    <span>Buscar texto dentro del PDF</span>
+                </li>
+                <li>
+                    <i data-lucide="download"></i>
+                    <span>Exportar el PDF original</span>
+                </li>
+            </ul>
+
+            <div class="lp-modal-precio">
+                <i data-lucide="coins"></i>
+                <span>40</span>
+            </div>
+
+            <div class="lp-modal-acciones">
+                <button class="lp-btn-sec" id="lpModalCancelar">Cancelar</button>
+                <button class="lp-btn-pri" id="lpModalConfirmar">
+                    <i data-lucide="crown"></i>
+                    <span>Desbloquear</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL CONFIRMAR BORRADO ============ -->
+    <div class="lp-modal" id="lpModalBorrar" hidden>
+        <div class="lp-modal-card">
+            <div class="lp-modal-icono lp-modal-icono-peligro">
+                <i data-lucide="alert-triangle"></i>
+            </div>
+            <h3>Eliminar PDF</h3>
+            <p id="lpBorrarNombre">—</p>
+            <p class="lp-modal-aviso">Se va a eliminar del dispositivo. No se puede deshacer.</p>
+            <div class="lp-modal-acciones">
+                <button class="lp-btn-sec" id="lpModalBorrarCancelar">Cancelar</button>
+                <button class="lp-btn-danger" id="lpModalBorrarConfirmar">
+                    <i data-lucide="trash-2"></i>
+                    <span>Eliminar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL RENOMBRAR ============ -->
+    <div class="lp-modal" id="lpModalRenombrar" hidden>
+        <div class="lp-modal-card">
+            <div class="lp-modal-icono">
+                <i data-lucide="pencil"></i>
+            </div>
+            <h3>Renombrar PDF</h3>
+            <div class="lp-field">
+                <input type="text" id="lpRenombrarInput" maxlength="80" placeholder="Nuevo nombre">
+            </div>
+            <div class="lp-modal-acciones">
+                <button class="lp-btn-sec" id="lpModalRenombrarCancelar">Cancelar</button>
+                <button class="lp-btn-pri" id="lpModalRenombrarConfirmar">
+                    <i data-lucide="check"></i>
+                    <span>Guardar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="lp-toast" id="lpToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
