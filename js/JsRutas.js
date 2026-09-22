@@ -274,6 +274,17 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 12,
         monedas: 0
     },
+        {
+        id: 'encuestas',
+        nombre: 'Encuestas',
+        icono: 'vote',
+        ruta: 'herramientas/encuestas/index.html',
+        descripcion: 'Creá encuestas con 2-6 opciones, categorías y filtros. Votos públicos o privados.',
+        categoria: 'Social',
+        esBase: false,
+        espacio: 6,
+        monedas: 60
+    },
     {
         id: 'vicsgram',
         nombre: 'VicsGram',
