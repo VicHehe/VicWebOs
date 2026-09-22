@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Gestor de Gastos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <!-- ===== OVERLAY: SETUP ===== -->
+    <div class="gg-setup" id="ggSetup" hidden>
+        <div class="gg-setup-card">
+            <div class="gg-setup-icon"><i data-lucide="wallet"></i></div>
+            <h2 id="ggSetupTitulo">Configurá tu gestor</h2>
+            <p id="ggSetupDesc">Elegí tu moneda y tu saldo actual para empezar.</p>
+
+            <div class="gg-field">
+                <label>Moneda</label>
+                <select id="ggSetupMoneda"></select>
+            </div>
+
+            <div class="gg-field">
+                <label>Saldo actual</label>
+                <input type="number" id="ggSetupSaldo" placeholder="0" step="any" inputmode="decimal">
+                <span class="gg-field-help">Puede ser el total de tu cuenta o el efectivo que tengas ahora.</span>
+            </div>
+
+            <button class="gg-btn-pri" id="ggSetupConfirmar">
+                <i data-lucide="check"></i>
+                <span id="ggSetupBtnTxt">Empezar</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== APP ===== -->
+    <div class="gg-container" id="ggApp" hidden>
+
+        <!-- HEADER -->
+        <header class="gg-header">
+            <div class="gg-logo">
+                <div class="gg-logo-mark"><i data-lucide="wallet"></i></div>
+                <div class="gg-logo-text">
+                    <h1>Gestor de Gastos</h1>
+                    <p id="ggUserBadge">—</p>
+                </div>
+            </div>
+            <button class="gg-icon-btn" id="ggBtnReset" title="Reiniciar todo">
+                <i data-lucide="rotate-ccw"></i>
+            </button>
+        </header>
+
+        <!-- RESUMEN -->
+        <div class="gg-resumen">
+            <div class="gg-resumen-card principal">
+                <span class="gg-resumen-label">Saldo actual</span>
+                <span class="gg-resumen-valor" id="ggSaldo">$0</span>
+                <span class="gg-resumen-sub" id="ggSaldoSub">Sin movimientos</span>
+            </div>
+            <div class="gg-resumen-card">
+                <span class="gg-resumen-label">
+                    <i data-lucide="trending-up"></i>
+                    Ingresos
+                </span>
+                <span class="gg-resumen-valor positivo" id="ggIngresos">$0</span>
+            </div>
+            <div class="gg-resumen-card">
+                <span class="gg-resumen-label">
+                    <i data-lucide="trending-down"></i>
+                    Gastos
+                </span>
+                <span class="gg-resumen-valor negativo" id="ggGastos">$0</span>
+            </div>
+        </div>
+
+        <!-- TABS -->
+        <nav class="gg-tabs">
+            <button class="gg-tab active" data-tab="movimientos">
+                <i data-lucide="receipt"></i>
+                <span>Movimientos</span>
+                <span class="gg-tab-count" id="ggCountMov">0</span>
+            </button>
+            <button class="gg-tab" data-tab="situaciones">
+                <i data-lucide="lightbulb"></i>
+                <span>Situaciones</span>
+                <span class="gg-tab-count" id="ggCountSit">0</span>
+            </button>
+        </nav>
+
+        <!-- MAIN -->
+        <main class="gg-main">
+
+            <!-- PANEL: MOVIMIENTOS -->
+            <section class="gg-panel active" data-panel="movimientos">
+                <div class="gg-lista" id="ggListaMov"></div>
+                <div class="gg-vacio" id="ggVacioMov" hidden>
+                    <div class="gg-vacio-icon"><i data-lucide="receipt"></i></div>
+                    <h3>Aún no hay movimientos</h3>
+                    <p>Agregá tu primer ingreso o gasto con el botón de abajo.</p>
+                </div>
+            </section>
+
+            <!-- PANEL: SITUACIONES -->
+            <section class="gg-panel" data-panel="situaciones">
+                <div class="gg-lista" id="ggListaSit"></div>
+                <div class="gg-vacio" id="ggVacioSit" hidden>
+                    <div class="gg-vacio-icon"><i data-lucide="lightbulb"></i></div>
+                    <h3>Sin situaciones</h3>
+                    <p>Simulá qué pasaría si gastaras en algo. Ej: "Si compro unos audífonos, ¿con cuánto me quedo?"</p>
+                </div>
+                <div class="gg-resultado-sim" id="ggResultadoSim" hidden>
+                    <div class="gg-resultado-fila">
+                        <span class="gg-resultado-label">Saldo actual</span>
+                        <span class="gg-resultado-valor" id="ggSimSaldo">$0</span>
+                    </div>
+                    <div class="gg-resultado-fila">
+                        <span class="gg-resultado-label">Simulado</span>
+                        <span class="gg-resultado-valor negativo" id="ggSimTotal">-$0</span>
+                    </div>
+                    <div class="gg-resultado-fila destacado">
+                        <span class="gg-resultado-label">Te quedarías con</span>
+                        <span class="gg-resultado-valor" id="ggSimResto">$0</span>
+                    </div>
+                    <div class="gg-resultado-aviso" id="ggSimAviso"></div>
+                </div>
+            </section>
+
+            <!-- FAB -->
+            <button class="gg-fab" id="ggFab" title="Añadir">
+                <i data-lucide="plus"></i>
+            </button>
+
+        </main>
+    </div>
+
+    <!-- ===== MODAL: MOVIMIENTO ===== -->
+    <div class="gg-modal" id="ggModalMov" hidden>
+        <div class="gg-modal-card">
+            <div class="gg-modal-header">
+                <h2>
+                    <i data-lucide="receipt"></i>
+                    <span>Nuevo movimiento</span>
+                </h2>
+                <button class="gg-modal-cerrar" id="ggMovCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="gg-modal-body">
+
+                <div class="gg-tipo-toggle">
+                    <button class="gg-tipo-btn gasto active" data-tipo="gasto">
+                        <i data-lucide="trending-down"></i>
+                        <span>Gasto</span>
+                    </button>
+                    <button class="gg-tipo-btn ingreso" data-tipo="ingreso">
+                        <i data-lucide="trending-up"></i>
+                        <span>Ingreso</span>
+                    </button>
+                </div>
+
+                <div class="gg-field">
+                    <label>Título</label>
+                    <input type="text" id="ggMovTitulo" placeholder="Ej: Supermercado" maxlength="60" autocomplete="off">
+                </div>
+
+                <div class="gg-field">
+                    <label>Monto</label>
+                    <input type="number" id="ggMovMonto" placeholder="0" step="any" inputmode="decimal">
+                </div>
+
+                <div class="gg-field">
+                    <label>Fecha</label>
+                    <input type="date" id="ggMovFecha">
+                    <div class="gg-field-help">
+                        Por defecto es hoy. Podés cambiarla por una fecha anterior.
+                    </div>
+                </div>
+
+            </div>
+            <div class="gg-modal-actions">
+                <button class="gg-btn-sec" id="ggMovCancelar">Cancelar</button>
+                <button class="gg-btn-pri" id="ggMovGuardar">
+                    <i data-lucide="check"></i>
+                    <span>Guardar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: SITUACIÓN ===== -->
+    <div class="gg-modal" id="ggModalSit" hidden>
+        <div class="gg-modal-card">
+            <div class="gg-modal-header">
+                <h2>
+                    <i data-lucide="lightbulb"></i>
+                    <span>Nueva situación</span>
+                </h2>
+                <button class="gg-modal-cerrar" id="ggSitCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="gg-modal-body">
+                <p class="gg-modal-ayuda">
+                    Simulá un gasto hipotético. No afecta tu saldo real, solo sirve para ver
+                    con cuánto te quedarías si lo hicieras.
+                </p>
+
+                <div class="gg-field">
+                    <label>¿En qué gastarías?</label>
+                    <input type="text" id="ggSitNombre" placeholder="Ej: Audífonos nuevos" maxlength="60" autocomplete="off">
+                </div>
+
+                <div class="gg-field">
+                    <label>Monto estimado</label>
+                    <input type="number" id="ggSitMonto" placeholder="0" step="any" inputmode="decimal">
+                </div>
+
+            </div>
+            <div class="gg-modal-actions">
+                <button class="gg-btn-sec" id="ggSitCancelar">Cancelar</button>
+                <button class="gg-btn-pri" id="ggSitGuardar">
+                    <i data-lucide="check"></i>
+                    <span>Añadir</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="gg-toast" id="ggToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
