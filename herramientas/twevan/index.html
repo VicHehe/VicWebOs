@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Twevan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="tv-container">
+
+        <header class="tv-header">
+            <div class="tv-logo">
+                <div class="tv-logo-mark"><i data-lucide="twitter"></i></div>
+                <div class="tv-logo-text">
+                    <h1>Twevan</h1>
+                    <p id="tvUserBadge">—</p>
+                </div>
+            </div>
+            <button class="tv-btn-tweplus" id="tvBtnTwePlus">
+                <i data-lucide="badge-check"></i>
+                <span id="tvTwePlusTexto">TwePlus</span>
+            </button>
+        </header>
+
+        <div class="tv-tabs">
+            <button class="tv-tab active" data-tab="inicio">
+                <i data-lucide="home"></i>
+                <span>Inicio</span>
+            </button>
+            <button class="tv-tab" data-tab="mios">
+                <i data-lucide="user"></i>
+                <span>Mis tweets</span>
+                <span class="tv-tab-count" id="tvCountMios">0</span>
+            </button>
+        </div>
+
+        <!-- BANCO DE RECOMPENSAS -->
+        <div class="tv-banco" id="tvBanco" hidden>
+            <!-- Se rellena por JS -->
+        </div>
+
+        <main class="tv-main">
+            <div class="tv-feed" id="tvFeed"></div>
+
+            <div class="tv-empty" id="tvEmpty" hidden>
+                <div class="tv-empty-icon"><i data-lucide="twitter"></i></div>
+                <h3 id="tvEmptyTitulo">Aún no hay tweets</h3>
+                <p id="tvEmptyDesc">Sé el primero en decir algo.</p>
+                <button class="tv-empty-btn" id="tvEmptyBtnNuevo">
+                    <i data-lucide="plus"></i>
+                    Nuevo tweet
+                </button>
+            </div>
+
+            <button class="tv-cargar-mas" id="tvCargarMas" hidden>
+                <i data-lucide="chevrons-down"></i>
+                <span>Cargar más</span>
+            </button>
+        </main>
+
+        <button class="tv-fab" id="tvFabNuevo" title="Nuevo tweet">
+            <i data-lucide="plus"></i>
+        </button>
+
+    </div>
+
+    <!-- MODAL EDITOR -->
+    <div class="tv-modal" id="tvModalEditor" hidden>
+        <div class="tv-modal-card">
+            <div class="tv-modal-header">
+                <h2><i data-lucide="twitter"></i><span id="tvEditorTitulo">Nuevo tweet</span></h2>
+                <button class="tv-modal-cerrar" id="tvEditorCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="tv-modal-body">
+                <div class="tv-editor-imagen-wrap" id="tvEditorImagenWrap" hidden>
+                    <img id="tvEditorImagenPreview" alt="">
+                    <button class="tv-editor-imagen-quitar" id="tvBtnQuitarImagen"><i data-lucide="x"></i></button>
+                </div>
+                <div class="tv-editor-campo">
+                    <textarea id="tvEditorTexto" rows="4" maxlength="280" placeholder="¿Qué está pasando?"></textarea>
+                    <div class="tv-editor-footer">
+                        <button class="tv-btn-add-img" id="tvBtnAddImagen"><i data-lucide="image-plus"></i></button>
+                        <span class="tv-editor-contador" id="tvEditorContador">0 / 280</span>
+                    </div>
+                </div>
+                <div id="tvEditorMensaje" class="tv-modal-mensaje"></div>
+            </div>
+            <div class="tv-modal-actions">
+                <button class="tv-btn-sec" id="tvEditorCancelar">Cancelar</button>
+                <button class="tv-btn-pri" id="tvEditorGuardar">
+                    <i data-lucide="check"></i>
+                    <span id="tvEditorGuardarTexto">Publicar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL VER TWEET -->
+    <div class="tv-modal" id="tvModalVer" hidden>
+        <div class="tv-modal-card tv-modal-card-grande">
+            <div class="tv-modal-header">
+                <h2><i data-lucide="message-circle"></i><span>Tweet</span></h2>
+                <button class="tv-modal-cerrar" id="tvVerCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="tv-ver-body" id="tvVerBody"></div>
+        </div>
+    </div>
+
+    <!-- MODAL TWEPLUS -->
+    <div class="tv-modal" id="tvModalTwePlus" hidden>
+        <div class="tv-modal-card">
+            <div class="tv-modal-header">
+                <h2><i data-lucide="badge-check"></i><span>TwePlus</span></h2>
+                <button class="tv-modal-cerrar" id="tvTwePlusCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="tv-modal-body tv-tweplus-body">
+                <div class="tv-tweplus-hero">
+                    <div class="tv-tweplus-icono"><i data-lucide="badge-check"></i></div>
+                    <h3>Hazte verificado</h3>
+                    <p>Con TwePlus obtenés:</p>
+                </div>
+                <ul class="tv-tweplus-lista">
+                    <li><i data-lucide="check"></i><span>Insignia azul junto a tu nombre</span></li>
+                    <li><i data-lucide="check"></i><span>Ganás monedas según la repercusión de tus tweets</span></li>
+                    <li><i data-lucide="check"></i><span>Cobrás cuando quieras desde el banco de recompensas</span></li>
+                </ul>
+                <div class="tv-tweplus-precio">
+                    <span class="tv-tweplus-precio-label">Precio</span>
+                    <span class="tv-tweplus-precio-valor">
+                        <i data-lucide="coins"></i>
+                        100 monedas / 30 días
+                    </span>
+                </div>
+                <div class="tv-tweplus-estado" id="tvTwePlusEstado"></div>
+                <div id="tvTwePlusMensaje" class="tv-modal-mensaje"></div>
+            </div>
+            <div class="tv-modal-actions">
+                <button class="tv-btn-sec" id="tvTwePlusCancelar">Cerrar</button>
+                <button class="tv-btn-pri" id="tvBtnComprarTwePlus">
+                    <i data-lucide="badge-check"></i>
+                    <span id="tvBtnComprarTexto">Comprar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="tv-toast" id="tvToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
