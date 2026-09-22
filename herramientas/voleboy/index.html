@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Voleboy</title>
+    <title>PiniPon</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -20,27 +20,19 @@
                     <i data-lucide="circle-dot"></i>
                 </div>
                 <div class="vb-logo-text">
-                    <h1>Voleboy</h1>
+                    <h1>PiniPon</h1>
                     <p id="vbUserBadge">—</p>
                 </div>
             </div>
+            <div class="vb-score-mini" id="vbScoreMini" hidden>
+                <span class="vb-score-mini-yo" id="vbScoreMiniYo">0</span>
+                <span class="vb-score-mini-sep">-</span>
+                <span class="vb-score-mini-rival" id="vbScoreMiniRival">0</span>
+            </div>
         </header>
 
-        <div class="vb-hud" id="vbHud" hidden>
-            <div class="vb-hud-item">
-                <i data-lucide="timer"></i>
-                <span class="vb-hud-label">Aguantar</span>
-                <span class="vb-hud-valor"><strong id="vbTimer">0</strong><em>s</em></span>
-            </div>
-            <div class="vb-hud-item vb-hud-coins">
-                <i data-lucide="coins"></i>
-                <span class="vb-hud-label">Partida</span>
-                <span class="vb-hud-valor" id="vbMonedas">+0</span>
-            </div>
-        </div>
-
         <div class="vb-canvas-wrap">
-            <canvas id="vbCanvas" width="720" height="420"></canvas>
+            <canvas id="vbCanvas" width="640" height="400"></canvas>
         </div>
 
     </div>
@@ -51,8 +43,8 @@
             <div class="vb-overlay-icono">
                 <i data-lucide="circle-dot"></i>
             </div>
-            <h2>Voleboy</h2>
-            <p>Movete con el mouse o el dedo. La pelota siempre cruza la red: atajala con tu plataforma antes de que caiga en tu suelo.</p>
+            <h2>PiniPon</h2>
+            <p>El clásico Pong. Movete con el mouse o el dedo. Primero en llegar a <strong>5 puntos</strong> gana.</p>
 
             <button class="vb-btn vb-btn-primario" id="vbBtnCpu">
                 <i data-lucide="cpu"></i>
@@ -104,24 +96,17 @@
             <p id="vbFinSub">Buena partida.</p>
 
             <div class="vb-resumen">
-                <div class="vb-resumen-fila" id="vbFinFilaTiempo">
+                <div class="vb-resumen-fila vb-resumen-marcador">
                     <span class="vb-resumen-label">
-                        <i data-lucide="timer"></i>
-                        Tiempo sobrevivido
+                        <i data-lucide="target"></i>
+                        Marcador final
                     </span>
-                    <span class="vb-resumen-valor" id="vbFinTiempo">0s</span>
-                </div>
-                <div class="vb-resumen-fila" id="vbFinFilaBonus">
-                    <span class="vb-resumen-label">
-                        <i data-lucide="sparkles"></i>
-                        Bonus de aguante
-                    </span>
-                    <span class="vb-resumen-valor" id="vbFinBonus">+0</span>
+                    <span class="vb-resumen-valor vb-resumen-marcador-val" id="vbFinMarcador">0 - 0</span>
                 </div>
                 <div class="vb-resumen-fila vb-resumen-destacada">
                     <span class="vb-resumen-label">
                         <i data-lucide="coins"></i>
-                        Total de la partida
+                        Monedas
                     </span>
                     <strong class="vb-resumen-monedas" id="vbFinTotal">+0</strong>
                 </div>
