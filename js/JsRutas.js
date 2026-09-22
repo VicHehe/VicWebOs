@@ -214,10 +214,10 @@ const RUTAS_HERRAMIENTAS = [
     },
         {
         id: 'voleboy',
-        nombre: 'Voleboy',
+        nombre: 'PiniPon',
         icono: 'circle-dot',
         ruta: 'herramientas/voleboy/index.html',
-        descripcion: 'Pong con spin. Jugá contra la CPU o contra un amigo por código de sala.',
+        descripcion: 'El clásico Pong. Jugá contra la CPU o contra un amigo por código de sala.',
         categoria: 'Juegos',
         esBase: false,
         espacio: 8,
