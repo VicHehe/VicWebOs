@@ -19,26 +19,37 @@
 //    40-90 → media: herramienta útil o entretenimiento
 //    100+  → alta: mucha complejidad técnica o muy pedida
 //    250   → tope del catálogo
+//
+//  ORDEN:
+//    1. Sistema primero (excepción a la regla alfabética).
+//    2. Resto de categorías alfabéticas.
+//    3. Dentro de cada categoría, precio de menor a mayor.
+//       Desempate por id alfabético.
 // ============================================================
 
 const RUTAS_HERRAMIENTAS = [
-    {
-        id: 'stor-he',
-        nombre: 'Stor-He',
-        icono: 'store',
-        ruta: 'herramientas/stor-he/index.html',
-        descripcion: 'Tienda: descarga apps, temas y widgets.',
-        categoria: 'Sistema',
-        esBase: true,
-        espacio: 0,
-        monedas: 0
-    },
+
+    // ============================================================
+    //  SISTEMA (siempre al frente)
+    // ============================================================
     {
         id: 'chequera',
         nombre: 'Chequera',
         icono: 'wallet',
         ruta: 'herramientas/chequera/index.html',
         descripcion: 'Aquí ves tus monedas, ganancias y gastos.',
+        categoria: 'Sistema',
+        esBase: true,
+        esDefault: true,
+        espacio: 0,
+        monedas: 0
+    },
+    {
+        id: 'contactos',
+        nombre: 'Contactos',
+        icono: 'book-user',
+        ruta: 'herramientas/contactos/index.html',
+        descripcion: 'Directorio de la comunidad. Regala monedas a tus amigos.',
         categoria: 'Sistema',
         esBase: true,
         esDefault: true,
@@ -58,17 +69,46 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 0
     },
     {
-        id: 'contactos',
-        nombre: 'Contactos',
-        icono: 'book-user',
-        ruta: 'herramientas/contactos/index.html',
-        descripcion: 'Directorio de la comunidad. Regala monedas a tus amigos.',
+        id: 'stor-he',
+        nombre: 'Stor-He',
+        icono: 'store',
+        ruta: 'herramientas/stor-he/index.html',
+        descripcion: 'Tienda: descarga apps, temas y widgets.',
         categoria: 'Sistema',
         esBase: true,
-        esDefault: true,
         espacio: 0,
         monedas: 0
     },
+
+    // ============================================================
+    //  CREATIVIDAD
+    // ============================================================
+    {
+        id: 'pixevan',
+        nombre: 'PixEvan',
+        icono: 'grid-3x3',
+        ruta: 'herramientas/pixevan/index.html',
+        descripcion: 'Editor de pixel art por capas y frames. Exporta spritesheets.',
+        categoria: 'Creatividad',
+        esBase: false,
+        espacio: 8,
+        monedas: 130
+    },
+    {
+        id: 'arte-flash',
+        nombre: 'Arte Flash',
+        icono: 'palette',
+        ruta: 'herramientas/arte-flash/index.html',
+        descripcion: 'Editor de dibujo con capas, pinceles y referencias. Estilo Procreate.',
+        categoria: 'Creatividad',
+        esBase: false,
+        espacio: 10,
+        monedas: 220
+    },
+
+    // ============================================================
+    //  HERRAMIENTAS PRÁCTICAS
+    // ============================================================
     {
         id: 'calculadora',
         nombre: 'Calculadora',
@@ -113,23 +153,16 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 4,
         monedas: 70
     },
+
+    // ============================================================
+    //  JUEGOS
+    // ============================================================
     {
         id: 'dino',
         nombre: 'Mezosoic Run',
         icono: 'gamepad-2',
         ruta: 'herramientas/dino/index.html',
         descripcion: 'El clásico runner. Gana monedas mientras corres.',
-        categoria: 'Juegos',
-        esBase: false,
-        espacio: 2,
-        monedas: 0
-    },
-    {
-        id: 'whack-a-mole',
-        nombre: 'Golpea el Topo',
-        icono: 'hammer',
-        ruta: 'herramientas/whack-a-mole/index.html',
-        descripcion: 'Golpea los topos. Los topos son tu foto de perfil. 30 segundos por partida.',
         categoria: 'Juegos',
         esBase: false,
         espacio: 2,
@@ -144,6 +177,17 @@ const RUTAS_HERRAMIENTAS = [
         categoria: 'Juegos',
         esBase: false,
         espacio: 4,
+        monedas: 0
+    },
+    {
+        id: 'whack-a-mole',
+        nombre: 'Golpea el Topo',
+        icono: 'hammer',
+        ruta: 'herramientas/whack-a-mole/index.html',
+        descripcion: 'Golpea los topos. Los topos son tu foto de perfil. 30 segundos por partida.',
+        categoria: 'Juegos',
+        esBase: false,
+        espacio: 2,
         monedas: 0
     },
     {
@@ -168,6 +212,10 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 6,
         monedas: 35
     },
+
+    // ============================================================
+    //  SOCIAL
+    // ============================================================
     {
         id: 'evmail',
         nombre: 'EVmail',
@@ -180,11 +228,22 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 0
     },
     {
+        id: 'twevan',
+        nombre: 'Twevan',
+        icono: 'twitter',
+        ruta: 'herramientas/twevan/index.html',
+        descripcion: 'Mini red social. Publicá, comentá y hacete verificado con TwePlus.',
+        categoria: 'Social',
+        esBase: false,
+        espacio: 12,
+        monedas: 0
+    },
+    {
         id: 'vicsgram',
         nombre: 'VicsGram',
         icono: 'camera',
         ruta: 'herramientas/vicsgram/index.html',
-        descripcion: 'Mini-Instagram de la comunidad. Compartí fotos, liks y comentarios.',
+        descripcion: 'Mini-Instagram de la comunidad. Compartí fotos, likes y comentarios.',
         categoria: 'Social',
         esBase: false,
         espacio: 8,
@@ -212,26 +271,5 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 10,
         monedas: 250
     },
-    {
-        id: 'arte-flash',
-        nombre: 'Arte Flash',
-        icono: 'palette',
-        ruta: 'herramientas/arte-flash/index.html',
-        descripcion: 'Editor de dibujo con capas, pinceles y referencias. Estilo Procreate.',
-        categoria: 'Creatividad',
-        esBase: false,
-        espacio: 10,
-        monedas: 220
-    },
-        {
-        id: 'pixevan',
-        nombre: 'PixEvan',
-        icono: 'grid-3x3',
-        ruta: 'herramientas/pixevan/index.html',
-        descripcion: 'Editor de pixel art por capas y frames. Exporta spritesheets.',
-        categoria: 'Creatividad',
-        esBase: false,
-        espacio: 8,
-        monedas: 130
-    },
+
 ];
