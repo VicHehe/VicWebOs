@@ -26,13 +26,33 @@
             </div>
         </header>
 
-        <!-- MENÚ PRINCIPAL -->
-        <section class="vb-menu" id="vbMenu">
-            <div class="vb-menu-icon">
+        <div class="vb-hud" id="vbHud" hidden>
+            <div class="vb-hud-item">
+                <i data-lucide="timer"></i>
+                <span class="vb-hud-label">Aguantar</span>
+                <span class="vb-hud-valor"><strong id="vbTimer">0</strong><em>s</em></span>
+            </div>
+            <div class="vb-hud-item vb-hud-coins">
+                <i data-lucide="coins"></i>
+                <span class="vb-hud-label">Partida</span>
+                <span class="vb-hud-valor" id="vbMonedas">+0</span>
+            </div>
+        </div>
+
+        <div class="vb-canvas-wrap">
+            <canvas id="vbCanvas" width="720" height="420"></canvas>
+        </div>
+
+    </div>
+
+    <!-- OVERLAY MENÚ / INICIO -->
+    <div class="vb-overlay" id="vbOverlayMenu">
+        <div class="vb-overlay-card">
+            <div class="vb-overlay-icono">
                 <i data-lucide="circle-dot"></i>
             </div>
-            <h2>Pong con spin</h2>
-            <p>Movete con el mouse o el dedo. Cada golpe acelera la bola y le agrega curva. El primero que deje caer la bola pierde.</p>
+            <h2>Voleboy</h2>
+            <p>Movete con el mouse o el dedo para atajar la pelota sobre tu cabeza. La red separa los dos lados: si la pelota cae en tu suelo, perdés.</p>
 
             <button class="vb-btn vb-btn-primario" id="vbBtnCpu">
                 <i data-lucide="cpu"></i>
@@ -71,30 +91,10 @@
             </button>
 
             <div class="vb-info" id="vbInfo"></div>
-        </section>
-
-        <!-- HUD (durante la partida) -->
-        <section class="vb-hud" id="vbHud" hidden>
-            <div class="vb-hud-item">
-                <i data-lucide="timer"></i>
-                <span class="vb-hud-label">Aguantar</span>
-                <strong class="vb-hud-valor"><span id="vbTimer">0</span><em>s</em></strong>
-            </div>
-            <div class="vb-hud-item vb-hud-coins">
-                <i data-lucide="coins"></i>
-                <span class="vb-hud-label">Partida</span>
-                <strong class="vb-hud-valor" id="vbMonedas">+0</strong>
-            </div>
-        </section>
-
-        <!-- CANVAS -->
-        <div class="vb-canvas-wrap">
-            <canvas id="vbCanvas" width="400" height="600"></canvas>
         </div>
-
     </div>
 
-    <!-- OVERLAY FIN DE PARTIDA -->
+    <!-- OVERLAY FIN -->
     <div class="vb-overlay" id="vbOverlayFin" hidden>
         <div class="vb-overlay-card">
             <div class="vb-overlay-icono" id="vbFinIcono">
@@ -107,7 +107,7 @@
                 <div class="vb-resumen-fila">
                     <span class="vb-resumen-label">
                         <i data-lucide="timer"></i>
-                        Tiempo aguantado
+                        Tiempo sobrevivido
                     </span>
                     <span class="vb-resumen-valor" id="vbFinTiempo">0s</span>
                 </div>
@@ -121,7 +121,7 @@
                 <div class="vb-resumen-fila vb-resumen-destacada">
                     <span class="vb-resumen-label">
                         <i data-lucide="coins"></i>
-                        Total
+                        Total de la partida
                     </span>
                     <strong class="vb-resumen-monedas" id="vbFinTotal">+0</strong>
                 </div>
