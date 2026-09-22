@@ -1,0 +1,707 @@
+/* ================================================
+   Cámara — Toma fotos con filtros, marcos y funciones
+   Tema oscuro tipo app nativa de cámara.
+   ================================================ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+[hidden] { display: none !important; }
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #000;
+    color: white;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
+    color-scheme: dark;
+}
+
+[data-lucide] { width: 18px; height: 18px; stroke-width: 2; flex-shrink: 0; }
+
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ========== APP ========== */
+.cam-app {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    overflow: hidden;
+    background: #000;
+}
+
+/* ========== HEADER ========== */
+.cam-header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 16px;
+    background: rgba(10, 10, 12, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 10;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.cam-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.cam-logo-mark {
+    width: 34px;
+    height: 34px;
+    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.35));
+    flex-shrink: 0;
+}
+.cam-logo-mark [data-lucide] { width: 17px; height: 17px; stroke-width: 2.5; }
+
+.cam-logo-text { min-width: 0; }
+.cam-logo-text h1 {
+    font-size: 15px;
+    font-weight: 800;
+    color: white;
+    margin: 0;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+}
+.cam-logo-text p {
+    font-size: 10.5px;
+    color: rgba(255,255,255,0.55);
+    font-weight: 600;
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cam-icon-btn {
+    width: 38px;
+    height: 38px;
+    background: rgba(255,255,255,0.12);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    padding: 0;
+    flex-shrink: 0;
+}
+.cam-icon-btn:hover { background: rgba(255,255,255,0.22); }
+.cam-icon-btn:active { transform: scale(0.95); }
+.cam-icon-btn [data-lucide] { width: 17px; height: 17px; }
+
+/* ========== VIEWFINDER ========== */
+.cam-viewfinder {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    background: #000;
+    overflow: hidden;
+}
+
+.cam-viewfinder video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: filter 0.15s, transform 0.2s;
+}
+
+.cam-viewfinder.flash::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: white;
+    pointer-events: none;
+    animation: flashAnim 0.2s ease;
+    z-index: 3;
+}
+@keyframes flashAnim {
+    from { opacity: 0.9; }
+    to   { opacity: 0; }
+}
+
+/* Cuadrícula regla de tercios */
+.cam-grid-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cline x1='33.33' y1='0' x2='33.33' y2='100' stroke='rgba(255,255,255,0.45)' stroke-width='0.4'/%3E%3Cline x1='66.66' y1='0' x2='66.66' y2='100' stroke='rgba(255,255,255,0.45)' stroke-width='0.4'/%3E%3Cline x1='0' y1='33.33' x2='100' y2='33.33' stroke='rgba(255,255,255,0.45)' stroke-width='0.4'/%3E%3Cline x1='0' y1='66.66' x2='100' y2='66.66' stroke='rgba(255,255,255,0.45)' stroke-width='0.4'/%3E%3C/svg%3E");
+    background-size: 100% 100%;
+    z-index: 1;
+}
+
+/* Viñeta en vivo */
+.cam-vignette-live {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at center, transparent 25%, rgba(0,0,0,0.7) 100%);
+    z-index: 2;
+}
+
+/* Vista previa del marco en el live */
+.cam-frame-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+}
+.cam-frame-overlay.polaroid::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(to bottom, white 0 4%, transparent 4% 80%, white 80% 100%),
+        linear-gradient(to right, white 0 4%, transparent 4% 96%, white 96% 100%);
+}
+.cam-frame-overlay.retro::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(to bottom, #111 0 5%, transparent 5% 95%, #111 95% 100%),
+        linear-gradient(to right, #111 0 8%, transparent 8% 92%, #111 92% 100%);
+}
+
+/* Temporizador */
+.cam-timer-display {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 3px solid rgba(255,255,255,0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 68px;
+    font-weight: 900;
+    color: white;
+    font-variant-numeric: tabular-nums;
+    z-index: 5;
+    animation: timerPulse 1s ease infinite;
+    letter-spacing: -0.05em;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+}
+@keyframes timerPulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50%      { transform: translate(-50%, -50%) scale(1.06); }
+}
+
+/* Mensaje de error de cámara */
+.cam-mensaje {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    background: #0A0A0C;
+    z-index: 6;
+}
+.cam-mensaje-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    text-align: center;
+    max-width: 320px;
+    padding: 28px 24px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+}
+.cam-mensaje-card [data-lucide] {
+    width: 40px;
+    height: 40px;
+    color: var(--violet-400, #A78BFA);
+    stroke-width: 1.5;
+}
+.cam-mensaje-card h3 {
+    font-size: 16px;
+    font-weight: 800;
+    color: white;
+    margin: 0;
+}
+.cam-mensaje-card p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* ========== TABS ========== */
+.cam-tabs {
+    flex-shrink: 0;
+    display: flex;
+    gap: 4px;
+    padding: 8px 12px 0;
+    background: rgba(10, 10, 12, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.cam-tab {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 8px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.55);
+    cursor: pointer;
+    transition: all 0.15s;
+    touch-action: manipulation;
+}
+.cam-tab:hover { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.06); }
+.cam-tab.active {
+    background: rgba(255,255,255,0.14);
+    color: white;
+}
+.cam-tab [data-lucide] { width: 14px; height: 14px; }
+
+/* ========== OPTIONS ========== */
+.cam-options {
+    flex-shrink: 0;
+    display: flex;
+    gap: 6px;
+    padding: 10px 12px 12px;
+    background: rgba(10, 10, 12, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    min-height: 92px;
+}
+.cam-options::-webkit-scrollbar { display: none; }
+
+/* ========== CHIPS ========== */
+.cam-chip {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    min-width: 68px;
+    max-width: 80px;
+    padding: 6px 4px 5px;
+    background: transparent;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    color: white;
+    flex-shrink: 0;
+    touch-action: manipulation;
+}
+.cam-chip:hover { background: rgba(255,255,255,0.06); }
+.cam-chip.activo { background: rgba(255,255,255,0.12); }
+.cam-chip.activo .cam-chip-preview,
+.cam-chip.activo .cam-chip-icon {
+    border-color: var(--violet-400, #A78BFA);
+    box-shadow: 0 0 0 2px var(--violet-400, #A78BFA),
+                0 4px 12px rgba(0,0,0,0.45);
+}
+.cam-chip.bloqueado { opacity: 0.8; }
+
+.cam-chip-preview {
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    background:
+        radial-gradient(circle at 30% 25%, #FFD166, transparent 45%),
+        radial-gradient(circle at 75% 30%, #06B6D4, transparent 45%),
+        radial-gradient(circle at 50% 80%, #EC4899, transparent 55%),
+        linear-gradient(135deg, #8B5CF6, #6D28D9);
+    border: 2px solid rgba(255,255,255,0.15);
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+
+.cam-chip-preview-marco {
+    background: linear-gradient(135deg, #374151, #1F2937);
+    position: relative;
+    overflow: hidden;
+}
+.cam-chip-preview-marco.marco-preview-polaroid::after {
+    content: '';
+    position: absolute;
+    inset: 4px 4px 14px 4px;
+    background: linear-gradient(135deg, #4B5563, #374151);
+    border: 3px solid white;
+    border-bottom-width: 8px;
+}
+.cam-chip-preview-marco.marco-preview-retro::after {
+    content: '';
+    position: absolute;
+    inset: 5px 8px;
+    background: linear-gradient(135deg, #4B5563, #374151);
+    border: 3px solid #111;
+}
+
+.cam-chip-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.08);
+    border: 2px solid rgba(255,255,255,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+.cam-chip-icon [data-lucide] { width: 22px; height: 22px; stroke-width: 2; }
+
+.cam-chip-nombre {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.85);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    line-height: 1.15;
+}
+
+.cam-chip-lock {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    background: rgba(0,0,0,0.75);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FCD34D;
+    border: 1px solid rgba(255,255,255,0.15);
+}
+.cam-chip-lock [data-lucide] { width: 11px; height: 11px; stroke-width: 2.5; }
+
+/* ========== SHUTTER ========== */
+.cam-shutter-bar {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 16px 20px;
+    padding-bottom: max(20px, env(safe-area-inset-bottom, 20px));
+    background: rgba(10, 10, 12, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.cam-shutter {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    background: transparent;
+    border: 4px solid rgba(255,255,255,0.9);
+    cursor: pointer;
+    padding: 4px;
+    transition: transform 0.08s;
+    position: relative;
+    touch-action: manipulation;
+}
+.cam-shutter::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FFFFFF, #E5E7EB);
+    transition: background 0.1s;
+    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.1);
+}
+.cam-shutter:hover::after { background: linear-gradient(135deg, #F3F4F6, #D1D5DB); }
+.cam-shutter:active { transform: scale(0.92); }
+.cam-shutter:active::after { background: linear-gradient(135deg, #E5E7EB, #9CA3AF); }
+
+/* ========== PREVIEW VIEW ========== */
+.cam-preview-view {
+    position: fixed;
+    inset: 0;
+    background: #0A0A0C;
+    display: flex;
+    flex-direction: column;
+    z-index: 500;
+    animation: previewIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes previewIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.cam-preview-header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    gap: 12px;
+}
+.cam-preview-header h2 {
+    font-size: 15px;
+    font-weight: 800;
+    color: white;
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+.cam-header-spacer { width: 38px; height: 38px; flex-shrink: 0; }
+
+.cam-preview-img-wrap {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    overflow: hidden;
+}
+.cam-preview-img-wrap img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+    display: block;
+}
+
+.cam-preview-actions {
+    flex-shrink: 0;
+    display: flex;
+    gap: 10px;
+    padding: 16px 20px 24px;
+    padding-bottom: max(24px, env(safe-area-inset-bottom, 24px));
+}
+
+.cam-btn-sec,
+.cam-btn-pri {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 20px;
+    border-radius: 14px;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.15s;
+    touch-action: manipulation;
+    border: none;
+    letter-spacing: -0.01em;
+}
+.cam-btn-sec {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: 1.5px solid rgba(255,255,255,0.15);
+}
+.cam-btn-sec:hover:not(:disabled) { background: rgba(255,255,255,0.18); }
+.cam-btn-pri {
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: white;
+    box-shadow: 0 6px 18px var(--accent-shadow, rgba(139,92,246,0.4));
+}
+.cam-btn-pri:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 22px var(--accent-shadow-hover, rgba(139,92,246,0.5));
+}
+.cam-btn-pri:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+.cam-btn-sec [data-lucide],
+.cam-btn-pri [data-lucide] { width: 16px; height: 16px; }
+
+/* ========== MODAL ========== */
+.cam-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.78);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 1000;
+    animation: fadeIn 0.15s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.cam-modal-card {
+    background: var(--white, #FFFFFF);
+    color: var(--text, #18181B);
+    border-radius: 24px;
+    padding: 28px 26px 22px;
+    width: 100%;
+    max-width: 380px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.45);
+    animation: modalZoom 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes modalZoom {
+    from { transform: scale(0.94); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+
+.cam-modal-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 8px 22px var(--accent-shadow, rgba(139,92,246,0.35));
+}
+.cam-modal-icon [data-lucide] { width: 28px; height: 28px; stroke-width: 2.25; }
+
+.cam-modal-card h3 {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--gray-900, #18181B);
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+.cam-modal-card p {
+    font-size: 13px;
+    color: var(--gray-500, #71717A);
+    line-height: 1.5;
+    margin: 0;
+    max-width: 300px;
+}
+
+.cam-modal-precio {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 18px;
+    background: var(--violet-50, #F5F3FF);
+    border: 1px solid var(--violet-200, #DDD6FE);
+    border-radius: 999px;
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--violet-700, #6D28D9);
+    margin-top: 4px;
+}
+.cam-modal-precio [data-lucide] {
+    width: 18px;
+    height: 18px;
+    color: #F59E0B;
+}
+
+.cam-modal-actions {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    margin-top: 8px;
+}
+.cam-modal-actions .cam-btn-sec {
+    background: var(--white, #FFFFFF);
+    color: var(--gray-700, #3F3F46);
+    border: 1.5px solid var(--border, #E8E8EE);
+}
+.cam-modal-actions .cam-btn-sec:hover { background: var(--gray-100, #F4F4F7); }
+
+/* ========== TOAST ========== */
+.cam-toast {
+    position: fixed;
+    bottom: 130px;
+    left: 50%;
+    transform: translateX(-50%) translateY(120px);
+    background: rgba(24, 24, 27, 0.95);
+    color: white;
+    padding: 12px 22px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: 2000;
+    max-width: calc(100% - 40px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.cam-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+.cam-toast.success { background: #065F46; }
+.cam-toast.error   { background: #991B1B; }
+.cam-toast.info    { background: var(--violet-700, #6D28D9); }
+
+/* ========== RESPONSIVE ========== */
+@media (min-width: 900px) {
+    body { display: flex; justify-content: center; background: #050505; }
+    .cam-app {
+        width: 100%;
+        max-width: 600px;
+        height: 100dvh;
+        border-left: 1px solid rgba(255,255,255,0.06);
+        border-right: 1px solid rgba(255,255,255,0.06);
+    }
+}
+
+@media (max-height: 640px) {
+    .cam-shutter-bar { padding: 8px 16px 12px; }
+    .cam-shutter { width: 64px; height: 64px; border-width: 3px; }
+    .cam-logo-mark { width: 30px; height: 30px; }
+    .cam-logo-text h1 { font-size: 14px; }
+    .cam-options { min-height: 82px; padding: 8px 10px 10px; }
+    .cam-chip-preview,
+    .cam-chip-icon { width: 46px; height: 46px; }
+    .cam-chip { min-width: 60px; }
+    .cam-tab { padding: 7px 6px; font-size: 11.5px; }
+}
