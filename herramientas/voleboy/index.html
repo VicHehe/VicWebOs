@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Voleboy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="vb-app">
+
+        <header class="vb-header">
+            <div class="vb-logo">
+                <div class="vb-logo-mark">
+                    <i data-lucide="circle-dot"></i>
+                </div>
+                <div class="vb-logo-text">
+                    <h1>Voleboy</h1>
+                    <p id="vbUserBadge">—</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- MENÚ PRINCIPAL -->
+        <section class="vb-menu" id="vbMenu">
+            <div class="vb-menu-icon">
+                <i data-lucide="circle-dot"></i>
+            </div>
+            <h2>Pong con spin</h2>
+            <p>Movete con el mouse o el dedo. Cada golpe acelera la bola y le agrega curva. El primero que deje caer la bola pierde.</p>
+
+            <button class="vb-btn vb-btn-primario" id="vbBtnCpu">
+                <i data-lucide="cpu"></i>
+                Jugar vs CPU
+            </button>
+
+            <div class="vb-sep"><span>o</span></div>
+
+            <div class="vb-field">
+                <label for="vbInputSala">Código de sala</label>
+                <input type="text" id="vbInputSala" maxlength="20" placeholder="Ej: 1234A" autocomplete="off">
+            </div>
+
+            <div class="vb-roles">
+                <label class="vb-rol">
+                    <input type="radio" name="vbRol" value="host" checked>
+                    <span>
+                        <i data-lucide="crown"></i>
+                        <strong>Anfitrión</strong>
+                        <small>Crear sala</small>
+                    </span>
+                </label>
+                <label class="vb-rol">
+                    <input type="radio" name="vbRol" value="guest">
+                    <span>
+                        <i data-lucide="users"></i>
+                        <strong>Invitado</strong>
+                        <small>Unirse a sala</small>
+                    </span>
+                </label>
+            </div>
+
+            <button class="vb-btn vb-btn-secundario" id="vbBtnP2P">
+                <i data-lucide="users"></i>
+                Jugar con amigo
+            </button>
+
+            <div class="vb-info" id="vbInfo"></div>
+        </section>
+
+        <!-- HUD (durante la partida) -->
+        <section class="vb-hud" id="vbHud" hidden>
+            <div class="vb-hud-item">
+                <i data-lucide="timer"></i>
+                <span class="vb-hud-label">Aguantar</span>
+                <strong class="vb-hud-valor"><span id="vbTimer">0</span><em>s</em></strong>
+            </div>
+            <div class="vb-hud-item vb-hud-coins">
+                <i data-lucide="coins"></i>
+                <span class="vb-hud-label">Partida</span>
+                <strong class="vb-hud-valor" id="vbMonedas">+0</strong>
+            </div>
+        </section>
+
+        <!-- CANVAS -->
+        <div class="vb-canvas-wrap">
+            <canvas id="vbCanvas" width="400" height="600"></canvas>
+        </div>
+
+    </div>
+
+    <!-- OVERLAY FIN DE PARTIDA -->
+    <div class="vb-overlay" id="vbOverlayFin" hidden>
+        <div class="vb-overlay-card">
+            <div class="vb-overlay-icono" id="vbFinIcono">
+                <i data-lucide="trophy"></i>
+            </div>
+            <h2 id="vbFinTitulo">¡Ganaste!</h2>
+            <p id="vbFinSub">Buena partida.</p>
+
+            <div class="vb-resumen">
+                <div class="vb-resumen-fila">
+                    <span class="vb-resumen-label">
+                        <i data-lucide="timer"></i>
+                        Tiempo aguantado
+                    </span>
+                    <span class="vb-resumen-valor" id="vbFinTiempo">0s</span>
+                </div>
+                <div class="vb-resumen-fila">
+                    <span class="vb-resumen-label">
+                        <i data-lucide="sparkles"></i>
+                        Bonus de aguante
+                    </span>
+                    <span class="vb-resumen-valor" id="vbFinBonus">+0</span>
+                </div>
+                <div class="vb-resumen-fila vb-resumen-destacada">
+                    <span class="vb-resumen-label">
+                        <i data-lucide="coins"></i>
+                        Total
+                    </span>
+                    <strong class="vb-resumen-monedas" id="vbFinTotal">+0</strong>
+                </div>
+            </div>
+
+            <button class="vb-btn vb-btn-primario" id="vbBtnReintentar">
+                <i data-lucide="rotate-ccw"></i>
+                <span id="vbBtnReintentarTxt">Jugar otra vez</span>
+            </button>
+            <button class="vb-btn vb-btn-secundario" id="vbBtnMenu">
+                <i data-lucide="home"></i>
+                Volver al menú
+            </button>
+        </div>
+    </div>
+
+    <div class="vb-toast" id="vbToast"></div>
+
+    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
