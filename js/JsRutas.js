@@ -212,6 +212,17 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 6,
         monedas: 35
     },
+        {
+        id: 'voleboy',
+        nombre: 'Voleboy',
+        icono: 'circle-dot',
+        ruta: 'herramientas/voleboy/index.html',
+        descripcion: 'Pong con spin. Jugá contra la CPU o contra un amigo por código de sala.',
+        categoria: 'Juegos',
+        esBase: false,
+        espacio: 8,
+        monedas: 70
+    },
 
     // ============================================================
     //  SOCIAL
