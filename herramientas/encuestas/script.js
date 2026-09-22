@@ -35,10 +35,10 @@ let filtroEstado = 'abiertas';
 
 // Crear
 let catSeleccionada = 'tonteria';
-let toggleVoto = 'unico';       // 'unico' | 'multiple'
-let toggleVisibilidad = 'publico'; // 'publico' | 'privado'
-let toggleAlcance = 'todos';    // 'todos' | 'invitados'
-let invitadosSeleccionados = []; // códigos
+let toggleVoto = 'unico';           // 'unico' | 'multiple'
+let toggleVisibilidad = 'publico';  // 'publico' | 'privado'
+let toggleAlcance = 'todos';        // 'todos' | 'invitados'
+let invitadosSeleccionados = [];    // códigos
 let justifObligatoria = false;
 
 // Ranking
@@ -50,7 +50,6 @@ const seleccionMultiple = new Map(); // encuestaId -> Set(opciones)
 // Justificación en curso
 const justifPendiente = new Map();   // encuestaId -> string
 
-// URLs
 let toastTimer = null;
 
 const API = () => window.parent.__vicwebos || null;
@@ -157,7 +156,7 @@ function miVoto(e) {
 function puedeVotar(e) {
     if (!usuarioActual) return false;
     if (estaCerrada(e)) return false;
-    if (e.autor === usuarioActual.codigo) return true; // el autor puede votar su propia encuesta
+    if (e.autor === usuarioActual.codigo) return true;
     if (e.alcance === 'invitados') {
         return Array.isArray(e.invitados) && e.invitados.includes(usuarioActual.codigo);
     }
@@ -240,7 +239,6 @@ async function procesarAutocierres() {
         return a;
     });
 
-    // Notificar al autor de cada encuesta auto-cerrada
     const api = API();
     if (api?.enviarNotificacion) {
         for (const e of vencidas) {
@@ -263,7 +261,6 @@ function filtrar() {
     if (filtroEstado === 'abiertas') l = l.filter(e => !estaCerrada(e));
     else if (filtroEstado === 'cerradas') l = l.filter(e => estaCerrada(e));
     l = l.filter(esVisibleParaMi);
-    // Más recientes primero
     l.sort((a, b) => new Date(b.creado) - new Date(a.creado));
     return l;
 }
@@ -370,9 +367,7 @@ function crearCard(e) {
     const totalS = totalSelecciones(e);
     const mostrarResultados = mi || cerrada || !puede;
 
-    const seleccionActual = seleccionMultiple.get(e.id) || new Set(
-        mi?.seleccion || []
-    );
+    const seleccionActual = seleccionMultiple.get(e.id) || new Set(mi?.seleccion || []);
     if (puede && e.votoMultiple && !mi) {
         seleccionMultiple.set(e.id, seleccionActual);
     }
@@ -405,7 +400,6 @@ function crearCard(e) {
         if (puede && !mi) {
             btn.addEventListener('click', () => manejarClickOpcion(e, o.id));
         } else if (puede && mi && !cerrada) {
-            // Puede cambiar su voto mientras esté abierta
             btn.addEventListener('click', () => manejarCambiarVoto(e, o.id));
         } else {
             btn.disabled = true;
@@ -414,13 +408,11 @@ function crearCard(e) {
         opcionesCont.appendChild(btn);
     });
 
-    // --- Justificación inline (si toca) ---
+    // --- Justificación inline (voto único) ---
     const necesitaJustif = puede && e.visibilidad === 'publico' &&
         e.justificacionObligatoria && !mi && e.votoMultiple === false;
-    // (el múltiple maneja su justif junto con el botón votar)
 
     if (necesitaJustif && justifPendiente.has(e.id)) {
-        // Ya eligió opción, mostramos input
         const justifDiv = document.createElement('div');
         justifDiv.className = 'en-justif-inline';
         justifDiv.innerHTML = `
@@ -434,11 +426,11 @@ function crearCard(e) {
         });
         const acciones = document.createElement('div');
         acciones.style.display = 'flex';
-        acciones.style.gap = '6px';
+        acciones.style.gap = '8px';
         acciones.style.justifyContent = 'flex-end';
         acciones.innerHTML = `
-            <button class="en-btn-sec" data-accion="cancelar" style="padding:8px 14px;font-size:12.5px;">Cancelar</button>
-            <button class="en-btn-pri" data-accion="enviar" style="padding:8px 14px;font-size:12.5px;">
+            <button class="en-btn-sec" data-accion="cancelar" style="padding:9px 16px;font-size:13px;">Cancelar</button>
+            <button class="en-btn-pri" data-accion="enviar" style="padding:9px 16px;font-size:13px;">
                 <i data-lucide="check"></i>
                 Enviar voto
             </button>
@@ -455,7 +447,6 @@ function crearCard(e) {
         });
         justifDiv.appendChild(acciones);
         wrap.appendChild(justifDiv);
-        // Guardamos la opción elegida al costado
     }
 
     // --- FOOT ---
@@ -478,7 +469,7 @@ function crearCard(e) {
             const arr = [...selec];
             if (arr.length === 0) { toast('Elegí al menos una opción', 'error'); return; }
             if (e.visibilidad === 'publico' && e.justificacionObligatoria) {
-                mostrarJustifParaMultiple(e, arr);
+                abrirJustifMultiple(e, arr);
                 return;
             }
             votar(e.id, arr, '');
@@ -488,7 +479,6 @@ function crearCard(e) {
     } else {
         foot.appendChild(info);
 
-        // Info extra: si es privada y ya votó, mostrar "votaste"
         if (mi) {
             const miInfo = document.createElement('span');
             miInfo.className = 'en-card-foot-info';
@@ -497,7 +487,6 @@ function crearCard(e) {
             foot.appendChild(miInfo);
         }
 
-        // Acciones del autor
         if (esMio) {
             const acc = document.createElement('div');
             acc.className = 'en-card-foot-acciones';
@@ -518,12 +507,12 @@ function crearCard(e) {
             foot.appendChild(acc);
         }
 
-        // Botón ver detalle
         const btnVer = document.createElement('button');
         btnVer.className = 'en-icon-btn';
         btnVer.title = 'Ver detalle';
         btnVer.innerHTML = `<i data-lucide="bar-chart-3"></i>`;
         btnVer.addEventListener('click', () => abrirVerDetalle(e.id));
+
         if (!esMio) {
             const der = document.createElement('div');
             der.className = 'en-card-foot-acciones';
@@ -543,9 +532,7 @@ function crearCard(e) {
 //  INTERACCIÓN: VOTAR
 // ============================================================
 function manejarClickOpcion(e, opcionId) {
-    // Voto único
     if (e.votoMultiple) {
-        // Toggle selección (sin votar aún)
         const sel = seleccionMultiple.get(e.id) || new Set();
         if (sel.has(opcionId)) sel.delete(opcionId);
         else sel.add(opcionId);
@@ -553,7 +540,6 @@ function manejarClickOpcion(e, opcionId) {
         renderFeed();
         return;
     }
-    // Único
     if (e.visibilidad === 'publico' && e.justificacionObligatoria) {
         justifPendiente.set(e.id, '');
         justifPendiente.set(`${e.id}__op`, opcionId);
@@ -564,18 +550,16 @@ function manejarClickOpcion(e, opcionId) {
 }
 
 function manejarCambiarVoto(e, opcionId) {
-    // Permitimos cambiar voto mientras esté abierta
     const mi = miVoto(e);
     if (!mi) return;
     if (e.votoMultiple) {
-        // Cambio toggle
         const sel = new Set(mi.seleccion);
         if (sel.has(opcionId)) sel.delete(opcionId);
         else sel.add(opcionId);
         if (sel.size === 0) { toast('Debés elegir al menos una opción', 'error'); return; }
         votar(e.id, [...sel], mi.justificacion || '');
     } else {
-        if (mi.seleccion.includes(opcionId)) return; // ya tenía esa
+        if (mi.seleccion.includes(opcionId)) return;
         if (e.visibilidad === 'publico' && e.justificacionObligatoria) {
             justifPendiente.set(e.id, mi.justificacion || '');
             justifPendiente.set(`${e.id}__op`, opcionId);
@@ -586,29 +570,22 @@ function manejarCambiarVoto(e, opcionId) {
     }
 }
 
-function mostrarJustifParaMultiple(e, opcionesIds) {
-    justifPendiente.set(e.id, '');
-    justifPendiente.set(`${e.id}__ops`, opcionesIds);
-    abrirJustifMultiple(e, opcionesIds);
-}
-
 function abrirJustifMultiple(e, opcionesIds) {
-    // Usamos un modal rápido para no ensuciar el feed
     const overlay = document.createElement('div');
     overlay.className = 'en-modal';
     overlay.style.zIndex = '1200';
     overlay.innerHTML = `
-        <div class="en-modal-card" style="max-width:440px;">
+        <div class="en-modal-card" style="max-width:520px;">
             <div class="en-modal-header">
                 <h2><i data-lucide="message-square-quote"></i><span>Justificá tu voto</span></h2>
                 <button class="en-modal-cerrar" data-x="1"><i data-lucide="x"></i></button>
             </div>
             <div class="en-modal-body">
-                <p style="font-size:13px;color:var(--gray-500,#71717A);font-weight:600;line-height:1.5;">
+                <p style="font-size:13.5px;color:var(--gray-500,#71717A);font-weight:600;line-height:1.55;">
                     Elegiste ${opcionesIds.length} opción${opcionesIds.length === 1 ? '' : 'es'}. Contá por qué.
                 </p>
                 <textarea id="enJustifMultipleTa" maxlength="${MAX_JUSTIF}"
-                    style="width:100%;min-height:100px;padding:11px 14px;border:1.5px solid var(--border,#E8E8EE);border-radius:12px;font-family:inherit;font-size:13.5px;resize:none;outline:none;background:var(--white,#FFFFFF);color:var(--gray-900,#18181B);"
+                    style="width:100%;min-height:110px;padding:12px 14px;border:1.5px solid var(--border,#E8E8EE);border-radius:12px;font-family:inherit;font-size:14px;resize:none;outline:none;background:var(--white,#FFFFFF);color:var(--gray-900,#18181B);line-height:1.5;"
                     placeholder="¿Por qué elegiste esas opciones?"></textarea>
             </div>
             <div class="en-modal-actions">
@@ -664,7 +641,6 @@ async function votar(encuestaId, opcionesIds, justificacion = '') {
             return a;
         });
 
-        // Limpieza de estado local
         seleccionMultiple.delete(encuestaId);
         justifPendiente.delete(encuestaId);
         justifPendiente.delete(`${encuestaId}__op`);
@@ -673,7 +649,6 @@ async function votar(encuestaId, opcionesIds, justificacion = '') {
         toast(eraNuevo ? 'Voto registrado' : 'Voto actualizado', 'success');
         renderFeed();
 
-        // Notificación al autor (si es nuevo voto y no es auto-voto)
         const enc = encuestas.find(x => x.id === encuestaId);
         if (enc && eraNuevo && enc.autor !== yo) {
             API()?.enviarNotificacion?.(
@@ -683,7 +658,6 @@ async function votar(encuestaId, opcionesIds, justificacion = '') {
             ).catch(() => {});
         }
 
-        // ¿Todos los invitados votaron?
         if (enc && enc.alcance === 'invitados' && !enc.notificadoTodosVotaron && enc.autor !== yo) {
             const invitados = enc.invitados || [];
             const votaron = new Set(Object.keys(enc.votos || {}));
@@ -759,7 +733,6 @@ function abrirModalCrear() {
     document.getElementById('enCrearMensaje').textContent = '';
     document.getElementById('enCrearMensaje').className = 'en-modal-mensaje';
 
-    // Opciones mínimas
     const opCont = document.getElementById('enCrearOpciones');
     opCont.innerHTML = '';
     agregarOpcion('');
@@ -786,7 +759,6 @@ function agregarOpcion(valor = '') {
             <i data-lucide="x"></i>
         </button>
     `;
-    const input = fila.querySelector('input');
     const btn = fila.querySelector('.en-btn-eliminar-opcion');
     btn.addEventListener('click', () => {
         if (cont.children.length <= MIN_OPCIONES) return;
@@ -858,7 +830,6 @@ async function guardarEncuesta() {
         msj.className = 'en-modal-mensaje error';
         return;
     }
-    // Verificar duplicados
     const setOps = new Set(opciones.map(o => o.toLowerCase()));
     if (setOps.size !== opciones.length) {
         msj.textContent = 'No puede haber opciones duplicadas.';
@@ -892,7 +863,7 @@ async function guardarEncuesta() {
         autor: yo,
         autorNombre: usuarioActual.nombre || yo,
         pregunta,
-        opciones: opciones.map((txt, i) => ({ id: generarId('op'), texto: txt })),
+        opciones: opciones.map(txt => ({ id: generarId('op'), texto: txt })),
         categoria: catSeleccionada,
         visibilidad: toggleVisibilidad,
         alcance: toggleAlcance,
@@ -920,7 +891,6 @@ async function guardarEncuesta() {
         renderFeed();
         toast('Encuesta publicada', 'success');
 
-        // Notificar a invitados
         if (nueva.alcance === 'invitados' && nueva.invitados.length > 0) {
             const api = API();
             if (api?.enviarNotificacion) {
@@ -945,7 +915,6 @@ async function guardarEncuesta() {
 //  MODAL: INVITADOS
 // ============================================================
 function abrirModalInvitados() {
-    const cont = document.getElementById('enInvitadosLista');
     const buscar = document.getElementById('enInvitadosBuscar');
     buscar.value = '';
     renderListaInvitados('');
@@ -960,9 +929,7 @@ function renderListaInvitados(filtro) {
     const f = filtro.toLowerCase().trim();
     const yo = usuarioActual.codigo;
 
-    const codigos = Object.keys(usuariosPorCodigo)
-        .filter(c => c !== yo)
-        .sort();
+    const codigos = Object.keys(usuariosPorCodigo).filter(c => c !== yo).sort();
 
     const lista = codigos.filter(c => {
         if (!f) return true;
@@ -972,7 +939,7 @@ function renderListaInvitados(filtro) {
 
     if (lista.length === 0) {
         cont.innerHTML = `
-            <div class="en-ver-vacio">
+            <div class="en-ver-vacio" style="grid-column: 1 / -1;">
                 <i data-lucide="users"></i>
                 <p>${codigos.length === 0 ? 'No hay otros usuarios en la comunidad.' : 'Sin resultados.'}</p>
             </div>`;
@@ -988,7 +955,7 @@ function renderListaInvitados(filtro) {
             <label class="en-invitado-item ${activo ? 'activo' : ''}" data-codigo="${escapar(c)}">
                 <input type="checkbox" ${activo ? 'checked' : ''}>
                 <span class="en-checkbox-box"><i data-lucide="check"></i></span>
-                <div class="en-avatar" style="width:30px;height:30px;font-size:12px;">
+                <div class="en-avatar" style="width:34px;height:34px;font-size:13px;">
                     ${foto ? `<img src="${foto}" alt="">` : `<span>${escapar((u.nombre || c).charAt(0).toUpperCase())}</span>`}
                 </div>
                 <div class="en-invitado-nombre">
@@ -1043,7 +1010,6 @@ function abrirVerDetalle(id) {
     const totalV = totalVotos(e);
     const esPublico = e.visibilidad === 'publico';
 
-    // Encabezado
     let html = `
         <div class="en-ver-pregunta">${escapar(e.pregunta)}</div>
         <div class="en-ver-meta">
@@ -1072,7 +1038,6 @@ function abrirVerDetalle(id) {
         </div>
     `;
 
-    // Opciones con barras
     html += `<div class="en-ver-opciones">`;
     e.opciones.forEach(o => {
         const pct = totalS > 0 ? Math.round((conteo[o.id] / totalS) * 100) : 0;
@@ -1089,15 +1054,13 @@ function abrirVerDetalle(id) {
     });
     html += `</div>`;
 
-    // Info total
     html += `
-        <div class="en-card-foot-info" style="justify-content:center;padding:8px;">
+        <div class="en-card-foot-info" style="justify-content:center;padding:8px;font-size:13px;">
             <i data-lucide="users"></i>
             ${totalV} ${totalV === 1 ? 'persona votó' : 'personas votaron'}
         </div>
     `;
 
-    // Votantes (solo si público)
     if (esPublico && totalV > 0) {
         html += `<div class="en-ver-seccion-titulo"><i data-lucide="list-checks"></i> Cómo votó cada persona</div>`;
         html += `<div class="en-votantes">`;
@@ -1143,7 +1106,7 @@ function abrirVerDetalle(id) {
     } else if (!esPublico && totalV > 0) {
         html += `
             <div class="en-ver-seccion-titulo"><i data-lucide="eye-off"></i> Votos privados</div>
-            <div class="en-ver-vacio" style="padding:20px 12px;">
+            <div class="en-ver-vacio" style="padding:24px 16px;">
                 <i data-lucide="lock"></i>
                 <p>Esta encuesta tiene votos privados. Solo se muestra el total.</p>
             </div>
@@ -1189,7 +1152,7 @@ function renderTop() {
 
     if (lista.length === 0) {
         cont.innerHTML = `
-            <div class="en-ver-vacio">
+            <div class="en-ver-vacio" style="grid-column: 1 / -1;">
                 <i data-lucide="trophy"></i>
                 <p>Sin encuestas votadas en esta categoría todavía.</p>
             </div>`;
@@ -1267,9 +1230,12 @@ async function inicializar() {
         });
     });
 
-    // FAB / Top
+    // Nueva encuesta: FAB + botón header + empty
     document.getElementById('enFabNuevo')?.addEventListener('click', abrirModalCrear);
+    document.getElementById('enBtnNueva')?.addEventListener('click', abrirModalCrear);
     document.getElementById('enEmptyBtnNuevo')?.addEventListener('click', abrirModalCrear);
+
+    // Top
     document.getElementById('enBtnTop')?.addEventListener('click', abrirModalTop);
 
     // Modal crear: cerrar
@@ -1318,11 +1284,9 @@ async function inicializar() {
         const inp = document.getElementById('enCrearCierreFecha');
         inp.hidden = !e.target.checked;
         if (e.target.checked) {
-            // default: mañana a esta hora
             const d = new Date(Date.now() + 24 * 60 * 60 * 1000);
             d.setSeconds(0, 0);
-            const iso = d.toISOString().slice(0, 16);
-            inp.value = iso;
+            inp.value = d.toISOString().slice(0, 16);
         }
     });
 
