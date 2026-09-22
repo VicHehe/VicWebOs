@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Mis OCs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="oc-container">
+
+        <!-- HEADER -->
+        <header class="oc-header">
+            <div class="oc-logo">
+                <div class="oc-logo-mark"><i data-lucide="sparkles"></i></div>
+                <div class="oc-logo-text">
+                    <h1>Mis OCs</h1>
+                    <p id="ocUserBadge">—</p>
+                </div>
+            </div>
+
+            <div class="oc-header-actions">
+                <div class="oc-search" id="ocSearchWrap">
+                    <i data-lucide="search" class="oc-search-icono"></i>
+                    <input type="text" id="ocSearch" placeholder="Buscar por nombre...">
+                    <button class="oc-search-clear" id="ocSearchClear" hidden title="Limpiar">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
+                <button class="oc-btn-pri" id="ocBtnNuevo">
+                    <i data-lucide="plus"></i>
+                    <span>Nuevo OC</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN -->
+        <main class="oc-main">
+            <div class="oc-contador" id="ocContador"></div>
+
+            <div class="oc-grid" id="ocGrid"></div>
+
+            <div class="oc-empty" id="ocEmpty" hidden>
+                <div class="oc-empty-card">
+                    <div class="oc-empty-icon">
+                        <i data-lucide="sparkles"></i>
+                    </div>
+                    <h3 id="ocEmptyTitulo">Todavía no tenés OCs</h3>
+                    <p id="ocEmptyDesc">Creá tu primer personaje original con foto, stats e historia.</p>
+                    <button class="oc-empty-btn" id="ocEmptyBtnNuevo">
+                        <i data-lucide="plus"></i>
+                        <span>Crear mi primer OC</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="oc-pagination" id="ocPagination"></div>
+        </main>
+
+        <button class="oc-fab" id="ocFabNuevo" title="Nuevo OC">
+            <i data-lucide="plus"></i>
+        </button>
+    </div>
+
+    <!-- ==================================================
+         MODAL: CREAR / EDITAR
+    =================================================== -->
+    <div class="oc-modal" id="ocModalEditor" hidden>
+        <div class="oc-modal-card oc-modal-card-lg">
+            <div class="oc-modal-header">
+                <h2>
+                    <i data-lucide="sparkles"></i>
+                    <span id="ocEditorTitulo">Nuevo OC</span>
+                </h2>
+                <button class="oc-modal-cerrar" id="ocEditorCerrar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
+            <div class="oc-modal-body">
+
+                <!-- Foto -->
+                <div class="oc-foto-seccion">
+                    <div class="oc-foto-preview" id="ocFotoPreview">
+                        <div class="oc-foto-placeholder" id="ocFotoPlaceholder">
+                            <i data-lucide="image-plus"></i>
+                            <span>Sin foto</span>
+                        </div>
+                        <img id="ocFotoImg" alt="">
+                    </div>
+                    <div class="oc-foto-acciones">
+                        <button class="oc-btn-sec" id="ocBtnElegirFoto">
+                            <i data-lucide="images"></i>
+                            <span id="ocFotoBtnTxt">Elegir foto</span>
+                        </button>
+                        <button class="oc-btn-sec oc-btn-danger" id="ocBtnQuitarFoto" hidden>
+                            <i data-lucide="x"></i>
+                            <span>Quitar</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Info básica -->
+                <div class="oc-form-grid">
+                    <div class="oc-field">
+                        <label>Nombre *</label>
+                        <input type="text" id="ocInputNombre" maxlength="60" placeholder="Ej: Sakura" autocomplete="off">
+                    </div>
+                    <div class="oc-field">
+                        <label>Edad</label>
+                        <input type="text" id="ocInputEdad" maxlength="20" placeholder="Ej: 17 años" autocomplete="off">
+                    </div>
+                    <div class="oc-field">
+                        <label>Sexo</label>
+                        <select id="ocInputSexo">
+                            <option value="">Seleccionar...</option>
+                            <option>Femenino</option>
+                            <option>Masculino</option>
+                            <option>No binario</option>
+                            <option>Otro</option>
+                        </select>
+                    </div>
+                    <div class="oc-field">
+                        <label>Nacionalidad</label>
+                        <input type="text" id="ocInputNacionalidad" maxlength="40" placeholder="Ej: japonesa" autocomplete="off">
+                    </div>
+                    <div class="oc-field">
+                        <label>Poder</label>
+                        <input type="text" id="ocInputPoder" maxlength="60" placeholder="Ej: control del fuego" autocomplete="off">
+                    </div>
+                    <div class="oc-field">
+                        <label>Profesión</label>
+                        <input type="text" id="ocInputProfesion" maxlength="60" placeholder="Ej: estudiante" autocomplete="off">
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="oc-stats-seccion">
+                    <div class="oc-stats-header">
+                        <h3><i data-lucide="star"></i> Habilidades</h3>
+                        <span class="oc-puntos" id="ocPuntos">0 / 50</span>
+                    </div>
+                    <p class="oc-stats-ayuda">Asigná hasta 50 puntos entre las 15 habilidades. Hacé clic en las estrellas (clic de nuevo en el mismo valor lo baja a 0).</p>
+                    <div class="oc-stats-grid" id="ocStatsGrid"></div>
+                </div>
+
+                <div id="ocEditorMensaje" class="oc-mensaje"></div>
+            </div>
+
+            <div class="oc-modal-actions">
+                <button class="oc-btn-sec" id="ocEditorCancelar">Cancelar</button>
+                <button class="oc-btn-pri" id="ocEditorGuardar">
+                    <i data-lucide="check"></i>
+                    <span>Guardar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================================================
+         MODAL: DETALLE
+    =================================================== -->
+    <div class="oc-modal" id="ocModalDetalle" hidden>
+        <div class="oc-modal-card oc-modal-card-lg">
+            <div class="oc-modal-header">
+                <h2>
+                    <i data-lucide="user"></i>
+                    <span id="ocDetalleTitulo">Detalle</span>
+                </h2>
+                <button class="oc-modal-cerrar" id="ocDetalleCerrar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="oc-modal-body" id="ocDetalleBody"></div>
+            <div class="oc-modal-actions oc-detalle-acciones">
+                <button class="oc-btn-sec" id="ocDetalleAgregarExtra">
+                    <i data-lucide="paperclip"></i>
+                    <span>Info extra</span>
+                </button>
+                <button class="oc-btn-sec" id="ocDetalleEditar">
+                    <i data-lucide="pencil"></i>
+                    <span>Editar</span>
+                </button>
+                <button class="oc-btn-sec oc-btn-danger" id="ocDetalleBorrar">
+                    <i data-lucide="trash-2"></i>
+                    <span>Borrar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================================================
+         MODAL: INFO EXTRA
+    =================================================== -->
+    <div class="oc-modal" id="ocModalExtra" hidden>
+        <div class="oc-modal-card">
+            <div class="oc-modal-header">
+                <h2>
+                    <i data-lucide="paperclip"></i>
+                    <span id="ocExtraTitulo">Añadir información</span>
+                </h2>
+                <button class="oc-modal-cerrar" id="ocExtraCerrar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="oc-modal-body">
+                <div class="oc-field">
+                    <label>Título</label>
+                    <input type="text" id="ocExtraTituloInput" maxlength="60" placeholder="Ej: Historia de origen" autocomplete="off">
+                </div>
+                <div class="oc-field">
+                    <label>Texto</label>
+                    <textarea id="ocExtraTexto" rows="5" placeholder="Escribí la información..." maxlength="2000"></textarea>
+                </div>
+                <div class="oc-field">
+                    <label>Imagen (opcional)</label>
+                    <div class="oc-extra-foto-wrap" id="ocExtraFotoWrap">
+                        <img id="ocExtraFotoImg" alt="">
+                        <div class="oc-extra-foto-placeholder" id="ocExtraFotoPlaceholder">
+                            <i data-lucide="image-plus"></i>
+                            <span>Sin imagen</span>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="oc-btn-sec" id="ocExtraBtnElegirFoto">
+                            <i data-lucide="images"></i>
+                            <span id="ocExtraFotoBtnTxt">Elegir imagen</span>
+                        </button>
+                        <button class="oc-btn-sec oc-btn-danger" id="ocExtraBtnQuitarFoto" hidden>
+                            <i data-lucide="x"></i>
+                            <span>Quitar</span>
+                        </button>
+                    </div>
+                </div>
+                <div id="ocExtraMensaje" class="oc-mensaje"></div>
+            </div>
+            <div class="oc-modal-actions">
+                <button class="oc-btn-sec" id="ocExtraCancelar">Cancelar</button>
+                <button class="oc-btn-pri" id="ocExtraGuardar">
+                    <i data-lucide="check"></i>
+                    <span>Guardar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="oc-toast" id="ocToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
