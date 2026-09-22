@@ -67,6 +67,14 @@ let partidaTerminada = false;
 const jugador = { y: CH / 2 };
 const rival   = { y: CH / 2 };
 
+// Estado interno de la CPU (para simular imperfección)
+const cpu = {
+    objetivoY: CH / 2,
+    delayReaccion: 0,
+    ultimaDireccion: 0,
+    errorActual: 0
+};
+
 const pelota = {
     x: CW / 2, y: CH / 2,
     vx: 0, vy: 0,
@@ -439,26 +447,50 @@ function actualizarJugador() {
 }
 
 // ============================================================
-//  CPU
+//  CPU — con delay de reacción, error y velocidad limitada
 // ============================================================
 function actualizarCpu(dt) {
-    let objetivoY = CH / 2;
+    const minY = PAL_H / 2;
+    const maxY = CH - PAL_H / 2;
+    const palRivX = CW - PAL_MARGEN - PAL_W;
 
-    if (pelota.vx > 0) {
-        objetivoY = pelota.y;
-    } else {
-        objetivoY = CH / 2;
+    // Detectar cambio de dirección de la pelota
+    const dirActual = Math.sign(pelota.vx);
+    if (dirActual !== cpu.ultimaDireccion) {
+        cpu.ultimaDireccion = dirActual;
+        cpu.delayReaccion = 0.15 + Math.random() * 0.15;   // 150-300ms
+        cpu.errorActual = (Math.random() - 0.5) * 130;     // ±65px
     }
 
-    objetivoY += (Math.random() - 0.5) * 40;
+    // Si la pelota viene hacia la CPU
+    if (pelota.vx > 0) {
+        // Delay de reacción: la CPU se queda quieta mientras "piensa"
+        if (cpu.delayReaccion > 0) {
+            cpu.delayReaccion -= dt;
+            return;
+        }
 
-    const v = Math.min(420, 220 + Math.abs(pelota.vx) * 0.25);
-    const diff = objetivoY - rival.y;
+        // Predicción simple SIN considerar rebotes (falla con pelotas que rebotan)
+        const tiempoLlegada = (palRivX - pelota.x) / pelota.vx;
+        if (tiempoLlegada > 0 && tiempoLlegada < 2) {
+            cpu.objetivoY = pelota.y + pelota.vy * tiempoLlegada + cpu.errorActual;
+        } else {
+            cpu.objetivoY = CH / 2;
+        }
+    } else {
+        // Pelota va al jugador → volver al centro (sin delay acumulado)
+        cpu.delayReaccion = 0;
+        cpu.objetivoY = CH / 2;
+    }
+
+    cpu.objetivoY = Math.max(minY, Math.min(maxY, cpu.objetivoY));
+
+    // Velocidad máxima reducida (era 420, ahora 280)
+    const v = Math.min(280, 170 + Math.abs(pelota.vx) * 0.15);
+    const diff = cpu.objetivoY - rival.y;
     const move = Math.sign(diff) * Math.min(Math.abs(diff), v * dt);
     rival.y += move;
 
-    const minY = PAL_H / 2;
-    const maxY = CH - PAL_H / 2;
     rival.y = Math.max(minY, Math.min(maxY, rival.y));
 }
 
@@ -479,6 +511,12 @@ function resetPelota(direccion = 0) {
 }
 
 function resetPartida() {
+    // Reset del estado de la CPU
+    cpu.objetivoY = CH / 2;
+    cpu.delayReaccion = 0;
+    cpu.ultimaDireccion = 0;
+    cpu.errorActual = 0;
+
     jugador.y = CH / 2;
     rival.y = CH / 2;
     puntosYo = 0;
