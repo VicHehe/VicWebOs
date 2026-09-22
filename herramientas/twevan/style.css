@@ -1,5 +1,7 @@
 /* ================================================
    Twevan — Mini-Twitter para VicWebOs
+   Los temas mandan. Todo acento usa var(--violet-*).
+   Sin colores de marca hardcodeados.
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -27,10 +29,10 @@ body {
     background-clip: content-box;
 }
 
-/* La verificación mantiene el azul Twitter aunque el tema sea otro */
+/* La insignia de verificación usa el acento del tema */
 .tv-verif {
-    color: #1DA1F2;
-    fill: #1DA1F2;
+    color: var(--violet-500, #8B5CF6);
+    fill: var(--violet-500, #8B5CF6);
     stroke: var(--white, #FFFFFF);
     stroke-width: 1.4;
     width: 16px;
@@ -67,13 +69,13 @@ body {
 .tv-logo-mark {
     width: 38px;
     height: 38px;
-    background: linear-gradient(135deg, #1DA1F2, #0d8ddb);
+    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    box-shadow: 0 6px 16px rgba(29, 161, 242, 0.28);
+    box-shadow: 0 6px 16px var(--accent-shadow, rgba(139,92,246,0.28));
     flex-shrink: 0;
 }
 .tv-logo-mark [data-lucide] { width: 19px; height: 19px; stroke-width: 2.5; }
@@ -82,7 +84,7 @@ body {
     font-size: 17px;
     font-weight: 800;
     letter-spacing: -0.03em;
-    background: var(--accent-text-gradient, linear-gradient(135deg, #18181B, #1DA1F2));
+    background: var(--accent-text-gradient, linear-gradient(135deg, #18181B, #7C3AED));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -118,8 +120,8 @@ body {
 }
 .tv-btn-tweplus:hover { transform: translateY(-1px); }
 .tv-btn-tweplus.activo {
-    background: linear-gradient(135deg, #1DA1F2, #0d8ddb);
-    box-shadow: 0 4px 12px rgba(29, 161, 242, 0.35);
+    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
+    box-shadow: 0 4px 12px var(--accent-shadow-hover, rgba(139,92,246,0.38));
 }
 .tv-btn-tweplus [data-lucide] { width: 15px; height: 15px; }
 
@@ -252,13 +254,13 @@ body {
 .tv-banco-btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
 .tv-banco-btn-pri {
-    background: linear-gradient(135deg, #F59E0B, #D97706);
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
     color: white;
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.32);
+    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.32));
 }
 .tv-banco-btn-pri:hover:not(:disabled) {
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(245, 158, 11, 0.42);
+    box-shadow: 0 6px 16px var(--accent-shadow-hover, rgba(139,92,246,0.42));
 }
 .tv-banco-btn-sec {
     background: var(--white, #FFFFFF);
@@ -266,24 +268,24 @@ body {
     border: 1.5px solid var(--border, #E8E8EE);
 }
 .tv-banco-btn-sec:hover:not(:disabled) {
-    border-color: #1DA1F2;
-    color: #1DA1F2;
-    background: rgba(29, 161, 242, 0.06);
+    border-color: var(--violet-400, #A78BFA);
+    color: var(--violet-700, #6D28D9);
+    background: var(--violet-50, #F5F3FF);
 }
 
 /* Variante llena: hay monedas para cobrar */
 .tv-banco-lleno {
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(217, 119, 6, 0.04));
-    border-color: #FCD34D;
-    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.12);
+    background: var(--violet-50, #F5F3FF);
+    border-color: var(--violet-300, #C4B5FD);
+    box-shadow: 0 4px 14px var(--accent-shadow, rgba(139,92,246,0.12));
 }
 .tv-banco-lleno .tv-banco-icono {
-    background: linear-gradient(135deg, #F59E0B, #D97706);
+    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
     color: white;
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.3));
 }
-.tv-banco-lleno .tv-banco-titulo { color: #92400E; }
-.tv-banco-lleno .tv-banco-desc   { color: #B45309; }
+.tv-banco-lleno .tv-banco-titulo { color: var(--violet-700, #6D28D9); }
+.tv-banco-lleno .tv-banco-desc   { color: var(--violet-600, #7C3AED); }
 
 /* Variante vacía: con TwePlus pero sin pendiente */
 .tv-banco-vacio {
@@ -350,7 +352,7 @@ body {
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--violet-400, #A78BFA), var(--violet-600, #7C3AED));
+    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -472,8 +474,8 @@ body {
     min-width: 44px;
     touch-action: manipulation;
 }
-.tv-btn-like:hover { background: #FEF2F2; color: #DC2626; }
-.tv-btn-like.liked { color: #DC2626; }
+.tv-btn-like:hover { background: var(--violet-50, #F5F3FF); color: var(--violet-600, #7C3AED); }
+.tv-btn-like.liked { color: var(--violet-600, #7C3AED); }
 .tv-btn-like.liked [data-lucide] {
     fill: currentColor;
     animation: tvLikePop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -488,7 +490,7 @@ body {
 .tv-btn-comentarios [data-lucide] { width: 17px; height: 17px; }
 
 /* ============================================================
-   FAB (botón flotante nuevo tweet)
+   FAB
    ============================================================ */
 .tv-fab {
     position: fixed;
@@ -497,14 +499,14 @@ body {
     width: 54px;
     height: 54px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #1DA1F2, #0d8ddb);
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
     border: none;
     color: white;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 8px 24px rgba(29, 161, 242, 0.4);
+    box-shadow: 0 8px 24px var(--accent-shadow-hover, rgba(139,92,246,0.4));
     transition: transform 0.15s;
     z-index: 10;
     touch-action: manipulation;
@@ -529,13 +531,13 @@ body {
 .tv-empty-icon {
     width: 72px;
     height: 72px;
-    background: linear-gradient(135deg, #1DA1F2, #0d8ddb);
+    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
     border-radius: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    box-shadow: 0 12px 28px rgba(29, 161, 242, 0.28);
+    box-shadow: 0 12px 28px var(--accent-shadow, rgba(139,92,246,0.28));
     margin-bottom: 6px;
 }
 .tv-empty-icon [data-lucide] { width: 34px; height: 34px; }
@@ -548,13 +550,13 @@ body {
     padding: 11px 20px;
     border: none;
     border-radius: 12px;
-    background: linear-gradient(135deg, #1DA1F2, #0d8ddb);
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
     color: white;
     font-family: inherit;
     font-size: 13px;
     font-weight: 800;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(29, 161, 242, 0.28);
+    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
     margin-top: 8px;
     touch-action: manipulation;
 }
@@ -640,7 +642,11 @@ body {
     color: var(--gray-900, #18181B);
     margin: 0;
 }
-.tv-modal-header h2 [data-lucide] { color: #1DA1F2; width: 17px; height: 17px; }
+.tv-modal-header h2 [data-lucide] {
+    color: var(--violet-500, #8B5CF6);
+    width: 17px;
+    height: 17px;
+}
 .tv-modal-cerrar {
     width: 32px;
     height: 32px;
@@ -748,8 +754,8 @@ body {
     transition: all 0.15s;
 }
 .tv-editor-campo textarea:focus {
-    border-color: #1DA1F2;
-    box-shadow: 0 0 0 3px rgba(29, 161, 242, 0.15);
+    border-color: var(--violet-400, #A78BFA);
+    box-shadow: 0 0 0 3px var(--shadow-glow, rgba(139,92,246,0.10));
 }
 .tv-editor-campo textarea::placeholder { color: var(--gray-400, #A1A1AD); }
 
@@ -953,8 +959,8 @@ body {
     transition: all 0.15s;
 }
 .tv-input-respuesta input:focus {
-    border-color: #1DA1F2;
-    box-shadow: 0 0 0 3px rgba(29, 161, 242, 0.15);
+    border-color: var(--violet-400, #A78BFA);
+    box-shadow: 0 0 0 3px var(--shadow-glow, rgba(139,92,246,0.10));
 }
 
 .tv-ver-input-wrap {
@@ -979,22 +985,22 @@ body {
     transition: all 0.15s;
 }
 .tv-ver-input-wrap input:focus {
-    border-color: #1DA1F2;
-    box-shadow: 0 0 0 3px rgba(29, 161, 242, 0.15);
+    border-color: var(--violet-400, #A78BFA);
+    box-shadow: 0 0 0 3px var(--shadow-glow, rgba(139,92,246,0.10));
 }
 .tv-btn-enviar {
     width: 40px;
     height: 40px;
     border: none;
     border-radius: 12px;
-    background: linear-gradient(135deg, #1DA1F2, #0d8ddb);
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
     color: white;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(29, 161, 242, 0.28);
+    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
     transition: all 0.15s;
     touch-action: manipulation;
 }
@@ -1022,13 +1028,13 @@ body {
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #1DA1F2, #0d8ddb);
+    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 12px;
-    box-shadow: 0 12px 28px rgba(29, 161, 242, 0.32);
+    box-shadow: 0 12px 28px var(--accent-shadow, rgba(139,92,246,0.32));
 }
 .tv-tweplus-icono [data-lucide] { width: 34px; height: 34px; stroke-width: 2.5; }
 .tv-tweplus-hero h3 { font-size: 18px; font-weight: 800; color: var(--gray-900, #18181B); margin-bottom: 4px; }
@@ -1084,7 +1090,7 @@ body {
     gap: 6px;
     font-size: 15px;
     font-weight: 800;
-    color: #D97706;
+    color: var(--violet-700, #6D28D9);
 }
 .tv-tweplus-precio-valor [data-lucide] { width: 15px; height: 15px; }
 
@@ -1093,13 +1099,18 @@ body {
     align-items: center;
     gap: 10px;
     padding: 12px 14px;
-    background: #DCFCE7;
-    border: 1px solid #A7F3D0;
+    background: var(--violet-50, #F5F3FF);
+    border: 1.5px solid var(--violet-200, #DDD6FE);
     border-radius: 12px;
 }
-.tv-tweplus-activo [data-lucide] { color: #16A34A; width: 20px; height: 20px; flex-shrink: 0; }
-.tv-tweplus-activo strong { display: block; font-size: 13.5px; color: #065F46; font-weight: 800; }
-.tv-tweplus-activo span { font-size: 11.5px; color: #065F46; font-weight: 600; }
+.tv-tweplus-activo [data-lucide] {
+    color: var(--violet-600, #7C3AED);
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+.tv-tweplus-activo strong { display: block; font-size: 13.5px; color: var(--violet-700, #6D28D9); font-weight: 800; }
+.tv-tweplus-activo span { font-size: 11.5px; color: var(--violet-600, #7C3AED); font-weight: 600; }
 
 /* ============================================================
    BOTONES GENÉRICOS
@@ -1121,9 +1132,9 @@ body {
     touch-action: manipulation;
 }
 .tv-btn-pri {
-    background: linear-gradient(135deg, #1DA1F2, #0d8ddb);
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
     color: white;
-    box-shadow: 0 4px 12px rgba(29, 161, 242, 0.28);
+    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
 }
 .tv-btn-pri:hover:not(:disabled) { transform: translateY(-1px); }
 .tv-btn-pri:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
@@ -1136,7 +1147,7 @@ body {
 .tv-btn-pri [data-lucide], .tv-btn-sec [data-lucide] { width: 15px; height: 15px; }
 
 /* ============================================================
-   TOAST
+   TOAST (semánticos: verde éxito / rojo error — igual que Stor-He y VicsGram)
    ============================================================ */
 .tv-toast {
     position: fixed;
@@ -1192,22 +1203,12 @@ body {
 }
 
 @media (max-width: 480px) {
-    .tv-banco {
-        padding: 10px 12px;
-        gap: 10px;
-    }
-    .tv-banco-icono {
-        width: 36px;
-        height: 36px;
-        border-radius: 10px;
-    }
+    .tv-banco { padding: 10px 12px; gap: 10px; }
+    .tv-banco-icono { width: 36px; height: 36px; border-radius: 10px; }
     .tv-banco-icono [data-lucide] { width: 18px; height: 18px; }
     .tv-banco-titulo { font-size: 13px; }
-    .tv-banco-desc   { font-size: 11px; }
-    .tv-banco-btn {
-        padding: 8px 12px;
-        font-size: 12px;
-    }
+    .tv-banco-desc { font-size: 11px; }
+    .tv-banco-btn { padding: 8px 12px; font-size: 12px; }
     .tv-banco-btn-sec span { display: none; }
 }
 
