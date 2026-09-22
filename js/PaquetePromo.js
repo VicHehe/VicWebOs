@@ -30,38 +30,354 @@
     //    - Un item puede repetirse en distintos packs.
     //    - Si el usuario ya tiene TODOS los items del pack, se oculta.
     // ========================================================
-    const PAQUETES_PROMO = [
-        // ----------------------------------------------------
-        //  EJEMPLO 1 (descomentar y editar cuando quieras)
-        // ----------------------------------------------------
-        // {
-        //     id: 'pack_estudio',
-        //     nombre: 'Pack Estudio',
-        //     icono: 'graduation-cap',
-        //     descripcion: 'Todo lo que necesitás para concentrarte',
-        //     precio: 180,
-        //     items: [
-        //         { tipo: 'app',    id: 'notas' },
-        //         { tipo: 'tema',   id: 'oficina' },
-        //         { tipo: 'widget', id: 'to-do-list' }
-        //     ]
-        // },
+const PAQUETES_PROMO = [
 
-        // ----------------------------------------------------
-        //  EJEMPLO 2
-        // ----------------------------------------------------
-        // {
-        //     id: 'pack_social',
-        //     nombre: 'Pack Social',
-        //     icono: 'users',
-        //     descripcion: 'Para mantenerte conectado con tu gente',
-        //     precio: 220,
-        //     items: [
-        //         { tipo: 'app', id: 'whatthehay' },
-        //         { tipo: 'app', id: 'vicsgram' }
-        //     ]
-        // },
-    ];
+    // ============================================================
+    //  TEMÁTICOS / CULTURALES
+    // ============================================================
+    {
+        id: 'pack_orgullo_nacional',
+        nombre: 'Orgullo Nacional',
+        icono: 'heart',
+        descripcion: 'Chile y México de fiesta. Los dos temas patrios en uno.',
+        precio: 30,
+        items: [
+            { tipo: 'tema', id: 'consentido' },
+            { tipo: 'tema', id: 'mucho-besame' }
+        ]
+    },
+    {
+        id: 'pack_reyes_musicales',
+        nombre: 'Reyes Musicales',
+        icono: 'music-2',
+        descripcion: 'Tres temas con alma musical y la radio para acompañar.',
+        precio: 225,
+        items: [
+            { tipo: 'tema',   id: 'pop-owner' },
+            { tipo: 'tema',   id: 'break-of-dawn' },
+            { tipo: 'tema',   id: 'salon' },
+            { tipo: 'widget', id: 'radio' }
+        ]
+    },
+    {
+        id: 'pack_historico',
+        nombre: 'Pack Histórico',
+        icono: 'book-open',
+        descripcion: 'Pasado, raíces y tradición. Para los que atesoran la memoria.',
+        precio: 65,
+        items: [
+            { tipo: 'tema', id: 'libro' },
+            { tipo: 'tema', id: 'consentido' },
+            { tipo: 'tema', id: 'mucho-besame' }
+        ]
+    },
+
+    // ============================================================
+    //  OSCUROS / NOCTURNOS
+    // ============================================================
+    {
+        id: 'pack_noche',
+        nombre: 'Pack Noche',
+        icono: 'moon',
+        descripcion: 'Tres formas de vestir la oscuridad. Elegí tu mood nocturno.',
+        precio: 25,
+        items: [
+            { tipo: 'tema', id: 'noche' },
+            { tipo: 'tema', id: 'ocean' },
+            { tipo: 'tema', id: 'pumkin' }
+        ]
+    },
+    {
+        id: 'pack_streaming',
+        nombre: 'Pack Streaming',
+        icono: 'signal',
+        descripcion: 'Para maratones. Tema animado, dreams y radio de fondo.',
+        precio: 200,
+        items: [
+            { tipo: 'tema',   id: 'stream' },
+            { tipo: 'tema',   id: 'dreams' },
+            { tipo: 'widget', id: 'radio' }
+        ]
+    },
+    {
+        id: 'pack_lofi',
+        nombre: 'Pack Lo-Fi',
+        icono: 'radio',
+        descripcion: 'Charla, ruleta y radio. Vibra tranqui para estudiar o trabajar.',
+        precio: 185,
+        items: [
+            { tipo: 'tema',   id: 'charla' },
+            { tipo: 'widget', id: 'ruleta' },
+            { tipo: 'widget', id: 'radio' }
+        ]
+    },
+
+    // ============================================================
+    //  CREATIVIDAD / ARTE
+    // ============================================================
+    {
+        id: 'pack_creativo',
+        nombre: 'Pack Creativo',
+        icono: 'palette',
+        descripcion: 'Tus dos editores gráficos a precio combo. Para artistas.',
+        precio: 300,
+        items: [
+            { tipo: 'app', id: 'pixevan' },
+            { tipo: 'app', id: 'arte-flash' }
+        ]
+    },
+    {
+        id: 'pack_expresion',
+        nombre: 'Pack Expresión',
+        icono: 'wand-2',
+        descripcion: 'Edición, pixel art y acceso directo. Kit completo para crear.',
+        precio: 380,
+        items: [
+            { tipo: 'app',    id: 'arte-flash' },
+            { tipo: 'app',    id: 'pixevan' },
+            { tipo: 'widget', id: 'acceso-directo' }
+        ]
+    },
+    {
+        id: 'pack_fotos',
+        nombre: 'Pack Fotos',
+        icono: 'images',
+        descripcion: 'Editá, mostrá y disfrutá tus imágenes. Tres piezas visuales.',
+        precio: 90,
+        items: [
+            { tipo: 'app',    id: 'photo-shinny' },
+            { tipo: 'widget', id: 'diapositivas' },
+            { tipo: 'widget', id: 'bubble-image' }
+        ]
+    },
+
+    // ============================================================
+    //  FORMALES / PRODUCTIVIDAD
+    // ============================================================
+    {
+        id: 'pack_oficina',
+        nombre: 'Pack Oficina',
+        icono: 'briefcase',
+        descripcion: 'Para trabajar en serio. Tema día, tema noche, notas y tareas.',
+        precio: 85,
+        items: [
+            { tipo: 'tema',   id: 'oficina' },
+            { tipo: 'tema',   id: 'oficina-dark' },
+            { tipo: 'app',    id: 'notas' },
+            { tipo: 'widget', id: 'to-do-list' }
+        ]
+    },
+    {
+        id: 'pack_utilidades',
+        nombre: 'Pack Utilidades',
+        icono: 'wrench',
+        descripcion: 'Herramientas del día a día. Calculadora, QR y reloj mundial.',
+        precio: 45,
+        items: [
+            { tipo: 'app',    id: 'calculadora' },
+            { tipo: 'app',    id: 'qr' },
+            { tipo: 'widget', id: 'reloj-mundial' }
+        ]
+    },
+    {
+        id: 'pack_lectura',
+        nombre: 'Pack Lectura',
+        icono: 'book-open-text',
+        descripcion: 'Para leer sin distracciones. Lector, wiki y tema libro.',
+        precio: 140,
+        items: [
+            { tipo: 'tema',   id: 'libro' },
+            { tipo: 'widget', id: 'lector' },
+            { tipo: 'widget', id: 'wiki_lector' }
+        ]
+    },
+    {
+        id: 'pack_tranquilo',
+        nombre: 'Pack Tranquilo',
+        icono: 'leaf',
+        descripcion: 'Bosque, reloj mundial y lector. Calma visual para concentrarte.',
+        precio: 68,
+        items: [
+            { tipo: 'tema',   id: 'bosque' },
+            { tipo: 'widget', id: 'reloj-mundial' },
+            { tipo: 'widget', id: 'lector' }
+        ]
+    },
+
+    // ============================================================
+    //  RETRO / GEEK
+    // ============================================================
+    {
+        id: 'pack_retro',
+        nombre: 'Pack Retro',
+        icono: 'gamepad-2',
+        descripcion: 'Hacker, Vapor y Chiptune. Nostalgia en tres capas.',
+        precio: 40,
+        items: [
+            { tipo: 'tema', id: 'hacker' },
+            { tipo: 'tema', id: 'vapor' },
+            { tipo: 'tema', id: 'chiptune' }
+        ]
+    },
+    {
+        id: 'pack_geek',
+        nombre: 'Pack Geek',
+        icono: 'terminal',
+        descripcion: 'Para devs y curiosos. Hacker, GitHub Lover y atajos directos.',
+        precio: 110,
+        items: [
+            { tipo: 'tema',   id: 'hacker' },
+            { tipo: 'tema',   id: 'github-lover' },
+            { tipo: 'widget', id: 'acceso-directo' }
+        ]
+    },
+
+    // ============================================================
+    //  JUEGOS
+    // ============================================================
+    {
+        id: 'pack_gamer',
+        nombre: 'Pack Gamer',
+        icono: 'gamepad',
+        descripcion: 'Chiptune, MetroRun, ajedrez y adivinanzas. Kit jugador.',
+        precio: 60,
+        items: [
+            { tipo: 'tema',   id: 'chiptune' },
+            { tipo: 'app',    id: 'metrorun' },
+            { tipo: 'widget', id: 'ajedrez-puzzle' },
+            { tipo: 'app',    id: 'wordle' }
+        ]
+    },
+    {
+        id: 'pack_mini_juegos',
+        nombre: 'Pack Mini Juegos',
+        icono: 'dice-5',
+        descripcion: 'Clásicos rápidos para ratos libres. Tres en raya, topo y dados.',
+        precio: 10,
+        items: [
+            { tipo: 'app',    id: 'tres-en-raya' },
+            { tipo: 'app',    id: 'whack-a-mole' },
+            { tipo: 'widget', id: 'dados' }
+        ]
+    },
+    {
+        id: 'pack_runner',
+        nombre: 'Pack Runner',
+        icono: 'train-front',
+        descripcion: 'Mezosoic Run, The MetroRun y Chiptune. Para correr sin parar.',
+        precio: 55,
+        items: [
+            { tipo: 'tema', id: 'chiptune' },
+            { tipo: 'app',  id: 'dino' },
+            { tipo: 'app',  id: 'metrorun' }
+        ]
+    },
+
+    // ============================================================
+    //  SOCIAL
+    // ============================================================
+    {
+        id: 'pack_social',
+        nombre: 'Pack Social',
+        icono: 'message-circle',
+        descripcion: 'WhatsApp y Instagram de barrio, versión VicWebOs.',
+        precio: 210,
+        items: [
+            { tipo: 'app', id: 'whatthehay' },
+            { tipo: 'app', id: 'vicsgram' }
+        ]
+    },
+    {
+        id: 'pack_completo_social',
+        nombre: 'Pack Social Completo',
+        icono: 'users',
+        descripcion: 'Todo lo social en un solo paquete. Correo, red, chat e insta.',
+        precio: 200,
+        items: [
+            { tipo: 'app', id: 'twevan' },
+            { tipo: 'app', id: 'evmail' },
+            { tipo: 'app', id: 'whatthehay' },
+            { tipo: 'app', id: 'vicsgram' }
+        ]
+    },
+    {
+        id: 'pack_videollamadas',
+        nombre: 'Pack Videollamadas',
+        icono: 'phone-call',
+        descripcion: 'Chat + video en tiempo real. Para no perder contacto.',
+        precio: 360,
+        items: [
+            { tipo: 'app', id: 'silly-calls' },
+            { tipo: 'app', id: 'whatthehay' }
+        ]
+    },
+
+    // ============================================================
+    //  ESTÉTICOS / COLOR
+    // ============================================================
+    {
+        id: 'pack_colorido',
+        nombre: 'Pack Colorido',
+        icono: 'rainbow',
+        descripcion: 'Rosa, Floral, Cuarzo y diapositivas. Viví a todo color.',
+        precio: 80,
+        items: [
+            { tipo: 'tema',   id: 'rosa' },
+            { tipo: 'tema',   id: 'floral' },
+            { tipo: 'tema',   id: 'cuarzo-rosado' },
+            { tipo: 'widget', id: 'diapositivas' }
+        ]
+    },
+    {
+        id: 'pack_familiar',
+        nombre: 'Pack Familiar',
+        icono: 'paw-print',
+        descripcion: 'Floral, Cuarzo y una mascota que cuidar. Tierno y cálido.',
+        precio: 105,
+        items: [
+            { tipo: 'tema',   id: 'floral' },
+            { tipo: 'tema',   id: 'cuarzo-rosado' },
+            { tipo: 'widget', id: 'mascota' }
+        ]
+    },
+    {
+        id: 'pack_amanecer',
+        nombre: 'Pack Amanecer',
+        icono: 'sunrise',
+        descripcion: 'Break of Dawn, Wuu y tu estado personal. Empezar el día lindo.',
+        precio: 65,
+        items: [
+            { tipo: 'tema',   id: 'break-of-dawn' },
+            { tipo: 'tema',   id: 'wuu' },
+            { tipo: 'widget', id: 'mi-estado' }
+        ]
+    },
+    {
+        id: 'pack_elegante',
+        nombre: 'Pack Elegante',
+        icono: 'crown',
+        descripcion: 'Golden, Salón de Noche y Ventanas. Sofisticación sin esfuerzo.',
+        precio: 28,
+        items: [
+            { tipo: 'tema', id: 'golden' },
+            { tipo: 'tema', id: 'salon' },
+            { tipo: 'tema', id: 'ventanas' }
+        ]
+    },
+    {
+        id: 'pack_fiesta',
+        nombre: 'Pack Fiesta',
+        icono: 'sparkles',
+        descripcion: 'Friend, Pop Owner y Ruleta. Para cuando hay que brillar.',
+        precio: 100,
+        items: [
+            { tipo: 'tema',   id: 'friend' },
+            { tipo: 'tema',   id: 'pop-owner' },
+            { tipo: 'widget', id: 'ruleta' }
+        ]
+    }
+
+];
 
     // ========================================================
     //  Constantes de ofertas
