@@ -1,7 +1,6 @@
 /* ================================================
    Widget: Ajedrez Puzzle
-   Puzzle diario de Lichess.
-   Tablero 8x8 con drag-free (click + click).
+   Layout ULTRA compacto — el tablero manda.
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -13,59 +12,94 @@ body {
     color: var(--text, #18181B);
     font-size: 13px;
     overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
-[data-lucide] { width: 16px; height: 16px; stroke-width: 2; flex-shrink: 0; }
+[data-lucide] { width: 14px; height: 14px; stroke-width: 2; flex-shrink: 0; }
 
 /* ========== WIDGET ========== */
 .aj-widget {
     background: var(--white, #FFFFFF);
     border: 1px solid var(--border, #E8E8EE);
     border-radius: var(--r-lg, 16px);
-    padding: 12px 12px 10px;
+    padding: 8px 10px;
     box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
     height: 100%;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 5px;
     overflow: hidden;
     transition: background 0.3s, color 0.3s, border-color 0.3s;
 }
 
-/* ========== HEADER ========== */
-.aj-header {
+/* ========== TOPBAR ========== */
+.aj-topbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding-bottom: 6px;
-    border-bottom: 1px solid var(--gray-100, #F4F4F7);
+    gap: 5px;
     flex-shrink: 0;
-    min-height: 28px;
+    min-height: 22px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--gray-100, #F4F4F7);
 }
 
-.aj-titulo {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11px;
+.aj-topbar-icono {
+    width: 13px;
+    height: 13px;
+    color: var(--violet-500, #8B5CF6);
+    stroke-width: 2.25;
+}
+
+.aj-topbar-titulo {
+    font-size: 10.5px;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--gray-500, #71717A);
+    flex-shrink: 0;
+    margin-right: 2px;
 }
-.aj-titulo [data-lucide] {
-    color: var(--violet-500, #8B5CF6);
-    width: 14px;
-    height: 14px;
+
+.aj-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 5px;
+    background: var(--violet-50, #F5F3FF);
+    color: var(--violet-700, #6D28D9);
+    border: 1px solid var(--violet-200, #DDD6FE);
+    white-space: nowrap;
+    flex-shrink: 0;
+    line-height: 1.2;
+}
+.aj-chip [data-lucide] { width: 9px; height: 9px; stroke-width: 2.5; }
+
+.aj-chip-themes {
+    background: var(--gray-100, #F4F4F7);
+    color: var(--gray-600, #52525B);
+    border-color: var(--gray-200, #E8E8EE);
+    font-weight: 700;
+    text-transform: capitalize;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+    line-height: 1.4;
+    padding: 2px 6px;
 }
 
 .aj-btn-icon {
     background: none;
     border: 1px solid var(--border, #E8E8EE);
-    border-radius: 7px;
-    width: 26px;
-    height: 26px;
+    border-radius: 6px;
+    width: 22px;
+    height: 22px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -74,6 +108,7 @@ body {
     transition: all 0.15s;
     padding: 0;
     flex-shrink: 0;
+    margin-left: auto;
 }
 .aj-btn-icon:hover {
     background: var(--violet-50, #F5F3FF);
@@ -81,51 +116,9 @@ body {
     color: var(--violet-600, #7C3AED);
 }
 .aj-btn-icon:active { transform: scale(0.94); }
-.aj-btn-icon [data-lucide] { width: 13px; height: 13px; }
+.aj-btn-icon [data-lucide] { width: 12px; height: 12px; }
 .aj-btn-icon.girando [data-lucide] { animation: ajSpin 0.9s linear infinite; }
 @keyframes ajSpin { to { transform: rotate(360deg); } }
-
-/* ========== INFO ========== */
-.aj-info {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    flex-shrink: 0;
-    min-height: 20px;
-    overflow: hidden;
-}
-
-.aj-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    font-size: 10px;
-    font-weight: 800;
-    padding: 3px 7px;
-    border-radius: 6px;
-    background: var(--violet-50, #F5F3FF);
-    color: var(--violet-700, #6D28D9);
-    border: 1px solid var(--violet-200, #DDD6FE);
-    white-space: nowrap;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.aj-badge [data-lucide] { width: 10px; height: 10px; stroke-width: 2.5; }
-
-.aj-badge-themes {
-    background: var(--gray-100, #F4F4F7);
-    color: var(--gray-600, #52525B);
-    border-color: var(--gray-200, #E8E8EE);
-    font-weight: 700;
-    text-transform: capitalize;
-    flex: 1;
-    min-width: 0;
-    display: block;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-}
 
 /* ========== TABLERO ========== */
 .aj-board-wrap {
@@ -135,7 +128,6 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2px 0;
 }
 
 .aj-board {
@@ -146,14 +138,14 @@ body {
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(8, 1fr);
-    border-radius: 6px;
+    border-radius: 5px;
     overflow: hidden;
     box-shadow:
         0 0 0 1px var(--border, #E8E8EE),
-        0 6px 18px rgba(0,0,0,0.12);
+        0 4px 14px rgba(0,0,0,0.14);
     user-select: none;
     -webkit-tap-highlight-color: transparent;
-    background: #B58863; /* fallback */
+    background: #B58863;
 }
 
 /* Casillas */
@@ -168,32 +160,27 @@ body {
 .aj-square.light { background: #F0D9B5; }
 .aj-square.dark  { background: #B58863; }
 
-.aj-square[data-hover="1"] { filter: brightness(1.08); }
-
-/* Última jugada */
 .aj-square.last-move { background: #F7EC74 !important; }
 .aj-square.last-move.dark { background: #BACA44 !important; }
 
-/* Selección */
 .aj-square.selected {
     background: #829769 !important;
 }
 
-/* Jugadas legales */
 .aj-square.legal::after {
     content: '';
     position: absolute;
     width: 28%;
     height: 28%;
     border-radius: 50%;
-    background: rgba(20, 85, 30, 0.28);
+    background: rgba(20, 85, 30, 0.32);
     pointer-events: none;
     animation: ajLegalPop 0.18s ease;
 }
 .aj-square.legal.legal-capture::after {
     width: 84%;
     height: 84%;
-    background: radial-gradient(circle, transparent 55%, rgba(20, 85, 30, 0.28) 56%);
+    background: radial-gradient(circle, transparent 55%, rgba(20, 85, 30, 0.32) 56%);
     border-radius: 0;
 }
 @keyframes ajLegalPop {
@@ -209,7 +196,6 @@ body {
     pointer-events: none;
     position: relative;
     z-index: 2;
-    transition: transform 0.08s;
     will-change: transform;
 }
 .aj-piece.w {
@@ -225,7 +211,7 @@ body {
     text-shadow: 0 0 1px rgba(255,255,255,0.25);
 }
 
-/* Animaciones de estado */
+/* Animaciones */
 .aj-square.shake {
     animation: ajShake 0.32s cubic-bezier(0.36, 0.07, 0.19, 0.97);
 }
@@ -237,7 +223,7 @@ body {
 }
 
 .aj-square.check {
-    background: radial-gradient(circle, rgba(239,68,68,0.7) 15%, transparent 70%) !important;
+    background: radial-gradient(circle, rgba(239,68,68,0.75) 15%, transparent 70%) !important;
 }
 
 .aj-square.resuelto {
@@ -245,7 +231,7 @@ body {
 }
 @keyframes ajPulse {
     0%, 100% { box-shadow: inset 0 0 0 0 rgba(16,185,129,0); }
-    50%      { box-shadow: inset 0 0 0 3px rgba(16,185,129,0.6); }
+    50%      { box-shadow: inset 0 0 0 3px rgba(16,185,129,0.65); }
 }
 
 /* ========== OVERLAY (loading / error) ========== */
@@ -256,25 +242,24 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     background: var(--gray-50, #FAFAFB);
     border-radius: 6px;
     color: var(--gray-500, #71717A);
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 700;
     z-index: 10;
     animation: ajFade 0.2s ease;
-    padding: 20px;
+    padding: 16px;
     text-align: center;
 }
 .aj-overlay[hidden] { display: none; }
-
 @keyframes ajFade { from { opacity: 0; } to { opacity: 1; } }
 
 .aj-spinner {
-    width: 26px;
-    height: 26px;
-    border: 3px solid var(--gray-200, #E8E8EE);
+    width: 22px;
+    height: 22px;
+    border: 2.5px solid var(--gray-200, #E8E8EE);
     border-top-color: var(--violet-500, #8B5CF6);
     border-radius: 50%;
     animation: ajSpin 0.85s linear infinite;
@@ -284,12 +269,12 @@ body {
 .aj-overlay.error::before {
     content: '';
     display: block;
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     background: #FEE2E2;
     border-radius: 50%;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23991B1B' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='12' y1='8' x2='12' y2='12'/%3E%3Cline x1='12' y1='16' x2='12.01' y2='16'/%3E%3C/svg%3E");
-    background-size: 18px 18px;
+    background-size: 16px 16px;
     background-position: center;
     background-repeat: no-repeat;
 }
@@ -298,56 +283,66 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    padding: 6px 12px;
+    padding: 5px 10px;
     border: none;
-    border-radius: 8px;
+    border-radius: 7px;
     background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
     color: white;
     font-family: inherit;
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 800;
     cursor: pointer;
     box-shadow: 0 3px 10px var(--accent-shadow, rgba(139,92,246,0.28));
     transition: all 0.15s;
-    margin-top: 4px;
+    margin-top: 2px;
 }
 .aj-btn-retry:hover {
     transform: translateY(-1px);
     box-shadow: 0 5px 14px var(--accent-shadow-hover, rgba(139,92,246,0.38));
 }
-.aj-btn-retry [data-lucide] { width: 12px; height: 12px; }
+.aj-btn-retry [data-lucide] { width: 11px; height: 11px; }
 
-/* ========== STATUS ========== */
+/* ========== BOTTOMBAR: status + plays ========== */
+.aj-bottombar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    min-height: 22px;
+}
+
 .aj-status {
     display: flex;
     align-items: center;
-    gap: 7px;
-    padding: 6px 10px;
+    gap: 6px;
+    padding: 4px 8px;
     background: var(--gray-50, #FAFAFB);
     border: 1px solid var(--border, #E8E8EE);
-    border-radius: 8px;
-    flex-shrink: 0;
+    border-radius: 7px;
+    flex: 1;
+    min-width: 0;
     transition: all 0.2s;
-    min-height: 30px;
+    overflow: hidden;
 }
 
 .aj-status-dot {
-    width: 7px;
-    height: 7px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     background: var(--violet-500, #8B5CF6);
     flex-shrink: 0;
     transition: background 0.2s;
-    box-shadow: 0 0 0 3px var(--violet-100, #EDE9FE);
+    box-shadow: 0 0 0 2px var(--violet-100, #EDE9FE);
 }
 
 .aj-status-txt {
-    font-size: 11.5px;
+    font-size: 10.5px;
     font-weight: 700;
     color: var(--gray-700, #3F3F46);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    line-height: 1.2;
 }
 
 .aj-status.ok {
@@ -356,7 +351,7 @@ body {
 }
 .aj-status.ok .aj-status-dot {
     background: #10B981;
-    box-shadow: 0 0 0 3px #D1FAE5;
+    box-shadow: 0 0 0 2px #D1FAE5;
 }
 .aj-status.ok .aj-status-txt { color: #065F46; }
 
@@ -366,7 +361,7 @@ body {
 }
 .aj-status.err .aj-status-dot {
     background: #EF4444;
-    box-shadow: 0 0 0 3px #FEE2E2;
+    box-shadow: 0 0 0 2px #FEE2E2;
 }
 .aj-status.err .aj-status-txt { color: #991B1B; }
 
@@ -378,20 +373,22 @@ body {
     50%      { opacity: 0.35; }
 }
 
-/* ========== FOOTER ========== */
-.aj-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6px;
-    flex-shrink: 0;
-    padding-top: 4px;
-    border-top: 1px solid var(--gray-100, #F4F4F7);
-    font-size: 9.5px;
-    font-weight: 700;
+.aj-plays {
+    font-size: 9px;
+    font-weight: 800;
     color: var(--gray-400, #A1A1AD);
     text-transform: uppercase;
     letter-spacing: 0.04em;
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
 }
-.aj-footer-info { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.aj-footer-src { color: var(--violet-500, #8B5CF6); flex-shrink: 0; }
+
+/* ============================================================
+   EXTRA COMPACTO — widgets muy chicos (≤ 300px ancho)
+   ============================================================ */
+@media (max-width: 300px) {
+    .aj-topbar-titulo { display: none; }
+    .aj-chip-themes { font-size: 9.5px; }
+    .aj-plays { display: none; }
+}
