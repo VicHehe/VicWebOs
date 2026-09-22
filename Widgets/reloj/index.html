@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reloj</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="rl-widget">
+        <div class="rl-header">
+            <div class="rl-titulo">
+                <i data-lucide="timer"></i>
+                <span>Reloj</span>
+            </div>
+        </div>
+
+        <div class="rl-tabs">
+            <button class="rl-tab active" data-modo="cronometro">
+                <i data-lucide="timer"></i>
+                <span>Cronómetro</span>
+            </button>
+            <button class="rl-tab" data-modo="temporizador">
+                <i data-lucide="hourglass"></i>
+                <span>Temporizador</span>
+            </button>
+        </div>
+
+        <div class="rl-contenido">
+            <!-- ============ CRONÓMETRO ============ -->
+            <div class="rl-modo active" data-modo="cronometro">
+                <div class="rl-display" id="rlDisplayCrono">00:00.0</div>
+                <div class="rl-botones">
+                    <button class="rl-btn rl-btn-primario" id="rlBtnCronoPlay" title="Iniciar">
+                        <i data-lucide="play"></i>
+                    </button>
+                    <button class="rl-btn" id="rlBtnCronoVuelta" title="Vuelta" disabled>
+                        <i data-lucide="flag"></i>
+                    </button>
+                    <button class="rl-btn rl-btn-danger" id="rlBtnCronoReset" title="Reiniciar" disabled>
+                        <i data-lucide="rotate-ccw"></i>
+                    </button>
+                </div>
+                <div class="rl-vueltas" id="rlVueltas" hidden></div>
+            </div>
+
+            <!-- ============ TEMPORIZADOR ============ -->
+            <div class="rl-modo" data-modo="temporizador">
+                <div class="rl-display" id="rlDisplayTimer">00:00</div>
+                <div class="rl-progress">
+                    <div class="rl-progress-fill" id="rlProgressFill" style="width: 100%;"></div>
+                </div>
+                <div class="rl-presets">
+                    <button class="rl-preset" data-seg="60">1m</button>
+                    <button class="rl-preset" data-seg="180">3m</button>
+                    <button class="rl-preset" data-seg="300">5m</button>
+                    <button class="rl-preset" data-seg="600">10m</button>
+                    <button class="rl-preset" data-seg="1500">25m</button>
+                    <button class="rl-preset" data-seg="3600">60m</button>
+                </div>
+                <div class="rl-botones">
+                    <button class="rl-btn rl-btn-primario" id="rlBtnTimerPlay" title="Iniciar" disabled>
+                        <i data-lucide="play"></i>
+                    </button>
+                    <button class="rl-btn rl-btn-danger" id="rlBtnTimerReset" title="Reiniciar" disabled>
+                        <i data-lucide="rotate-ccw"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
