@@ -3,8 +3,13 @@
 //  ------------------------------------------------------------
 //  Vista lateral. Jugador izquierda, rival derecha. Red vertical
 //  al medio. Pelota con gravedad, spin y dirección garantizada:
-//  al ser golpeada, SIEMPRE cruza la red hacia el otro lado.
-//  Se pierde si la pelota toca el suelo de tu lado.
+//  al ser golpeada, siempre cruza hacia el otro lado SI pasa por
+//  encima de la red.
+//
+//  Red sólida (estilo vóley):
+//    · La pelota pasa limpia si va por encima de RED_TOPE.
+//    · Si va baja, rebota contra la red y cae en el lado de quien
+//      la golpeó → penalización natural.
 //
 //  Modos: CPU · P2P (PeerJS, host autoritativo)
 //
@@ -27,7 +32,7 @@ const CH = 420;
 const SUELO_Y  = 360;
 const RED_X    = CW / 2;
 const RED_W    = 6;
-const RED_TOPE = 180;
+const RED_TOPE = 220;                  // red más baja (era 180)
 
 // ---- Jugador (paleta con foto) ----
 const PAL_W       = 74;
@@ -51,8 +56,12 @@ const TRAIL_MAX     = 12;
 
 // Velocidad base tras un golpe de paleta (px/s)
 const VEL_GOLPE_BASE   = 240;
-const VEL_GOLPE_OFFSET = 180;   // extra según posición sobre la paleta
-const VEL_Y_MIN_GOLPE  = 420;   // mínimo de velocidad vertical al golpear
+const VEL_GOLPE_OFFSET = 180;
+const VEL_Y_MIN_GOLPE  = 420;
+
+// ---- Rebote contra la red ----
+const RED_REBOTE_AMORTIGUA = 0.45;     // cuánta vx se conserva al chocar
+const RED_SPIN_AMORTIGUA   = 0.3;      // cuánto spin se conserva
 
 // ---- Countdown ----
 const COUNTDOWN_SEG = 3;
@@ -302,9 +311,11 @@ function dibujarRed() {
     const colorRed = cv('--gray-700', '#3F3F46');
     const colorTop = cv('--violet-500', '#8B5CF6');
 
+    // Poste
     ctx.fillStyle = colorRed;
     ctx.fillRect(RED_X - RED_W / 2, RED_TOPE, RED_W, SUELO_Y - RED_TOPE);
 
+    // Detalle horizontal (malla)
     ctx.strokeStyle = 'rgba(255,255,255,0.35)';
     ctx.lineWidth = 1;
     for (let y = RED_TOPE + 8; y < SUELO_Y; y += 12) {
@@ -314,6 +325,7 @@ function dibujarRed() {
         ctx.stroke();
     }
 
+    // Remate superior con acento del tema
     ctx.fillStyle = colorTop;
     roundRect(ctx, RED_X - RED_W / 2 - 3, RED_TOPE - 6, RED_W + 6, 8, 3);
     ctx.fill();
@@ -324,17 +336,14 @@ function dibujarSuelo() {
     const cTapa  = cv('--violet-400', '#A78BFA');
     const cBorde = cv('--violet-700', '#6D28D9');
 
-    // Suelo continuo
     ctx.fillStyle = cSuelo;
     roundRect(ctx, 0, SUELO_Y, CW, CH - SUELO_Y, 10);
     ctx.fill();
 
-    // Tapa superior clara
     ctx.fillStyle = cTapa;
     roundRect(ctx, 0, SUELO_Y, CW, 8, 8);
     ctx.fill();
 
-    // Borde
     ctx.strokeStyle = cBorde;
     ctx.lineWidth = 2;
     roundRect(ctx, 0, SUELO_Y, CW, CH - SUELO_Y, 10);
@@ -509,7 +518,6 @@ function actualizarJugador() {
     let objetivo = jugador.x;
     if (touchX !== null) objetivo = touchX;
     else if (mouseX !== null) objetivo = mouseX;
-    // Clamp al lado izquierdo (hasta la red)
     jugador.x = Math.max(JUGADOR_X_MIN, Math.min(JUGADOR_X_MAX, objetivo));
 }
 
@@ -520,14 +528,11 @@ function actualizarCpu(dt) {
     let objetivoX = rival.x;
 
     if (pelota.x > RED_X) {
-        // Pelota en su lado → perseguir
         objetivoX = pelota.x;
     } else {
-        // Pelota en lado jugador → volver al centro-derecha
         objetivoX = (RIVAL_X_MIN + RIVAL_X_MAX) / 2;
     }
 
-    // Error humano
     objetivoX += (Math.random() - 0.5) * 55;
 
     const v = Math.min(560, 260 + Math.hypot(pelota.vx, pelota.vy) * 0.3);
@@ -544,7 +549,6 @@ function actualizarCpu(dt) {
 function resetPelota() {
     pelota.x = CW / 2;
     pelota.y = 140;
-    // Arranca yendo al lado random
     const dir = Math.random() < 0.5 ? -1 : 1;
     pelota.vx = dir * 220;
     pelota.vy = -60;
@@ -576,7 +580,7 @@ function actualizar(dt) {
         rival.x += diff * Math.min(1, dt * 20);
     }
 
-    // ---- Física ----
+    // ---- Física de la pelota ----
     pelota.vy += GRAVEDAD * dt;
     pelota.vx += pelota.spin * SPIN_FUERZA * dt;
     pelota.vx *= Math.pow(SPIN_DAMPING, dt * 60);
@@ -591,16 +595,13 @@ function actualizar(dt) {
     if (pelota.trail.length > TRAIL_MAX) pelota.trail.shift();
 
     // ---- Paredes laterales ----
-    // Rebotan pero SIEMPRE mantienen una dirección que cruza la red
     if (pelota.x - BALL_R < 0) {
         pelota.x = BALL_R;
-        // Si va a la izquierda, la empujamos hacia la derecha (al rival)
         pelota.vx = Math.abs(pelota.vx) * 0.85;
         if (pelota.vx < 120) pelota.vx = 200;
         spawnParticulas(pelota.x, pelota.y, 6);
     } else if (pelota.x + BALL_R > CW) {
         pelota.x = CW - BALL_R;
-        // Si va a la derecha, la empujamos hacia la izquierda (al jugador)
         pelota.vx = -Math.abs(pelota.vx) * 0.85;
         if (Math.abs(pelota.vx) < 120) pelota.vx = -200;
         spawnParticulas(pelota.x, pelota.y, 6);
@@ -620,13 +621,17 @@ function actualizar(dt) {
         golpePaleta('der');
     }
 
+    // ---- Colisión con la red (estilo vóley) ----
+    // La red es sólida desde SUELO_Y hasta RED_TOPE.
+    // Si la pelota va por debajo del tope y toca el poste → rebota.
+    // Si va por encima → pasa limpia.
+    colisionConRed();
+
     // ---- Fin por caída al suelo ----
     if (pelota.y + BALL_R >= SUELO_Y) {
         if (pelota.x < RED_X) {
-            // Cayó en el lado izquierdo → ganó el rival (derecho)
             if (esHost || modo === 'cpu') terminarPartida('rival');
         } else {
-            // Cayó en el lado derecho → ganó el jugador (izquierdo)
             if (esHost || modo === 'cpu') terminarPartida('jugador');
         }
     }
@@ -664,7 +669,6 @@ function colisionPelotaPaleta(b, centroX, lado) {
     const y1 = SUELO_Y - PAL_H - FOTO_OFFSET * 2;
     const y2 = SUELO_Y;
 
-    // Solo cuando la pelota está cayendo
     if (b.vy < 0) return false;
 
     const closestX = Math.max(x1, Math.min(b.x, x2));
@@ -675,31 +679,86 @@ function colisionPelotaPaleta(b, centroX, lado) {
 }
 
 /**
+ * Colisión con la red vertical. La red es un obstáculo sólido desde
+ * SUELO_Y (abajo) hasta RED_TOPE (arriba).
+ *
+ *  · Si la pelota toca la red por debajo del tope → rebote.
+ *  · Si la pelota está por encima del tope → pasa limpia.
+ *  · El rebote no es perfecto: se amortigua horizontal y spin, pero se
+ *    conserva algo de vy para que no se quede pegada.
+ */
+function colisionConRed() {
+    // Zona vertical ocupada por el poste
+    const redArriba = RED_TOPE;
+    const redAbajo  = SUELO_Y;
+
+    // Zona horizontal ocupada por el poste + la bola
+    const redIzq = RED_X - RED_W / 2;
+    const redDer = RED_X + RED_W / 2;
+
+    // ¿La pelota toca verticalmente el poste? (borde inferior por debajo del tope)
+    if (pelota.y + BALL_R < redArriba) return;
+
+    // Viniendo desde la izquierda hacia la derecha
+    if (pelota.vx > 0 && pelota.x + BALL_R >= redIzq && pelota.x < RED_X) {
+        // Posicionar fuera de la red por la izquierda
+        pelota.x = redIzq - BALL_R - 1;
+
+        // Rebote amortiguado: pierde mucha velocidad horizontal
+        pelota.vx = -Math.abs(pelota.vx) * RED_REBOTE_AMORTIGUA;
+        pelota.spin *= RED_SPIN_AMORTIGUA;
+
+        // Pequeño empujón hacia arriba para que no quede pegada al suelo
+        if (pelota.vy > -100) {
+            pelota.vy = -Math.max(140, Math.abs(pelota.vy) * 0.4);
+        }
+
+        spawnParticulas(pelota.x + BALL_R, pelota.y, 8);
+        return;
+    }
+
+    // Viniendo desde la derecha hacia la izquierda
+    if (pelota.vx < 0 && pelota.x - BALL_R <= redDer && pelota.x > RED_X) {
+        pelota.x = redDer + BALL_R + 1;
+
+        pelota.vx = Math.abs(pelota.vx) * RED_REBOTE_AMORTIGUA;
+        pelota.spin *= RED_SPIN_AMORTIGUA;
+
+        if (pelota.vy > -100) {
+            pelota.vy = -Math.max(140, Math.abs(pelota.vy) * 0.4);
+        }
+
+        spawnParticulas(pelota.x - BALL_R, pelota.y, 8);
+    }
+}
+
+/**
  * Golpe de paleta:
- *  · La pelota SIEMPRE cruza la red hacia el lado contrario.
- *  · El offset sobre la paleta ajusta el ángulo (más cerca del borde,
- *    más lateral). Eso hace que aterrice en distintos lugares.
- *  · Velocidad vertical forzada hacia arriba.
+ *  · La pelota SIEMPRE sale hacia el lado contrario.
+ *  · El offset sobre la paleta ajusta el ángulo (más lateral cerca del borde).
+ *  · Velocidad vertical forzada hacia arriba para que pueda superar la red.
+ *  · Si el jugador golpea muy abajo/lateral, la pelota saldrá con poca altura
+ *    y probablemente rebote en la red → penalización natural.
  */
 function golpePaleta(lado) {
     const centroPaleta = lado === 'izq' ? jugador.x : rival.x;
     const offset = (pelota.x - centroPaleta) / (PAL_W / 2);
     const clampedOffset = Math.max(-1, Math.min(1, offset));
 
-    // Dirección GARANTIZADA al lado contrario
     const direccion = lado === 'izq' ? 1 : -1;
     const velBase = VEL_GOLPE_BASE + Math.abs(clampedOffset) * VEL_GOLPE_OFFSET;
 
     pelota.vx = direccion * velBase;
-    pelota.vy = -Math.max(VEL_Y_MIN_GOLPE, Math.abs(pelota.vy) * 1.05);
 
-    // Ajuste de posición para que quede sobre la paleta
+    // Cuanto más al borde pegues, menos altura saca.
+    // Centro → sube mucho y pasa la red limpio.
+    // Borde  → sube poco y probablemente choque contra la red.
+    const factorAltura = 1 - Math.abs(clampedOffset) * 0.55;
+    pelota.vy = -Math.max(VEL_Y_MIN_GOLPE * factorAltura, Math.abs(pelota.vy) * 1.05 * factorAltura);
+
     pelota.y = SUELO_Y - PAL_H - FOTO_OFFSET * 2 - BALL_R - 2;
-
-    // El spin afecta la trayectoria para que la caída sea variada
     pelota.spin = clampedOffset * 0.6;
 
-    // Partículas
     spawnParticulas(pelota.x, pelota.y + BALL_R, 8);
 }
 
@@ -806,7 +865,6 @@ function mostrarOverlayFin(yoGane) {
         ? (yoGane ? 'Le ganaste a la CPU.' : 'La CPU te ganó esta vez.')
         : (yoGane ? 'Buena partida.' : 'Revancha cuando quieras.');
 
-    // En CPU no mostramos tiempo ni bonus (no aplican)
     if (modo === 'cpu') {
         filaTiempo.hidden = true;
         filaBonus.hidden = true;
@@ -869,7 +927,6 @@ function loop(now) {
     if (esHost || modo === 'cpu') {
         actualizar(dt);
     } else {
-        // Guest: solo su paleta; la pelota viene por red
         actualizarJugador();
         pelota.x += (ballRedX - pelota.x) * Math.min(1, dt * 18);
         pelota.y += (ballRedY - pelota.y) * Math.min(1, dt * 18);
