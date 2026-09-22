@@ -21,14 +21,14 @@ const PROXIES = [
     (u) => 'https://cors.eu.org/' + u
 ];
 
-// Glifos Unicode de ajedrez (negras - luego se colorean por CSS)
+// Glifos Unicode de ajedrez (negras — luego se colorean por CSS)
 const GLIFOS = {
-    p: '\u265F', // ♟ peón
-    n: '\u265E', // ♞ caballo
-    b: '\u265D', // ♝ alfil
-    r: '\u265C', // ♜ torre
-    q: '\u265B', // ♛ dama
-    k: '\u265A'  // ♚ rey
+    p: '\u265F',
+    n: '\u265E',
+    b: '\u265D',
+    r: '\u265C',
+    q: '\u265B',
+    k: '\u265A'
 };
 
 // Traducciones de temas de Lichess
@@ -91,7 +91,7 @@ let solution        = [];
 let solutionIndex   = 0;
 let selectedSquare  = null;
 let lastMove        = null;
-let esperando       = false;   // true mientras el oponente "piensa"
+let esperando       = false;
 let turnoUsuario    = 'w';
 let puzzleId        = null;
 let resuelto        = false;
@@ -214,6 +214,97 @@ async function fetchConProxy(url) {
 }
 
 // ============================================================
+//  RECONSTRUCCIÓN ROBUSTA DEL PUZZLE
+//  ------------------------------------------------------------
+//  Lichess a veces devuelve el PGN con header [FEN] y a veces
+//  sin él. También `initialPly` puede referirse a distintas
+//  bases según el puzzle. Probamos varias interpretaciones y
+//  elegimos la que hace legal la primera jugada de la solución.
+// ============================================================
+function generarCandidatosPosicion(data) {
+    const candidatos = [];
+
+    // Extraer historial del PGN
+    let historial = [];
+    try {
+        const tmp = new Chess();
+        tmp.load_pgn(data.game.pgn, { sloppy: true });
+        historial = tmp.history({ verbose: true });
+    } catch (e) {
+        console.error('[Ajedrez] Error parseando PGN:', e);
+        return [];
+    }
+
+    // Extraer FEN header si existe
+    const fenMatch = String(data.game.pgn).match(/\[FEN\s+"([^"]+)"\]/);
+    const fenInicial = fenMatch ? fenMatch[1] : null;
+
+    const initialPly = parseInt(data.puzzle.initialPly, 10) || 0;
+
+    // Helper: construye un juego desde la posición base (FEN o estándar)
+    // y aplica los primeros N movimientos del historial.
+    const construir = (n) => {
+        try {
+            const g = fenInicial ? new Chess(fenInicial) : new Chess();
+            const limite = Math.min(n, historial.length);
+            for (let i = 0; i < limite; i++) {
+                const m = historial[i];
+                g.move({ from: m.from, to: m.to, promotion: m.promotion || 'q' });
+            }
+            return g;
+        } catch (e) {
+            return null;
+        }
+    };
+
+    // --- Candidatos, en orden de más probable a menos ---
+
+    // 1. FEN header + initialPly movimientos (caso típico de Lichess)
+    if (fenInicial) candidatos.push(construir(initialPly));
+
+    // 2. FEN header tal cual
+    if (fenInicial) {
+        try { candidatos.push(new Chess(fenInicial)); } catch (e) {}
+    }
+
+    // 3. Standard start + initialPly movimientos
+    candidatos.push(construir(initialPly));
+
+    // 4. Standard start + initialPly + 1 (off-by-one)
+    candidatos.push(construir(initialPly + 1));
+
+    // 5. Standard start + initialPly - 1 (off-by-one)
+    candidatos.push(construir(initialPly - 1));
+
+    // 6. Todo el PGN aplicado
+    candidatos.push(construir(historial.length));
+
+    return candidatos.filter(Boolean);
+}
+
+function elegirPosicionValida(candidatos, solution) {
+    if (!candidatos.length) return null;
+    if (!solution || !solution.length) return candidatos[0];
+
+    const uci = solution[0];
+    const from = uci.slice(0, 2);
+    const to   = uci.slice(2, 4);
+    const promo = uci.length > 4 ? uci[4] : 'q';
+
+    for (const c of candidatos) {
+        try {
+            const test = new Chess(c.fen());
+            const mov = test.move({ from, to, promotion: promo });
+            if (mov) {
+                console.log('[Ajedrez] Posición reconstruida OK. FEN:', c.fen());
+                return c;
+            }
+        } catch (e) { /* siguiente */ }
+    }
+    return null;
+}
+
+// ============================================================
 //  CARGA DEL PUZZLE
 // ============================================================
 async function cargarPuzzle() {
@@ -237,24 +328,23 @@ async function cargarPuzzle() {
 
         puzzleId = data.puzzle.id || null;
 
-        // Reconstruir posición inicial del puzzle
-        const tmp = new Chess();
-        tmp.load_pgn(data.game.pgn, { sloppy: true });
-        const historial = tmp.history({ verbose: true });
+        // --- Reconstrucción robusta ---
+        const candidatos = generarCandidatosPosicion(data);
+        const posicion = elegirPosicionValida(candidatos, data.puzzle.solution);
 
-        const initialPly = parseInt(data.puzzle.initialPly, 10) || 0;
-
-        game = new Chess();
-        for (let i = 0; i < initialPly && i < historial.length; i++) {
-            const m = historial[i];
-            game.move({ from: m.from, to: m.to, promotion: m.promotion || 'q' });
+        if (!posicion) {
+            console.error('[Ajedrez] No se pudo reconstruir. Datos:', data);
+            mostrarOverlay('No se pudo reconstruir el puzzle. Reintentá.', true);
+            setStatus('Error al reconstruir', 'err');
+            return;
         }
 
+        game = posicion;
         solution      = Array.isArray(data.puzzle.solution) ? data.puzzle.solution.slice() : [];
         solutionIndex = 0;
         turnoUsuario  = game.turn();
 
-        // Info UI
+        // --- Info UI ---
         const rating = data.puzzle.rating || '—';
         const ratingTxt = document.getElementById('ajRatingTxt');
         if (ratingTxt) ratingTxt.textContent = String(rating);
@@ -271,12 +361,14 @@ async function cargarPuzzle() {
                 : '—';
         }
 
-        // Render
+        // --- Render ---
         ocultarOverlay();
         renderBoard();
         ajustarTamanoPiezas();
 
-        const turnoTxt = turnoUsuario === 'w' ? 'Juegan blancas · encuentra la mejor jugada' : 'Juegan negras · encuentra la mejor jugada';
+        const turnoTxt = turnoUsuario === 'w'
+            ? 'Juegan blancas · encuentra la mejor jugada'
+            : 'Juegan negras · encuentra la mejor jugada';
         setStatus(turnoTxt, null);
 
     } catch (e) {
@@ -297,7 +389,7 @@ function renderBoard() {
 
     board.innerHTML = '';
 
-    const matriz = game.board(); // 8x8, [0] = rank 8
+    const matriz = game.board();
     const files = ['a','b','c','d','e','f','g','h'];
 
     // Jugadas legales desde la casilla seleccionada (deduplicadas por destino)
@@ -373,7 +465,7 @@ function ajustarTamanoPiezas() {
     const w = board.clientWidth;
     if (w === 0) return;
     const size = w / 8;
-    board.style.setProperty('--piece-size', Math.round(size * 0.86) + 'px');
+    board.style.setProperty('--piece-size', Math.round(size * 0.94) + 'px');
 }
 
 // ============================================================
@@ -387,14 +479,12 @@ function onSquareClick(square) {
 
     // --- Ya hay selección ---
     if (selectedSquare) {
-        // Mismo cuadro → deseleccionar
         if (square === selectedSquare) {
             selectedSquare = null;
             renderBoard();
             return;
         }
 
-        // ¿Es destino legal?
         let legal = false;
         try {
             const moves = game.moves({ square: selectedSquare, verbose: true });
@@ -406,7 +496,6 @@ function onSquareClick(square) {
             return;
         }
 
-        // No es legal → cambiar selección si es pieza propia
         if (pieza && pieza.color === turno) {
             selectedSquare = square;
         } else {
@@ -429,7 +518,6 @@ function onSquareClick(square) {
 function intentarJugada(from, to) {
     const esperado = solution[solutionIndex];
     if (!esperado) {
-        // Sin más solución (no debería pasar)
         setStatus('Puzzle completado', 'ok');
         return;
     }
@@ -438,7 +526,7 @@ function intentarJugada(from, to) {
     const intentoFromTo  = from + to;
 
     if (intentoFromTo !== esperadoFromTo) {
-        // --- INCORRECTO: mostrar jugada por 400ms y deshacer ---
+        // --- INCORRECTO ---
         esperando = true;
         const promotion = esperado.length > 4 ? esperado[4] : 'q';
 
@@ -455,7 +543,6 @@ function intentarJugada(from, to) {
             lastMove = { from, to };
             renderBoard();
 
-            // Shake visual
             const board = $board();
             if (board) {
                 const sqFrom = board.querySelector(`[data-square="${from}"]`);
@@ -505,7 +592,6 @@ function intentarJugada(from, to) {
     lastMove = { from, to };
     renderBoard();
 
-    // ¿Terminó el puzzle?
     if (solutionIndex >= solution.length) {
         marcarResuelto();
         return;
@@ -580,7 +666,6 @@ function inicializarEventos() {
 
     window.addEventListener('resize', ajustarTamanoPiezas);
 
-    // ResizeObserver por si el iframe cambia de tamaño sin disparar 'resize'
     if (window.ResizeObserver) {
         const ro = new ResizeObserver(() => ajustarTamanoPiezas());
         const b = $board();
