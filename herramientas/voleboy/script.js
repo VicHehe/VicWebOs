@@ -2,14 +2,15 @@
 //  Voleboy — Pong plataformero con red central
 //  ------------------------------------------------------------
 //  Vista lateral. Jugador izquierda, rival derecha. Red vertical
-//  al medio. Pelota con gravedad, spin y dirección garantizada:
-//  al ser golpeada, siempre cruza hacia el otro lado SI pasa por
-//  encima de la red.
+//  al medio. Pelota con gravedad, spin y dirección variable.
 //
-//  Red sólida (estilo vóley):
-//    · La pelota pasa limpia si va por encima de RED_TOPE.
-//    · Si va baja, rebota contra la red y cae en el lado de quien
-//      la golpeó → penalización natural.
+//  Reglas voley:
+//    · Al golpear, la pelota SIEMPRE va al lado contrario.
+//    · El ángulo y la potencia son ALEATORIOS (offset solo modula).
+//    · Si la pelota toca la red por debajo del tope → MUERE.
+//      Cae al suelo del lado de quien la tiró y termina el punto.
+//      (Anti-loop: no se puede re-golpear una pelota muerta).
+//    · Si pasa por encima del tope → sigue en juego normalmente.
 //
 //  Modos: CPU · P2P (PeerJS, host autoritativo)
 //
@@ -32,7 +33,7 @@ const CH = 420;
 const SUELO_Y  = 360;
 const RED_X    = CW / 2;
 const RED_W    = 6;
-const RED_TOPE = 280;                  // red más baja (era 180)
+const RED_TOPE = 220;
 
 // ---- Jugador (paleta con foto) ----
 const PAL_W       = 74;
@@ -47,21 +48,24 @@ const RIVAL_X_MAX   = CW - 30;
 // ---- Pelota ----
 const BALL_R        = 13;
 const GRAVEDAD      = 950;
-const SPIN_FUERZA   = 200;
+const SPIN_FUERZA   = 180;
 const SPIN_DAMPING  = 0.994;
 const SPIN_MAX      = 1.0;
 const VEL_MAX_X     = 620;
 const VEL_MAX_Y     = 900;
 const TRAIL_MAX     = 12;
 
-// Velocidad base tras un golpe de paleta (px/s)
-const VEL_GOLPE_BASE   = 240;
-const VEL_GOLPE_OFFSET = 180;
-const VEL_Y_MIN_GOLPE  = 420;
+// ---- Golpe de paleta ----
+const VEL_H_BASE     = 240;   // velocidad horizontal base
+const VEL_H_RANDOM   = 0.6;   // +/- 60% de varianza
+const VEL_H_OFFSET   = 100;   // extra según posición sobre la paleta
+const VY_MIN         = 320;   // apenas pasa la red
+const VY_MAX         = 620;   // sube muy alto
+const VY_OFFSET_REST = 0.35;  // cuánto resta el offset a la altura
 
 // ---- Rebote contra la red ----
-const RED_REBOTE_AMORTIGUA = 0.45;     // cuánta vx se conserva al chocar
-const RED_SPIN_AMORTIGUA   = 0.3;      // cuánto spin se conserva
+const RED_DEAD_VX  = 0.35;    // vx residual al morir en la red
+const RED_DEAD_VY  = 120;     // pequeño empujón hacia abajo
 
 // ---- Countdown ----
 const COUNTDOWN_SEG = 3;
@@ -83,7 +87,7 @@ const NET_STATE_HZ  = 20;
 //  ESTADO
 // ============================================================
 let canvas, ctx;
-let estado = 'menu';   // menu | esperando | countdown | jugando | fin
+let estado = 'menu';
 let modo = 'cpu';
 
 let rafId = null;
@@ -95,7 +99,8 @@ const pelota = {
     x: CW / 2, y: 140,
     vx: 180, vy: 0,
     spin: 0,
-    trail: []
+    trail: [],
+    muerta: false    // NUEVO: si toca la red, muere y ya no se puede golpear
 };
 
 const jugador = { x: (JUGADOR_X_MIN + JUGADOR_X_MAX) / 2 };
@@ -127,7 +132,7 @@ let codigoSala = '';
 let rivalPaddleX = RIVAL_X_MIN;
 let ultimoEnvioPaddle = 0;
 let ultimoEnvioEstado = 0;
-let ballRedX = CW / 2, ballRedY = 140, ballRedVx = 180, ballRedVy = 0, ballRedSpin = 0;
+let ballRedX = CW / 2, ballRedY = 140, ballRedVx = 180, ballRedVy = 0, ballRedSpin = 0, ballRedMuerta = false;
 
 const API = () => {
     try { return (window.parent && window.parent.__vicwebos) || null; }
@@ -311,11 +316,9 @@ function dibujarRed() {
     const colorRed = cv('--gray-700', '#3F3F46');
     const colorTop = cv('--violet-500', '#8B5CF6');
 
-    // Poste
     ctx.fillStyle = colorRed;
     ctx.fillRect(RED_X - RED_W / 2, RED_TOPE, RED_W, SUELO_Y - RED_TOPE);
 
-    // Detalle horizontal (malla)
     ctx.strokeStyle = 'rgba(255,255,255,0.35)';
     ctx.lineWidth = 1;
     for (let y = RED_TOPE + 8; y < SUELO_Y; y += 12) {
@@ -325,7 +328,6 @@ function dibujarRed() {
         ctx.stroke();
     }
 
-    // Remate superior con acento del tema
     ctx.fillStyle = colorTop;
     roundRect(ctx, RED_X - RED_W / 2 - 3, RED_TOPE - 6, RED_W + 6, 8, 3);
     ctx.fill();
@@ -355,7 +357,9 @@ function dibujarTrail() {
         const t = pelota.trail[i];
         const a = ((i + 1) / pelota.trail.length) * 0.4;
         const r = BALL_R * (0.35 + (i / pelota.trail.length) * 0.65);
-        ctx.fillStyle = cv('--violet-400', '#A78BFA');
+        ctx.fillStyle = pelota.muerta
+            ? cv('--gray-400', '#A1A1AD')
+            : cv('--violet-400', '#A78BFA');
         ctx.globalAlpha = a;
         ctx.beginPath();
         ctx.arc(t.x, t.y, r, 0, Math.PI * 2);
@@ -365,6 +369,26 @@ function dibujarTrail() {
 }
 
 function dibujarPelota() {
+    // Pelota muerta: roja apagada, sin glow
+    if (pelota.muerta) {
+        ctx.fillStyle = '#B91C1C';
+        ctx.beginPath();
+        ctx.arc(pelota.x, pelota.y, BALL_R, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Cruz interna para indicar "muerta"
+        ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(pelota.x - BALL_R * 0.4, pelota.y - BALL_R * 0.4);
+        ctx.lineTo(pelota.x + BALL_R * 0.4, pelota.y + BALL_R * 0.4);
+        ctx.moveTo(pelota.x + BALL_R * 0.4, pelota.y - BALL_R * 0.4);
+        ctx.lineTo(pelota.x - BALL_R * 0.4, pelota.y + BALL_R * 0.4);
+        ctx.stroke();
+        return;
+    }
+
+    // Pelota viva
     ctx.save();
     ctx.shadowColor = cv('--violet-500', '#8B5CF6');
     ctx.shadowBlur = 20;
@@ -527,13 +551,16 @@ function actualizarJugador() {
 function actualizarCpu(dt) {
     let objetivoX = rival.x;
 
-    if (pelota.x > RED_X) {
+    if (pelota.x > RED_X && !pelota.muerta) {
+        // Pelota viene a su lado → perseguir con un margen de error
         objetivoX = pelota.x;
     } else {
+        // Pelota en el otro lado o muerta → volver a posición base
         objetivoX = (RIVAL_X_MIN + RIVAL_X_MAX) / 2;
     }
 
-    objetivoX += (Math.random() - 0.5) * 55;
+    // Error humano: varía bastante para que falle de vez en cuando
+    objetivoX += (Math.random() - 0.5) * 70;
 
     const v = Math.min(560, 260 + Math.hypot(pelota.vx, pelota.vy) * 0.3);
     const diff = objetivoX - rival.x;
@@ -554,6 +581,7 @@ function resetPelota() {
     pelota.vy = -60;
     pelota.spin = 0;
     pelota.trail = [];
+    pelota.muerta = false;
 }
 
 function resetPartida() {
@@ -613,18 +641,17 @@ function actualizar(dt) {
         pelota.vy = Math.abs(pelota.vy) * 0.85;
     }
 
-    // ---- Colisión con paletas ----
-    if (colisionPelotaPaleta(pelota, jugador.x, 'izq')) {
-        golpePaleta('izq');
-    }
-    if (colisionPelotaPaleta(pelota, rival.x, 'der')) {
-        golpePaleta('der');
+    // ---- Colisión con paletas (solo si la pelota no está muerta) ----
+    if (!pelota.muerta) {
+        if (colisionPelotaPaleta(pelota, jugador.x, 'izq')) {
+            golpePaleta('izq');
+        }
+        if (colisionPelotaPaleta(pelota, rival.x, 'der')) {
+            golpePaleta('der');
+        }
     }
 
-    // ---- Colisión con la red (estilo vóley) ----
-    // La red es sólida desde SUELO_Y hasta RED_TOPE.
-    // Si la pelota va por debajo del tope y toca el poste → rebota.
-    // Si va por encima → pasa limpia.
+    // ---- Colisión con la red ----
     colisionConRed();
 
     // ---- Fin por caída al suelo ----
@@ -664,12 +691,13 @@ function actualizar(dt) {
 }
 
 function colisionPelotaPaleta(b, centroX, lado) {
+    if (b.muerta) return false;
+    if (b.vy < 0) return false;
+
     const x1 = centroX - PAL_W / 2;
     const x2 = centroX + PAL_W / 2;
     const y1 = SUELO_Y - PAL_H - FOTO_OFFSET * 2;
     const y2 = SUELO_Y;
-
-    if (b.vy < 0) return false;
 
     const closestX = Math.max(x1, Math.min(b.x, x2));
     const closestY = Math.max(y1, Math.min(b.y, y2));
@@ -679,85 +707,78 @@ function colisionPelotaPaleta(b, centroX, lado) {
 }
 
 /**
- * Colisión con la red vertical. La red es un obstáculo sólido desde
- * SUELO_Y (abajo) hasta RED_TOPE (arriba).
+ * Colisión con la red. Si la pelota toca el poste por debajo del tope:
+ *  · Se marca como muerta (ya no se puede golpear).
+ *  · Cae al suelo del lado del jugador que la golpeó.
+ *  · Penalización justa por tirar bajo.
  *
- *  · Si la pelota toca la red por debajo del tope → rebote.
- *  · Si la pelota está por encima del tope → pasa limpia.
- *  · El rebote no es perfecto: se amortigua horizontal y spin, pero se
- *    conserva algo de vy para que no se quede pegada.
+ * Si la pelota pasa por encima del tope → sigue en juego.
  */
 function colisionConRed() {
-    // Zona vertical ocupada por el poste
-    const redArriba = RED_TOPE;
-    const redAbajo  = SUELO_Y;
+    if (pelota.muerta) return;
 
-    // Zona horizontal ocupada por el poste + la bola
+    const redArriba = RED_TOPE;
     const redIzq = RED_X - RED_W / 2;
     const redDer = RED_X + RED_W / 2;
 
-    // ¿La pelota toca verticalmente el poste? (borde inferior por debajo del tope)
+    // ¿La pelota toca verticalmente el poste?
     if (pelota.y + BALL_R < redArriba) return;
 
-    // Viniendo desde la izquierda hacia la derecha
+    // Viniendo desde la izquierda
     if (pelota.vx > 0 && pelota.x + BALL_R >= redIzq && pelota.x < RED_X) {
-        // Posicionar fuera de la red por la izquierda
         pelota.x = redIzq - BALL_R - 1;
-
-        // Rebote amortiguado: pierde mucha velocidad horizontal
-        pelota.vx = -Math.abs(pelota.vx) * RED_REBOTE_AMORTIGUA;
-        pelota.spin *= RED_SPIN_AMORTIGUA;
-
-        // Pequeño empujón hacia arriba para que no quede pegada al suelo
-        if (pelota.vy > -100) {
-            pelota.vy = -Math.max(140, Math.abs(pelota.vy) * 0.4);
-        }
-
-        spawnParticulas(pelota.x + BALL_R, pelota.y, 8);
+        pelota.vx = -Math.abs(pelota.vx) * RED_DEAD_VX;
+        pelota.vy = Math.abs(pelota.vy) * 0.2 + RED_DEAD_VY;
+        pelota.spin = 0;
+        pelota.muerta = true;
+        spawnParticulas(pelota.x + BALL_R, pelota.y, 12);
         return;
     }
 
-    // Viniendo desde la derecha hacia la izquierda
+    // Viniendo desde la derecha
     if (pelota.vx < 0 && pelota.x - BALL_R <= redDer && pelota.x > RED_X) {
         pelota.x = redDer + BALL_R + 1;
-
-        pelota.vx = Math.abs(pelota.vx) * RED_REBOTE_AMORTIGUA;
-        pelota.spin *= RED_SPIN_AMORTIGUA;
-
-        if (pelota.vy > -100) {
-            pelota.vy = -Math.max(140, Math.abs(pelota.vy) * 0.4);
-        }
-
-        spawnParticulas(pelota.x - BALL_R, pelota.y, 8);
+        pelota.vx = Math.abs(pelota.vx) * RED_DEAD_VX;
+        pelota.vy = Math.abs(pelota.vy) * 0.2 + RED_DEAD_VY;
+        pelota.spin = 0;
+        pelota.muerta = true;
+        spawnParticulas(pelota.x - BALL_R, pelota.y, 12);
     }
 }
 
 /**
- * Golpe de paleta:
- *  · La pelota SIEMPRE sale hacia el lado contrario.
- *  · El offset sobre la paleta ajusta el ángulo (más lateral cerca del borde).
- *  · Velocidad vertical forzada hacia arriba para que pueda superar la red.
- *  · Si el jugador golpea muy abajo/lateral, la pelota saldrá con poca altura
- *    y probablemente rebote en la red → penalización natural.
+ * Golpe de paleta con ALEATORIEDAD REAL.
+ *  · Dirección horizontal: SIEMPRE al lado contrario (regla dura).
+ *  · Magnitud horizontal: aleatoria (un golpe suave puede ir lejos).
+ *  · Velocidad vertical: aleatoria entre VY_MIN y VY_MAX.
+ *    - VY_MIN = apenas pasa la red (riesgo alto).
+ *    - VY_MAX = sube muy alto (pasa limpio, pero lento).
+ *  · El offset sobre la paleta modula ligeramente, no domina.
+ *
+ *  Resultado: cada golpe es impredecible, y el jugador que se queda
+ *  quieto no puede predecir dónde caerá la pelota.
  */
 function golpePaleta(lado) {
     const centroPaleta = lado === 'izq' ? jugador.x : rival.x;
     const offset = (pelota.x - centroPaleta) / (PAL_W / 2);
     const clampedOffset = Math.max(-1, Math.min(1, offset));
 
+    // --- Horizontal ---
     const direccion = lado === 'izq' ? 1 : -1;
-    const velBase = VEL_GOLPE_BASE + Math.abs(clampedOffset) * VEL_GOLPE_OFFSET;
+    const varianzaH = 1 + (Math.random() - 0.5) * 2 * VEL_H_RANDOM; // 0.4 a 1.6
+    const offsetH = Math.abs(clampedOffset) * VEL_H_OFFSET;
+    pelota.vx = direccion * (VEL_H_BASE * varianzaH + offsetH);
 
-    pelota.vx = direccion * velBase;
+    // --- Vertical ---
+    // Base aleatoria entre MIN y MAX, con ligera penalización por offset.
+    const aleatorioV = VY_MIN + Math.random() * (VY_MAX - VY_MIN);
+    const penalizacionOffset = 1 - Math.abs(clampedOffset) * VY_OFFSET_REST;
+    pelota.vy = -(aleatorioV * penalizacionOffset);
 
-    // Cuanto más al borde pegues, menos altura saca.
-    // Centro → sube mucho y pasa la red limpio.
-    // Borde  → sube poco y probablemente choque contra la red.
-    const factorAltura = 1 - Math.abs(clampedOffset) * 0.55;
-    pelota.vy = -Math.max(VEL_Y_MIN_GOLPE * factorAltura, Math.abs(pelota.vy) * 1.05 * factorAltura);
-
+    // Reset de estado
     pelota.y = SUELO_Y - PAL_H - FOTO_OFFSET * 2 - BALL_R - 2;
-    pelota.spin = clampedOffset * 0.6;
+    pelota.spin = clampedOffset * 0.5 + (Math.random() - 0.5) * 0.4;
+    pelota.muerta = false;
 
     spawnParticulas(pelota.x, pelota.y + BALL_R, 8);
 }
@@ -933,6 +954,7 @@ function loop(now) {
         pelota.vx = ballRedVx;
         pelota.vy = ballRedVy;
         pelota.spin = ballRedSpin;
+        pelota.muerta = ballRedMuerta;
         pelota.trail.push({ x: pelota.x, y: pelota.y });
         if (pelota.trail.length > TRAIL_MAX) pelota.trail.shift();
 
@@ -951,7 +973,11 @@ function loop(now) {
             try {
                 conn.send({
                     t: 'state',
-                    ball: { x: pelota.x, y: pelota.y, vx: pelota.vx, vy: pelota.vy, spin: pelota.spin },
+                    ball: {
+                        x: pelota.x, y: pelota.y,
+                        vx: pelota.vx, vy: pelota.vy,
+                        spin: pelota.spin, muerta: pelota.muerta
+                    },
                     hostPaddle: jugador.x
                 });
             } catch (e) {}
@@ -1070,6 +1096,7 @@ function manejarData(data) {
         ballRedVx = data.ball.vx;
         ballRedVy = data.ball.vy;
         ballRedSpin = data.ball.spin;
+        ballRedMuerta = !!data.ball.muerta;
         rivalPaddleX = data.hostPaddle;
         return;
     }
