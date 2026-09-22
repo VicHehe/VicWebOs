@@ -20,6 +20,9 @@
 //    100+  → alta: mucha complejidad técnica o muy pedida
 //    250   → tope del catálogo
 //
+//  REGLA: cada app debe tener un icono ÚNICO en el catálogo.
+//  Si agregás una nueva, verificá que su icono no esté ya en uso.
+//
 //  ORDEN:
 //    1. Sistema primero (excepción a la regla alfabética).
 //    2. Resto de categorías alfabéticas.
@@ -32,7 +35,7 @@ const RUTAS_HERRAMIENTAS = [
     // ============================================================
     //  SISTEMA (siempre al frente)
     // ============================================================
-        {
+    {
         id: 'stor-he',
         nombre: 'Stor-He',
         icono: 'store',
@@ -86,7 +89,7 @@ const RUTAS_HERRAMIENTAS = [
     {
         id: 'pixevan',
         nombre: 'PixEvan',
-        icono: 'grid-3x3',
+        icono: 'grid-2x2',                 // ← CAMBIO: era grid-3x3 (chocaba con tres-en-raya)
         ruta: 'herramientas/pixevan/index.html',
         descripcion: 'Editor de pixel art por capas y frames. Exporta spritesheets.',
         categoria: 'Creatividad',
@@ -131,7 +134,7 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 6,
         monedas: 0
     },
-        {
+    {
         id: 'camara',
         nombre: 'Cámara',
         icono: 'camera',
@@ -143,16 +146,16 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 5
     },
     {
-    id: 'lector-pdf',
-    nombre: 'Lector PDF',
-    icono: 'file-text',
-    ruta: 'herramientas/lector-pdf/index.html',
-    descripcion: 'Lee PDFs guardados localmente en tu dispositivo. Hasta 10 archivos.',
-    categoria: 'Herramientas Prácticas',
-    esBase: false,
-    espacio: 4,
-    monedas: 10
-},
+        id: 'lector-pdf',
+        nombre: 'Lector PDF',
+        icono: 'file-text',
+        ruta: 'herramientas/lector-pdf/index.html',
+        descripcion: 'Lee PDFs guardados localmente en tu dispositivo. Hasta 10 archivos.',
+        categoria: 'Herramientas Prácticas',
+        esBase: false,
+        espacio: 4,
+        monedas: 10
+    },
     {
         id: 'qr',
         nombre: 'Generador QR',
@@ -175,10 +178,10 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 4,
         monedas: 70
     },
-        {
+    {
         id: 'gastos',
         nombre: 'Gestor de Gastos',
-        icono: 'wallet',
+        icono: 'receipt',                  // ← CAMBIO: era wallet (chocaba con chequera)
         ruta: 'herramientas/gastos/index.html',
         descripcion: 'Controlá tus ingresos, gastos y simulá escenarios antes de gastar.',
         categoria: 'Herramientas Prácticas',
@@ -245,6 +248,7 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 6,
         monedas: 35
     },
+
     // ============================================================
     //  SOCIAL
     // ============================================================
@@ -262,7 +266,7 @@ const RUTAS_HERRAMIENTAS = [
     {
         id: 'twevan',
         nombre: 'Twevan',
-        icono: 'bird',                    
+        icono: 'bird',
         ruta: 'herramientas/twevan/index.html',
         descripcion: 'Mini red social. Publicá, comentá y hacete verificado con TwePlus.',
         categoria: 'Social',
@@ -273,7 +277,7 @@ const RUTAS_HERRAMIENTAS = [
     {
         id: 'vicsgram',
         nombre: 'VicsGram',
-        icono: 'camera',
+        icono: 'aperture',                 // ← CAMBIO: era camera (chocaba con camara)
         ruta: 'herramientas/vicsgram/index.html',
         descripcion: 'Mini-Instagram de la comunidad. Compartí fotos, likes y comentarios.',
         categoria: 'Social',
@@ -302,6 +306,6 @@ const RUTAS_HERRAMIENTAS = [
         esBase: false,
         espacio: 10,
         monedas: 250
-    },
+    }
 
 ];
