@@ -14,29 +14,40 @@
 
     <div class="mp-container">
         <!-- HEADER FLOTANTE -->
-        <header class="mp-header">
+        <header class="mp-header" id="mpHeader">
             <div class="mp-logo">
-                <i data-lucide="smartphone"></i>
-                <h1>MyPants</h1>
+                <div class="mp-logo-mark">
+                    <i data-lucide="smartphone"></i>
+                </div>
+                <div class="mp-logo-text">
+                    <h1>MyPants</h1>
+                </div>
             </div>
             <div class="mp-header-actions">
-                <button class="mp-icon-btn" id="mpBtnPerfil" title="Mi Perfil">
+                <button class="mp-icon-btn" id="mpBtnPerfil" title="Mi Armario">
                     <i data-lucide="user"></i>
                 </button>
-                <button class="mp-icon-btn mp-btn-nuevo" id="mpBtnNuevo" title="Subir Pantalón">
+                <button class="mp-btn-nuevo" id="mpBtnNuevo">
                     <i data-lucide="plus"></i>
+                    <span>Subir</span>
                 </button>
             </div>
         </header>
 
         <!-- FEED TIKTOK STYLE -->
-        <main class="mp-feed" id="mpFeed"></main>
+        <main class="mp-feed" id="mpFeed" hidden></main>
         
-        <div class="mp-empty" id="mpEmpty" hidden>
-            <i data-lucide="video-off"></i>
+        <!-- EMPTY STATE (Estilo VicsGram) -->
+        <div class="mp-empty" id="mpEmpty">
+            <div class="mp-empty-icon">
+                <i data-lucide="smartphone"></i>
+            </div>
             <h3>No hay pantalones subidos</h3>
             <p>Sube el primer clip de 2MB a la comunidad.</p>
-            <button class="mp-btn-primario" id="mpEmptyBtn">Subir video</button>
+            <button class="mp-empty-btn" id="mpEmptyBtn">
+                <i data-lucide="plus"></i>
+                Subir video
+            </button>
         </div>
     </div>
 
@@ -47,22 +58,22 @@
                 <h2><i data-lucide="upload"></i> Nuevo Pantalón</h2>
                 <button class="mp-modal-cerrar" id="mpSubirCerrar"><i data-lucide="x"></i></button>
             </div>
+            
             <div class="mp-modal-body">
-                <div class="mp-alerta" id="mpAlertaLimite" hidden>
-                    <i data-lucide="alert-triangle"></i>
-                    <span>Has alcanzado el límite de 25 videos. Borra uno desde tu perfil para subir nuevos.</span>
+                <div class="mp-modal-mensaje error" id="mpAlertaLimite" hidden>
+                    Has alcanzado el límite de 25 videos. Borra uno desde tu perfil para subir nuevos.
                 </div>
                 
                 <div id="mpFormSubir">
                     <label class="mp-file-drop" id="mpFileDrop">
                         <i data-lucide="video"></i>
-                        <span>Elige un video (Máx 2MB)</span>
+                        <p>Elige un video (Máx 2MB)</p>
                         <input type="file" id="mpInputFile" accept="video/mp4,video/x-m4v,video/*" hidden>
                     </label>
                     
                     <div class="mp-preview-wrap" id="mpPreviewWrap" hidden>
                         <video id="mpVideoPreview" controls playsinline muted></video>
-                        <button class="mp-btn-secundario" id="mpBtnCambiarVideo" style="width: 100%; margin-top: 8px;">
+                        <button class="mp-btn-secundario mp-w-full" id="mpBtnCambiarVideo" style="margin-top: 12px;">
                             <i data-lucide="refresh-cw"></i> Cambiar archivo
                         </button>
                     </div>
@@ -73,10 +84,11 @@
                     </div>
                 </div>
             </div>
+
             <div class="mp-modal-actions" id="mpSubirActions">
                 <button class="mp-btn-secundario" id="mpSubirCancelar">Cancelar</button>
                 <button class="mp-btn-primario" id="mpSubirGuardar" disabled>
-                    <i data-lucide="upload-cloud"></i> Subir
+                    <i data-lucide="check"></i> Subir
                 </button>
             </div>
         </div>
@@ -90,7 +102,7 @@
                 <button class="mp-modal-cerrar" id="mpComCerrar"><i data-lucide="x"></i></button>
             </div>
             <div class="mp-comentarios-lista" id="mpComLista"></div>
-            <div class="mp-comentarios-input">
+            <div class="mp-ver-input-wrap">
                 <input type="text" id="mpInputComentario" maxlength="150" placeholder="Escribe un comentario...">
                 <button class="mp-btn-enviar" id="mpBtnEnviarCom">
                     <i data-lucide="send"></i>
@@ -99,17 +111,21 @@
         </div>
     </div>
 
-    <!-- MODAL PERFIL (GESTIÓN) -->
+    <!-- MODAL PERFIL -->
     <div class="mp-modal" id="mpModalPerfil" hidden>
         <div class="mp-modal-card mp-card-perfil">
             <div class="mp-modal-header">
-                <h2><i data-lucide="user"></i> Mi Armario (Perfil)</h2>
+                <h2><i data-lucide="user"></i> Mi Armario</h2>
                 <button class="mp-modal-cerrar" id="mpPerfilCerrar"><i data-lucide="x"></i></button>
             </div>
             <div class="mp-perfil-stats">
                 <span id="mpPerfilConteo">0 / 25 videos subidos</span>
             </div>
             <div class="mp-perfil-grid" id="mpPerfilGrid"></div>
+            <div class="mp-perfil-vacio" id="mpPerfilVacio" hidden>
+                <i data-lucide="video-off"></i>
+                <p>Tu armario está vacío.</p>
+            </div>
         </div>
     </div>
 
