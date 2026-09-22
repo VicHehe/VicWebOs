@@ -205,13 +205,11 @@ function claveLocalPremium() {
 }
 
 async function cargarPremium() {
-    // 1. Intento por localStorage (rápido)
     const local = localStorage.getItem(claveLocalPremium());
     if (local === '1') {
         premium = true;
         return;
     }
-    // 2. Repo como fuente de verdad
     const bd = BD();
     const ruta = rutaArchivoPremium();
     if (!bd || !ruta) return;
@@ -261,7 +259,6 @@ function actualizarUIPremium() {
 // ============================================================
 async function cargarBiblioteca() {
     pdfs = await idbGetAll();
-    // Ordenar por fecha de creación (más nuevos primero)
     pdfs.sort((a, b) => new Date(b.creado) - new Date(a.creado));
 }
 
@@ -353,11 +350,9 @@ async function añadirPDF(file) {
         const arrayBuffer = await file.arrayBuffer();
         const bytes = new Uint8Array(arrayBuffer);
 
-        // Cargar con PDF.js
         const pdfDoc = await pdfjsLib.getDocument({ data: bytes.slice() }).promise;
         const paginas = pdfDoc.numPages;
 
-        // Generar thumbnail de la primera página
         let thumb = '';
         try {
             const page = await pdfDoc.getPage(1);
@@ -372,7 +367,6 @@ async function añadirPDF(file) {
             console.warn('[LectorPDF] No se pudo generar thumbnail:', e);
         }
 
-        // Guardar en IndexedDB
         const record = {
             id: generarId(),
             nombre: file.name.replace(/\.pdf$/i, ''),
@@ -417,7 +411,6 @@ async function abrirVisor(id) {
         return;
     }
 
-    // Cargar PDF.js
     mostrarCargandoVisor('Cargando PDF...');
     try {
         const arrayBuffer = await record.blob.arrayBuffer();
@@ -432,28 +425,26 @@ async function abrirVisor(id) {
             ultimaPagina: record.ultimaPagina || 1
         };
 
-        // Si es premium, arrancar en la última página leída
         paginaActual = (premium && pdfActual.ultimaPagina > 0)
             ? Math.min(pdfActual.ultimaPagina, pdfActual.paginas)
             : 1;
         zoomActual = 1;
 
-        // UI
         document.getElementById('lpVisTitulo').textContent = pdfActual.nombre;
         document.getElementById('lpVisPagTotal').textContent = String(pdfActual.paginas);
         document.getElementById('lpVisPagActual').max = String(pdfActual.paginas);
 
-        // Mostrar
         document.getElementById('lpVistaBiblioteca').hidden = true;
         document.getElementById('lpVistaVisor').hidden = false;
 
-        // Actualizar botón marcador según premium
         const btnMarcador = document.getElementById('lpVisBtnMarcador');
         if (btnMarcador) {
             btnMarcador.classList.toggle('premium', !premium);
             btnMarcador.title = premium ? 'Marcar esta página' : 'Premium: marcar página';
         }
 
+        // Esperar un frame para que el wrapper tenga tamaño
+        await new Promise(r => requestAnimationFrame(r));
         await renderPagina();
         ocultarCargandoVisor();
         if (window.lucide) window.lucide.createIcons();
@@ -465,7 +456,6 @@ async function abrirVisor(id) {
 }
 
 function cerrarVisor() {
-    // Guardar última página si es premium
     if (premium && pdfActual) {
         guardarUltimaPagina(pdfActual.id, paginaActual);
     }
@@ -473,7 +463,6 @@ function cerrarVisor() {
     document.getElementById('lpVistaVisor').hidden = true;
     document.getElementById('lpVistaBiblioteca').hidden = false;
 
-    // Limpiar
     if (renderTaskActual) {
         try { renderTaskActual.cancel(); } catch (e) {}
         renderTaskActual = null;
@@ -485,7 +474,6 @@ function cerrarVisor() {
     document.getElementById('lpVisBuscarInput').value = '';
     document.getElementById('lpVisBuscarResultados').innerHTML = '<p class="lp-vis-buscar-ayuda">Escribí algo para buscar.</p>';
 
-    // Refrescar biblioteca (por si cambió el marcador)
     cargarBiblioteca().then(renderBiblioteca);
 }
 
@@ -505,46 +493,55 @@ async function renderPagina() {
     try {
         const page = await pdfActual.pdfDoc.getPage(paginaActual);
 
-        // Reset canvas
         const canvas = document.getElementById('lpVisCanvas');
         const ctx = canvas.getContext('2d');
+        const wrap = document.getElementById('lpVisCanvasWrap');
 
-        // Viewport base a escala 1.5 (para mejor calidad que 1.0)
-        const baseViewport = page.getViewport({ scale: 1.5 });
+        // 1. Ancho disponible del wrapper (descontando padding)
+        const wrapAncho = wrap.clientWidth - 40;
+        if (wrapAncho <= 0) return;
 
-        // Cap de tamaño para evitar canvas gigantes
-        const anchoDeseado = baseViewport.width * zoomActual;
-        const capAncho = 3600;
-        const escalaSegura = anchoDeseado > capAncho ? (capAncho / baseViewport.width) : zoomActual;
+        // 2. Viewport base a escala 1
+        const baseViewport = page.getViewport({ scale: 1 });
 
-        const viewport = page.getViewport({ scale: 1.5 * escalaSegura });
+        // 3. Ancho final = ancho del wrapper × zoom
+        const anchoFinal = wrapAncho * zoomActual;
 
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
+        // 4. Cap de seguridad
+        const capAncho = 4000;
+        const escalaFinal = Math.min(anchoFinal, capAncho) / baseViewport.width;
 
-        // Ajustar visualización (CSS)
-        canvas.style.maxWidth = '100%';
+        const viewport = page.getViewport({ scale: escalaFinal });
 
-        // Render
+        // 5. DPR para nitidez
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width  = viewport.width  * dpr;
+        canvas.height = viewport.height * dpr;
+        canvas.style.width  = viewport.width  + 'px';
+        canvas.style.height = viewport.height + 'px';
+
+        // 6. Render
         if (renderTaskActual) {
             try { renderTaskActual.cancel(); } catch (e) {}
         }
         renderTaskActual = page.render({
             canvasContext: ctx,
-            viewport
+            viewport,
+            transform: dpr !== 1 ? [dpr, 0, 0, dpr, 0, 0] : null
         });
         await renderTaskActual.promise;
         renderTaskActual = null;
 
-        // Actualizar UI
+        // 7. UI
         document.getElementById('lpVisPagActual').value = String(paginaActual);
         document.getElementById('lpVisZoomNivel').textContent = Math.round(zoomActual * 100) + '%';
         document.getElementById('lpVisPrev').disabled = paginaActual <= 1;
         document.getElementById('lpVisNext').disabled = paginaActual >= pdfActual.paginas;
 
-        // Scroll al top al cambiar de página
-        const wrap = document.getElementById('lpVisCanvasWrap');
-        if (wrap) wrap.scrollTop = 0;
+        // 8. Reset scroll al cambiar de página
+        if (wrap.scrollTop > 0 || wrap.scrollLeft > 0) {
+            wrap.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        }
     } catch (e) {
         if (e && e.name === 'RenderingCancelledException') return;
         console.warn('[LectorPDF] Error render:', e);
@@ -563,7 +560,6 @@ function cambiarZoom(dir) {
     const i = ZOOMS.indexOf(zoomActual);
     let nuevo = zoomActual;
     if (i === -1) {
-        // buscar el más cercano
         nuevo = ZOOMS.reduce((prev, curr) =>
             Math.abs(curr - zoomActual) < Math.abs(prev - zoomActual) ? curr : prev
         );
@@ -821,7 +817,7 @@ function inicializarEventos() {
         if (file) await añadirPDF(file);
     });
 
-    // Drag & drop sobre la zona principal
+    // Drag & drop
     const dropZona = document.getElementById('lpDropZona');
     if (dropZona) {
         dropZona.addEventListener('dragenter', (e) => {
@@ -974,6 +970,14 @@ function inicializarEventos() {
             idParaRenombrar = null;
             document.getElementById('lpModalRenombrar').hidden = true;
         }
+    });
+
+    // Resize — re-render para ajustar ancho
+    let resizeTimer = null;
+    window.addEventListener('resize', () => {
+        if (document.getElementById('lpVistaVisor').hidden) return;
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => renderPagina(), 150);
     });
 }
 
