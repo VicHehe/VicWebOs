@@ -191,17 +191,6 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 80
     },
     {
-        id: 'mypants',
-        nombre: 'MyPants',
-        icono: 'smartphone',
-        ruta: 'herramientas/mypants/index.html',
-        descripcion: 'Videos cortos de hasta 2MB. Desliza, ríe y comenta.',
-        categoria: 'Social',
-        esBase: false,
-        espacio: 8,
-        monedas: 100
-    },
-    {
         id: 'whatthehay',
         nombre: 'WhatTheHay',
         icono: 'message-circle',
