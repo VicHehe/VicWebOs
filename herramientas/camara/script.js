@@ -1,14 +1,10 @@
 // ============================================================
 //  Cámara — Toma fotos con filtros, marcos y funciones premium
 //  ------------------------------------------------------------
-//  App gratuita de instalar (5 monedas). Internamente tiene 10
-//  compras premium que van de 5 a 25 monedas, guardadas por
-//  usuario en app/camara/camara.json
-//
-//  Premios:
-//    Filtros   (5 filtros, 5-15)  → aplican a la foto final
-//    Marcos    (2 marcos, 20-25)  → se dibujan al capturar
-//    Funciones (3, 5-10)          → afectan la toma en vivo
+//  · App de instalación: 5 monedas.
+//  · 10 compras internas (5 a 25 monedas) por usuario.
+//  · TODO el UI respeta el tema del SO (var(--...)).
+//  · Único punto oscuro: el viewfinder (porque es video).
 // ============================================================
 
 'use strict';
@@ -95,6 +91,7 @@ function aplicarTemaDelPadre() {
             '--gray-500','--gray-600','--gray-700','--gray-800','--gray-900',
             '--border','--text','--text-2','--text-3',
             '--shadow-xs','--shadow-sm','--shadow-md','--shadow-lg','--shadow-xl',
+            '--shadow-glow',
             '--accent-gradient','--accent-gradient-hover',
             '--accent-shadow','--accent-shadow-hover',
             '--accent-text-gradient',
@@ -296,7 +293,7 @@ async function capturar() {
 
     const viewfinder = document.getElementById('camViewfinder');
     viewfinder.classList.add('flash');
-    setTimeout(() => viewfinder.classList.remove('flash'), 200);
+    setTimeout(() => viewfinder.classList.remove('flash'), 220);
 
     const rect = $video.getBoundingClientRect();
     const displayRatio = rect.width / rect.height;
@@ -316,7 +313,6 @@ async function capturar() {
     canvas.height = ch;
     const ctx = canvas.getContext('2d');
 
-    // Object-fit: cover (recorta el video para encajar en el canvas)
     const videoRatio = $video.videoWidth / $video.videoHeight;
     let sx, sy, sw, sh;
     if (videoRatio > displayRatio) {
@@ -331,10 +327,8 @@ async function capturar() {
         sy = ($video.videoHeight - sh) / 2;
     }
 
-    // Filtro CSS
     try { ctx.filter = obtenerFiltroCSS(filtroActivo); } catch (e) {}
 
-    // Espejo
     if (espejoActivo) {
         ctx.save();
         ctx.scale(-1, 1);
@@ -345,10 +339,7 @@ async function capturar() {
     }
     ctx.filter = 'none';
 
-    // Post-proceso (viñeta)
     if (filtroActivo === 'filtro_vineta') aplicarVineta(ctx, cw, ch);
-
-    // Marco
     if (marcoActivo !== 'ninguno') aplicarMarcoCanvas(ctx, cw, ch, marcoActivo);
 
     const blob = await new Promise(resolve => {
@@ -393,7 +384,6 @@ function aplicarMarcoCanvas(ctx, w, h, marcoId) {
         ctx.fillRect(0, bordeS, bordeL, h - bordeS - bordeI);
         ctx.fillRect(w - bordeL, bordeS, bordeL, h - bordeS - bordeI);
 
-        // Fecha estampada abajo
         ctx.fillStyle = '#7A7A7A';
         ctx.font = `600 ${Math.round(h * 0.028)}px Nunito, sans-serif`;
         ctx.textAlign = 'center';
@@ -414,7 +404,6 @@ function aplicarMarcoCanvas(ctx, w, h, marcoId) {
         ctx.fillRect(0, 0, bordeL, h);
         ctx.fillRect(w - bordeL, 0, bordeL, h);
 
-        // Perforaciones de película
         const agujeroW = bordeL * 0.5;
         const agujeroH = agujeroW * 0.7;
         const paso = agujeroH * 2.4;
@@ -623,7 +612,6 @@ function manejarClickChip(tipo, id) {
             espejoActivo = !espejoActivo;
             actualizarEspejoLive();
         } else if (id === 'temporizador') {
-            // Ciclo 0 → 3 → 5 → 10 → 0
             temporizadorSeg = temporizadorSeg === 0 ? 3
                             : temporizadorSeg === 3 ? 5
                             : temporizadorSeg === 5 ? 10 : 0;
@@ -708,7 +696,6 @@ async function inicializar() {
 
     await cargarCompras();
 
-    // Cámara y UI
     await iniciarCamara(facingMode);
     renderOpciones();
     actualizarCuadriculaLive();
@@ -716,7 +703,6 @@ async function inicializar() {
     actualizarMarcoLive();
     actualizarFiltroLive();
 
-    // Eventos
     document.querySelectorAll('.cam-tab').forEach(t => {
         t.addEventListener('click', () => cambiarTab(t.dataset.tab));
     });
@@ -726,14 +712,12 @@ async function inicializar() {
     document.getElementById('camBtnDescargar')?.addEventListener('click', descargarFoto);
     document.getElementById('camBtnGaleria')?.addEventListener('click', enviarAGaleria);
 
-    // Modal
     document.getElementById('camModalCancelar')?.addEventListener('click', cerrarModalCompra);
     document.getElementById('camModalConfirmar')?.addEventListener('click', confirmarCompra);
     document.getElementById('camModal')?.addEventListener('click', (e) => {
         if (e.target.id === 'camModal') cerrarModalCompra();
     });
 
-    // Atajos
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             if (!document.getElementById('camModal').hidden) { cerrarModalCompra(); return; }
