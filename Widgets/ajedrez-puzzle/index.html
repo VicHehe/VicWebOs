@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Ajedrez Puzzle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="aj-widget">
+
+        <!-- HEADER -->
+        <div class="aj-header">
+            <div class="aj-titulo">
+                <i data-lucide="crown"></i>
+                <span>Ajedrez Puzzle</span>
+            </div>
+            <button class="aj-btn-icon" id="ajBtnReload" title="Reintentar">
+                <i data-lucide="refresh-cw"></i>
+            </button>
+        </div>
+
+        <!-- INFO -->
+        <div class="aj-info">
+            <span class="aj-badge" id="ajRating">
+                <i data-lucide="star"></i>
+                <span id="ajRatingTxt">—</span>
+            </span>
+            <span class="aj-badge aj-badge-themes" id="ajThemes">—</span>
+        </div>
+
+        <!-- TABLERO -->
+        <div class="aj-board-wrap">
+            <div class="aj-board" id="ajBoard"></div>
+
+            <div class="aj-overlay" id="ajOverlay">
+                <div class="aj-spinner"></div>
+                <span>Cargando puzzle…</span>
+            </div>
+        </div>
+
+        <!-- STATUS -->
+        <div class="aj-status" id="ajStatus">
+            <span class="aj-status-dot"></span>
+            <span class="aj-status-txt">Preparando tablero…</span>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="aj-footer">
+            <span class="aj-footer-info" id="ajPlays">—</span>
+            <span class="aj-footer-src">lichess.org</span>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <script>lucide.createIcons();</script>
+    <script src="script.js"></script>
+</body>
+</html>
