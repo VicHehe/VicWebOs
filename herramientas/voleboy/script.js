@@ -2,8 +2,9 @@
 //  Voleboy — Pong plataformero con red central
 //  ------------------------------------------------------------
 //  Vista lateral. Jugador izquierda, rival derecha. Red vertical
-//  en el medio. Pelota con gravedad y spin (curvas).
-//  Si la pelota toca el suelo de tu lado → perdés.
+//  al medio. Pelota con gravedad, spin y dirección garantizada:
+//  al ser golpeada, SIEMPRE cruza la red hacia el otro lado.
+//  Se pierde si la pelota toca el suelo de tu lado.
 //
 //  Modos: CPU · P2P (PeerJS, host autoritativo)
 //
@@ -23,34 +24,35 @@ const CW = 720;
 const CH = 420;
 
 // ---- Suelo y red ----
-const SUELO_Y   = 360;
-const RED_X     = CW / 2;
-const RED_W     = 6;
-const RED_TOPE  = 180;
-const HUECO_W   = 40;                 // ancho del hueco central sin suelo
-const HUECO_IZQ = RED_X - HUECO_W / 2;
-const HUECO_DER = RED_X + HUECO_W / 2;
+const SUELO_Y  = 360;
+const RED_X    = CW / 2;
+const RED_W    = 6;
+const RED_TOPE = 180;
 
 // ---- Jugador (paleta con foto) ----
 const PAL_W       = 74;
 const PAL_H       = 14;
 const FOTO_R      = 26;
-const FOTO_OFFSET = 30;               // cuánto sobresale la foto por encima
+const FOTO_OFFSET = 30;
 const JUGADOR_X_MIN = 30;
-const JUGADOR_X_MAX = HUECO_IZQ - 10;
-const RIVAL_X_MIN   = HUECO_DER + 10;
+const JUGADOR_X_MAX = RED_X - 40;
+const RIVAL_X_MIN   = RED_X + 40;
 const RIVAL_X_MAX   = CW - 30;
 
 // ---- Pelota ----
-const BALL_R      = 13;
-const GRAVEDAD    = 950;
-const REBOTE_SUELO = 0.7;
-const SPIN_FUERZA = 260;
-const SPIN_DAMPING = 0.994;
-const SPIN_MAX    = 1.0;
-const VEL_MAX_Y   = 900;
-const VEL_MAX_X   = 700;
-const TRAIL_MAX   = 12;
+const BALL_R        = 13;
+const GRAVEDAD      = 950;
+const SPIN_FUERZA   = 200;
+const SPIN_DAMPING  = 0.994;
+const SPIN_MAX      = 1.0;
+const VEL_MAX_X     = 620;
+const VEL_MAX_Y     = 900;
+const TRAIL_MAX     = 12;
+
+// Velocidad base tras un golpe de paleta (px/s)
+const VEL_GOLPE_BASE   = 240;
+const VEL_GOLPE_OFFSET = 180;   // extra según posición sobre la paleta
+const VEL_Y_MIN_GOLPE  = 420;   // mínimo de velocidad vertical al golpear
 
 // ---- Countdown ----
 const COUNTDOWN_SEG = 3;
@@ -72,7 +74,7 @@ const NET_STATE_HZ  = 20;
 //  ESTADO
 // ============================================================
 let canvas, ctx;
-let estado = 'menu';                    // menu | esperando | countdown | jugando | fin
+let estado = 'menu';   // menu | esperando | countdown | jugando | fin
 let modo = 'cpu';
 
 let rafId = null;
@@ -90,26 +92,21 @@ const pelota = {
 const jugador = { x: (JUGADOR_X_MIN + JUGADOR_X_MAX) / 2 };
 const rival   = { x: (RIVAL_X_MIN + RIVAL_X_MAX) / 2 };
 
-// Economía
 let sobrevividos = 0;
 let aguantesCobrados = 0;
 let monedasPartida = 0;
 let ultimoBloqueAguante = 0;
 
-// Fotos
 let miFotoImg = null;
 let miInicial = '?';
 let rivalFotoImg = null;
 let rivalInicial = 'C';
 let rivalNombre = 'CPU';
 
-// Efectos
 let popups = [];
 let particulas = [];
-
 let toastTimer = null;
 
-// Input
 let mouseX = null;
 let touchX = null;
 
@@ -185,9 +182,6 @@ function toast(texto, tipo = 'info') {
     toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
 }
 
-// ============================================================
-//  FOTO DE PERFIL
-// ============================================================
 async function cargarMiFoto() {
     const api = API();
     const cuenta = api?.obtenerCuenta?.();
@@ -248,7 +242,6 @@ function roundRect(c, x, y, w, h, r) {
 function dibujar() {
     if (!ctx) return;
 
-    // Fondo general (día / cielo)
     const grd = ctx.createLinearGradient(0, 0, 0, CH);
     grd.addColorStop(0, cv('--violet-100', '#EDE9FE'));
     grd.addColorStop(0.65, cv('--violet-50', '#F5F3FF'));
@@ -256,29 +249,15 @@ function dibujar() {
     ctx.fillStyle = grd;
     ctx.fillRect(0, 0, CW, CH);
 
-    // Nubes suaves (parallax con la pelota)
     dibujarNubes();
-
-    // Red central
     dibujarRed();
-
-    // Suelos izquierdo y derecho
-    dibujarSuelos();
-
-    // Trail de la pelota
+    dibujarSuelo();
     dibujarTrail();
-
-    // Pelota
     dibujarPelota();
-
-    // Jugadores (paleta + foto encima)
     dibujarJugador(jugador.x, 'jugador');
     dibujarJugador(rival.x,   'rival');
-
-    // Popups + partículas
     dibujarEfectos();
 
-    // Countdown
     if (estado === 'countdown') {
         const n = Math.ceil(preGameTimer);
         const txt = n > 0 ? String(n) : '¡YA!';
@@ -323,11 +302,9 @@ function dibujarRed() {
     const colorRed = cv('--gray-700', '#3F3F46');
     const colorTop = cv('--violet-500', '#8B5CF6');
 
-    // Poste vertical
     ctx.fillStyle = colorRed;
     ctx.fillRect(RED_X - RED_W / 2, RED_TOPE, RED_W, SUELO_Y - RED_TOPE);
 
-    // Detalle de red (líneas horizontales finas)
     ctx.strokeStyle = 'rgba(255,255,255,0.35)';
     ctx.lineWidth = 1;
     for (let y = RED_TOPE + 8; y < SUELO_Y; y += 12) {
@@ -337,39 +314,30 @@ function dibujarRed() {
         ctx.stroke();
     }
 
-    // Remate superior con el acento del tema
     ctx.fillStyle = colorTop;
     roundRect(ctx, RED_X - RED_W / 2 - 3, RED_TOPE - 6, RED_W + 6, 8, 3);
     ctx.fill();
 }
 
-function dibujarSuelos() {
+function dibujarSuelo() {
     const cSuelo = cv('--violet-600', '#7C3AED');
-    const cSueloTapa = cv('--violet-400', '#A78BFA');
+    const cTapa  = cv('--violet-400', '#A78BFA');
     const cBorde = cv('--violet-700', '#6D28D9');
 
-    // Suelo izquierdo
+    // Suelo continuo
     ctx.fillStyle = cSuelo;
-    roundRect(ctx, 0, SUELO_Y, HUECO_IZQ, CH - SUELO_Y, 10);
+    roundRect(ctx, 0, SUELO_Y, CW, CH - SUELO_Y, 10);
     ctx.fill();
-    ctx.fillStyle = cSueloTapa;
-    roundRect(ctx, 0, SUELO_Y, HUECO_IZQ, 8, 8);
-    ctx.fill();
-    ctx.strokeStyle = cBorde;
-    ctx.lineWidth = 2;
-    roundRect(ctx, 0, SUELO_Y, HUECO_IZQ, CH - SUELO_Y, 10);
-    ctx.stroke();
 
-    // Suelo derecho
-    ctx.fillStyle = cSuelo;
-    roundRect(ctx, HUECO_DER, SUELO_Y, CW - HUECO_DER, CH - SUELO_Y, 10);
+    // Tapa superior clara
+    ctx.fillStyle = cTapa;
+    roundRect(ctx, 0, SUELO_Y, CW, 8, 8);
     ctx.fill();
-    ctx.fillStyle = cSueloTapa;
-    roundRect(ctx, HUECO_DER, SUELO_Y, CW - HUECO_DER, 8, 8);
-    ctx.fill();
+
+    // Borde
     ctx.strokeStyle = cBorde;
     ctx.lineWidth = 2;
-    roundRect(ctx, HUECO_DER, SUELO_Y, CW - HUECO_DER, CH - SUELO_Y, 10);
+    roundRect(ctx, 0, SUELO_Y, CW, CH - SUELO_Y, 10);
     ctx.stroke();
 }
 
@@ -388,7 +356,6 @@ function dibujarTrail() {
 }
 
 function dibujarPelota() {
-    // Glow
     ctx.save();
     ctx.shadowColor = cv('--violet-500', '#8B5CF6');
     ctx.shadowBlur = 20;
@@ -398,7 +365,6 @@ function dibujarPelota() {
     ctx.fill();
     ctx.restore();
 
-    // Highlight
     ctx.fillStyle = 'rgba(255,255,255,0.6)';
     ctx.beginPath();
     ctx.arc(pelota.x - BALL_R * 0.32, pelota.y - BALL_R * 0.32, BALL_R * 0.42, 0, Math.PI * 2);
@@ -407,21 +373,14 @@ function dibujarPelota() {
 
 function dibujarJugador(centroX, quien) {
     const esJugador = quien === 'jugador';
-    const colorBase = esJugador
-        ? cv('--violet-500', '#8B5CF6')
-        : cv('--violet-700', '#6D28D9');
-    const colorBorde = esJugador
-        ? cv('--violet-700', '#6D28D9')
-        : cv('--violet-900', '#4C1D95');
-
+    const colorBase = esJugador ? cv('--violet-500', '#8B5CF6') : cv('--violet-700', '#6D28D9');
+    const colorBorde = esJugador ? cv('--violet-700', '#6D28D9') : cv('--violet-900', '#4C1D95');
     const foto = esJugador ? miFotoImg : rivalFotoImg;
     const inicial = esJugador ? miInicial : rivalInicial;
 
-    // Base de la paleta (plataforma)
     const palX = centroX - PAL_W / 2;
     const palY = SUELO_Y - PAL_H;
 
-    // Sombra
     ctx.save();
     ctx.shadowColor = 'rgba(0,0,0,0.25)';
     ctx.shadowBlur = 12;
@@ -431,34 +390,28 @@ function dibujarJugador(centroX, quien) {
     ctx.fill();
     ctx.restore();
 
-    // Borde
     ctx.strokeStyle = colorBorde;
     ctx.lineWidth = 2;
     roundRect(ctx, palX, palY, PAL_W, PAL_H, 6);
     ctx.stroke();
 
-    // Brillo superior
     ctx.fillStyle = 'rgba(255,255,255,0.3)';
     roundRect(ctx, palX + 2, palY + 2, PAL_W - 4, 3, 2);
     ctx.fill();
 
-    // Círculo de la foto ENCIMA de la paleta
     const fotoCx = centroX;
     const fotoCy = palY - FOTO_OFFSET + FOTO_R;
 
-    // Sombra del círculo
     ctx.save();
     ctx.shadowColor = 'rgba(0,0,0,0.3)';
     ctx.shadowBlur = 10;
     ctx.shadowOffsetY = 3;
-
     ctx.beginPath();
     ctx.arc(fotoCx, fotoCy, FOTO_R, 0, Math.PI * 2);
     ctx.fillStyle = cv('--white', '#FFFFFF');
     ctx.fill();
     ctx.restore();
 
-    // Foto recortada
     ctx.save();
     ctx.beginPath();
     ctx.arc(fotoCx, fotoCy, FOTO_R - 2, 0, Math.PI * 2);
@@ -483,7 +436,6 @@ function dibujarJugador(centroX, quien) {
     }
     ctx.restore();
 
-    // Borde del círculo
     ctx.strokeStyle = colorBorde;
     ctx.lineWidth = 2.5;
     ctx.beginPath();
@@ -492,7 +444,6 @@ function dibujarJugador(centroX, quien) {
 }
 
 function dibujarEfectos() {
-    // Partículas
     for (const p of particulas) {
         const a = Math.max(0, p.life / p.lifeMax);
         ctx.globalAlpha = a;
@@ -503,7 +454,6 @@ function dibujarEfectos() {
     }
     ctx.globalAlpha = 1;
 
-    // Popups
     for (const p of popups) {
         const a = Math.min(1, p.life / p.lifeMax);
         ctx.globalAlpha = a;
@@ -539,14 +489,9 @@ function setupInput() {
         else mouseX = x;
     });
 
-    canvas.addEventListener('pointerleave', () => {
-        mouseX = null;
-        touchX = null;
-    });
-
+    canvas.addEventListener('pointerleave', () => { mouseX = null; touchX = null; });
     canvas.addEventListener('pointerup', () => { touchX = null; });
 
-    // Teclado (PC)
     document.addEventListener('keydown', (e) => {
         if (estado !== 'jugando') return;
         const paso = 40;
@@ -564,7 +509,7 @@ function actualizarJugador() {
     let objetivo = jugador.x;
     if (touchX !== null) objetivo = touchX;
     else if (mouseX !== null) objetivo = mouseX;
-    // Clamp a la mitad izquierda
+    // Clamp al lado izquierdo (hasta la red)
     jugador.x = Math.max(JUGADOR_X_MIN, Math.min(JUGADOR_X_MAX, objetivo));
 }
 
@@ -572,20 +517,19 @@ function actualizarJugador() {
 //  CPU
 // ============================================================
 function actualizarCpu(dt) {
-    // Predice dónde caerá la pelota sobre el nivel del suelo del lado derecho
     let objetivoX = rival.x;
+
     if (pelota.x > RED_X) {
         // Pelota en su lado → perseguir
         objetivoX = pelota.x;
     } else {
-        // Pelota en el lado del jugador → volver al centro-derecha
-        objetivoX = HUECO_DER + (RIVAL_X_MAX - HUECO_DER) * 0.5;
+        // Pelota en lado jugador → volver al centro-derecha
+        objetivoX = (RIVAL_X_MIN + RIVAL_X_MAX) / 2;
     }
 
-    // Error humano ±30px
-    objetivoX += (Math.random() - 0.5) * 60;
+    // Error humano
+    objetivoX += (Math.random() - 0.5) * 55;
 
-    // Velocidad adaptativa: sube con la pelota pero con tope
     const v = Math.min(560, 260 + Math.hypot(pelota.vx, pelota.vy) * 0.3);
     const diff = objetivoX - rival.x;
     const move = Math.sign(diff) * Math.min(Math.abs(diff), v * dt);
@@ -600,8 +544,10 @@ function actualizarCpu(dt) {
 function resetPelota() {
     pelota.x = CW / 2;
     pelota.y = 140;
-    pelota.vx = (Math.random() < 0.5 ? -1 : 1) * 180;
-    pelota.vy = -50;
+    // Arranca yendo al lado random
+    const dir = Math.random() < 0.5 ? -1 : 1;
+    pelota.vx = dir * 220;
+    pelota.vy = -60;
     pelota.spin = 0;
     pelota.trail = [];
 }
@@ -626,104 +572,66 @@ function actualizar(dt) {
     if (modo === 'cpu') {
         actualizarCpu(dt);
     } else if (modo === 'p2p') {
-        // Suavizado hacia la posición del rival (viene por red)
         const diff = rivalPaddleX - rival.x;
         rival.x += diff * Math.min(1, dt * 20);
     }
 
-    // Física de la pelota
-    // 1) Gravedad
+    // ---- Física ----
     pelota.vy += GRAVEDAD * dt;
-
-    // 2) Spin → aceleración lateral (efecto Magnus simple)
     pelota.vx += pelota.spin * SPIN_FUERZA * dt;
     pelota.vx *= Math.pow(SPIN_DAMPING, dt * 60);
 
-    // 3) Clamps de velocidad
     pelota.vx = Math.max(-VEL_MAX_X, Math.min(VEL_MAX_X, pelota.vx));
     pelota.vy = Math.max(-VEL_MAX_Y, Math.min(VEL_MAX_Y, pelota.vy));
 
-    // 4) Integración
     pelota.x += pelota.vx * dt;
     pelota.y += pelota.vy * dt;
 
-    // Trail
     pelota.trail.push({ x: pelota.x, y: pelota.y });
     if (pelota.trail.length > TRAIL_MAX) pelota.trail.shift();
 
-    // Colisiones laterales (paredes izquierda y derecha del canvas)
+    // ---- Paredes laterales ----
+    // Rebotan pero SIEMPRE mantienen una dirección que cruza la red
     if (pelota.x - BALL_R < 0) {
         pelota.x = BALL_R;
-        pelota.vx = -pelota.vx * 0.9;
-        pelota.spin *= -0.5;
+        // Si va a la izquierda, la empujamos hacia la derecha (al rival)
+        pelota.vx = Math.abs(pelota.vx) * 0.85;
+        if (pelota.vx < 120) pelota.vx = 200;
         spawnParticulas(pelota.x, pelota.y, 6);
     } else if (pelota.x + BALL_R > CW) {
         pelota.x = CW - BALL_R;
-        pelota.vx = -pelota.vx * 0.9;
-        pelota.spin *= -0.5;
+        // Si va a la derecha, la empujamos hacia la izquierda (al jugador)
+        pelota.vx = -Math.abs(pelota.vx) * 0.85;
+        if (Math.abs(pelota.vx) < 120) pelota.vx = -200;
         spawnParticulas(pelota.x, pelota.y, 6);
     }
 
-    // Colisión con techo
+    // ---- Techo ----
     if (pelota.y - BALL_R < 0) {
         pelota.y = BALL_R;
-        pelota.vy = -pelota.vy * 0.85;
+        pelota.vy = Math.abs(pelota.vy) * 0.85;
     }
 
-    // Colisión con la red (rebote simple contra el poste)
-    if (pelota.y + BALL_R > RED_TOPE) {
-        const dentroX = pelota.x > RED_X - RED_W / 2 - BALL_R && pelota.x < RED_X + RED_W / 2 + BALL_R;
-        if (dentroX) {
-            // Empujar hacia el lado de donde vino
-            const lado = pelota.vx < 0 ? -1 : 1;
-            pelota.x = RED_X + lado * (RED_W / 2 + BALL_R + 1);
-            pelota.vx = -pelota.vx * 0.9;
-            pelota.spin *= -0.4;
-            spawnParticulas(pelota.x, pelota.y, 4);
-        }
-    }
-
-    // Colisión con la paleta del jugador (izquierda)
+    // ---- Colisión con paletas ----
     if (colisionPelotaPaleta(pelota, jugador.x, 'izq')) {
-        // Rebotar hacia arriba
-        const offset = (pelota.x - jugador.x) / (PAL_W / 2);
-        const clampedOffset = Math.max(-1, Math.min(1, offset));
-        pelota.y = SUELO_Y - PAL_H - FOTO_OFFSET * 2 - BALL_R - 2;
-        pelota.vy = -Math.abs(pelota.vy) * 1.02 - 60;
-        pelota.vx += clampedOffset * 140;
-        pelota.spin = clampedOffset * 0.9;
-        if (pelota.vy > -300) pelota.vy = -350;
-        spawnParticulas(pelota.x, pelota.y + BALL_R, 8);
+        golpePaleta('izq');
     }
-
-    // Colisión con la paleta del rival (derecha)
     if (colisionPelotaPaleta(pelota, rival.x, 'der')) {
-        const offset = (pelota.x - rival.x) / (PAL_W / 2);
-        const clampedOffset = Math.max(-1, Math.min(1, offset));
-        pelota.y = SUELO_Y - PAL_H - FOTO_OFFSET * 2 - BALL_R - 2;
-        pelota.vy = -Math.abs(pelota.vy) * 1.02 - 60;
-        pelota.vx += clampedOffset * 140;
-        pelota.spin = clampedOffset * 0.9;
-        if (pelota.vy > -300) pelota.vy = -350;
-        spawnParticulas(pelota.x, pelota.y + BALL_R, 8);
+        golpePaleta('der');
     }
 
-    // Fin por caída al suelo
+    // ---- Fin por caída al suelo ----
     if (pelota.y + BALL_R >= SUELO_Y) {
-        if (pelota.x >= HUECO_DER) {
-            // Cayó al lado del rival → ganó el jugador
-            if (esHost || modo === 'cpu') terminarPartida('jugador');
-        } else if (pelota.x <= HUECO_IZQ) {
-            // Cayó al lado del jugador → ganó el rival
+        if (pelota.x < RED_X) {
+            // Cayó en el lado izquierdo → ganó el rival (derecho)
             if (esHost || modo === 'cpu') terminarPartida('rival');
         } else {
-            // Cayó en el hueco central → rebote simple
-            pelota.y = SUELO_Y - BALL_R - 1;
-            pelota.vy = -pelota.vy * REBOTE_SUELO;
+            // Cayó en el lado derecho → ganó el jugador (izquierdo)
+            if (esHost || modo === 'cpu') terminarPartida('jugador');
         }
     }
 
-    // Aguante P2P
+    // ---- Aguante P2P ----
     if (modo === 'p2p' && estado === 'jugando') {
         sobrevividos += dt;
         const bloque = Math.floor(sobrevividos / AGUANTE_SEG);
@@ -734,7 +642,7 @@ function actualizar(dt) {
         actualizarHUDTimer();
     }
 
-    // Partículas
+    // ---- Efectos ----
     for (const p of particulas) {
         p.x += p.vx * dt;
         p.y += p.vy * dt;
@@ -743,7 +651,6 @@ function actualizar(dt) {
     }
     particulas = particulas.filter(p => p.life > 0);
 
-    // Popups
     for (const p of popups) {
         p.y -= 60 * dt;
         p.life -= dt;
@@ -752,21 +659,48 @@ function actualizar(dt) {
 }
 
 function colisionPelotaPaleta(b, centroX, lado) {
-    // Zona de colisión: la paleta + un colchón superior (foto)
     const x1 = centroX - PAL_W / 2;
     const x2 = centroX + PAL_W / 2;
     const y1 = SUELO_Y - PAL_H - FOTO_OFFSET * 2;
     const y2 = SUELO_Y;
 
-    // Solo detectar si la pelota está cayendo
+    // Solo cuando la pelota está cayendo
     if (b.vy < 0) return false;
 
-    // Círculo vs rectángulo
     const closestX = Math.max(x1, Math.min(b.x, x2));
     const closestY = Math.max(y1, Math.min(b.y, y2));
     const dx = b.x - closestX;
     const dy = b.y - closestY;
     return dx * dx + dy * dy < BALL_R * BALL_R;
+}
+
+/**
+ * Golpe de paleta:
+ *  · La pelota SIEMPRE cruza la red hacia el lado contrario.
+ *  · El offset sobre la paleta ajusta el ángulo (más cerca del borde,
+ *    más lateral). Eso hace que aterrice en distintos lugares.
+ *  · Velocidad vertical forzada hacia arriba.
+ */
+function golpePaleta(lado) {
+    const centroPaleta = lado === 'izq' ? jugador.x : rival.x;
+    const offset = (pelota.x - centroPaleta) / (PAL_W / 2);
+    const clampedOffset = Math.max(-1, Math.min(1, offset));
+
+    // Dirección GARANTIZADA al lado contrario
+    const direccion = lado === 'izq' ? 1 : -1;
+    const velBase = VEL_GOLPE_BASE + Math.abs(clampedOffset) * VEL_GOLPE_OFFSET;
+
+    pelota.vx = direccion * velBase;
+    pelota.vy = -Math.max(VEL_Y_MIN_GOLPE, Math.abs(pelota.vy) * 1.05);
+
+    // Ajuste de posición para que quede sobre la paleta
+    pelota.y = SUELO_Y - PAL_H - FOTO_OFFSET * 2 - BALL_R - 2;
+
+    // El spin afecta la trayectoria para que la caída sea variada
+    pelota.spin = clampedOffset * 0.6;
+
+    // Partículas
+    spawnParticulas(pelota.x, pelota.y + BALL_R, 8);
 }
 
 function spawnParticulas(x, y, cantidad) {
@@ -861,9 +795,8 @@ function mostrarOverlayFin(yoGane) {
     const iconoEl = document.getElementById('vbFinIcono');
     const tituloEl = document.getElementById('vbFinTitulo');
     const subEl = document.getElementById('vbFinSub');
-    const tiempoEl = document.getElementById('vbFinTiempo');
-    const bonusEl = document.getElementById('vbFinBonus');
-    const totalEl = document.getElementById('vbFinTotal');
+    const filaTiempo = document.getElementById('vbFinFilaTiempo');
+    const filaBonus = document.getElementById('vbFinFilaBonus');
 
     iconoEl.className = 'vb-overlay-icono ' + (yoGane ? 'vb-overlay-icono-ganaste' : 'vb-overlay-icono-perdiste');
     iconoEl.innerHTML = yoGane ? '<i data-lucide="trophy"></i>' : '<i data-lucide="frown"></i>';
@@ -873,10 +806,18 @@ function mostrarOverlayFin(yoGane) {
         ? (yoGane ? 'Le ganaste a la CPU.' : 'La CPU te ganó esta vez.')
         : (yoGane ? 'Buena partida.' : 'Revancha cuando quieras.');
 
-    tiempoEl.textContent = Math.floor(sobrevividos) + 's';
-    bonusEl.textContent  = '+' + (aguantesCobrados * AGUANTE_MONEDAS);
-    totalEl.textContent  = '+' + monedasPartida;
+    // En CPU no mostramos tiempo ni bonus (no aplican)
+    if (modo === 'cpu') {
+        filaTiempo.hidden = true;
+        filaBonus.hidden = true;
+    } else {
+        filaTiempo.hidden = false;
+        filaBonus.hidden = false;
+        document.getElementById('vbFinTiempo').textContent = Math.floor(sobrevividos) + 's';
+        document.getElementById('vbFinBonus').textContent = '+' + (aguantesCobrados * AGUANTE_MONEDAS);
+    }
 
+    document.getElementById('vbFinTotal').textContent = '+' + monedasPartida;
     document.getElementById('vbBtnReintentarTxt').textContent =
         modo === 'p2p' ? 'Revancha' : 'Jugar otra vez';
 
@@ -925,11 +866,10 @@ function loop(now) {
         return;
     }
 
-    // JUGANDO
     if (esHost || modo === 'cpu') {
         actualizar(dt);
     } else {
-        // Guest: solo se mueve su paleta, la pelota viene por red
+        // Guest: solo su paleta; la pelota viene por red
         actualizarJugador();
         pelota.x += (ballRedX - pelota.x) * Math.min(1, dt * 18);
         pelota.y += (ballRedY - pelota.y) * Math.min(1, dt * 18);
@@ -943,7 +883,6 @@ function loop(now) {
         rival.x += diffR * Math.min(1, dt * 20);
     }
 
-    // Envío por red
     if (modo === 'p2p' && conn?.open) {
         const ahora = performance.now();
         if (!esHost && ahora - ultimoEnvioPaddle > 1000 / NET_PADDLE_HZ) {
@@ -1016,8 +955,8 @@ function iniciarP2P() {
 
     peer.on('error', (err) => {
         let msg = err.message || err.type || 'Error de red.';
-        if (err.type === 'unavailable-id')    msg = 'Ese código ya está en uso. Prueba otro.';
-        if (err.type === 'peer-unavailable')  msg = 'No se encontró la sala. Revisa el código.';
+        if (err.type === 'unavailable-id')   msg = 'Ese código ya está en uso. Prueba otro.';
+        if (err.type === 'peer-unavailable') msg = 'No se encontró la sala. Revisa el código.';
         mostrarInfo(msg, 'error');
         volverAlMenu();
     });
