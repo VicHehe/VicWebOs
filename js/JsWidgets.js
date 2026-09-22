@@ -149,6 +149,17 @@ const WIDGETS_DISPONIBLES = [
         espacio: 4,
         monedas: 100
     },
+        {
+        id: 'ajedrez-puzzle',
+        nombre: 'Ajedrez Puzzle',
+        icono: 'crown',
+        ruta: 'Widgets/ajedrez-puzzle/index.html',
+        descripcion: 'El puzzle de ajedrez del día de Lichess. Encontrá la mejor jugada.',
+        categoria: 'Entretenimiento',
+        esBase: false,
+        espacio: 4,
+        monedas: 75
+    },
     {
         id: 'radio',
         nombre: 'Radio',
