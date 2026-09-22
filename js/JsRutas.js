@@ -86,6 +86,17 @@ const RUTAS_HERRAMIENTAS = [
     // ============================================================
     //  CREATIVIDAD
     // ============================================================
+        {
+        id: 'ocs',
+        nombre: 'Mis OCs',
+        icono: 'sparkles',
+        ruta: 'herramientas/ocs/index.html',
+        descripcion: 'Creá y organizá tus personajes originales con stats, gustos e historias.',
+        categoria: 'Creatividad',
+        esBase: false,
+        espacio: 8,
+        monedas: 90
+    },
     {
         id: 'pixevan',
         nombre: 'PixEvan',
