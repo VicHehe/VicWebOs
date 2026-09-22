@@ -12,7 +12,7 @@
 
 const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const ARCHIVO_BASE = 'app/ajedrez/';
-const RECOMPENSA   = 65;
+const RECOMPENSA   = 250;
 const COOLDOWN_MS  = 24 * 60 * 60 * 1000;
 const PROFUNDIDAD_MAX = 2;
 const PROFUNDIDAD_RELAX = 1;   // cuando la IA va muy ganando
