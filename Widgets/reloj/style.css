@@ -96,21 +96,51 @@ body {
 }
 .rl-tab [data-lucide] { width: 12px; height: 12px; }
 
-/* ========== CONTENIDO ========== */
+/* ========== CONTENIDO CON SCROLL ==========
+   El contenido scrollea si no cabe, con scrollbar fina.
+   Header y tabs quedan siempre visibles arriba.
+   ============================================ */
 .rl-contenido {
     flex: 1;
     min-height: 0;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 3px;
+    /* Reserva el espacio de la scrollbar para evitar saltos */
+    scrollbar-gutter: stable;
+    /* Scrollbar Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-300, #D4D4DD) transparent;
 }
 
+/* Scrollbar WebKit (Chrome/Safari/Edge) — fina y discreta */
+.rl-contenido::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+.rl-contenido::-webkit-scrollbar-track {
+    background: transparent;
+}
+.rl-contenido::-webkit-scrollbar-thumb {
+    background: var(--gray-300, #D4D4DD);
+    border-radius: 999px;
+}
+.rl-contenido::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-400, #A1A1AD);
+}
+
+/* ========== MODO (cronómetro / temporizador) ==========
+   `flex: 1 0 auto` → crece si hay espacio, pero NO se
+   encoge por debajo de su contenido natural.
+   ==================================================== */
 .rl-modo {
     display: none;
     flex-direction: column;
     gap: 8px;
-    flex: 1;
-    min-height: 0;
+    flex: 1 0 auto;
+    width: 100%;
 }
 .rl-modo.active { display: flex; }
 
@@ -137,7 +167,7 @@ body {
     to   { opacity: 0.6; transform: scale(1.03); }
 }
 
-/* ========== BARRA DE PROGRESO (temporizador) ========== */
+/* ========== BARRA DE PROGRESO ========== */
 .rl-progress {
     width: 100%;
     height: 5px;
@@ -215,7 +245,7 @@ body {
     color: #991B1B;
 }
 
-/* ========== PRESETS (temporizador) ========== */
+/* ========== PRESETS ========== */
 .rl-presets {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
@@ -249,24 +279,18 @@ body {
     box-shadow: 0 2px 8px var(--accent-shadow, rgba(139,92,246,0.24));
 }
 
-/* ========== VUELTAS (cronómetro) ========== */
+/* ========== VUELTAS ========== */
 .rl-vueltas {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 3px;
     padding: 6px 4px 2px;
     border-top: 1px solid var(--gray-100, #F4F4F7);
     margin-top: 2px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--gray-300, #D4D4DD) transparent;
-}
-.rl-vueltas::-webkit-scrollbar { width: 4px; }
-.rl-vueltas::-webkit-scrollbar-thumb {
-    background: var(--gray-300, #D4D4DD);
-    border-radius: 999px;
+    /* Ya no tiene flex: 1 ni overflow propio:
+       el scroll lo maneja .rl-contenido, así toda
+       la sección scrollea junta. */
+    flex-shrink: 0;
 }
 
 .rl-vuelta {
@@ -300,7 +324,7 @@ body {
 }
 
 /* ============================================================
-   RESPONSIVE — widgets muy chicos
+   RESPONSIVE
    ============================================================ */
 @media (max-width: 260px) {
     .rl-display { font-size: 28px; }
