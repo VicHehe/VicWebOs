@@ -45,14 +45,14 @@
 
     </div>
 
-    <!-- OVERLAY MENÚ / INICIO -->
+    <!-- OVERLAY MENÚ -->
     <div class="vb-overlay" id="vbOverlayMenu">
         <div class="vb-overlay-card">
             <div class="vb-overlay-icono">
                 <i data-lucide="circle-dot"></i>
             </div>
             <h2>Voleboy</h2>
-            <p>Movete con el mouse o el dedo para atajar la pelota sobre tu cabeza. La red separa los dos lados: si la pelota cae en tu suelo, perdés.</p>
+            <p>Movete con el mouse o el dedo. La pelota siempre cruza la red: atajala con tu plataforma antes de que caiga en tu suelo.</p>
 
             <button class="vb-btn vb-btn-primario" id="vbBtnCpu">
                 <i data-lucide="cpu"></i>
@@ -104,14 +104,14 @@
             <p id="vbFinSub">Buena partida.</p>
 
             <div class="vb-resumen">
-                <div class="vb-resumen-fila">
+                <div class="vb-resumen-fila" id="vbFinFilaTiempo">
                     <span class="vb-resumen-label">
                         <i data-lucide="timer"></i>
                         Tiempo sobrevivido
                     </span>
                     <span class="vb-resumen-valor" id="vbFinTiempo">0s</span>
                 </div>
-                <div class="vb-resumen-fila">
+                <div class="vb-resumen-fila" id="vbFinFilaBonus">
                     <span class="vb-resumen-label">
                         <i data-lucide="sparkles"></i>
                         Bonus de aguante
