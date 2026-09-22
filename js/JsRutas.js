@@ -131,6 +131,17 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 6,
         monedas: 0
     },
+        {
+        id: 'camara',
+        nombre: 'Cámara',
+        icono: 'camera',
+        ruta: 'herramientas/camara/index.html',
+        descripcion: 'Saca fotos con filtros y marcos. Descárgalas o mándalas a la galería.',
+        categoria: 'Herramientas Prácticas',
+        esBase: false,
+        espacio: 4,
+        monedas: 5
+    },
     {
     id: 'lector-pdf',
     nombre: 'Lector PDF',
