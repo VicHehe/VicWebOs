@@ -32,7 +32,7 @@ const CH = 420;
 const SUELO_Y  = 360;
 const RED_X    = CW / 2;
 const RED_W    = 6;
-const RED_TOPE = 220;                  // red más baja (era 180)
+const RED_TOPE = 180;                  // red más baja (era 180)
 
 // ---- Jugador (paleta con foto) ----
 const PAL_W       = 74;
