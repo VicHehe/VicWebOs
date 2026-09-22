@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>Cámara</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <!-- VISTA CÁMARA -->
+    <div class="cam-app" id="camApp">
+        <header class="cam-header">
+            <div class="cam-logo">
+                <div class="cam-logo-mark"><i data-lucide="camera"></i></div>
+                <div class="cam-logo-text">
+                    <h1>Cámara</h1>
+                    <p id="camUserBadge">—</p>
+                </div>
+            </div>
+            <button class="cam-icon-btn" id="camCambiarCamara" title="Cambiar cámara">
+                <i data-lucide="refresh-cw"></i>
+            </button>
+        </header>
+
+        <div class="cam-viewfinder" id="camViewfinder">
+            <video id="camVideo" autoplay playsinline muted></video>
+
+            <div class="cam-grid-overlay" id="camGridOverlay" hidden></div>
+            <div class="cam-frame-overlay" id="camFrameOverlay" hidden></div>
+            <div class="cam-vignette-live" id="camVignetteLive" hidden></div>
+
+            <div class="cam-timer-display" id="camTimerDisplay" hidden>3</div>
+
+            <div class="cam-mensaje" id="camMensaje" hidden></div>
+        </div>
+
+        <nav class="cam-tabs">
+            <button class="cam-tab active" data-tab="filtros">
+                <i data-lucide="palette"></i>
+                <span>Filtros</span>
+            </button>
+            <button class="cam-tab" data-tab="marcos">
+                <i data-lucide="square"></i>
+                <span>Marcos</span>
+            </button>
+            <button class="cam-tab" data-tab="funciones">
+                <i data-lucide="settings-2"></i>
+                <span>Funciones</span>
+            </button>
+        </nav>
+
+        <div class="cam-options" id="camOptions"></div>
+
+        <div class="cam-shutter-bar">
+            <button class="cam-shutter" id="camShutterBtn" title="Capturar (Espacio)"></button>
+        </div>
+    </div>
+
+    <!-- VISTA PREVIA -->
+    <div class="cam-preview-view" id="camPreviewView" hidden>
+        <header class="cam-preview-header">
+            <button class="cam-icon-btn" id="camPreviewVolver" title="Volver">
+                <i data-lucide="x"></i>
+            </button>
+            <h2>Vista previa</h2>
+            <div class="cam-header-spacer"></div>
+        </header>
+
+        <div class="cam-preview-img-wrap">
+            <img id="camPreviewImg" alt="">
+        </div>
+
+        <div class="cam-preview-actions">
+            <button class="cam-btn-sec" id="camBtnDescargar">
+                <i data-lucide="download"></i>
+                <span>Descargar</span>
+            </button>
+            <button class="cam-btn-pri" id="camBtnGaleria">
+                <i data-lucide="image-plus"></i>
+                <span>A Galería</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: COMPRA -->
+    <div class="cam-modal" id="camModal" hidden>
+        <div class="cam-modal-card">
+            <div class="cam-modal-icon"><i data-lucide="lock" id="camModalIcono"></i></div>
+            <h3 id="camModalTitulo">Desbloquear función</h3>
+            <p id="camModalDesc">—</p>
+            <div class="cam-modal-precio">
+                <i data-lucide="coins"></i>
+                <span id="camModalPrecio">5</span>
+            </div>
+            <div class="cam-modal-actions">
+                <button class="cam-btn-sec" id="camModalCancelar">Cancelar</button>
+                <button class="cam-btn-pri" id="camModalConfirmar">
+                    <i data-lucide="check"></i>
+                    <span>Desbloquear</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="cam-toast" id="camToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
