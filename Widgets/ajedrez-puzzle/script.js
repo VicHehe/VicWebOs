@@ -4,7 +4,7 @@
 //  IA con evaluación posicional (piece-square tables) + negamax.
 //  Anti-repetición, aleatoriedad top-N y dificultad adaptativa.
 //
-//  Recompensa: 65 monedas por victoria, máximo 1 vez cada 24h.
+//  Recompensa: 250 monedas por victoria, máximo 1 vez cada 24h.
 //  Persistencia: app/ajedrez/{codigo}ajedrez.json
 // ============================================================
 
@@ -231,16 +231,16 @@ function puedeCobrar() {
 
 function actualizarFooter() {
     if (!usuarioActual) {
-        setFooter('+65 al ganar', false);
+        setFooter('+250 al ganar', false);
         return;
     }
     if (puedeCobrar()) {
-        setFooter('+65 al ganar', false);
+        setFooter('+250 al ganar', false);
     } else {
         const restante = COOLDOWN_MS - (Date.now() - ultimaRecompensa);
         const h = Math.floor(restante / 3600000);
         const m = Math.floor((restante % 3600000) / 60000);
-        setFooter(`Ya cobrado · +65 en ${h}h ${m}m`, true);
+        setFooter(`Ya cobrado · +250 en ${h}h ${m}m`, true);
     }
 }
 
