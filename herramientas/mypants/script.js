@@ -56,6 +56,7 @@ function toast(texto, tipo = 'info') {
 
 function generarId() { return 'mp_' + Date.now().toString(36) + Math.random().toString(36).slice(2,5); }
 function limpiarUrls() { urlsActivas.forEach(u => { try { URL.revokeObjectURL(u); } catch(e){} }); urlsActivas = []; }
+function escapar(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 
 // ==========================================
 // DATOS
@@ -90,13 +91,15 @@ const feedObserver = new IntersectionObserver((entries) => {
 async function renderFeed() {
     const feed = document.getElementById('mpFeed');
     const empty = document.getElementById('mpEmpty');
+    const header = document.getElementById('mpHeader');
     feed.innerHTML = ''; limpiarUrls();
     
     if (videos.length === 0) {
-        empty.hidden = false; feed.hidden = true;
+        empty.hidden = false; feed.hidden = true; header.hidden = true;
+        if (window.lucide) window.lucide.createIcons();
         return;
     }
-    empty.hidden = true; feed.hidden = false;
+    empty.hidden = true; feed.hidden = false; header.hidden = false;
 
     for (const post of videos) {
         const url = await MH().leerVideoURL(post.videoRuta);
@@ -124,8 +127,8 @@ async function renderFeed() {
             </div>
             
             <div class="mp-overlay-bottom">
-                <div class="mp-clip-autor">@${post.autorNombre || post.autor}</div>
-                <div class="mp-clip-desc">${post.descripcion}</div>
+                <div class="mp-clip-autor">@${escapar(post.autorNombre || post.autor)}</div>
+                <div class="mp-clip-desc">${escapar(post.descripcion)}</div>
             </div>
         `;
         feed.appendChild(card);
@@ -133,20 +136,15 @@ async function renderFeed() {
         const vidEl = card.querySelector('video');
         feedObserver.observe(vidEl);
 
-        // Play/Pause al clickear
-        vidEl.addEventListener('click', () => {
-            if(vidEl.paused) vidEl.play(); else vidEl.pause();
-        });
-
-        // Eventos
+        vidEl.addEventListener('click', () => { if(vidEl.paused) vidEl.play(); else vidEl.pause(); });
         card.querySelector('.mp-btn-like').addEventListener('click', (e) => toggleLike(post.id, e.currentTarget));
         card.querySelector('.mp-btn-comentar').addEventListener('click', () => abrirComentarios(post.id));
     }
-    lucide.createIcons();
+    if (window.lucide) window.lucide.createIcons();
 }
 
 // ==========================================
-// SUBIDA DE VIDEO (Control estricto)
+// SUBIDA DE VIDEO
 // ==========================================
 function abrirSubir() {
     const misVideos = videos.filter(v => v.autor === usuarioActual.codigo);
@@ -201,7 +199,7 @@ document.getElementById('mpSubirGuardar').addEventListener('click', async () => 
     const btn = document.getElementById('mpSubirGuardar');
     btn.disabled = true;
     btn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Subiendo...';
-    lucide.createIcons();
+    if (window.lucide) window.lucide.createIcons();
 
     try {
         const uploaded = await MH().publicarVideo(APP_ID, filePendiente, {});
@@ -221,7 +219,7 @@ document.getElementById('mpSubirGuardar').addEventListener('click', async () => 
             return data;
         });
 
-        toast('¡Pantalón subido con éxito!');
+        toast('¡Pantalón subido con éxito!', 'success');
         document.getElementById('mpModalSubir').hidden = true;
         await cargarDatos();
         renderFeed();
@@ -229,8 +227,8 @@ document.getElementById('mpSubirGuardar').addEventListener('click', async () => 
         toast('Error al subir', 'error');
     } finally {
         btn.disabled = false;
-        btn.innerHTML = '<i data-lucide="upload-cloud"></i> Subir';
-        lucide.createIcons();
+        btn.innerHTML = '<i data-lucide="check"></i> Subir';
+        if (window.lucide) window.lucide.createIcons();
     }
 });
 
@@ -254,7 +252,6 @@ async function toggleLike(postId, btnEl) {
         return data;
     });
     
-    // UI Local
     btnEl.classList.toggle('liked', fueLiked);
     const span = btnEl.querySelector('span');
     const actual = parseInt(span.textContent || '0');
@@ -284,7 +281,7 @@ function renderComentarios() {
             <div class="mp-com-avatar">${cod.charAt(0)}</div>
             <div class="mp-com-body">
                 <div class="mp-com-autor">@${cod}</div>
-                <div class="mp-com-texto">${data.texto}</div>
+                <div class="mp-com-texto">${escapar(data.texto)}</div>
             </div>
         `;
         lista.appendChild(div);
@@ -308,8 +305,6 @@ document.getElementById('mpBtnEnviarCom').addEventListener('click', async () => 
     });
 
     input.value = '';
-    
-    // Si no es mío, notifico
     if(post && post.autor !== miCodigo) {
         API().enviarNotificacion(APP_ID, `@${miCodigo} comentó tu pantalón`, post.autor).catch(()=>{});
     }
@@ -317,12 +312,8 @@ document.getElementById('mpBtnEnviarCom').addEventListener('click', async () => 
     await cargarDatos();
     renderComentarios();
     
-    // Refrescar counter en UI principal
     const btnCom = document.querySelector(`.mp-btn-comentar[data-id="${videoViendoId}"] span`);
-    if(btnCom) {
-        const qty = Object.keys(social.comentarios[videoViendoId] || {}).length;
-        btnCom.textContent = qty;
-    }
+    if(btnCom) btnCom.textContent = Object.keys(social.comentarios[videoViendoId] || {}).length;
 });
 
 // ==========================================
@@ -330,42 +321,47 @@ document.getElementById('mpBtnEnviarCom').addEventListener('click', async () => 
 // ==========================================
 async function abrirPerfil() {
     const misVideos = videos.filter(v => v.autor === usuarioActual.codigo).sort((a,b)=> new Date(b.creado)-new Date(a.creado));
-    document.getElementById('mpPerfilConteo').textContent = `${misVideos.length} / ${MAX_VIDEOS_USER} Pantalones usados`;
+    document.getElementById('mpPerfilConteo').textContent = `${misVideos.length} / ${MAX_VIDEOS_USER} Pantalones subidos`;
     
     const grid = document.getElementById('mpPerfilGrid');
+    const vacio = document.getElementById('mpPerfilVacio');
     grid.innerHTML = '';
 
-    for (const v of misVideos) {
-        const url = await MH().leerVideoURL(v.videoRuta);
-        if(!url) continue;
+    if(misVideos.length === 0) {
+        grid.hidden = true; vacio.hidden = false;
+    } else {
+        grid.hidden = false; vacio.hidden = true;
+        for (const v of misVideos) {
+            const url = await MH().leerVideoURL(v.videoRuta);
+            if(!url) continue;
 
-        const el = document.createElement('div');
-        el.className = 'mp-mini-vid';
-        el.innerHTML = `
-            <video src="${url}" muted preload="metadata"></video>
-            <button class="mp-mini-trash" title="Borrar"><i data-lucide="trash-2"></i></button>
-        `;
-        el.querySelector('.mp-mini-trash').addEventListener('click', () => borrarVideo(v.id, v.videoRuta));
-        grid.appendChild(el);
+            const el = document.createElement('div'); el.className = 'mp-mini-vid';
+            el.innerHTML = `
+                <video src="${url}" muted preload="metadata"></video>
+                <div class="mp-mini-trash" title="Borrar"><i data-lucide="trash-2"></i></div>
+            `;
+            el.querySelector('.mp-mini-trash').addEventListener('click', () => borrarVideo(v.id, v.videoRuta));
+            grid.appendChild(el);
+        }
     }
     
     document.getElementById('mpModalPerfil').hidden = false;
-    lucide.createIcons();
+    if (window.lucide) window.lucide.createIcons();
 }
 
 async function borrarVideo(id, ruta) {
     if(!confirm('¿Eliminar este clip para siempre?')) return;
     
     try {
-        await MH().borrarVideo(ruta); // Borra binario
+        await MH().borrarVideo(ruta);
         await BD().actualizarArchivo(RUTA_POSTS, data => {
             data.posts = data.posts.filter(p => p.id !== id);
             return data;
         });
         await cargarDatos();
-        abrirPerfil(); // refresca grid
-        renderFeed();  // refresca home
-        toast('Pantalón borrado.');
+        abrirPerfil();
+        renderFeed();
+        toast('Pantalón borrado.', 'success');
     } catch(e) { toast('Error al borrar', 'error'); }
 }
 
@@ -380,16 +376,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     await cargarDatos();
     await renderFeed();
 
-    // Eventos UI
     document.getElementById('mpBtnNuevo').addEventListener('click', abrirSubir);
     document.getElementById('mpEmptyBtn').addEventListener('click', abrirSubir);
     document.getElementById('mpBtnPerfil').addEventListener('click', abrirPerfil);
     
-    // Cerrar Modales
     document.getElementById('mpSubirCerrar').addEventListener('click', () => document.getElementById('mpModalSubir').hidden = true);
     document.getElementById('mpSubirCancelar').addEventListener('click', () => document.getElementById('mpModalSubir').hidden = true);
     document.getElementById('mpComCerrar').addEventListener('click', () => { document.getElementById('mpModalComentarios').hidden = true; videoViendoId = null; });
     document.getElementById('mpPerfilCerrar').addEventListener('click', () => document.getElementById('mpModalPerfil').hidden = true);
+    
+    // Enter en input comentario
+    document.getElementById('mpInputComentario').addEventListener('keydown', (e) => {
+        if(e.key === 'Enter') { e.preventDefault(); document.getElementById('mpBtnEnviarCom').click(); }
+    });
 });
 
 window.addEventListener('pagehide', limpiarUrls);
