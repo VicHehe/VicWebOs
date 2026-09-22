@@ -25,16 +25,26 @@
             </div>
 
             <div class="oc-header-actions">
+                <div class="oc-filtro-toggle" id="ocFiltroToggle">
+                    <button class="oc-filtro-btn active" data-filtro="todos">
+                        <i data-lucide="users"></i>
+                        <span>Todos</span>
+                    </button>
+                    <button class="oc-filtro-btn" data-filtro="mios">
+                        <i data-lucide="user"></i>
+                        <span>Míos</span>
+                    </button>
+                </div>
                 <div class="oc-search" id="ocSearchWrap">
                     <i data-lucide="search" class="oc-search-icono"></i>
-                    <input type="text" id="ocSearch" placeholder="Buscar por nombre...">
+                    <input type="text" id="ocSearch" placeholder="Buscar...">
                     <button class="oc-search-clear" id="ocSearchClear" hidden title="Limpiar">
                         <i data-lucide="x"></i>
                     </button>
                 </div>
                 <button class="oc-btn-pri" id="ocBtnNuevo">
                     <i data-lucide="plus"></i>
-                    <span>Nuevo OC</span>
+                    <span>Nuevo</span>
                 </button>
             </div>
         </header>
@@ -50,11 +60,11 @@
                     <div class="oc-empty-icon">
                         <i data-lucide="sparkles"></i>
                     </div>
-                    <h3 id="ocEmptyTitulo">Todavía no tenés OCs</h3>
-                    <p id="ocEmptyDesc">Creá tu primer personaje original con foto, stats e historia.</p>
+                    <h3 id="ocEmptyTitulo">Todavía no hay OCs</h3>
+                    <p id="ocEmptyDesc">Sé el primero en crear un personaje para la comunidad.</p>
                     <button class="oc-empty-btn" id="ocEmptyBtnNuevo">
                         <i data-lucide="plus"></i>
-                        <span>Crear mi primer OC</span>
+                        <span>Crear OC</span>
                     </button>
                 </div>
             </div>
@@ -67,9 +77,7 @@
         </button>
     </div>
 
-    <!-- ==================================================
-         MODAL: CREAR / EDITAR
-    =================================================== -->
+    <!-- MODAL: CREAR / EDITAR -->
     <div class="oc-modal" id="ocModalEditor" hidden>
         <div class="oc-modal-card oc-modal-card-lg">
             <div class="oc-modal-header">
@@ -77,14 +85,10 @@
                     <i data-lucide="sparkles"></i>
                     <span id="ocEditorTitulo">Nuevo OC</span>
                 </h2>
-                <button class="oc-modal-cerrar" id="ocEditorCerrar">
-                    <i data-lucide="x"></i>
-                </button>
+                <button class="oc-modal-cerrar" id="ocEditorCerrar"><i data-lucide="x"></i></button>
             </div>
 
             <div class="oc-modal-body">
-
-                <!-- Foto -->
                 <div class="oc-foto-seccion">
                     <div class="oc-foto-preview" id="ocFotoPreview">
                         <div class="oc-foto-placeholder" id="ocFotoPlaceholder">
@@ -105,7 +109,6 @@
                     </div>
                 </div>
 
-                <!-- Info básica -->
                 <div class="oc-form-grid">
                     <div class="oc-field">
                         <label>Nombre *</label>
@@ -139,13 +142,12 @@
                     </div>
                 </div>
 
-                <!-- Stats -->
                 <div class="oc-stats-seccion">
                     <div class="oc-stats-header">
                         <h3><i data-lucide="star"></i> Habilidades</h3>
                         <span class="oc-puntos" id="ocPuntos">0 / 50</span>
                     </div>
-                    <p class="oc-stats-ayuda">Asigná hasta 50 puntos entre las 15 habilidades. Hacé clic en las estrellas (clic de nuevo en el mismo valor lo baja a 0).</p>
+                    <p class="oc-stats-ayuda">Hasta 50 puntos entre las 15 habilidades. Clic en la misma estrella la baja a 0.</p>
                     <div class="oc-stats-grid" id="ocStatsGrid"></div>
                 </div>
 
@@ -162,9 +164,7 @@
         </div>
     </div>
 
-    <!-- ==================================================
-         MODAL: DETALLE
-    =================================================== -->
+    <!-- MODAL: DETALLE -->
     <div class="oc-modal" id="ocModalDetalle" hidden>
         <div class="oc-modal-card oc-modal-card-lg">
             <div class="oc-modal-header">
@@ -172,9 +172,7 @@
                     <i data-lucide="user"></i>
                     <span id="ocDetalleTitulo">Detalle</span>
                 </h2>
-                <button class="oc-modal-cerrar" id="ocDetalleCerrar">
-                    <i data-lucide="x"></i>
-                </button>
+                <button class="oc-modal-cerrar" id="ocDetalleCerrar"><i data-lucide="x"></i></button>
             </div>
             <div class="oc-modal-body" id="ocDetalleBody"></div>
             <div class="oc-modal-actions oc-detalle-acciones">
@@ -194,9 +192,7 @@
         </div>
     </div>
 
-    <!-- ==================================================
-         MODAL: INFO EXTRA
-    =================================================== -->
+    <!-- MODAL: INFO EXTRA -->
     <div class="oc-modal" id="ocModalExtra" hidden>
         <div class="oc-modal-card">
             <div class="oc-modal-header">
@@ -204,9 +200,7 @@
                     <i data-lucide="paperclip"></i>
                     <span id="ocExtraTitulo">Añadir información</span>
                 </h2>
-                <button class="oc-modal-cerrar" id="ocExtraCerrar">
-                    <i data-lucide="x"></i>
-                </button>
+                <button class="oc-modal-cerrar" id="ocExtraCerrar"><i data-lucide="x"></i></button>
             </div>
             <div class="oc-modal-body">
                 <div class="oc-field">
@@ -215,7 +209,7 @@
                 </div>
                 <div class="oc-field">
                     <label>Texto</label>
-                    <textarea id="ocExtraTexto" rows="5" placeholder="Escribí la información..." maxlength="2000"></textarea>
+                    <textarea id="ocExtraTexto" rows="4" placeholder="Escribí la información..." maxlength="2000"></textarea>
                 </div>
                 <div class="oc-field">
                     <label>Imagen (opcional)</label>
@@ -226,7 +220,7 @@
                             <span>Sin imagen</span>
                         </div>
                     </div>
-                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
                         <button class="oc-btn-sec" id="ocExtraBtnElegirFoto">
                             <i data-lucide="images"></i>
                             <span id="ocExtraFotoBtnTxt">Elegir imagen</span>
