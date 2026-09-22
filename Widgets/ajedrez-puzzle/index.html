@@ -13,47 +13,42 @@
 <body>
     <div class="aj-widget">
 
-        <!-- HEADER -->
-        <div class="aj-header">
-            <div class="aj-titulo">
-                <i data-lucide="crown"></i>
-                <span>Ajedrez Puzzle</span>
-            </div>
+        <!-- TOPBAR: título + rating + tema + reload en UNA línea -->
+        <div class="aj-topbar">
+            <i data-lucide="crown" class="aj-topbar-icono"></i>
+            <span class="aj-topbar-titulo">Ajedrez</span>
+
+            <span class="aj-chip" id="ajRating">
+                <i data-lucide="star"></i>
+                <span id="ajRatingTxt">—</span>
+            </span>
+
+            <span class="aj-chip aj-chip-themes" id="ajThemes">—</span>
+
             <button class="aj-btn-icon" id="ajBtnReload" title="Reintentar">
                 <i data-lucide="refresh-cw"></i>
             </button>
         </div>
 
-        <!-- INFO -->
-        <div class="aj-info">
-            <span class="aj-badge" id="ajRating">
-                <i data-lucide="star"></i>
-                <span id="ajRatingTxt">—</span>
-            </span>
-            <span class="aj-badge aj-badge-themes" id="ajThemes">—</span>
-        </div>
-
-        <!-- TABLERO -->
+        <!-- TABLERO: se come TODO el espacio disponible -->
         <div class="aj-board-wrap">
             <div class="aj-board" id="ajBoard"></div>
 
             <div class="aj-overlay" id="ajOverlay">
                 <div class="aj-spinner"></div>
-                <span>Cargando puzzle…</span>
+                <span>Cargando…</span>
             </div>
         </div>
 
-        <!-- STATUS -->
-        <div class="aj-status" id="ajStatus">
-            <span class="aj-status-dot"></span>
-            <span class="aj-status-txt">Preparando tablero…</span>
+        <!-- BOTTOMBAR: status + intentos en UNA línea -->
+        <div class="aj-bottombar">
+            <div class="aj-status" id="ajStatus">
+                <span class="aj-status-dot"></span>
+                <span class="aj-status-txt">Preparando…</span>
+            </div>
+            <span class="aj-plays" id="ajPlays">—</span>
         </div>
 
-        <!-- FOOTER -->
-        <div class="aj-footer">
-            <span class="aj-footer-info" id="ajPlays">—</span>
-            <span class="aj-footer-src">lichess.org</span>
-        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
