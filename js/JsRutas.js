@@ -230,7 +230,7 @@ const RUTAS_HERRAMIENTAS = [
     {
         id: 'twevan',
         nombre: 'Twevan',
-        icono: 'twitter',
+        icono: 'bird',                    
         ruta: 'herramientas/twevan/index.html',
         descripcion: 'Mini red social. Publicá, comentá y hacete verificado con TwePlus.',
         categoria: 'Social',
