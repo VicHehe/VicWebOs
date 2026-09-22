@@ -1039,4 +1039,73 @@ html, body {
     }
 
     .sh-pack-card { padding: 14px; gap: 10px; }
-    .sh-pack-icono { width:
+    .sh-pack-icono { width: 38px; height: 38px; }
+    .sh-pack-icono [data-lucide] { width: 18px; height: 18px; }
+    .sh-pack-titulo h4 { font-size: 13.5px; }
+    .sh-pack-titulo p { font-size: 11.5px; }
+
+    .sh-oferta-card { padding: 16px 14px; }
+    .sh-oferta-icono { width: 48px; height: 48px; }
+    .sh-oferta-icono [data-lucide] { width: 24px; height: 24px; }
+    .sh-oferta-nombre { font-size: 14px; }
+    .sh-oferta-precio-final { font-size: 18px; }
+}
+
+@media (max-width: 400px) {
+    .sh-header { padding: 14px 14px 0; }
+    .sh-header-top { gap: 8px; margin-bottom: 12px; }
+
+    .sh-logo { gap: 8px; }
+    .sh-logo-mark { width: 36px; height: 36px; border-radius: 10px; }
+    .sh-logo-mark [data-lucide] { width: 18px; height: 18px; }
+    .sh-logo-text h1 { font-size: 17px; }
+
+    .sh-recursos { gap: 5px; }
+    .sh-recurso { padding: 5px 8px; gap: 6px; border-radius: 9px; }
+    .sh-recurso [data-lucide] { width: 13px; height: 13px; }
+    .sh-recurso-label { display: none; }
+    .sh-recurso-valor { font-size: 12px; }
+
+    .sh-tab { padding: 9px 10px 11px; font-size: 12px; gap: 5px; }
+    .sh-tab [data-lucide] { width: 13px; height: 13px; }
+    .sh-tab-count { font-size: 9.5px; padding: 1px 5px; min-width: 18px; }
+
+    .sh-content { padding: 12px; }
+
+    .sh-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+
+    .sh-card { padding: 9px; gap: 7px; border-radius: 11px; }
+    .sh-card-header { gap: 7px; }
+    .sh-card-icono { width: 30px; height: 30px; border-radius: 8px; }
+    .sh-card-icono [data-lucide] { width: 15px; height: 15px; }
+    .sh-card-nombre { font-size: 11.5px; }
+    .sh-card-desc { font-size: 10.5px; line-height: 1.3; }
+
+    .sh-btn { font-size: 11px; padding: 7px 9px; min-height: 34px; }
+    .sh-btn-icono { width: 34px; height: 34px; }
+    .sh-btn [data-lucide] { width: 12px; height: 12px; }
+
+    .sh-tema-preview { aspect-ratio: 16 / 6.5; }
+
+    .sh-ampliacion-card { padding: 10px; gap: 8px; }
+    .sh-ampliacion-icono { width: 32px; height: 32px; }
+    .sh-ampliacion-icono [data-lucide] { width: 16px; height: 16px; }
+    .sh-ampliacion-titulo { font-size: 12.5px; }
+    .sh-ampliacion-desc { font-size: 11px; }
+
+    .sh-toast { bottom: 14px; padding: 10px 18px; font-size: 12.5px; max-width: calc(100% - 28px); }
+
+    /* PromoZione en móvil chico */
+    .sh-promo-header { padding: 12px; }
+    .sh-promo-header-icono { width: 36px; height: 36px; border-radius: 10px; }
+    .sh-promo-header-icono [data-lucide] { width: 18px; height: 18px; }
+    .sh-promo-header-texto h2 { font-size: 15.5px; }
+    .sh-promo-header-texto p { font-size: 11px; }
+
+    .sh-oferta-badge { font-size: 11px; padding: 3px 8px; }
+    .sh-oferta-icono { width: 42px; height: 42px; }
+    .sh-oferta-icono [data-lucide] { width: 20px; height: 20px; }
+    .sh-oferta-nombre { font-size: 13px; }
+    .sh-oferta-precio-final { font-size: 16px; }
+    .sh-oferta-timer { font-size: 11px; padding: 4px 10px; }
+}
