@@ -12,83 +12,96 @@
 </head>
 <body>
 
-    <div class="en-container">
+    <div class="en-app">
+        <div class="en-container">
 
-        <!-- HEADER -->
-        <header class="en-header">
-            <div class="en-logo">
-                <div class="en-logo-mark"><i data-lucide="vote"></i></div>
-                <div class="en-logo-text">
-                    <h1>Encuestas</h1>
-                    <p id="enUserBadge">—</p>
+            <!-- HEADER -->
+            <header class="en-header">
+                <div class="en-logo">
+                    <div class="en-logo-mark"><i data-lucide="vote"></i></div>
+                    <div class="en-logo-text">
+                        <h1>Encuestas</h1>
+                        <p id="enUserBadge">—</p>
+                    </div>
+                </div>
+
+                <div class="en-header-actions">
+                    <button class="en-btn-icon" id="enBtnTop" title="Más votadas por categoría">
+                        <i data-lucide="trophy"></i>
+                    </button>
+                    <button class="en-btn-nueva" id="enBtnNueva">
+                        <i data-lucide="plus"></i>
+                        <span>Nueva encuesta</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- TOOLBAR -->
+            <div class="en-toolbar">
+                <div class="en-toolbar-grupo">
+                    <span class="en-toolbar-label">Categoría</span>
+                    <div class="en-chips" id="enFiltroCategoria">
+                        <button class="en-chip active" data-cat="todas">
+                            <i data-lucide="layout-grid"></i>
+                            <span>Todas</span>
+                        </button>
+                        <button class="en-chip" data-cat="tonteria">
+                            <i data-lucide="party-popper"></i>
+                            <span>Tontería</span>
+                        </button>
+                        <button class="en-chip" data-cat="serio">
+                            <i data-lucide="scale"></i>
+                            <span>Serio</span>
+                        </button>
+                        <button class="en-chip" data-cat="economico">
+                            <i data-lucide="coins"></i>
+                            <span>Económico</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="en-toolbar-grupo">
+                    <span class="en-toolbar-label">Estado</span>
+                    <div class="en-chips" id="enFiltroEstado">
+                        <button class="en-chip active" data-estado="abiertas">
+                            <i data-lucide="circle-dot"></i>
+                            <span>Abiertas</span>
+                        </button>
+                        <button class="en-chip" data-estado="cerradas">
+                            <i data-lucide="lock"></i>
+                            <span>Cerradas</span>
+                        </button>
+                        <button class="en-chip" data-estado="todas">
+                            <i data-lucide="layers"></i>
+                            <span>Todas</span>
+                        </button>
+                    </div>
                 </div>
             </div>
-            <button class="en-btn-top" id="enBtnTop" title="Top por categoría">
-                <i data-lucide="trophy"></i>
-                <span>Top</span>
-            </button>
-        </header>
 
-        <!-- FILTROS -->
-        <div class="en-filtros">
-            <div class="en-filtros-grupo" id="enFiltroCategoria">
-                <button class="en-chip active" data-cat="todas">
-                    <i data-lucide="layout-grid"></i>
-                    <span>Todas</span>
-                </button>
-                <button class="en-chip" data-cat="tonteria">
-                    <i data-lucide="party-popper"></i>
-                    <span>Tontería</span>
-                </button>
-                <button class="en-chip" data-cat="serio">
-                    <i data-lucide="scale"></i>
-                    <span>Serio</span>
-                </button>
-                <button class="en-chip" data-cat="economico">
-                    <i data-lucide="coins"></i>
-                    <span>Económico</span>
-                </button>
-            </div>
+            <!-- MAIN -->
+            <main class="en-main">
+                <div class="en-feed" id="enFeed"></div>
 
-            <div class="en-filtros-grupo en-filtros-estado" id="enFiltroEstado">
-                <button class="en-chip active" data-estado="abiertas">
-                    <i data-lucide="circle-dot"></i>
-                    <span>Abiertas</span>
-                </button>
-                <button class="en-chip" data-estado="cerradas">
-                    <i data-lucide="lock"></i>
-                    <span>Cerradas</span>
-                </button>
-                <button class="en-chip" data-estado="todas">
-                    <i data-lucide="layers"></i>
-                    <span>Todas</span>
-                </button>
-            </div>
+                <div class="en-empty" id="enEmpty" hidden>
+                    <div class="en-empty-icon"><i data-lucide="vote"></i></div>
+                    <h3 id="enEmptyTitulo">No hay encuestas</h3>
+                    <p id="enEmptyDesc">Creá la primera encuesta y dejá que la comunidad opine.</p>
+                    <button class="en-empty-btn" id="enEmptyBtnNuevo">
+                        <i data-lucide="plus"></i>
+                        Crear encuesta
+                    </button>
+                </div>
+            </main>
+
         </div>
-
-        <!-- MAIN -->
-        <main class="en-main">
-            <div class="en-feed" id="enFeed"></div>
-
-            <div class="en-empty" id="enEmpty" hidden>
-                <div class="en-empty-icon"><i data-lucide="vote"></i></div>
-                <h3 id="enEmptyTitulo">No hay encuestas</h3>
-                <p id="enEmptyDesc">Creá la primera encuesta y dejá que la comunidad opine.</p>
-                <button class="en-empty-btn" id="enEmptyBtnNuevo">
-                    <i data-lucide="plus"></i>
-                    Crear encuesta
-                </button>
-            </div>
-        </main>
 
         <button class="en-fab" id="enFabNuevo" title="Nueva encuesta">
             <i data-lucide="plus"></i>
         </button>
-
     </div>
 
     <!-- ==================================================
-         MODAL: CREAR ENCUESTA
+         MODAL: CREAR
     =================================================== -->
     <div class="en-modal" id="enModalCrear" hidden>
         <div class="en-modal-card en-modal-card-grande">
@@ -101,14 +114,12 @@
             </div>
 
             <div class="en-modal-body">
-                <!-- Pregunta -->
                 <div class="en-field">
                     <label>Pregunta</label>
                     <input type="text" id="enCrearPregunta" maxlength="140"
                            placeholder="¿Qué querés preguntar?" autocomplete="off">
                 </div>
 
-                <!-- Categoría -->
                 <div class="en-field">
                     <label>Categoría</label>
                     <div class="en-cat-picker">
@@ -127,7 +138,6 @@
                     </div>
                 </div>
 
-                <!-- Opciones -->
                 <div class="en-field">
                     <div class="en-field-label-row">
                         <label>Opciones</label>
@@ -140,7 +150,6 @@
                     </button>
                 </div>
 
-                <!-- Tipo de voto -->
                 <div class="en-field">
                     <label>¿Cómo se vota?</label>
                     <div class="en-toggle-grupo">
@@ -161,7 +170,6 @@
                     </div>
                 </div>
 
-                <!-- Visibilidad -->
                 <div class="en-field">
                     <label>Visibilidad de votos</label>
                     <div class="en-toggle-grupo">
@@ -182,7 +190,6 @@
                     </div>
                 </div>
 
-                <!-- Justificación (solo si público) -->
                 <div class="en-field" id="enFieldJustificacion" hidden>
                     <label class="en-checkbox-label" id="enJustifLabel">
                         <input type="checkbox" id="enCrearJustifOblig">
@@ -194,7 +201,6 @@
                     </label>
                 </div>
 
-                <!-- Alcance -->
                 <div class="en-field">
                     <label>¿Quién puede votar?</label>
                     <div class="en-toggle-grupo">
@@ -219,7 +225,6 @@
                     </button>
                 </div>
 
-                <!-- Cierre -->
                 <div class="en-field">
                     <label class="en-checkbox-label" id="enCierreLabel">
                         <input type="checkbox" id="enCrearCierreActivo">
@@ -246,15 +251,12 @@
     </div>
 
     <!-- ==================================================
-         MODAL: ELEGIR INVITADOS
+         MODAL: INVITADOS
     =================================================== -->
     <div class="en-modal en-modal-sub" id="enModalInvitados" hidden>
         <div class="en-modal-card">
             <div class="en-modal-header">
-                <h2>
-                    <i data-lucide="user-check"></i>
-                    <span>Elegir invitados</span>
-                </h2>
+                <h2><i data-lucide="user-check"></i><span>Elegir invitados</span></h2>
                 <button class="en-modal-cerrar" id="enInvitadosCerrar"><i data-lucide="x"></i></button>
             </div>
             <div class="en-modal-body">
@@ -279,10 +281,7 @@
     <div class="en-modal" id="enModalVer" hidden>
         <div class="en-modal-card en-modal-card-grande">
             <div class="en-modal-header">
-                <h2>
-                    <i data-lucide="bar-chart-3"></i>
-                    <span>Detalle</span>
-                </h2>
+                <h2><i data-lucide="bar-chart-3"></i><span>Detalle</span></h2>
                 <button class="en-modal-cerrar" id="enVerCerrar"><i data-lucide="x"></i></button>
             </div>
             <div class="en-ver-body" id="enVerBody"></div>
@@ -293,27 +292,21 @@
          MODAL: RANKING
     =================================================== -->
     <div class="en-modal" id="enModalTop" hidden>
-        <div class="en-modal-card">
+        <div class="en-modal-card en-modal-card-grande">
             <div class="en-modal-header">
-                <h2>
-                    <i data-lucide="trophy"></i>
-                    <span>Más votadas</span>
-                </h2>
+                <h2><i data-lucide="trophy"></i><span>Más votadas</span></h2>
                 <button class="en-modal-cerrar" id="enTopCerrar"><i data-lucide="x"></i></button>
             </div>
             <div class="en-modal-body">
                 <div class="en-top-tabs">
                     <button class="en-top-tab active" data-cat="tonteria">
-                        <i data-lucide="party-popper"></i>
-                        <span>Tontería</span>
+                        <i data-lucide="party-popper"></i><span>Tontería</span>
                     </button>
                     <button class="en-top-tab" data-cat="serio">
-                        <i data-lucide="scale"></i>
-                        <span>Serio</span>
+                        <i data-lucide="scale"></i><span>Serio</span>
                     </button>
                     <button class="en-top-tab" data-cat="economico">
-                        <i data-lucide="coins"></i>
-                        <span>Económico</span>
+                        <i data-lucide="coins"></i><span>Económico</span>
                     </button>
                 </div>
                 <div class="en-top-lista" id="enTopLista"></div>
