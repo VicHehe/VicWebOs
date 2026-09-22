@@ -1,86 +1,65 @@
 // ============================================================
-//  Mis OCs — Personajes originales
+//  Mis OCs — Personajes originales (COMPARTIDO)
 //  ------------------------------------------------------------
-//  · Datos por usuario: app/ocs/{codigo}ocs.json
-//  · Imágenes: Galería (MasterHad.galeria.abrirPicker)
-//  · Temas: heredados del SO (var(--...))
-//  · Sin emojis en la UI: todo Lucide
+//  · Datos: app/ocs/ocs.json  (todos ven todos los OCs)
+//  · Cada OC guarda creador + creadorNombre
+//  · Solo el creador puede editar / borrar su OC
+//  · Filtro: Todos / Solo míos
+//  · Imágenes: Galería (MasterHad.galeria)
+//  · Sin emojis: todo Lucide
 // ============================================================
 
 'use strict';
 
 const MENSAJE_TEMA = 'vicwebos_tema_cambio';
-const RUTA_BASE = 'app/ocs/';
-const ITEMS_POR_PAGINA = 14;
+const RUTA_ARCHIVO = 'app/ocs/ocs.json';
+const ITEMS_POR_PAGINA = 18;
 const MAX_PUNTOS_STATS = 50;
 const MAX_GUSTOS = 20;
 const MAX_DISGUSTOS = 20;
 
-// ============================================================
-//  Catálogo de stats
-// ============================================================
 const STATS_CATEGORIAS = [
-    {
-        id: 'fisico',
-        nombre: 'Físico',
-        icono: 'dumbbell',
-        stats: [
-            { id: 'fuerza',      nombre: 'Fuerza',       icono: 'dumbbell' },
-            { id: 'agilidad',    nombre: 'Agilidad',     icono: 'wind' },
-            { id: 'resistencia', nombre: 'Resistencia',  icono: 'shield' },
-            { id: 'valentia',    nombre: 'Valentía',     icono: 'flame' }
-        ]
-    },
-    {
-        id: 'mental',
-        nombre: 'Mental',
-        icono: 'brain',
-        stats: [
-            { id: 'inteligencia',  nombre: 'Inteligencia',  icono: 'brain' },
-            { id: 'carisma',       nombre: 'Carisma',       icono: 'sparkles' },
-            { id: 'concentracion', nombre: 'Concentración', icono: 'target' },
-            { id: 'humor',         nombre: 'Humor',         icono: 'smile' }
-        ]
-    },
-    {
-        id: 'social',
-        nombre: 'Social',
-        icono: 'users',
-        stats: [
-            { id: 'comunicacion', nombre: 'Comunicación', icono: 'message-circle' },
-            { id: 'empatia',      nombre: 'Empatía',      icono: 'heart-handshake' },
-            { id: 'seduccion',    nombre: 'Seducción',    icono: 'heart' },
-            { id: 'suerte',       nombre: 'Suerte',       icono: 'clover' }
-        ]
-    },
-    {
-        id: 'especial',
-        nombre: 'Especial',
-        icono: 'sparkles',
-        stats: [
-            { id: 'poder_stat',   nombre: 'Poder',       icono: 'wand-2' },
-            { id: 'reservado',    nombre: 'Reservado',   icono: 'eye-off' },
-            { id: 'creatividad',  nombre: 'Creatividad', icono: 'palette' }
-        ]
-    }
+    { id: 'fisico', nombre: 'Físico', icono: 'dumbbell', stats: [
+        { id: 'fuerza',      nombre: 'Fuerza',      icono: 'dumbbell' },
+        { id: 'agilidad',    nombre: 'Agilidad',    icono: 'wind' },
+        { id: 'resistencia', nombre: 'Resistencia', icono: 'shield' },
+        { id: 'valentia',    nombre: 'Valentía',    icono: 'flame' }
+    ]},
+    { id: 'mental', nombre: 'Mental', icono: 'brain', stats: [
+        { id: 'inteligencia',  nombre: 'Inteligencia',  icono: 'brain' },
+        { id: 'carisma',       nombre: 'Carisma',       icono: 'sparkles' },
+        { id: 'concentracion', nombre: 'Concentración', icono: 'target' },
+        { id: 'humor',         nombre: 'Humor',         icono: 'smile' }
+    ]},
+    { id: 'social', nombre: 'Social', icono: 'users', stats: [
+        { id: 'comunicacion', nombre: 'Comunicación', icono: 'message-circle' },
+        { id: 'empatia',      nombre: 'Empatía',      icono: 'heart-handshake' },
+        { id: 'seduccion',    nombre: 'Seducción',    icono: 'heart' },
+        { id: 'suerte',       nombre: 'Suerte',       icono: 'clover' }
+    ]},
+    { id: 'especial', nombre: 'Especial', icono: 'sparkles', stats: [
+        { id: 'poder_stat',   nombre: 'Poder',       icono: 'wand-2' },
+        { id: 'reservado',    nombre: 'Reservado',   icono: 'eye-off' },
+        { id: 'creatividad',  nombre: 'Creatividad', icono: 'palette' }
+    ]}
 ];
 
 const STATS_DEFAULT = {};
 STATS_CATEGORIAS.forEach(c => c.stats.forEach(s => { STATS_DEFAULT[s.id] = 0; }));
 
-// ============================================================
-//  Estado
-// ============================================================
+// ---------- ESTADO ----------
 let usuarioActual = null;
+let usuariosPorCodigo = {};
 let ocs = [];
-let ocEditandoId = null;       // ID del OC siendo editado (null = nuevo)
-let ocViendoId = null;         // ID del OC en el modal detalle
+let ocEditandoId = null;
+let ocViendoId = null;
 let statsEditando = { ...STATS_DEFAULT };
-let fotoEditandoId = null;     // ID de imagen de galería
-let extraEditandoIndex = null; // null = nuevo, número = editando
-let extraFotoId = null;        // ID de imagen de galería para el extra
+let fotoEditandoId = null;
+let extraEditandoIndex = null;
+let extraFotoId = null;
 
 let filtroNombre = '';
+let soloMios = false;
 let paginaActual = 1;
 let urlsActivas = [];
 let toastTimer = null;
@@ -150,34 +129,21 @@ function totalPuntos(stats) {
 // ============================================================
 //  Persistencia
 // ============================================================
-function rutaArchivo() {
-    if (!usuarioActual) return null;
-    return RUTA_BASE + usuarioActual.codigo + 'ocs.json';
-}
-
 async function cargarOCs() {
     const bd = BD();
-    const ruta = rutaArchivo();
-    if (!bd || !ruta) { ocs = []; return; }
+    if (!bd) { ocs = []; return; }
     try {
-        const data = await bd.leerArchivo(ruta);
+        const data = await bd.leerArchivo(RUTA_ARCHIVO);
         if (data && Array.isArray(data.ocs)) {
             ocs = data.ocs.filter(o => o && o.id && o.nombre);
-            // Normalizar stats
             ocs.forEach(o => {
                 if (!o.stats || typeof o.stats !== 'object') o.stats = { ...STATS_DEFAULT };
-                else {
-                    Object.keys(STATS_DEFAULT).forEach(k => {
-                        o.stats[k] = Number(o.stats[k]) || 0;
-                    });
-                }
+                else Object.keys(STATS_DEFAULT).forEach(k => { o.stats[k] = Number(o.stats[k]) || 0; });
                 if (!Array.isArray(o.gustos)) o.gustos = [];
                 if (!Array.isArray(o.disgustos)) o.disgustos = [];
                 if (!Array.isArray(o.extras)) o.extras = [];
             });
-        } else {
-            ocs = [];
-        }
+        } else ocs = [];
     } catch (e) {
         console.warn('[OCs] Error cargando:', e);
         ocs = [];
@@ -186,10 +152,9 @@ async function cargarOCs() {
 
 async function guardarOCs() {
     const bd = BD();
-    const ruta = rutaArchivo();
-    if (!bd || !ruta) return;
+    if (!bd) return;
     try {
-        await bd.escribirArchivo(ruta, {
+        await bd.escribirArchivo(RUTA_ARCHIVO, {
             version: 1,
             actualizado: new Date().toISOString(),
             ocs
@@ -201,13 +166,29 @@ async function guardarOCs() {
     }
 }
 
+async function cargarUsuarios() {
+    const bd = BD();
+    if (!bd) return;
+    try {
+        const cuentas = await bd.leerArchivo('cuenta.json');
+        if (!Array.isArray(cuentas)) return;
+        usuariosPorCodigo = {};
+        cuentas.forEach(c => { usuariosPorCodigo[c.codigo] = c; });
+    } catch (e) {}
+}
+
 // ============================================================
-//  Render: grid
+//  Filtro + Render
 // ============================================================
 function filtrados() {
-    if (!filtroNombre) return ocs;
-    const q = filtroNombre.toLowerCase().trim();
-    return ocs.filter(o => (o.nombre || '').toLowerCase().includes(q));
+    let lista = ocs.slice();
+    if (soloMios && usuarioActual) lista = lista.filter(o => o.creador === usuarioActual.codigo);
+    if (filtroNombre) {
+        const q = filtroNombre.toLowerCase().trim();
+        lista = lista.filter(o => (o.nombre || '').toLowerCase().includes(q));
+    }
+    lista.sort((a, b) => new Date(b.creado || 0) - new Date(a.creado || 0));
+    return lista;
 }
 
 function renderGrid() {
@@ -226,7 +207,8 @@ function renderGrid() {
     if (contador) {
         if (lista.length === 0) contador.textContent = '';
         else if (filtroNombre) contador.textContent = `${lista.length} resultado${lista.length === 1 ? '' : 's'}`;
-        else contador.textContent = `${lista.length} OC${lista.length === 1 ? '' : 's'}`;
+        else if (soloMios) contador.textContent = `${lista.length} OC${lista.length === 1 ? '' : 's'} tuyo${lista.length === 1 ? '' : 's'}`;
+        else contador.textContent = `${lista.length} OC${lista.length === 1 ? '' : 's'} de la comunidad`;
     }
 
     if (lista.length === 0) {
@@ -238,9 +220,13 @@ function renderGrid() {
             emptyTitulo.textContent = 'Sin resultados';
             emptyDesc.textContent = `No hay OCs que coincidan con "${filtroNombre}".`;
             btnEmptyNuevo.hidden = true;
+        } else if (soloMios) {
+            emptyTitulo.textContent = 'No tenés OCs propios';
+            emptyDesc.textContent = 'Creá tu primer personaje original.';
+            btnEmptyNuevo.hidden = false;
         } else {
-            emptyTitulo.textContent = 'Todavía no tenés OCs';
-            emptyDesc.textContent = 'Creá tu primer personaje original con foto, stats e historia.';
+            emptyTitulo.textContent = 'Todavía no hay OCs';
+            emptyDesc.textContent = 'Sé el primero en crear un personaje para la comunidad.';
             btnEmptyNuevo.hidden = false;
         }
         if (window.lucide) window.lucide.createIcons();
@@ -257,23 +243,34 @@ function renderGrid() {
     const inicio = (paginaActual - 1) * ITEMS_POR_PAGINA;
     const pagina = lista.slice(inicio, inicio + ITEMS_POR_PAGINA);
 
-    grid.innerHTML = pagina.map(oc => `
-        <div class="oc-card" data-id="${escapar(oc.id)}">
-            <div class="oc-card-foto-wrap">
-                ${oc.imagenId
-                    ? `<img data-imagen="${escapar(oc.imagenId)}" alt="">`
-                    : `<i data-lucide="user"></i>`}
+    grid.innerHTML = pagina.map(oc => {
+        const u = usuariosPorCodigo[oc.creador] || {};
+        const foto = u.foto || null;
+        const esMio = oc.creador === usuarioActual.codigo;
+        return `
+            <div class="oc-card" data-id="${escapar(oc.id)}">
+                <div class="oc-card-foto-wrap">
+                    ${oc.imagenId
+                        ? `<img data-imagen="${escapar(oc.imagenId)}" alt="">`
+                        : `<i data-lucide="user"></i>`}
+                </div>
+                <div class="oc-card-nombre">${escapar(oc.nombre)}</div>
+                <div class="oc-card-info">${escapar([
+                    oc.edad, oc.profesion
+                ].filter(Boolean).join(' · ') || 'Sin datos')}</div>
+                ${!esMio ? `
+                    <div class="oc-card-creador">
+                        <span class="oc-card-creador-avatar">
+                            ${foto ? `<img src="${foto}" alt="">` : `<span>${escapar((oc.creadorNombre || oc.creador || '?').charAt(0).toUpperCase())}</span>`}
+                        </span>
+                        <span class="oc-card-creador-nombre">${escapar(oc.creadorNombre || oc.creador || 'Anónimo')}</span>
+                    </div>` : ''}
             </div>
-            <div class="oc-card-nombre">${escapar(oc.nombre)}</div>
-            <div class="oc-card-info">${escapar([
-                oc.edad, oc.profesion
-            ].filter(Boolean).join(' · ') || 'Sin datos')}</div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 
     if (window.lucide) window.lucide.createIcons();
 
-    // Cargar fotos desde galería
     const mh = MH();
     if (mh) {
         grid.querySelectorAll('img[data-imagen]').forEach(img => {
@@ -338,14 +335,14 @@ function renderPaginacion(totalPaginas) {
 }
 
 // ============================================================
-//  Render: stats editor
+//  Stats editor
 // ============================================================
 function renderStatsEditor() {
     const cont = document.getElementById('ocStatsGrid');
     if (!cont) return;
 
     cont.innerHTML = STATS_CATEGORIAS.map(cat => `
-        <div class="oc-stat-categoria" data-categoria="${cat.id}">
+        <div class="oc-stat-categoria">
             <div class="oc-stat-categoria-titulo">
                 <i data-lucide="${cat.icono}"></i>
                 <span>${cat.nombre}</span>
@@ -364,7 +361,6 @@ function renderStatsEditor() {
 
     if (window.lucide) window.lucide.createIcons();
 
-    // Construir estrellas
     cont.querySelectorAll('.oc-stat-estrellas').forEach(wrap => {
         const statId = wrap.dataset.stat;
         wrap.innerHTML = '';
@@ -416,7 +412,7 @@ function actualizarContadorPuntos() {
 }
 
 // ============================================================
-//  MODAL: Crear / Editar
+//  Editor
 // ============================================================
 function abrirEditor(ocId = null) {
     ocEditandoId = ocId;
@@ -464,7 +460,6 @@ function abrirEditor(ocId = null) {
         fotoBtnTxt.textContent = 'Elegir foto';
     }
 
-    // Foto
     fotoImg.removeAttribute('src');
     fotoPreview.classList.remove('con-foto');
     btnQuitarFoto.hidden = true;
@@ -499,10 +494,7 @@ async function elegirFotoEditor() {
     const mh = MH();
     if (!mh) return;
     try {
-        const id = await mh.galeria.abrirPicker({
-            multiple: false,
-            titulo: 'Elegí una foto para tu OC'
-        });
+        const id = await mh.galeria.abrirPicker({ multiple: false, titulo: 'Elegí una foto para tu OC' });
         if (!id) return;
         fotoEditandoId = id;
         const url = await mh.galeria.leerImagenURL(id);
@@ -559,9 +551,14 @@ async function guardarOC() {
             actualizado: new Date().toISOString()
         };
 
-        if (ocEditandoId) {
+        const esEdicion = !!ocEditandoId;
+
+        if (esEdicion) {
             const idx = ocs.findIndex(o => o.id === ocEditandoId);
             if (idx >= 0) {
+                if (ocs[idx].creador !== usuarioActual.codigo) {
+                    throw new Error('Solo el creador puede editar este OC.');
+                }
                 ocs[idx] = { ...ocs[idx], ...datosBase };
             }
         } else {
@@ -571,7 +568,9 @@ async function guardarOC() {
                 gustos: [],
                 disgustos: [],
                 extras: [],
-                creado: new Date().toISOString()
+                creado: new Date().toISOString(),
+                creador: usuarioActual.codigo,
+                creadorNombre: usuarioActual.nombre || usuarioActual.codigo
             });
         }
 
@@ -579,7 +578,7 @@ async function guardarOC() {
         cerrarEditor();
         paginaActual = 1;
         renderGrid();
-        toast(ocEditandoId ? 'OC actualizado' : 'OC creado', 'success');
+        toast(esEdicion ? 'OC actualizado' : 'OC creado', 'success');
     } catch (e) {
         msj.textContent = e.message || 'No se pudo guardar.';
         msj.className = 'oc-mensaje error';
@@ -589,7 +588,7 @@ async function guardarOC() {
 }
 
 // ============================================================
-//  MODAL: Detalle
+//  Detalle
 // ============================================================
 function abrirDetalle(id) {
     const oc = ocs.find(o => o.id === id);
@@ -612,9 +611,12 @@ function renderDetalle(oc) {
     const titulo = document.getElementById('ocDetalleTitulo');
     if (titulo) titulo.textContent = oc.nombre || 'Detalle';
 
+    const esCreador = usuarioActual && oc.creador === usuarioActual.codigo;
     const totalPts = totalPuntos(oc.stats);
+    const u = usuariosPorCodigo[oc.creador] || {};
+    const fotoCreador = u.foto || null;
+    const nombreCreador = oc.creadorNombre || u.nombre || oc.creador || 'Anónimo';
 
-    // Header
     let html = `
         <div class="oc-detalle-header">
             <div class="oc-detalle-foto">
@@ -627,14 +629,19 @@ function renderDetalle(oc) {
                 <p>${escapar([
                     oc.edad, oc.sexo, oc.nacionalidad, oc.profesion, oc.poder
                 ].filter(Boolean).join(' · ') || 'Sin datos')}</p>
-                <p style="font-size:11.5px; color:var(--gray-500, #71717A); margin-top:4px;">
-                    ${totalPts} / ${MAX_PUNTOS_STATS} puntos
-                </p>
+                <div class="oc-detalle-subinfo">
+                    <span class="oc-detalle-puntos">${totalPts} / ${MAX_PUNTOS_STATS} pts</span>
+                    <span class="oc-detalle-creador">
+                        <span class="oc-detalle-creador-avatar">
+                            ${fotoCreador ? `<img src="${fotoCreador}" alt="">` : `<span>${escapar((nombreCreador || '?').charAt(0).toUpperCase())}</span>`}
+                        </span>
+                        por ${escapar(nombreCreador)}
+                    </span>
+                </div>
             </div>
         </div>
     `;
 
-    // Stats
     html += `<div class="oc-detalle-stats-grid">`;
     STATS_CATEGORIAS.forEach(cat => {
         html += `
@@ -663,7 +670,6 @@ function renderDetalle(oc) {
     });
     html += `</div>`;
 
-    // Gustos / Disgustos
     html += `
         <div class="oc-gustos-seccion">
             <div class="oc-gusto-col">
@@ -672,12 +678,14 @@ function renderDetalle(oc) {
                     <span>Gustos</span>
                 </div>
                 <div class="oc-gustos-lista" id="ocGustosLista"></div>
-                <div class="oc-gusto-input-wrap">
-                    <input type="text" id="ocInputGusto" maxlength="20" placeholder="Ej: Pizza">
-                    <button type="button" id="ocBtnAgregarGusto" title="Añadir gusto">
-                        <i data-lucide="plus"></i>
-                    </button>
-                </div>
+                ${esCreador ? `
+                    <div class="oc-gusto-input-wrap">
+                        <input type="text" id="ocInputGusto" maxlength="20" placeholder="Ej: Pizza">
+                        <button type="button" id="ocBtnAgregarGusto" title="Añadir gusto">
+                            <i data-lucide="plus"></i>
+                        </button>
+                    </div>
+                ` : ''}
             </div>
             <div class="oc-gusto-col">
                 <div class="oc-gusto-titulo disgustos">
@@ -685,17 +693,18 @@ function renderDetalle(oc) {
                     <span>Disgustos</span>
                 </div>
                 <div class="oc-gustos-lista" id="ocDisgustosLista"></div>
-                <div class="oc-gusto-input-wrap">
-                    <input type="text" id="ocInputDisgusto" maxlength="20" placeholder="Ej: Mentiras">
-                    <button type="button" id="ocBtnAgregarDisgusto" title="Añadir disgusto">
-                        <i data-lucide="plus"></i>
-                    </button>
-                </div>
+                ${esCreador ? `
+                    <div class="oc-gusto-input-wrap">
+                        <input type="text" id="ocInputDisgusto" maxlength="20" placeholder="Ej: Mentiras">
+                        <button type="button" id="ocBtnAgregarDisgusto" title="Añadir disgusto">
+                            <i data-lucide="plus"></i>
+                        </button>
+                    </div>
+                ` : ''}
             </div>
         </div>
     `;
 
-    // Extras
     if (oc.extras && oc.extras.length > 0) {
         html += `<div class="oc-extras-seccion">`;
         html += `<div class="oc-extras-titulo"><i data-lucide="paperclip"></i><span>Información extra</span></div>`;
@@ -704,14 +713,16 @@ function renderDetalle(oc) {
                 <div class="oc-extra-bloque">
                     <div class="oc-extra-bloque-header">
                         <div class="oc-extra-bloque-titulo">${escapar(ex.titulo || 'Sin título')}</div>
-                        <div class="oc-extra-bloque-acciones">
-                            <button class="oc-extra-bloque-btn" data-extra-editar="${i}" title="Editar">
-                                <i data-lucide="pencil"></i>
-                            </button>
-                            <button class="oc-extra-bloque-btn danger" data-extra-borrar="${i}" title="Eliminar">
-                                <i data-lucide="trash-2"></i>
-                            </button>
-                        </div>
+                        ${esCreador ? `
+                            <div class="oc-extra-bloque-acciones">
+                                <button class="oc-extra-bloque-btn" data-extra-editar="${i}" title="Editar">
+                                    <i data-lucide="pencil"></i>
+                                </button>
+                                <button class="oc-extra-bloque-btn danger" data-extra-borrar="${i}" title="Eliminar">
+                                    <i data-lucide="trash-2"></i>
+                                </button>
+                            </div>
+                        ` : ''}
                     </div>
                     ${ex.imagenId ? `<div class="oc-extra-bloque-imagen"><img data-imagen="${escapar(ex.imagenId)}" alt=""></div>` : ''}
                     <p class="oc-extra-bloque-texto">${escapar(ex.texto || '')}</p>
@@ -725,7 +736,6 @@ function renderDetalle(oc) {
 
     if (window.lucide) window.lucide.createIcons();
 
-    // Cargar imágenes
     const mh = MH();
     if (mh) {
         body.querySelectorAll('img[data-imagen]').forEach(img => {
@@ -738,13 +748,18 @@ function renderDetalle(oc) {
     }
 
     renderGustos(oc);
-    bindGustosEventos(oc);
+    if (esCreador) bindGustosEventos(oc);
     bindExtrasEventos(oc);
+
+    document.getElementById('ocDetalleEditar').hidden = !esCreador;
+    document.getElementById('ocDetalleBorrar').hidden = !esCreador;
+    document.getElementById('ocDetalleAgregarExtra').hidden = !esCreador;
 }
 
 function renderGustos(oc) {
     const gl = document.getElementById('ocGustosLista');
     const dl = document.getElementById('ocDisgustosLista');
+    const esCreador = usuarioActual && oc.creador === usuarioActual.codigo;
 
     if (gl) {
         if (!oc.gustos || oc.gustos.length === 0) {
@@ -753,9 +768,11 @@ function renderGustos(oc) {
             gl.innerHTML = oc.gustos.map((g, i) => `
                 <span class="oc-gusto-item gusto">
                     <span class="texto">${escapar(g)}</span>
-                    <button class="btn-x" data-tipo="gusto" data-index="${i}" title="Eliminar">
-                        <i data-lucide="x"></i>
-                    </button>
+                    ${esCreador ? `
+                        <button class="btn-x" data-tipo="gusto" data-index="${i}" title="Eliminar">
+                            <i data-lucide="x"></i>
+                        </button>
+                    ` : ''}
                 </span>
             `).join('');
         }
@@ -768,9 +785,11 @@ function renderGustos(oc) {
             dl.innerHTML = oc.disgustos.map((g, i) => `
                 <span class="oc-gusto-item disgusto">
                     <span class="texto">${escapar(g)}</span>
-                    <button class="btn-x" data-tipo="disgusto" data-index="${i}" title="Eliminar">
-                        <i data-lucide="x"></i>
-                    </button>
+                    ${esCreador ? `
+                        <button class="btn-x" data-tipo="disgusto" data-index="${i}" title="Eliminar">
+                            <i data-lucide="x"></i>
+                        </button>
+                    ` : ''}
                 </span>
             `).join('');
         }
@@ -807,6 +826,8 @@ function bindGustosEventos(oc) {
 async function agregarGustoDisgusto(tipo) {
     const oc = ocs.find(o => o.id === ocViendoId);
     if (!oc) return;
+    if (oc.creador !== usuarioActual.codigo) return;
+
     const inputId = tipo === 'gusto' ? 'ocInputGusto' : 'ocInputDisgusto';
     const input = document.getElementById(inputId);
     const texto = (input?.value || '').trim().slice(0, 20);
@@ -829,6 +850,7 @@ async function agregarGustoDisgusto(tipo) {
 async function eliminarGustoDisgusto(tipo, index) {
     const oc = ocs.find(o => o.id === ocViendoId);
     if (!oc) return;
+    if (oc.creador !== usuarioActual.codigo) return;
     const lista = tipo === 'gusto' ? oc.gustos : oc.disgustos;
     lista.splice(index, 1);
     await guardarOCs();
@@ -849,6 +871,7 @@ async function borrarExtra(index) {
     if (!confirm('¿Eliminar esta información extra?')) return;
     const oc = ocs.find(o => o.id === ocViendoId);
     if (!oc) return;
+    if (oc.creador !== usuarioActual.codigo) return;
     oc.extras.splice(index, 1);
     await guardarOCs();
     renderDetalle(oc);
@@ -856,11 +879,12 @@ async function borrarExtra(index) {
 }
 
 // ============================================================
-//  MODAL: Extra
+//  Modal Extra
 // ============================================================
 function abrirEditorExtra(index = null) {
     const oc = ocs.find(o => o.id === ocViendoId);
     if (!oc) return;
+    if (oc.creador !== usuarioActual.codigo) return;
 
     extraEditandoIndex = index;
     extraFotoId = null;
@@ -893,7 +917,6 @@ function abrirEditorExtra(index = null) {
         fotoBtnTxt.textContent = 'Elegir imagen';
     }
 
-    // Reset foto
     fotoImg.removeAttribute('src');
     fotoWrap.classList.remove('con-foto');
     btnQuitarFoto.hidden = true;
@@ -927,10 +950,7 @@ async function elegirFotoExtra() {
     const mh = MH();
     if (!mh) return;
     try {
-        const id = await mh.galeria.abrirPicker({
-            multiple: false,
-            titulo: 'Elegí una imagen para la info extra'
-        });
+        const id = await mh.galeria.abrirPicker({ multiple: false, titulo: 'Elegí una imagen para la info extra' });
         if (!id) return;
         extraFotoId = id;
         const url = await mh.galeria.leerImagenURL(id);
@@ -958,6 +978,7 @@ function quitarFotoExtra() {
 async function guardarExtra() {
     const oc = ocs.find(o => o.id === ocViendoId);
     if (!oc) return;
+    if (oc.creador !== usuarioActual.codigo) return;
 
     const titulo = document.getElementById('ocExtraTituloInput').value.trim();
     const texto = document.getElementById('ocExtraTexto').value.trim();
@@ -974,17 +995,15 @@ async function guardarExtra() {
 
     try {
         const nuevo = { titulo, texto, imagenId: extraFotoId };
+        const esEdicion = extraEditandoIndex !== null;
 
-        if (extraEditandoIndex !== null) {
-            oc.extras[extraEditandoIndex] = nuevo;
-        } else {
-            oc.extras.push(nuevo);
-        }
+        if (esEdicion) oc.extras[extraEditandoIndex] = nuevo;
+        else oc.extras.push(nuevo);
 
         await guardarOCs();
         cerrarEditorExtra();
         renderDetalle(oc);
-        toast(extraEditandoIndex !== null ? 'Actualizado' : 'Añadido', 'success');
+        toast(esEdicion ? 'Actualizado' : 'Añadido', 'success');
     } catch (e) {
         msj.textContent = e.message || 'No se pudo guardar.';
         msj.className = 'oc-mensaje error';
@@ -1007,6 +1026,7 @@ async function inicializar() {
     const badge = document.getElementById('ocUserBadge');
     if (badge) badge.textContent = `@${usuarioActual.codigo} · ${usuarioActual.nombre}`;
 
+    await cargarUsuarios();
     await cargarOCs();
     renderGrid();
 
@@ -1025,6 +1045,17 @@ async function inicializar() {
         searchClear.hidden = true;
         paginaActual = 1;
         renderGrid();
+    });
+
+    // Filtro Todos / Míos
+    document.querySelectorAll('.oc-filtro-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.oc-filtro-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            soloMios = btn.dataset.filtro === 'mios';
+            paginaActual = 1;
+            renderGrid();
+        });
     });
 
     // Abrir editor
@@ -1051,6 +1082,10 @@ async function inicializar() {
         if (!ocViendoId) return;
         const oc = ocs.find(o => o.id === ocViendoId);
         if (!oc) return;
+        if (oc.creador !== usuarioActual.codigo) {
+            toast('Solo el creador puede borrar este OC', 'error');
+            return;
+        }
         if (!confirm(`¿Eliminar "${oc.nombre}"? Esta acción no se puede deshacer.`)) return;
         ocs = ocs.filter(o => o.id !== ocViendoId);
         await guardarOCs();
@@ -1070,9 +1105,7 @@ async function inicializar() {
     // Click fuera de modales
     ['ocModalEditor', 'ocModalDetalle', 'ocModalExtra'].forEach(id => {
         const m = document.getElementById(id);
-        m?.addEventListener('click', (ev) => {
-            if (ev.target.id === id) m.hidden = true;
-        });
+        m?.addEventListener('click', (ev) => { if (ev.target.id === id) m.hidden = true; });
     });
 
     // Escape
