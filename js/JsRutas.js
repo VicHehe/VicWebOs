@@ -132,6 +132,17 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 0
     },
     {
+    id: 'lector-pdf',
+    nombre: 'Lector PDF',
+    icono: 'file-text',
+    ruta: 'herramientas/lector-pdf/index.html',
+    descripcion: 'Lee PDFs guardados localmente en tu dispositivo. Hasta 10 archivos.',
+    categoria: 'Herramientas Prácticas',
+    esBase: false,
+    espacio: 4,
+    monedas: 10
+},
+    {
         id: 'qr',
         nombre: 'Generador QR',
         icono: 'qr-code',
