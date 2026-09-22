@@ -95,6 +95,17 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 130
     },
     {
+    id: 'cevann',
+    nombre: 'Cevann',
+    icono: 'frame',
+    ruta: 'herramientas/cevann/index.html',
+    descripcion: 'Editor de afiches que hereda el estilo de cualquiera de tus temas instalados.',
+    categoria: 'Creatividad',
+    esBase: false,
+    espacio: 10,
+    monedas: 180
+},
+    {
         id: 'arte-flash',
         nombre: 'Arte Flash',
         icono: 'palette',
