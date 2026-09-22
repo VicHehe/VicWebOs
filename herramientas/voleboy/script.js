@@ -43,9 +43,9 @@ const PAUSA_TRAS_PUNTO  = 900;
 const COUNTDOWN_SEG = 3;
 
 // ---- Economía ----
-const MONEDAS_GANAR_P2P  = 20;
-const MONEDAS_PERDER_P2P = 5;
-const MONEDAS_GANAR_CPU  = 25;
+const MONEDAS_GANAR_CPU  = 45;   // antes 25
+const MONEDAS_GANAR_P2P  = 60;   // antes 20
+const MONEDAS_PERDER_P2P = 15;   // antes 5
 
 // ---- Red ----
 const NET_PADDLE_HZ = 30;
