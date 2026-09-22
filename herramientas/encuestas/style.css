@@ -1459,3 +1459,312 @@ body {
     .en-logo-text p { display: none; }
     .en-badges { flex-direction: column; align-items: flex-end; }
 }
+
+/* ============================================================
+   PC (≥ 900px) — Layout ancho con feed tipo masonry
+   ------------------------------------------------------------
+   · Container 1180px (aprovecha monitores grandes)
+   · Filtros en una sola fila horizontal
+   · Feed en 2 columnas tipo Pinterest (column-count)
+   · Modales anchos (640-820px)
+   · Targets más grandes en todos los controles
+   ============================================================ */
+
+@media (min-width: 900px) {
+
+    /* ---------- CONTAINER ---------- */
+    .en-container {
+        max-width: 1180px;
+        padding: 22px 32px 18px;
+        gap: 14px;
+    }
+
+    /* ---------- HEADER ---------- */
+    .en-logo-mark {
+        width: 46px;
+        height: 46px;
+        border-radius: 13px;
+    }
+    .en-logo-mark [data-lucide] {
+        width: 23px;
+        height: 23px;
+    }
+    .en-logo-text h1 { font-size: 22px; }
+    .en-logo-text p { font-size: 12.5px; }
+
+    .en-btn-top {
+        padding: 11px 18px;
+        font-size: 13.5px;
+        border-radius: 12px;
+    }
+    .en-btn-top [data-lucide] {
+        width: 17px;
+        height: 17px;
+    }
+
+    /* ---------- FILTROS EN UNA SOLA FILA ---------- */
+    .en-filtros {
+        flex-direction: row;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding: 4px 0;
+    }
+    .en-filtros-grupo {
+        flex-wrap: wrap;
+        overflow: visible;
+        padding: 0;
+    }
+    .en-filtros-estado {
+        margin-left: auto;
+    }
+    .en-chip {
+        padding: 8px 16px;
+        font-size: 13px;
+        border-radius: 999px;
+    }
+    .en-chip [data-lucide] { width: 14px; height: 14px; }
+
+    /* ---------- FEED EN 2 COLUMNAS (masonry real) ---------- */
+    .en-main {
+        padding-right: 0;
+        padding-bottom: 40px;
+    }
+    .en-feed {
+        display: block;              /* sobreescribimos el flex-column base */
+        column-count: 2;
+        column-gap: 16px;
+    }
+    .en-card {
+        break-inside: avoid;
+        -webkit-column-break-inside: avoid;
+        page-break-inside: avoid;
+        margin-bottom: 16px;
+        padding: 20px 22px;
+        gap: 14px;
+    }
+
+    /* Cuando solo hay 1 encuesta, ocupa 1 columna centrada
+       (evita que una card sola quede estirada feo o sola en la izq) */
+    .en-feed:has(.en-card:only-child) {
+        column-count: 1;
+        max-width: 640px;
+        margin: 0 auto;
+    }
+
+    /* ---------- CARD: contenido más cómodo ---------- */
+    .en-card-pregunta {
+        font-size: 17px;
+        line-height: 1.4;
+    }
+    .en-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+    .en-card-autor-nombre { font-size: 14px; }
+    .en-card-tiempo { font-size: 11.5px; }
+
+    .en-opcion {
+        padding: 14px 16px;
+        border-radius: 14px;
+    }
+    .en-opcion-marca {
+        width: 24px;
+        height: 24px;
+    }
+    .en-opcion-marca [data-lucide] {
+        width: 14px;
+        height: 14px;
+    }
+    .en-opcion-texto { font-size: 14.5px; }
+    .en-opcion-porcentaje { font-size: 14.5px; }
+    .en-opcion-votos { font-size: 11.5px; }
+
+    .en-card-foot-info {
+        font-size: 12.5px;
+    }
+
+    /* ---------- MODALES MÁS ANCHOS ---------- */
+    .en-modal-card { max-width: 640px; }
+    .en-modal-card-grande { max-width: 820px; }
+
+    .en-modal-header {
+        padding: 18px 24px;
+    }
+    .en-modal-header h2 {
+        font-size: 17px;
+    }
+    .en-modal-header h2 [data-lucide] {
+        width: 19px;
+        height: 19px;
+    }
+    .en-modal-cerrar {
+        width: 36px;
+        height: 36px;
+    }
+    .en-modal-body {
+        padding: 22px 24px;
+        gap: 20px;
+    }
+    .en-modal-actions {
+        padding: 16px 24px;
+    }
+
+    /* ---------- CREAR: cat picker más grande ---------- */
+    .en-cat-opcion {
+        padding: 20px 14px;
+        gap: 10px;
+        border-radius: 14px;
+    }
+    .en-cat-opcion [data-lucide] {
+        width: 28px;
+        height: 28px;
+    }
+    .en-cat-opcion span {
+        font-size: 14px;
+    }
+
+    /* ---------- CREAR: toggles más cómodos ---------- */
+    .en-toggle {
+        padding: 16px 18px;
+        gap: 12px;
+        border-radius: 14px;
+    }
+    .en-toggle [data-lucide] {
+        width: 22px;
+        height: 22px;
+    }
+    .en-toggle strong { font-size: 14.5px; }
+    .en-toggle span { font-size: 12px; }
+
+    /* ---------- CREAR: inputs más grandes ---------- */
+    .en-field input[type="text"],
+    .en-field input[type="datetime-local"] {
+        padding: 13px 16px;
+        font-size: 14.5px;
+        border-radius: 12px;
+    }
+    .en-field > label {
+        font-size: 12px;
+    }
+    .en-opcion-fila input {
+        padding: 12px 16px;
+        font-size: 14.5px;
+        border-radius: 12px;
+    }
+    .en-btn-eliminar-opcion {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+    }
+    .en-btn-add-opcion {
+        padding: 12px 18px;
+        font-size: 13.5px;
+    }
+    .en-checkbox-label {
+        padding: 16px 18px;
+        border-radius: 14px;
+    }
+    .en-checkbox-box {
+        width: 24px;
+        height: 24px;
+    }
+    .en-checkbox-texto strong { font-size: 14px; }
+    .en-checkbox-texto span { font-size: 12.5px; }
+
+    .en-btn-invitados {
+        padding: 13px 20px;
+        font-size: 13.5px;
+    }
+
+    /* ---------- INVITADOS: lista en 2 columnas ---------- */
+    .en-invitados-lista {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
+        max-height: 420px;
+    }
+    .en-invitado-item {
+        padding: 12px 14px;
+    }
+
+    /* ---------- VER DETALLE: mejor uso del ancho ---------- */
+    .en-ver-body {
+        padding: 26px 30px;
+        gap: 18px;
+    }
+    .en-ver-pregunta {
+        font-size: 21px;
+        line-height: 1.35;
+    }
+    .en-ver-opcion {
+        padding: 16px 20px;
+    }
+    .en-ver-opcion-texto { font-size: 15.5px; }
+    .en-ver-opcion-stat { font-size: 15.5px; }
+    .en-ver-opcion-votos { font-size: 12px; }
+
+    .en-votante {
+        padding: 14px 16px;
+    }
+    .en-votante .en-avatar {
+        width: 38px;
+        height: 38px;
+        font-size: 15px;
+    }
+    .en-votante-nombre { font-size: 13.5px; }
+    .en-votante-opcion-pill { font-size: 12px; }
+    .en-votante-justif { font-size: 13px; }
+
+    /* ---------- TOP: 2 columnas ---------- */
+    .en-top-lista {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+    .en-top-item {
+        padding: 14px 16px;
+    }
+    .en-top-pregunta { font-size: 14.5px; }
+    .en-top-rank {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+    }
+
+    /* ---------- FAB: pegado al container, no al viewport ---------- */
+    .en-fab {
+        right: max(24px, calc((100vw - 1180px) / 2 + 28px));
+        bottom: 28px;
+        width: 58px;
+        height: 58px;
+    }
+    .en-fab [data-lucide] {
+        width: 26px;
+        height: 26px;
+    }
+
+    /* ---------- TOAST más cerca del fondo real ---------- */
+    .en-toast {
+        bottom: 32px;
+    }
+}
+
+/* ============================================================
+   PC grande (≥ 1400px) — un poquito más de aire
+   ============================================================ */
+@media (min-width: 1400px) {
+    .en-container {
+        max-width: 1280px;
+    }
+    .en-feed {
+        column-gap: 20px;
+    }
+    .en-card {
+        margin-bottom: 20px;
+    }
+    .en-fab {
+        right: max(28px, calc((100vw - 1280px) / 2 + 32px));
+    }
+}
