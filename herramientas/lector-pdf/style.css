@@ -499,13 +499,16 @@ body {
     position: relative;
     display: flex;
     align-items: flex-start;
-    justify-content: center;
+    justify-content: flex-start;
     padding: 20px;
     background: var(--gray-200, #E8E8EE);
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
 }
 .lp-vis-canvas-stage {
     display: inline-block;
     position: relative;
+    margin: auto;
 }
 #lpVisCanvas {
     display: block;
@@ -514,8 +517,6 @@ body {
         0 2px 8px rgba(0,0,0,0.12),
         0 8px 24px rgba(0,0,0,0.14);
     border-radius: 2px;
-    max-width: 100%;
-    height: auto;
 }
 
 /* Spinner */
