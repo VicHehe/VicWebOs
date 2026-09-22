@@ -175,6 +175,17 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 4,
         monedas: 70
     },
+        {
+        id: 'gastos',
+        nombre: 'Gestor de Gastos',
+        icono: 'wallet',
+        ruta: 'herramientas/gastos/index.html',
+        descripcion: 'Controlá tus ingresos, gastos y simulá escenarios antes de gastar.',
+        categoria: 'Herramientas Prácticas',
+        esBase: false,
+        espacio: 6,
+        monedas: 70
+    },
 
     // ============================================================
     //  JUEGOS
