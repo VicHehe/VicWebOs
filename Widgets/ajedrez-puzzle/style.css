@@ -1,6 +1,6 @@
 /* ================================================
-   Widget: Ajedrez Puzzle
-   Layout ULTRA compacto — el tablero manda.
+   Widget: Ajedrez vs CPU
+   Layout ultra compacto — el tablero manda.
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -58,40 +58,58 @@ body {
     letter-spacing: 0.06em;
     color: var(--gray-500, #71717A);
     flex-shrink: 0;
-    margin-right: 2px;
 }
 
-.aj-chip {
+.aj-status {
     display: inline-flex;
     align-items: center;
-    gap: 3px;
-    font-size: 10px;
-    font-weight: 800;
-    padding: 2px 6px;
-    border-radius: 5px;
-    background: var(--violet-50, #F5F3FF);
-    color: var(--violet-700, #6D28D9);
-    border: 1px solid var(--violet-200, #DDD6FE);
-    white-space: nowrap;
-    flex-shrink: 0;
-    line-height: 1.2;
-}
-.aj-chip [data-lucide] { width: 9px; height: 9px; stroke-width: 2.5; }
-
-.aj-chip-themes {
-    background: var(--gray-100, #F4F4F7);
-    color: var(--gray-600, #52525B);
-    border-color: var(--gray-200, #E8E8EE);
+    gap: 5px;
+    padding: 2px 8px;
+    background: var(--gray-50, #FAFAFB);
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: 6px;
+    font-size: 10.5px;
     font-weight: 700;
-    text-transform: capitalize;
+    color: var(--gray-700, #3F3F46);
     flex: 1;
     min-width: 0;
+    transition: all 0.2s;
+    overflow: hidden;
+}
+.aj-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--violet-500, #8B5CF6);
+    flex-shrink: 0;
+}
+.aj-status-txt {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    display: block;
-    line-height: 1.4;
-    padding: 2px 6px;
+    line-height: 1.2;
+}
+
+.aj-status.ok {
+    background: #ECFDF5;
+    border-color: #A7F3D0;
+}
+.aj-status.ok .aj-status-dot { background: #10B981; }
+.aj-status.ok .aj-status-txt { color: #065F46; }
+
+.aj-status.err {
+    background: #FEF2F2;
+    border-color: #FECACA;
+}
+.aj-status.err .aj-status-dot { background: #EF4444; }
+.aj-status.err .aj-status-txt { color: #991B1B; }
+
+.aj-status.thinking .aj-status-dot {
+    animation: ajPulseDot 0.8s ease-in-out infinite;
+}
+@keyframes ajPulseDot {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.35; }
 }
 
 .aj-btn-icon {
@@ -108,7 +126,6 @@ body {
     transition: all 0.15s;
     padding: 0;
     flex-shrink: 0;
-    margin-left: auto;
 }
 .aj-btn-icon:hover {
     background: var(--violet-50, #F5F3FF);
@@ -117,8 +134,6 @@ body {
 }
 .aj-btn-icon:active { transform: scale(0.94); }
 .aj-btn-icon [data-lucide] { width: 12px; height: 12px; }
-.aj-btn-icon.girando [data-lucide] { animation: ajSpin 0.9s linear infinite; }
-@keyframes ajSpin { to { transform: rotate(360deg); } }
 
 /* ========== TABLERO ========== */
 .aj-board-wrap {
@@ -148,7 +163,6 @@ body {
     background: #B58863;
 }
 
-/* Casillas */
 .aj-square {
     position: relative;
     display: flex;
@@ -163,9 +177,7 @@ body {
 .aj-square.last-move { background: #F7EC74 !important; }
 .aj-square.last-move.dark { background: #BACA44 !important; }
 
-.aj-square.selected {
-    background: #829769 !important;
-}
+.aj-square.selected { background: #829769 !important; }
 
 .aj-square.legal::after {
     content: '';
@@ -175,7 +187,6 @@ body {
     border-radius: 50%;
     background: rgba(20, 85, 30, 0.32);
     pointer-events: none;
-    animation: ajLegalPop 0.18s ease;
 }
 .aj-square.legal.legal-capture::after {
     width: 84%;
@@ -183,12 +194,7 @@ body {
     background: radial-gradient(circle, transparent 55%, rgba(20, 85, 30, 0.32) 56%);
     border-radius: 0;
 }
-@keyframes ajLegalPop {
-    from { transform: scale(0.5); opacity: 0; }
-    to   { transform: scale(1);   opacity: 1; }
-}
 
-/* Pieza */
 .aj-piece {
     font-size: var(--piece-size);
     line-height: 1;
@@ -196,7 +202,6 @@ body {
     pointer-events: none;
     position: relative;
     z-index: 2;
-    will-change: transform;
 }
 .aj-piece.w {
     color: #FFFFFF;
@@ -211,7 +216,6 @@ body {
     text-shadow: 0 0 1px rgba(255,255,255,0.25);
 }
 
-/* Animaciones */
 .aj-square.shake {
     animation: ajShake 0.32s cubic-bezier(0.36, 0.07, 0.19, 0.97);
 }
@@ -226,15 +230,7 @@ body {
     background: radial-gradient(circle, rgba(239,68,68,0.75) 15%, transparent 70%) !important;
 }
 
-.aj-square.resuelto {
-    animation: ajPulse 0.6s ease;
-}
-@keyframes ajPulse {
-    0%, 100% { box-shadow: inset 0 0 0 0 rgba(16,185,129,0); }
-    50%      { box-shadow: inset 0 0 0 3px rgba(16,185,129,0.65); }
-}
-
-/* ========== OVERLAY (loading / error) ========== */
+/* ========== OVERLAY (fin de partida) ========== */
 .aj-overlay {
     position: absolute;
     inset: 0;
@@ -243,152 +239,85 @@ body {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    background: var(--gray-50, #FAFAFB);
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     border-radius: 6px;
-    color: var(--gray-500, #71717A);
-    font-size: 11px;
-    font-weight: 700;
+    color: var(--gray-700, #3F3F46);
+    font-size: 12px;
+    font-weight: 800;
     z-index: 10;
-    animation: ajFade 0.2s ease;
     padding: 16px;
     text-align: center;
+    animation: ajFade 0.25s ease;
 }
 .aj-overlay[hidden] { display: none; }
 @keyframes ajFade { from { opacity: 0; } to { opacity: 1; } }
 
-.aj-spinner {
-    width: 22px;
-    height: 22px;
-    border: 2.5px solid var(--gray-200, #E8E8EE);
-    border-top-color: var(--violet-500, #8B5CF6);
-    border-radius: 50%;
-    animation: ajSpin 0.85s linear infinite;
+.aj-overlay-titulo {
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+}
+.aj-overlay-titulo.ok { color: #065F46; }
+.aj-overlay-titulo.err { color: #991B1B; }
+.aj-overlay-titulo.empate { color: var(--gray-700, #3F3F46); }
+
+.aj-overlay-sub {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gray-500, #71717A);
+    line-height: 1.4;
 }
 
-.aj-overlay.error .aj-spinner { display: none; }
-.aj-overlay.error::before {
-    content: '';
-    display: block;
-    width: 28px;
-    height: 28px;
-    background: #FEE2E2;
-    border-radius: 50%;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23991B1B' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='12' y1='8' x2='12' y2='12'/%3E%3Cline x1='12' y1='16' x2='12.01' y2='16'/%3E%3C/svg%3E");
-    background-size: 16px 16px;
-    background-position: center;
-    background-repeat: no-repeat;
-}
-
-.aj-btn-retry {
+.aj-overlay-btn {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    padding: 5px 10px;
+    padding: 7px 14px;
     border: none;
-    border-radius: 7px;
+    border-radius: 8px;
     background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
     color: white;
     font-family: inherit;
-    font-size: 11px;
+    font-size: 11.5px;
     font-weight: 800;
     cursor: pointer;
     box-shadow: 0 3px 10px var(--accent-shadow, rgba(139,92,246,0.28));
     transition: all 0.15s;
-    margin-top: 2px;
+    margin-top: 4px;
 }
-.aj-btn-retry:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 5px 14px var(--accent-shadow-hover, rgba(139,92,246,0.38));
-}
-.aj-btn-retry [data-lucide] { width: 11px; height: 11px; }
+.aj-overlay-btn:hover { transform: translateY(-1px); }
+.aj-overlay-btn [data-lucide] { width: 11px; height: 11px; }
 
-/* ========== BOTTOMBAR: status + plays ========== */
-.aj-bottombar {
+/* ========== FOOTER ========== */
+.aj-footer {
     display: flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
+    gap: 5px;
     flex-shrink: 0;
-    min-height: 22px;
-}
-
-.aj-status {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 8px;
-    background: var(--gray-50, #FAFAFB);
-    border: 1px solid var(--border, #E8E8EE);
-    border-radius: 7px;
-    flex: 1;
-    min-width: 0;
-    transition: all 0.2s;
-    overflow: hidden;
-}
-
-.aj-status-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--violet-500, #8B5CF6);
-    flex-shrink: 0;
-    transition: background 0.2s;
-    box-shadow: 0 0 0 2px var(--violet-100, #EDE9FE);
-}
-
-.aj-status-txt {
-    font-size: 10.5px;
-    font-weight: 700;
-    color: var(--gray-700, #3F3F46);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    line-height: 1.2;
-}
-
-.aj-status.ok {
-    background: #ECFDF5;
-    border-color: #A7F3D0;
-}
-.aj-status.ok .aj-status-dot {
-    background: #10B981;
-    box-shadow: 0 0 0 2px #D1FAE5;
-}
-.aj-status.ok .aj-status-txt { color: #065F46; }
-
-.aj-status.err {
-    background: #FEF2F2;
-    border-color: #FECACA;
-}
-.aj-status.err .aj-status-dot {
-    background: #EF4444;
-    box-shadow: 0 0 0 2px #FEE2E2;
-}
-.aj-status.err .aj-status-txt { color: #991B1B; }
-
-.aj-status.thinking .aj-status-dot {
-    animation: ajPulseDot 0.8s ease-in-out infinite;
-}
-@keyframes ajPulseDot {
-    0%, 100% { opacity: 1; }
-    50%      { opacity: 0.35; }
-}
-
-.aj-plays {
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 800;
-    color: var(--gray-400, #A1A1AD);
+    color: var(--violet-700, #6D28D9);
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    flex-shrink: 0;
-    white-space: nowrap;
-    font-variant-numeric: tabular-nums;
+    padding-top: 4px;
+    border-top: 1px solid var(--gray-100, #F4F4F7);
+    min-height: 18px;
 }
+.aj-footer [data-lucide] {
+    width: 11px;
+    height: 11px;
+    color: #F59E0B;
+}
+.aj-footer.bloqueado {
+    color: var(--gray-500, #71717A);
+}
+.aj-footer.bloqueado [data-lucide] { color: var(--gray-400, #A1A1AD); }
 
-/* ============================================================
-   EXTRA COMPACTO — widgets muy chicos (≤ 300px ancho)
-   ============================================================ */
-@media (max-width: 300px) {
+/* ========== EXTRA COMPACTO ========== */
+@media (max-width: 260px) {
     .aj-topbar-titulo { display: none; }
-    .aj-chip-themes { font-size: 9.5px; }
-    .aj-plays { display: none; }
+    .aj-board { --piece-size: 20px; }
 }
