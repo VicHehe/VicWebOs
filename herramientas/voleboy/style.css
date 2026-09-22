@@ -1,17 +1,17 @@
 /* ================================================
-   Voleboy — Pong vertical con spin
-   Todo heredado del tema. Sin colores de marca.
+   Voleboy — Pong plataformero con red central
+   Layout: header + HUD + canvas. Overlays modales
+   cubren toda la pantalla (como en Dino).
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-
 [hidden] { display: none !important; }
 
 html, body {
     height: 100%;
     overflow: hidden;
     font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--bg, #FBFBFD);
+    background: var(--white, #FFFFFF);
     color: var(--text, #18181B);
     font-size: 14px;
     -webkit-font-smoothing: antialiased;
@@ -32,12 +32,12 @@ html, body {
 
 .vb-app {
     height: 100dvh;
-    max-width: 520px;
+    max-width: 1000px;
     margin: 0 auto;
-    padding: 14px 16px 16px;
+    padding: 18px 20px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
     overflow: hidden;
 }
 
@@ -51,100 +51,257 @@ html, body {
     justify-content: space-between;
     gap: 12px;
 }
-.vb-logo { display: flex; align-items: center; gap: 11px; min-width: 0; }
+.vb-logo { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .vb-logo-mark {
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
     background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
-    border-radius: 10px;
+    border-radius: 11px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    box-shadow: 0 6px 16px var(--accent-shadow, rgba(139,92,246,0.28));
+    box-shadow: 0 8px 20px var(--accent-shadow, rgba(139,92,246,0.28));
     flex-shrink: 0;
 }
-.vb-logo-mark [data-lucide] { width: 19px; height: 19px; stroke-width: 2.5; }
-.vb-logo-text { min-width: 0; }
+.vb-logo-mark [data-lucide] { width: 20px; height: 20px; stroke-width: 2.5; }
 .vb-logo-text h1 {
-    font-size: 17px;
+    font-size: 19px;
     font-weight: 800;
     letter-spacing: -0.03em;
     background: var(--accent-text-gradient, linear-gradient(135deg, #18181B, #7C3AED));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    margin: 0;
     line-height: 1.15;
 }
 .vb-logo-text p {
-    font-size: 11px;
+    font-size: 11.5px;
     color: var(--gray-500, #71717A);
     font-weight: 600;
-    margin-top: 1px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    margin-top: 2px;
 }
 
 /* ============================================================
-   MENÚ
+   HUD
    ============================================================ */
-.vb-menu {
+.vb-hud {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 0 2px;
+}
+.vb-hud-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 14px;
+    background: var(--white, #FFFFFF);
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gray-700, #3F3F46);
+}
+.vb-hud-item [data-lucide] {
+    width: 13px;
+    height: 13px;
+    color: var(--violet-500, #8B5CF6);
+}
+.vb-hud-label {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 9.5px;
+    color: var(--gray-500, #71717A);
+    font-weight: 800;
+}
+.vb-hud-valor {
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+    color: var(--gray-900, #18181B);
+    font-size: 14px;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 2px;
+}
+.vb-hud-valor em {
+    font-style: normal;
+    font-size: 10px;
+    color: var(--gray-500, #71717A);
+    font-weight: 700;
+}
+.vb-hud-coins .vb-hud-valor { color: var(--violet-700, #6D28D9); }
+
+/* ============================================================
+   CANVAS
+   ============================================================ */
+.vb-canvas-wrap {
     flex: 1;
     min-height: 0;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    padding: 20px;
-    overflow-y: auto;
-    text-align: center;
-    animation: vbFadeIn 0.25s ease;
+    background: var(--gray-50, #FAFAFB);
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 16px;
+    overflow: hidden;
+    padding: 10px;
 }
-@keyframes vbFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+#vbCanvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    aspect-ratio: 720 / 420;
+    border-radius: 12px;
+    touch-action: none;
+    cursor: none;
+    background: #FFFFFF;
+}
 
-.vb-menu-icon {
-    width: 72px;
-    height: 72px;
+/* ============================================================
+   OVERLAYS MODALES
+   ============================================================ */
+.vb-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(24, 24, 27, 0.65);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 100;
+    animation: vbFade 0.2s ease;
+    overflow-y: auto;
+}
+.vb-overlay[hidden] { display: none; }
+
+@keyframes vbFade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.vb-overlay-card {
+    background: var(--white, #FFFFFF);
+    border-radius: 22px;
+    padding: 28px 30px 24px;
+    max-width: 440px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.32);
+    animation: vbZoom 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: auto;
+}
+
+@keyframes vbZoom {
+    from { opacity: 0; transform: scale(0.94) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.vb-overlay-icono {
+    width: 62px;
+    height: 62px;
     background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
-    border-radius: 20px;
+    border-radius: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    box-shadow: 0 12px 28px var(--accent-shadow, rgba(139,92,246,0.28));
-    margin-bottom: 8px;
+    margin: 0 auto 12px;
+    box-shadow: 0 8px 22px var(--accent-shadow, rgba(139,92,246,0.3));
 }
-.vb-menu-icon [data-lucide] { width: 36px; height: 36px; stroke-width: 2; }
+.vb-overlay-icono [data-lucide] { width: 30px; height: 30px; stroke-width: 2.25; }
 
-.vb-menu h2 {
+.vb-overlay-icono-ganaste {
+    background: linear-gradient(135deg, #10B981, #059669);
+    box-shadow: 0 8px 22px rgba(16, 185, 129, 0.3);
+}
+.vb-overlay-icono-perdiste {
+    background: linear-gradient(135deg, #EF4444, #B91C1C);
+    box-shadow: 0 8px 22px rgba(239, 68, 68, 0.3);
+}
+
+.vb-overlay-card h2 {
     font-size: 22px;
     font-weight: 800;
     letter-spacing: -0.02em;
     color: var(--gray-900, #18181B);
     margin: 0;
 }
-.vb-menu > p {
+.vb-overlay-card > p {
     font-size: 13px;
     color: var(--gray-500, #71717A);
-    line-height: 1.55;
-    max-width: 340px;
+    line-height: 1.5;
     margin: 0 0 8px;
+    max-width: 360px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
+/* ============================================================
+   BOTONES
+   ============================================================ */
+.vb-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.15s;
+    width: 100%;
+    touch-action: manipulation;
+}
+.vb-btn [data-lucide] { width: 16px; height: 16px; }
+
+.vb-btn-primario {
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: white;
+    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
+}
+.vb-btn-primario:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px var(--accent-shadow-hover, rgba(139,92,246,0.38));
+}
+.vb-btn-secundario {
+    background: var(--white, #FFFFFF);
+    color: var(--gray-700, #3F3F46);
+    border: 1.5px solid var(--border, #E8E8EE);
+}
+.vb-btn-secundario:hover {
+    border-color: var(--violet-400, #A78BFA);
+    color: var(--violet-700, #6D28D9);
+    background: var(--violet-50, #F5F3FF);
+}
+
+/* ============================================================
+   SEPARADOR "o"
+   ============================================================ */
 .vb-sep {
     display: flex;
     align-items: center;
     gap: 10px;
-    width: 100%;
-    max-width: 300px;
     color: var(--gray-400, #A1A1AD);
     font-size: 11px;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    margin: 6px 0;
+    margin: 6px 0 2px;
 }
 .vb-sep::before,
 .vb-sep::after {
@@ -154,9 +311,10 @@ html, body {
     background: var(--border, #E8E8EE);
 }
 
+/* ============================================================
+   CAMPO + ROLES
+   ============================================================ */
 .vb-field {
-    width: 100%;
-    max-width: 300px;
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -192,9 +350,7 @@ html, body {
 .vb-roles {
     display: flex;
     gap: 8px;
-    width: 100%;
-    max-width: 300px;
-    margin-top: 4px;
+    margin-top: 2px;
 }
 .vb-rol {
     flex: 1;
@@ -210,7 +366,7 @@ html, body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
     padding: 10px 8px;
     border: 1.5px solid var(--border, #E8E8EE);
     border-radius: 12px;
@@ -238,12 +394,15 @@ html, body {
     box-shadow: 0 0 0 3px var(--shadow-glow, rgba(139,92,246,0.10));
 }
 
+/* ============================================================
+   INFO / MENSAJE
+   ============================================================ */
 .vb-info {
     font-size: 12.5px;
     font-weight: 700;
-    padding: 8px 14px;
+    padding: 9px 14px;
     border-radius: 10px;
-    max-width: 320px;
+    text-align: center;
     min-height: 0;
 }
 .vb-info:empty { display: none; }
@@ -252,192 +411,8 @@ html, body {
 .vb-info.error   { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
 
 /* ============================================================
-   BOTONES
+   RESUMEN FIN
    ============================================================ */
-.vb-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 12px;
-    font-family: inherit;
-    font-size: 13.5px;
-    font-weight: 800;
-    cursor: pointer;
-    transition: all 0.15s;
-    width: 100%;
-    max-width: 300px;
-    touch-action: manipulation;
-}
-.vb-btn [data-lucide] { width: 16px; height: 16px; }
-
-.vb-btn-primario {
-    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
-    color: white;
-    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
-}
-.vb-btn-primario:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px var(--accent-shadow-hover, rgba(139,92,246,0.38));
-}
-.vb-btn-secundario {
-    background: var(--white, #FFFFFF);
-    color: var(--gray-700, #3F3F46);
-    border: 1.5px solid var(--border, #E8E8EE);
-}
-.vb-btn-secundario:hover {
-    border-color: var(--violet-400, #A78BFA);
-    color: var(--violet-700, #6D28D9);
-    background: var(--violet-50, #F5F3FF);
-}
-
-/* ============================================================
-   HUD
-   ============================================================ */
-.vb-hud {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding: 6px 4px;
-}
-.vb-hud-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    background: var(--white, #FFFFFF);
-    border: 1.5px solid var(--border, #E8E8EE);
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--gray-700, #3F3F46);
-}
-.vb-hud-item [data-lucide] {
-    width: 13px;
-    height: 13px;
-    color: var(--violet-500, #8B5CF6);
-}
-.vb-hud-label {
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-size: 9.5px;
-    color: var(--gray-500, #71717A);
-    font-weight: 800;
-}
-.vb-hud-valor {
-    font-variant-numeric: tabular-nums;
-    font-weight: 800;
-    color: var(--gray-900, #18181B);
-    font-size: 13px;
-}
-.vb-hud-valor em {
-    font-style: normal;
-    font-size: 10px;
-    color: var(--gray-500, #71717A);
-    margin-left: 1px;
-}
-.vb-hud-coins .vb-hud-valor { color: var(--violet-700, #6D28D9); }
-
-/* ============================================================
-   CANVAS
-   ============================================================ */
-.vb-canvas-wrap {
-    flex: 1;
-    min-height: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-}
-#vbCanvas {
-    display: block;
-    height: 100%;
-    width: auto;
-    max-width: 100%;
-    aspect-ratio: 400 / 600;
-    border-radius: 20px;
-    background: #18181B;
-    touch-action: none;
-    cursor: none;
-    box-shadow:
-        0 16px 40px rgba(0, 0, 0, 0.25),
-        0 0 0 1px rgba(255, 255, 255, 0.06);
-}
-
-/* ============================================================
-   OVERLAY FIN
-   ============================================================ */
-.vb-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(24, 24, 27, 0.7);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    z-index: 100;
-    animation: vbFadeIn 0.22s ease;
-}
-.vb-overlay[hidden] { display: none; }
-
-.vb-overlay-card {
-    background: var(--white, #FFFFFF);
-    border-radius: 22px;
-    padding: 26px 26px 22px;
-    max-width: 400px;
-    width: 100%;
-    text-align: center;
-    box-shadow: 0 24px 48px rgba(0,0,0,0.35);
-    animation: vbZoom 0.26s cubic-bezier(0.16, 1, 0.3, 1);
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-@keyframes vbZoom {
-    from { opacity: 0; transform: scale(0.94) translateY(8px); }
-    to   { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-.vb-overlay-icono {
-    width: 60px;
-    height: 60px;
-    border-radius: 17px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    margin: 0 auto 4px;
-}
-.vb-overlay-icono [data-lucide] { width: 28px; height: 28px; stroke-width: 2.25; }
-
-.vb-overlay-icono-ganaste {
-    background: linear-gradient(135deg, #10B981, #059669);
-    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
-}
-.vb-overlay-icono-perdiste {
-    background: linear-gradient(135deg, #EF4444, #B91C1C);
-    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
-}
-
-.vb-overlay-card h2 {
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: var(--gray-900, #18181B);
-    margin: 0;
-}
-.vb-overlay-card > p {
-    font-size: 13px;
-    color: var(--gray-500, #71717A);
-    margin: 0 0 6px;
-}
-
 .vb-resumen {
     display: flex;
     flex-direction: column;
@@ -446,7 +421,7 @@ html, body {
     border: 1px solid var(--border, #E8E8EE);
     border-radius: 12px;
     padding: 14px 16px;
-    margin-bottom: 8px;
+    margin: 4px 0 10px;
     text-align: left;
 }
 .vb-resumen-fila {
@@ -511,30 +486,40 @@ html, body {
 /* ============================================================
    RESPONSIVE
    ============================================================ */
+@media (max-width: 900px) {
+    .vb-app { padding: 16px 18px; gap: 10px; }
+}
+
 @media (max-width: 640px) {
-    .vb-app { padding: 12px 12px 14px; gap: 8px; }
-    .vb-logo-mark { width: 34px; height: 34px; }
-    .vb-logo-mark [data-lucide] { width: 17px; height: 17px; }
-    .vb-logo-text h1 { font-size: 16px; }
+    .vb-app { padding: 12px 14px; gap: 10px; }
+    .vb-logo-mark { width: 36px; height: 36px; border-radius: 10px; }
+    .vb-logo-mark [data-lucide] { width: 18px; height: 18px; }
+    .vb-logo-text h1 { font-size: 17px; }
     .vb-logo-text p { font-size: 10.5px; }
 
-    .vb-menu-icon { width: 60px; height: 60px; border-radius: 17px; }
-    .vb-menu-icon [data-lucide] { width: 30px; height: 30px; }
-    .vb-menu h2 { font-size: 19px; }
-    .vb-menu > p { font-size: 12.5px; }
+    .vb-hud-item { padding: 5px 10px; gap: 5px; font-size: 11px; }
+    .vb-hud-label { font-size: 8.5px; }
+    .vb-hud-valor { font-size: 12.5px; }
+
+    .vb-canvas-wrap { padding: 6px; border-radius: 12px; }
 
     .vb-overlay { padding: 14px; }
-    .vb-overlay-card { padding: 22px 20px; border-radius: 18px; }
+    .vb-overlay-card { padding: 22px 20px 18px; border-radius: 18px; max-width: 100%; }
     .vb-overlay-card h2 { font-size: 19px; }
-    .vb-overlay-icono { width: 52px; height: 52px; border-radius: 15px; }
+    .vb-overlay-card > p { font-size: 12.5px; }
+    .vb-overlay-icono { width: 52px; height: 52px; border-radius: 15px; margin-bottom: 10px; }
     .vb-overlay-icono [data-lucide] { width: 25px; height: 25px; }
 
     .vb-resumen { padding: 12px 14px; gap: 7px; }
     .vb-resumen-fila { font-size: 12.5px; }
     .vb-resumen-monedas { font-size: 18px; }
+
+    .vb-btn { padding: 11px 18px; font-size: 13px; }
 }
 
-@media (max-width: 400px) {
+@media (max-width: 420px) {
+    .vb-app { padding: 10px; gap: 8px; }
     .vb-logo-text p { display: none; }
     .vb-hud-label { display: none; }
+    .vb-canvas-wrap { padding: 4px; }
 }
