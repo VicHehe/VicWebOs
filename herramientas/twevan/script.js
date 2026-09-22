@@ -827,7 +827,7 @@ function calcularPendiente() {
         const comSnap = new Set(cobro.comentariosSnapshot || []);
 
         const likesActuales = new Set(social.likes[post.id] || []);
-        likesActuales.delete(yo); // no me cuento a mí mismo
+        likesActuales.delete(yo);
 
         const comActuales = new Set(Object.keys(social.comentarios[post.id] || {}));
 
@@ -923,7 +923,7 @@ async function cobrarBanco() {
         if (!api) throw new Error('Sin conexión.');
 
         // 1) Acreditar monedas
-        await api.canjear('twitter', 'twevan', `Banco Twevan (${pend.total} monedas)`, pend.total);
+        await api.canjear('bird', 'twevan', `Banco Twevan (${pend.total} monedas)`, pend.total);
 
         // 2) Actualizar snapshots + historial
         const yo = usuarioActual.codigo;
@@ -954,7 +954,6 @@ async function cobrarBanco() {
                     cobro.totalCobrado = (cobro.totalCobrado || 0) + pendPost.pendiente;
                 }
 
-                // Snapshot siempre al día (post sin pendiente también)
                 cobro.likesSnapshot = likesAct;
                 cobro.comentariosSnapshot = comAct;
                 cobro.ultimoCobro = new Date().toISOString();
