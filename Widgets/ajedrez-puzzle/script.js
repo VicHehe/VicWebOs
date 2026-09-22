@@ -1,105 +1,44 @@
 // ============================================================
-//  Widget: Ajedrez Puzzle
+//  Widget: Ajedrez vs CPU
 //  ------------------------------------------------------------
-//  Puzzle diario de Lichess (lichess.org/api/puzzle/daily).
-//  - Sin autenticación, sin key.
-//  - CORS resuelto con proxies públicos (mismo patrón que Wiki Lector).
-//  - Tablero propio con CSS Grid + Unicode pieces.
-//  - Lógica con chess.js (CDN).
-//  - 1 petición al día → muy por debajo del rate limit.
+//  Partida completa contra una IA simple (minimax depth 2).
+//  Sin dependencias externas más allá de chess.js (CDN).
+//
+//  Recompensa: 65 monedas por victoria, máximo 1 vez cada 24h.
+//  Persistencia: app/ajedrez/{codigo}ajedrez.json
 // ============================================================
 
 'use strict';
 
 const MENSAJE_TEMA = 'vicwebos_tema_cambio';
-const PUZZLE_URL   = 'https://lichess.org/api/puzzle/daily';
+const ARCHIVO_BASE = 'app/ajedrez/';
+const RECOMPENSA   = 65;
+const COOLDOWN_MS  = 24 * 60 * 60 * 1000;  // 24h
+const PROFUNDIDAD_IA = 2;
 
-// Proxies CORS en orden de preferencia (actualizados a 2025)
-const PROXIES = [
-    (u) => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
-    (u) => 'https://proxy.corsfix.com/?url=' + encodeURIComponent(u),
-    (u) => 'https://thingproxy.freeboard.io/fetch/' + u
-];
+// Valores material (en centipeones aproximados)
+const VALOR_PIEZA = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
 
-// Glifos Unicode de ajedrez (negras — luego se colorean por CSS)
+// Glifos Unicode de ajedrez
 const GLIFOS = {
-    p: '\u265F',
-    n: '\u265E',
-    b: '\u265D',
-    r: '\u265C',
-    q: '\u265B',
-    k: '\u265A'
+    p: '\u265F', n: '\u265E', b: '\u265D',
+    r: '\u265C', q: '\u265B', k: '\u265A'
 };
 
-// Traducciones de temas de Lichess
-const THEMES_ES = {
-    opening:            'Apertura',
-    middlegame:         'Medio juego',
-    endgame:            'Final',
-    rookEndgame:        'Final de torres',
-    pawnEndgame:        'Final de peones',
-    queenEndgame:       'Final de damas',
-    bishopEndgame:      'Final de alfiles',
-    knightEndgame:      'Final de caballos',
-    queenRookEndgame:   'Final de dama y torre',
-    mate:               'Mate',
-    mateIn1:            'Mate en 1',
-    mateIn2:            'Mate en 2',
-    mateIn3:            'Mate en 3',
-    mateIn4:            'Mate en 4',
-    mateIn5:            'Mate en 5',
-    anastasiaMate:      'Mate de Anastasia',
-    arabianMate:        'Mate árabe',
-    backRankMate:       'Mate del pasillo',
-    bodenMate:          'Mate de Boden',
-    dovetailMate:       'Mate de cola de milano',
-    hookMate:           'Mate del gancho',
-    smotheredMate:      'Mate de la coz',
-    doubleBishopMate:   'Mate de dos alfiles',
-    fork:               'Horquilla',
-    pin:                'Clavada',
-    skewer:             'Enfilada',
-    discoveredAttack:   'Ataque descubierto',
-    doubleCheck:        'Jaque doble',
-    sacrifice:          'Sacrificio',
-    hangingPiece:       'Pieza colgada',
-    trappedPiece:       'Pieza atrapada',
-    deflection:         'Desvío',
-    attraction:         'Atracción',
-    interference:       'Interferencia',
-    intermezzo:         'Intermedio',
-    xRayAttack:         'Ataque rayos X',
-    capturingDefender:  'Captura del defensor',
-    clearance:          'Despeje',
-    promotion:          'Coronación',
-    zugzwang:           'Zugzwang',
-    quietMove:          'Jugada silenciosa',
-    advantage:          'Ventaja',
-    crushing:           'Demoledor',
-    equality:           'Igualdad',
-    defensiveMove:      'Defensa',
-    attackingMove:      'Ataque',
-    oneMove:            'Un movimiento',
-    short:              'Corto',
-    long:               'Largo',
-    veryLong:           'Muy largo'
-};
+// ============================================================
+//  ESTADO
+// ============================================================
+let game = null;
+let selectedSquare = null;
+let lastMove = null;
+let esperandoIA = false;
+let partidaTerminada = false;
+let usuarioActual = null;
+let ultimaRecompensa = 0;
+let victoriasTotales = 0;
 
-// Estado
-let game            = null;
-let solution        = [];
-let solutionIndex   = 0;
-let selectedSquare  = null;
-let lastMove        = null;
-let esperando       = false;
-let turnoUsuario    = 'w';
-let puzzleId        = null;
-let resuelto        = false;
-
-// DOM refs
-const $board   = () => document.getElementById('ajBoard');
-const $status  = () => document.getElementById('ajStatus');
-const $overlay = () => document.getElementById('ajOverlay');
+const API = () => window.parent.__vicwebos || null;
+const BD  = () => window.parent.ConfigBD || null;
 
 // ============================================================
 //  TEMA
@@ -133,24 +72,17 @@ window.addEventListener('message', (e) => {
 });
 
 // ============================================================
-//  UTILIDADES
+//  DOM
 // ============================================================
-function uciAMovimiento(uci) {
-    return {
-        from: uci.slice(0, 2),
-        to:   uci.slice(2, 4),
-        promotion: uci.length > 4 ? uci[4] : 'q'
-    };
-}
+const $board   = () => document.getElementById('ajBoard');
+const $status  = () => document.getElementById('ajStatus');
+const $overlay = () => document.getElementById('ajOverlay');
+const $footer  = () => document.getElementById('ajFooter');
+const $footerTxt = () => document.getElementById('ajFooterTxt');
 
-function prettifyTheme(t) {
-    if (THEMES_ES[t]) return THEMES_ES[t];
-    return String(t)
-        .replace(/([A-Z])/g, ' $1')
-        .replace(/^./, s => s.toUpperCase())
-        .trim();
-}
-
+// ============================================================
+//  STATUS / FOOTER
+// ============================================================
 function setStatus(txt, tipo) {
     const el = $status();
     if (!el) return;
@@ -162,221 +94,70 @@ function setStatus(txt, tipo) {
     if (tipo === 'thinking') el.classList.add('thinking');
 }
 
-function mostrarOverlay(texto, esError) {
-    const ov = $overlay();
-    if (!ov) return;
-    ov.hidden = false;
-    ov.classList.toggle('error', !!esError);
-    ov.innerHTML = '';
-    if (esError) {
-        const p = document.createElement('p');
-        p.textContent = texto || 'No se pudo cargar el puzzle.';
-        ov.appendChild(p);
-        const btn = document.createElement('button');
-        btn.className = 'aj-btn-retry';
-        btn.innerHTML = '<i data-lucide="refresh-cw"></i> Reintentar';
-        btn.addEventListener('click', cargarPuzzle);
-        ov.appendChild(btn);
-        if (window.lucide) window.lucide.createIcons();
+function setFooter(txt, bloqueado) {
+    const f = $footer();
+    const t = $footerTxt();
+    if (!f || !t) return;
+    t.textContent = txt;
+    f.classList.toggle('bloqueado', !!bloqueado);
+}
+
+// ============================================================
+//  PERSISTENCIA
+// ============================================================
+function rutaArchivo() {
+    if (!usuarioActual) return null;
+    return ARCHIVO_BASE + usuarioActual.codigo + 'ajedrez.json';
+}
+
+async function cargarEstado() {
+    const bd = BD();
+    const ruta = rutaArchivo();
+    if (!bd || !ruta) return;
+    try {
+        const data = await bd.leerArchivo(ruta);
+        if (data && typeof data === 'object') {
+            if (data.ultimaRecompensa) {
+                ultimaRecompensa = new Date(data.ultimaRecompensa).getTime() || 0;
+            }
+            victoriasTotales = Number(data.victoriasTotales) || 0;
+        }
+    } catch (e) { /* no existe todavía */ }
+}
+
+async function guardarEstado() {
+    const bd = BD();
+    const ruta = rutaArchivo();
+    if (!bd || !ruta) return;
+    try {
+        await bd.escribirArchivo(ruta, {
+            version: 1,
+            ultimaRecompensa: ultimaRecompensa ? new Date(ultimaRecompensa).toISOString() : null,
+            victoriasTotales,
+            actualizado: new Date().toISOString()
+        });
+    } catch (e) {
+        console.warn('[Ajedrez] No se pudo guardar:', e);
+    }
+}
+
+function puedeCobrar() {
+    if (!ultimaRecompensa) return true;
+    return (Date.now() - ultimaRecompensa) >= COOLDOWN_MS;
+}
+
+function actualizarFooter() {
+    if (!usuarioActual) {
+        setFooter('+65 al ganar', false);
+        return;
+    }
+    if (puedeCobrar()) {
+        setFooter('+65 al ganar', false);
     } else {
-        const sp = document.createElement('div');
-        sp.className = 'aj-spinner';
-        ov.appendChild(sp);
-        const p = document.createElement('p');
-        p.textContent = texto || 'Cargando puzzle…';
-        ov.appendChild(p);
-    }
-}
-
-function ocultarOverlay() {
-    const ov = $overlay();
-    if (ov) ov.hidden = true;
-}
-
-// ============================================================
-//  FETCH CON PROXY
-// ============================================================
-async function fetchConProxy(url) {
-    let ultimoError = null;
-    for (const construirUrl of PROXIES) {
-        try {
-            const res = await fetch(construirUrl(url), {
-                headers: { 'Accept': 'application/json' }
-            });
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            return await res.json();
-        } catch (e) {
-            ultimoError = e;
-            console.warn('[Ajedrez] Proxy falló:', e.message);
-        }
-    }
-    throw ultimoError || new Error('Ningún proxy funcionó.');
-}
-
-// ============================================================
-//  RECONSTRUCCIÓN ROBUSTA DEL PUZZLE
-//  ------------------------------------------------------------
-//  Lichess a veces devuelve el PGN con header [FEN] y a veces
-//  sin él. También `initialPly` puede referirse a distintas
-//  bases según el puzzle. Probamos varias interpretaciones y
-//  elegimos la que hace legal la primera jugada de la solución.
-// ============================================================
-function generarCandidatosPosicion(data) {
-    const candidatos = [];
-
-    // Extraer historial del PGN
-    let historial = [];
-    try {
-        const tmp = new Chess();
-        tmp.load_pgn(data.game.pgn, { sloppy: true });
-        historial = tmp.history({ verbose: true });
-    } catch (e) {
-        console.error('[Ajedrez] Error parseando PGN:', e);
-        return [];
-    }
-
-    // Extraer FEN header si existe
-    const fenMatch = String(data.game.pgn).match(/\[FEN\s+"([^"]+)"\]/);
-    const fenInicial = fenMatch ? fenMatch[1] : null;
-
-    const initialPly = parseInt(data.puzzle.initialPly, 10) || 0;
-
-    // Helper: construye un juego desde la posición base (FEN o estándar)
-    // y aplica los primeros N movimientos del historial.
-    const construir = (n) => {
-        try {
-            const g = fenInicial ? new Chess(fenInicial) : new Chess();
-            const limite = Math.min(n, historial.length);
-            for (let i = 0; i < limite; i++) {
-                const m = historial[i];
-                g.move({ from: m.from, to: m.to, promotion: m.promotion || 'q' });
-            }
-            return g;
-        } catch (e) {
-            return null;
-        }
-    };
-
-    // --- Candidatos, en orden de más probable a menos ---
-
-    // 1. FEN header + initialPly movimientos (caso típico de Lichess)
-    if (fenInicial) candidatos.push(construir(initialPly));
-
-    // 2. FEN header tal cual
-    if (fenInicial) {
-        try { candidatos.push(new Chess(fenInicial)); } catch (e) {}
-    }
-
-    // 3. Standard start + initialPly movimientos
-    candidatos.push(construir(initialPly));
-
-    // 4. Standard start + initialPly + 1 (off-by-one)
-    candidatos.push(construir(initialPly + 1));
-
-    // 5. Standard start + initialPly - 1 (off-by-one)
-    candidatos.push(construir(initialPly - 1));
-
-    // 6. Todo el PGN aplicado
-    candidatos.push(construir(historial.length));
-
-    return candidatos.filter(Boolean);
-}
-
-function elegirPosicionValida(candidatos, solution) {
-    if (!candidatos.length) return null;
-    if (!solution || !solution.length) return candidatos[0];
-
-    const uci = solution[0];
-    const from = uci.slice(0, 2);
-    const to   = uci.slice(2, 4);
-    const promo = uci.length > 4 ? uci[4] : 'q';
-
-    for (const c of candidatos) {
-        try {
-            const test = new Chess(c.fen());
-            const mov = test.move({ from, to, promotion: promo });
-            if (mov) {
-                console.log('[Ajedrez] Posición reconstruida OK. FEN:', c.fen());
-                return c;
-            }
-        } catch (e) { /* siguiente */ }
-    }
-    return null;
-}
-
-// ============================================================
-//  CARGA DEL PUZZLE
-// ============================================================
-async function cargarPuzzle() {
-    resuelto = false;
-    selectedSquare = null;
-    lastMove = null;
-    esperando = false;
-
-    mostrarOverlay('Cargando puzzle…', false);
-    setStatus('Conectando con Lichess…', 'thinking');
-
-    const btnReload = document.getElementById('ajBtnReload');
-    if (btnReload) btnReload.classList.add('girando');
-
-    try {
-        const data = await fetchConProxy(PUZZLE_URL);
-
-        if (!data || !data.puzzle || !data.game || !data.game.pgn) {
-            throw new Error('Respuesta inválida de Lichess.');
-        }
-
-        puzzleId = data.puzzle.id || null;
-
-        // --- Reconstrucción robusta ---
-        const candidatos = generarCandidatosPosicion(data);
-        const posicion = elegirPosicionValida(candidatos, data.puzzle.solution);
-
-        if (!posicion) {
-            console.error('[Ajedrez] No se pudo reconstruir. Datos:', data);
-            mostrarOverlay('No se pudo reconstruir el puzzle. Reintentá.', true);
-            setStatus('Error al reconstruir', 'err');
-            return;
-        }
-
-        game = posicion;
-        solution      = Array.isArray(data.puzzle.solution) ? data.puzzle.solution.slice() : [];
-        solutionIndex = 0;
-        turnoUsuario  = game.turn();
-
-        // --- Info UI ---
-        const rating = data.puzzle.rating || '—';
-        const ratingTxt = document.getElementById('ajRatingTxt');
-        if (ratingTxt) ratingTxt.textContent = String(rating);
-
-        const themes = (data.puzzle.themes || []).slice(0, 3).map(prettifyTheme);
-        const themesEl = document.getElementById('ajThemes');
-        if (themesEl) themesEl.textContent = themes.length ? themes.join(' · ') : '—';
-
-        const plays = data.puzzle.plays || 0;
-        const playsEl = document.getElementById('ajPlays');
-        if (playsEl) {
-            playsEl.textContent = plays > 0
-                ? plays.toLocaleString('es-CL') + ' intentos'
-                : '—';
-        }
-
-        // --- Render ---
-        ocultarOverlay();
-        renderBoard();
-        ajustarTamanoPiezas();
-
-        const turnoTxt = turnoUsuario === 'w'
-            ? 'Juegan blancas · encuentra la mejor jugada'
-            : 'Juegan negras · encuentra la mejor jugada';
-        setStatus(turnoTxt, null);
-
-    } catch (e) {
-        console.error('[Ajedrez] Error cargando puzzle:', e);
-        mostrarOverlay('No se pudo cargar el puzzle. Revisá tu conexión.', true);
-        setStatus('Error de conexión', 'err');
-    } finally {
-        if (btnReload) btnReload.classList.remove('girando');
+        const restante = COOLDOWN_MS - (Date.now() - ultimaRecompensa);
+        const h = Math.floor(restante / 3600000);
+        const m = Math.floor((restante % 3600000) / 60000);
+        setFooter(`Ya cobrado · +65 en ${h}h ${m}m`, true);
     }
 }
 
@@ -388,20 +169,19 @@ function renderBoard() {
     if (!board || !game) return;
 
     board.innerHTML = '';
-
     const matriz = game.board();
     const files = ['a','b','c','d','e','f','g','h'];
 
-    // Jugadas legales desde la casilla seleccionada (deduplicadas por destino)
+    // Destinos legales de la casilla seleccionada
     const destinosLegales = new Set();
-    if (selectedSquare && !esperando && !resuelto) {
+    if (selectedSquare && !esperandoIA && !partidaTerminada && game.turn() === 'w') {
         try {
-            const moves = game.moves({ square: selectedSquare, verbose: true });
-            moves.forEach(m => destinosLegales.add(m.to));
+            game.moves({ square: selectedSquare, verbose: true })
+                .forEach(m => destinosLegales.add(m.to));
         } catch (e) { /* silencioso */ }
     }
 
-    // Detectar rey en jaque
+    // ¿Rey en jaque?
     let reyEnJaque = null;
     if (game.in_check && game.in_check()) {
         const turno = game.turn();
@@ -432,16 +212,12 @@ function renderBoard() {
             if (lastMove && (lastMove.from === square || lastMove.to === square)) {
                 sq.classList.add('last-move');
             }
-            if (selectedSquare === square) {
-                sq.classList.add('selected');
-            }
+            if (selectedSquare === square) sq.classList.add('selected');
             if (destinosLegales.has(square)) {
                 sq.classList.add('legal');
                 if (pieza) sq.classList.add('legal-capture');
             }
-            if (reyEnJaque === square) {
-                sq.classList.add('check');
-            }
+            if (reyEnJaque === square) sq.classList.add('check');
 
             if (pieza) {
                 const span = document.createElement('span');
@@ -456,9 +232,6 @@ function renderBoard() {
     }
 }
 
-// ============================================================
-//  AJUSTE DE TAMAÑO DE PIEZAS
-// ============================================================
 function ajustarTamanoPiezas() {
     const board = $board();
     if (!board) return;
@@ -472,12 +245,12 @@ function ajustarTamanoPiezas() {
 //  CLICK EN CASILLA
 // ============================================================
 function onSquareClick(square) {
-    if (!game || esperando || resuelto) return;
+    if (!game || esperandoIA || partidaTerminada) return;
+    if (game.turn() !== 'w') return;
 
     const pieza = game.get(square);
-    const turno = game.turn();
 
-    // --- Ya hay selección ---
+    // Ya hay selección
     if (selectedSquare) {
         if (square === selectedSquare) {
             selectedSquare = null;
@@ -492,11 +265,22 @@ function onSquareClick(square) {
         } catch (e) { legal = false; }
 
         if (legal) {
-            intentarJugada(selectedSquare, square);
+            const mov = game.move({ from: selectedSquare, to: square, promotion: 'q' });
+            if (mov) {
+                selectedSquare = null;
+                lastMove = { from: mov.from, to: mov.to };
+                renderBoard();
+                verificarFinPartida();
+                if (!partidaTerminada) {
+                    setStatus('IA pensando…', 'thinking');
+                    esperandoIA = true;
+                    setTimeout(turnoIA, 250);
+                }
+            }
             return;
         }
 
-        if (pieza && pieza.color === turno) {
+        if (pieza && pieza.color === 'w') {
             selectedSquare = square;
         } else {
             selectedSquare = null;
@@ -505,179 +289,256 @@ function onSquareClick(square) {
         return;
     }
 
-    // --- Sin selección ---
-    if (pieza && pieza.color === turno) {
+    // Sin selección
+    if (pieza && pieza.color === 'w') {
         selectedSquare = square;
         renderBoard();
     }
 }
 
 // ============================================================
-//  INTENTO DE JUGADA
+//  IA — Minimax depth N con alpha-beta
 // ============================================================
-function intentarJugada(from, to) {
-    const esperado = solution[solutionIndex];
-    if (!esperado) {
-        setStatus('Puzzle completado', 'ok');
-        return;
-    }
-
-    const esperadoFromTo = esperado.slice(0, 4);
-    const intentoFromTo  = from + to;
-
-    if (intentoFromTo !== esperadoFromTo) {
-        // --- INCORRECTO ---
-        esperando = true;
-        const promotion = esperado.length > 4 ? esperado[4] : 'q';
-
-        let seAplico = false;
-        try {
-            game.move({ from, to, promotion });
-            seAplico = true;
-        } catch (e) { /* no debería pasar */ }
-
-        selectedSquare = null;
-
-        if (seAplico) {
-            const prevLast = lastMove;
-            lastMove = { from, to };
-            renderBoard();
-
-            const board = $board();
-            if (board) {
-                const sqFrom = board.querySelector(`[data-square="${from}"]`);
-                const sqTo   = board.querySelector(`[data-square="${to}"]`);
-                [sqFrom, sqTo].forEach(sq => {
-                    if (sq) {
-                        sq.classList.add('shake');
-                        setTimeout(() => sq.classList.remove('shake'), 320);
-                    }
-                });
+function evaluar(game) {
+    const board = game.board();
+    let puntaje = 0;
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            const p = board[r][c];
+            if (p) {
+                const v = VALOR_PIEZA[p.type] || 0;
+                puntaje += (p.color === 'w' ? v : -v);
             }
-
-            setTimeout(() => {
-                game.undo();
-                lastMove = prevLast;
-                renderBoard();
-                setStatus('Incorrecto. Intenta de nuevo.', 'err');
-                esperando = false;
-
-                setTimeout(() => {
-                    if (!resuelto && game) {
-                        const txt = game.turn() === 'w'
-                            ? 'Jugan blancas · encuentra la mejor jugada'
-                            : 'Juegan negras · encuentra la mejor jugada';
-                        setStatus(txt, null);
-                    }
-                }, 1500);
-            }, 400);
-        } else {
-            esperando = false;
-            setStatus('Incorrecto. Intenta de nuevo.', 'err');
         }
+    }
+    // Devuelve puntaje desde la perspectiva del bando a mover
+    return game.turn() === 'w' ? puntaje : -puntaje;
+}
+
+function ordenarMovimientos(movs) {
+    // Capturas primero (heurística básica)
+    return movs.slice().sort((a, b) => {
+        const ca = a.captured ? VALOR_PIEZA[a.captured] : 0;
+        const cb = b.captured ? VALOR_PIEZA[b.captured] : 0;
+        return cb - ca;
+    });
+}
+
+function minimax(game, profundidad, alpha, beta) {
+    if (profundidad === 0 || game.game_over()) {
+        if (game.in_checkmate()) {
+            // Mate: valor enorme, ajustado por profundidad para preferir mates rápidos
+            return game.turn() === 'w' ? -1e6 - profundidad : 1e6 + profundidad;
+        }
+        return evaluar(game);
+    }
+
+    const movs = ordenarMovimientos(game.moves({ verbose: true }));
+    let mejor = -Infinity;
+
+    for (const m of movs) {
+        game.move(m);
+        const puntaje = -minimax(game, profundidad - 1, -beta, -alpha);
+        game.undo();
+        if (puntaje > mejor) mejor = puntaje;
+        if (puntaje > alpha) alpha = puntaje;
+        if (alpha >= beta) break;
+    }
+    return mejor;
+}
+
+function elegirMovimientoIA() {
+    const movs = ordenarMovimientos(game.moves({ verbose: true }));
+    if (movs.length === 0) return null;
+
+    let mejor = movs[0];
+    let mejorPuntaje = -Infinity;
+
+    for (const m of movs) {
+        game.move(m);
+        const puntaje = -minimax(game, PROFUNDIDAD_IA - 1, -Infinity, Infinity);
+        game.undo();
+        if (puntaje > mejorPuntaje) {
+            mejorPuntaje = puntaje;
+            mejor = m;
+        }
+    }
+    return mejor;
+}
+
+function turnoIA() {
+    if (!game || partidaTerminada) return;
+    if (game.turn() !== 'b') return;
+
+    const mov = elegirMovimientoIA();
+    if (!mov) {
+        esperandoIA = false;
+        verificarFinPartida();
         return;
     }
 
-    // --- CORRECTO ---
-    const promotion = esperado.length > 4 ? esperado[4] : 'q';
-    try {
-        game.move({ from, to, promotion });
-    } catch (e) {
-        console.error('[Ajedrez] Error aplicando jugada correcta:', e);
-        return;
-    }
-
-    solutionIndex++;
-    selectedSquare = null;
-    lastMove = { from, to };
+    game.move(mov);
+    lastMove = { from: mov.from, to: mov.to };
+    esperandoIA = false;
     renderBoard();
+    verificarFinPartida();
 
-    if (solutionIndex >= solution.length) {
-        marcarResuelto();
-        return;
+    if (!partidaTerminada) {
+        setStatus('Tu turno', null);
     }
-
-    // --- El oponente responde ---
-    setStatus('¡Correcto!', 'ok');
-    esperando = true;
-
-    setTimeout(() => {
-        const uciOpp = solution[solutionIndex];
-        if (!uciOpp) {
-            esperando = false;
-            marcarResuelto();
-            return;
-        }
-
-        const movOpp = uciAMovimiento(uciOpp);
-        try {
-            game.move({
-                from: movOpp.from,
-                to: movOpp.to,
-                promotion: movOpp.promotion
-            });
-        } catch (e) {
-            console.error('[Ajedrez] Error aplicando jugada del oponente:', e);
-        }
-
-        solutionIndex++;
-        lastMove = { from: movOpp.from, to: movOpp.to };
-        esperando = false;
-        renderBoard();
-
-        if (solutionIndex >= solution.length) {
-            marcarResuelto();
-        } else {
-            const txt = game.turn() === 'w'
-                ? 'Juegan blancas · sigue la secuencia'
-                : 'Juegan negras · sigue la secuencia';
-            setStatus(txt, null);
-        }
-    }, 650);
 }
 
 // ============================================================
-//  RESUELTO
+//  FIN DE PARTIDA
 // ============================================================
-function marcarResuelto() {
-    resuelto = true;
-    esperando = false;
-    setStatus('¡Resuelto! Buen ojo.', 'ok');
+async function verificarFinPartida() {
+    if (!game || partidaTerminada) return;
 
-    const board = $board();
-    if (board) {
-        board.querySelectorAll('.aj-square').forEach((sq, i) => {
-            setTimeout(() => {
-                sq.classList.add('resuelto');
-                setTimeout(() => sq.classList.remove('resuelto'), 650);
-            }, i * 6);
-        });
+    if (game.in_checkmate()) {
+        // ¿Quién ganó? El bando a mover está en mate → pierde
+        const ganoBlancas = game.turn() === 'b';
+        partidaTerminada = true;
+        if (ganoBlancas) {
+            await manejarVictoria();
+        } else {
+            await manejarDerrota();
+        }
+        return;
     }
+
+    if (game.in_stalemate() || game.in_threefold_repetition() ||
+        game.insufficient_material() || game.in_draw()) {
+        partidaTerminada = true;
+        manejarEmpate();
+    }
+}
+
+async function manejarVictoria() {
+    const puede = usuarioActual && puedeCobrar();
+
+    if (puede) {
+        victoriasTotales++;
+        ultimaRecompensa = Date.now();
+        await guardarEstado();
+
+        const api = API();
+        if (api && typeof api.canjear === 'function') {
+            try {
+                await api.canjear('crown', 'ajedrez', 'Victoria vs IA', RECOMPENSA);
+            } catch (e) {
+                console.warn('[Ajedrez] No se pudo acreditar la recompensa:', e);
+            }
+        }
+
+        mostrarOverlay(
+            '¡Ganaste!',
+            `+${RECOMPENSA} monedas acreditadas`,
+            'ok'
+        );
+        setStatus('¡Victoria!', 'ok');
+    } else {
+        mostrarOverlay(
+            '¡Ganaste!',
+            'Ya cobraste la recompensa de hoy. Volvé mañana.',
+            'ok'
+        );
+        setStatus('¡Victoria!', 'ok');
+    }
+
+    actualizarFooter();
+}
+
+async function manejarDerrota() {
+    mostrarOverlay(
+        'Perdiste',
+        'La IA te ganó. Intentá de nuevo.',
+        'err'
+    );
+    setStatus('Derrota', 'err');
+}
+
+function manejarEmpate() {
+    mostrarOverlay(
+        'Empate',
+        'Tablas. Nadie cobra.',
+        'empate'
+    );
+    setStatus('Empate', null);
+}
+
+function mostrarOverlay(titulo, subtitulo, tipo) {
+    const ov = $overlay();
+    if (!ov) return;
+    ov.hidden = false;
+    ov.innerHTML = `
+        <div class="aj-overlay-titulo ${tipo}">${titulo}</div>
+        <div class="aj-overlay-sub">${subtitulo}</div>
+        <button class="aj-overlay-btn" id="ajOverlayBtn">
+            <i data-lucide="rotate-ccw"></i>
+            Nueva partida
+        </button>
+    `;
+    if (window.lucide) window.lucide.createIcons();
+    document.getElementById('ajOverlayBtn')?.addEventListener('click', nuevaPartida);
+}
+
+function ocultarOverlay() {
+    const ov = $overlay();
+    if (ov) ov.hidden = true;
+}
+
+// ============================================================
+//  NUEVA PARTIDA
+// ============================================================
+function nuevaPartida() {
+    game = new Chess();
+    selectedSquare = null;
+    lastMove = null;
+    esperandoIA = false;
+    partidaTerminada = false;
+
+    ocultarOverlay();
+    renderBoard();
+    ajustarTamanoPiezas();
+    setStatus('Tu turno', null);
+    actualizarFooter();
 }
 
 // ============================================================
 //  INIT
 // ============================================================
-function inicializarEventos() {
-    document.getElementById('ajBtnReload')?.addEventListener('click', () => {
-        if (esperando) return;
-        cargarPuzzle();
+async function inicializar() {
+    aplicarTemaDelPadre();
+
+    try {
+        const api = API();
+        usuarioActual = api && typeof api.obtenerCuenta === 'function'
+            ? api.obtenerCuenta()
+            : null;
+    } catch (e) { usuarioActual = null; }
+
+    if (usuarioActual) {
+        await cargarEstado();
+    }
+
+    nuevaPartida();
+
+    document.getElementById('ajBtnReset')?.addEventListener('click', () => {
+        if (esperandoIA) return;
+        nuevaPartida();
     });
 
+    // Reajustar piezas al cambiar tamaño
     window.addEventListener('resize', ajustarTamanoPiezas);
-
     if (window.ResizeObserver) {
-        const ro = new ResizeObserver(() => ajustarTamanoPiezas());
+        const ro = new ResizeObserver(ajustarTamanoPiezas);
         const b = $board();
         if (b) ro.observe(b);
     }
-}
 
-function inicializar() {
-    aplicarTemaDelPadre();
-    inicializarEventos();
-    ajustarTamanoPiezas();
-    cargarPuzzle();
+    // Actualizar footer cada minuto (para el contador de cooldown)
+    setInterval(actualizarFooter, 60000);
+
     if (window.lucide) window.lucide.createIcons();
 }
 
