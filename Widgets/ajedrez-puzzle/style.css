@@ -1,0 +1,397 @@
+/* ================================================
+   Widget: Ajedrez Puzzle
+   Puzzle diario de Lichess.
+   Tablero 8x8 con drag-free (click + click).
+   ================================================ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: transparent;
+    color: var(--text, #18181B);
+    font-size: 13px;
+    overflow: hidden;
+}
+
+[data-lucide] { width: 16px; height: 16px; stroke-width: 2; flex-shrink: 0; }
+
+/* ========== WIDGET ========== */
+.aj-widget {
+    background: var(--white, #FFFFFF);
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: var(--r-lg, 16px);
+    padding: 12px 12px 10px;
+    box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow: hidden;
+    transition: background 0.3s, color 0.3s, border-color 0.3s;
+}
+
+/* ========== HEADER ========== */
+.aj-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--gray-100, #F4F4F7);
+    flex-shrink: 0;
+    min-height: 28px;
+}
+
+.aj-titulo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-500, #71717A);
+}
+.aj-titulo [data-lucide] {
+    color: var(--violet-500, #8B5CF6);
+    width: 14px;
+    height: 14px;
+}
+
+.aj-btn-icon {
+    background: none;
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: 7px;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--gray-500, #71717A);
+    transition: all 0.15s;
+    padding: 0;
+    flex-shrink: 0;
+}
+.aj-btn-icon:hover {
+    background: var(--violet-50, #F5F3FF);
+    border-color: var(--violet-300, #C4B5FD);
+    color: var(--violet-600, #7C3AED);
+}
+.aj-btn-icon:active { transform: scale(0.94); }
+.aj-btn-icon [data-lucide] { width: 13px; height: 13px; }
+.aj-btn-icon.girando [data-lucide] { animation: ajSpin 0.9s linear infinite; }
+@keyframes ajSpin { to { transform: rotate(360deg); } }
+
+/* ========== INFO ========== */
+.aj-info {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+    min-height: 20px;
+    overflow: hidden;
+}
+
+.aj-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 7px;
+    border-radius: 6px;
+    background: var(--violet-50, #F5F3FF);
+    color: var(--violet-700, #6D28D9);
+    border: 1px solid var(--violet-200, #DDD6FE);
+    white-space: nowrap;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.aj-badge [data-lucide] { width: 10px; height: 10px; stroke-width: 2.5; }
+
+.aj-badge-themes {
+    background: var(--gray-100, #F4F4F7);
+    color: var(--gray-600, #52525B);
+    border-color: var(--gray-200, #E8E8EE);
+    font-weight: 700;
+    text-transform: capitalize;
+    flex: 1;
+    min-width: 0;
+    display: block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+/* ========== TABLERO ========== */
+.aj-board-wrap {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 0;
+}
+
+.aj-board {
+    --piece-size: 22px;
+    aspect-ratio: 1 / 1;
+    height: 100%;
+    max-width: 100%;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow:
+        0 0 0 1px var(--border, #E8E8EE),
+        0 6px 18px rgba(0,0,0,0.12);
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    background: #B58863; /* fallback */
+}
+
+/* Casillas */
+.aj-square {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.12s;
+}
+.aj-square.light { background: #F0D9B5; }
+.aj-square.dark  { background: #B58863; }
+
+.aj-square[data-hover="1"] { filter: brightness(1.08); }
+
+/* Última jugada */
+.aj-square.last-move { background: #F7EC74 !important; }
+.aj-square.last-move.dark { background: #BACA44 !important; }
+
+/* Selección */
+.aj-square.selected {
+    background: #829769 !important;
+}
+
+/* Jugadas legales */
+.aj-square.legal::after {
+    content: '';
+    position: absolute;
+    width: 28%;
+    height: 28%;
+    border-radius: 50%;
+    background: rgba(20, 85, 30, 0.28);
+    pointer-events: none;
+    animation: ajLegalPop 0.18s ease;
+}
+.aj-square.legal.legal-capture::after {
+    width: 84%;
+    height: 84%;
+    background: radial-gradient(circle, transparent 55%, rgba(20, 85, 30, 0.28) 56%);
+    border-radius: 0;
+}
+@keyframes ajLegalPop {
+    from { transform: scale(0.5); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+}
+
+/* Pieza */
+.aj-piece {
+    font-size: var(--piece-size);
+    line-height: 1;
+    font-weight: 400;
+    pointer-events: none;
+    position: relative;
+    z-index: 2;
+    transition: transform 0.08s;
+    will-change: transform;
+}
+.aj-piece.w {
+    color: #FFFFFF;
+    text-shadow:
+        0 0 1px #222, 0 1px 0 #222, 1px 0 0 #222,
+        0 -1px 0 #222, -1px 0 0 #222,
+        1px 1px 0 #222, -1px -1px 0 #222,
+        1px -1px 0 #222, -1px 1px 0 #222;
+}
+.aj-piece.b {
+    color: #1A1A1A;
+    text-shadow: 0 0 1px rgba(255,255,255,0.25);
+}
+
+/* Animaciones de estado */
+.aj-square.shake {
+    animation: ajShake 0.32s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+@keyframes ajShake {
+    10%, 90% { transform: translateX(-1px); }
+    20%, 80% { transform: translateX(2px); }
+    30%, 50%, 70% { transform: translateX(-3px); }
+    40%, 60% { transform: translateX(3px); }
+}
+
+.aj-square.check {
+    background: radial-gradient(circle, rgba(239,68,68,0.7) 15%, transparent 70%) !important;
+}
+
+.aj-square.resuelto {
+    animation: ajPulse 0.6s ease;
+}
+@keyframes ajPulse {
+    0%, 100% { box-shadow: inset 0 0 0 0 rgba(16,185,129,0); }
+    50%      { box-shadow: inset 0 0 0 3px rgba(16,185,129,0.6); }
+}
+
+/* ========== OVERLAY (loading / error) ========== */
+.aj-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: var(--gray-50, #FAFAFB);
+    border-radius: 6px;
+    color: var(--gray-500, #71717A);
+    font-size: 11.5px;
+    font-weight: 700;
+    z-index: 10;
+    animation: ajFade 0.2s ease;
+    padding: 20px;
+    text-align: center;
+}
+.aj-overlay[hidden] { display: none; }
+
+@keyframes ajFade { from { opacity: 0; } to { opacity: 1; } }
+
+.aj-spinner {
+    width: 26px;
+    height: 26px;
+    border: 3px solid var(--gray-200, #E8E8EE);
+    border-top-color: var(--violet-500, #8B5CF6);
+    border-radius: 50%;
+    animation: ajSpin 0.85s linear infinite;
+}
+
+.aj-overlay.error .aj-spinner { display: none; }
+.aj-overlay.error::before {
+    content: '';
+    display: block;
+    width: 32px;
+    height: 32px;
+    background: #FEE2E2;
+    border-radius: 50%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23991B1B' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='12' y1='8' x2='12' y2='12'/%3E%3Cline x1='12' y1='16' x2='12.01' y2='16'/%3E%3C/svg%3E");
+    background-size: 18px 18px;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.aj-btn-retry {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 8px;
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: white;
+    font-family: inherit;
+    font-size: 11.5px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 3px 10px var(--accent-shadow, rgba(139,92,246,0.28));
+    transition: all 0.15s;
+    margin-top: 4px;
+}
+.aj-btn-retry:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 14px var(--accent-shadow-hover, rgba(139,92,246,0.38));
+}
+.aj-btn-retry [data-lucide] { width: 12px; height: 12px; }
+
+/* ========== STATUS ========== */
+.aj-status {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 10px;
+    background: var(--gray-50, #FAFAFB);
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: 8px;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    min-height: 30px;
+}
+
+.aj-status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--violet-500, #8B5CF6);
+    flex-shrink: 0;
+    transition: background 0.2s;
+    box-shadow: 0 0 0 3px var(--violet-100, #EDE9FE);
+}
+
+.aj-status-txt {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--gray-700, #3F3F46);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.aj-status.ok {
+    background: #ECFDF5;
+    border-color: #A7F3D0;
+}
+.aj-status.ok .aj-status-dot {
+    background: #10B981;
+    box-shadow: 0 0 0 3px #D1FAE5;
+}
+.aj-status.ok .aj-status-txt { color: #065F46; }
+
+.aj-status.err {
+    background: #FEF2F2;
+    border-color: #FECACA;
+}
+.aj-status.err .aj-status-dot {
+    background: #EF4444;
+    box-shadow: 0 0 0 3px #FEE2E2;
+}
+.aj-status.err .aj-status-txt { color: #991B1B; }
+
+.aj-status.thinking .aj-status-dot {
+    animation: ajPulseDot 0.8s ease-in-out infinite;
+}
+@keyframes ajPulseDot {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.35; }
+}
+
+/* ========== FOOTER ========== */
+.aj-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    flex-shrink: 0;
+    padding-top: 4px;
+    border-top: 1px solid var(--gray-100, #F4F4F7);
+    font-size: 9.5px;
+    font-weight: 700;
+    color: var(--gray-400, #A1A1AD);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.aj-footer-info { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.aj-footer-src { color: var(--violet-500, #8B5CF6); flex-shrink: 0; }
