@@ -12,8 +12,9 @@
 </head>
 <body>
 
-    <!-- VISTA CÁMARA -->
-    <div class="cam-app" id="camApp">
+    <div class="cam-container">
+
+        <!-- HEADER -->
         <header class="cam-header">
             <div class="cam-logo">
                 <div class="cam-logo-mark"><i data-lucide="camera"></i></div>
@@ -27,37 +28,46 @@
             </button>
         </header>
 
-        <div class="cam-viewfinder" id="camViewfinder">
-            <video id="camVideo" autoplay playsinline muted></video>
+        <!-- CUERPO: viewfinder + panel -->
+        <div class="cam-body">
 
-            <div class="cam-grid-overlay" id="camGridOverlay" hidden></div>
-            <div class="cam-frame-overlay" id="camFrameOverlay" hidden></div>
-            <div class="cam-vignette-live" id="camVignetteLive" hidden></div>
+            <!-- VIEWFINDER (único punto oscuro, porque es la cámara) -->
+            <div class="cam-viewfinder" id="camViewfinder">
+                <video id="camVideo" autoplay playsinline muted></video>
 
-            <div class="cam-timer-display" id="camTimerDisplay" hidden>3</div>
+                <div class="cam-grid-overlay" id="camGridOverlay" hidden></div>
+                <div class="cam-frame-overlay" id="camFrameOverlay" hidden></div>
+                <div class="cam-vignette-live" id="camVignetteLive" hidden></div>
 
-            <div class="cam-mensaje" id="camMensaje" hidden></div>
-        </div>
+                <div class="cam-timer-display" id="camTimerDisplay" hidden>3</div>
 
-        <nav class="cam-tabs">
-            <button class="cam-tab active" data-tab="filtros">
-                <i data-lucide="palette"></i>
-                <span>Filtros</span>
-            </button>
-            <button class="cam-tab" data-tab="marcos">
-                <i data-lucide="square"></i>
-                <span>Marcos</span>
-            </button>
-            <button class="cam-tab" data-tab="funciones">
-                <i data-lucide="settings-2"></i>
-                <span>Funciones</span>
-            </button>
-        </nav>
+                <div class="cam-mensaje" id="camMensaje" hidden></div>
+            </div>
 
-        <div class="cam-options" id="camOptions"></div>
+            <!-- PANEL DE CONTROLES -->
+            <aside class="cam-panel">
+                <nav class="cam-tabs">
+                    <button class="cam-tab active" data-tab="filtros">
+                        <i data-lucide="palette"></i>
+                        <span>Filtros</span>
+                    </button>
+                    <button class="cam-tab" data-tab="marcos">
+                        <i data-lucide="square"></i>
+                        <span>Marcos</span>
+                    </button>
+                    <button class="cam-tab" data-tab="funciones">
+                        <i data-lucide="settings-2"></i>
+                        <span>Funciones</span>
+                    </button>
+                </nav>
 
-        <div class="cam-shutter-bar">
-            <button class="cam-shutter" id="camShutterBtn" title="Capturar (Espacio)"></button>
+                <div class="cam-options" id="camOptions"></div>
+
+                <div class="cam-shutter-bar">
+                    <button class="cam-shutter" id="camShutterBtn" title="Capturar (Espacio)"></button>
+                </div>
+            </aside>
+
         </div>
     </div>
 
@@ -65,7 +75,7 @@
     <div class="cam-preview-view" id="camPreviewView" hidden>
         <header class="cam-preview-header">
             <button class="cam-icon-btn" id="camPreviewVolver" title="Volver">
-                <i data-lucide="x"></i>
+                <i data-lucide="arrow-left"></i>
             </button>
             <h2>Vista previa</h2>
             <div class="cam-header-spacer"></div>
