@@ -1,1 +1,540 @@
+/* ================================================
+   Voleboy — Pong vertical con spin
+   Todo heredado del tema. Sin colores de marca.
+   ================================================ */
 
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+[hidden] { display: none !important; }
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg, #FBFBFD);
+    color: var(--text, #18181B);
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+    color-scheme: light dark;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+[data-lucide] { width: 18px; height: 18px; stroke-width: 2; flex-shrink: 0; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb {
+    background: var(--gray-200, #E8E8EE);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+.vb-app {
+    height: 100dvh;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 14px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: hidden;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.vb-header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.vb-logo { display: flex; align-items: center; gap: 11px; min-width: 0; }
+.vb-logo-mark {
+    width: 38px;
+    height: 38px;
+    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 6px 16px var(--accent-shadow, rgba(139,92,246,0.28));
+    flex-shrink: 0;
+}
+.vb-logo-mark [data-lucide] { width: 19px; height: 19px; stroke-width: 2.5; }
+.vb-logo-text { min-width: 0; }
+.vb-logo-text h1 {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: var(--accent-text-gradient, linear-gradient(135deg, #18181B, #7C3AED));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.15;
+}
+.vb-logo-text p {
+    font-size: 11px;
+    color: var(--gray-500, #71717A);
+    font-weight: 600;
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ============================================================
+   MENÚ
+   ============================================================ */
+.vb-menu {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px;
+    overflow-y: auto;
+    text-align: center;
+    animation: vbFadeIn 0.25s ease;
+}
+@keyframes vbFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.vb-menu-icon {
+    width: 72px;
+    height: 72px;
+    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 12px 28px var(--accent-shadow, rgba(139,92,246,0.28));
+    margin-bottom: 8px;
+}
+.vb-menu-icon [data-lucide] { width: 36px; height: 36px; stroke-width: 2; }
+
+.vb-menu h2 {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--gray-900, #18181B);
+    margin: 0;
+}
+.vb-menu > p {
+    font-size: 13px;
+    color: var(--gray-500, #71717A);
+    line-height: 1.55;
+    max-width: 340px;
+    margin: 0 0 8px;
+}
+
+.vb-sep {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 300px;
+    color: var(--gray-400, #A1A1AD);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 6px 0;
+}
+.vb-sep::before,
+.vb-sep::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border, #E8E8EE);
+}
+
+.vb-field {
+    width: 100%;
+    max-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    text-align: left;
+}
+.vb-field label {
+    font-size: 10.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-500, #71717A);
+}
+.vb-field input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--gray-900, #18181B);
+    background: var(--white, #FFFFFF);
+    text-align: center;
+    letter-spacing: 2px;
+    outline: none;
+    transition: all 0.15s;
+}
+.vb-field input:focus {
+    border-color: var(--violet-400, #A78BFA);
+    box-shadow: 0 0 0 3px var(--shadow-glow, rgba(139,92,246,0.10));
+}
+
+.vb-roles {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    max-width: 300px;
+    margin-top: 4px;
+}
+.vb-rol {
+    flex: 1;
+    cursor: pointer;
+    position: relative;
+}
+.vb-rol input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+.vb-rol > span {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 8px;
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 12px;
+    background: var(--gray-50, #FAFAFB);
+    transition: all 0.15s;
+}
+.vb-rol > span > i {
+    color: var(--violet-500, #8B5CF6);
+    width: 18px;
+    height: 18px;
+}
+.vb-rol strong {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--gray-900, #18181B);
+}
+.vb-rol small {
+    font-size: 10px;
+    color: var(--gray-500, #71717A);
+    font-weight: 600;
+}
+.vb-rol input:checked + span {
+    border-color: var(--violet-400, #A78BFA);
+    background: var(--violet-50, #F5F3FF);
+    box-shadow: 0 0 0 3px var(--shadow-glow, rgba(139,92,246,0.10));
+}
+
+.vb-info {
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 10px;
+    max-width: 320px;
+    min-height: 0;
+}
+.vb-info:empty { display: none; }
+.vb-info.info    { background: var(--violet-50, #F5F3FF); color: var(--violet-700, #6D28D9); border: 1px solid var(--violet-200, #DDD6FE); }
+.vb-info.success { background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
+.vb-info.error   { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
+
+/* ============================================================
+   BOTONES
+   ============================================================ */
+.vb-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.15s;
+    width: 100%;
+    max-width: 300px;
+    touch-action: manipulation;
+}
+.vb-btn [data-lucide] { width: 16px; height: 16px; }
+
+.vb-btn-primario {
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: white;
+    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
+}
+.vb-btn-primario:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px var(--accent-shadow-hover, rgba(139,92,246,0.38));
+}
+.vb-btn-secundario {
+    background: var(--white, #FFFFFF);
+    color: var(--gray-700, #3F3F46);
+    border: 1.5px solid var(--border, #E8E8EE);
+}
+.vb-btn-secundario:hover {
+    border-color: var(--violet-400, #A78BFA);
+    color: var(--violet-700, #6D28D9);
+    background: var(--violet-50, #F5F3FF);
+}
+
+/* ============================================================
+   HUD
+   ============================================================ */
+.vb-hud {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 4px;
+}
+.vb-hud-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--white, #FFFFFF);
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gray-700, #3F3F46);
+}
+.vb-hud-item [data-lucide] {
+    width: 13px;
+    height: 13px;
+    color: var(--violet-500, #8B5CF6);
+}
+.vb-hud-label {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 9.5px;
+    color: var(--gray-500, #71717A);
+    font-weight: 800;
+}
+.vb-hud-valor {
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+    color: var(--gray-900, #18181B);
+    font-size: 13px;
+}
+.vb-hud-valor em {
+    font-style: normal;
+    font-size: 10px;
+    color: var(--gray-500, #71717A);
+    margin-left: 1px;
+}
+.vb-hud-coins .vb-hud-valor { color: var(--violet-700, #6D28D9); }
+
+/* ============================================================
+   CANVAS
+   ============================================================ */
+.vb-canvas-wrap {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+#vbCanvas {
+    display: block;
+    height: 100%;
+    width: auto;
+    max-width: 100%;
+    aspect-ratio: 400 / 600;
+    border-radius: 20px;
+    background: #18181B;
+    touch-action: none;
+    cursor: none;
+    box-shadow:
+        0 16px 40px rgba(0, 0, 0, 0.25),
+        0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+/* ============================================================
+   OVERLAY FIN
+   ============================================================ */
+.vb-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(24, 24, 27, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 100;
+    animation: vbFadeIn 0.22s ease;
+}
+.vb-overlay[hidden] { display: none; }
+
+.vb-overlay-card {
+    background: var(--white, #FFFFFF);
+    border-radius: 22px;
+    padding: 26px 26px 22px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.35);
+    animation: vbZoom 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+@keyframes vbZoom {
+    from { opacity: 0; transform: scale(0.94) translateY(8px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.vb-overlay-icono {
+    width: 60px;
+    height: 60px;
+    border-radius: 17px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin: 0 auto 4px;
+}
+.vb-overlay-icono [data-lucide] { width: 28px; height: 28px; stroke-width: 2.25; }
+
+.vb-overlay-icono-ganaste {
+    background: linear-gradient(135deg, #10B981, #059669);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+}
+.vb-overlay-icono-perdiste {
+    background: linear-gradient(135deg, #EF4444, #B91C1C);
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+}
+
+.vb-overlay-card h2 {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--gray-900, #18181B);
+    margin: 0;
+}
+.vb-overlay-card > p {
+    font-size: 13px;
+    color: var(--gray-500, #71717A);
+    margin: 0 0 6px;
+}
+
+.vb-resumen {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    background: var(--gray-50, #FAFAFB);
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    text-align: left;
+}
+.vb-resumen-fila {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 13px;
+}
+.vb-resumen-label {
+    color: var(--gray-600, #52525B);
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.vb-resumen-label [data-lucide] { width: 14px; height: 14px; }
+.vb-resumen-valor {
+    color: var(--gray-900, #18181B);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    font-size: 15px;
+}
+.vb-resumen-destacada {
+    padding-top: 9px;
+    border-top: 1px solid var(--border, #E8E8EE);
+}
+.vb-resumen-monedas {
+    font-size: 20px;
+    color: var(--violet-700, #6D28D9);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+.vb-toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--gray-900, #18181B);
+    color: white;
+    padding: 11px 22px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: 200;
+    max-width: calc(100% - 40px);
+    white-space: nowrap;
+}
+.vb-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.vb-toast.success { background: #065F46; }
+.vb-toast.error   { background: #991B1B; }
+.vb-toast.info    { background: var(--violet-700, #6D28D9); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 640px) {
+    .vb-app { padding: 12px 12px 14px; gap: 8px; }
+    .vb-logo-mark { width: 34px; height: 34px; }
+    .vb-logo-mark [data-lucide] { width: 17px; height: 17px; }
+    .vb-logo-text h1 { font-size: 16px; }
+    .vb-logo-text p { font-size: 10.5px; }
+
+    .vb-menu-icon { width: 60px; height: 60px; border-radius: 17px; }
+    .vb-menu-icon [data-lucide] { width: 30px; height: 30px; }
+    .vb-menu h2 { font-size: 19px; }
+    .vb-menu > p { font-size: 12.5px; }
+
+    .vb-overlay { padding: 14px; }
+    .vb-overlay-card { padding: 22px 20px; border-radius: 18px; }
+    .vb-overlay-card h2 { font-size: 19px; }
+    .vb-overlay-icono { width: 52px; height: 52px; border-radius: 15px; }
+    .vb-overlay-icono [data-lucide] { width: 25px; height: 25px; }
+
+    .vb-resumen { padding: 12px 14px; gap: 7px; }
+    .vb-resumen-fila { font-size: 12.5px; }
+    .vb-resumen-monedas { font-size: 18px; }
+}
+
+@media (max-width: 400px) {
+    .vb-logo-text p { display: none; }
+    .vb-hud-label { display: none; }
+}
