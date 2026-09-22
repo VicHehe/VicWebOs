@@ -219,18 +219,6 @@ const PAQUETES_PROMO = [
             { tipo: 'tema', id: 'chiptune' }
         ]
     },
-    {
-        id: 'pack_geek',
-        nombre: 'Pack Geek',
-        icono: 'terminal',
-        descripcion: 'Para devs y curiosos. Hacker, GitHub Lover y atajos directos.',
-        precio: 110,
-        items: [
-            { tipo: 'tema',   id: 'hacker' },
-            { tipo: 'tema',   id: 'github-lover' },
-            { tipo: 'widget', id: 'acceso-directo' }
-        ]
-    },
 
     // ============================================================
     //  JUEGOS
@@ -363,20 +351,7 @@ const PAQUETES_PROMO = [
             { tipo: 'tema', id: 'salon' },
             { tipo: 'tema', id: 'ventanas' }
         ]
-    },
-    {
-        id: 'pack_fiesta',
-        nombre: 'Pack Fiesta',
-        icono: 'sparkles',
-        descripcion: 'Friend, Pop Owner y Ruleta. Para cuando hay que brillar.',
-        precio: 100,
-        items: [
-            { tipo: 'tema',   id: 'friend' },
-            { tipo: 'tema',   id: 'pop-owner' },
-            { tipo: 'widget', id: 'ruleta' }
-        ]
     }
-
 ];
 
     // ========================================================
