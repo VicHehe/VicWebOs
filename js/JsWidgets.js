@@ -117,6 +117,17 @@ const WIDGETS_DISPONIBLES = [
         monedas: 60
     },
     {
+    id: 'reloj',
+    nombre: 'Reloj',
+    icono: 'timer',
+    ruta: 'Widgets/reloj/index.html',
+    descripcion: 'Cronómetro con vueltas y temporizador con presets. Simple, rápido, sin guardar nada.',
+    categoria: 'Utilidades',
+    esBase: false,
+    espacio: 2,
+    monedas: 80
+},
+    {
         id: 'to-do-list',
         nombre: 'To-Do List',
         icono: 'list-todo',
