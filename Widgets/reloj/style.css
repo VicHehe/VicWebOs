@@ -1,0 +1,318 @@
+/* ================================================
+   Widget: Reloj (Cronómetro y Temporizador)
+   Hereda el tema del padre. No persiste nada.
+   ================================================ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: transparent;
+    color: var(--text, #18181B);
+    font-size: 13px;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+[data-lucide] { width: 16px; height: 16px; stroke-width: 2; flex-shrink: 0; }
+
+/* ========== WIDGET ========== */
+.rl-widget {
+    background: var(--white, #FFFFFF);
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: var(--r-lg, 16px);
+    padding: 10px 12px;
+    box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow: hidden;
+    transition: background 0.3s, color 0.3s, border-color 0.3s;
+}
+
+/* ========== HEADER ========== */
+.rl-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--gray-100, #F4F4F7);
+    flex-shrink: 0;
+}
+
+.rl-titulo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-500, #71717A);
+    line-height: 1;
+}
+.rl-titulo [data-lucide] {
+    color: var(--violet-500, #8B5CF6);
+    width: 13px;
+    height: 13px;
+}
+
+/* ========== TABS DE MODO ========== */
+.rl-tabs {
+    display: flex;
+    gap: 3px;
+    background: var(--gray-100, #F4F4F7);
+    padding: 3px;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.rl-tab {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 6px 8px;
+    border: none;
+    background: transparent;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gray-600, #52525B);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.rl-tab:hover { color: var(--gray-900, #18181B); }
+.rl-tab.active {
+    background: var(--white, #FFFFFF);
+    color: var(--violet-700, #6D28D9);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.rl-tab [data-lucide] { width: 12px; height: 12px; }
+
+/* ========== CONTENIDO ========== */
+.rl-contenido {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.rl-modo {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    min-height: 0;
+}
+.rl-modo.active { display: flex; }
+
+/* ========== DISPLAY ========== */
+.rl-display {
+    font-size: 34px;
+    font-weight: 900;
+    color: var(--gray-900, #18181B);
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    padding: 4px 0;
+    transition: color 0.2s;
+    flex-shrink: 0;
+}
+.rl-modo.corriendo .rl-display { color: var(--violet-600, #7C3AED); }
+.rl-display.rl-alerta {
+    color: #EF4444 !important;
+    animation: rlPulsoAlerta 0.6s ease-in-out infinite alternate;
+}
+@keyframes rlPulsoAlerta {
+    from { opacity: 1; transform: scale(1); }
+    to   { opacity: 0.6; transform: scale(1.03); }
+}
+
+/* ========== BARRA DE PROGRESO (temporizador) ========== */
+.rl-progress {
+    width: 100%;
+    height: 5px;
+    background: var(--gray-100, #F4F4F7);
+    border-radius: 999px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.rl-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--violet-400, #A78BFA), var(--violet-600, #7C3AED));
+    border-radius: 999px;
+    transition: width 0.3s linear, background 0.3s;
+}
+.rl-progress-fill.alerta {
+    background: linear-gradient(90deg, #F59E0B, #DC2626);
+}
+
+/* ========== BOTONES ========== */
+.rl-botones {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.rl-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border, #E8E8EE);
+    background: var(--white, #FFFFFF);
+    color: var(--gray-700, #3F3F46);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    touch-action: manipulation;
+}
+.rl-btn:hover:not(:disabled) {
+    border-color: var(--violet-400, #A78BFA);
+    background: var(--violet-50, #F5F3FF);
+    color: var(--violet-600, #7C3AED);
+}
+.rl-btn:active:not(:disabled) { transform: scale(0.94); }
+.rl-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+.rl-btn [data-lucide] { width: 16px; height: 16px; stroke-width: 2.25; }
+
+.rl-btn-primario {
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 10px var(--accent-shadow, rgba(139,92,246,0.28));
+    width: 48px;
+    height: 48px;
+}
+.rl-btn-primario [data-lucide] { width: 20px; height: 20px; }
+.rl-btn-primario:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px var(--accent-shadow-hover, rgba(139,92,246,0.38));
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: white;
+}
+
+.rl-btn-danger:hover:not(:disabled) {
+    border-color: #FECACA;
+    background: #FEF2F2;
+    color: #991B1B;
+}
+
+/* ========== PRESETS (temporizador) ========== */
+.rl-presets {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.rl-preset {
+    padding: 6px 2px;
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 8px;
+    background: var(--white, #FFFFFF);
+    font-family: inherit;
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--gray-600, #52525B);
+    cursor: pointer;
+    transition: all 0.15s;
+    touch-action: manipulation;
+    line-height: 1;
+}
+.rl-preset:hover {
+    border-color: var(--violet-300, #C4B5FD);
+    background: var(--violet-50, #F5F3FF);
+    color: var(--violet-700, #6D28D9);
+}
+.rl-preset.activo {
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 2px 8px var(--accent-shadow, rgba(139,92,246,0.24));
+}
+
+/* ========== VUELTAS (cronómetro) ========== */
+.rl-vueltas {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 6px 4px 2px;
+    border-top: 1px solid var(--gray-100, #F4F4F7);
+    margin-top: 2px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-300, #D4D4DD) transparent;
+}
+.rl-vueltas::-webkit-scrollbar { width: 4px; }
+.rl-vueltas::-webkit-scrollbar-thumb {
+    background: var(--gray-300, #D4D4DD);
+    border-radius: 999px;
+}
+
+.rl-vuelta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gray-700, #3F3F46);
+    background: var(--gray-50, #FAFAFB);
+}
+.rl-vuelta-num {
+    color: var(--gray-500, #71717A);
+    font-weight: 800;
+    font-size: 10px;
+    min-width: 20px;
+}
+.rl-vuelta-tiempo {
+    font-variant-numeric: tabular-nums;
+    color: var(--violet-700, #6D28D9);
+    font-weight: 800;
+}
+.rl-vuelta-delta {
+    font-variant-numeric: tabular-nums;
+    color: var(--gray-500, #71717A);
+    font-size: 10.5px;
+    font-weight: 700;
+}
+
+/* ============================================================
+   RESPONSIVE — widgets muy chicos
+   ============================================================ */
+@media (max-width: 260px) {
+    .rl-display { font-size: 28px; }
+    .rl-btn-primario { width: 42px; height: 42px; }
+    .rl-btn-primario [data-lucide] { width: 18px; height: 18px; }
+    .rl-btn { width: 36px; height: 36px; }
+    .rl-presets { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-height: 200px) {
+    .rl-widget { padding: 8px 10px; gap: 6px; }
+    .rl-display { font-size: 26px; padding: 2px 0; }
+    .rl-header { padding-bottom: 4px; }
+    .rl-presets { display: none; }
+}
