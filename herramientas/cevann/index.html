@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Cevann</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="cv-app">
+
+        <!-- HEADER -->
+        <header class="cv-header">
+            <div class="cv-logo">
+                <div class="cv-logo-mark">
+                    <i data-lucide="frame"></i>
+                </div>
+                <div class="cv-logo-text">
+                    <h1>Cevann</h1>
+                    <p id="cvUserBadge">—</p>
+                </div>
+            </div>
+
+            <div class="cv-header-actions">
+                <button class="cv-btn-icono" id="cvBtnNuevo" title="Nuevo afiche">
+                    <i data-lucide="file-plus"></i>
+                </button>
+                <button class="cv-btn-icono" id="cvBtnGuardarProyecto" title="Guardar proyecto">
+                    <i data-lucide="save"></i>
+                </button>
+                <button class="cv-btn-sec" id="cvBtnDescargar" title="Descargar PNG">
+                    <i data-lucide="download"></i>
+                    <span>PNG</span>
+                </button>
+                <button class="cv-btn-pri" id="cvBtnGuardarGaleria" title="Guardar en Galería">
+                    <i data-lucide="image-plus"></i>
+                    <span>Galería</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- BODY -->
+        <div class="cv-body">
+
+            <!-- PREVIEW -->
+            <div class="cv-preview-wrap" id="cvPreviewWrap">
+                <div class="cv-poster" id="cvPoster"></div>
+                <div class="cv-preview-info" id="cvPreviewInfo">1080 × 1080</div>
+            </div>
+
+            <!-- PANEL -->
+            <aside class="cv-panel" id="cvPanel">
+
+                <section class="cv-section">
+                    <h3><i data-lucide="square"></i> Formato</h3>
+                    <div class="cv-formatos" id="cvFormatos"></div>
+                </section>
+
+                <section class="cv-section">
+                    <h3><i data-lucide="palette"></i> Tema</h3>
+                    <div class="cv-temas" id="cvTemas"></div>
+                    <p class="cv-help">Los colores del afiche salen del tema elegido. Solo aparecen tus temas instalados.</p>
+                </section>
+
+                <section class="cv-section">
+                    <h3><i data-lucide="move-vertical"></i> Márgenes</h3>
+                    <div class="cv-padding-opt" id="cvPaddingGlobal">
+                        <button data-padding="pequeno" class="cv-pad-btn">Pequeño</button>
+                        <button data-padding="medio" class="cv-pad-btn activo">Medio</button>
+                        <button data-padding="grande" class="cv-pad-btn">Grande</button>
+                    </div>
+                </section>
+
+                <section class="cv-section cv-section-elementos">
+                    <div class="cv-section-header">
+                        <h3><i data-lucide="layers"></i> Elementos <span class="cv-count" id="cvElementosCount">0</span></h3>
+                        <div class="cv-add-wrap">
+                            <button class="cv-btn-mini" id="cvBtnAddElemento" title="Añadir elemento">
+                                <i data-lucide="plus"></i>
+                            </button>
+                            <div class="cv-add-menu" id="cvAddMenu" hidden>
+                                <button class="cv-add-item" data-tipo="titulo"><i data-lucide="heading-1"></i> Título</button>
+                                <button class="cv-add-item" data-tipo="subtitulo"><i data-lucide="heading-2"></i> Subtítulo</button>
+                                <button class="cv-add-item" data-tipo="parrafo"><i data-lucide="type"></i> Párrafo</button>
+                                <button class="cv-add-item" data-tipo="imagen"><i data-lucide="image"></i> Imagen</button>
+                                <button class="cv-add-item" data-tipo="avatar"><i data-lucide="user"></i> Avatar</button>
+                                <button class="cv-add-item" data-tipo="separador"><i data-lucide="minus"></i> Separador</button>
+                                <button class="cv-add-item" data-tipo="badge"><i data-lucide="tag"></i> Badge</button>
+                                <button class="cv-add-item" data-tipo="forma"><i data-lucide="circle"></i> Forma</button>
+                                <button class="cv-add-item" data-tipo="espaciador"><i data-lucide="move-vertical"></i> Espaciador</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cv-elementos-lista" id="cvElementosLista"></div>
+                </section>
+
+            </aside>
+
+        </div>
+
+    </div>
+
+    <!-- MODAL: NUEVO -->
+    <div class="cv-modal" id="cvModalNuevo" hidden>
+        <div class="cv-modal-card">
+            <div class="cv-modal-header">
+                <h2><i data-lucide="file-plus"></i> Nuevo afiche</h2>
+                <button class="cv-modal-cerrar" id="cvModalNuevoCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="cv-modal-body">
+                <p class="cv-modal-desc">Se perderá el afiche actual si no lo guardaste.</p>
+            </div>
+            <div class="cv-modal-actions">
+                <button class="cv-btn-sec" id="cvModalNuevoCancel">Cancelar</button>
+                <button class="cv-btn-pri" id="cvModalNuevoConfirm">
+                    <i data-lucide="check"></i> Crear nuevo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: SESIÓN -->
+    <div class="cv-modal" id="cvModalSesion" hidden>
+        <div class="cv-modal-card">
+            <div class="cv-modal-header">
+                <h2><i data-lucide="folder-open"></i> Afiche guardado</h2>
+            </div>
+            <div class="cv-modal-body">
+                <p class="cv-modal-desc">Tienes un afiche guardado de la sesión anterior. ¿Continuar donde lo dejaste?</p>
+                <p class="cv-modal-sub" id="cvModalSesionFecha">—</p>
+            </div>
+            <div class="cv-modal-actions">
+                <button class="cv-btn-danger" id="cvModalSesionDescartar">
+                    <i data-lucide="trash-2"></i> Descartar
+                </button>
+                <button class="cv-btn-sec" id="cvModalSesionNuevo">De cero</button>
+                <button class="cv-btn-pri" id="cvModalSesionContinuar">
+                    <i data-lucide="play"></i> Continuar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: GALERÍA -->
+    <div class="cv-modal" id="cvModalGaleria" hidden>
+        <div class="cv-modal-card">
+            <div class="cv-modal-header">
+                <h2><i data-lucide="image-plus"></i> Guardar en Galería</h2>
+                <button class="cv-modal-cerrar" id="cvModalGaleriaCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="cv-modal-body">
+                <div class="cv-field">
+                    <label>Título del afiche</label>
+                    <input type="text" id="cvInputTitulo" placeholder="Mi afiche..." maxlength="60">
+                </div>
+                <div class="cv-mini-preview" id="cvMiniPreview"></div>
+            </div>
+            <div class="cv-modal-actions">
+                <button class="cv-btn-sec" id="cvModalGaleriaCancel">Cancelar</button>
+                <button class="cv-btn-pri" id="cvModalGaleriaConfirm">
+                    <i data-lucide="save"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="cv-toast" id="cvToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
