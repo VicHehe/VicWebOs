@@ -3,7 +3,7 @@
 //  ------------------------------------------------------------
 //  Puzzle diario de Lichess (lichess.org/api/puzzle/daily).
 //  - Sin autenticación, sin key.
-//  - CORS resuelto con proxy (mismo patrón que Wiki Lector).
+//  - CORS resuelto con proxies públicos (mismo patrón que Wiki Lector).
 //  - Tablero propio con CSS Grid + Unicode pieces.
 //  - Lógica con chess.js (CDN).
 //  - 1 petición al día → muy por debajo del rate limit.
@@ -14,11 +14,11 @@
 const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const PUZZLE_URL   = 'https://lichess.org/api/puzzle/daily';
 
-// Proxies CORS en orden de preferencia
+// Proxies CORS en orden de preferencia (actualizados a 2025)
 const PROXIES = [
-    (u) => 'https://corsproxy.io/?url='   + encodeURIComponent(u),
-    (u) => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
-    (u) => 'https://cors.eu.org/' + u
+    (u) => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
+    (u) => 'https://proxy.corsfix.com/?url=' + encodeURIComponent(u),
+    (u) => 'https://thingproxy.freeboard.io/fetch/' + u
 ];
 
 // Glifos Unicode de ajedrez (negras — luego se colorean por CSS)
@@ -565,7 +565,7 @@ function intentarJugada(from, to) {
                 setTimeout(() => {
                     if (!resuelto && game) {
                         const txt = game.turn() === 'w'
-                            ? 'Juegan blancas · encuentra la mejor jugada'
+                            ? 'Jugan blancas · encuentra la mejor jugada'
                             : 'Juegan negras · encuentra la mejor jugada';
                         setStatus(txt, null);
                     }
@@ -642,7 +642,7 @@ function intentarJugada(from, to) {
 function marcarResuelto() {
     resuelto = true;
     esperando = false;
-    setStatus('¡Resuelto! 🎉 Buen ojo.', 'ok');
+    setStatus('¡Resuelto! Buen ojo.', 'ok');
 
     const board = $board();
     if (board) {
