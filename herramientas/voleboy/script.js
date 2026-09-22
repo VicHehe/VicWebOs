@@ -1,17 +1,15 @@
 // ============================================================
-//  Voleboy — Pong vertical con spin
+//  Voleboy — Pong plataformero con red central
 //  ------------------------------------------------------------
-//  Modos:  CPU  ·  P2P (PeerJS)
-//  Economía:
-//    · Atrapadas         → 0 monedas (son parte del gameplay)
-//    · Aguantar 30s       → +5 (P2P, repetible)
-//    · Ganar (P2P)        → +20
-//    · Perder (P2P)       → +5
-//    · Ganar vs CPU       → +25
-//    · Perder vs CPU      → 0
+//  Vista lateral. Jugador izquierda, rival derecha. Red vertical
+//  en el medio. Pelota con gravedad y spin (curvas).
+//  Si la pelota toca el suelo de tu lado → perdés.
 //
-//  P2P: host autoritativo. Guest envía su paleta a ~30Hz. Host envía
-//  estado de bola + su paleta a ~20Hz. Protocolo en data channel.
+//  Modos: CPU · P2P (PeerJS, host autoritativo)
+//
+//  Economía:
+//    P2P: ganar +20 · perder +5 · aguantar 30s +5 (repetible)
+//    CPU: ganar +25 · perder 0
 // ============================================================
 
 'use strict';
@@ -20,81 +18,110 @@ const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const APP_ID       = 'voleboy';
 const RUTA_CUENTAS = 'cuenta.json';
 
-// ---- Canvas lógico (CSS lo escala) ----
-const CW = 400;
-const CH = 600;
+// ---- Canvas lógico ----
+const CW = 720;
+const CH = 420;
 
-// ---- Paletas ----
-const PADDLE_W = 90;
-const PADDLE_H = 18;
-const PADDLE_Y_JUGADOR = CH - 30;   // centro de la paleta inferior
-const PADDLE_Y_CPU     = 30;        // centro de la paleta superior
+// ---- Suelo y red ----
+const SUELO_Y   = 360;
+const RED_X     = CW / 2;
+const RED_W     = 6;
+const RED_TOPE  = 180;
+const HUECO_W   = 40;                 // ancho del hueco central sin suelo
+const HUECO_IZQ = RED_X - HUECO_W / 2;
+const HUECO_DER = RED_X + HUECO_W / 2;
 
-// ---- Bola ----
-const BALL_R             = 11;
-const BALL_SPEED_INICIAL = 200;     // px/s
-const BALL_SPEED_MAX     = 720;     // px/s
-const BALL_ACCEL_POR_GOLPE = 1.06;  // +6% por hit
-const SPIN_FUERZA        = 320;     // aceleración lateral por spin
-const SPIN_DAMPING       = 0.985;
-const SPIN_MAX           = 1.0;
-const TRAIL_MAX          = 10;
+// ---- Jugador (paleta con foto) ----
+const PAL_W       = 74;
+const PAL_H       = 14;
+const FOTO_R      = 26;
+const FOTO_OFFSET = 30;               // cuánto sobresale la foto por encima
+const JUGADOR_X_MIN = 30;
+const JUGADOR_X_MAX = HUECO_IZQ - 10;
+const RIVAL_X_MIN   = HUECO_DER + 10;
+const RIVAL_X_MAX   = CW - 30;
 
-// ---- Tiempos ----
-const COUNTDOWN_SEG      = 3;
-const AGUANTE_SEG        = 30;      // cada 30s
-const AGUANTE_MONEDAS    = 5;
+// ---- Pelota ----
+const BALL_R      = 13;
+const GRAVEDAD    = 950;
+const REBOTE_SUELO = 0.7;
+const SPIN_FUERZA = 260;
+const SPIN_DAMPING = 0.994;
+const SPIN_MAX    = 1.0;
+const VEL_MAX_Y   = 900;
+const VEL_MAX_X   = 700;
+const TRAIL_MAX   = 12;
 
-// ---- Economía (P2P) ----
+// ---- Countdown ----
+const COUNTDOWN_SEG = 3;
+
+// ---- Aguante ----
+const AGUANTE_SEG     = 30;
+const AGUANTE_MONEDAS = 5;
+
+// ---- Economía ----
 const MONEDAS_GANAR_P2P  = 20;
 const MONEDAS_PERDER_P2P = 5;
-
-// ---- Economía (CPU) ----
 const MONEDAS_GANAR_CPU  = 25;
 
-// ---- Red ----
-const NET_PADDLE_HZ   = 30;
-const NET_STATE_HZ    = 20;
+// ---- Red (Hz) ----
+const NET_PADDLE_HZ = 30;
+const NET_STATE_HZ  = 20;
 
 // ============================================================
 //  ESTADO
 // ============================================================
 let canvas, ctx;
-let estado = 'menu';                 // menu | esperando | countdown | jugando | fin
-let modo = 'cpu';                    // cpu | p2p
+let estado = 'menu';                    // menu | esperando | countdown | jugando | fin
+let modo = 'cpu';
 
 let rafId = null;
 let ultimoFrameMs = 0;
-let preGameTimer = 0;                // countdown
+let preGameTimer = 0;
+let partidaTerminada = false;
 
-const bola = { x: CW / 2, y: CH / 2, vx: 0, vy: 0, spin: 0, trail: [] };
-const p1 = { x: CW / 2, w: PADDLE_W };   // jugador (abajo)
-const p2 = { x: CW / 2, w: PADDLE_W };   // rival/CPU (arriba)
+const pelota = {
+    x: CW / 2, y: 140,
+    vx: 180, vy: 0,
+    spin: 0,
+    trail: []
+};
 
-let sobrevividos = 0;                // segundos de bola viva
+const jugador = { x: (JUGADOR_X_MIN + JUGADOR_X_MAX) / 2 };
+const rival   = { x: (RIVAL_X_MIN + RIVAL_X_MAX) / 2 };
+
+// Economía
+let sobrevividos = 0;
 let aguantesCobrados = 0;
 let monedasPartida = 0;
-let ultimoAguanteSeg = 0;
+let ultimoBloqueAguante = 0;
 
+// Fotos
 let miFotoImg = null;
-let rivalFotoImg = null;
 let miInicial = '?';
-let rivalInicial = '?';
-let rivalNombre = 'Rival';
+let rivalFotoImg = null;
+let rivalInicial = 'C';
+let rivalNombre = 'CPU';
 
+// Efectos
 let popups = [];
 let particulas = [];
 
 let toastTimer = null;
+
+// Input
+let mouseX = null;
+let touchX = null;
 
 // Red
 let peer = null;
 let conn = null;
 let esHost = false;
 let codigoSala = '';
-let rivalPaddleX = CW / 2;           // última x recibida del rival
+let rivalPaddleX = RIVAL_X_MIN;
 let ultimoEnvioPaddle = 0;
 let ultimoEnvioEstado = 0;
+let ballRedX = CW / 2, ballRedY = 140, ballRedVx = 180, ballRedVy = 0, ballRedSpin = 0;
 
 const API = () => {
     try { return (window.parent && window.parent.__vicwebos) || null; }
@@ -158,12 +185,6 @@ function toast(texto, tipo = 'info') {
     toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
 }
 
-function esc(s) {
-    return String(s || '')
-        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
-
 // ============================================================
 //  FOTO DE PERFIL
 // ============================================================
@@ -178,7 +199,7 @@ async function cargarMiFoto() {
         const cuentas = await bd.leerArchivoFresh(RUTA_CUENTAS);
         if (!Array.isArray(cuentas)) return;
         const yo = cuentas.find(c => c.codigo === cuenta.codigo);
-        if (yo && yo.foto) {
+        if (yo?.foto) {
             miFotoImg = new Image();
             miFotoImg.onload = () => dibujar();
             miFotoImg.src = yo.foto;
@@ -206,9 +227,6 @@ function configurarCanvas() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
-// ============================================================
-//  DIBUJADO
-// ============================================================
 function roundRect(c, x, y, w, h, r) {
     const rr = Math.min(r, w / 2, h / 2);
     c.beginPath();
@@ -224,88 +242,144 @@ function roundRect(c, x, y, w, h, r) {
     c.closePath();
 }
 
+// ============================================================
+//  DIBUJADO
+// ============================================================
 function dibujar() {
     if (!ctx) return;
 
-    // Fondo
-    ctx.fillStyle = cv('--gray-900', '#18181B');
+    // Fondo general (día / cielo)
+    const grd = ctx.createLinearGradient(0, 0, 0, CH);
+    grd.addColorStop(0, cv('--violet-100', '#EDE9FE'));
+    grd.addColorStop(0.65, cv('--violet-50', '#F5F3FF'));
+    grd.addColorStop(1, cv('--white', '#FFFFFF'));
+    ctx.fillStyle = grd;
     ctx.fillRect(0, 0, CW, CH);
 
-    // Vignette superior e inferior sutiles
-    const grd1 = ctx.createLinearGradient(0, 0, 0, 80);
-    grd1.addColorStop(0, 'rgba(255,255,255,0.03)');
-    grd1.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = grd1;
-    ctx.fillRect(0, 0, CW, 80);
+    // Nubes suaves (parallax con la pelota)
+    dibujarNubes();
 
-    const grd2 = ctx.createLinearGradient(0, CH - 80, 0, CH);
-    grd2.addColorStop(0, 'rgba(255,255,255,0)');
-    grd2.addColorStop(1, 'rgba(255,255,255,0.03)');
-    ctx.fillStyle = grd2;
-    ctx.fillRect(0, CH - 80, CW, 80);
+    // Red central
+    dibujarRed();
 
-    // Línea central dashed
-    ctx.strokeStyle = cv('--gray-600', '#52525B');
-    ctx.lineWidth = 3;
-    ctx.lineCap = 'round';
-    ctx.setLineDash([8, 12]);
-    ctx.globalAlpha = 0.4;
-    ctx.beginPath();
-    ctx.moveTo(12, CH / 2);
-    ctx.lineTo(CW - 12, CH / 2);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.globalAlpha = 1;
+    // Suelos izquierdo y derecho
+    dibujarSuelos();
 
-    // Trail de la bola
+    // Trail de la pelota
     dibujarTrail();
 
-    // Bola
-    dibujarBola();
+    // Pelota
+    dibujarPelota();
 
-    // Popups (+5)
-    dibujarPopups();
+    // Jugadores (paleta + foto encima)
+    dibujarJugador(jugador.x, 'jugador');
+    dibujarJugador(rival.x,   'rival');
 
-    // Paletas
-    dibujarPaleta(p2.x, PADDLE_Y_CPU,     rivalFotoImg, rivalInicial, cv('--violet-600', '#7C3AED'));
-    dibujarPaleta(p1.x, PADDLE_Y_JUGADOR, miFotoImg,    miInicial,    cv('--violet-500', '#8B5CF6'));
+    // Popups + partículas
+    dibujarEfectos();
 
     // Countdown
     if (estado === 'countdown') {
-        const txt = preGameTimer > 0.6
-            ? String(Math.ceil(preGameTimer))
-            : '¡YA!';
-        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        const n = Math.ceil(preGameTimer);
+        const txt = n > 0 ? String(n) : '¡YA!';
+        ctx.fillStyle = 'rgba(0,0,0,0.35)';
         ctx.fillRect(0, 0, CW, CH);
-        ctx.fillStyle = cv('--violet-400', '#A78BFA');
-        ctx.font = 'bold 110px Nunito, sans-serif';
+        ctx.fillStyle = cv('--violet-600', '#7C3AED');
+        ctx.font = 'bold 130px Nunito, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(txt, CW / 2, CH / 2);
     }
 
-    // Mensaje de espera (P2P host)
     if (estado === 'esperando') {
-        ctx.fillStyle = 'rgba(0,0,0,0.6)';
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
         ctx.fillRect(0, 0, CW, CH);
-        ctx.fillStyle = cv('--gray-300', '#D4D4DD');
-        ctx.font = 'bold 22px Nunito, sans-serif';
+        ctx.fillStyle = cv('--white', '#FFFFFF');
+        ctx.font = 'bold 26px Nunito, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText('Esperando rival…', CW / 2, CH / 2 - 20);
-        ctx.font = '600 14px Nunito, sans-serif';
-        ctx.fillStyle = cv('--gray-500', '#71717A');
-        ctx.fillText('Sala: ' + codigoSala, CW / 2, CH / 2 + 20);
+        ctx.font = '600 16px Nunito, sans-serif';
+        ctx.fillStyle = cv('--violet-300', '#C4B5FD');
+        ctx.fillText('Sala: ' + codigoSala, CW / 2, CH / 2 + 22);
     }
 }
 
+function dibujarNubes() {
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+    const base = pelota.x * 0.03;
+    for (let i = 0; i < 4; i++) {
+        const x = ((i * 220) - base) % (CW + 200) - 100;
+        const y = 40 + i * 18;
+        ctx.beginPath();
+        ctx.arc(x, y, 22, 0, Math.PI * 2);
+        ctx.arc(x + 26, y + 3, 18, 0, Math.PI * 2);
+        ctx.arc(x + 50, y, 22, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+function dibujarRed() {
+    const colorRed = cv('--gray-700', '#3F3F46');
+    const colorTop = cv('--violet-500', '#8B5CF6');
+
+    // Poste vertical
+    ctx.fillStyle = colorRed;
+    ctx.fillRect(RED_X - RED_W / 2, RED_TOPE, RED_W, SUELO_Y - RED_TOPE);
+
+    // Detalle de red (líneas horizontales finas)
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+    ctx.lineWidth = 1;
+    for (let y = RED_TOPE + 8; y < SUELO_Y; y += 12) {
+        ctx.beginPath();
+        ctx.moveTo(RED_X - RED_W / 2, y);
+        ctx.lineTo(RED_X + RED_W / 2, y);
+        ctx.stroke();
+    }
+
+    // Remate superior con el acento del tema
+    ctx.fillStyle = colorTop;
+    roundRect(ctx, RED_X - RED_W / 2 - 3, RED_TOPE - 6, RED_W + 6, 8, 3);
+    ctx.fill();
+}
+
+function dibujarSuelos() {
+    const cSuelo = cv('--violet-600', '#7C3AED');
+    const cSueloTapa = cv('--violet-400', '#A78BFA');
+    const cBorde = cv('--violet-700', '#6D28D9');
+
+    // Suelo izquierdo
+    ctx.fillStyle = cSuelo;
+    roundRect(ctx, 0, SUELO_Y, HUECO_IZQ, CH - SUELO_Y, 10);
+    ctx.fill();
+    ctx.fillStyle = cSueloTapa;
+    roundRect(ctx, 0, SUELO_Y, HUECO_IZQ, 8, 8);
+    ctx.fill();
+    ctx.strokeStyle = cBorde;
+    ctx.lineWidth = 2;
+    roundRect(ctx, 0, SUELO_Y, HUECO_IZQ, CH - SUELO_Y, 10);
+    ctx.stroke();
+
+    // Suelo derecho
+    ctx.fillStyle = cSuelo;
+    roundRect(ctx, HUECO_DER, SUELO_Y, CW - HUECO_DER, CH - SUELO_Y, 10);
+    ctx.fill();
+    ctx.fillStyle = cSueloTapa;
+    roundRect(ctx, HUECO_DER, SUELO_Y, CW - HUECO_DER, 8, 8);
+    ctx.fill();
+    ctx.strokeStyle = cBorde;
+    ctx.lineWidth = 2;
+    roundRect(ctx, HUECO_DER, SUELO_Y, CW - HUECO_DER, CH - SUELO_Y, 10);
+    ctx.stroke();
+}
+
 function dibujarTrail() {
-    for (let i = 0; i < bola.trail.length; i++) {
-        const t = bola.trail[i];
-        const alpha = (i + 1) / bola.trail.length * 0.35;
-        const r = BALL_R * (0.5 + i / bola.trail.length * 0.5);
-        ctx.fillStyle = cv('--violet-500', '#8B5CF6');
-        ctx.globalAlpha = alpha;
+    for (let i = 0; i < pelota.trail.length; i++) {
+        const t = pelota.trail[i];
+        const a = ((i + 1) / pelota.trail.length) * 0.4;
+        const r = BALL_R * (0.35 + (i / pelota.trail.length) * 0.65);
+        ctx.fillStyle = cv('--violet-400', '#A78BFA');
+        ctx.globalAlpha = a;
         ctx.beginPath();
         ctx.arc(t.x, t.y, r, 0, Math.PI * 2);
         ctx.fill();
@@ -313,298 +387,348 @@ function dibujarTrail() {
     ctx.globalAlpha = 1;
 }
 
-function dibujarBola() {
-    const colorAcento = cv('--violet-500', '#8B5CF6');
-    const colorGlow   = cv('--violet-400', '#A78BFA');
-
+function dibujarPelota() {
     // Glow
     ctx.save();
-    ctx.shadowColor = colorGlow;
-    ctx.shadowBlur = 22;
-    ctx.fillStyle = colorAcento;
+    ctx.shadowColor = cv('--violet-500', '#8B5CF6');
+    ctx.shadowBlur = 20;
+    ctx.fillStyle = cv('--violet-500', '#8B5CF6');
     ctx.beginPath();
-    ctx.arc(bola.x, bola.y, BALL_R, 0, Math.PI * 2);
+    ctx.arc(pelota.x, pelota.y, BALL_R, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
 
-    // Núcleo brillante
-    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    // Highlight
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
     ctx.beginPath();
-    ctx.arc(bola.x - BALL_R * 0.35, bola.y - BALL_R * 0.35, BALL_R * 0.4, 0, Math.PI * 2);
+    ctx.arc(pelota.x - BALL_R * 0.32, pelota.y - BALL_R * 0.32, BALL_R * 0.42, 0, Math.PI * 2);
     ctx.fill();
 }
 
-function dibujarPaleta(cx, cy, foto, inicial, colorBorde) {
-    const x = cx - PADDLE_W / 2;
-    const y = cy - PADDLE_H / 2;
+function dibujarJugador(centroX, quien) {
+    const esJugador = quien === 'jugador';
+    const colorBase = esJugador
+        ? cv('--violet-500', '#8B5CF6')
+        : cv('--violet-700', '#6D28D9');
+    const colorBorde = esJugador
+        ? cv('--violet-700', '#6D28D9')
+        : cv('--violet-900', '#4C1D95');
+
+    const foto = esJugador ? miFotoImg : rivalFotoImg;
+    const inicial = esJugador ? miInicial : rivalInicial;
+
+    // Base de la paleta (plataforma)
+    const palX = centroX - PAL_W / 2;
+    const palY = SUELO_Y - PAL_H;
 
     // Sombra
     ctx.save();
-    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowColor = 'rgba(0,0,0,0.25)';
     ctx.shadowBlur = 12;
-    ctx.shadowOffsetY = 3;
-
-    // Base redondeada
-    roundRect(ctx, x, y, PADDLE_W, PADDLE_H, 9);
-    ctx.fillStyle = cv('--gray-800', '#27272A');
+    ctx.shadowOffsetY = 4;
+    ctx.fillStyle = colorBase;
+    roundRect(ctx, palX, palY, PAL_W, PAL_H, 6);
     ctx.fill();
     ctx.restore();
 
-    // Recorte de la paleta para meter la foto
+    // Borde
+    ctx.strokeStyle = colorBorde;
+    ctx.lineWidth = 2;
+    roundRect(ctx, palX, palY, PAL_W, PAL_H, 6);
+    ctx.stroke();
+
+    // Brillo superior
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    roundRect(ctx, palX + 2, palY + 2, PAL_W - 4, 3, 2);
+    ctx.fill();
+
+    // Círculo de la foto ENCIMA de la paleta
+    const fotoCx = centroX;
+    const fotoCy = palY - FOTO_OFFSET + FOTO_R;
+
+    // Sombra del círculo
     ctx.save();
-    roundRect(ctx, x, y, PADDLE_W, PADDLE_H, 9);
+    ctx.shadowColor = 'rgba(0,0,0,0.3)';
+    ctx.shadowBlur = 10;
+    ctx.shadowOffsetY = 3;
+
+    ctx.beginPath();
+    ctx.arc(fotoCx, fotoCy, FOTO_R, 0, Math.PI * 2);
+    ctx.fillStyle = cv('--white', '#FFFFFF');
+    ctx.fill();
+    ctx.restore();
+
+    // Foto recortada
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(fotoCx, fotoCy, FOTO_R - 2, 0, Math.PI * 2);
     ctx.clip();
 
     if (foto && foto.complete && foto.naturalWidth > 0) {
-        // Cover: escalar la foto para cubrir toda la paleta
         const fw = foto.naturalWidth;
         const fh = foto.naturalHeight;
-        const scale = Math.max(PADDLE_W / fw, PADDLE_H / fh);
+        const size = (FOTO_R - 2) * 2;
+        const scale = Math.max(size / fw, size / fh);
         const w = fw * scale;
         const h = fh * scale;
-        ctx.drawImage(foto, x + (PADDLE_W - w) / 2, y + (PADDLE_H - h) / 2, w, h);
-        // Tinte suave para integrarlo al tema
-        ctx.fillStyle = 'rgba(0,0,0,0.18)';
-        ctx.fillRect(x, y, PADDLE_W, PADDLE_H);
+        ctx.drawImage(foto, fotoCx - w / 2, fotoCy - h / 2, w, h);
     } else {
-        // Fallback: color de acento + inicial
-        ctx.fillStyle = colorBorde;
-        ctx.fillRect(x, y, PADDLE_W, PADDLE_H);
+        ctx.fillStyle = colorBase;
+        ctx.fillRect(fotoCx - FOTO_R, fotoCy - FOTO_R, FOTO_R * 2, FOTO_R * 2);
         ctx.fillStyle = '#FFFFFF';
-        ctx.font = 'bold 13px Nunito, sans-serif';
+        ctx.font = 'bold 26px Nunito, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(inicial, cx, cy + 1);
+        ctx.fillText(inicial, fotoCx, fotoCy + 1);
     }
     ctx.restore();
 
-    // Borde de acento por encima
+    // Borde del círculo
     ctx.strokeStyle = colorBorde;
-    ctx.lineWidth = 2;
-    roundRect(ctx, x, y, PADDLE_W, PADDLE_H, 9);
-    ctx.stroke();
-
-    // Brillo interno superior
-    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-    ctx.lineWidth = 1;
-    roundRect(ctx, x + 1, y + 1, PADDLE_W - 2, PADDLE_H - 2, 8);
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(fotoCx, fotoCy, FOTO_R - 1, 0, Math.PI * 2);
     ctx.stroke();
 }
 
-function dibujarPopups() {
+function dibujarEfectos() {
+    // Partículas
+    for (const p of particulas) {
+        const a = Math.max(0, p.life / p.lifeMax);
+        ctx.globalAlpha = a;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // Popups
     for (const p of popups) {
-        const alpha = Math.min(1, p.life / p.lifeMax);
-        ctx.globalAlpha = alpha;
-        ctx.fillStyle = '#FBBF24';
-        ctx.font = 'bold 26px Nunito, sans-serif';
+        const a = Math.min(1, p.life / p.lifeMax);
+        ctx.globalAlpha = a;
+        ctx.font = 'bold 30px Nunito, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.strokeStyle = 'rgba(0,0,0,0.5)';
         ctx.lineWidth = 4;
         ctx.strokeText(p.texto, p.x, p.y);
+        ctx.fillStyle = cv('--violet-500', '#8B5CF6');
         ctx.fillText(p.texto, p.x, p.y);
     }
     ctx.globalAlpha = 1;
 }
 
 // ============================================================
-//  INPUT — Paleta del jugador sigue mouse/dedo
+//  INPUT
 // ============================================================
-function actualizarPaletaJugador() {
-    let centro = p1.x;
-
-    // Mouse
-    if (mouseCanvasX !== null) centro = mouseCanvasX;
-    // Touch
-    if (touchCanvasX !== null) centro = touchCanvasX;
-
-    // Aplicar con clamp
-    const half = PADDLE_W / 2;
-    p1.x = Math.max(half, Math.min(CW - half, centro));
-}
-
-let mouseCanvasX = null;
-let touchCanvasX = null;
-
 function setupInput() {
     if (!canvas) return;
 
     canvas.addEventListener('pointermove', (e) => {
         const rect = canvas.getBoundingClientRect();
         const x = (e.clientX - rect.left) / rect.width * CW;
-        if (e.pointerType === 'touch') touchCanvasX = x;
-        else mouseCanvasX = x;
-    });
-
-    canvas.addEventListener('pointerleave', () => {
-        mouseCanvasX = null;
-        touchCanvasX = null;
+        if (e.pointerType === 'touch') touchX = x;
+        else mouseX = x;
     });
 
     canvas.addEventListener('pointerdown', (e) => {
         const rect = canvas.getBoundingClientRect();
         const x = (e.clientX - rect.left) / rect.width * CW;
-        if (e.pointerType === 'touch') touchCanvasX = x;
-        else mouseCanvasX = x;
+        if (e.pointerType === 'touch') touchX = x;
+        else mouseX = x;
     });
 
-    canvas.addEventListener('pointerup', () => {
-        touchCanvasX = null;
+    canvas.addEventListener('pointerleave', () => {
+        mouseX = null;
+        touchX = null;
     });
 
-    // Teclado (bonus para PC)
+    canvas.addEventListener('pointerup', () => { touchX = null; });
+
+    // Teclado (PC)
     document.addEventListener('keydown', (e) => {
         if (estado !== 'jugando') return;
         const paso = 40;
         if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
-            mouseCanvasX = (mouseCanvasX ?? p1.x) - paso;
+            mouseX = (mouseX ?? jugador.x) - paso;
             e.preventDefault();
         } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
-            mouseCanvasX = (mouseCanvasX ?? p1.x) + paso;
+            mouseX = (mouseX ?? jugador.x) + paso;
             e.preventDefault();
         }
     });
+}
+
+function actualizarJugador() {
+    let objetivo = jugador.x;
+    if (touchX !== null) objetivo = touchX;
+    else if (mouseX !== null) objetivo = mouseX;
+    // Clamp a la mitad izquierda
+    jugador.x = Math.max(JUGADOR_X_MIN, Math.min(JUGADOR_X_MAX, objetivo));
 }
 
 // ============================================================
 //  CPU
 // ============================================================
 function actualizarCpu(dt) {
-    const objetivoY = PADDLE_Y_CPU;
-
-    // Predicción simple: dónde estará la bola cuando llegue al paddle superior
-    let objetivoX = bola.x;
-    if (bola.vy < 0) {
-        const tLlegada = (objetivoY - bola.y) / bola.vy;
-        if (tLlegada > 0 && tLlegada < 2.5) {
-            const t = tLlegada;
-            objetivoX = bola.x + bola.vx * t + 0.5 * bola.spin * SPIN_FUERZA * t * t;
-            // Clamp a los bordes
-            objetivoX = Math.max(BALL_R, Math.min(CW - BALL_R, objetivoX));
-        }
+    // Predice dónde caerá la pelota sobre el nivel del suelo del lado derecho
+    let objetivoX = rival.x;
+    if (pelota.x > RED_X) {
+        // Pelota en su lado → perseguir
+        objetivoX = pelota.x;
+    } else {
+        // Pelota en el lado del jugador → volver al centro-derecha
+        objetivoX = HUECO_DER + (RIVAL_X_MAX - HUECO_DER) * 0.5;
     }
 
-    // Error humano: ±22px
-    objetivoX += (Math.random() - 0.5) * 44;
+    // Error humano ±30px
+    objetivoX += (Math.random() - 0.5) * 60;
 
-    // Velocidad adaptativa: sube con la bola pero con tope
-    const velCpu = Math.min(600, 300 + Math.hypot(bola.vx, bola.vy) * 0.35);
+    // Velocidad adaptativa: sube con la pelota pero con tope
+    const v = Math.min(560, 260 + Math.hypot(pelota.vx, pelota.vy) * 0.3);
+    const diff = objetivoX - rival.x;
+    const move = Math.sign(diff) * Math.min(Math.abs(diff), v * dt);
+    rival.x += move;
 
-    const diff = objetivoX - p2.x;
-    const move = Math.sign(diff) * Math.min(Math.abs(diff), velCpu * dt);
-    p2.x += move;
-
-    const half = PADDLE_W / 2;
-    p2.x = Math.max(half, Math.min(CW - half, p2.x));
+    rival.x = Math.max(RIVAL_X_MIN, Math.min(RIVAL_X_MAX, rival.x));
 }
 
 // ============================================================
 //  FÍSICA
 // ============================================================
-function resetBola() {
-    bola.x = CW / 2;
-    bola.y = CH / 2;
-    bola.vx = 0;
-    bola.vy = -BALL_SPEED_INICIAL;
-    bola.spin = 0;
-    bola.trail = [];
+function resetPelota() {
+    pelota.x = CW / 2;
+    pelota.y = 140;
+    pelota.vx = (Math.random() < 0.5 ? -1 : 1) * 180;
+    pelota.vy = -50;
+    pelota.spin = 0;
+    pelota.trail = [];
 }
 
 function resetPartida() {
-    resetBola();
-    p1.x = CW / 2;
-    p2.x = CW / 2;
+    resetPelota();
+    jugador.x = (JUGADOR_X_MIN + JUGADOR_X_MAX) / 2;
+    rival.x   = (RIVAL_X_MIN + RIVAL_X_MAX) / 2;
     sobrevividos = 0;
     aguantesCobrados = 0;
     monedasPartida = 0;
+    ultimoBloqueAguante = 0;
     popups = [];
     particulas = [];
-    ultimoAguanteSeg = 0;
+    partidaTerminada = false;
     actualizarHUD();
 }
 
 function actualizar(dt) {
-    // Paleta del jugador siempre sigue al input
-    actualizarPaletaJugador();
+    actualizarJugador();
 
-    // Paleta rival
     if (modo === 'cpu') {
         actualizarCpu(dt);
     } else if (modo === 'p2p') {
-        if (esHost) {
-            // Host: p2 se mueve hacia rivalPaddleX (que llega del guest)
-            const diff = rivalPaddleX - p2.x;
-            p2.x += diff * Math.min(1, dt * 25);
-        } else {
-            // Guest: p2 es el host, viene por red
-            const diff = rivalPaddleX - p2.x;
-            p2.x += diff * Math.min(1, dt * 25);
+        // Suavizado hacia la posición del rival (viene por red)
+        const diff = rivalPaddleX - rival.x;
+        rival.x += diff * Math.min(1, dt * 20);
+    }
+
+    // Física de la pelota
+    // 1) Gravedad
+    pelota.vy += GRAVEDAD * dt;
+
+    // 2) Spin → aceleración lateral (efecto Magnus simple)
+    pelota.vx += pelota.spin * SPIN_FUERZA * dt;
+    pelota.vx *= Math.pow(SPIN_DAMPING, dt * 60);
+
+    // 3) Clamps de velocidad
+    pelota.vx = Math.max(-VEL_MAX_X, Math.min(VEL_MAX_X, pelota.vx));
+    pelota.vy = Math.max(-VEL_MAX_Y, Math.min(VEL_MAX_Y, pelota.vy));
+
+    // 4) Integración
+    pelota.x += pelota.vx * dt;
+    pelota.y += pelota.vy * dt;
+
+    // Trail
+    pelota.trail.push({ x: pelota.x, y: pelota.y });
+    if (pelota.trail.length > TRAIL_MAX) pelota.trail.shift();
+
+    // Colisiones laterales (paredes izquierda y derecha del canvas)
+    if (pelota.x - BALL_R < 0) {
+        pelota.x = BALL_R;
+        pelota.vx = -pelota.vx * 0.9;
+        pelota.spin *= -0.5;
+        spawnParticulas(pelota.x, pelota.y, 6);
+    } else if (pelota.x + BALL_R > CW) {
+        pelota.x = CW - BALL_R;
+        pelota.vx = -pelota.vx * 0.9;
+        pelota.spin *= -0.5;
+        spawnParticulas(pelota.x, pelota.y, 6);
+    }
+
+    // Colisión con techo
+    if (pelota.y - BALL_R < 0) {
+        pelota.y = BALL_R;
+        pelota.vy = -pelota.vy * 0.85;
+    }
+
+    // Colisión con la red (rebote simple contra el poste)
+    if (pelota.y + BALL_R > RED_TOPE) {
+        const dentroX = pelota.x > RED_X - RED_W / 2 - BALL_R && pelota.x < RED_X + RED_W / 2 + BALL_R;
+        if (dentroX) {
+            // Empujar hacia el lado de donde vino
+            const lado = pelota.vx < 0 ? -1 : 1;
+            pelota.x = RED_X + lado * (RED_W / 2 + BALL_R + 1);
+            pelota.vx = -pelota.vx * 0.9;
+            pelota.spin *= -0.4;
+            spawnParticulas(pelota.x, pelota.y, 4);
         }
     }
 
-    // ---- Física de la bola ----
-    bola.vx += bola.spin * SPIN_FUERZA * dt;
-    bola.vx *= Math.pow(SPIN_DAMPING, dt * 60);
-    bola.x += bola.vx * dt;
-    bola.y += bola.vy * dt;
-
-    // Trail
-    bola.trail.push({ x: bola.x, y: bola.y });
-    if (bola.trail.length > TRAIL_MAX) bola.trail.shift();
-
-    // Paredes laterales
-    if (bola.x - BALL_R < 0) {
-        bola.x = BALL_R;
-        bola.vx = -bola.vx * 0.9;
-        bola.spin *= -0.5;
-        spawnParticulas(bola.x, bola.y);
-    } else if (bola.x + BALL_R > CW) {
-        bola.x = CW - BALL_R;
-        bola.vx = -bola.vx * 0.9;
-        bola.spin *= -0.5;
-        spawnParticulas(bola.x, bola.y);
+    // Colisión con la paleta del jugador (izquierda)
+    if (colisionPelotaPaleta(pelota, jugador.x, 'izq')) {
+        // Rebotar hacia arriba
+        const offset = (pelota.x - jugador.x) / (PAL_W / 2);
+        const clampedOffset = Math.max(-1, Math.min(1, offset));
+        pelota.y = SUELO_Y - PAL_H - FOTO_OFFSET * 2 - BALL_R - 2;
+        pelota.vy = -Math.abs(pelota.vy) * 1.02 - 60;
+        pelota.vx += clampedOffset * 140;
+        pelota.spin = clampedOffset * 0.9;
+        if (pelota.vy > -300) pelota.vy = -350;
+        spawnParticulas(pelota.x, pelota.y + BALL_R, 8);
     }
 
-    // Colisión con paleta superior
-    if (bola.vy < 0 && colisionCircRect(bola.x, bola.y, BALL_R, p2.x, PADDLE_Y_CPU, PADDLE_W, PADDLE_H)) {
-        bola.y = PADDLE_Y_CPU + PADDLE_H / 2 + BALL_R;
-        bola.vy = Math.abs(bola.vy) * BALL_ACCEL_POR_GOLPE;
-        bola.vy = Math.min(bola.vy, BALL_SPEED_MAX);
-        const hit = (bola.x - p2.x) / (PADDLE_W / 2);
-        bola.spin = Math.max(-SPIN_MAX, Math.min(SPIN_MAX, hit * 0.9));
-        bola.vx += hit * 60;
-        spawnParticulas(bola.x, bola.y);
+    // Colisión con la paleta del rival (derecha)
+    if (colisionPelotaPaleta(pelota, rival.x, 'der')) {
+        const offset = (pelota.x - rival.x) / (PAL_W / 2);
+        const clampedOffset = Math.max(-1, Math.min(1, offset));
+        pelota.y = SUELO_Y - PAL_H - FOTO_OFFSET * 2 - BALL_R - 2;
+        pelota.vy = -Math.abs(pelota.vy) * 1.02 - 60;
+        pelota.vx += clampedOffset * 140;
+        pelota.spin = clampedOffset * 0.9;
+        if (pelota.vy > -300) pelota.vy = -350;
+        spawnParticulas(pelota.x, pelota.y + BALL_R, 8);
     }
 
-    // Colisión con paleta inferior
-    if (bola.vy > 0 && colisionCircRect(bola.x, bola.y, BALL_R, p1.x, PADDLE_Y_JUGADOR, PADDLE_W, PADDLE_H)) {
-        bola.y = PADDLE_Y_JUGADOR - PADDLE_H / 2 - BALL_R;
-        bola.vy = -Math.abs(bola.vy) * BALL_ACCEL_POR_GOLPE;
-        bola.vy = Math.max(bola.vy, -BALL_SPEED_MAX);
-        const hit = (bola.x - p1.x) / (PADDLE_W / 2);
-        bola.spin = Math.max(-SPIN_MAX, Math.min(SPIN_MAX, hit * 0.9));
-        bola.vx += hit * 60;
-        spawnParticulas(bola.x, bola.y);
+    // Fin por caída al suelo
+    if (pelota.y + BALL_R >= SUELO_Y) {
+        if (pelota.x >= HUECO_DER) {
+            // Cayó al lado del rival → ganó el jugador
+            if (esHost || modo === 'cpu') terminarPartida('jugador');
+        } else if (pelota.x <= HUECO_IZQ) {
+            // Cayó al lado del jugador → ganó el rival
+            if (esHost || modo === 'cpu') terminarPartida('rival');
+        } else {
+            // Cayó en el hueco central → rebote simple
+            pelota.y = SUELO_Y - BALL_R - 1;
+            pelota.vy = -pelota.vy * REBOTE_SUELO;
+        }
     }
 
-    // Fuera de límites → fin de partida
-    if (bola.y < -BALL_R * 3) {
-        // Pasó la CPU/arriba → ganó el jugador (abajo)
-        terminarPartida('jugador');
-        return;
-    }
-    if (bola.y > CH + BALL_R * 3) {
-        // Pasó el jugador → ganó la CPU/rival
-        terminarPartida('rival');
-        return;
-    }
-
-    // Aguantar (solo P2P)
-    if (modo === 'p2p') {
+    // Aguante P2P
+    if (modo === 'p2p' && estado === 'jugando') {
         sobrevividos += dt;
-        const bloqueActual = Math.floor(sobrevividos / AGUANTE_SEG);
-        if (bloqueActual > ultimoAguanteSeg) {
-            ultimoAguanteSeg = bloqueActual;
+        const bloque = Math.floor(sobrevividos / AGUANTE_SEG);
+        if (bloque > ultimoBloqueAguante) {
+            ultimoBloqueAguante = bloque;
             otorgarAguante();
         }
         actualizarHUDTimer();
@@ -614,7 +738,7 @@ function actualizar(dt) {
     for (const p of particulas) {
         p.x += p.vx * dt;
         p.y += p.vy * dt;
-        p.vy += 400 * dt;
+        p.vy += 500 * dt;
         p.life -= dt;
     }
     particulas = particulas.filter(p => p.life > 0);
@@ -627,24 +751,35 @@ function actualizar(dt) {
     popups = popups.filter(p => p.life > 0);
 }
 
-function colisionCircRect(cx, cy, r, rx, ry, rw, rh) {
-    const closestX = Math.max(rx - rw / 2, Math.min(cx, rx + rw / 2));
-    const closestY = Math.max(ry - rh / 2, Math.min(cy, ry + rh / 2));
-    const dx = cx - closestX;
-    const dy = cy - closestY;
-    return dx * dx + dy * dy < r * r;
+function colisionPelotaPaleta(b, centroX, lado) {
+    // Zona de colisión: la paleta + un colchón superior (foto)
+    const x1 = centroX - PAL_W / 2;
+    const x2 = centroX + PAL_W / 2;
+    const y1 = SUELO_Y - PAL_H - FOTO_OFFSET * 2;
+    const y2 = SUELO_Y;
+
+    // Solo detectar si la pelota está cayendo
+    if (b.vy < 0) return false;
+
+    // Círculo vs rectángulo
+    const closestX = Math.max(x1, Math.min(b.x, x2));
+    const closestY = Math.max(y1, Math.min(b.y, y2));
+    const dx = b.x - closestX;
+    const dy = b.y - closestY;
+    return dx * dx + dy * dy < BALL_R * BALL_R;
 }
 
-function spawnParticulas(x, y) {
-    for (let i = 0; i < 6; i++) {
+function spawnParticulas(x, y, cantidad) {
+    for (let i = 0; i < cantidad; i++) {
         const ang = Math.random() * Math.PI * 2;
-        const vel = 60 + Math.random() * 100;
+        const v = 60 + Math.random() * 140;
         particulas.push({
             x, y,
-            vx: Math.cos(ang) * vel,
-            vy: Math.sin(ang) * vel,
-            life: 0.45,
-            lifeMax: 0.45,
+            vx: Math.cos(ang) * v,
+            vy: Math.sin(ang) * v - 40,
+            size: 2 + Math.random() * 2.5,
+            life: 0.5,
+            lifeMax: 0.5,
             color: cv('--violet-400', '#A78BFA')
         });
     }
@@ -657,62 +792,52 @@ async function otorgarAguante() {
     aguantesCobrados++;
     monedasPartida += AGUANTE_MONEDAS;
 
-    // Popup
     popups.push({
         texto: '+' + AGUANTE_MONEDAS,
         x: CW / 2,
-        y: CH / 2 - 60,
-        life: 1.5,
-        lifeMax: 1.5
+        y: CH / 2 - 40,
+        life: 1.6,
+        lifeMax: 1.6
     });
 
     actualizarHUD();
 
     const api = API();
-    if (!api?.canjear) return;
-    try {
-        await api.canjear('timer', APP_ID, `Voleboy: aguante 30s`, AGUANTE_MONEDAS);
-    } catch (e) {
-        console.warn('[Voleboy] No se pudo otorgar aguante:', e);
+    if (api?.canjear) {
+        try { await api.canjear('timer', APP_ID, 'Voleboy: aguante 30s', AGUANTE_MONEDAS); }
+        catch (e) {}
     }
 
-    // Si es P2P y soy host, avisar al guest
     if (modo === 'p2p' && esHost && conn?.open) {
         try { conn.send({ t: 'aguantar' }); } catch (e) {}
     }
 }
 
 async function otorgarVictoria() {
-    let monto = 0;
-    if (modo === 'cpu') monto = MONEDAS_GANAR_CPU;
-    else monto = MONEDAS_GANAR_P2P;
+    const monto = modo === 'cpu' ? MONEDAS_GANAR_CPU : MONEDAS_GANAR_P2P;
     monedasPartida += monto;
     actualizarHUD();
     const api = API();
     if (api?.canjear) {
-        try {
-            await api.canjear('trophy', APP_ID, `Voleboy: victoria`, monto);
-        } catch (e) {}
+        try { await api.canjear('trophy', APP_ID, 'Voleboy: victoria', monto); }
+        catch (e) {}
     }
 }
 
 async function otorgarDerrota() {
-    if (modo === 'cpu') return;      // CPU: perder = 0
+    if (modo === 'cpu') return;
     monedasPartida += MONEDAS_PERDER_P2P;
     actualizarHUD();
     const api = API();
     if (api?.canjear) {
-        try {
-            await api.canjear('heart-handshake', APP_ID, `Voleboy: consuelo`, MONEDAS_PERDER_P2P);
-        } catch (e) {}
+        try { await api.canjear('heart-handshake', APP_ID, 'Voleboy: consuelo', MONEDAS_PERDER_P2P); }
+        catch (e) {}
     }
 }
 
 // ============================================================
 //  FIN DE PARTIDA
 // ============================================================
-let partidaTerminada = false;
-
 function terminarPartida(ganador) {
     if (partidaTerminada) return;
     partidaTerminada = true;
@@ -722,32 +847,26 @@ function terminarPartida(ganador) {
 
     const yoGane = ganador === 'jugador';
 
-    // Avisar al rival por red
     if (modo === 'p2p' && esHost && conn?.open) {
         try { conn.send({ t: 'fin', ganador }); } catch (e) {}
     }
 
-    // Otorgar monedas
     if (yoGane) otorgarVictoria();
     else        otorgarDerrota();
 
-    // Mostrar overlay
-    setTimeout(() => mostrarOverlayFin(yoGane, ganador), 300);
+    setTimeout(() => mostrarOverlayFin(yoGane), 350);
 }
 
-function mostrarOverlayFin(yoGane, ganador) {
+function mostrarOverlayFin(yoGane) {
     const iconoEl = document.getElementById('vbFinIcono');
     const tituloEl = document.getElementById('vbFinTitulo');
     const subEl = document.getElementById('vbFinSub');
     const tiempoEl = document.getElementById('vbFinTiempo');
     const bonusEl = document.getElementById('vbFinBonus');
     const totalEl = document.getElementById('vbFinTotal');
-    const btnReintentarTxt = document.getElementById('vbBtnReintentarTxt');
 
     iconoEl.className = 'vb-overlay-icono ' + (yoGane ? 'vb-overlay-icono-ganaste' : 'vb-overlay-icono-perdiste');
-    iconoEl.innerHTML = yoGane
-        ? '<i data-lucide="trophy"></i>'
-        : '<i data-lucide="frown"></i>';
+    iconoEl.innerHTML = yoGane ? '<i data-lucide="trophy"></i>' : '<i data-lucide="frown"></i>';
 
     tituloEl.textContent = yoGane ? '¡Ganaste!' : '¡Perdiste!';
     subEl.textContent = modo === 'cpu'
@@ -758,8 +877,8 @@ function mostrarOverlayFin(yoGane, ganador) {
     bonusEl.textContent  = '+' + (aguantesCobrados * AGUANTE_MONEDAS);
     totalEl.textContent  = '+' + monedasPartida;
 
-    // En P2P permitir reintentar; en CPU también
-    btnReintentarTxt.textContent = modo === 'p2p' ? 'Revancha' : 'Jugar otra vez';
+    document.getElementById('vbBtnReintentarTxt').textContent =
+        modo === 'p2p' ? 'Revancha' : 'Jugar otra vez';
 
     document.getElementById('vbOverlayFin').hidden = false;
     if (window.lucide) window.lucide.createIcons();
@@ -769,15 +888,14 @@ function mostrarOverlayFin(yoGane, ganador) {
 //  HUD
 // ============================================================
 function actualizarHUD() {
-    const elMonedas = document.getElementById('vbMonedas');
-    if (elMonedas) elMonedas.textContent = '+' + monedasPartida;
+    const elM = document.getElementById('vbMonedas');
+    if (elM) elM.textContent = '+' + monedasPartida;
 }
 
 function actualizarHUDTimer() {
-    const elTimer = document.getElementById('vbTimer');
-    if (!elTimer) return;
-    const dentroBloque = Math.floor(sobrevividos % AGUANTE_SEG);
-    elTimer.textContent = dentroBloque;
+    const el = document.getElementById('vbTimer');
+    if (!el) return;
+    el.textContent = Math.floor(sobrevividos % AGUANTE_SEG);
 }
 
 function mostrarHUD(mostrar) {
@@ -807,42 +925,38 @@ function loop(now) {
         return;
     }
 
-    // Estado jugando
+    // JUGANDO
     if (esHost || modo === 'cpu') {
         actualizar(dt);
     } else {
-        // Guest: solo actualiza su paleta local, la bola viene por red
-        actualizarPaletaJugador();
-        // Suavizado de la bola hacia el estado remoto
-        bola.x += (bolaRedX - bola.x) * Math.min(1, dt * 20);
-        bola.y += (bolaRedY - bola.y) * Math.min(1, dt * 20);
-        bola.vx = bolaRedVx;
-        bola.vy = bolaRedVy;
-        bola.spin = bolaRedSpin;
-        bola.trail.push({ x: bola.x, y: bola.y });
-        if (bola.trail.length > TRAIL_MAX) bola.trail.shift();
+        // Guest: solo se mueve su paleta, la pelota viene por red
+        actualizarJugador();
+        pelota.x += (ballRedX - pelota.x) * Math.min(1, dt * 18);
+        pelota.y += (ballRedY - pelota.y) * Math.min(1, dt * 18);
+        pelota.vx = ballRedVx;
+        pelota.vy = ballRedVy;
+        pelota.spin = ballRedSpin;
+        pelota.trail.push({ x: pelota.x, y: pelota.y });
+        if (pelota.trail.length > TRAIL_MAX) pelota.trail.shift();
 
-        // Paleta del rival (host)
-        const diff = rivalPaddleX - p2.x;
-        p2.x += diff * Math.min(1, dt * 25);
+        const diffR = rivalPaddleX - rival.x;
+        rival.x += diffR * Math.min(1, dt * 20);
     }
 
-    // Envío de red
+    // Envío por red
     if (modo === 'p2p' && conn?.open) {
         const ahora = performance.now();
-        // Guest → host: mi paleta
         if (!esHost && ahora - ultimoEnvioPaddle > 1000 / NET_PADDLE_HZ) {
             ultimoEnvioPaddle = ahora;
-            try { conn.send({ t: 'paddle', x: p1.x }); } catch (e) {}
+            try { conn.send({ t: 'paddle', x: jugador.x }); } catch (e) {}
         }
-        // Host → guest: estado completo
         if (esHost && ahora - ultimoEnvioEstado > 1000 / NET_STATE_HZ) {
             ultimoEnvioEstado = ahora;
             try {
                 conn.send({
                     t: 'state',
-                    ball: { x: bola.x, y: bola.y, vx: bola.vx, vy: bola.vy, spin: bola.spin },
-                    hostPaddle: p1.x
+                    ball: { x: pelota.x, y: pelota.y, vx: pelota.vx, vy: pelota.vy, spin: pelota.spin },
+                    hostPaddle: jugador.x
                 });
             } catch (e) {}
         }
@@ -851,9 +965,6 @@ function loop(now) {
     dibujar();
     rafId = requestAnimationFrame(loop);
 }
-
-// Variables para guest
-let bolaRedX = CW / 2, bolaRedY = CH / 2, bolaRedVx = 0, bolaRedVy = -BALL_SPEED_INICIAL, bolaRedSpin = 0;
 
 // ============================================================
 //  P2P
@@ -877,7 +988,7 @@ function iniciarP2P() {
     rafId = requestAnimationFrame(loop);
 
     const miNombre = cuenta?.nombre || 'Yo';
-    const miFotoBase64 = awaitObtenerMiFotoBase64();
+    const promesaFoto = obtenerMiFotoBase64();
 
     try {
         peer = esHost ? new Peer(codigo, { debug: 1 }) : new Peer(undefined, { debug: 1 });
@@ -887,7 +998,7 @@ function iniciarP2P() {
         return;
     }
 
-    peer.on('open', (id) => {
+    peer.on('open', () => {
         if (esHost) {
             mostrarInfo('Sala lista. Esperando invitado…', 'info');
         } else {
@@ -905,8 +1016,8 @@ function iniciarP2P() {
 
     peer.on('error', (err) => {
         let msg = err.message || err.type || 'Error de red.';
-        if (err.type === 'unavailable-id') msg = 'Ese código ya está en uso. Prueba otro.';
-        if (err.type === 'peer-unavailable') msg = 'No se encontró la sala. Revisa el código.';
+        if (err.type === 'unavailable-id')    msg = 'Ese código ya está en uso. Prueba otro.';
+        if (err.type === 'peer-unavailable')  msg = 'No se encontró la sala. Revisa el código.';
         mostrarInfo(msg, 'error');
         volverAlMenu();
     });
@@ -914,14 +1025,13 @@ function iniciarP2P() {
     async function conectarData(c) {
         conn = c;
         conn.on('open', async () => {
-            // Handshake: intercambiar nombre y foto
-            const miFoto = await miFotoBase64;
-            try { conn.send({ t: 'hello', nombre: miNombre, foto: miFoto }); } catch (e) {}
+            const foto = await promesaFoto;
+            try { conn.send({ t: 'hello', nombre: miNombre, foto }); } catch (e) {}
             mostrarInfo('Conectado. Empezando…', 'success');
         });
-        conn.on('data', (data) => manejarData(data));
+        conn.on('data', (d) => manejarData(d));
         conn.on('close', () => {
-            if (estado === 'jugando' || estado === 'countdown' || estado === 'esperando') {
+            if (['jugando','countdown','esperando'].includes(estado)) {
                 toast('El rival se desconectó', 'error');
                 volverAlMenu();
             }
@@ -929,7 +1039,7 @@ function iniciarP2P() {
     }
 }
 
-async function awaitObtenerMiFotoBase64() {
+async function obtenerMiFotoBase64() {
     const api = API();
     const cuenta = api?.obtenerCuenta?.();
     if (!cuenta) return null;
@@ -938,8 +1048,7 @@ async function awaitObtenerMiFotoBase64() {
         if (!bd) return null;
         const cuentas = await bd.leerArchivoFresh(RUTA_CUENTAS);
         if (!Array.isArray(cuentas)) return null;
-        const yo = cuentas.find(c => c.codigo === cuenta.codigo);
-        return yo?.foto || null;
+        return cuentas.find(c => c.codigo === cuenta.codigo)?.foto || null;
     } catch (e) { return null; }
 }
 
@@ -950,10 +1059,7 @@ function manejarData(data) {
         rivalNombre = data.nombre || 'Rival';
         rivalInicial = (rivalNombre || '?').charAt(0).toUpperCase();
         cargarFotoRival(data.foto);
-        // Arrancar partida cuando ambos están listos
-        if (estado === 'esperando') {
-            iniciarCountdown();
-        }
+        if (estado === 'esperando') iniciarCountdown();
         return;
     }
 
@@ -963,26 +1069,19 @@ function manejarData(data) {
     }
 
     if (data.t === 'state' && !esHost) {
-        bolaRedX = data.ball.x;
-        bolaRedY = data.ball.y;
-        bolaRedVx = data.ball.vx;
-        bolaRedVy = data.ball.vy;
-        bolaRedSpin = data.ball.spin;
+        ballRedX = data.ball.x;
+        ballRedY = data.ball.y;
+        ballRedVx = data.ball.vx;
+        ballRedVy = data.ball.vy;
+        ballRedSpin = data.ball.spin;
         rivalPaddleX = data.hostPaddle;
         return;
     }
 
     if (data.t === 'aguantar') {
-        // Guest recibe aviso del host: cobrar +5
         monedasPartida += AGUANTE_MONEDAS;
         aguantesCobrados++;
-        popups.push({
-            texto: '+' + AGUANTE_MONEDAS,
-            x: CW / 2,
-            y: CH / 2 - 60,
-            life: 1.5,
-            lifeMax: 1.5
-        });
+        popups.push({ texto: '+' + AGUANTE_MONEDAS, x: CW / 2, y: CH / 2 - 40, life: 1.6, lifeMax: 1.6 });
         actualizarHUD();
         const api = API();
         if (api?.canjear) api.canjear('timer', APP_ID, 'Voleboy: aguante 30s', AGUANTE_MONEDAS).catch(() => {});
@@ -990,15 +1089,14 @@ function manejarData(data) {
     }
 
     if (data.t === 'fin') {
-        // El guest recibe el resultado del host
         if (partidaTerminada) return;
         partidaTerminada = true;
         estado = 'fin';
         if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-        const yoGane = data.ganador === 'guest';   // Desde la perspectiva del guest
+        const yoGane = data.ganador === 'guest';
         if (yoGane) otorgarVictoria();
         else        otorgarDerrota();
-        setTimeout(() => mostrarOverlayFin(yoGane, data.ganador), 300);
+        setTimeout(() => mostrarOverlayFin(yoGane), 350);
         return;
     }
 }
@@ -1037,9 +1135,9 @@ function volverAlMenu() {
     modo = 'cpu';
     esHost = false;
     partidaTerminada = false;
-    mostrarMenu();
-    mostrarHUD(false);
+    document.getElementById('vbOverlayMenu').hidden = false;
     document.getElementById('vbOverlayFin').hidden = true;
+    mostrarHUD(false);
     resetPartida();
     dibujar();
 }
@@ -1047,14 +1145,11 @@ function volverAlMenu() {
 // ============================================================
 //  UI
 // ============================================================
-function mostrarMenu() {
-    const m = document.getElementById('vbMenu');
-    if (m) m.hidden = false;
-}
 function ocultarMenu() {
-    const m = document.getElementById('vbMenu');
+    const m = document.getElementById('vbOverlayMenu');
     if (m) m.hidden = true;
 }
+
 function mostrarInfo(texto, tipo) {
     const el = document.getElementById('vbInfo');
     if (!el) return;
@@ -1071,13 +1166,8 @@ async function inicializar() {
     const api = API();
     const cuenta = api?.obtenerCuenta?.();
     const badge = document.getElementById('vbUserBadge');
-    if (badge) {
-        badge.textContent = cuenta
-            ? `@${cuenta.codigo} · ${cuenta.nombre}`
-            : '—';
-    }
+    if (badge) badge.textContent = cuenta ? `@${cuenta.codigo} · ${cuenta.nombre}` : '—';
 
-    // Código de sala por defecto: el código del usuario
     const inputSala = document.getElementById('vbInputSala');
     if (inputSala && cuenta?.codigo) inputSala.value = cuenta.codigo;
 
@@ -1092,9 +1182,7 @@ async function inicializar() {
     document.getElementById('vbBtnMenu')?.addEventListener('click', volverAlMenu);
     document.getElementById('vbBtnReintentar')?.addEventListener('click', () => {
         document.getElementById('vbOverlayFin').hidden = true;
-        partidaTerminada = false;
         if (modo === 'p2p') {
-            // Revancha: reusar la conexión
             iniciarCountdown();
             if (rafId) cancelAnimationFrame(rafId);
             ultimoFrameMs = 0;
