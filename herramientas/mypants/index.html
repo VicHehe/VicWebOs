@@ -6,89 +6,140 @@
     <title>MyPants</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 
-    <div class="mp-container">
+    <div class="mp-app">
+
         <!-- HEADER FLOTANTE -->
-        <header class="mp-header" id="mpHeader">
-            <div class="mp-logo">
-                <div class="mp-logo-mark">
+        <header class="mp-header" id="mpHeader" hidden>
+            <div class="mp-header-left">
+                <div class="mp-logo">
                     <i data-lucide="smartphone"></i>
                 </div>
-                <div class="mp-logo-text">
-                    <h1>MyPants</h1>
-                </div>
+                <span class="mp-logo-nombre">MyPants</span>
             </div>
-            <div class="mp-header-actions">
-                <button class="mp-icon-btn" id="mpBtnPerfil" title="Mi Armario">
+            <div class="mp-header-right">
+                <button class="mp-header-btn" id="mpBtnSonido" title="Activar sonido">
+                    <i data-lucide="volume-x"></i>
+                </button>
+                <button class="mp-header-btn" id="mpBtnPerfil" title="Mi Armario">
                     <i data-lucide="user"></i>
                 </button>
-                <button class="mp-btn-nuevo" id="mpBtnNuevo">
+                <button class="mp-header-btn mp-header-btn-primary" id="mpBtnNuevo" title="Subir video">
                     <i data-lucide="plus"></i>
                     <span>Subir</span>
                 </button>
             </div>
         </header>
 
-        <!-- FEED TIKTOK STYLE -->
+        <!-- FEED -->
         <main class="mp-feed" id="mpFeed" hidden></main>
-        
-        <!-- EMPTY STATE (Estilo VicsGram) -->
+
+        <!-- EMPTY STATE -->
         <div class="mp-empty" id="mpEmpty">
             <div class="mp-empty-icon">
-                <i data-lucide="smartphone"></i>
+                <i data-lucide="video"></i>
             </div>
-            <h3>No hay pantalones subidos</h3>
-            <p>Sube el primer clip de 2MB a la comunidad.</p>
+            <h3>Aún no hay pantalones</h3>
+            <p>Sé el primero en subir un clip de máximo 2 MB a la comunidad.</p>
             <button class="mp-empty-btn" id="mpEmptyBtn">
                 <i data-lucide="plus"></i>
                 Subir video
             </button>
+            <p class="mp-empty-hint">
+                <i data-lucide="info"></i>
+                Máximo 25 clips por persona.
+            </p>
         </div>
+
     </div>
 
-    <!-- MODAL SUBIR VIDEO -->
+    <!-- MODAL SUBIR -->
     <div class="mp-modal" id="mpModalSubir" hidden>
         <div class="mp-modal-card">
             <div class="mp-modal-header">
-                <h2><i data-lucide="upload"></i> Nuevo Pantalón</h2>
+                <h2>
+                    <i data-lucide="upload"></i>
+                    <span>Nuevo pantalón</span>
+                </h2>
                 <button class="mp-modal-cerrar" id="mpSubirCerrar"><i data-lucide="x"></i></button>
             </div>
-            
-            <div class="mp-modal-body">
-                <div class="mp-modal-mensaje error" id="mpAlertaLimite" hidden>
-                    Has alcanzado el límite de 25 videos. Borra uno desde tu perfil para subir nuevos.
-                </div>
-                
-                <div id="mpFormSubir">
-                    <label class="mp-file-drop" id="mpFileDrop">
-                        <i data-lucide="video"></i>
-                        <p>Elige un video (Máx 2MB)</p>
-                        <input type="file" id="mpInputFile" accept="video/mp4,video/x-m4v,video/*" hidden>
-                    </label>
-                    
-                    <div class="mp-preview-wrap" id="mpPreviewWrap" hidden>
-                        <video id="mpVideoPreview" controls playsinline muted></video>
-                        <button class="mp-btn-secundario mp-w-full" id="mpBtnCambiarVideo" style="margin-top: 12px;">
-                            <i data-lucide="refresh-cw"></i> Cambiar archivo
-                        </button>
-                    </div>
 
-                    <div class="mp-campo">
-                        <label>Descripción</label>
-                        <input type="text" id="mpInputDesc" maxlength="60" placeholder="¿De qué trata este clip?">
+            <div class="mp-modal-body">
+                <div class="mp-upload-drop" id="mpFileDrop">
+                    <i data-lucide="video"></i>
+                    <p class="mp-upload-titulo">Elegí un video</p>
+                    <p class="mp-upload-sub">Máx 2 MB · Recomendado MP4</p>
+                    <input type="file" id="mpInputFile" accept="video/*" hidden>
+                </div>
+
+                <div class="mp-preview-wrap" id="mpPreviewWrap" hidden>
+                    <div class="mp-preview-video">
+                        <video id="mpVideoPreview" controls playsinline muted></video>
                     </div>
+                    <button class="mp-btn-secundario" id="mpBtnCambiarVideo">
+                        <i data-lucide="refresh-cw"></i>
+                        Cambiar video
+                    </button>
+                </div>
+
+                <div class="mp-campo">
+                    <label>Descripción</label>
+                    <input type="text" id="mpInputDesc" maxlength="60" placeholder="¿De qué trata este clip?">
                 </div>
             </div>
 
-            <div class="mp-modal-actions" id="mpSubirActions">
+            <div class="mp-modal-actions">
                 <button class="mp-btn-secundario" id="mpSubirCancelar">Cancelar</button>
                 <button class="mp-btn-primario" id="mpSubirGuardar" disabled>
-                    <i data-lucide="check"></i> Subir
+                    <i data-lucide="check"></i>
+                    Subir
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL LÍMITE ALCANZADO -->
+    <div class="mp-modal" id="mpModalLimite" hidden>
+        <div class="mp-modal-card mp-card-limite">
+            <div class="mp-modal-header">
+                <h2>
+                    <i data-lucide="alert-triangle"></i>
+                    <span>Límite alcanzado</span>
+                </h2>
+                <button class="mp-modal-cerrar" id="mpLimiteCerrar"><i data-lucide="x"></i></button>
+            </div>
+
+            <div class="mp-modal-body">
+                <p class="mp-limite-texto">
+                    Ya tenés <strong>25 pantalones</strong> en tu armario.
+                </p>
+                <p class="mp-limite-texto">
+                    ¿Cómo querés proceder para subir este nuevo clip?
+                </p>
+
+                <button class="mp-limite-opcion" id="mpLimiteAuto">
+                    <div class="mp-limite-opcion-icono">
+                        <i data-lucide="refresh-cw"></i>
+                    </div>
+                    <div class="mp-limite-opcion-info">
+                        <strong>Modo automático</strong>
+                        <span>Sube el nuevo y borra el más antiguo sin preguntar.</span>
+                    </div>
+                </button>
+
+                <button class="mp-limite-opcion" id="mpLimiteManual">
+                    <div class="mp-limite-opcion-icono">
+                        <i data-lucide="list-checks"></i>
+                    </div>
+                    <div class="mp-limite-opcion-info">
+                        <strong>Modo manual</strong>
+                        <span>Ve a tu armario, borrá uno y volvé a intentar.</span>
+                    </div>
                 </button>
             </div>
         </div>
@@ -98,13 +149,16 @@
     <div class="mp-modal mp-modal-bottom" id="mpModalComentarios" hidden>
         <div class="mp-modal-card mp-card-comentarios">
             <div class="mp-modal-header">
-                <h2><i data-lucide="message-circle"></i> Comentarios</h2>
+                <h2>
+                    <i data-lucide="message-circle"></i>
+                    <span>Comentarios</span>
+                </h2>
                 <button class="mp-modal-cerrar" id="mpComCerrar"><i data-lucide="x"></i></button>
             </div>
             <div class="mp-comentarios-lista" id="mpComLista"></div>
-            <div class="mp-ver-input-wrap">
+            <div class="mp-com-input-bar">
                 <input type="text" id="mpInputComentario" maxlength="150" placeholder="Escribe un comentario...">
-                <button class="mp-btn-enviar" id="mpBtnEnviarCom">
+                <button class="mp-btn-enviar" id="mpBtnEnviarCom" disabled>
                     <i data-lucide="send"></i>
                 </button>
             </div>
@@ -115,16 +169,26 @@
     <div class="mp-modal" id="mpModalPerfil" hidden>
         <div class="mp-modal-card mp-card-perfil">
             <div class="mp-modal-header">
-                <h2><i data-lucide="user"></i> Mi Armario</h2>
+                <h2>
+                    <i data-lucide="user"></i>
+                    <span id="mpPerfilTitulo">Mi Armario</span>
+                </h2>
                 <button class="mp-modal-cerrar" id="mpPerfilCerrar"><i data-lucide="x"></i></button>
             </div>
-            <div class="mp-perfil-stats">
-                <span id="mpPerfilConteo">0 / 25 videos subidos</span>
+
+            <div class="mp-perfil-header">
+                <div class="mp-perfil-avatar" id="mpPerfilAvatar"></div>
+                <div class="mp-perfil-info">
+                    <h3 id="mpPerfilNombre">—</h3>
+                    <span class="mp-perfil-codigo" id="mpPerfilCodigo">—</span>
+                    <span class="mp-perfil-stats" id="mpPerfilStats">0 videos</span>
+                </div>
             </div>
+
             <div class="mp-perfil-grid" id="mpPerfilGrid"></div>
             <div class="mp-perfil-vacio" id="mpPerfilVacio" hidden>
                 <i data-lucide="video-off"></i>
-                <p>Tu armario está vacío.</p>
+                <p>Este armario está vacío.</p>
             </div>
         </div>
     </div>
@@ -132,5 +196,6 @@
     <div class="mp-toast" id="mpToast"></div>
 
     <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>
