@@ -30,8 +30,8 @@ const MAX_TEXTO         = 280;
 const MAX_COMENTARIO    = 200;
 const MAX_RESPUESTA     = 200;
 const TWEETS_POR_PAGINA = 10;
-const COSTO_TWEPLUS     = 100;
-const DIAS_TWEPLUS      = 30;
+const COSTO_TWEPLUS     = 120;
+const DIAS_TWEPLUS      = 24;
 const MAX_HISTORIAL     = 20;
 
 let usuarioActual = null;
