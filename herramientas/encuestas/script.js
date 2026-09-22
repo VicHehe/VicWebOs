@@ -1281,3 +1281,110 @@ async function inicializar() {
     });
 
     // Modal crear: categoría
+    document.querySelectorAll('.en-cat-opcion').forEach(b => {
+        b.addEventListener('click', () => {
+            catSeleccionada = b.dataset.cat;
+            actualizarTogglesCrear();
+        });
+    });
+
+    // Modal crear: toggles
+    document.querySelectorAll('.en-toggle').forEach(b => {
+        b.addEventListener('click', () => {
+            const t = b.dataset.toggle;
+            if (t === 'voto-unico' || t === 'voto-multiple') {
+                toggleVoto = t === 'voto-unico' ? 'unico' : 'multiple';
+            } else if (t === 'publico' || t === 'privado') {
+                toggleVisibilidad = t === 'publico' ? 'publico' : 'privado';
+                actualizarFieldJustificacion();
+            } else if (t === 'todos' || t === 'invitados') {
+                toggleAlcance = t === 'todos' ? 'todos' : 'invitados';
+                document.getElementById('enCrearElegirInvitados').hidden = toggleAlcance !== 'invitados';
+            }
+            actualizarTogglesCrear();
+        });
+    });
+
+    // Modal crear: opciones
+    document.getElementById('enCrearAddOpcion')?.addEventListener('click', () => agregarOpcion(''));
+
+    // Modal crear: justificación
+    document.getElementById('enCrearJustifOblig')?.addEventListener('change', (e) => {
+        justifObligatoria = e.target.checked;
+    });
+
+    // Modal crear: cierre
+    document.getElementById('enCrearCierreActivo')?.addEventListener('change', (e) => {
+        const inp = document.getElementById('enCrearCierreFecha');
+        inp.hidden = !e.target.checked;
+        if (e.target.checked) {
+            // default: mañana a esta hora
+            const d = new Date(Date.now() + 24 * 60 * 60 * 1000);
+            d.setSeconds(0, 0);
+            const iso = d.toISOString().slice(0, 16);
+            inp.value = iso;
+        }
+    });
+
+    // Modal crear: invitados
+    document.getElementById('enCrearElegirInvitados')?.addEventListener('click', abrirModalInvitados);
+
+    // Modal crear: guardar
+    document.getElementById('enCrearGuardar')?.addEventListener('click', guardarEncuesta);
+
+    // Modal invitados
+    document.getElementById('enInvitadosCerrar')?.addEventListener('click', () => {
+        document.getElementById('enModalInvitados').hidden = true;
+    });
+    document.getElementById('enInvitadosListo')?.addEventListener('click', () => {
+        document.getElementById('enModalInvitados').hidden = true;
+        const txt = document.getElementById('enCrearInvitadosTxt');
+        const n = invitadosSeleccionados.length;
+        txt.textContent = n === 0 ? 'Elegir invitados'
+            : n === 1 ? '1 invitado'
+            : `${n} invitados`;
+    });
+    document.getElementById('enInvitadosBuscar')?.addEventListener('input', (e) => {
+        renderListaInvitados(e.target.value);
+    });
+
+    // Modal ver
+    document.getElementById('enVerCerrar')?.addEventListener('click', () => {
+        document.getElementById('enModalVer').hidden = true;
+    });
+
+    // Modal top
+    document.getElementById('enTopCerrar')?.addEventListener('click', () => {
+        document.getElementById('enModalTop').hidden = true;
+    });
+    document.querySelectorAll('.en-top-tab').forEach(t => {
+        t.addEventListener('click', () => {
+            topCategoria = t.dataset.cat;
+            document.querySelectorAll('.en-top-tab').forEach(x => x.classList.remove('active'));
+            t.classList.add('active');
+            renderTop();
+        });
+    });
+
+    // Click fuera de modales
+    ['enModalCrear', 'enModalVer', 'enModalTop', 'enModalInvitados'].forEach(id => {
+        const m = document.getElementById(id);
+        m?.addEventListener('click', (ev) => {
+            if (ev.target.id === id) m.hidden = true;
+        });
+    });
+
+    // Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        const abiertos = ['enModalInvitados', 'enModalCrear', 'enModalVer', 'enModalTop'];
+        for (const id of abiertos) {
+            const m = document.getElementById(id);
+            if (m && !m.hidden) { m.hidden = true; return; }
+        }
+    });
+
+    if (window.lucide) window.lucide.createIcons();
+}
+
+document.addEventListener('DOMContentLoaded', inicializar);
