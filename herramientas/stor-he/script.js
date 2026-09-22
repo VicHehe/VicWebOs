@@ -1,18 +1,17 @@
 // ============================================================
 //  Stor-He — Lógica
-//  Instalar/desinstalar apps, temas y widgets.
-//  Incluye validaciones de espacio y monedas + compra de espacio.
-//  Compatible con TODOS los temas (hereda variables CSS del padre).
-//
-//  Anti doble-click: mientras una acción está en curso, el botón
-//  se deshabilita y se bloquea una segunda ejecución.
+//  Tabs: Apps / Temas / Widgets / PromoZione
+//  Compatible con TODOS los temas (var() con fallbacks).
+//  Sin emojis.
 // ============================================================
 
 const API = () => window.parent.__vicwebos || null;
+const PZ  = () => window.parent.PromoZione || null;
 const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 
-// Set de acciones en vuelo: "instalar:calculadora", "instalarTema:vapor", ...
 const _accionesEnVuelo = new Set();
+
+let _timerOfertas = null;
 
 // ============================================================
 //  TEMA
@@ -47,7 +46,9 @@ window.addEventListener('message', (e) => {
     }
 });
 
-// ---------- TOAST ----------
+// ============================================================
+//  TOAST
+// ============================================================
 let toastTimeout = null;
 function toast(texto, tipo = 'info') {
     const el = document.getElementById('shToast');
@@ -62,14 +63,15 @@ function toast(texto, tipo = 'info') {
     toastTimeout = setTimeout(() => el.classList.remove('show'), 2600);
 }
 
-// ---------- RECURSOS ----------
+// ============================================================
+//  RECURSOS (espacio / monedas)
+// ============================================================
 function actualizarRecursos() {
     const api = API();
     if (!api) return;
-
-    const espacioMax = api.obtenerEspacioMaximo() ?? 50;
+    const espacioMax   = api.obtenerEspacioMaximo() ?? 50;
     const espacioUsado = api.obtenerEspacioUsado() ?? 0;
-    const monedas = api.obtenerMonedas() ?? 0;
+    const monedas      = api.obtenerMonedas() ?? 0;
 
     const elEsp = document.getElementById('shEspacio');
     const elMon = document.getElementById('shMonedas');
@@ -77,17 +79,19 @@ function actualizarRecursos() {
     if (elMon) elMon.textContent = monedas;
 }
 
-// ---------- RENDER: AMPLIACIÓN ----------
+// ============================================================
+//  AMPLIACIÓN DE ESPACIO
+// ============================================================
 function renderAmpliacion() {
     const cont = document.getElementById('shAmpliacion');
     const api = API();
     if (!cont || !api) return;
 
-    const max = api.obtenerEspacioMaximo() ?? 50;
+    const max     = api.obtenerEspacioMaximo() ?? 50;
     const monedas = api.obtenerMonedas() ?? 0;
-    const costo = api.COSTO_COMPRA_ESPACIO ?? 350;
-    const sumar = api.ESPACIO_POR_COMPRA ?? 5;
-    const puede = monedas >= costo;
+    const costo   = api.COSTO_COMPRA_ESPACIO ?? 350;
+    const sumar   = api.ESPACIO_POR_COMPRA ?? 5;
+    const puede   = monedas >= costo;
 
     cont.innerHTML = `
         <div class="sh-ampliacion-card">
@@ -110,7 +114,9 @@ function renderAmpliacion() {
     lucide.createIcons();
 }
 
-// ---------- RENDER GENÉRICO ----------
+// ============================================================
+//  HELPERS DE RENDER
+// ============================================================
 function agruparPorCategoria(lista) {
     const cats = {};
     lista.forEach(item => {
@@ -147,7 +153,6 @@ function renderGrid(contenedor, lista, renderCard) {
     lucide.createIcons();
 }
 
-// ---------- ETIQUETA DE COSTO ----------
 function etiquetaCosto(item) {
     const partes = [];
     if ((item.espacio || 0) > 0) {
@@ -174,14 +179,14 @@ function renderApps() {
         return;
     }
 
-    const catalogo = api.obtenerCatalogo() || [];
+    const catalogo   = api.obtenerCatalogo() || [];
     const instaladas = api.obtenerInstaladas() || [];
     document.getElementById('countApps').textContent = catalogo.length;
 
     renderGrid(cont, catalogo, (app) => {
         const instalada = instaladas.includes(app.id);
-        const esBase = !!app.esBase;
-        const check = api.puedeInstalar({ espacio: app.espacio || 0, monedas: app.monedas || 0 });
+        const esBase    = !!app.esBase;
+        const check     = api.puedeInstalar({ espacio: app.espacio || 0, monedas: app.monedas || 0 });
         const bloqueado = !instalada && !check.ok;
 
         return `
@@ -225,12 +230,12 @@ function renderApps() {
 //  TAB: TEMAS
 // ============================================================
 function renderTemaPreview(colores) {
-    const c100 = colores['--violet-100'] || '#EDE9FE';
-    const c300 = colores['--violet-300'] || '#C4B5FD';
-    const c500 = colores['--violet-500'] || '#8B5CF6';
-    const bg   = colores['--bg']         || '#FBFBFD';
-    const bgAlt= colores['--bg-alt']     || '#F5F5F8';
-    const white= colores['--white']      || '#FFFFFF';
+    const c100  = colores['--violet-100'] || '#EDE9FE';
+    const c300  = colores['--violet-300'] || '#C4B5FD';
+    const c500  = colores['--violet-500'] || '#8B5CF6';
+    const bg    = colores['--bg']         || '#FBFBFD';
+    const bgAlt = colores['--bg-alt']     || '#F5F5F8';
+    const white = colores['--white']      || '#FFFFFF';
 
     return `
         <div class="sh-tema-preview" style="background:${bg};">
@@ -261,17 +266,17 @@ function renderTemas() {
         return;
     }
 
-    const catalogo = api.obtenerTemas() || [];
+    const catalogo   = api.obtenerTemas() || [];
     const instalados = api.obtenerTemasInstalados() || [];
-    const activo = api.obtenerTemaActivo();
+    const activo     = api.obtenerTemaActivo();
 
     document.getElementById('countTemas').textContent = catalogo.length;
 
     renderGrid(cont, catalogo, (tema) => {
         const instalado = instalados.includes(tema.id);
-        const esBase = !!tema.esBase;
-        const esActivo = activo === tema.id;
-        const check = api.puedeInstalar({ espacio: tema.espacio || 0, monedas: tema.monedas || 0 });
+        const esBase    = !!tema.esBase;
+        const esActivo  = activo === tema.id;
+        const check     = api.puedeInstalar({ espacio: tema.espacio || 0, monedas: tema.monedas || 0 });
         const bloqueado = !instalado && !check.ok;
 
         return `
@@ -326,15 +331,15 @@ function renderWidgets() {
         return;
     }
 
-    const catalogo = api.obtenerWidgets() || [];
+    const catalogo   = api.obtenerWidgets() || [];
     const instalados = api.obtenerWidgetsInstalados() || [];
 
     document.getElementById('countWidgets').textContent = catalogo.length;
 
     renderGrid(cont, catalogo, (widget) => {
         const instalado = instalados.includes(widget.id);
-        const esBase = !!widget.esBase;
-        const check = api.puedeInstalar({ espacio: widget.espacio || 0, monedas: widget.monedas || 0 });
+        const esBase    = !!widget.esBase;
+        const check     = api.puedeInstalar({ espacio: widget.espacio || 0, monedas: widget.monedas || 0 });
         const bloqueado = !instalado && !check.ok;
 
         return `
@@ -375,20 +380,316 @@ function renderWidgets() {
 }
 
 // ============================================================
-//  ACCIONES (con lock anti doble-click)
+//  TAB: PROMOZIONE
 // ============================================================
-async function manejarAccion(accion, id, btnOrigen) {
-    const api = API();
-    if (!api) return;
+function _tipoIcono(tipo) {
+    if (tipo === 'app')    return 'package';
+    if (tipo === 'tema')   return 'palette';
+    if (tipo === 'widget') return 'layout-grid';
+    return 'circle';
+}
 
-    // Lock por acción + id (permite dos apps distintas a la vez, pero no la misma dos veces)
-    const clave = `${accion}:${id || 'x'}`;
-    if (_accionesEnVuelo.has(clave)) {
+function _tipoNombre(tipo) {
+    if (tipo === 'app')    return 'App';
+    if (tipo === 'tema')   return 'Tema';
+    if (tipo === 'widget') return 'Widget';
+    return '';
+}
+
+function _claseDescuento(d) {
+    if (d >= 75) return 'sh-desc-75';
+    if (d >= 50) return 'sh-desc-50';
+    return 'sh-desc-25';
+}
+
+function pad2(n) { return String(n).padStart(2, '0'); }
+
+function renderPromoZione() {
+    const cont = document.getElementById('promoContenido');
+    if (!cont) return;
+
+    const pz = PZ();
+    if (!pz) {
+        cont.innerHTML = `
+            <div class="sh-empty">
+                <i data-lucide="alert-triangle"></i>
+                <h3>PromoZione no está disponible</h3>
+                <p>Falta cargar <code>js/PaquetePromo.js</code> en el shell.</p>
+            </div>`;
+        lucide.createIcons();
         return;
     }
+
+    const api = API();
+    if (!api) {
+        cont.innerHTML = `
+            <div class="sh-empty">
+                <i data-lucide="alert-triangle"></i>
+                <h3>Error de conexión</h3>
+                <p>No se pudo conectar con VicWebOS.</p>
+            </div>`;
+        lucide.createIcons();
+        return;
+    }
+
+    const paquetes = pz.obtenerPaquetesVisibles() || [];
+    const ofertasCount = _ofertasCache ? _ofertasCache.length : null;
+    const countEl = document.getElementById('countPromo');
+    if (countEl) countEl.textContent = String(paquetes.length + (ofertasCount || 0));
+
+    cont.innerHTML = `
+        <div class="sh-promo-header">
+            <div class="sh-promo-header-icono"><i data-lucide="sparkles"></i></div>
+            <div class="sh-promo-header-texto">
+                <h2>PromoZione</h2>
+                <p>Paquetes con descuento y ofertas que rotan cada medianoche (hora de Chile).</p>
+            </div>
+        </div>
+
+        <section class="sh-promo-seccion">
+            <div class="sh-promo-seccion-header">
+                <h3><i data-lucide="gift"></i> Paquetes</h3>
+                <span class="sh-promo-seccion-sub">Combos curados a precio fijo</span>
+            </div>
+            <div id="shPaquetesGrid"></div>
+        </section>
+
+        <section class="sh-promo-seccion">
+            <div class="sh-promo-seccion-header">
+                <h3><i data-lucide="timer"></i> Ofertas del día</h3>
+                <div class="sh-oferta-timer" id="shOfertaTimer">
+                    <i data-lucide="clock"></i>
+                    <span id="shOfertaTimerTexto">--:--:--</span>
+                </div>
+            </div>
+            <div class="sh-oferta-progress">
+                <div class="sh-oferta-progress-fill" id="shOfertaBarra"></div>
+            </div>
+            <div id="shOfertasGrid"></div>
+        </section>
+    `;
+    lucide.createIcons();
+
+    renderPaquetes();
+    renderOfertas();
+    iniciarTimerOfertas();
+}
+
+// ---------- PAQUETES ----------
+function renderPaquetes() {
+    const cont = document.getElementById('shPaquetesGrid');
+    const pz = PZ();
+    const api = API();
+    if (!cont || !pz || !api) return;
+
+    const paquetes = pz.obtenerPaquetesVisibles() || [];
+
+    if (paquetes.length === 0) {
+        cont.innerHTML = `
+            <div class="sh-empty" style="padding: 30px 20px;">
+                <i data-lucide="gift"></i>
+                <h3>No hay paquetes por ahora</h3>
+                <p>Cuando agregues paquetes en <code>PaquetePromo.js</code> aparecerán acá.</p>
+            </div>`;
+        lucide.createIcons();
+        return;
+    }
+
+    const monedas = api.obtenerMonedas() ?? 0;
+    const espacioLibre = api.obtenerEspacioLibre() ?? 0;
+
+    cont.innerHTML = `<div class="sh-promo-grid sh-promo-grid-paquetes">${
+        paquetes.map(p => {
+            const itemsHTML = p.items.map(it => `
+                <span class="sh-pack-item ${it.yaLoTiene ? 'tiene' : ''}">
+                    <i data-lucide="${it.icono}"></i>
+                    <span>${it.nombre}</span>
+                    ${it.yaLoTiene ? '<i data-lucide="check" class="sh-pack-item-check"></i>' : ''}
+                </span>
+            `).join('');
+
+            const ahorro = p.precioCatalogo - p.precio;
+            const ahorroBadge = ahorro > 0
+                ? `<span class="sh-pack-ahorro">Ahorrás ${ahorro}</span>`
+                : '';
+
+            const sinMonedas  = monedas < p.precio;
+            const sinEspacio  = espacioLibre < p.espacio;
+            const bloqueado   = sinMonedas || sinEspacio;
+            const motivo = sinEspacio
+                ? `Necesitás ${p.espacio} de espacio (tenés ${espacioLibre}).`
+                : sinMonedas
+                    ? `Te faltan ${p.precio - monedas} monedas.`
+                    : '';
+
+            return `
+                <div class="sh-pack-card" data-id="${p.id}">
+                    <div class="sh-pack-header">
+                        <div class="sh-pack-icono"><i data-lucide="${p.icono}"></i></div>
+                        <div class="sh-pack-titulo">
+                            <h4>${p.nombre} ${ahorroBadge}</h4>
+                            <p>${p.descripcion}</p>
+                        </div>
+                    </div>
+                    <div class="sh-pack-items">${itemsHTML}</div>
+                    <div class="sh-pack-pie">
+                        <div class="sh-pack-costos">
+                            <span class="sh-coste sh-coste-esp"><i data-lucide="hard-drive"></i> ${p.espacio}</span>
+                            <span class="sh-coste sh-coste-mon">
+                                <i data-lucide="coins"></i>
+                                ${p.precio}
+                                ${p.precioCatalogo > p.precio ? `<s>${p.precioCatalogo}</s>` : ''}
+                            </span>
+                        </div>
+                        <button class="sh-btn ${bloqueado ? 'sh-btn-aplicar' : 'sh-btn-instalar'}"
+                                data-accion="comprarPaquete" data-id="${p.id}"
+                                ${bloqueado ? `disabled title="${motivo}"` : ''}>
+                            <i data-lucide="shopping-bag"></i> Comprar
+                        </button>
+                    </div>
+                </div>`;
+        }).join('')
+    }</div>`;
+    lucide.createIcons();
+}
+
+// ---------- OFERTAS ----------
+let _ofertasCache = null;
+
+async function renderOfertas() {
+    const cont = document.getElementById('shOfertasGrid');
+    const pz = PZ();
+    const api = API();
+    if (!cont || !pz || !api) return;
+
+    cont.innerHTML = `
+        <div class="sh-empty" style="padding: 30px 20px;">
+            <i data-lucide="loader-2" class="spin"></i>
+            <p>Cargando ofertas del día...</p>
+        </div>`;
+    lucide.createIcons();
+
+    let ofertas = [];
+    try {
+        ofertas = await pz.obtenerOfertasDelDia();
+    } catch (e) {
+        ofertas = [];
+    }
+    _ofertasCache = ofertas;
+
+    if (ofertas.length === 0) {
+        cont.innerHTML = `
+            <div class="sh-empty" style="padding: 30px 20px;">
+                <i data-lucide="check-circle-2"></i>
+                <h3>Ya aprovechaste las ofertas de hoy</h3>
+                <p>Volvé mañana cuando roten. O compraste todo, o no hay nada disponible.</p>
+            </div>`;
+        lucide.createIcons();
+        _actualizarCountPromo();
+        return;
+    }
+
+    const monedas = api.obtenerMonedas() ?? 0;
+    const espacioLibre = api.obtenerEspacioLibre() ?? 0;
+
+    cont.innerHTML = `<div class="sh-promo-grid sh-promo-grid-ofertas">${
+        ofertas.map(o => {
+            const sinMonedas = monedas < o.precioFinal;
+            const sinEspacio = espacioLibre < o.espacio;
+            const bloqueado  = sinMonedas || sinEspacio;
+            const motivo = sinEspacio
+                ? `Necesitás ${o.espacio} de espacio (tenés ${espacioLibre}).`
+                : sinMonedas
+                    ? `Te faltan ${o.precioFinal - monedas} monedas.`
+                    : '';
+
+            return `
+                <div class="sh-oferta-card ${_claseDescuento(o.descuento)}" data-tipo="${o.tipo}" data-id="${o.id}">
+                    <div class="sh-oferta-badge">-${o.descuento}%</div>
+                    <div class="sh-oferta-tipo">
+                        <i data-lucide="${_tipoIcono(o.tipo)}"></i>
+                        <span>${_tipoNombre(o.tipo)}</span>
+                    </div>
+                    <div class="sh-oferta-icono"><i data-lucide="${o.icono}"></i></div>
+                    <h4 class="sh-oferta-nombre">${o.nombre}</h4>
+                    <p class="sh-oferta-desc">${o.descripcion}</p>
+                    <div class="sh-oferta-precio">
+                        <span class="sh-oferta-precio-original">${o.precioOriginal}</span>
+                        <span class="sh-oferta-precio-final"><i data-lucide="coins"></i> ${o.precioFinal}</span>
+                    </div>
+                    <div class="sh-oferta-espacio">
+                        <i data-lucide="hard-drive"></i> ${o.espacio} de espacio
+                    </div>
+                    <button class="sh-btn ${bloqueado ? 'sh-btn-aplicar' : 'sh-btn-instalar'} sh-btn-full"
+                            data-accion="comprarOferta"
+                            data-tipo="${o.tipo}"
+                            data-id="${o.id}"
+                            data-descuento="${o.descuento}"
+                            ${bloqueado ? `disabled title="${motivo}"` : ''}>
+                        <i data-lucide="zap"></i> Aprovechar
+                    </button>
+                </div>`;
+        }).join('')
+    }</div>`;
+    lucide.createIcons();
+    _actualizarCountPromo();
+}
+
+function _actualizarCountPromo() {
+    const el = document.getElementById('countPromo');
+    if (!el) return;
+    const pz = PZ();
+    if (!pz) { el.textContent = '•'; return; }
+    const paquetes = (pz.obtenerPaquetesVisibles() || []).length;
+    const ofertas  = (_ofertasCache || []).length;
+    el.textContent = String(paquetes + ofertas);
+}
+
+// ---------- TIMER ----------
+function iniciarTimerOfertas() {
+    detenerTimerOfertas();
+    const txt = document.getElementById('shOfertaTimerTexto');
+    const bar = document.getElementById('shOfertaBarra');
+    if (!txt) return;
+    const pz = PZ();
+    if (!pz) return;
+
+    const totalDia = 86400000;
+
+    const actualizar = () => {
+        const ms = pz.msHastaProximaMedianocheChile();
+        const h = Math.floor(ms / 3600000);
+        const m = Math.floor((ms % 3600000) / 60000);
+        const s = Math.floor((ms % 60000) / 1000);
+        txt.textContent = `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
+        if (bar) {
+            const pct = ((totalDia - ms) / totalDia) * 100;
+            bar.style.width = pct.toFixed(2) + '%';
+        }
+    };
+    actualizar();
+    _timerOfertas = setInterval(actualizar, 1000);
+}
+
+function detenerTimerOfertas() {
+    if (_timerOfertas) {
+        clearInterval(_timerOfertas);
+        _timerOfertas = null;
+    }
+}
+
+// ============================================================
+//  ACCIONES
+// ============================================================
+async function manejarAccion(accion, id, btnOrigen, extra) {
+    const api = API();
+    const pz = PZ();
+    if (!api) return;
+
+    const clave = `${accion}:${id || 'x'}`;
+    if (_accionesEnVuelo.has(clave)) return;
     _accionesEnVuelo.add(clave);
 
-    // Deshabilitar botón mientras dura
     let txtOriginal = '';
     if (btnOrigen) {
         btnOrigen.disabled = true;
@@ -436,6 +737,16 @@ async function manejarAccion(accion, id, btnOrigen) {
                 await api.comprarEspacio();
                 toast('¡Espacio ampliado!', 'success');
                 break;
+            case 'comprarPaquete':
+                if (!pz) throw new Error('PromoZione no disponible.');
+                await pz.comprarPaquete(id);
+                toast('¡Paquete desbloqueado!', 'success');
+                break;
+            case 'comprarOferta':
+                if (!pz) throw new Error('PromoZione no disponible.');
+                await pz.comprarOferta(extra.tipo, id, extra.descuento);
+                toast('¡Oferta aprovechada!', 'success');
+                break;
         }
         refrescarTodo();
     } catch (e) {
@@ -443,8 +754,6 @@ async function manejarAccion(accion, id, btnOrigen) {
     } finally {
         _accionesEnVuelo.delete(clave);
         if (btnOrigen && document.body.contains(btnOrigen)) {
-            // El botón puede haber sido reemplazado por refrescarTodo();
-            // si sigue existiendo, restaurar.
             btnOrigen.disabled = false;
             btnOrigen.innerHTML = txtOriginal;
             lucide.createIcons();
@@ -458,9 +767,21 @@ function refrescarTodo() {
     renderApps();
     renderTemas();
     renderWidgets();
+
+    // Solo re-renderizar PromoZione si la tab está activa o ya fue abierta
+    const panelPromo = document.querySelector('.sh-panel[data-panel="promozione"]');
+    if (panelPromo && panelPromo.classList.contains('active')) {
+        renderPaquetes();
+        renderOfertas();
+    } else if (panelPromo && panelPromo.dataset.visto === '1') {
+        renderPaquetes();
+        renderOfertas();
+    }
 }
 
-// ---------- TABS ----------
+// ============================================================
+//  TABS
+// ============================================================
 function inicializarTabs() {
     document.querySelectorAll('.sh-tab').forEach(tab => {
         tab.addEventListener('click', () => {
@@ -468,12 +789,24 @@ function inicializarTabs() {
             document.querySelectorAll('.sh-panel').forEach(p => p.classList.remove('active'));
             tab.classList.add('active');
             const panel = document.querySelector(`.sh-panel[data-panel="${tab.dataset.tab}"]`);
-            if (panel) panel.classList.add('active');
+            if (panel) {
+                panel.classList.add('active');
+                panel.dataset.visto = '1';
+            }
+
+            if (tab.dataset.tab === 'promozione') {
+                renderPromoZione();
+            } else {
+                // Detener timer si salimos de promo
+                detenerTimerOfertas();
+            }
         });
     });
 }
 
-// ---------- INIT ----------
+// ============================================================
+//  INIT
+// ============================================================
 document.addEventListener('DOMContentLoaded', () => {
     aplicarTemaDelPadre();
     inicializarTabs();
@@ -483,7 +816,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!btn) return;
         e.preventDefault();
         if (btn.disabled) return;
-        manejarAccion(btn.dataset.accion, btn.dataset.id, btn);
+
+        const extra = {};
+        if (btn.dataset.tipo)      extra.tipo = btn.dataset.tipo;
+        if (btn.dataset.descuento) extra.descuento = Number(btn.dataset.descuento);
+
+        manejarAccion(btn.dataset.accion, btn.dataset.id, btn, extra);
     });
 
     setTimeout(refrescarTodo, 100);
