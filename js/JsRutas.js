@@ -32,6 +32,17 @@ const RUTAS_HERRAMIENTAS = [
     // ============================================================
     //  SISTEMA (siempre al frente)
     // ============================================================
+        {
+        id: 'stor-he',
+        nombre: 'Stor-He',
+        icono: 'store',
+        ruta: 'herramientas/stor-he/index.html',
+        descripcion: 'Tienda: descarga apps, temas y widgets.',
+        categoria: 'Sistema',
+        esBase: true,
+        espacio: 0,
+        monedas: 0
+    },
     {
         id: 'chequera',
         nombre: 'Chequera',
@@ -65,17 +76,6 @@ const RUTAS_HERRAMIENTAS = [
         categoria: 'Sistema',
         esBase: true,
         esDefault: true,
-        espacio: 0,
-        monedas: 0
-    },
-    {
-        id: 'stor-he',
-        nombre: 'Stor-He',
-        icono: 'store',
-        ruta: 'herramientas/stor-he/index.html',
-        descripcion: 'Tienda: descarga apps, temas y widgets.',
-        categoria: 'Sistema',
-        esBase: true,
         espacio: 0,
         monedas: 0
     },
