@@ -1,22 +1,33 @@
 // ============================================================
 //  chequeo.js — Lógica de logros (vive en el shell)
 //  ------------------------------------------------------------
-//  Guarda el estado por usuario en app/logros/logros.json
+//  Guarda el estado por usuario en app/logros/logros.json.
 //
 //  CLAVE: guardamos "monedasMaximas" (el pico histórico),
 //  no las monedas actuales. Así si ganás un logro y luego
 //  gastás, el logro no se pierde.
 //
+//  Caché en memoria del estado por usuario: solo 1 lectura
+//  al archivo por sesión. Después, todo desde memoria.
+//
+//  Se auto-inicializa escuchando 'vicwebos:sesion' (disparado
+//  por Cuenta.js al iniciar/cerrar sesión). Así no hay que tocar
+//  JsIndex ni ningún otro archivo.
+//
 //  API:
-//    window.Logros.chequear()       → desbloquea y devuelve nuevos
-//    window.Logros.obtenerEstado()  → estado crudo del usuario
-//    window.Logros.obtenerProgreso()→ { desbloqueados, total, estado }
+//    window.Logros.chequear()        → escribe, desbloquea, devuelve nuevos
+//    window.Logros.obtenerEstado()   → estado crudo del usuario
+//    window.Logros.obtenerProgreso() → { desbloqueados, total, estado, catalogo }
 // ============================================================
 
 (function () {
     'use strict';
 
     const ARCHIVO = 'app/logros/logros.json';
+
+    // Caché en memoria del estado del usuario actual
+    let _cacheEstado = null;
+    let _codigoCache = null;
 
     function normalizar(data) {
         if (!data || typeof data !== 'object') {
@@ -34,25 +45,41 @@
         return window.cuentaActual || null;
     }
 
-    async function obtenerEstado(codigo) {
-        if (!codigo) {
-            const c = cuentaActiva();
-            codigo = c ? c.codigo : null;
+    function resetCache() {
+        _cacheEstado = null;
+        _codigoCache = null;
+    }
+
+    async function obtenerEstado() {
+        const cuenta = cuentaActiva();
+        if (!cuenta) return estadoVacio();
+        const codigo = cuenta.codigo;
+
+        // Caché válida solo si es del mismo usuario
+        if (_cacheEstado && _codigoCache === codigo) {
+            return _cacheEstado;
         }
-        if (!codigo) return estadoVacio();
-        if (!window.ConfigBD || !ConfigBD.estaConectado()) return estadoVacio();
+
+        if (!window.ConfigBD || !ConfigBD.estaConectado()) {
+            _cacheEstado = estadoVacio();
+            _codigoCache = codigo;
+            return _cacheEstado;
+        }
 
         try {
-            const data = normalizar(await ConfigBD.leerArchivoFresh(ARCHIVO));
+            // Usamos leerArchivo (no Fresh) para aprovechar la caché
+            // de 5 min de ConfigBD y no spamear peticiones.
+            const data = normalizar(await ConfigBD.leerArchivo(ARCHIVO));
             const u = data.usuarios[codigo];
-            if (!u || typeof u !== 'object') return estadoVacio();
-            return {
+            _cacheEstado = (u && typeof u === 'object') ? {
                 monedasMaximas: Number(u.monedasMaximas) || 0,
                 logros: (u.logros && typeof u.logros === 'object') ? u.logros : {}
-            };
+            } : estadoVacio();
         } catch (e) {
-            return estadoVacio();
+            _cacheEstado = estadoVacio();
         }
+        _codigoCache = codigo;
+        return _cacheEstado;
     }
 
     async function chequear() {
@@ -63,6 +90,7 @@
         const codigo = cuenta.codigo;
         const monedasActuales = (typeof obtenerMonedas === 'function') ? (obtenerMonedas() || 0) : 0;
         const recien = [];
+        let estadoFinal = null;
 
         await ConfigBD.actualizarArchivo(ARCHIVO, (actual) => {
             actual = normalizar(actual);
@@ -86,8 +114,18 @@
             }
 
             actual.actualizado = new Date().toISOString();
+
+            // Snapshot para la caché
+            estadoFinal = {
+                monedasMaximas: yo.monedasMaximas,
+                logros: { ...yo.logros }
+            };
             return actual;
         });
+
+        // Actualizar caché en memoria
+        _cacheEstado = estadoFinal || estadoVacio();
+        _codigoCache = codigo;
 
         // Notificar los nuevos
         for (const logro of recien) {
@@ -102,9 +140,9 @@
             } catch (e) { /* silencioso */ }
         }
 
-        // Avisar al banner del lobby si está escuchando
+        // Avisar al banner del lobby
         if (typeof window.__actualizarBannerLogros === 'function') {
-            try { window.__actualizarBannerLogros(); } catch (e) {}
+            try { window.__actualizarBannerLogros(); } catch (e) { /* silencioso */ }
         }
 
         return recien;
@@ -113,19 +151,55 @@
     async function obtenerProgreso() {
         const cat = window.LOGROS_REGISTRO || [];
         const estado = await obtenerEstado();
-        const desbloqueados = cat.filter(l => estado.logros[l.id]).length;
+
+        // "Monedas vivas" = máximo entre lo guardado y las monedas actuales.
+        // Esto hace que el banner muestre progreso en vivo aunque el
+        // archivo de logros todavía no se haya escrito.
+        const monedasActuales = (typeof obtenerMonedas === 'function') ? (obtenerMonedas() || 0) : 0;
+        const monedasVivas = Math.max(estado.monedasMaximas, monedasActuales);
+
+        const desbloqueados = cat.filter(l => {
+            if (estado.logros[l.id]) return true;
+            return monedasVivas >= (l.meta || 0);
+        }).length;
+
         return {
             desbloqueados,
             total: cat.length,
-            estado,
+            estado: {
+                monedasMaximas: monedasVivas,
+                logros: estado.logros
+            },
             catalogo: cat
         };
     }
 
+    // ------------------------------------------------------------
+    //  Auto-init al iniciar/cerrar sesión
+    // ------------------------------------------------------------
+    window.addEventListener('vicwebos:sesion', async (e) => {
+        resetCache();
+
+        if (e.detail && e.detail.activa) {
+            // Chequear al iniciar sesión (crea el archivo si no existe
+            // y desbloquea todo lo que corresponda de una vez)
+            try { await chequear(); } catch (err) { /* silencioso */ }
+        }
+
+        // Refrescar el banner con el nuevo estado
+        if (typeof window.__actualizarBannerLogros === 'function') {
+            try { window.__actualizarBannerLogros(); } catch (err) { /* silencioso */ }
+        }
+    });
+
+    // ------------------------------------------------------------
+    //  API pública
+    // ------------------------------------------------------------
     window.Logros = {
         ARCHIVO,
         chequear,
         obtenerEstado,
-        obtenerProgreso
+        obtenerProgreso,
+        _resetCache: resetCache
     };
 })();
