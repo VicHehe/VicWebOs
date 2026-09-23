@@ -32,7 +32,7 @@
     // ========================================================
 const PAQUETES_PROMO = [
 
-    // 1
+    // 1 — catálogo: 34 → 25 (25% off)
     {
         id: 'pack_orgullo_nacional',
         nombre: 'Orgullo Nacional',
@@ -45,13 +45,13 @@ const PAQUETES_PROMO = [
         ]
     },
 
-    // 2
+    // 2 — catálogo: 485 → 290 (40% off)
     {
         id: 'pack_taller_creativo',
         nombre: 'Taller Creativo',
         icono: 'paintbrush',
         descripcion: 'OCs, pixel art, dibujo y un taller steampunk. Todo para crear.',
-        precio: 420,
+        precio: 290,
         items: [
             { tipo: 'app',  id: 'ocs' },
             { tipo: 'app',  id: 'pixevan' },
@@ -60,13 +60,13 @@ const PAQUETES_PROMO = [
         ]
     },
 
-    // 3
+    // 3 — catálogo: 110 → 75 (30% off)
     {
         id: 'pack_visual_time',
         nombre: 'Visual Time',
         icono: 'image',
         descripcion: 'Cámara, editor y dos widgets para mostrar tus fotos.',
-        precio: 90,
+        precio: 75,
         items: [
             { tipo: 'app',    id: 'camara' },
             { tipo: 'app',    id: 'photo-shinny' },
@@ -75,26 +75,26 @@ const PAQUETES_PROMO = [
         ]
     },
 
-    // 4
+    // 4 — catálogo: 40 → 30 (25% off)
     {
         id: 'pack_azar',
         nombre: 'Pack Azar',
         icono: 'dices',
         descripcion: 'Ruleta y dados. Todo al azar en un solo pack.',
-        precio: 35,
+        precio: 30,
         items: [
             { tipo: 'widget', id: 'ruleta' },
             { tipo: 'widget', id: 'dados' }
         ]
     },
 
-    // 5
+    // 5 — catálogo: 175 → 115 (35% off)
     {
         id: 'pack_lectura',
         nombre: 'Fan de la lectura',
         icono: 'library',
         descripcion: 'Lector, wiki, PDF y un tema de libro. Todo lo que necesitás para leer.',
-        precio: 165,
+        precio: 115,
         items: [
             { tipo: 'widget', id: 'lector' },
             { tipo: 'widget', id: 'wiki_lector' },
@@ -103,13 +103,13 @@ const PAQUETES_PROMO = [
         ]
     },
 
-    // 6
+    // 6 — catálogo: 210 → 135 (35% off)
     {
         id: 'pack_musica',
         nombre: 'Fan de la música',
         icono: 'music-3',
         descripcion: 'Pop Owner, Salón de Noche y radio. Para los que viven con música.',
-        precio: 210,
+        precio: 135,
         items: [
             { tipo: 'tema',   id: 'pop-owner' },
             { tipo: 'tema',   id: 'salon' },
@@ -117,13 +117,13 @@ const PAQUETES_PROMO = [
         ]
     },
 
-    // 7
+    // 7 — catálogo: 550 → 330 (40% off)
     {
         id: 'pack_social_club',
         nombre: 'Social Club',
         icono: 'users',
         descripcion: 'Encuestas, VicsGram, videollamadas y chat. Todo lo social en uno.',
-        precio: 460,
+        precio: 330,
         items: [
             { tipo: 'app', id: 'encuestas' },
             { tipo: 'app', id: 'vicsgram' },
@@ -132,13 +132,13 @@ const PAQUETES_PROMO = [
         ]
     },
 
-    // 8
+    // 8 — catálogo: 195 → 125 (35% off)
     {
         id: 'pack_gamer',
         nombre: 'Gamer',
         icono: 'joystick',
         descripcion: 'Chiptune, ajedrez, MetroRun y Wuu. Kit jugador completo.',
-        precio: 130,
+        precio: 125,
         items: [
             { tipo: 'tema',   id: 'chiptune' },
             { tipo: 'widget', id: 'ajedrez-puzzle' },
@@ -147,13 +147,13 @@ const PAQUETES_PROMO = [
         ]
     },
 
-    // 9
+    // 9 — catálogo: 190 → 125 (35% off)
     {
         id: 'pack_gestor_economico',
         nombre: 'Gestor Económico',
         icono: 'banknote',
         descripcion: 'Gastos, tareas y lector para tus anotaciones. Todo bajo control.',
-        precio: 155,
+        precio: 125,
         items: [
             { tipo: 'app',    id: 'gastos' },
             { tipo: 'widget', id: 'to-do-list' },
@@ -161,13 +161,13 @@ const PAQUETES_PROMO = [
         ]
     },
 
-    // 10
+    // 10 — catálogo: 160 → 105 (35% off)
     {
         id: 'pack_dulce_amanecer',
         nombre: 'Dulce Amanecer',
         icono: 'clock',
         descripcion: 'Reloj, reloj mundial y Break of Dawn. Empezar el día con calma.',
-        precio: 100,
+        precio: 105,
         items: [
             { tipo: 'widget', id: 'reloj' },
             { tipo: 'widget', id: 'reloj-mundial' },
@@ -175,13 +175,13 @@ const PAQUETES_PROMO = [
         ]
     },
 
-    // 11
+    // 11 — catálogo: 155 → 100 (35% off)
     {
         id: 'pack_familias',
         nombre: 'Para familias',
         icono: 'home',
         descripcion: 'Una mascota y tres temas suaves. Tierno y cálido para el hogar.',
-        precio: 105,
+        precio: 100,
         items: [
             { tipo: 'widget', id: 'mascota' },
             { tipo: 'tema',   id: 'acuarela' },
@@ -190,26 +190,26 @@ const PAQUETES_PROMO = [
         ]
     },
 
-    // 12
+    // 12 — catálogo: 205 → 135 (35% off)
     {
         id: 'pack_whatthehay_gold',
         nombre: 'WhatTheHay GOLD',
         icono: 'message-square',
         descripcion: 'Chat interno con el tema Charla. Como estar en casa.',
-        precio: 200,
+        precio: 135,
         items: [
             { tipo: 'app',  id: 'whatthehay' },
             { tipo: 'tema', id: 'charla' }
         ]
     },
 
-    // 13
+    // 13 — catálogo: 130 → 90 (30% off)
     {
         id: 'pack_hombre_negocios',
         nombre: 'Hombre de negocios',
         icono: 'tie',
         descripcion: 'Oficina día, oficina noche, PDF y tareas. Kit formal completo.',
-        precio: 130,
+        precio: 90,
         items: [
             { tipo: 'tema',   id: 'oficina' },
             { tipo: 'tema',   id: 'oficina-dark' },
@@ -218,26 +218,26 @@ const PAQUETES_PROMO = [
         ]
     },
 
-    // 14
+    // 14 — catálogo: 300 → 180 (40% off)
     {
         id: 'pack_streamer',
         nombre: 'Streamer de profesión',
         icono: 'tv',
         descripcion: 'Videollamadas y tema Stream. Para transmitir con estilo.',
-        precio: 300,
+        precio: 180,
         items: [
             { tipo: 'app',  id: 'silly-calls' },
             { tipo: 'tema', id: 'stream' }
         ]
     },
 
-    // 15
+    // 15 — catálogo: 150 → 100 (35% off)
     {
         id: 'pack_pc_lover',
         nombre: 'PC Lover',
         icono: 'monitor',
         descripcion: 'Hacker, QR, accesos directos y Ventanas. Todo lo de la PC en uno.',
-        precio: 140,
+        precio: 100,
         items: [
             { tipo: 'tema',   id: 'hacker' },
             { tipo: 'app',    id: 'qr' },
@@ -246,13 +246,13 @@ const PAQUETES_PROMO = [
         ]
     },
 
-    // 16
+    // 16 — catálogo: 125 → 90 (30% off)
     {
         id: 'pack_lectura_tarde',
         nombre: 'Lectura de la tarde',
         icono: 'bookmark',
         descripcion: 'Wiki, PDF y Café Latte. Para leer con algo caliente al lado.',
-        precio: 125,
+        precio: 90,
         items: [
             { tipo: 'widget', id: 'wiki_lector' },
             { tipo: 'app',    id: 'lector-pdf' },
@@ -260,13 +260,13 @@ const PAQUETES_PROMO = [
         ]
     },
 
-    // 17
+    // 17 — catálogo: 20 → 15 (25% off)
     {
         id: 'pack_first',
         nombre: 'First Pack',
         icono: 'circle-dot',
         descripcion: 'Lo más accesible de cada categoría. Ideal para arrancar.',
-        precio: 18,
+        precio: 15,
         items: [
             { tipo: 'app',    id: 'camara' },
             { tipo: 'widget', id: 'bubble-image' },
@@ -274,13 +274,13 @@ const PAQUETES_PROMO = [
         ]
     },
 
-    // 18
+    // 18 — catálogo: 500 → 300 (40% off)
     {
         id: 'pack_trinidad_dorada',
         nombre: 'Trinidad Dorada',
         icono: 'trophy',
         descripcion: 'Lo más caro de cada categoría. Exclusividad máxima.',
-        precio: 490,
+        precio: 300,
         items: [
             { tipo: 'app',    id: 'silly-calls' },
             { tipo: 'tema',   id: 'stream' },
@@ -289,7 +289,6 @@ const PAQUETES_PROMO = [
         ]
     }
 ];
-
     // ========================================================
     //  Constantes de ofertas
     // ========================================================
