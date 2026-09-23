@@ -540,24 +540,6 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
-        id: 'wuu',
-        nombre: 'Wuu',
-        icono: 'monitor', /* Usamos monitor para no repetir gamepad-2 de Chiptune */
-        descripcion: 'Estética limpia de consola de salón. Blancos puros, grises suaves y un celeste brillante con efectos de cristal.',
-        categoria: 'Especiales',
-        ruta: 'Temas/wuu.css',
-        espacio: 4,
-        monedas: 40,
-        colores: {
-            '--violet-100': '#B2EBF2',
-            '--violet-300': '#4DD0E1',
-            '--violet-500': '#00BCD4',
-            '--bg':         '#F0F0F0',
-            '--bg-alt':     '#E6E6E6',
-            '--white':      '#FFFFFF'
-        }
-    },
-    {
         id: 'break-of-dawn',
         nombre: 'Break of Dawn',
         icono: 'sunrise',
@@ -627,6 +609,24 @@ const TEMAS_DISPONIBLES = [
             '--bg':         '#050310',
             '--bg-alt':     '#0A0618',
             '--white':      '#0F0820'
+        }
+    },
+        {
+        id: 'wuu',
+        nombre: 'Wuu',
+        icono: 'monitor', /* Usamos monitor para no repetir gamepad-2 de Chiptune */
+        descripcion: 'Estética limpia de consola de salón. Blancos puros, grises suaves y un celeste brillante con efectos de cristal.',
+        categoria: 'Especiales',
+        ruta: 'Temas/wuu.css',
+        espacio: 4,
+        monedas: 45,
+        colores: {
+            '--violet-100': '#B2EBF2',
+            '--violet-300': '#4DD0E1',
+            '--violet-500': '#00BCD4',
+            '--bg':         '#F0F0F0',
+            '--bg-alt':     '#E6E6E6',
+            '--white':      '#FFFFFF'
         }
     },
     {
