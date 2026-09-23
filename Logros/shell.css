@@ -1,6 +1,7 @@
 /* ================================================
    Logros — Estilos que vive en el shell
    (banner del lobby + modal con iframe)
+   Adaptados al tema activo con var() + fallbacks.
    ================================================ */
 
 /* ========== BANNER DEL LOBBY ========== */
@@ -10,9 +11,9 @@
     gap: 14px;
     width: 100%;
     padding: 16px 20px;
-    border: 1.5px solid #FCD34D;
+    border: 1.5px solid var(--violet-200, #DDD6FE);
     border-radius: 16px;
-    background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+    background: linear-gradient(135deg, var(--violet-50, #F5F3FF) 0%, var(--violet-100, #EDE9FE) 100%);
     cursor: pointer;
     font-family: inherit;
     text-align: left;
@@ -20,32 +21,23 @@
     position: relative;
     overflow: hidden;
 }
-.logros-banner::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, #F59E0B, #D97706);
-    opacity: 0;
-    transition: opacity 0.22s;
-}
 .logros-banner:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(245, 158, 11, 0.20);
-    border-color: #F59E0B;
+    box-shadow: 0 8px 24px var(--accent-shadow, rgba(139, 92, 246, 0.20));
+    border-color: var(--violet-300, #C4B5FD);
 }
-.logros-banner:hover::before { opacity: 0.04; }
 
 .logros-banner-icono {
     width: 46px;
     height: 46px;
-    background: linear-gradient(135deg, #F59E0B, #D97706);
+    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     flex-shrink: 0;
-    box-shadow: 0 6px 14px rgba(217, 119, 6, 0.30);
+    box-shadow: 0 6px 14px var(--accent-shadow, rgba(139, 92, 246, 0.30));
     position: relative;
     z-index: 1;
 }
@@ -60,13 +52,13 @@
 .logros-banner-titulo {
     font-size: 15px;
     font-weight: 800;
-    color: #78350F;
+    color: var(--violet-700, #6D28D9);
     letter-spacing: -0.01em;
     margin-bottom: 2px;
 }
 .logros-banner-desc {
     font-size: 12.5px;
-    color: #92400E;
+    color: var(--violet-600, #7C3AED);
     font-weight: 600;
 }
 
@@ -81,29 +73,29 @@
 .logros-banner-barra {
     width: 120px;
     height: 8px;
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.65);
     border-radius: 999px;
     overflow: hidden;
-    box-shadow: inset 0 1px 2px rgba(120, 53, 15, 0.10);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 .logros-banner-fill {
     height: 100%;
     width: 0%;
-    background: linear-gradient(90deg, #F59E0B, #EF4444);
+    background: linear-gradient(90deg, var(--violet-400, #A78BFA), var(--violet-600, #7C3AED));
     border-radius: 999px;
     transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .logros-banner-pct {
     font-size: 13px;
     font-weight: 900;
-    color: #78350F;
+    color: var(--violet-700, #6D28D9);
     font-variant-numeric: tabular-nums;
     min-width: 42px;
     text-align: right;
     letter-spacing: -0.02em;
 }
 .logros-banner-arrow {
-    color: #B45309;
+    color: var(--violet-500, #8B5CF6);
     flex-shrink: 0;
     position: relative;
     z-index: 1;
@@ -162,14 +154,14 @@
     padding: 18px 22px;
     border-bottom: 1px solid var(--border, #E8E8EE);
     flex-shrink: 0;
-    background: linear-gradient(135deg, #FFFBEB, #FEF3C7);
+    background: linear-gradient(135deg, var(--violet-50, #F5F3FF), var(--violet-100, #EDE9FE));
     position: relative;
     z-index: 11;
 }
 .logros-header h2 {
     font-size: 18px;
     font-weight: 800;
-    color: #78350F;
+    color: var(--violet-700, #6D28D9);
     margin: 0;
     letter-spacing: -0.02em;
     display: flex;
@@ -179,20 +171,20 @@
 .logros-header h2 [data-lucide] {
     width: 20px;
     height: 20px;
-    color: #D97706;
+    color: var(--violet-600, #7C3AED);
 }
 .logros-subtitle {
     font-size: 12.5px;
-    color: #92400E;
+    color: var(--violet-600, #7C3AED);
     margin-top: 2px;
     font-weight: 600;
 }
 
 .logros-cerrar {
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.6);
     border: none;
     cursor: pointer;
-    color: #92400E;
+    color: var(--violet-600, #7C3AED);
     width: 34px;
     height: 34px;
     border-radius: 10px;
@@ -204,7 +196,7 @@
 }
 .logros-cerrar:hover {
     background: var(--white, #FFFFFF);
-    color: #78350F;
+    color: var(--violet-700, #6D28D9);
 }
 .logros-cerrar [data-lucide] { width: 16px; height: 16px; stroke-width: 2.5; }
 
