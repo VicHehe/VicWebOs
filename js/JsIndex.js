@@ -46,7 +46,6 @@ function renderSidebarComunidad() {
     nombreEl.textContent = com.nombre || com.githubRepo || '—';
 
     if (btnCamb) {
-        // Solo cablea una vez
         if (!btnCamb.dataset.wired) {
             btnCamb.dataset.wired = '1';
             btnCamb.addEventListener('click', () => {
@@ -153,6 +152,10 @@ function actualizarNavActivo() {
 
 // ============================================================
 //  ACCESOS RÁPIDOS
+//  ------------------------------------------------------------
+//  NOTA: el banner de Logros se refresca desde chequeo.js
+//  (escucha 'vicwebos:sesion') y desde el init de abajo.
+//  No hace falta llamarlo acá.
 // ============================================================
 function renderAccesosRapidos() {
     const cont = document.getElementById('accesosRapidos');
@@ -196,8 +199,6 @@ function renderAccesosRapidos() {
     });
 
     lucide.createIcons();
-
-    if (typeof actualizarBannerLogros === 'function') actualizarBannerLogros();
 }
 
 // ============================================================
@@ -243,6 +244,9 @@ function renderWidgetsActivos() {
 
 // ============================================================
 //  SALUDO PERSONALIZADO
+//  ------------------------------------------------------------
+//  NOTA: el banner de Logros se refresca desde chequeo.js
+//  (escucha 'vicwebos:sesion'). No hace falta llamarlo acá.
 // ============================================================
 function actualizarSaludo() {
     const h1 = document.getElementById('welcomeSaludo');
@@ -271,8 +275,6 @@ function actualizarSaludo() {
         'Tu espacio, tus reglas.'
     ];
     p.textContent = frases[Math.floor(Math.random() * frases.length)];
-
-    if (typeof actualizarBannerLogros === 'function') actualizarBannerLogros();
 }
 
 // ============================================================
@@ -366,7 +368,6 @@ function abrirHerramienta(id) {
     iframe.dataset.id = id;
     iframe.style.display = 'none';
     iframe.className = 'tool-iframe';
-    // Permisos para apps que los necesitan (SillyCalls, futuras apps con media)
     iframe.setAttribute('allow', 'camera; microphone; display-capture; autoplay; clipboard-read; clipboard-write');
     panelContainer.appendChild(iframe);
 
@@ -623,18 +624,6 @@ function iniciarClimaLocal() {
 
 // ============================================================
 //  WATCHER DE TEMA DINÁMICO
-//  ------------------------------------------------------------
-//  Algunos temas (como "Stream") tienen paletas que cambian en
-//  el tiempo mediante animaciones CSS. Las apps dentro de los
-//  iframes solo leen el tema al cargarse, así que no se enteran
-//  si el acento cambia después.
-//
-//  Este watcher lee el acento del tema cada 500ms y, si cambió,
-//  hace broadcast a los iframes para que re-apliquen el tema.
-//
-//  Costo: 1 lectura de getComputedStyle cada 500ms, y solo si
-//  hay al menos una app abierta y la pestaña está visible.
-//  En temas estáticos (todos menos Stream) no dispara nunca.
 // ============================================================
 let _watcherTemaId = null;
 let _ultimoAcento = '';
@@ -654,9 +643,7 @@ function iniciarWatcherTemaDinamico() {
     _ultimoAcento = leerAcento();
 
     _watcherTemaId = setInterval(() => {
-        // Solo tiene sentido si hay al menos una app abierta
         if (!panelContainer.querySelector('iframe.tool-iframe')) return;
-        // No gastar ciclos si la pestaña está oculta
         if (document.hidden) return;
 
         const actual = leerAcento();
@@ -708,14 +695,12 @@ window.__vicwebos = {
     estaConectado:  () => ConfigBD.estaConectado(),
     obtenerCuenta:  () => cuentaActual ? { nombre: cuentaActual.nombre, codigo: cuentaActual.codigo } : null,
 
-    // Info de la comunidad activa
     obtenerComunidadActiva: () => {
         const c = (typeof window.obtenerComunidadActiva === 'function') ? window.obtenerComunidadActiva() : null;
         if (!c) return null;
         return { id: c.id, nombre: c.nombre, repo: c.githubRepo, owner: c.githubOwner };
     },
 
-    // ---- Espacio y monedas ----
     obtenerEspacioMaximo: () => obtenerEspacioMaximo(),
     obtenerEspacioUsado:  () => calcularEspacioUsado(),
     obtenerEspacioLibre:  () => calcularEspacioLibre(),
@@ -732,7 +717,6 @@ window.__vicwebos = {
     MAX_WIDGETS_ACTIVOS:  MAX_WIDGETS_ACTIVOS,
     MAX_ACCESOS_RAPIDOS:  MAX_ACCESOS_RAPIDOS,
 
-    // ---- Chequera ----
     chequeraLeer: async () => {
         if (typeof leerChequeraUsuario !== 'function') return null;
         return await leerChequeraUsuario();
@@ -740,7 +724,6 @@ window.__vicwebos = {
     canjear:      async (icono, fuente, texto, cantidad) => await canjear(icono, fuente, texto, cantidad),
     gastoBoleta:  async (icono, fuente, texto, cantidad) => await gastoBoleta(icono, fuente, texto, cantidad),
 
-    // ---- Notificaciones ----
     enviarNotificacion: async (fuente, texto, usuarioDestino) => {
         if (!window.Notificaciones) throw new Error('Notificaciones no disponible.');
         return await window.Notificaciones.enviar(fuente, texto, usuarioDestino);
@@ -750,7 +733,6 @@ window.__vicwebos = {
         return await window.Notificaciones.recargar();
     },
 
-    // ---- Acciones: apps ----
     instalar: async (id) => {
         try {
             await instalarApp(id);
@@ -771,18 +753,15 @@ window.__vicwebos = {
         return false;
     },
 
-    // ---- Acciones: temas ----
     instalarTema:    async (id) => { try { await instalarTema(id); }    catch (e) { alert('❌ ' + e.message); throw e; } },
     desinstalarTema: async (id) => { try { await desinstalarTema(id); } catch (e) { alert('❌ ' + e.message); throw e; } },
     aplicarTema:     async (id) => { try { await aplicarTema(id); }     catch (e) { alert('❌ ' + e.message); throw e; } },
 
-    // ---- Acciones: widgets ----
     instalarWidget:    async (id) => { try { await instalarWidget(id); }    catch (e) { alert('❌ ' + e.message); throw e; } },
     desinstalarWidget: async (id) => { try { await desinstalarWidget(id); } catch (e) { alert('❌ ' + e.message); throw e; } },
     activarWidget:     async (id) => { try { await activarWidget(id); }     catch (e) { alert('❌ ' + e.message); throw e; } },
     desactivarWidget:  async (id) => { try { await desactivarWidget(id); }  catch (e) { alert('❌ ' + e.message); throw e; } },
 
-    // ---- Acciones: accesos rápidos ----
     activarAccesoRapido:   async (id) => { try { await activarAccesoRapido(id); }   catch (e) { alert('❌ ' + e.message); throw e; } },
     desactivarAccesoRapido: async (id) => { try { await desactivarAccesoRapido(id); } catch (e) { alert('❌ ' + e.message); throw e; } }
 };
@@ -812,8 +791,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             const valor = e.target.value;
             renderSidebar(valor);
 
-            // NUEVO: en móvil, si el usuario empieza a escribir, abrir el sidebar
-            // automáticamente para que vea los resultados filtrados.
             if (valor && window.innerWidth <= 768) {
                 if (window.__mobileUI && typeof window.__mobileUI.abrir === 'function') {
                     window.__mobileUI.abrir();
