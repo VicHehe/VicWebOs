@@ -1,9 +1,9 @@
 /* ================================================
    Tema: Café Latte
-   Cafetería cozy con MUCHO movimiento. Vapor
-   subiendo desde el header y el hero, granos de
-   café deslizándose por el fondo y el icono con
-   latido cálido. Aromático a full.
+   Cafetería cozy con movimiento. Vapores escalonados
+   en header y hero, granos deslizándose, icono con
+   latido cálido. Decoración del sidebar 100% en
+   background para no bloquear scroll táctil Android.
    ================================================ */
 
 :root {
@@ -54,10 +54,9 @@
 }
 
 /* ================================================================
-   1. WELCOME — granos deslizándose + cálido pulso
+   1. WELCOME — granos deslizándose
    ================================================================ */
 .welcome-placeholder {
-    position: relative;
     background-image:
         var(--theme-beans),
         radial-gradient(ellipse at top, rgba(160, 112, 74, 0.08) 0%, transparent 55%),
@@ -102,7 +101,6 @@
         inset 0 0 0 1px rgba(255, 255, 255, 0.6);
 }
 
-/* Vapor subiendo desde el borde superior del hero (esquina izquierda) */
 .welcome-hero::before {
     content: '';
     position: absolute;
@@ -116,7 +114,6 @@
     opacity: 0;
     animation: cafe-hero-steam 6s ease-in-out infinite;
 }
-/* Vapor subiendo desde el borde superior del hero (esquina derecha) */
 .welcome-hero::after {
     content: '';
     position: absolute;
@@ -137,7 +134,6 @@
     100% { transform: translateY(-24px) scale(1.15); opacity: 0; }
 }
 
-/* Icono del hero: latido cálido + float base */
 .welcome-icon-wrap {
     background: linear-gradient(135deg, #C39B78, #6B4830);
     animation: float 5s ease-in-out infinite, cafe-icon-warm 4s ease-in-out infinite;
@@ -161,7 +157,7 @@
 }
 
 /* ================================================================
-   2. HEADER — DOS vapores (izq + der), escalonados
+   2. HEADER — dos vapores escalonados
    ================================================================ */
 .app-header {
     position: relative;
@@ -169,7 +165,6 @@
     border-bottom: 1px solid var(--border);
 }
 
-/* Vapor izquierdo del header */
 .app-header::before {
     content: '';
     position: absolute;
@@ -183,7 +178,6 @@
     opacity: 0;
     animation: cafe-header-steam 6s ease-in-out infinite;
 }
-/* Vapor derecho del header */
 .app-header::after {
     content: '';
     position: absolute;
@@ -205,28 +199,15 @@
 }
 
 /* ================================================================
-   3. SIDEBAR
+   3. SIDEBAR — granos 100% en background. Sin pseudo-elementos.
    ================================================================ */
 .sidebar {
-    position: relative;
-    background: linear-gradient(180deg, #F2EAE0 0%, #EDE2D2 100%);
-}
-.sidebar::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.5;
-    background-image: var(--theme-beans);
-    background-size: 240px 240px;
-}
-.sidebar-comunidad,
-.sidebar-label,
-.sidebar-nav,
-.sidebar-mobile-header {
-    position: relative;
-    z-index: 1;
+    background-image:
+        var(--theme-beans),
+        linear-gradient(180deg, #F2EAE0 0%, #EDE2D2 100%);
+    background-size: 240px 240px, auto;
+    background-position: 0 0, 0 0;
+    background-repeat: repeat, no-repeat;
 }
 
 .nav-item.active::before {
