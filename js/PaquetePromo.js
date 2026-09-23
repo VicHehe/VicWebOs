@@ -289,11 +289,11 @@ const PAQUETES_PROMO = [
         ]
     }
 ];
+    
     // ========================================================
     //  Constantes de ofertas
     // ========================================================
     const IDB_NAME   = 'VicWebOsPromoZione';
-    const IDB_STORE  = 'ofertas';
     const IDB_STORE  = 'ofertas';
     const PESO_25    = 0.78;  // 78%
     const PESO_50    = 0.20;  // 20%
