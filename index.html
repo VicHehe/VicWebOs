@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="Temas/violeta.css" id="tema-activo">
+    <link rel="stylesheet" href="Logros/shell.css">
 
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -108,6 +109,23 @@
                             </div>
                             <h1 id="welcomeSaludo">Bienvenide a VicWebOs</h1>
                             <p id="welcomeSubtitulo">Sistema operativo web centrado en el uso personal o grupal de grupos de amistades.</p>
+                        </div>
+
+                        <div class="welcome-section" id="welcomeLogrosSection" style="display:none;">
+                            <button class="logros-banner" id="btnLogrosBanner">
+                                <div class="logros-banner-icono"><i data-lucide="trophy"></i></div>
+                                <div class="logros-banner-info">
+                                    <div class="logros-banner-titulo">Logros</div>
+                                    <div class="logros-banner-desc" id="logrosBannerDesc">—</div>
+                                </div>
+                                <div class="logros-banner-progreso">
+                                    <div class="logros-banner-barra">
+                                        <div class="logros-banner-fill" id="logrosBannerFill"></div>
+                                    </div>
+                                    <span class="logros-banner-pct" id="logrosBannerPct">0%</span>
+                                </div>
+                                <div class="logros-banner-arrow"><i data-lucide="chevron-right"></i></div>
+                            </button>
                         </div>
 
                         <div class="welcome-section" id="welcomeAppsSection">
@@ -652,6 +670,22 @@
         </div>
     </div>
 
+    <!-- ====== MODAL LOGROS ====== -->
+    <div id="logrosOverlay" class="logros-overlay">
+        <div class="logros-card">
+            <div class="logros-header">
+                <div>
+                    <h2><i data-lucide="trophy"></i> Logros</h2>
+                    <p class="logros-subtitle">Tus medallas en VicWebOs</p>
+                </div>
+                <button class="logros-cerrar" id="logrosCerrar" aria-label="Cerrar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <iframe id="logrosIframe" class="logros-iframe" src="about:blank" title="Logros"></iframe>
+        </div>
+    </div>
+
     <script src="js/JsRutas.js"></script>
     <script src="js/JsTemas.js"></script>
     <script src="js/JsWidgets.js"></script>
@@ -660,6 +694,8 @@
     <script src="js/ConfigBD.binarios.js"></script>
     <script src="js/MasterHad.js"></script>
     <script src="js/Cuenta.js"></script>
+    <script src="Logros/JsLogros1.js"></script>
+    <script src="Logros/chequeo.js"></script>
     <script src="js/configuracion.js"></script>
     <script src="js/JsIndex.js"></script>
     <script src="js/Notificaciones.js"></script>
