@@ -1,9 +1,9 @@
 /* ================================================
    Tema: Acuarela
    Papel blanco con blooms suaves y gotas cayendo.
-   Decoración 100% en background. .acceso-item sin
-   backdrop-filter ni transition:all para que el
-   grid mida uniforme. Scroll táctil Android ok.
+   Decoración 100% en background. Hero con padding
+   generoso para que el float del ícono no rompa
+   el borde superior.
    ================================================ */
 
 :root {
@@ -104,7 +104,15 @@
     );
 }
 
+/* Hero con padding generoso para que el float del ícono
+   (que se mueve ±8px) no salga del recuadro. */
 .welcome-hero {
+    padding: 40px 28px 36px;
+    min-height: 260px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     background: rgba(255, 255, 255, 0.78);
     border: 1px solid rgba(201, 123, 132, 0.18);
     border-radius: 24px;
@@ -142,7 +150,7 @@
 }
 
 /* ================================================================
-   3. ACCESOS RÁPIDOS — solo color/borde/sombra. Sin filtros raros.
+   3. ACCESOS RÁPIDOS — solo color/borde/sombra. Grid uniforme.
    ================================================================ */
 .acceso-item {
     position: relative;
