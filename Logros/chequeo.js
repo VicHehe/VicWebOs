@@ -3,24 +3,20 @@
 //  ------------------------------------------------------------
 //  Guarda el estado por usuario en app/logros/logros.json.
 //
+//  ESTE ARCHIVO CUENTA TODAS las apps y TODOS los temas,
+//  incluidos base y default. Si en algún momento querés volver
+//  al criterio "solo no-base", está comentado al lado de cada
+//  contador.
+//
 //  ESTRATEGIA DE DETECCIÓN:
 //  El chequeo corre en 3 momentos:
 //    1. Al iniciar sesión (evento 'vicwebos:sesion').
 //    2. Después de cada canjear() (hook en Cuenta.js).
-//    3. Cada POLL_MS con el mismo patrón de WhatTheHay:
+//    3. Cada POLL_MS con ETag (patrón WhatTheHay):
 //       - Lee cuentaConfig.json, CuentasNotificaciones.json y
 //         Galeria{codigo}/galeria.json con If-None-Match.
-//       - GitHub devuelve 304 si no cambiaron → gratis (no
-//         cuenta contra el rate limit de 5000 req/h).
-//       - Si alguno cambió → chequear() (el usuario instaló,
-//         subió fotos, recibió notis, activó widgets, etc.).
-//       - Los flags por hora (Noctámbulo, Madrugador, Búho) se
-//         re-chequean cuando la hora del sistema cambia.
-//
-//  Así los logros se desbloquean en ~15s tras la acción, sin
-//  gastar cuota real de GitHub.
-//
-//  Caché en memoria del estado por usuario: 1 lectura por sesión.
+//       - 304 → gratis, no cuenta contra el rate limit.
+//       - 200 → algo cambió → chequear().
 // ============================================================
 
 (function () {
@@ -29,11 +25,7 @@
     const ARCHIVO        = 'app/logros/logros.json';
     const ARCHIVO_CONFIG = 'cuentaConfig.json';
     const ARCHIVO_NOTIS  = 'CuentasNotificaciones.json';
-
-    // Cada cuánto chequear por cambios en los archivos del usuario.
-    // 15s = 240 ticks/hora × 3 archivos = 720 req/h. Los 304 NO
-    // cuentan contra el rate limit, así que en la práctica son ~0.
-    const POLL_MS = 15000;
+    const POLL_MS        = 15000;
 
     let _cacheEstado = null;
     let _codigoCache = null;
@@ -42,7 +34,6 @@
     let _pollEnCurso = false;
     let _ultimaHoraChequeada = -1;
 
-    // ETags por ruta (para los 304 gratis)
     const _etagsArchivos = new Map();
 
     // ------------------------------------------------------------
@@ -101,28 +92,34 @@
     }
 
     // ------------------------------------------------------------
-    //  Recolectores de valores actuales
+    //  Recolectores (TODAS las apps y temas, sin filtro)
     // ------------------------------------------------------------
-    function contarAppsNoBase() {
-        const catalogo = window.RUTAS_HERRAMIENTAS || [];
-        const instaladas = (window.configCuentaActual?.appsInstaladas) || [];
-        let count = 0;
-        for (const id of instaladas) {
-            const app = catalogo.find(a => a.id === id);
-            if (app && !app.esBase && !app.esDefault) count++;
-        }
-        return count;
+    function contarApps() {
+        return (window.configCuentaActual?.appsInstaladas || []).length;
+
+        // --- Criterio alternativo "solo no-base" ---
+        // const catalogo = window.RUTAS_HERRAMIENTAS || [];
+        // const instaladas = (window.configCuentaActual?.appsInstaladas) || [];
+        // let count = 0;
+        // for (const id of instaladas) {
+        //     const app = catalogo.find(a => a.id === id);
+        //     if (app && !app.esBase && !app.esDefault) count++;
+        // }
+        // return count;
     }
 
-    function contarTemasNoBase() {
-        const catalogo = window.TEMAS_DISPONIBLES || [];
-        const instalados = (window.configCuentaActual?.temasInstalados) || [];
-        let count = 0;
-        for (const id of instalados) {
-            const t = catalogo.find(x => x.id === id);
-            if (t && !t.esBase) count++;
-        }
-        return count;
+    function contarTemas() {
+        return (window.configCuentaActual?.temasInstalados || []).length;
+
+        // --- Criterio alternativo "solo no-base" ---
+        // const catalogo = window.TEMAS_DISPONIBLES || [];
+        // const instalados = (window.configCuentaActual?.temasInstalados) || [];
+        // let count = 0;
+        // for (const id of instalados) {
+        //     const t = catalogo.find(x => x.id === id);
+        //     if (t && !t.esBase) count++;
+        // }
+        // return count;
     }
 
     function contarWidgets() {
@@ -181,7 +178,7 @@
     }
 
     // ------------------------------------------------------------
-    //  Estado (con caché en memoria)
+    //  Estado con caché
     // ------------------------------------------------------------
     async function obtenerEstado() {
         const cuenta = cuentaActiva();
@@ -241,9 +238,9 @@
 
         const valores = {
             monedas:        obtenerMonedasActuales(),
-            apps:           contarAppsNoBase(),
+            apps:           contarApps(),
             widgets:        contarWidgets(),
-            temas:          contarTemasNoBase(),
+            temas:          contarTemas(),
             fotos,
             notificaciones,
             widgetsActivos: contarWidgetsActivos(),
@@ -330,7 +327,7 @@
     }
 
     // ------------------------------------------------------------
-    //  Progreso (para el banner y el panel)
+    //  Progreso
     // ------------------------------------------------------------
     async function obtenerProgreso() {
         const cat = window.LOGROS_REGISTRO || [];
@@ -339,9 +336,9 @@
         const valoresVivos = {
             ...estado,
             monedasMaximas:    Math.max(estado.monedasMaximas,    obtenerMonedasActuales()),
-            appsMaximas:       Math.max(estado.appsMaximas,       contarAppsNoBase()),
+            appsMaximas:       Math.max(estado.appsMaximas,       contarApps()),
             widgetsMaximas:    Math.max(estado.widgetsMaximas,    contarWidgets()),
-            temasMaximas:      Math.max(estado.temasMaximas,      contarTemasNoBase()),
+            temasMaximas:      Math.max(estado.temasMaximas,      contarTemas()),
             widgetsActivosMax: Math.max(estado.widgetsActivosMax, contarWidgetsActivos()),
             accesosMax:        Math.max(estado.accesosMax,        contarAccesos())
         };
@@ -360,13 +357,9 @@
         };
     }
 
-    // ============================================================
-    //  POLLING CON ETAG (patrón WhatTheHay)
-    //  ------------------------------------------------------------
-    //  Lee cada archivo con If-None-Match. Si nada cambió → 304
-    //  (gratis, no cuenta contra el rate limit). Si algo cambió →
-    //  200 y disparamos chequear().
-    // ============================================================
+    // ------------------------------------------------------------
+    //  Polling con ETag
+    // ------------------------------------------------------------
     async function leerConETag(ruta) {
         const bd = window.ConfigBD;
         if (!bd || !bd.estaConectado()) return { cambio: false };
@@ -409,8 +402,6 @@
 
     function iniciarPolling() {
         detenerPolling();
-        // Primer tick inmediato (marca ETags iniciales sin disparar chequeo
-        // porque los ETags no existían antes, pero igual está bien).
         setTimeout(_tickPolling, 1500);
         _pollTimer = setInterval(_tickPolling, POLL_MS);
     }
@@ -444,7 +435,6 @@
                 if (res.cambio) huboCambio = true;
             }
 
-            // Los flags por hora se re-chequean cuando la hora cambia
             const horaActual = new Date().getHours();
             const cambioDeHora = horaActual !== _ultimaHoraChequeada;
             if (cambioDeHora) _ultimaHoraChequeada = horaActual;
@@ -459,9 +449,9 @@
         }
     }
 
-    // ============================================================
-    //  Hook al buscador del header (easter egg "Logros")
-    // ============================================================
+    // ------------------------------------------------------------
+    //  Easter egg: buscador
+    // ------------------------------------------------------------
     function marcarFlagBuscador() {
         const cuenta = cuentaActiva();
         if (!cuenta) return;
@@ -503,9 +493,9 @@
         });
     }
 
-    // ============================================================
+    // ------------------------------------------------------------
     //  Auto-init
-    // ============================================================
+    // ------------------------------------------------------------
     window.addEventListener('vicwebos:sesion', async (e) => {
         resetCache();
         _ultimaHoraChequeada = -1;
@@ -523,8 +513,6 @@
         }
     });
 
-    // Tick inmediato al volver a la pestaña (por si algo cambió mientras
-    // estaba en background).
     document.addEventListener('visibilitychange', () => {
         if (!document.hidden && cuentaActiva()) {
             _tickPolling();
@@ -537,7 +525,6 @@
         hookearBuscador();
     }
 
-    // API pública
     window.Logros = {
         ARCHIVO,
         POLL_MS,
