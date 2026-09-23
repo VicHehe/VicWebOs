@@ -2426,4 +2426,56 @@ body {
     }
 }
 .practicas-bloque-info h4 {
-    font-size: 
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--gray-900, #18181B);
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+}
+.practicas-bloque-info p {
+    font-size: 12.5px;
+    color: var(--gray-600, #52525B);
+    line-height: 1.55;
+    margin: 0;
+    font-weight: 500;
+}
+.practicas-bloque-info p strong {
+    color: var(--violet-700, #6D28D9);
+    font-weight: 800;
+}
+
+.practicas-cierre {
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: var(--violet-700, #6D28D9);
+    font-weight: 600;
+    text-align: center;
+    margin: 20px 0 0;
+    padding: 14px 16px;
+    background: var(--violet-50, #F5F3FF);
+    border: 1px solid var(--violet-200, #DDD6FE);
+    border-radius: var(--r-md, 12px);
+}
+
+/* Responsive: móvil */
+@media (max-width: 640px) {
+    .practicas-bloque {
+        padding: 14px;
+        gap: 12px;
+    }
+    .practicas-bloque-icono {
+        width: 36px;
+        height: 36px;
+        border-radius: 9px;
+    }
+    .practicas-bloque-icono [data-lucide] {
+        width: 18px;
+        height: 18px;
+    }
+    .practicas-bloque-info h4 {
+        font-size: 13px;
+    }
+    .practicas-bloque-info p {
+        font-size: 12px;
+    }
+}
