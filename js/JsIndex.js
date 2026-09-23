@@ -152,10 +152,6 @@ function actualizarNavActivo() {
 
 // ============================================================
 //  ACCESOS RÁPIDOS
-//  ------------------------------------------------------------
-//  NOTA: el banner de Logros se refresca desde chequeo.js
-//  (escucha 'vicwebos:sesion') y desde el init de abajo.
-//  No hace falta llamarlo acá.
 // ============================================================
 function renderAccesosRapidos() {
     const cont = document.getElementById('accesosRapidos');
@@ -244,9 +240,6 @@ function renderWidgetsActivos() {
 
 // ============================================================
 //  SALUDO PERSONALIZADO
-//  ------------------------------------------------------------
-//  NOTA: el banner de Logros se refresca desde chequeo.js
-//  (escucha 'vicwebos:sesion'). No hace falta llamarlo acá.
 // ============================================================
 function actualizarSaludo() {
     const h1 = document.getElementById('welcomeSaludo');
@@ -426,9 +419,10 @@ window.__cerrarTodasLasPestanas = cerrarTodasLasPestanas;
 // ============================================================
 //  RENDER DE LA BARRA DE PESTAÑAS
 //  ------------------------------------------------------------
-//  Incluye SIEMPRE el botón Inicio (fijo, no cerrable, no cuenta
-//  para MAX_TABS). Está activo cuando activeTabId === null, es
-//  decir, cuando estás viendo el lobby.
+//  Genera el botón "Inicio" con la MISMA forma que una pestaña
+//  normal (.tab-item) pero sin botón de cerrar, y con texto.
+//  Vive acá porque innerHTML reemplaza todo el contenido, así
+//  que debe regenerarse cada vez.
 // ============================================================
 function renderTabs() {
     if (!tabBar) return;
@@ -438,6 +432,7 @@ function renderTabs() {
     let html = `
         <button class="tab-home ${enLobby ? 'active' : ''}" id="tabHomeBtn" type="button" title="Ir al inicio" aria-label="Ir al inicio">
             <i data-lucide="home"></i>
+            <span>Inicio</span>
         </button>
     `;
 
