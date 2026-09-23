@@ -362,3 +362,20 @@
 }
 
 .search-bar:focus-within {
+    border-color: var(--violet-400);
+    box-shadow: var(--shadow-glow);
+}
+
+/* ================================================================
+   10. prefers-reduced-motion
+   ================================================================ */
+@media (prefers-reduced-motion: reduce) {
+    .welcome-placeholder,
+    .app-header::before,
+    .app-header::after,
+    .welcome-hero::before,
+    .welcome-hero::after,
+    .welcome-icon-wrap {
+        animation: none !important;
+    }
+}
