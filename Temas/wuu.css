@@ -73,11 +73,6 @@
 .welcome-placeholder {
     background: var(--bg);
     background-image: var(--theme-scanlines);
-}
-.welcome-glow {
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, transparent 65%);
-    box-shadow: 0 0 120px 60px rgba(255, 255, 255, 0.8);
-}
 .welcome-hero {
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(8px);
