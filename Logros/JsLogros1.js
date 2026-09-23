@@ -1,16 +1,9 @@
 // ============================================================
 //  JsLogros1.js — Primer lote de logros
 //  ------------------------------------------------------------
-//  Para añadir más, creá JsLogros2.js con otro array y hacé
+//  Para añadir más: creá JsLogros2.js con otro array y hacé
 //  window.LOGROS_REGISTRO.push(...LOGROS_2). Luego cargalo en
-//  el HTML después de este archivo.
-//
-//  Campos:
-//    id          → string único (no puede repetirse entre archivos)
-//    nombre      → visible en la card
-//    descripcion → texto corto
-//    icono       → nombre de ícono de Lucide (puede repetirse)
-//    meta        → número a alcanzar (para este lote: monedas)
+//  el HTML del shell después de este archivo.
 // ============================================================
 
 const LOGROS_1 = [
