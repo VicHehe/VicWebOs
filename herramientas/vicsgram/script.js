@@ -383,20 +383,22 @@ function crearPostCard(post) {
     imgWrap.addEventListener('click', () => abrirVerPost(post.id));
     wrap.appendChild(imgWrap);
 
-    // Cargar imagen de galería
+    // Cargar imagen de galería — FIX: usar el código del autor del post
     if (post.imagenId) {
         const mh = MH();
         if (mh) {
-            mh.galeria.leerImagenURL(post.imagenId).then(url => {
-                if (!url) return;
-                urlsActivas.push(url);
-                const img = document.createElement('img');
-                img.src = url;
-                img.alt = '';
-                img.loading = 'lazy';
-                img.onload = () => skeleton.remove();
-                imgWrap.insertBefore(img, skeleton);
-            }).catch(() => skeleton.remove());
+            mh.galeria.leerImagenURL(post.imagenId, post.autor)  // ← FIX: autor del post
+                .then(url => {
+                    if (!url) return;
+                    urlsActivas.push(url);
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.alt = '';
+                    img.loading = 'lazy';
+                    img.onload = () => skeleton.remove();
+                    imgWrap.insertBefore(img, skeleton);
+                })
+                .catch(() => skeleton.remove());
         }
     } else {
         skeleton.remove();
@@ -482,7 +484,8 @@ async function abrirVerPost(postId) {
         const mh = MH();
         if (mh) {
             try {
-                const url = await mh.galeria.leerImagenURL(post.imagenId);
+                // FIX: usar el código del autor del post
+                const url = await mh.galeria.leerImagenURL(post.imagenId, post.autor);
                 if (url) {
                     imgEl.src = url;
                     imgEl.onload = () => URL.revokeObjectURL(url);
@@ -722,7 +725,7 @@ function abrirEditor(postId = null) {
         // Cargar preview
         const mh = MH();
         if (mh) {
-            mh.galeria.leerImagenURL(imagenPendienteId).then(url => {
+            mh.galeria.leerImagenURL(imagenPendienteId, usuarioActual.codigo).then(url => {
                 if (!url) return;
                 imgPreview.src = url;
                 imgPreview.onload = () => URL.revokeObjectURL(url);
@@ -818,10 +821,8 @@ async function guardarPost() {
         if (postViendoId) {
             const post = posts.find(p => p.id === postViendoId);
             if (post) {
-                // Refrescar modal de ver
                 abrirVerPost(postViendoId);
             } else {
-                // Se borró o no existe → cerrar
                 cerrarVerPost();
             }
         }
@@ -859,7 +860,6 @@ async function borrarPost(postId) {
             return s;
         });
 
-        // Cerrar modales si estaban abiertos
         if (postViendoId === postId) cerrarVerPost();
 
         renderFeed();
@@ -929,16 +929,19 @@ async function abrirPerfil(codigo) {
             if (post.imagenId) {
                 const mh = MH();
                 if (mh) {
-                    mh.galeria.leerImagenURL(post.imagenId).then(url => {
-                        if (!url) return;
-                        urlsPerfil.push(url);
-                        const img = document.createElement('img');
-                        img.src = url;
-                        img.alt = '';
-                        img.loading = 'lazy';
-                        img.onload = () => skeleton.classList.add('oculto');
-                        item.insertBefore(img, skeleton);
-                    }).catch(() => skeleton.classList.add('oculto'));
+                    // FIX: usar el código del autor (que es el perfil que estamos viendo)
+                    mh.galeria.leerImagenURL(post.imagenId, codigo)
+                        .then(url => {
+                            if (!url) return;
+                            urlsPerfil.push(url);
+                            const img = document.createElement('img');
+                            img.src = url;
+                            img.alt = '';
+                            img.loading = 'lazy';
+                            img.onload = () => skeleton.classList.add('oculto');
+                            item.insertBefore(img, skeleton);
+                        })
+                        .catch(() => skeleton.classList.add('oculto'));
                 }
             } else {
                 skeleton.classList.add('oculto');
