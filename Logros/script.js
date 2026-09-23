@@ -66,6 +66,18 @@ function formatearNum(n) {
     return Number(n).toLocaleString('es-CL');
 }
 
+function valorDeTipo(tipo, estado) {
+    switch (tipo) {
+        case 'monedas': return estado.monedasMaximas  || 0;
+        case 'apps':    return estado.appsMaximas     || 0;
+        case 'widgets': return estado.widgetsMaximas  || 0;
+        case 'temas':   return estado.temasMaximas    || 0;
+        case 'fotos':   return estado.fotosMaximas    || 0;
+        case 'dias':    return estado.diasMaximos     || 0;
+        default:        return 0;
+    }
+}
+
 // ------------------------------------------------------------
 //  Render
 // ------------------------------------------------------------
@@ -100,11 +112,9 @@ function render(progreso) {
 function renderCard(logro, estado) {
     const fecha = estado.logros[logro.id];
     const desbloqueado = !!fecha;
-    const monedasMax = estado.monedasMaximas || 0;
-    const progresoActual = Math.min(monedasMax, logro.meta || 0);
-    const pctLogro = logro.meta > 0
-        ? Math.min(100, Math.round((progresoActual / logro.meta) * 100))
-        : 0;
+    const meta = logro.meta || 0;
+    const actual = Math.min(valorDeTipo(logro.tipo, estado), meta);
+    const pctLogro = meta > 0 ? Math.min(100, Math.round((actual / meta) * 100)) : 0;
 
     const badge = desbloqueado
         ? `<div class="lg-icono-check"><i data-lucide="check"></i></div>`
@@ -120,7 +130,7 @@ function renderCard(logro, estado) {
                     <div class="lg-mini-fill" style="width:${pctLogro}%"></div>
                 </div>
                 <div class="lg-mini-texto">
-                    ${formatearNum(progresoActual)} / ${formatearNum(logro.meta)}
+                    ${formatearNum(actual)} / ${formatearNum(meta)}
                 </div>
            </div>`;
 
@@ -167,7 +177,6 @@ async function inicializar() {
 
 document.addEventListener('DOMContentLoaded', inicializar);
 
-// Recargar cuando el shell lo pida (al abrir el modal)
 window.addEventListener('message', async (e) => {
     if (!e.data || e.data.type !== 'logros:recargar') return;
     const lg = LogrosPadre();
