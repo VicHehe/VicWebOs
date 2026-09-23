@@ -1,12 +1,12 @@
 /* ================================================
    Tema: Café Latte
-   Cafetería cozy. Granos de café tenues,
-   vapor subiendo desde el header y tonos
-   cálidos de espresso con crema.
+   Cafetería cozy con MUCHO movimiento. Vapor
+   subiendo desde el header y el hero, granos de
+   café deslizándose por el fondo y el icono con
+   latido cálido. Aromático a full.
    ================================================ */
 
 :root {
-    /* Acento: espresso cálido */
     --violet-50:  #FBF7F3;
     --violet-100: #F5EBE0;
     --violet-200: #EAD7C2;
@@ -16,7 +16,6 @@
     --violet-600: #855A3A;
     --violet-700: #6B4830;
 
-    /* Neutros: crema y café con leche */
     --white:   #FFFFFF;
     --bg:      #FAF6F0;
     --bg-alt:  #F2EAE0;
@@ -49,22 +48,38 @@
     --accent-shadow-hover: rgba(160, 112, 74, 0.45);
     --accent-text-gradient: linear-gradient(135deg, #271F17, #855A3A);
 
-    /* Granos de café dispersos */
     --theme-beans: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cg opacity='0.13'%3E%3Cg transform='translate(24 24) rotate(25)'%3E%3Cellipse cx='0' cy='0' rx='7' ry='11' fill='%236B4830'/%3E%3Cpath d='M0,-10 Q-2,0 0,10' stroke='%233D3024' stroke-width='1' fill='none'/%3E%3C/g%3E%3Cg transform='translate(88 60) rotate(-35)'%3E%3Cellipse cx='0' cy='0' rx='6' ry='10' fill='%236B4830'/%3E%3Cpath d='M0,-9 Q-2,0 0,9' stroke='%233D3024' stroke-width='0.9' fill='none'/%3E%3C/g%3E%3Cg transform='translate(40 96) rotate(60)'%3E%3Cellipse cx='0' cy='0' rx='5' ry='9' fill='%236B4830'/%3E%3Cpath d='M0,-8 Q-2,0 0,8' stroke='%233D3024' stroke-width='0.8' fill='none'/%3E%3C/g%3E%3Cg transform='translate(100 105) rotate(15)'%3E%3Cellipse cx='0' cy='0' rx='5' ry='8' fill='%236B4830'/%3E%3Cpath d='M0,-7 Q-2,0 0,7' stroke='%233D3024' stroke-width='0.7' fill='none'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 
-    /* Vapor */
     --theme-steam: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 40'%3E%3Cpath d='M10,38 Q5,32 10,25 Q15,18 10,10 Q7,6 10,2' stroke='%23A0704A' stroke-width='1.8' fill='none' stroke-linecap='round' opacity='0.55'/%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   1. WELCOME — granos de café tenues
+   1. WELCOME — granos deslizándose + cálido pulso
    ================================================================ */
 .welcome-placeholder {
     position: relative;
-    background:
-        var(--theme-beans) 0 0 / 200px 200px repeat,
+    background-image:
+        var(--theme-beans),
         radial-gradient(ellipse at top, rgba(160, 112, 74, 0.08) 0%, transparent 55%),
-        var(--bg);
+        radial-gradient(circle 320px at 50% 50%, rgba(160, 112, 74, 0.06) 0%, transparent 100%);
+    background-size:
+        200px 200px,
+        auto,
+        auto;
+    background-position:
+        0 0,
+        center top,
+        center center;
+    background-repeat:
+        repeat,
+        no-repeat,
+        no-repeat;
+    background-color: var(--bg);
+    animation: cafe-beans-drift 40s linear infinite;
+}
+@keyframes cafe-beans-drift {
+    0%   { background-position: 0 0, center top, center center; }
+    100% { background-position: 200px 0, center top, center center; }
 }
 
 .welcome-glow {
@@ -77,6 +92,7 @@
 }
 
 .welcome-hero {
+    position: relative;
     background: rgba(255, 253, 250, 0.85);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
@@ -86,41 +102,106 @@
         inset 0 0 0 1px rgba(255, 255, 255, 0.6);
 }
 
+/* Vapor subiendo desde el borde superior del hero (esquina izquierda) */
+.welcome-hero::before {
+    content: '';
+    position: absolute;
+    top: -30px;
+    left: 60px;
+    width: 26px;
+    height: 26px;
+    background: var(--theme-steam) center/contain no-repeat;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+    animation: cafe-hero-steam 6s ease-in-out infinite;
+}
+/* Vapor subiendo desde el borde superior del hero (esquina derecha) */
+.welcome-hero::after {
+    content: '';
+    position: absolute;
+    top: -28px;
+    right: 80px;
+    width: 22px;
+    height: 22px;
+    background: var(--theme-steam) center/contain no-repeat;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+    animation: cafe-hero-steam 7s ease-in-out infinite 2.5s;
+}
+@keyframes cafe-hero-steam {
+    0%   { transform: translateY(8px) scale(0.85); opacity: 0; }
+    20%  { opacity: 0.65; }
+    55%  { transform: translateY(-8px) scale(1); opacity: 0.55; }
+    100% { transform: translateY(-24px) scale(1.15); opacity: 0; }
+}
+
+/* Icono del hero: latido cálido + float base */
 .welcome-icon-wrap {
     background: linear-gradient(135deg, #C39B78, #6B4830);
-    box-shadow:
-        0 12px 28px rgba(160, 112, 74, 0.40),
-        0 4px 8px rgba(60, 30, 10, 0.25),
-        0 0 0 6px rgba(255, 255, 255, 0.95),
-        0 0 0 8px rgba(201, 155, 120, 0.20);
+    animation: float 5s ease-in-out infinite, cafe-icon-warm 4s ease-in-out infinite;
+}
+@keyframes cafe-icon-warm {
+    0%, 100% {
+        box-shadow:
+            0 12px 28px rgba(160, 112, 74, 0.40),
+            0 4px 8px rgba(60, 30, 10, 0.25),
+            0 0 0 6px rgba(255, 255, 255, 0.95),
+            0 0 0 8px rgba(201, 155, 120, 0.20);
+    }
+    50% {
+        box-shadow:
+            0 12px 28px rgba(160, 112, 74, 0.60),
+            0 4px 8px rgba(60, 30, 10, 0.30),
+            0 0 0 6px rgba(255, 255, 255, 0.95),
+            0 0 0 8px rgba(201, 155, 120, 0.30),
+            0 0 28px rgba(160, 112, 74, 0.35);
+    }
 }
 
 /* ================================================================
-   2. HEADER — con vapor animado
+   2. HEADER — DOS vapores (izq + der), escalonados
    ================================================================ */
 .app-header {
     position: relative;
     background: linear-gradient(180deg, #FFFFFF 0%, #FAF6F0 100%);
     border-bottom: 1px solid var(--border);
 }
-.app-header::after {
+
+/* Vapor izquierdo del header */
+.app-header::before {
     content: '';
     position: absolute;
-    bottom: -6px;
-    right: 40px;
+    bottom: -14px;
+    left: 40%;
     width: 22px;
     height: 22px;
     background: var(--theme-steam) center/contain no-repeat;
     pointer-events: none;
     z-index: 1;
-    opacity: 0.6;
-    animation: cafe-steam-rise 5s ease-in-out infinite;
+    opacity: 0;
+    animation: cafe-header-steam 6s ease-in-out infinite;
 }
-@keyframes cafe-steam-rise {
-    0%   { transform: translateY(6px)   scaleX(1);    opacity: 0; }
-    20%  { opacity: 0.6; }
-    50%  { transform: translateY(-2px)  scaleX(0.9); opacity: 0.55; }
-    100% { transform: translateY(-14px) scaleX(1.1); opacity: 0; }
+/* Vapor derecho del header */
+.app-header::after {
+    content: '';
+    position: absolute;
+    bottom: -14px;
+    right: 60px;
+    width: 26px;
+    height: 26px;
+    background: var(--theme-steam) center/contain no-repeat;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+    animation: cafe-header-steam 5.5s ease-in-out infinite 2.5s;
+}
+@keyframes cafe-header-steam {
+    0%   { transform: translateY(6px)   scaleX(1)    scaleY(0.8); opacity: 0; }
+    20%  { opacity: 0.7; }
+    50%  { transform: translateY(-4px)  scaleX(0.95) scaleY(1);   opacity: 0.55; }
+    100% { transform: translateY(-18px) scaleX(1.05) scaleY(1.1); opacity: 0; }
 }
 
 /* ================================================================
@@ -281,6 +362,3 @@
 }
 
 .search-bar:focus-within {
-    border-color: var(--violet-400);
-    box-shadow: var(--shadow-glow);
-}
