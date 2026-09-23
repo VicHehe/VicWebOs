@@ -1,0 +1,277 @@
+/* ================================================
+   Tema: Acuarela
+   Papel blanco con manchas suaves de acuarela
+   (rosa, celeste, amarillo, verde agua) repartidas
+   por el lobby y el sidebar. Acento empolvado.
+   ================================================ */
+
+:root {
+    /* Acento: rosa empolvado de acuarela */
+    --violet-50:  #FDF7F8;
+    --violet-100: #FAEBEE;
+    --violet-200: #F4D5DC;
+    --violet-300: #E9B0BD;
+    --violet-400: #DB8D9E;
+    --violet-500: #C97B84;
+    --violet-600: #A85A63;
+    --violet-700: #873F47;
+
+    /* Neutros: papel de acuarela */
+    --white:   #FFFFFF;
+    --bg:      #FDFCFA;
+    --bg-alt:  #F7F4F0;
+    --gray-50:  #FAF8F5;
+    --gray-100: #F2EDE7;
+    --gray-200: #E5DDD2;
+    --gray-300: #C9BFB1;
+    --gray-400: #9C9186;
+    --gray-500: #706659;
+    --gray-600: #524A40;
+    --gray-700: #3A3329;
+    --gray-800: #241F18;
+    --gray-900: #12100C;
+
+    --border:  #E5DDD2;
+    --text:    #241F18;
+    --text-2:  #524A40;
+    --text-3:  #706659;
+
+    --shadow-xs: 0 1px 2px rgba(60, 40, 20, 0.04);
+    --shadow-sm: 0 1px 3px rgba(60, 40, 20, 0.06);
+    --shadow-md: 0 4px 12px rgba(60, 40, 20, 0.08);
+    --shadow-lg: 0 12px 32px rgba(60, 40, 20, 0.10);
+    --shadow-xl: 0 24px 48px rgba(60, 40, 20, 0.12);
+    --shadow-glow: 0 0 0 4px rgba(201, 123, 132, 0.12);
+
+    --accent-gradient: linear-gradient(135deg, #C97B84, #873F47);
+    --accent-gradient-hover: linear-gradient(135deg, #DB8D9E, #A85A63);
+    --accent-shadow: rgba(201, 123, 132, 0.28);
+    --accent-shadow-hover: rgba(201, 123, 132, 0.42);
+    --accent-text-gradient: linear-gradient(135deg, #241F18, #A85A63);
+}
+
+/* ================================================================
+   1. WELCOME — papel con manchas de acuarela
+   ================================================================ */
+.welcome-placeholder {
+    position: relative;
+    background:
+        radial-gradient(circle, rgba(120, 100, 80, 0.05) 0.5px, transparent 1.2px) 0 0 / 22px 22px,
+        radial-gradient(circle, rgba(120, 100, 80, 0.035) 0.5px, transparent 1.2px) 11px 11px / 22px 22px,
+        var(--bg);
+}
+
+/* Manchas suaves de acuarela repartidas */
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+        radial-gradient(ellipse 400px 280px at 8% 15%,  rgba(244, 182, 200, 0.38) 0%, rgba(244, 182, 200, 0.10) 38%, transparent 68%),
+        radial-gradient(ellipse 340px 300px at 92% 20%, rgba(255, 222, 150, 0.34) 0%, rgba(255, 222, 150, 0.08) 42%, transparent 70%),
+        radial-gradient(ellipse 440px 340px at 6% 85%,  rgba(150, 200, 230, 0.34) 0%, rgba(150, 200, 230, 0.10) 40%, transparent 70%),
+        radial-gradient(ellipse 380px 280px at 94% 82%, rgba(180, 220, 190, 0.32) 0%, rgba(180, 220, 190, 0.08) 42%, transparent 72%),
+        radial-gradient(ellipse 300px 240px at 48% 48%, rgba(220, 190, 240, 0.20) 0%, transparent 65%),
+        radial-gradient(ellipse 260px 200px at 30% 32%, rgba(255, 200, 180, 0.18) 0%, transparent 62%);
+}
+
+.welcome-hero,
+.welcome-section {
+    position: relative;
+    z-index: 2;
+}
+
+.welcome-glow {
+    background: radial-gradient(
+        circle,
+        rgba(201, 123, 132, 0.10) 0%,
+        rgba(150, 200, 230, 0.06) 40%,
+        transparent 68%
+    );
+}
+
+/* Hero de papel translúcido con borde suave */
+.welcome-hero {
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(201, 123, 132, 0.18);
+    border-radius: 24px;
+    box-shadow:
+        inset 0 0 40px rgba(244, 182, 200, 0.10),
+        0 8px 24px rgba(60, 40, 20, 0.08);
+}
+
+.welcome-icon-wrap {
+    box-shadow:
+        0 12px 28px rgba(201, 123, 132, 0.35),
+        0 4px 8px rgba(150, 200, 230, 0.25),
+        0 0 0 6px rgba(255, 255, 255, 0.9),
+        0 0 0 8px rgba(244, 182, 200, 0.20);
+}
+
+/* ================================================================
+   2. SIDEBAR — papel con manchas muy tenues
+   ================================================================ */
+.sidebar {
+    position: relative;
+    background: var(--bg-alt);
+}
+.sidebar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+        radial-gradient(circle, rgba(120, 100, 80, 0.045) 0.5px, transparent 1.1px) 0 0 / 18px 18px,
+        radial-gradient(ellipse 220px 180px at 50% 12%, rgba(244, 182, 200, 0.20) 0%, transparent 72%),
+        radial-gradient(ellipse 240px 220px at 40% 82%, rgba(150, 200, 230, 0.16) 0%, transparent 72%);
+}
+.sidebar-comunidad,
+.sidebar-label,
+.sidebar-nav,
+.sidebar-mobile-header {
+    position: relative;
+    z-index: 1;
+}
+
+.nav-item.active::before {
+    background: linear-gradient(180deg, #DB8D9E, #C97B84);
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+}
+
+/* ================================================================
+   3. ACCESOS RÁPIDOS — tarjetas de papel
+   ================================================================ */
+.acceso-item {
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    border: 1px solid rgba(201, 123, 132, 0.16);
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(60, 40, 20, 0.05);
+    transition: all 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.acceso-item:hover {
+    border-color: rgba(201, 123, 132, 0.42);
+    box-shadow:
+        0 10px 24px rgba(201, 123, 132, 0.16),
+        0 2px 6px rgba(60, 40, 20, 0.06);
+    transform: translateY(-2px);
+}
+.acceso-icon-wrap {
+    background: linear-gradient(135deg, #FDF7F8, #FAEBEE);
+    color: var(--violet-500);
+    border-radius: 50%;
+}
+.acceso-item:hover .acceso-icon-wrap {
+    background: var(--accent-gradient);
+    color: white;
+    box-shadow: 0 6px 14px rgba(201, 123, 132, 0.35);
+}
+
+/* ================================================================
+   4. WIDGETS
+   ================================================================ */
+.widget-item {
+    border: 1px solid rgba(201, 123, 132, 0.16);
+    box-shadow:
+        0 6px 18px rgba(60, 40, 20, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    transition: all 0.24s;
+}
+.widget-item:hover {
+    border-color: rgba(201, 123, 132, 0.40);
+    box-shadow: 0 10px 24px rgba(201, 123, 132, 0.15);
+}
+
+/* ================================================================
+   5. HEADER
+   ================================================================ */
+.app-header {
+    background: rgba(253, 252, 250, 0.92);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(201, 123, 132, 0.14);
+    box-shadow: 0 1px 2px rgba(60, 40, 20, 0.03);
+}
+
+/* ================================================================
+   6. PESTAÑAS
+   ================================================================ */
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 12px;
+    right: 12px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--violet-400), transparent);
+    border-radius: 2px 2px 0 0;
+    pointer-events: none;
+}
+
+/* ================================================================
+   7. MODALES — franja acuarela arriba
+   ================================================================ */
+.config-card,
+.modal-todas-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(201, 123, 132, 0.20);
+    border-radius: 20px;
+    box-shadow:
+        0 24px 48px rgba(60, 40, 20, 0.14),
+        inset 0 0 30px rgba(244, 182, 200, 0.06);
+}
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg,
+        rgba(244, 182, 200, 0.90),
+        rgba(255, 222, 150, 0.90),
+        rgba(150, 200, 230, 0.90),
+        rgba(180, 220, 190, 0.90));
+    pointer-events: none;
+    z-index: 3;
+}
+.config-card::after,
+.modal-todas-card::after {
+    content: '';
+    position: absolute;
+    bottom: -30px;
+    right: -30px;
+    width: 140px;
+    height: 140px;
+    background: radial-gradient(circle, rgba(244, 182, 200, 0.25) 0%, transparent 68%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.config-header,
+.modal-todas-header {
+    background: var(--gray-50);
+}
+
+/* ================================================================
+   8. BOTÓN PRIMARIO
+   ================================================================ */
+.btn-primario {
+    box-shadow:
+        0 4px 12px rgba(201, 123, 132, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.20);
+}
+.btn-primario:hover {
+    box-shadow:
+        0 6px 18px rgba(201, 123, 132, 0.45),
+        0 0 0 3px rgba(244, 182, 200, 0.25);
+}
