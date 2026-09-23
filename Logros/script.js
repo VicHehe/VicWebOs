@@ -1,29 +1,16 @@
 // ============================================================
-//  Logros — App del sistema
+//  Logros — Vista (dentro del iframe del modal)
 //  ------------------------------------------------------------
-//  - Lee el catálogo desde window.LOGROS_REGISTRO (registrado
-//    por JsLogros1.js, JsLogros2.js, etc.)
-//  - Guarda el estado por usuario en app/logros/logros.json
-//  - Desbloquea logros al abrir la app y expone chequear()
-//    para que el shell lo llame después de cada canjear.
+//  Solo pinta. El chequeo y el estado viven en el shell
+//  (window.parent.Logros).
 // ============================================================
 
 'use strict';
 
-const ARCHIVO = 'app/logros/logros.json';
 const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 
-let usuarioActual = null;
-let logrosCatalogo = [];
-let estadoUsuario = { monedasMaximas: 0, logros: {} };
-let toastTimeout = null;
-
-const API = () => {
-    try { return (window.parent && window.parent.__vicwebos) || null; }
-    catch (e) { return null; }
-};
-const BD = () => {
-    try { return window.parent.ConfigBD || null; }
+const LogrosPadre = () => {
+    try { return window.parent.Logros || null; }
     catch (e) { return null; }
 };
 
@@ -59,18 +46,6 @@ window.addEventListener('message', (e) => {
 });
 
 // ------------------------------------------------------------
-//  Toast
-// ------------------------------------------------------------
-function toast(texto, tipo = 'info') {
-    const el = document.getElementById('lgToast');
-    if (!el) return;
-    el.textContent = texto;
-    el.className = 'lg-toast show ' + tipo;
-    clearTimeout(toastTimeout);
-    toastTimeout = setTimeout(() => el.classList.remove('show'), 2600);
-}
-
-// ------------------------------------------------------------
 //  Helpers
 // ------------------------------------------------------------
 function escapar(s) {
@@ -91,125 +66,26 @@ function formatearNum(n) {
     return Number(n).toLocaleString('es-CL');
 }
 
-function normalizar(data) {
-    if (!data || typeof data !== 'object') {
-        return { version: 1, actualizado: new Date().toISOString(), usuarios: {} };
-    }
-    if (!data.usuarios || typeof data.usuarios !== 'object') data.usuarios = {};
-    return data;
-}
-
-function estadoVacio() {
-    return { monedasMaximas: 0, logros: {} };
-}
-
-// ------------------------------------------------------------
-//  Catálogo
-// ------------------------------------------------------------
-function cargarCatalogo() {
-    logrosCatalogo = Array.isArray(window.LOGROS_REGISTRO)
-        ? window.LOGROS_REGISTRO.slice()
-        : [];
-    logrosCatalogo.sort((a, b) => (a.meta || 0) - (b.meta || 0));
-}
-
-// ------------------------------------------------------------
-//  Estado del usuario
-// ------------------------------------------------------------
-async function leerEstadoUsuario(codigo) {
-    const bd = BD();
-    if (!bd) return estadoVacio();
-    try {
-        const data = normalizar(await bd.leerArchivoFresh(ARCHIVO));
-        const u = data.usuarios[codigo];
-        if (!u || typeof u !== 'object') return estadoVacio();
-        return {
-            monedasMaximas: Number(u.monedasMaximas) || 0,
-            logros: (u.logros && typeof u.logros === 'object') ? u.logros : {}
-        };
-    } catch (e) {
-        return estadoVacio();
-    }
-}
-
-// ------------------------------------------------------------
-//  Chequeo + desbloqueo
-//  Devuelve array de logros recién desbloqueados.
-// ------------------------------------------------------------
-async function chequear() {
-    if (!usuarioActual) return [];
-    const bd = BD();
-    if (!bd) return [];
-
-    const api = API();
-    const monedasActuales = api ? (api.obtenerMonedas() || 0) : 0;
-
-    const recien = [];
-
-    await bd.actualizarArchivo(ARCHIVO, (actual) => {
-        actual = normalizar(actual);
-        const codigo = usuarioActual.codigo;
-
-        if (!actual.usuarios[codigo]) {
-            actual.usuarios[codigo] = estadoVacio();
-        }
-        const yo = actual.usuarios[codigo];
-        if (!yo.logros || typeof yo.logros !== 'object') yo.logros = {};
-
-        // Guardar el pico histórico de monedas
-        const antes = Number(yo.monedasMaximas) || 0;
-        yo.monedasMaximas = Math.max(antes, monedasActuales);
-
-        // Desbloquear los que correspondan
-        for (const logro of logrosCatalogo) {
-            if (yo.logros[logro.id]) continue;
-            if (yo.monedasMaximas >= (logro.meta || 0)) {
-                yo.logros[logro.id] = new Date().toISOString();
-                recien.push(logro);
-            }
-        }
-
-        actual.actualizado = new Date().toISOString();
-        return actual;
-    });
-
-    // Refrescar estado en memoria
-    estadoUsuario = await leerEstadoUsuario(usuarioActual.codigo);
-
-    // Notificar los nuevos
-    for (const logro of recien) {
-        try {
-            if (api && api.enviarNotificacion) {
-                await api.enviarNotificacion(
-                    'logro',
-                    `¡Desbloqueaste "${logro.nombre}"!`,
-                    usuarioActual.codigo
-                );
-            }
-        } catch (e) { /* silencioso */ }
-    }
-
-    return recien;
-}
-
 // ------------------------------------------------------------
 //  Render
 // ------------------------------------------------------------
-function renderTodo() {
+function render(progreso) {
     const grid = document.getElementById('lgGrid');
     const empty = document.getElementById('lgEmpty');
-    const contador = document.getElementById('lgContador');
-    const progresoFill = document.getElementById('lgProgresoFill');
-    const progresoTexto = document.getElementById('lgProgresoTexto');
+    const fill = document.getElementById('lgProgresoFill');
+    const texto = document.getElementById('lgProgresoTexto');
     if (!grid) return;
 
-    if (logrosCatalogo.length === 0) {
+    const { desbloqueados, total, estado, catalogo } = progreso;
+    const pct = total > 0 ? Math.round((desbloqueados / total) * 100) : 0;
+
+    if (fill) fill.style.width = pct + '%';
+    if (texto) texto.textContent = `${pct}% completado · ${desbloqueados} / ${total}`;
+
+    if (!catalogo || catalogo.length === 0) {
         grid.innerHTML = '';
         grid.hidden = true;
         empty.hidden = false;
-        if (contador) contador.textContent = '0 / 0';
-        if (progresoFill) progresoFill.style.width = '0%';
-        if (progresoTexto) progresoTexto.textContent = '0% completado';
         if (window.lucide) window.lucide.createIcons();
         return;
     }
@@ -217,22 +93,15 @@ function renderTodo() {
     grid.hidden = false;
     empty.hidden = true;
 
-    const total = logrosCatalogo.length;
-    const desbloqueados = logrosCatalogo.filter(l => estadoUsuario.logros[l.id]).length;
-    const pct = total > 0 ? Math.round((desbloqueados / total) * 100) : 0;
-
-    if (contador) contador.textContent = `${desbloqueados} / ${total}`;
-    if (progresoFill) progresoFill.style.width = pct + '%';
-    if (progresoTexto) progresoTexto.textContent = `${pct}% completado`;
-
-    grid.innerHTML = logrosCatalogo.map(l => renderCard(l)).join('');
+    grid.innerHTML = catalogo.map(l => renderCard(l, estado)).join('');
     if (window.lucide) window.lucide.createIcons();
 }
 
-function renderCard(logro) {
-    const fecha = estadoUsuario.logros[logro.id];
+function renderCard(logro, estado) {
+    const fecha = estado.logros[logro.id];
     const desbloqueado = !!fecha;
-    const progresoActual = Math.min(estadoUsuario.monedasMaximas || 0, logro.meta || 0);
+    const monedasMax = estado.monedasMaximas || 0;
+    const progresoActual = Math.min(monedasMax, logro.meta || 0);
     const pctLogro = logro.meta > 0
         ? Math.min(100, Math.round((progresoActual / logro.meta) * 100))
         : 0;
@@ -256,7 +125,7 @@ function renderCard(logro) {
            </div>`;
 
     return `
-        <div class="lg-card ${desbloqueado ? 'desbloqueado' : 'bloqueado'}" data-id="${escapar(logro.id)}">
+        <div class="lg-card ${desbloqueado ? 'desbloqueado' : 'bloqueado'}">
             <div class="lg-icono">
                 <i data-lucide="${logro.icono || 'trophy'}"></i>
                 ${badge}
@@ -276,56 +145,35 @@ function renderCard(logro) {
 async function inicializar() {
     aplicarTemaDelPadre();
 
-    const api = API();
-    if (!api) {
-        alert('Logros necesita estar dentro de VicWebOs.');
+    const lg = LogrosPadre();
+    if (!lg) {
+        document.getElementById('lgGrid').innerHTML = `
+            <div class="lg-empty">
+                <div class="lg-empty-icon"><i data-lucide="alert-triangle"></i></div>
+                <h3>Logros no disponible</h3>
+                <p>Falta cargar <code>Logros/chequeo.js</code> en el shell.</p>
+            </div>`;
+        if (window.lucide) window.lucide.createIcons();
         return;
     }
 
-    usuarioActual = api.obtenerCuenta?.();
-    const badge = document.getElementById('lgUserBadge');
-    if (badge) {
-        badge.textContent = usuarioActual
-            ? `@${usuarioActual.codigo} · ${usuarioActual.nombre}`
-            : '—';
+    try {
+        const progreso = await lg.obtenerProgreso();
+        render(progreso);
+    } catch (e) {
+        console.warn('[Logros] Error cargando:', e);
     }
-    if (!usuarioActual) {
-        alert('Necesitas iniciar sesión para ver tus logros.');
-        return;
-    }
-
-    cargarCatalogo();
-    estadoUsuario = await leerEstadoUsuario(usuarioActual.codigo);
-    renderTodo();
-
-    // Chequear al abrir
-    const nuevos = await chequear();
-    renderTodo();
-
-    if (nuevos.length > 0) {
-        const nombres = nuevos.map(l => l.nombre).join(', ');
-        toast(`¡Desbloqueaste: ${nombres}!`, 'success');
-    }
-
-    if (window.lucide) window.lucide.createIcons();
 }
 
 document.addEventListener('DOMContentLoaded', inicializar);
 
-// ------------------------------------------------------------
-//  API pública para el shell
-//  window.parent.Logros.chequear()
-//  window.parent.Logros.recargar()
-// ------------------------------------------------------------
-window.Logros = {
-    chequear: async () => {
-        const nuevos = await chequear();
-        renderTodo();
-        return nuevos;
-    },
-    recargar: async () => {
-        if (!usuarioActual) return;
-        estadoUsuario = await leerEstadoUsuario(usuarioActual.codigo);
-        renderTodo();
-    }
-};
+// Recargar cuando el shell lo pida (al abrir el modal)
+window.addEventListener('message', async (e) => {
+    if (!e.data || e.data.type !== 'logros:recargar') return;
+    const lg = LogrosPadre();
+    if (!lg) return;
+    try {
+        const progreso = await lg.obtenerProgreso();
+        render(progreso);
+    } catch (err) { /* silencioso */ }
+});
