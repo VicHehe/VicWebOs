@@ -1,6 +1,10 @@
 /* ================================================
    Logros — Vista del panel (dentro del iframe)
-   Adaptado al tema activo con var() + fallbacks.
+   ------------------------------------------------------------
+   REGLA: todos los colores vienen del tema activo.
+   ÚNICA excepción: el verde del check (#10B981) que es
+   semántico — siempre debe leerse como "desbloqueado",
+   sin importar el tema.
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -98,6 +102,7 @@ html, body {
     overflow: hidden;
 }
 
+/* --- Card desbloqueada: todo con variables del tema --- */
 .lg-card.desbloqueado {
     border-color: var(--violet-300, #C4B5FD);
     background: linear-gradient(135deg, var(--white, #FFFFFF) 0%, var(--violet-50, #F5F3FF) 100%);
@@ -117,10 +122,11 @@ html, body {
     background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
 }
 
+/* --- Card bloqueada --- */
 .lg-card.bloqueado { opacity: 0.72; }
 .lg-card.bloqueado:hover { opacity: 0.9; }
 
-/* Icono */
+/* ========== ICONO ========== */
 .lg-icono {
     width: 52px;
     height: 52px;
@@ -143,6 +149,7 @@ html, body {
     color: var(--gray-400, #A1A1AD);
 }
 
+/* Badges superpuestos */
 .lg-icono-candado,
 .lg-icono-check {
     position: absolute;
@@ -160,6 +167,7 @@ html, body {
     background: var(--gray-200, #E8E8EE);
     color: var(--gray-500, #71717A);
 }
+/* Verde SEMÁNTICO: único color que no viene del tema. */
 .lg-icono-check {
     background: #10B981;
     color: white;
@@ -172,7 +180,7 @@ html, body {
     stroke-width: 3;
 }
 
-/* Info */
+/* ========== INFO ========== */
 .lg-info {
     flex: 1;
     min-width: 0;
@@ -196,6 +204,7 @@ html, body {
     font-weight: 600;
 }
 
+/* ========== MINI PROGRESO (logros bloqueados) ========== */
 .lg-mini-progreso {
     margin-top: 6px;
     display: flex;
@@ -222,6 +231,7 @@ html, body {
     font-variant-numeric: tabular-nums;
 }
 
+/* ========== FECHA DE DESBLOQUEO ========== */
 .lg-fecha {
     margin-top: 4px;
     display: inline-flex;
