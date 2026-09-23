@@ -55,7 +55,8 @@ const PAQUETES_PROMO = [
         items: [
             { tipo: 'tema', id: 'libro' },
             { tipo: 'tema', id: 'steampunk' },
-            { tipo: 'tema', id: 'consentido' }
+            { tipo: 'tema', id: 'consentido' },
+            { tipo: 'tema', id: 'mucho-besame' }
         ]
     },
 
