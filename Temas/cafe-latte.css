@@ -1,9 +1,8 @@
 /* ================================================
    Tema: Café Latte
-   Cafetería cozy con movimiento. Vapores escalonados
-   en header y hero, granos deslizándose, icono con
-   latido cálido. Decoración del sidebar 100% en
-   background para no bloquear scroll táctil Android.
+   Cafetería cozy. Vapores escalonados en header
+   y hero, granos deslizándose, icono con latido
+   cálido. .acceso-item limpio para grid uniforme.
    ================================================ */
 
 :root {
@@ -93,8 +92,6 @@
 .welcome-hero {
     position: relative;
     background: rgba(255, 253, 250, 0.85);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
     border: 1px solid var(--border);
     box-shadow:
         0 8px 28px rgba(60, 30, 10, 0.10),
@@ -217,16 +214,19 @@
 }
 
 /* ================================================================
-   4. ACCESOS RÁPIDOS
+   4. ACCESOS RÁPIDOS — solo color/borde/sombra. Grid uniforme.
    ================================================================ */
 .acceso-item {
+    position: relative;
     background: rgba(255, 253, 250, 0.92);
     border: 1px solid var(--border);
     border-radius: 14px;
     box-shadow:
         0 2px 6px rgba(60, 30, 10, 0.06),
         inset 0 1px 0 rgba(255, 255, 255, 0.7);
-    transition: all 0.22s;
+    transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .acceso-item:hover {
     border-color: var(--violet-400);
@@ -253,6 +253,9 @@
     box-shadow:
         0 4px 12px rgba(60, 30, 10, 0.08),
         inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .widget-item:hover {
     border-color: var(--violet-400);
