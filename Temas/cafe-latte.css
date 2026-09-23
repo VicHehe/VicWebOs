@@ -1,0 +1,286 @@
+/* ================================================
+   Tema: Café Latte
+   Cafetería cozy. Granos de café tenues,
+   vapor subiendo desde el header y tonos
+   cálidos de espresso con crema.
+   ================================================ */
+
+:root {
+    /* Acento: espresso cálido */
+    --violet-50:  #FBF7F3;
+    --violet-100: #F5EBE0;
+    --violet-200: #EAD7C2;
+    --violet-300: #D9BC9E;
+    --violet-400: #C39B78;
+    --violet-500: #A0704A;
+    --violet-600: #855A3A;
+    --violet-700: #6B4830;
+
+    /* Neutros: crema y café con leche */
+    --white:   #FFFFFF;
+    --bg:      #FAF6F0;
+    --bg-alt:  #F2EAE0;
+    --gray-50:  #F7F1E8;
+    --gray-100: #EFE4D5;
+    --gray-200: #E0CEB5;
+    --gray-300: #C9AF90;
+    --gray-400: #9E8266;
+    --gray-500: #745A42;
+    --gray-600: #564432;
+    --gray-700: #3D3024;
+    --gray-800: #271F17;
+    --gray-900: #13100B;
+
+    --border:  #E0CEB5;
+    --text:    #271F17;
+    --text-2:  #564432;
+    --text-3:  #745A42;
+
+    --shadow-xs: 0 1px 2px rgba(60, 30, 10, 0.06);
+    --shadow-sm: 0 1px 3px rgba(60, 30, 10, 0.08);
+    --shadow-md: 0 4px 12px rgba(60, 30, 10, 0.10);
+    --shadow-lg: 0 12px 32px rgba(60, 30, 10, 0.12);
+    --shadow-xl: 0 24px 48px rgba(60, 30, 10, 0.16);
+    --shadow-glow: 0 0 0 4px rgba(160, 112, 74, 0.14);
+
+    --accent-gradient: linear-gradient(135deg, #A0704A, #6B4830);
+    --accent-gradient-hover: linear-gradient(135deg, #C39B78, #855A3A);
+    --accent-shadow: rgba(160, 112, 74, 0.30);
+    --accent-shadow-hover: rgba(160, 112, 74, 0.45);
+    --accent-text-gradient: linear-gradient(135deg, #271F17, #855A3A);
+
+    /* Granos de café dispersos */
+    --theme-beans: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cg opacity='0.13'%3E%3Cg transform='translate(24 24) rotate(25)'%3E%3Cellipse cx='0' cy='0' rx='7' ry='11' fill='%236B4830'/%3E%3Cpath d='M0,-10 Q-2,0 0,10' stroke='%233D3024' stroke-width='1' fill='none'/%3E%3C/g%3E%3Cg transform='translate(88 60) rotate(-35)'%3E%3Cellipse cx='0' cy='0' rx='6' ry='10' fill='%236B4830'/%3E%3Cpath d='M0,-9 Q-2,0 0,9' stroke='%233D3024' stroke-width='0.9' fill='none'/%3E%3C/g%3E%3Cg transform='translate(40 96) rotate(60)'%3E%3Cellipse cx='0' cy='0' rx='5' ry='9' fill='%236B4830'/%3E%3Cpath d='M0,-8 Q-2,0 0,8' stroke='%233D3024' stroke-width='0.8' fill='none'/%3E%3C/g%3E%3Cg transform='translate(100 105) rotate(15)'%3E%3Cellipse cx='0' cy='0' rx='5' ry='8' fill='%236B4830'/%3E%3Cpath d='M0,-7 Q-2,0 0,7' stroke='%233D3024' stroke-width='0.7' fill='none'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+
+    /* Vapor */
+    --theme-steam: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 40'%3E%3Cpath d='M10,38 Q5,32 10,25 Q15,18 10,10 Q7,6 10,2' stroke='%23A0704A' stroke-width='1.8' fill='none' stroke-linecap='round' opacity='0.55'/%3E%3C/svg%3E");
+}
+
+/* ================================================================
+   1. WELCOME — granos de café tenues
+   ================================================================ */
+.welcome-placeholder {
+    position: relative;
+    background:
+        var(--theme-beans) 0 0 / 200px 200px repeat,
+        radial-gradient(ellipse at top, rgba(160, 112, 74, 0.08) 0%, transparent 55%),
+        var(--bg);
+}
+
+.welcome-glow {
+    background: radial-gradient(
+        circle,
+        rgba(160, 112, 74, 0.14) 0%,
+        rgba(201, 155, 120, 0.06) 40%,
+        transparent 68%
+    );
+}
+
+.welcome-hero {
+    background: rgba(255, 253, 250, 0.85);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid var(--border);
+    box-shadow:
+        0 8px 28px rgba(60, 30, 10, 0.10),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+.welcome-icon-wrap {
+    background: linear-gradient(135deg, #C39B78, #6B4830);
+    box-shadow:
+        0 12px 28px rgba(160, 112, 74, 0.40),
+        0 4px 8px rgba(60, 30, 10, 0.25),
+        0 0 0 6px rgba(255, 255, 255, 0.95),
+        0 0 0 8px rgba(201, 155, 120, 0.20);
+}
+
+/* ================================================================
+   2. HEADER — con vapor animado
+   ================================================================ */
+.app-header {
+    position: relative;
+    background: linear-gradient(180deg, #FFFFFF 0%, #FAF6F0 100%);
+    border-bottom: 1px solid var(--border);
+}
+.app-header::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    right: 40px;
+    width: 22px;
+    height: 22px;
+    background: var(--theme-steam) center/contain no-repeat;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.6;
+    animation: cafe-steam-rise 5s ease-in-out infinite;
+}
+@keyframes cafe-steam-rise {
+    0%   { transform: translateY(6px)   scaleX(1);    opacity: 0; }
+    20%  { opacity: 0.6; }
+    50%  { transform: translateY(-2px)  scaleX(0.9); opacity: 0.55; }
+    100% { transform: translateY(-14px) scaleX(1.1); opacity: 0; }
+}
+
+/* ================================================================
+   3. SIDEBAR
+   ================================================================ */
+.sidebar {
+    position: relative;
+    background: linear-gradient(180deg, #F2EAE0 0%, #EDE2D2 100%);
+}
+.sidebar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+    background-image: var(--theme-beans);
+    background-size: 240px 240px;
+}
+.sidebar-comunidad,
+.sidebar-label,
+.sidebar-nav,
+.sidebar-mobile-header {
+    position: relative;
+    z-index: 1;
+}
+
+.nav-item.active::before {
+    background: linear-gradient(180deg, #C39B78, #6B4830);
+    width: 3px;
+    box-shadow: 0 0 6px rgba(160, 112, 74, 0.40);
+}
+
+/* ================================================================
+   4. ACCESOS RÁPIDOS
+   ================================================================ */
+.acceso-item {
+    background: rgba(255, 253, 250, 0.92);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow:
+        0 2px 6px rgba(60, 30, 10, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    transition: all 0.22s;
+}
+.acceso-item:hover {
+    border-color: var(--violet-400);
+    box-shadow:
+        0 10px 22px rgba(160, 112, 74, 0.25),
+        0 2px 6px rgba(60, 30, 10, 0.06);
+    transform: translateY(-2px);
+}
+.acceso-icon-wrap {
+    background: linear-gradient(135deg, #F5EBE0, #EAD7C2);
+    color: var(--violet-600);
+}
+.acceso-item:hover .acceso-icon-wrap {
+    background: var(--accent-gradient);
+    color: white;
+    box-shadow: 0 6px 14px rgba(160, 112, 74, 0.40);
+}
+
+/* ================================================================
+   5. WIDGETS
+   ================================================================ */
+.widget-item {
+    border: 1px solid var(--border);
+    box-shadow:
+        0 4px 12px rgba(60, 30, 10, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+.widget-item:hover {
+    border-color: var(--violet-400);
+    box-shadow: 0 10px 22px rgba(160, 112, 74, 0.20);
+}
+
+/* ================================================================
+   6. PESTAÑAS
+   ================================================================ */
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 12px;
+    right: 12px;
+    height: 3px;
+    background: linear-gradient(90deg, #C39B78, #6B4830);
+    border-radius: 3px 3px 0 0;
+    pointer-events: none;
+}
+
+/* ================================================================
+   7. MODALES
+   ================================================================ */
+.config-card,
+.modal-todas-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow:
+        0 24px 48px rgba(60, 30, 10, 0.20),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #C39B78, #A0704A, #6B4830);
+    pointer-events: none;
+    z-index: 3;
+}
+
+.config-header,
+.modal-todas-header {
+    background: linear-gradient(180deg, #F7F1E8 0%, #F2EAE0 100%);
+}
+
+/* ================================================================
+   8. BOTÓN PRIMARIO
+   ================================================================ */
+.btn-primario {
+    box-shadow:
+        0 4px 12px rgba(160, 112, 74, 0.30),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+.btn-primario:hover {
+    box-shadow:
+        0 6px 18px rgba(160, 112, 74, 0.48),
+        0 0 0 3px rgba(201, 155, 120, 0.30);
+}
+
+/* ================================================================
+   9. AVATAR Y NOTIFICACIONES
+   ================================================================ */
+.avatar-config {
+    background: linear-gradient(135deg, #C39B78, #6B4830);
+    border: 2px solid var(--white);
+    box-shadow:
+        var(--shadow-sm),
+        0 0 0 1px var(--border),
+        0 0 0 3px rgba(160, 112, 74, 0.15);
+}
+.avatar-config:hover {
+    transform: translateY(-1px) scale(1.05);
+    box-shadow:
+        0 6px 16px rgba(160, 112, 74, 0.45),
+        0 0 0 1px var(--violet-400);
+}
+
+.noti-btn.tiene-no-leidas {
+    background: var(--violet-50);
+    color: var(--violet-600);
+}
+
+.search-bar:focus-within {
+    border-color: var(--violet-400);
+    box-shadow: var(--shadow-glow);
+}
