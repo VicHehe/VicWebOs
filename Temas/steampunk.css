@@ -294,41 +294,24 @@
     z-index: 1;
 }
 
-/* Péndulo de reloj oscilando arriba del sidebar */
+/* Péndulo de reloj — SVG completo (pivote + varilla + bola) */
 .sidebar-comunidad::after {
     content: '';
     position: absolute;
-    top: 100%;
-    right: 22px;
-    width: 2px;
-    height: 40px;
-    background: linear-gradient(180deg, var(--violet-500), var(--violet-300));
-    transform-origin: top center;
+    top: calc(100% - 2px);
+    right: 26px;
+    width: 36px;
+    height: 70px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 70'%3E%3Ccircle cx='18' cy='5' r='4' fill='none' stroke='%239C5F28' stroke-width='2'/%3E%3Ccircle cx='18' cy='5' r='1.5' fill='%23653C19'/%3E%3Cline x1='18' y1='9' x2='18' y2='48' stroke='%239C5F28' stroke-width='1.8'/%3E%3Ccircle cx='18' cy='58' r='10' fill='%23B87333' stroke='%239C5F28' stroke-width='1.5'/%3E%3Cellipse cx='15' cy='54' rx='3' ry='2' fill='%23E5D8BE' opacity='0.55'/%3E%3C/svg%3E") center/contain no-repeat;
+    transform-origin: 50% 0;
     animation: pendulum-swing 3s ease-in-out infinite;
     pointer-events: none;
-    border-radius: 0 0 2px 2px;
-    box-shadow: 0 0 6px rgba(184, 115, 51, 0.4);
-}
-.sidebar-comunidad::before {
-    content: '';
-    position: absolute;
-    top: 100%;
-    right: 22px;
-    width: 40px;
-    height: 40px;
-    margin-left: -19px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #E5D8BE, #B87333 60%, #653C19);
-    border: 2px solid var(--violet-500);
     z-index: 2;
-    pointer-events: none;
-    box-shadow: 0 2px 6px rgba(60, 40, 20, 0.35);
-    transform-origin: top center;
-    animation: pendulum-swing 3s ease-in-out infinite;
+    filter: drop-shadow(0 3px 4px rgba(60, 40, 20, 0.30));
 }
 @keyframes pendulum-swing {
-    0%, 100% { transform: rotate(-7deg); }
-    50%      { transform: rotate(7deg); }
+    0%, 100% { transform: rotate(-8deg); }
+    50%      { transform: rotate(8deg); }
 }
 
 .sidebar-comunidad {
@@ -657,7 +640,6 @@
     .welcome-placeholder::before,
     .welcome-placeholder::after,
     .sidebar::before,
-    .sidebar-comunidad::before,
     .sidebar-comunidad::after,
     .app-header::after,
     .welcome-hero::after,
