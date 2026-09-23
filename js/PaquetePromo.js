@@ -33,7 +33,7 @@
 const PAQUETES_PROMO = [
 
     // ============================================================
-    //  TEMÁTICOS / CULTURALES
+    //  CULTURAL / TRADICIÓN
     // ============================================================
     {
         id: 'pack_orgullo_nacional',
@@ -50,49 +50,23 @@ const PAQUETES_PROMO = [
         id: 'pack_historico',
         nombre: 'Pack Histórico',
         icono: 'book-open',
-        descripcion: 'Pasado, raíces y tradición. Para los que atesoran la memoria.',
+        descripcion: 'Para los que atesoran el pasado. Cuero, papel viejo, engranajes y tradición.',
         precio: 65,
         items: [
             { tipo: 'tema', id: 'libro' },
-            { tipo: 'tema', id: 'consentido' },
-            { tipo: 'tema', id: 'mucho-besame' }
-        ]
-    },
-    {
-        id: 'pack_reyes_musicales',
-        nombre: 'Reyes Musicales',
-        icono: 'music-2',
-        descripcion: 'Tres temas con alma musical y la radio para acompañar.',
-        precio: 225,
-        items: [
-            { tipo: 'tema',   id: 'pop-owner' },
-            { tipo: 'tema',   id: 'break-of-dawn' },
-            { tipo: 'tema',   id: 'salon' },
-            { tipo: 'widget', id: 'radio' }
-        ]
-    },
-    {
-        id: 'pack_cultural',
-        nombre: 'Pack Cultural',
-        icono: 'globe-2',
-        descripcion: 'Turquesa, acuarela, celeste y lector. Aire fresco para leer tranquilo.',
-        precio: 75,
-        items: [
-            { tipo: 'tema',   id: 'turquesa' },
-            { tipo: 'tema',   id: 'acuarela' },
-            { tipo: 'tema',   id: 'celeste' },
-            { tipo: 'widget', id: 'lector' }
+            { tipo: 'tema', id: 'steampunk' },
+            { tipo: 'tema', id: 'consentido' }
         ]
     },
 
     // ============================================================
-    //  OSCUROS / NOCTURNOS
+    //  OSCUROS / MOOD
     // ============================================================
     {
-        id: 'pack_noche',
-        nombre: 'Pack Noche',
+        id: 'pack_oscuro_puro',
+        nombre: 'Oscuro Puro',
         icono: 'moon',
-        descripcion: 'Tres formas de vestir la oscuridad. Elegí tu mood nocturno.',
+        descripcion: 'Tres formas de vestir la noche. Elegí tu mood: estrellas, mar o calabaza.',
         precio: 25,
         items: [
             { tipo: 'tema', id: 'noche' },
@@ -101,88 +75,77 @@ const PAQUETES_PROMO = [
         ]
     },
     {
-        id: 'pack_dark_work',
-        nombre: 'Pack Dark Work',
-        icono: 'laptop',
-        descripcion: 'Modo oscuro para trabajar de noche. Formal, moderno y con tareas a mano.',
+        id: 'pack_dark_dev',
+        nombre: 'Dark Dev',
+        icono: 'terminal',
+        descripcion: 'Modo oscuro para trabajar de noche. Formal, hacker y con tareas a mano.',
         precio: 100,
         items: [
-            { tipo: 'tema',   id: 'oficina-dark' },
             { tipo: 'tema',   id: 'github-lover' },
-            { tipo: 'tema',   id: 'noche' },
-            { tipo: 'widget', id: 'to-do-list' }
+            { tipo: 'tema',   id: 'oficina-dark' },
+            { tipo: 'widget', id: 'to-do-list' },
+            { tipo: 'widget', id: 'lector' }
         ]
     },
     {
         id: 'pack_streaming',
         nombre: 'Pack Streaming',
         icono: 'signal',
-        descripcion: 'Para maratones. Tema animado, dreams y radio de fondo.',
-        precio: 200,
+        descripcion: 'Para maratones. Tema animado, dreams, pop de escenario y radio de fondo.',
+        precio: 220,
         items: [
             { tipo: 'tema',   id: 'stream' },
             { tipo: 'tema',   id: 'dreams' },
+            { tipo: 'tema',   id: 'pop-owner' },
             { tipo: 'widget', id: 'radio' }
         ]
     },
     {
-        id: 'pack_lofi',
-        nombre: 'Pack Lo-Fi',
-        icono: 'radio',
-        descripcion: 'Charla, ruleta y radio. Vibra tranqui para estudiar o trabajar.',
-        precio: 185,
+        id: 'pack_retro_puro',
+        nombre: 'Retro Puro',
+        icono: 'gamepad-2',
+        descripcion: 'Hacker, Vapor y Salón. Tres décadas distintas en tres capas.',
+        precio: 25,
         items: [
-            { tipo: 'tema',   id: 'charla' },
-            { tipo: 'widget', id: 'ruleta' },
-            { tipo: 'widget', id: 'radio' }
+            { tipo: 'tema', id: 'hacker' },
+            { tipo: 'tema', id: 'vapor' },
+            { tipo: 'tema', id: 'salon' }
         ]
     },
 
     // ============================================================
-    //  CREATIVIDAD / ARTE
+    //  CREATIVO / ARTE
     // ============================================================
     {
-        id: 'pack_creativo',
-        nombre: 'Pack Creativo',
-        icono: 'palette',
-        descripcion: 'Los dos editores gráficos + tus personajes. Para artistas completos.',
-        precio: 380,
+        id: 'pack_pixel_world',
+        nombre: 'Pixel World',
+        icono: 'grid-2x2',
+        descripcion: 'Editor de pixel art, tema Chiptune y acceso directo. Universo 8-bit propio.',
+        precio: 200,
         items: [
-            { tipo: 'app', id: 'pixevan' },
-            { tipo: 'app', id: 'arte-flash' },
-            { tipo: 'app', id: 'ocs' }
-        ]
-    },
-    {
-        id: 'pack_expresion',
-        nombre: 'Pack Expresión Total',
-        icono: 'wand-2',
-        descripcion: 'Kit completo: edición, pixel art, personajes y acceso directo.',
-        precio: 460,
-        items: [
-            { tipo: 'app',    id: 'arte-flash' },
             { tipo: 'app',    id: 'pixevan' },
-            { tipo: 'app',    id: 'ocs' },
+            { tipo: 'tema',   id: 'chiptune' },
             { tipo: 'widget', id: 'acceso-directo' }
         ]
     },
     {
-        id: 'pack_personajes',
-        nombre: 'Pack Personajes',
-        icono: 'users',
-        descripcion: 'Creá OCs, sacales fotos y mostralos. Kit para rolear.',
-        precio: 80,
+        id: 'pack_ocs_arte',
+        nombre: 'OCs & Arte',
+        icono: 'sparkles',
+        descripcion: 'Los dos editores gráficos, tus personajes y la cámara para fotos.',
+        precio: 380,
         items: [
-            { tipo: 'app',    id: 'ocs' },
-            { tipo: 'app',    id: 'camara' },
-            { tipo: 'widget', id: 'bubble-image' }
+            { tipo: 'app', id: 'ocs' },
+            { tipo: 'app', id: 'pixevan' },
+            { tipo: 'app', id: 'arte-flash' },
+            { tipo: 'app', id: 'camara' }
         ]
     },
     {
-        id: 'pack_fotos',
-        nombre: 'Pack Fotos',
-        icono: 'images',
-        descripcion: 'Sacá, editá y mostrá. Kit fotográfico completo.',
+        id: 'pack_fotografia',
+        nombre: 'Pack Fotografía',
+        icono: 'camera',
+        descripcion: 'Sacá, editá y mostrá. Kit completo para fotógrafes.',
         precio: 90,
         items: [
             { tipo: 'app',    id: 'camara' },
@@ -192,66 +155,54 @@ const PAQUETES_PROMO = [
         ]
     },
     {
-        id: 'pack_pixel_world',
-        nombre: 'Pack Pixel World',
-        icono: 'grid-2x2',
-        descripcion: 'Pixel art, tema Chiptune y acceso directo. Universo 8-bit personal.',
-        precio: 220,
+        id: 'pack_pastel_dream',
+        nombre: 'Pastel Dream',
+        icono: 'brush',
+        descripcion: 'Acuarela, Floral, Cuarzo y diapositivas. Tonos suaves para soñar.',
+        precio: 90,
         items: [
-            { tipo: 'app',    id: 'pixevan' },
-            { tipo: 'tema',   id: 'chiptune' },
-            { tipo: 'widget', id: 'acceso-directo' }
+            { tipo: 'tema',   id: 'acuarela' },
+            { tipo: 'tema',   id: 'floral' },
+            { tipo: 'tema',   id: 'cuarzo-rosado' },
+            { tipo: 'widget', id: 'diapositivas' }
         ]
     },
 
     // ============================================================
-    //  FORMALES / PRODUCTIVIDAD
+    //  FORMAL / PRODUCTIVO
     // ============================================================
     {
-        id: 'pack_oficina',
-        nombre: 'Pack Oficina',
+        id: 'pack_formal_work',
+        nombre: 'Formal Work',
         icono: 'briefcase',
-        descripcion: 'Para trabajar en serio. Tema día, tema noche, notas y tareas.',
-        precio: 95,
+        descripcion: 'Para trabajar en serio. Tema día, tema noche, ventanas y tareas.',
+        precio: 110,
         items: [
             { tipo: 'tema',   id: 'oficina' },
             { tipo: 'tema',   id: 'oficina-dark' },
-            { tipo: 'app',    id: 'notas' },
+            { tipo: 'tema',   id: 'ventanas' },
             { tipo: 'widget', id: 'to-do-list' }
-        ]
-    },
-    {
-        id: 'pack_utilidades',
-        nombre: 'Pack Utilidades',
-        icono: 'wrench',
-        descripcion: 'Herramientas del día a día. Calculadora, QR, reloj mundial y lector.',
-        precio: 75,
-        items: [
-            { tipo: 'app',    id: 'calculadora' },
-            { tipo: 'app',    id: 'qr' },
-            { tipo: 'widget', id: 'reloj-mundial' },
-            { tipo: 'widget', id: 'lector' }
         ]
     },
     {
         id: 'pack_finanzas',
         nombre: 'Pack Finanzas',
         icono: 'receipt',
-        descripcion: 'Controlá tu plata: gestor de gastos, calculadora, tareas y tu estado.',
-        precio: 120,
+        descripcion: 'Controlá tu plata: gestor de gastos, tareas, cronómetro y lector.',
+        precio: 180,
         items: [
             { tipo: 'app',    id: 'gastos' },
-            { tipo: 'app',    id: 'calculadora' },
             { tipo: 'widget', id: 'to-do-list' },
-            { tipo: 'widget', id: 'mi-estado' }
+            { tipo: 'widget', id: 'reloj' },
+            { tipo: 'widget', id: 'lector' }
         ]
     },
     {
         id: 'pack_lectura',
         nombre: 'Pack Lectura',
         icono: 'book-open-text',
-        descripcion: 'Para leer sin distracciones. Lector, wiki y tema libro.',
-        precio: 140,
+        descripcion: 'Para leer sin distracciones. Tema libro, lector y wiki.',
+        precio: 120,
         items: [
             { tipo: 'tema',   id: 'libro' },
             { tipo: 'widget', id: 'lector' },
@@ -259,136 +210,16 @@ const PAQUETES_PROMO = [
         ]
     },
     {
-        id: 'pack_tranquilo',
-        nombre: 'Pack Tranquilo',
-        icono: 'leaf',
-        descripcion: 'Bosque, reloj mundial y lector. Calma visual para concentrarte.',
-        precio: 68,
+        id: 'pack_cafe_chill',
+        nombre: 'Café & Chill',
+        icono: 'coffee',
+        descripcion: 'Vibra cozy para tardes tranquilas. Café, lector, wiki y hora mundial.',
+        precio: 130,
         items: [
-            { tipo: 'tema',   id: 'bosque' },
-            { tipo: 'widget', id: 'reloj-mundial' },
-            { tipo: 'widget', id: 'lector' }
-        ]
-    },
-    {
-        id: 'pack_minimalista',
-        nombre: 'Pack Minimalista',
-        icono: 'square',
-        descripcion: 'Oficina, celeste, Wuu y tu estado. Estética limpia sin ruido visual.',
-        precio: 75,
-        items: [
-            { tipo: 'tema',   id: 'oficina' },
-            { tipo: 'tema',   id: 'celeste' },
-            { tipo: 'tema',   id: 'wuu' },
-            { tipo: 'widget', id: 'mi-estado' }
-        ]
-    },
-
-    // ============================================================
-    //  RETRO / GEEK
-    // ============================================================
-    {
-        id: 'pack_retro',
-        nombre: 'Pack Retro',
-        icono: 'gamepad-2',
-        descripcion: 'Hacker, Vapor y Chiptune. Nostalgia en tres capas.',
-        precio: 40,
-        items: [
-            { tipo: 'tema', id: 'hacker' },
-            { tipo: 'tema', id: 'vapor' },
-            { tipo: 'tema', id: 'chiptune' }
-        ]
-    },
-    {
-        id: 'pack_arcade_clasico',
-        nombre: 'Pack Arcade Clásico',
-        icono: 'joystick',
-        descripcion: 'Chiptune + los mini juegos clásicos. Sabor a sala de arcade.',
-        precio: 25,
-        items: [
-            { tipo: 'tema', id: 'chiptune' },
-            { tipo: 'app',  id: 'dino' },
-            { tipo: 'app',  id: 'tres-en-raya' },
-            { tipo: 'app',  id: 'wordle' }
-        ]
-    },
-    {
-        id: 'pack_vaporwave',
-        nombre: 'Pack Vaporwave',
-        icono: 'radio',
-        descripcion: 'Vapor, Wuu y una imagen burbuja. Estética 80s soñadora.',
-        precio: 50,
-        items: [
-            { tipo: 'tema',   id: 'vapor' },
-            { tipo: 'tema',   id: 'wuu' },
-            { tipo: 'widget', id: 'bubble-image' }
-        ]
-    },
-
-    // ============================================================
-    //  JUEGOS
-    // ============================================================
-    {
-        id: 'pack_gamer',
-        nombre: 'Pack Gamer',
-        icono: 'gamepad',
-        descripcion: 'Chiptune, MetroRun, ajedrez y adivinanzas. Kit jugador.',
-        precio: 60,
-        items: [
-            { tipo: 'tema',   id: 'chiptune' },
-            { tipo: 'app',    id: 'metrorun' },
-            { tipo: 'widget', id: 'ajedrez-puzzle' },
-            { tipo: 'app',    id: 'wordle' }
-        ]
-    },
-    {
-        id: 'pack_mini_juegos',
-        nombre: 'Pack Mini Juegos',
-        icono: 'dice-5',
-        descripcion: 'Clásicos rápidos para ratos libres. Tres en raya, topo y dados.',
-        precio: 10,
-        items: [
-            { tipo: 'app',    id: 'tres-en-raya' },
-            { tipo: 'app',    id: 'whack-a-mole' },
-            { tipo: 'widget', id: 'dados' }
-        ]
-    },
-    {
-        id: 'pack_runner',
-        nombre: 'Pack Runner',
-        icono: 'train-front',
-        descripcion: 'Mezosoic Run, The MetroRun y Chiptune. Para correr sin parar.',
-        precio: 55,
-        items: [
-            { tipo: 'tema', id: 'chiptune' },
-            { tipo: 'app',  id: 'dino' },
-            { tipo: 'app',  id: 'metrorun' }
-        ]
-    },
-    {
-        id: 'pack_puzzle',
-        nombre: 'Pack Puzzle',
-        icono: 'puzzle',
-        descripcion: 'Ajedrez, adivinanzas, topos y dados. Para pensar y reír.',
-        precio: 80,
-        items: [
-            { tipo: 'widget', id: 'ajedrez-puzzle' },
-            { tipo: 'app',    id: 'wordle' },
-            { tipo: 'app',    id: 'whack-a-mole' },
-            { tipo: 'widget', id: 'dados' }
-        ]
-    },
-    {
-        id: 'pack_azar',
-        nombre: 'Pack Azar',
-        icono: 'shuffle',
-        descripcion: 'Dados, ruleta y un par de juegos rápidos. Dejá que el destino decida.',
-        precio: 35,
-        items: [
-            { tipo: 'widget', id: 'dados' },
-            { tipo: 'widget', id: 'ruleta' },
-            { tipo: 'app',    id: 'wordle' },
-            { tipo: 'app',    id: 'dino' }
+            { tipo: 'tema',   id: 'cafe-latte' },
+            { tipo: 'widget', id: 'lector' },
+            { tipo: 'widget', id: 'wiki_lector' },
+            { tipo: 'widget', id: 'reloj-mundial' }
         ]
     },
 
@@ -396,76 +227,39 @@ const PAQUETES_PROMO = [
     //  SOCIAL
     // ============================================================
     {
-        id: 'pack_social',
-        nombre: 'Pack Social',
+        id: 'pack_social_chat',
+        nombre: 'Social Chat',
         icono: 'message-circle',
-        descripcion: 'WhatsApp y Instagram de barrio, versión VicWebOs.',
-        precio: 210,
+        descripcion: 'WhatsApp e Instagram de barrio, versión VicWebOs.',
+        precio: 200,
         items: [
             { tipo: 'app', id: 'whatthehay' },
             { tipo: 'app', id: 'vicsgram' }
         ]
     },
     {
-        id: 'pack_completo_social',
-        nombre: 'Pack Social Completo',
+        id: 'pack_social_total',
+        nombre: 'Social Total',
         icono: 'users',
-        descripcion: 'Todo lo social en un solo paquete. Correo, red, chat y encuestas.',
-        precio: 190,
+        descripcion: 'Todo lo social en un solo paquete. Chat, insta, encuestas y videollamadas.',
+        precio: 420,
         items: [
-            { tipo: 'app', id: 'twevan' },
-            { tipo: 'app', id: 'evmail' },
+            { tipo: 'app', id: 'whatthehay' },
+            { tipo: 'app', id: 'vicsgram' },
             { tipo: 'app', id: 'encuestas' },
-            { tipo: 'app', id: 'whatthehay' }
-        ]
-    },
-    {
-        id: 'pack_videollamadas',
-        nombre: 'Pack Videollamadas',
-        icono: 'phone-call',
-        descripcion: 'Chat + video en tiempo real. Para no perder contacto.',
-        precio: 360,
-        items: [
-            { tipo: 'app', id: 'silly-calls' },
-            { tipo: 'app', id: 'whatthehay' }
-        ]
-    },
-    {
-        id: 'pack_opiniones',
-        nombre: 'Pack Opiniones',
-        icono: 'vote',
-        descripcion: 'Encuestas, correo, tareas y tu estado. Para organizar al grupo.',
-        precio: 115,
-        items: [
-            { tipo: 'app',    id: 'encuestas' },
-            { tipo: 'app',    id: 'evmail' },
-            { tipo: 'widget', id: 'to-do-list' },
-            { tipo: 'widget', id: 'mi-estado' }
+            { tipo: 'app', id: 'silly-calls' }
         ]
     },
 
     // ============================================================
-    //  ESTÉTICOS / COLOR
+    //  ESTÉTICO / MOOD
     // ============================================================
     {
-        id: 'pack_colorido',
-        nombre: 'Pack Colorido',
-        icono: 'rainbow',
-        descripcion: 'Rosa, Floral, Cuarzo y diapositivas. Viví a todo color.',
-        precio: 80,
-        items: [
-            { tipo: 'tema',   id: 'rosa' },
-            { tipo: 'tema',   id: 'floral' },
-            { tipo: 'tema',   id: 'cuarzo-rosado' },
-            { tipo: 'widget', id: 'diapositivas' }
-        ]
-    },
-    {
-        id: 'pack_familiar',
-        nombre: 'Pack Familiar',
-        icono: 'paw-print',
-        descripcion: 'Floral, Cuarzo y una mascota que cuidar. Tierno y cálido.',
-        precio: 105,
+        id: 'pack_romantico',
+        nombre: 'Pack Romántico',
+        icono: 'flower',
+        descripcion: 'Floral, Cuarzo Rosado y una mascota que cuidar. Tierno y cálido.',
+        precio: 95,
         items: [
             { tipo: 'tema',   id: 'floral' },
             { tipo: 'tema',   id: 'cuarzo-rosado' },
@@ -473,27 +267,15 @@ const PAQUETES_PROMO = [
         ]
     },
     {
-        id: 'pack_amanecer',
-        nombre: 'Pack Amanecer',
+        id: 'pack_wuu_sunrise',
+        nombre: 'Wuu Sunrise',
         icono: 'sunrise',
-        descripcion: 'Break of Dawn, Wuu y tu estado personal. Empezar el día lindo.',
-        precio: 65,
+        descripcion: 'Estética limpia de consola + amanecer sobre el mar + cronómetro. Empezar el día lindo.',
+        precio: 120,
         items: [
-            { tipo: 'tema',   id: 'break-of-dawn' },
             { tipo: 'tema',   id: 'wuu' },
-            { tipo: 'widget', id: 'mi-estado' }
-        ]
-    },
-    {
-        id: 'pack_elegante',
-        nombre: 'Pack Elegante',
-        icono: 'crown',
-        descripcion: 'Golden, Salón de Noche y Ventanas. Sofisticación sin esfuerzo.',
-        precio: 28,
-        items: [
-            { tipo: 'tema', id: 'golden' },
-            { tipo: 'tema', id: 'salon' },
-            { tipo: 'tema', id: 'ventanas' }
+            { tipo: 'tema',   id: 'break-of-dawn' },
+            { tipo: 'widget', id: 'reloj' }
         ]
     }
 ];
