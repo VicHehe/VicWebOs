@@ -294,9 +294,10 @@ const PAQUETES_PROMO = [
     // ========================================================
     const IDB_NAME   = 'VicWebOsPromoZione';
     const IDB_STORE  = 'ofertas';
-    const PESO_25    = 0.70;  // 70%
-    const PESO_50    = 0.25;  // 25%
-    const PESO_75    = 0.05;  // 5%
+    const IDB_STORE  = 'ofertas';
+    const PESO_25    = 0.78;  // 78%
+    const PESO_50    = 0.20;  // 20%
+    const PESO_75    = 0.02;  // 2%
 
     // ========================================================
     //  Helpers de catálogo
