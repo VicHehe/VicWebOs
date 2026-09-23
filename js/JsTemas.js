@@ -467,7 +467,6 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#0A0A15'
         }
     },
-    // (Va justo después de "Dreams and Hopes")
     {
         id: 'cuarzo-rosado',
         nombre: 'Cuarzo Rosado',
@@ -490,11 +489,11 @@ const TEMAS_DISPONIBLES = [
         id: 'acuarela',
         nombre: 'Acuarela',
         icono: 'brush',
-        descripcion: 'Papel blanco con manchas suaves de acuarela. Rosa, celeste, amarillo y verde agua diluidos por el lobby.',
+        descripcion: 'Papel blanco con manchas de acuarela que respiran y gotas cayendo lentamente. Rosa, celeste, amarillo y verde agua diluidos.',
         categoria: 'Especiales',
         ruta: 'Temas/acuarela.css',
         espacio: 4,
-        monedas: 35,
+        monedas: 30,
         colores: {
             '--violet-100': '#FAEBEE',
             '--violet-300': '#E9B0BD',
@@ -522,7 +521,24 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFFFF'
         }
     },
-    // (Va justo después de "Floral")
+    {
+        id: 'cafe-latte',
+        nombre: 'Café Latte',
+        icono: 'coffee',
+        descripcion: 'Cafetería cozy. Granos de café tenues por todo el fondo y vapor subiendo desde el header.',
+        categoria: 'Especiales',
+        ruta: 'Temas/cafe-latte.css',
+        espacio: 4,
+        monedas: 35,
+        colores: {
+            '--violet-100': '#F5EBE0',
+            '--violet-300': '#D9BC9E',
+            '--violet-500': '#A0704A',
+            '--bg':         '#FAF6F0',
+            '--bg-alt':     '#F2EAE0',
+            '--white':      '#FFFFFF'
+        }
+    },
     {
         id: 'wuu',
         nombre: 'Wuu',
@@ -557,24 +573,6 @@ const TEMAS_DISPONIBLES = [
             '--bg':         '#FFF8F2',
             '--bg-alt':     '#FFEFE5',
             '--white':      '#FFFDFB'
-        }
-    },
-    {
-        id: 'cafe-latte',
-        nombre: 'Café Latte',
-        icono: 'coffee',
-        descripcion: 'Cafetería cozy. Granos de café tenues por todo el fondo y vapor subiendo desde el header.',
-        categoria: 'Especiales',
-        ruta: 'Temas/cafe-latte.css',
-        espacio: 4,
-        monedas: 40,
-        colores: {
-            '--violet-100': '#F5EBE0',
-            '--violet-300': '#D9BC9E',
-            '--violet-500': '#A0704A',
-            '--bg':         '#FAF6F0',
-            '--bg-alt':     '#F2EAE0',
-            '--white':      '#FFFFFF'
         }
     },
     {
@@ -635,7 +633,7 @@ const TEMAS_DISPONIBLES = [
         id: 'steampunk',
         nombre: 'Steampunk',
         icono: 'cog',
-        descripcion: 'Taller victoriano. Papel envejecido, engranajes, remaches y bordes de cobre con doble línea dorada.',
+        descripcion: 'Taller victoriano con vida. Engranajes que giran, vapor subiendo, péndulo oscilando y reloj de bolsillo meciéndose.',
         categoria: 'Especiales',
         ruta: 'Temas/steampunk.css',
         espacio: 4,
