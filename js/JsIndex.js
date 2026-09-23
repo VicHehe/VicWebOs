@@ -423,29 +423,48 @@ function cerrarTodasLasPestanas() {
 }
 window.__cerrarTodasLasPestanas = cerrarTodasLasPestanas;
 
+// ============================================================
+//  RENDER DE LA BARRA DE PESTAÑAS
+//  ------------------------------------------------------------
+//  Incluye SIEMPRE el botón Inicio (fijo, no cerrable, no cuenta
+//  para MAX_TABS). Está activo cuando activeTabId === null, es
+//  decir, cuando estás viendo el lobby.
+// ============================================================
 function renderTabs() {
     if (!tabBar) return;
 
+    const enLobby = activeTabId === null;
+
+    let html = `
+        <button class="tab-home ${enLobby ? 'active' : ''}" id="tabHomeBtn" type="button" title="Ir al inicio" aria-label="Ir al inicio">
+            <i data-lucide="home"></i>
+        </button>
+    `;
+
     if (tabs.length === 0) {
-        tabBar.innerHTML = `
+        html += `
             <span class="tab-empty-hint">
                 <i data-lucide="hexagon"></i>
                 Abre una app del menú
             </span>`;
-        lucide.createIcons();
-        return;
+    } else {
+        html += tabs.map(t => `
+            <div class="tab-item ${t.id === activeTabId ? 'active' : ''}" data-id="${t.id}">
+                <i data-lucide="${t.icono}"></i>
+                <span>${t.nombre}</span>
+                <button class="tab-close" data-id="${t.id}" aria-label="Cerrar pestaña"><i data-lucide="x"></i></button>
+            </div>
+        `).join('');
     }
 
-    tabBar.innerHTML = tabs.map(t => `
-        <div class="tab-item ${t.id === activeTabId ? 'active' : ''}" data-id="${t.id}">
-            <i data-lucide="${t.icono}"></i>
-            <span>${t.nombre}</span>
-            <button class="tab-close" data-id="${t.id}"><i data-lucide="x"></i></button>
-        </div>
-    `).join('');
-
+    tabBar.innerHTML = html;
     lucide.createIcons();
 
+    // Botón Inicio → vuelve al lobby SIN cerrar pestañas
+    const homeBtn = tabBar.querySelector('#tabHomeBtn');
+    if (homeBtn) homeBtn.addEventListener('click', mostrarBienvenida);
+
+    // Pestañas normales
     tabBar.querySelectorAll('.tab-item').forEach(el => {
         el.addEventListener('click', (e) => {
             if (e.target.closest('.tab-close')) return;
@@ -461,6 +480,7 @@ function renderTabs() {
 }
 
 function mostrarBienvenida() {
+    // Ocultamos los iframes SIN destruirlos — siguen vivos y con su estado.
     panelContainer.querySelectorAll('iframe.tool-iframe').forEach(f => {
         f.style.display = 'none';
         f.classList.remove('active');
@@ -785,6 +805,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     iniciarRelojLocal();
     iniciarClimaLocal();
     iniciarWatcherTemaDinamico();
+
+    // ---- Logo clickeable → volver al lobby ----
+    const logoHomeBtn = document.getElementById('logoHomeBtn');
+    if (logoHomeBtn) {
+        logoHomeBtn.addEventListener('click', () => {
+            mostrarBienvenida();
+            // En móvil, cerramos el drawer por si estaba abierto
+            if (window.innerWidth <= 768 && window.__mobileUI && typeof window.__mobileUI.cerrar === 'function') {
+                window.__mobileUI.cerrar();
+            }
+        });
+    }
 
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
