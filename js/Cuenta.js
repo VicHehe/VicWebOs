@@ -465,6 +465,11 @@ async function canjear(icono, fuente, texto, cantidad) {
         if (typeof window.__notificarCambioChequera === 'function') window.__notificarCambioChequera();
         await _notificarMovimientoMonedas('canje', fuente, texto, cantidad);
 
+        // Chequear logros automáticamente al ganar monedas
+        if (window.Logros && typeof window.Logros.chequear === 'function') {
+            try { await window.Logros.chequear(); } catch (e) { /* silencioso */ }
+        }
+
         return { ok: true, monedas: configCuentaActual.monedas };
     });
 }
