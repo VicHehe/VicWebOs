@@ -1,0 +1,438 @@
+/* ================================================
+   Logros — Sistema de logros del SO
+   ================================================ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+[hidden] { display: none !important; }
+
+html, body { height: 100%; overflow: hidden; }
+
+body {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--white, #FFFFFF);
+    color: var(--text, #18181B);
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+    color-scheme: light dark;
+    -webkit-tap-highlight-color: transparent;
+}
+
+[data-lucide] { width: 18px; height: 18px; stroke-width: 2; flex-shrink: 0; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: var(--gray-200, #E8E8EE);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+/* ========== LAYOUT ========== */
+.lg-container {
+    height: 100%;
+    height: 100dvh;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow: hidden;
+}
+
+/* ========== HEADER ========== */
+.lg-header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.lg-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.lg-logo-mark {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #F59E0B, #D97706);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 8px 20px rgba(217, 119, 6, 0.3);
+    flex-shrink: 0;
+}
+.lg-logo-mark [data-lucide] { width: 22px; height: 22px; stroke-width: 2.5; }
+
+.lg-logo-text h1 {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #18181B, #D97706);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+    line-height: 1.15;
+}
+.lg-logo-text p {
+    font-size: 12px;
+    color: var(--gray-500, #71717A);
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+.lg-resumen {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+    border: 1.5px solid #FCD34D;
+    border-radius: var(--r-md, 12px);
+}
+.lg-resumen-label {
+    font-size: 9.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #92400E;
+    line-height: 1;
+}
+.lg-resumen-valor {
+    font-size: 18px;
+    font-weight: 900;
+    color: #78350F;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+}
+
+/* ========== PROGRESO ========== */
+.lg-progreso {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.lg-progreso-barra {
+    flex: 1;
+    height: 10px;
+    background: var(--gray-100, #F4F4F7);
+    border-radius: 999px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
+}
+.lg-progreso-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #F59E0B, #EF4444);
+    border-radius: 999px;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.lg-progreso-texto {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--gray-500, #71717A);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* ========== MAIN ========== */
+.lg-main {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+/* ========== GRID ========== */
+.lg-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+}
+
+/* ========== CARD ========== */
+.lg-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px;
+    background: var(--white, #FFFFFF);
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 16px;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Desbloqueado */
+.lg-card.desbloqueado {
+    border-color: #FCD34D;
+    background: linear-gradient(135deg, var(--white, #FFFFFF) 0%, #FFFBEB 100%);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.12);
+}
+.lg-card.desbloqueado:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.20);
+}
+.lg-card.desbloqueado::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #F59E0B, #FCD34D);
+}
+
+/* Bloqueado */
+.lg-card.bloqueado {
+    opacity: 0.72;
+}
+.lg-card.bloqueado:hover {
+    opacity: 0.9;
+}
+
+/* ========== ICONO ========== */
+.lg-icono {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+}
+.lg-icono [data-lucide] {
+    width: 26px;
+    height: 26px;
+    stroke-width: 2.25;
+}
+
+.lg-card.desbloqueado .lg-icono {
+    background: linear-gradient(135deg, #F59E0B, #D97706);
+    color: white;
+    box-shadow: 0 6px 14px rgba(217, 119, 6, 0.35);
+}
+.lg-card.bloqueado .lg-icono {
+    background: var(--gray-100, #F4F4F7);
+    color: var(--gray-400, #A1A1AD);
+}
+
+/* Candado en bloqueados */
+.lg-icono-candado {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 20px;
+    height: 20px;
+    background: var(--gray-200, #E8E8EE);
+    border: 2px solid var(--white, #FFFFFF);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-500, #71717A);
+}
+.lg-icono-candado [data-lucide] {
+    width: 10px !important;
+    height: 10px !important;
+    stroke-width: 3;
+}
+
+/* Check en desbloqueados */
+.lg-icono-check {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 20px;
+    height: 20px;
+    background: #10B981;
+    border: 2px solid var(--white, #FFFFFF);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4);
+}
+.lg-icono-check [data-lucide] {
+    width: 10px !important;
+    height: 10px !important;
+    stroke-width: 3.5;
+}
+
+/* ========== INFO ========== */
+.lg-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.lg-nombre {
+    font-size: 14.5px;
+    font-weight: 800;
+    color: var(--gray-900, #18181B);
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+}
+.lg-card.bloqueado .lg-nombre {
+    color: var(--gray-600, #52525B);
+}
+.lg-desc {
+    font-size: 12px;
+    color: var(--gray-500, #71717A);
+    line-height: 1.45;
+    font-weight: 600;
+}
+
+/* Progreso por logro bloqueado */
+.lg-mini-progreso {
+    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.lg-mini-barra {
+    width: 100%;
+    height: 4px;
+    background: var(--gray-100, #F4F4F7);
+    border-radius: 999px;
+    overflow: hidden;
+}
+.lg-mini-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #A78BFA, #7C3AED);
+    border-radius: 999px;
+    transition: width 0.3s;
+}
+.lg-mini-texto {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--gray-500, #71717A);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Fecha de desbloqueo */
+.lg-fecha {
+    margin-top: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #B45309;
+    background: #FEF3C7;
+    padding: 3px 9px;
+    border-radius: 999px;
+    align-self: flex-start;
+}
+.lg-fecha [data-lucide] {
+    width: 11px;
+    height: 11px;
+}
+
+/* ========== EMPTY ========== */
+.lg-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 60px 20px;
+    text-align: center;
+}
+.lg-empty-icon {
+    width: 72px;
+    height: 72px;
+    background: var(--gray-100, #F4F4F7);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-400, #A1A1AD);
+    margin-bottom: 4px;
+}
+.lg-empty-icon [data-lucide] { width: 34px; height: 34px; stroke-width: 1.75; }
+.lg-empty h3 {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--gray-900, #18181B);
+    margin: 0;
+}
+.lg-empty p {
+    font-size: 13px;
+    color: var(--gray-500, #71717A);
+    line-height: 1.5;
+    max-width: 320px;
+    margin: 0;
+}
+
+/* ========== TOAST ========== */
+.lg-toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--gray-900, #18181B);
+    color: white;
+    padding: 12px 22px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: 2000;
+    max-width: calc(100% - 40px);
+    max-width: calc(100dvw - 40px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.lg-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+.lg-toast.success { background: #065F46; }
+.lg-toast.error   { background: #991B1B; }
+.lg-toast.info    { background: #B45309; }
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 640px) {
+    .lg-container { padding: 14px 16px; gap: 12px; }
+    .lg-logo-mark { width: 40px; height: 40px; border-radius: 11px; }
+    .lg-logo-mark [data-lucide] { width: 20px; height: 20px; }
+    .lg-logo-text h1 { font-size: 18px; }
+    .lg-logo-text p { font-size: 11px; }
+    .lg-resumen { padding: 6px 12px; }
+    .lg-resumen-valor { font-size: 16px; }
+
+    .lg-grid { grid-template-columns: 1fr; gap: 10px; }
+    .lg-card { padding: 14px; gap: 12px; border-radius: 14px; }
+    .lg-icono { width: 46px; height: 46px; border-radius: 12px; }
+    .lg-icono [data-lucide] { width: 22px; height: 22px; }
+    .lg-nombre { font-size: 14px; }
+    .lg-desc { font-size: 11.5px; }
+}
+
+@media (max-width: 400px) {
+    .lg-logo-text p { display: none; }
+    .lg-resumen-label { display: none; }
+    .lg-resumen { padding: 6px 10px; }
+}
