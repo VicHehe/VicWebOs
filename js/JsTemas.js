@@ -158,6 +158,24 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFFFF'
         }
     },
+    {
+        id: 'turquesa',
+        nombre: 'Turquesa',
+        icono: 'droplets',
+        descripcion: 'Cian y turquesa frescos, tipo agua de mar.',
+        categoria: 'Básicos',
+        ruta: 'Temas/turquesa.css',
+        espacio: 2,
+        monedas: 0,
+        colores: {
+            '--violet-100': '#CFFAFE',
+            '--violet-300': '#67E8F9',
+            '--violet-500': '#06B6D4',
+            '--bg':         '#F5FEFF',
+            '--bg-alt':     '#ECFDFF',
+            '--white':      '#FFFFFF'
+        }
+    },
 
     // ============================================================
     //  OSCUROS — Dark mode simple, sin decoración
@@ -395,7 +413,7 @@ const TEMAS_DISPONIBLES = [
     //  Efectos visuales, texturas, animaciones. Lo premium.
     //  Ordenados por precio ascendente.
     // ============================================================
-        {
+    {
         id: 'mucho-besame',
         nombre: 'Mucho Besame',
         icono: 'sun',
@@ -469,6 +487,24 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
+        id: 'acuarela',
+        nombre: 'Acuarela',
+        icono: 'brush',
+        descripcion: 'Papel blanco con manchas suaves de acuarela. Rosa, celeste, amarillo y verde agua diluidos por el lobby.',
+        categoria: 'Especiales',
+        ruta: 'Temas/acuarela.css',
+        espacio: 4,
+        monedas: 35,
+        colores: {
+            '--violet-100': '#FAEBEE',
+            '--violet-300': '#E9B0BD',
+            '--violet-500': '#C97B84',
+            '--bg':         '#FDFCFA',
+            '--bg-alt':     '#F7F4F0',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
         id: 'floral',
         nombre: 'Floral',
         icono: 'flower',
@@ -524,6 +560,24 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
+        id: 'cafe-latte',
+        nombre: 'Café Latte',
+        icono: 'coffee',
+        descripcion: 'Cafetería cozy. Granos de café tenues por todo el fondo y vapor subiendo desde el header.',
+        categoria: 'Especiales',
+        ruta: 'Temas/cafe-latte.css',
+        espacio: 4,
+        monedas: 40,
+        colores: {
+            '--violet-100': '#F5EBE0',
+            '--violet-300': '#D9BC9E',
+            '--violet-500': '#A0704A',
+            '--bg':         '#FAF6F0',
+            '--bg-alt':     '#F2EAE0',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
         id: 'charla',
         nombre: 'Charla',
         icono: 'message-circle',
@@ -575,6 +629,24 @@ const TEMAS_DISPONIBLES = [
             '--bg':         '#050310',
             '--bg-alt':     '#0A0618',
             '--white':      '#0F0820'
+        }
+    },
+    {
+        id: 'steampunk',
+        nombre: 'Steampunk',
+        icono: 'cog',
+        descripcion: 'Taller victoriano. Papel envejecido, engranajes, remaches y bordes de cobre con doble línea dorada.',
+        categoria: 'Especiales',
+        ruta: 'Temas/steampunk.css',
+        espacio: 4,
+        monedas: 45,
+        colores: {
+            '--violet-100': '#EBE0CC',
+            '--violet-300': '#C9A961',
+            '--violet-500': '#9C5F28',
+            '--bg':         '#F0E8D8',
+            '--bg-alt':     '#E5D8BE',
+            '--white':      '#FFFFFF'
         }
     },
     {
