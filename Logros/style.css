@@ -1,5 +1,6 @@
 /* ================================================
    Logros — Vista del panel (dentro del iframe)
+   Adaptado al tema activo con var() + fallbacks.
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -56,7 +57,7 @@ html, body {
 .lg-progreso-fill {
     height: 100%;
     width: 0%;
-    background: linear-gradient(90deg, #F59E0B, #EF4444);
+    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
     border-radius: 999px;
     transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -98,13 +99,13 @@ html, body {
 }
 
 .lg-card.desbloqueado {
-    border-color: #FCD34D;
-    background: linear-gradient(135deg, var(--white, #FFFFFF) 0%, #FFFBEB 100%);
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.12);
+    border-color: var(--violet-300, #C4B5FD);
+    background: linear-gradient(135deg, var(--white, #FFFFFF) 0%, var(--violet-50, #F5F3FF) 100%);
+    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139, 92, 246, 0.10));
 }
 .lg-card.desbloqueado:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.20);
+    box-shadow: 0 8px 20px var(--accent-shadow, rgba(139, 92, 246, 0.18));
 }
 .lg-card.desbloqueado::before {
     content: '';
@@ -113,7 +114,7 @@ html, body {
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, #F59E0B, #FCD34D);
+    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
 }
 
 .lg-card.bloqueado { opacity: 0.72; }
@@ -133,9 +134,9 @@ html, body {
 .lg-icono [data-lucide] { width: 26px; height: 26px; stroke-width: 2.25; }
 
 .lg-card.desbloqueado .lg-icono {
-    background: linear-gradient(135deg, #F59E0B, #D97706);
+    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
     color: white;
-    box-shadow: 0 6px 14px rgba(217, 119, 6, 0.35);
+    box-shadow: 0 6px 14px var(--accent-shadow, rgba(139, 92, 246, 0.35));
 }
 .lg-card.bloqueado .lg-icono {
     background: var(--gray-100, #F4F4F7);
@@ -210,7 +211,7 @@ html, body {
 }
 .lg-mini-fill {
     height: 100%;
-    background: linear-gradient(90deg, #A78BFA, #7C3AED);
+    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
     border-radius: 999px;
     transition: width 0.3s;
 }
@@ -228,8 +229,8 @@ html, body {
     gap: 4px;
     font-size: 10.5px;
     font-weight: 800;
-    color: #B45309;
-    background: #FEF3C7;
+    color: var(--violet-700, #6D28D9);
+    background: var(--violet-100, #EDE9FE);
     padding: 3px 9px;
     border-radius: 999px;
     align-self: flex-start;
