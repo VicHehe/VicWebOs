@@ -1,8 +1,9 @@
 /* ================================================
    Tema: Acuarela
    Papel blanco con blooms suaves y gotas cayendo.
-   Decoración 100% en background, SIN pseudo-elementos
-   en el sidebar. Scroll táctil Android garantizado.
+   Decoración 100% en background. .acceso-item sin
+   backdrop-filter ni transition:all para que el
+   grid mida uniforme. Scroll táctil Android ok.
    ================================================ */
 
 :root {
@@ -51,7 +52,7 @@
 }
 
 /* ================================================================
-   1. WELCOME — todo en background, sin pseudo-elementos
+   1. WELCOME — todo en background
    ================================================================ */
 .welcome-placeholder {
     background-image:
@@ -105,8 +106,6 @@
 
 .welcome-hero {
     background: rgba(255, 255, 255, 0.78);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
     border: 1px solid rgba(201, 123, 132, 0.18);
     border-radius: 24px;
     box-shadow:
@@ -124,7 +123,6 @@
 
 /* ================================================================
    2. SIDEBAR — 100% en background. Sin pseudo-elementos.
-   Manchas y puntos integrados al propio fondo del sidebar.
    ================================================================ */
 .sidebar {
     background-image:
@@ -144,16 +142,17 @@
 }
 
 /* ================================================================
-   3. ACCESOS RÁPIDOS
+   3. ACCESOS RÁPIDOS — solo color/borde/sombra. Sin filtros raros.
    ================================================================ */
 .acceso-item {
+    position: relative;
     background: rgba(255, 255, 255, 0.88);
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
     border: 1px solid rgba(201, 123, 132, 0.16);
     border-radius: 16px;
     box-shadow: 0 2px 8px rgba(60, 40, 20, 0.05);
-    transition: all 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .acceso-item:hover {
     border-color: rgba(201, 123, 132, 0.42);
@@ -181,7 +180,9 @@
     box-shadow:
         0 6px 18px rgba(60, 40, 20, 0.08),
         inset 0 1px 0 rgba(255, 255, 255, 0.5);
-    transition: all 0.24s;
+    transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .widget-item:hover {
     border-color: rgba(201, 123, 132, 0.40);
@@ -193,8 +194,6 @@
    ================================================================ */
 .app-header {
     background: rgba(253, 252, 250, 0.92);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
     border-bottom: 1px solid rgba(201, 123, 132, 0.14);
     box-shadow: 0 1px 2px rgba(60, 40, 20, 0.03);
 }
