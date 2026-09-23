@@ -196,6 +196,8 @@ function renderAccesosRapidos() {
     });
 
     lucide.createIcons();
+
+    if (typeof actualizarBannerLogros === 'function') actualizarBannerLogros();
 }
 
 // ============================================================
@@ -269,6 +271,75 @@ function actualizarSaludo() {
         'Tu espacio, tus reglas.'
     ];
     p.textContent = frases[Math.floor(Math.random() * frases.length)];
+
+    if (typeof actualizarBannerLogros === 'function') actualizarBannerLogros();
+}
+
+// ============================================================
+//  LOGROS — Banner del lobby + Modal
+// ============================================================
+let _logrosIframeListo = false;
+
+async function actualizarBannerLogros() {
+    const seccion = document.getElementById('welcomeLogrosSection');
+    const desc    = document.getElementById('logrosBannerDesc');
+    const fill    = document.getElementById('logrosBannerFill');
+    const pct     = document.getElementById('logrosBannerPct');
+    if (!seccion) return;
+
+    if (!cuentaActual || !window.Logros) {
+        seccion.style.display = 'none';
+        return;
+    }
+
+    try {
+        const progreso = await window.Logros.obtenerProgreso();
+        seccion.style.display = 'flex';
+
+        if (progreso.total === 0) {
+            desc.textContent = 'Todavía no hay logros disponibles';
+            fill.style.width = '0%';
+            pct.textContent = '0%';
+            return;
+        }
+
+        const pctNum = Math.round((progreso.desbloqueados / progreso.total) * 100);
+        desc.textContent = `${progreso.desbloqueados} de ${progreso.total} desbloqueados`;
+        fill.style.width = pctNum + '%';
+        pct.textContent = pctNum + '%';
+    } catch (e) {
+        seccion.style.display = 'none';
+    }
+}
+window.__actualizarBannerLogros = actualizarBannerLogros;
+
+function abrirModalLogros() {
+    const overlay = document.getElementById('logrosOverlay');
+    const iframe  = document.getElementById('logrosIframe');
+    if (!overlay || !iframe) return;
+
+    if (!_logrosIframeListo) {
+        iframe.src = 'Logros/index.html';
+        _logrosIframeListo = true;
+        iframe.addEventListener('load', () => {
+            try {
+                iframe.contentWindow.postMessage({ type: 'logros:recargar' }, '*');
+            } catch (e) { /* silencioso */ }
+        }, { once: true });
+    } else {
+        try {
+            iframe.contentWindow.postMessage({ type: 'logros:recargar' }, '*');
+        } catch (e) { /* silencioso */ }
+    }
+
+    overlay.classList.add('show');
+    if (window.lucide) lucide.createIcons();
+}
+
+function cerrarModalLogros() {
+    const overlay = document.getElementById('logrosOverlay');
+    if (overlay) overlay.classList.remove('show');
+    actualizarBannerLogros();
 }
 
 // ============================================================
@@ -400,6 +471,7 @@ function mostrarBienvenida() {
     renderAccesosRapidos();
     renderWidgetsActivos();
     actualizarSaludo();
+    if (typeof actualizarBannerLogros === 'function') actualizarBannerLogros();
 }
 
 // ============================================================
@@ -756,6 +828,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const m = document.getElementById('modalTodas');
     if (m) m.addEventListener('click', (e) => { if (e.target === m) cerrarModalTodas(); });
+
+    // ---- Logros ----
+    const btnLogros = document.getElementById('btnLogrosBanner');
+    const logrosOverlay = document.getElementById('logrosOverlay');
+    const logrosCerrar = document.getElementById('logrosCerrar');
+
+    if (btnLogros) btnLogros.addEventListener('click', abrirModalLogros);
+    if (logrosCerrar) logrosCerrar.addEventListener('click', cerrarModalLogros);
+    if (logrosOverlay) {
+        logrosOverlay.addEventListener('click', (e) => {
+            if (e.target === logrosOverlay) cerrarModalLogros();
+        });
+    }
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && logrosOverlay?.classList.contains('show')) {
+            cerrarModalLogros();
+        }
+    });
+
+    await actualizarBannerLogros();
 });
 
 // Exponer para que Cuenta.js pueda llamar
