@@ -165,7 +165,7 @@ const WIDGETS_DISPONIBLES = [
     nombre: 'Ajedrez',
     icono: 'crown',
     ruta: 'Widgets/ajedrez-puzzle/index.html',
-    descripcion: 'Juega ajedrez contra la IA. Si ganás, +65 monedas (una vez cada 24h).',
+    descripcion: 'Juega ajedrez contra la IA. Si ganás, +250 monedas (una vez cada 24h).',
     categoria: 'Entretenimiento',
     esBase: false,
     espacio: 4,
