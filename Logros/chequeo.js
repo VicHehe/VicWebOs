@@ -3,21 +3,30 @@
 //  ------------------------------------------------------------
 //  Guarda el estado por usuario en app/logros/logros.json.
 //
-//  CLAVE: guardamos "monedasMaximas" (el pico histórico),
-//  no las monedas actuales. Así si ganás un logro y luego
-//  gastás, el logro no se pierde.
+//  Estructura del JSON:
+//    {
+//      version: 1,
+//      actualizado: ISO,
+//      usuarios: {
+//        [codigo]: {
+//          monedasMaximas: number,
+//          appsMaximas: number,
+//          widgetsMaximas: number,
+//          temasMaximas: number,
+//          fotosMaximas: number,
+//          diasMaximos: number,
+//          diasUnicos: ['YYYY-MM-DD', ...],
+//          logros: { [id]: ISO }
+//        }
+//      }
+//    }
 //
-//  Caché en memoria del estado por usuario: solo 1 lectura
-//  al archivo por sesión. Después, todo desde memoria.
+//  Guardamos PICOS HISTÓRICOS (nunca bajan). Así si ganás un logro
+//  y luego perdés el recurso, el logro no se pierde.
 //
-//  Se auto-inicializa escuchando 'vicwebos:sesion' (disparado
-//  por Cuenta.js al iniciar/cerrar sesión). Así no hay que tocar
-//  JsIndex ni ningún otro archivo.
+//  Caché en memoria por usuario: 1 sola lectura por sesión.
 //
-//  API:
-//    window.Logros.chequear()        → escribe, desbloquea, devuelve nuevos
-//    window.Logros.obtenerEstado()   → estado crudo del usuario
-//    window.Logros.obtenerProgreso() → { desbloqueados, total, estado, catalogo }
+//  Se auto-inicializa escuchando 'vicwebos:sesion'.
 // ============================================================
 
 (function () {
@@ -25,7 +34,6 @@
 
     const ARCHIVO = 'app/logros/logros.json';
 
-    // Caché en memoria del estado del usuario actual
     let _cacheEstado = null;
     let _codigoCache = null;
 
@@ -38,7 +46,16 @@
     }
 
     function estadoVacio() {
-        return { monedasMaximas: 0, logros: {} };
+        return {
+            monedasMaximas:  0,
+            appsMaximas:     0,
+            widgetsMaximas:  0,
+            temasMaximas:    0,
+            fotosMaximas:    0,
+            diasMaximos:     0,
+            diasUnicos:      [],
+            logros:          {}
+        };
     }
 
     function cuentaActiva() {
@@ -50,15 +67,78 @@
         _codigoCache = null;
     }
 
+    // ------------------------------------------------------------
+    //  Recolectores de valores actuales (async)
+    // ------------------------------------------------------------
+    function contarAppsNoBase() {
+        const catalogo = window.RUTAS_HERRAMIENTAS || [];
+        const instaladas = (window.configCuentaActual?.appsInstaladas) || [];
+        let count = 0;
+        for (const id of instaladas) {
+            const app = catalogo.find(a => a.id === id);
+            if (app && !app.esBase && !app.esDefault) count++;
+        }
+        return count;
+    }
+
+    function contarTemasNoBase() {
+        const catalogo = window.TEMAS_DISPONIBLES || [];
+        const instalados = (window.configCuentaActual?.temasInstalados) || [];
+        let count = 0;
+        for (const id of instalados) {
+            const t = catalogo.find(x => x.id === id);
+            if (t && !t.esBase) count++;
+        }
+        return count;
+    }
+
+    function contarWidgets() {
+        const instalados = (window.configCuentaActual?.widgetsInstalados) || [];
+        return instalados.length;
+    }
+
+    async function contarFotos(codigo) {
+        try {
+            if (!window.ConfigBD || !ConfigBD.estaConectado()) return 0;
+            const data = await ConfigBD.leerArchivo(`Galeria${codigo}/galeria.json`);
+            if (!data || !Array.isArray(data.imagenes)) return 0;
+            return data.imagenes.length;
+        } catch (e) {
+            return 0;
+        }
+    }
+
+    function obtenerMonedasActuales() {
+        return (typeof obtenerMonedas === 'function') ? (obtenerMonedas() || 0) : 0;
+    }
+
+    function fechaLocalHoy() {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    }
+
+    async function recolectarValores(codigo) {
+        return {
+            monedas:  obtenerMonedasActuales(),
+            apps:     contarAppsNoBase(),
+            widgets:  contarWidgets(),
+            temas:    contarTemasNoBase(),
+            fotos:    await contarFotos(codigo)
+        };
+    }
+
+    // ------------------------------------------------------------
+    //  Obtener estado (con caché en memoria)
+    // ------------------------------------------------------------
     async function obtenerEstado() {
         const cuenta = cuentaActiva();
         if (!cuenta) return estadoVacio();
         const codigo = cuenta.codigo;
 
-        // Caché válida solo si es del mismo usuario
-        if (_cacheEstado && _codigoCache === codigo) {
-            return _cacheEstado;
-        }
+        if (_cacheEstado && _codigoCache === codigo) return _cacheEstado;
 
         if (!window.ConfigBD || !ConfigBD.estaConectado()) {
             _cacheEstado = estadoVacio();
@@ -67,14 +147,22 @@
         }
 
         try {
-            // Usamos leerArchivo (no Fresh) para aprovechar la caché
-            // de 5 min de ConfigBD y no spamear peticiones.
             const data = normalizar(await ConfigBD.leerArchivo(ARCHIVO));
             const u = data.usuarios[codigo];
-            _cacheEstado = (u && typeof u === 'object') ? {
-                monedasMaximas: Number(u.monedasMaximas) || 0,
-                logros: (u.logros && typeof u.logros === 'object') ? u.logros : {}
-            } : estadoVacio();
+            if (u && typeof u === 'object') {
+                _cacheEstado = {
+                    monedasMaximas:  Number(u.monedasMaximas)  || 0,
+                    appsMaximas:     Number(u.appsMaximas)     || 0,
+                    widgetsMaximas:  Number(u.widgetsMaximas)  || 0,
+                    temasMaximas:    Number(u.temasMaximas)    || 0,
+                    fotosMaximas:    Number(u.fotosMaximas)    || 0,
+                    diasMaximos:     Number(u.diasMaximos)     || 0,
+                    diasUnicos:      Array.isArray(u.diasUnicos) ? u.diasUnicos : [],
+                    logros:          (u.logros && typeof u.logros === 'object') ? u.logros : {}
+                };
+            } else {
+                _cacheEstado = estadoVacio();
+            }
         } catch (e) {
             _cacheEstado = estadoVacio();
         }
@@ -82,32 +170,70 @@
         return _cacheEstado;
     }
 
+    // ------------------------------------------------------------
+    //  Valor del tipo de logro
+    // ------------------------------------------------------------
+    function valorDeTipo(tipo, estado) {
+        switch (tipo) {
+            case 'monedas': return estado.monedasMaximas  || 0;
+            case 'apps':    return estado.appsMaximas     || 0;
+            case 'widgets': return estado.widgetsMaximas  || 0;
+            case 'temas':   return estado.temasMaximas    || 0;
+            case 'fotos':   return estado.fotosMaximas    || 0;
+            case 'dias':    return estado.diasMaximos     || 0;
+            default:        return 0;
+        }
+    }
+
+    // ------------------------------------------------------------
+    //  Chequeo principal
+    // ------------------------------------------------------------
     async function chequear() {
         const cuenta = cuentaActiva();
         if (!cuenta) return [];
         if (!window.ConfigBD || !ConfigBD.estaConectado()) return [];
 
         const codigo = cuenta.codigo;
-        const monedasActuales = (typeof obtenerMonedas === 'function') ? (obtenerMonedas() || 0) : 0;
+
+        // 1. Recolectar valores async FUERA del mutador
+        const valores = await recolectarValores(codigo);
+        const hoy = fechaLocalHoy();
         const recien = [];
         let estadoFinal = null;
 
+        // 2. Mutador síncrono
         await ConfigBD.actualizarArchivo(ARCHIVO, (actual) => {
             actual = normalizar(actual);
             if (!actual.usuarios[codigo]) actual.usuarios[codigo] = estadoVacio();
 
             const yo = actual.usuarios[codigo];
+
+            // Picos históricos
+            yo.monedasMaximas = Math.max(Number(yo.monedasMaximas) || 0, valores.monedas);
+            yo.appsMaximas    = Math.max(Number(yo.appsMaximas)    || 0, valores.apps);
+            yo.widgetsMaximas = Math.max(Number(yo.widgetsMaximas) || 0, valores.widgets);
+            yo.temasMaximas   = Math.max(Number(yo.temasMaximas)   || 0, valores.temas);
+            yo.fotosMaximas   = Math.max(Number(yo.fotosMaximas)   || 0, valores.fotos);
+
+            // Días únicos
+            if (!Array.isArray(yo.diasUnicos)) yo.diasUnicos = [];
+            if (!yo.diasUnicos.includes(hoy)) {
+                yo.diasUnicos.push(hoy);
+                // Límite de seguridad (2 años de uso diario)
+                if (yo.diasUnicos.length > 730) {
+                    yo.diasUnicos = yo.diasUnicos.slice(-730);
+                }
+            }
+            yo.diasMaximos = yo.diasUnicos.length;
+
+            // Logros
             if (!yo.logros || typeof yo.logros !== 'object') yo.logros = {};
 
-            // Guardar el pico histórico de monedas
-            const antes = Number(yo.monedasMaximas) || 0;
-            yo.monedasMaximas = Math.max(antes, monedasActuales);
-
-            // Desbloquear los que correspondan
             const cat = window.LOGROS_REGISTRO || [];
             for (const logro of cat) {
                 if (yo.logros[logro.id]) continue;
-                if (yo.monedasMaximas >= (logro.meta || 0)) {
+                const valor = valorDeTipo(logro.tipo, yo);
+                if (valor >= (logro.meta || 0)) {
                     yo.logros[logro.id] = new Date().toISOString();
                     recien.push(logro);
                 }
@@ -115,15 +241,19 @@
 
             actual.actualizado = new Date().toISOString();
 
-            // Snapshot para la caché
             estadoFinal = {
-                monedasMaximas: yo.monedasMaximas,
-                logros: { ...yo.logros }
+                monedasMaximas:  yo.monedasMaximas,
+                appsMaximas:     yo.appsMaximas,
+                widgetsMaximas:  yo.widgetsMaximas,
+                temasMaximas:    yo.temasMaximas,
+                fotosMaximas:    yo.fotosMaximas,
+                diasMaximos:     yo.diasMaximos,
+                diasUnicos:      [...yo.diasUnicos],
+                logros:          { ...yo.logros }
             };
             return actual;
         });
 
-        // Actualizar caché en memoria
         _cacheEstado = estadoFinal || estadoVacio();
         _codigoCache = codigo;
 
@@ -140,7 +270,6 @@
             } catch (e) { /* silencioso */ }
         }
 
-        // Avisar al banner del lobby
         if (typeof window.__actualizarBannerLogros === 'function') {
             try { window.__actualizarBannerLogros(); } catch (e) { /* silencioso */ }
         }
@@ -148,45 +277,48 @@
         return recien;
     }
 
+    // ------------------------------------------------------------
+    //  Progreso (para el banner y el panel)
+    // ------------------------------------------------------------
     async function obtenerProgreso() {
         const cat = window.LOGROS_REGISTRO || [];
         const estado = await obtenerEstado();
 
-        // "Monedas vivas" = máximo entre lo guardado y las monedas actuales.
-        // Esto hace que el banner muestre progreso en vivo aunque el
-        // archivo de logros todavía no se haya escrito.
-        const monedasActuales = (typeof obtenerMonedas === 'function') ? (obtenerMonedas() || 0) : 0;
-        const monedasVivas = Math.max(estado.monedasMaximas, monedasActuales);
+        // Enriquecer con valores "vivos" por si el JSON aún no se escribió
+        const valoresVivos = {
+            monedasMaximas:  Math.max(estado.monedasMaximas,  obtenerMonedasActuales()),
+            appsMaximas:     Math.max(estado.appsMaximas,     contarAppsNoBase()),
+            widgetsMaximas:  Math.max(estado.widgetsMaximas,  contarWidgets()),
+            temasMaximas:    Math.max(estado.temasMaximas,    contarTemasNoBase()),
+            fotosMaximas:    estado.fotosMaximas,
+            diasMaximos:     estado.diasMaximos,
+            diasUnicos:      estado.diasUnicos,
+            logros:          estado.logros
+        };
 
         const desbloqueados = cat.filter(l => {
             if (estado.logros[l.id]) return true;
-            return monedasVivas >= (l.meta || 0);
+            return valorDeTipo(l.tipo, valoresVivos) >= (l.meta || 0);
         }).length;
 
         return {
             desbloqueados,
             total: cat.length,
-            estado: {
-                monedasMaximas: monedasVivas,
-                logros: estado.logros
-            },
+            estado: valoresVivos,
             catalogo: cat
         };
     }
 
     // ------------------------------------------------------------
-    //  Auto-init al iniciar/cerrar sesión
+    //  Auto-init
     // ------------------------------------------------------------
     window.addEventListener('vicwebos:sesion', async (e) => {
         resetCache();
 
         if (e.detail && e.detail.activa) {
-            // Chequear al iniciar sesión (crea el archivo si no existe
-            // y desbloquea todo lo que corresponda de una vez)
             try { await chequear(); } catch (err) { /* silencioso */ }
         }
 
-        // Refrescar el banner con el nuevo estado
         if (typeof window.__actualizarBannerLogros === 'function') {
             try { window.__actualizarBannerLogros(); } catch (err) { /* silencioso */ }
         }
@@ -200,6 +332,7 @@
         chequear,
         obtenerEstado,
         obtenerProgreso,
+        valorDeTipo,
         _resetCache: resetCache
     };
 })();
