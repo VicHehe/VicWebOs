@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Logros</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="lg-container">
+
+        <header class="lg-header">
+            <div class="lg-logo">
+                <div class="lg-logo-mark">
+                    <i data-lucide="trophy"></i>
+                </div>
+                <div class="lg-logo-text">
+                    <h1>Logros</h1>
+                    <p id="lgUserBadge">—</p>
+                </div>
+            </div>
+
+            <div class="lg-resumen">
+                <span class="lg-resumen-label">Desbloqueados</span>
+                <span class="lg-resumen-valor" id="lgContador">0 / 0</span>
+            </div>
+        </header>
+
+        <div class="lg-progreso">
+            <div class="lg-progreso-barra">
+                <div class="lg-progreso-fill" id="lgProgresoFill"></div>
+            </div>
+            <span class="lg-progreso-texto" id="lgProgresoTexto">0% completado</span>
+        </div>
+
+        <main class="lg-main">
+            <div class="lg-grid" id="lgGrid"></div>
+
+            <div class="lg-empty" id="lgEmpty" hidden>
+                <div class="lg-empty-icon">
+                    <i data-lucide="trophy"></i>
+                </div>
+                <h3>Todavía no hay logros</h3>
+                <p>Cuando agregues logros al sistema, aparecerán acá.</p>
+            </div>
+        </main>
+
+    </div>
+
+    <div class="lg-toast" id="lgToast"></div>
+
+    <script src="JsLogros1.js"></script>
+    <!-- <script src="JsLogros2.js"></script> -->
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
