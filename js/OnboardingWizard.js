@@ -47,7 +47,6 @@
     let _tokenValidado = false;
     let _usuarioGitHub = null;
     let _tipoToken = 'classic'; // 'classic' | 'fine-grained'
-    let _escuchandoMensajes = false;
 
     // ------------------------------------------------------------
     //  Helpers
@@ -309,6 +308,13 @@
         _contenedor.querySelectorAll('[data-ow-accion]').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 const accion = btn.dataset.owAccion;
+
+                // ⚠️ IMPORTANTE: los <a> con href deben seguir su curso natural.
+                // Solo hacemos preventDefault para los botones que manejan pasos.
+                if (accion === 'abrir-github') {
+                    return; // Dejamos que el <a> abra GitHub en pestaña nueva
+                }
+
                 e.preventDefault();
 
                 switch (accion) {
@@ -345,19 +351,9 @@
             });
         });
 
-        // Input de token: pegar automáticamente
+        // Input de token
         const textarea = _qs('.ow-input-token', _contenedor);
         if (textarea) {
-            textarea.addEventListener('paste', (e) => {
-                setTimeout(() => {
-                    // Auto-validar si el token parece completo
-                    const val = textarea.value.trim();
-                    if (val.length > 20) {
-                        // No hacemos nada automático, el usuario decide
-                    }
-                }, 50);
-            });
-
             textarea.addEventListener('input', () => {
                 _ocultarMensajes();
             });
@@ -401,13 +397,11 @@
             return;
         }
 
-        // Validación de formato mínima
         if (!token.startsWith('ghp_') && !token.startsWith('github_pat_')) {
             _mostrarError('El token no parece válido. Debe empezar con "ghp_" o "github_pat_".');
             return;
         }
 
-        // Mostrar estado de carga
         const btnValidar = _qs('[data-ow-accion="validar"]', _contenedor);
         if (btnValidar) {
             btnValidar.disabled = true;
@@ -418,7 +412,6 @@
         _ocultarMensajes();
 
         try {
-            // Usar ConfigBD si está disponible
             if (typeof GH_HEADERS === 'function' && typeof fetch === 'function') {
                 const res = await fetch('https://api.github.com/user', {
                     headers: GH_HEADERS(token)
@@ -441,15 +434,12 @@
 
                 _mostrarExito(`✅ Conectado como @${usuario.login}`);
 
-                // Avanzar automáticamente al paso de éxito
                 setTimeout(() => {
                     _pasoActual = PASOS.VALIDAR;
                     _renderPaso();
                 }, 800);
 
             } else {
-                // Fallback: si ConfigBD no está, simulamos validación exitosa
-                // (útil para desarrollo del wizard de forma aislada)
                 _token = token;
                 _usuarioGitHub = { login: 'usuario-desconocido' };
                 _tokenValidado = true;
@@ -512,7 +502,6 @@
             return;
         }
 
-        // Emitir evento global para que ConfigBD lo capture
         window.dispatchEvent(new CustomEvent('vicwebos:onboarding-completo', {
             detail: {
                 token: _token,
@@ -521,12 +510,10 @@
             }
         }));
 
-        // También exponer en una variable global temporal
         window.__vicwebos_onboarding_token = _token;
         window.__vicwebos_onboarding_usuario = _usuarioGitHub;
         window.__vicwebos_onboarding_tipo = _tipoToken;
 
-        // Ocultar el wizard (el flujo de ConfigBD continua)
         _contenedor.style.display = 'none';
     }
 
@@ -534,10 +521,6 @@
     //  API pública
     // ------------------------------------------------------------
     const OnboardingWizard = {
-        /**
-         * Muestra el wizard en el contenedor indicado.
-         * @param {HTMLElement|string} contenedor - Elemento o selector
-         */
         mostrar(contenedor) {
             if (typeof contenedor === 'string') {
                 _contenedor = document.querySelector(contenedor);
@@ -560,9 +543,6 @@
             _renderPaso();
         },
 
-        /**
-         * Oculta y limpia el wizard.
-         */
         ocultar() {
             if (_contenedor) {
                 _contenedor.innerHTML = '';
@@ -570,41 +550,22 @@
             }
         },
 
-        /**
-         * Devuelve el token validado o null.
-         * @returns {string|null}
-         */
         obtenerToken() {
             return _tokenValidado ? _token : null;
         },
 
-        /**
-         * Devuelve true si hay un token validado listo.
-         * @returns {boolean}
-         */
         estaListo() {
             return _tokenValidado && !!_token;
         },
 
-        /**
-         * Devuelve el usuario de GitHub validado.
-         * @returns {Object|null}
-         */
         obtenerUsuario() {
             return _usuarioGitHub;
         },
 
-        /**
-         * Devuelve el tipo de token seleccionado.
-         * @returns {string}
-         */
         obtenerTipo() {
             return _tipoToken;
         },
 
-        /**
-         * Resetea el wizard al paso inicial.
-         */
         reset() {
             _pasoActual = PASOS.BIENVENIDA;
             _token = null;
@@ -617,7 +578,6 @@
 
     window.OnboardingWizard = OnboardingWizard;
 
-    // Escuchar eventos globales para reset
     window.addEventListener('vicwebos:onboarding-reset', () => {
         OnboardingWizard.reset();
     });
