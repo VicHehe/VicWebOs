@@ -1,17 +1,20 @@
 // ============================================================
 //  Invitaciones.js — Compartir y unirse a comunidades
 //  ------------------------------------------------------------
-//  Genera códigos de invitación autocontenidos (base64) que
-//  contienen SOLO metadata (nombre, owner, repo). NUNCA el token.
+//  Flujo de "Unirme a una" en 3 pasos visuales:
+//    1. Pegar código → preview
+//    2. Elegir método (clásico / fine-grained / asistido)
+//    3. Unirme
+//
+//  Los pasos 2 y 3 se revelan a medida que avanza el usuario.
+//  Así el flujo se siente lineal y no abruma.
 //
 //  API pública:
 //    Invitaciones.generar(comId)     → string "VWO1.xxxxx"
-//    Invitaciones.decodificar(codigo) → { nombre, owner, repo } o error
-//    Invitaciones.mostrarModal(comId) → abre modal de compartir
+//    Invitaciones.decodificar(codigo) → { nombre, owner, repo }
+//    Invitaciones.mostrarModal(comId)
 //    Invitaciones.ocultarModal()
-//    Invitaciones.unirse()            → lee el form y une
-//
-//  Depende de: ConfigBD.js, OnboardingWizard.js (opcional)
+//    Invitaciones.unirse()
 // ============================================================
 
 (function () {
@@ -46,7 +49,7 @@
     }
 
     // ------------------------------------------------------------
-    //  Generar código de invitación
+    //  Generar / decodificar código
     // ------------------------------------------------------------
     function generar(comId) {
         const com = ConfigBD.obtenerComunidadPorId(comId);
@@ -62,15 +65,10 @@
         return PREFIJO + _b64urlEncode(JSON.stringify(payload));
     }
 
-    // ------------------------------------------------------------
-    //  Decodificar código
-    // ------------------------------------------------------------
     function decodificar(codigo) {
         const limpio = String(codigo || '').trim();
 
-        if (!limpio) {
-            throw new Error('El código está vacío.');
-        }
+        if (!limpio) throw new Error('El código está vacío.');
         if (!limpio.startsWith(PREFIJO)) {
             throw new Error('El código no es válido (falta el prefijo VWO1).');
         }
@@ -78,24 +76,18 @@
         const b64 = limpio.slice(PREFIJO.length);
 
         let json;
-        try {
-            json = _b64urlDecode(b64);
-        } catch (e) {
-            throw new Error('El código está corrupto o mal copiado.');
-        }
+        try { json = _b64urlDecode(b64); }
+        catch (e) { throw new Error('El código está corrupto o mal copiado.'); }
 
         let data;
-        try {
-            data = JSON.parse(json);
-        } catch (e) {
-            throw new Error('El código está corrupto o mal copiado.');
-        }
+        try { data = JSON.parse(json); }
+        catch (e) { throw new Error('El código está corrupto o mal copiado.'); }
 
         if (!data || typeof data !== 'object') {
             throw new Error('El código no contiene datos válidos.');
         }
         if (data.v !== VERSION) {
-            throw new Error(`Versión de código no soportada (v${data.v}). Actualiza VicWebOs.`);
+            throw new Error(`Versión de código no soportada (v${data.v}).`);
         }
         if (!data.o || !data.r) {
             throw new Error('El código está incompleto.');
@@ -112,16 +104,12 @@
     // ------------------------------------------------------------
     //  Modal de compartir
     // ------------------------------------------------------------
-    let _comIdCompartiendo = null;
-
     function mostrarModal(comId) {
         const com = ConfigBD.obtenerComunidadPorId(comId);
         if (!com) return;
 
         const modal = document.getElementById('modalCompartir');
         if (!modal) return;
-
-        _comIdCompartiendo = comId;
 
         const nombreEl = document.getElementById('compartirNombre');
         const ta = document.getElementById('compartirCodigo');
@@ -136,7 +124,6 @@
     function ocultarModal() {
         const modal = document.getElementById('modalCompartir');
         if (modal) modal.style.display = 'none';
-        _comIdCompartiendo = null;
     }
 
     async function copiarCodigo() {
@@ -149,9 +136,7 @@
                 await navigator.clipboard.writeText(ta.value);
                 exito = true;
             }
-        } catch (e) {
-            // fallback
-        }
+        } catch (e) { /* fallback */ }
 
         if (!exito) {
             try {
@@ -160,9 +145,7 @@
                 document.execCommand('copy');
                 window.getSelection()?.removeAllRanges();
                 exito = true;
-            } catch (e) {
-                exito = false;
-            }
+            } catch (e) { exito = false; }
         }
 
         _feedbackCopiar(exito);
@@ -188,17 +171,23 @@
 
     // ------------------------------------------------------------
     //  Preview del código en el flujo "Unirme"
+    //  Devuelve true si el código es válido (para revelar paso 2).
     // ------------------------------------------------------------
     function _renderPreview(codigoRaw) {
         const preview = document.getElementById('bdJoinPreview');
-        if (!preview) return;
+        const paso2   = document.getElementById('bdJoinPaso2');
+        const paso3   = document.getElementById('bdJoinPaso3');
+
+        if (!preview) return false;
 
         const val = String(codigoRaw || '').trim();
 
         if (!val) {
             preview.style.display = 'none';
             preview.innerHTML = '';
-            return;
+            if (paso2) paso2.style.display = 'none';
+            if (paso3) paso3.style.display = 'none';
+            return false;
         }
 
         try {
@@ -214,7 +203,13 @@
                 </div>
             `;
             preview.style.display = 'flex';
+
+            // Revelar pasos 2 y 3
+            if (paso2) paso2.style.display = 'block';
+            if (paso3) paso3.style.display = 'block';
+
             if (window.lucide) lucide.createIcons();
+            return true;
         } catch (err) {
             preview.className = 'bd-join-preview invalido';
             preview.innerHTML = `
@@ -226,18 +221,24 @@
                 </div>
             `;
             preview.style.display = 'flex';
+
+            // Ocultar pasos 2 y 3 si el código es inválido
+            if (paso2) paso2.style.display = 'none';
+            if (paso3) paso3.style.display = 'none';
+
             if (window.lucide) lucide.createIcons();
+            return false;
         }
     }
 
     // ------------------------------------------------------------
-    //  Unirse a una comunidad
+    //  Unirse
     // ------------------------------------------------------------
     async function unirse() {
-        const taCodigo    = document.getElementById('bdJoinCodigo');
-        const inputToken  = document.getElementById('bdJoinToken');
-        const status      = document.getElementById('bdJoinStatus');
-        const btn         = document.getElementById('btnUnirseComunidad');
+        const taCodigo   = document.getElementById('bdJoinCodigo');
+        const inputToken = document.getElementById('bdJoinToken');
+        const status     = document.getElementById('bdJoinStatus');
+        const btn        = document.getElementById('btnUnirseComunidad');
 
         const setMsg = (txt, tipo) => {
             if (!status) return;
@@ -245,7 +246,7 @@
             status.className = 'config-status ' + (tipo || '');
         };
 
-        // --- 1) Leer y validar el código ---
+        // 1) Código
         const codigoRaw = taCodigo ? taCodigo.value.trim() : '';
         if (!codigoRaw) {
             setMsg('❌ Pega el código de invitación.', 'error');
@@ -253,14 +254,13 @@
         }
 
         let info;
-        try {
-            info = decodificar(codigoRaw);
-        } catch (e) {
+        try { info = decodificar(codigoRaw); }
+        catch (e) {
             setMsg('❌ ' + e.message, 'error');
             return;
         }
 
-        // --- 2) Leer el token según el tipo elegido ---
+        // 2) Token según tipo
         const tipo = document.querySelector('input[name="bdJoinTipoToken"]:checked')?.value || 'classic';
         let token = '';
 
@@ -280,7 +280,7 @@
             }
         }
 
-        // --- 3) Verificar duplicados ---
+        // 3) Duplicados
         const yaExiste = ConfigBD.listarComunidades().some(c =>
             c.githubOwner === info.owner && c.githubRepo === info.repo
         );
@@ -289,71 +289,64 @@
             return;
         }
 
-        // --- 4) Ejecutar ---
-        if (btn) {
-            btn.disabled = true;
-            const original = btn.innerHTML;
-            btn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Uniéndome...';
-            if (window.lucide) lucide.createIcons();
-            setMsg('⏳ Verificando acceso al repositorio...', 'info');
+        // 4) Ejecutar
+        if (!btn) return;
 
-            try {
-                // Validar token
-                await ghObtenerUsuario(token);
+        btn.disabled = true;
+        const original = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Uniéndome...';
+        if (window.lucide) lucide.createIcons();
+        setMsg('⏳ Verificando acceso al repositorio...', 'info');
 
-                // Verificar acceso al repo
-                const tieneAcceso = await ghRepoExiste(token, info.owner, info.repo);
-                if (!tieneAcceso) {
-                    throw new Error(
-                        `No tienes acceso a "${info.owner}/${info.repo}". ` +
-                        `Pídele al dueño que te agregue como colaborador en GitHub ` +
-                        `(Settings → Collaborators) y vuelve a intentar.`
-                    );
-                }
+        try {
+            await ghObtenerUsuario(token);
 
-                // Crear la comunidad localmente
-                const res = await ConfigBD.unirseAComunidad({
-                    nombre:    info.nombre,
-                    token,
-                    repo:      info.repo,
-                    owner:     info.owner,
-                    tipoToken: tipo
-                });
-
-                setMsg('✅ ¡Te uniste a la comunidad!', 'success');
-
-                // Cambiar a la comunidad nueva
-                if (typeof window.cambiarComunidad === 'function' && res && res.id) {
-                    await window.cambiarComunidad(res.id);
-                }
-
-                // Refrescar UI
-                if (typeof window.__actualizarUIBD === 'function') window.__actualizarUIBD();
-                if (typeof window.__renderSidebarComunidad === 'function') window.__renderSidebarComunidad();
-
-                // Volver a "Mis comunidades" tras un momento
-                setTimeout(() => {
-                    const tabMias = document.querySelector('[data-bdtab="mias"]');
-                    if (tabMias) tabMias.click();
-                }, 1400);
-
-                // Limpiar el form
-                if (taCodigo) taCodigo.value = '';
-                if (inputToken) inputToken.value = '';
-                _renderPreview('');
-
-            } catch (err) {
-                setMsg('❌ ' + (err.message || 'Error al unirse.'), 'error');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = original;
-                if (window.lucide) lucide.createIcons();
+            const tieneAcceso = await ghRepoExiste(token, info.owner, info.repo);
+            if (!tieneAcceso) {
+                throw new Error(
+                    `No tienes acceso a "${info.owner}/${info.repo}". ` +
+                    `Pídele al dueño que te agregue como colaborador en GitHub ` +
+                    `(Settings → Collaborators) y vuelve a intentar.`
+                );
             }
+
+            const res = await ConfigBD.unirseAComunidad({
+                nombre:    info.nombre,
+                token,
+                repo:      info.repo,
+                owner:     info.owner,
+                tipoToken: tipo
+            });
+
+            setMsg('✅ ¡Te uniste a la comunidad!', 'success');
+
+            if (typeof window.cambiarComunidad === 'function' && res && res.id) {
+                await window.cambiarComunidad(res.id);
+            }
+
+            if (typeof window.__actualizarUIBD === 'function') window.__actualizarUIBD();
+            if (typeof window.__renderSidebarComunidad === 'function') window.__renderSidebarComunidad();
+
+            setTimeout(() => {
+                const tabMias = document.querySelector('[data-bdtab="mias"]');
+                if (tabMias) tabMias.click();
+            }, 1400);
+
+            if (taCodigo) taCodigo.value = '';
+            if (inputToken) inputToken.value = '';
+            _renderPreview('');
+
+        } catch (err) {
+            setMsg('❌ ' + (err.message || 'Error al unirse.'), 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = original;
+            if (window.lucide) lucide.createIcons();
         }
     }
 
     // ------------------------------------------------------------
-    //  Wiring de la UI
+    //  Wiring
     // ------------------------------------------------------------
     function _inicializarSubtabs() {
         document.querySelectorAll('.bd-subtab').forEach(tab => {
@@ -370,16 +363,26 @@
                 const vista = document.querySelector(`.bd-vista[data-bdvista="${target}"]`);
                 if (vista) vista.classList.add('active');
 
-                // Resetear wizard al cambiar de vista (evita conflictos de estado)
+                // Limpiar estados al cambiar de vista
                 if (window.OnboardingWizard) {
                     OnboardingWizard.ocultar();
-                    OnboardingWizard.reset();
                 }
 
-                // Al volver a "mias", asegurar que el formulario de crear esté cerrado
                 if (target === 'mias') {
                     const form = document.getElementById('bdFormulario');
                     if (form) form.style.display = 'none';
+                }
+
+                if (target === 'unirme') {
+                    // Asegurar que el paso 2 y 3 estén ocultos al entrar
+                    const paso2 = document.getElementById('bdJoinPaso2');
+                    const paso3 = document.getElementById('bdJoinPaso3');
+                    const preview = document.getElementById('bdJoinPreview');
+                    const ta = document.getElementById('bdJoinCodigo');
+                    if (paso2) paso2.style.display = 'none';
+                    if (paso3) paso3.style.display = 'none';
+                    if (preview) preview.style.display = 'none';
+                    if (ta) ta.value = '';
                 }
 
                 if (window.lucide) lucide.createIcons();
@@ -420,11 +423,11 @@
 
         if (ta && !ta.dataset.wired) {
             ta.dataset.wired = '1';
+
             ta.addEventListener('input', () => {
                 _renderPreview(ta.value);
             });
             ta.addEventListener('paste', () => {
-                // Pequeño delay para que el paste se complete antes de leer el valor
                 setTimeout(() => _renderPreview(ta.value), 30);
             });
         }
@@ -447,9 +450,6 @@
         inicializar();
     }
 
-    // ------------------------------------------------------------
-    //  API pública
-    // ------------------------------------------------------------
     window.Invitaciones = {
         PREFIJO,
         VERSION,
