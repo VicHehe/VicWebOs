@@ -306,9 +306,7 @@ function esperar(ms) {
 }
 
 // ------------------------------------------------------------
-//  Conectar a GitHub. Según tipo de token:
-//  - classic / assisted → si el repo no existe, lo crea (privado)
-//  - fine-grained       → el repo DEBE existir previamente
+//  Conectar a GitHub
 // ------------------------------------------------------------
 async function conectarGitHub(token, nombreRepo, tipoToken = 'classic') {
     const tipoEfectivo = tipoTokenEfectivo(tipoToken);
@@ -334,7 +332,6 @@ async function conectarGitHub(token, nombreRepo, tipoToken = 'classic') {
 //  API PÚBLICA
 // ============================================================
 const ConfigBD = {
-    // -------------------- ESTADO --------------------
     estaConectado() {
         const com = obtenerComunidadActiva();
         return !!(com && com.conectado && com.githubToken && com.githubOwner && com.githubRepo);
@@ -346,7 +343,6 @@ const ConfigBD = {
         return { owner: com.githubOwner, repo: com.githubRepo, nombre: com.nombre, id: com.id };
     },
 
-    // -------------------- COMUNIDADES --------------------
     listarComunidades() {
         const data = leerComunidades();
         return Object.values(data.comunidades).sort((a, b) =>
@@ -391,16 +387,10 @@ const ConfigBD = {
         return { id, ...resultado };
     },
 
-    // --------------------------------------------------------
-    //  UNIRSE a una comunidad existente
-    //  NO crea repo. Asume que ya existe y que el usuario tiene
-    //  acceso (validación previa en Invitaciones.unirse()).
-    // --------------------------------------------------------
     async unirseAComunidad({ nombre, token, repo, owner, tipoToken }) {
         if (!token)         throw new Error('Falta el token.');
         if (!repo || !owner) throw new Error('Faltan datos del repositorio.');
 
-        // Verificar acceso (por si acaso alguien llama directo)
         await ghObtenerUsuario(token);
         const tieneAcceso = await ghRepoExiste(token, owner, repo);
         if (!tieneAcceso) {
@@ -484,7 +474,6 @@ const ConfigBD = {
         if (eraActiva) await invalidarTodoCache();
     },
 
-    // -------------------- ARCHIVOS JSON --------------------
     async leerArchivo(nombre) {
         const cache = await leerCache(nombre);
         if (cache !== null) return cache;
@@ -576,7 +565,6 @@ const ConfigBD = {
         return await invalidarTodoCache();
     },
 
-    // -------------------- COMPAT (legacy) --------------------
     async conectar(token, repo) {
         const activa = obtenerComunidadActiva();
         if (activa) {
@@ -768,7 +756,8 @@ function actualizarAyudaToken() {
         if (wizardSlot) {
             wizardSlot.style.display = 'block';
             if (window.OnboardingWizard) {
-                OnboardingWizard.mostrar(wizardSlot);
+                // Modo CREAR: el paso final habla de crear repositorio
+                OnboardingWizard.mostrar(wizardSlot, { modo: 'crear' });
             }
         }
         if (ayudaRepo) {
@@ -810,7 +799,8 @@ function actualizarAyudaTokenUnirse() {
         if (wizardSlot) {
             wizardSlot.style.display = 'block';
             if (window.OnboardingWizard) {
-                OnboardingWizard.mostrar(wizardSlot);
+                // Modo UNIRSE: el paso final habla de conectarse a la comunidad
+                OnboardingWizard.mostrar(wizardSlot, { modo: 'unirse' });
             }
         }
         return;
