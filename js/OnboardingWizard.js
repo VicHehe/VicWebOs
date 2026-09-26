@@ -5,18 +5,20 @@
 //  obtener un Personal Access Token (PAT) de GitHub y validarlo.
 //
 //  IMPORTANTE: el wizard SOLO genera tokens clásicos SIN
-//  EXPIRACIÓN (expires_in=0). Esto es intencional:
+//  EXPIRACIÓN. Esto es intencional:
 //    - El usuario objetivo no sabe de GitHub.
 //    - Un token que expira se rompe solo y el usuario no sabe
 //      por qué. Mejor uno que dure para siempre.
 //    - Si alguien quiere fine-grained (que en GitHub NO puede
 //      ser sin expiración), lo hace manual.
 //
+//  El parámetro correcto para "sin expiración" en tokens
+//  clásicos es `no_expiration=true` (NO `expires_in=0`, que
+//  GitHub ignora y aplica el default de 30 días).
+//
 //  MODOS:
 //    - 'crear'  → el usuario está creando una comunidad nueva.
 //    - 'unirse' → el usuario se está uniendo a una existente.
-//                 Los textos del wizard se adaptan para NO
-//                 mencionar "crear repositorio" ni "nombre".
 //
 //  API pública:
 //    OnboardingWizard.mostrar(contenedor, { modo })
@@ -43,11 +45,15 @@
         UNIRSE: 'unirse'
     };
 
+    // URL del formulario de creación de token clásico:
+    //   - scopes=repo,read:user  → permisos necesarios
+    //   - no_expiration=true     → SIN EXPIRACIÓN (parámetro oficial)
+    //   - description            → texto visible en GitHub
     const URL_TOKEN =
         'https://github.com/settings/tokens/new' +
         '?scopes=repo,read:user' +
         '&description=VicWebOs+%E2%80%94+Token+personal' +
-        '&expires_in=0';
+        '&no_expiration=true';
 
     let _contenedor = null;
     let _pasoActual = PASOS.BIENVENIDA;
@@ -92,9 +98,6 @@
         if (window.lucide) lucide.createIcons();
     }
 
-    // ------------------------------------------------------------
-    //  PASO 1
-    // ------------------------------------------------------------
     function _htmlBienvenida() {
         const esUnirse = _modo === MODOS.UNIRSE;
 
@@ -153,9 +156,6 @@
         `;
     }
 
-    // ------------------------------------------------------------
-    //  PASO 2
-    // ------------------------------------------------------------
     function _htmlGenerar() {
         return `
             <div class="ow-card">
@@ -187,8 +187,8 @@
                     <div class="ow-paso-item">
                         <span class="ow-paso-num">2</span>
                         <div class="ow-paso-texto">
-                            <strong>Baja hasta el final del formulario</strong>
-                            <span>Ya viene todo configurado. Solo toca "Generate token".</span>
+                            <strong>Verifica que diga "No expiration"</strong>
+                            <span>Es lo que dejamos pre-configurado. Solo toca "Generate token".</span>
                         </div>
                     </div>
                     <div class="ow-paso-item">
@@ -214,9 +214,6 @@
         `;
     }
 
-    // ------------------------------------------------------------
-    //  PASO 3
-    // ------------------------------------------------------------
     function _htmlPegar() {
         return `
             <div class="ow-card">
@@ -255,9 +252,6 @@
         `;
     }
 
-    // ------------------------------------------------------------
-    //  PASO 4
-    // ------------------------------------------------------------
     function _htmlValidar() {
         const nombre = _usuarioGitHub?.login || 'tu cuenta';
         const esUnirse = _modo === MODOS.UNIRSE;
@@ -304,9 +298,6 @@
         `;
     }
 
-    // ------------------------------------------------------------
-    //  Eventos
-    // ------------------------------------------------------------
     function _bindEventosPaso() {
         if (!_contenedor) return;
 
