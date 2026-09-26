@@ -104,7 +104,6 @@ body {
 .mobile-menu-btn:hover { background: var(--gray-100); color: var(--gray-900); }
 .mobile-menu-btn [data-lucide] { width: 20px; height: 20px; stroke-width: 2.5; }
 
-/* ========== LOGO (botón clickeable → vuelve al lobby) ========== */
 .logo {
     display: flex;
     align-items: center;
@@ -488,7 +487,6 @@ body {
 
 .sidebar-mobile-header { display: none; }
 
-/* Chip de comunidad activa en sidebar */
 .sidebar-comunidad {
     display: flex;
     align-items: center;
@@ -1442,61 +1440,142 @@ body {
     font-size: 13px;
 }
 
+/* ============================================================
+   SELECTOR DE TIPO DE TOKEN — Lista vertical con radio custom
+   ============================================================ */
 .bd-token-opciones {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
+
 .bd-token-opcion {
     position: relative;
     cursor: pointer;
+    display: block;
 }
+
 .bd-token-opcion input {
     position: absolute;
     opacity: 0;
     pointer-events: none;
 }
+
 .bd-token-card {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 12px;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
     background: var(--white);
     border: 1.5px solid var(--border);
     border-radius: var(--r-md);
     transition: var(--t-fast);
-    height: 100%;
 }
-.bd-token-card [data-lucide] {
-    width: 18px;
-    height: 18px;
-    color: var(--violet-500);
-    margin-bottom: 4px;
+
+.bd-token-opcion:hover .bd-token-card {
+    border-color: var(--violet-300);
+    background: var(--gray-50);
 }
-.bd-token-card strong {
-    font-size: 13px;
-    font-weight: 800;
-    color: var(--gray-900);
-}
-.bd-token-card span {
-    font-size: 11.5px;
-    color: var(--gray-500);
-    line-height: 1.4;
-}
+
 .bd-token-opcion input:checked + .bd-token-card {
     border-color: var(--violet-400);
     background: var(--violet-50);
     box-shadow: var(--shadow-glow);
 }
-.bd-token-opcion input:checked + .bd-token-card strong {
+
+/* Radio custom */
+.bd-token-radio {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--gray-300);
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 2px;
+    position: relative;
+    background: var(--white);
+    transition: var(--t-fast);
+}
+
+.bd-token-opcion:hover .bd-token-card .bd-token-radio {
+    border-color: var(--gray-400);
+}
+
+.bd-token-opcion input:checked + .bd-token-card .bd-token-radio {
+    border-color: var(--violet-500);
+}
+
+.bd-token-opcion input:checked + .bd-token-card .bd-token-radio::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border-radius: 50%;
+    background: var(--violet-500);
+}
+
+/* Cuerpo */
+.bd-token-cuerpo {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.bd-token-cabecera {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bd-token-cabecera [data-lucide] {
+    width: 16px;
+    height: 16px;
+    color: var(--violet-500);
+    flex-shrink: 0;
+    stroke-width: 2.25;
+}
+
+.bd-token-opcion input:checked + .bd-token-card .bd-token-cabecera [data-lucide] {
+    color: var(--violet-600);
+}
+
+.bd-token-cabecera strong {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--gray-900);
+    letter-spacing: -0.01em;
+}
+
+.bd-token-opcion input:checked + .bd-token-card .bd-token-cabecera strong {
     color: var(--violet-700);
+}
+
+.bd-token-desc {
+    font-size: 12.5px;
+    color: var(--gray-500);
+    line-height: 1.45;
+    margin: 0;
+    font-weight: 500;
+}
+
+.bd-token-desc code {
+    background: var(--white);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: 'SF Mono', Monaco, Consolas, monospace;
+    color: var(--violet-700);
+    border: 1px solid var(--border);
+}
+
+.bd-token-opcion input:checked + .bd-token-card .bd-token-desc code {
+    border-color: var(--violet-200);
 }
 
 /* ================================================================
    COMUNIDADES — Sub-tabs + vista Unirme + modal Compartir
    ================================================================ */
 
-/* ---------- Sub-tabs: Mis comunidades / Unirme ---------- */
 .bd-subtabs {
     display: flex;
     gap: 4px;
@@ -1539,7 +1618,6 @@ body {
     color: var(--violet-600, #7C3AED);
 }
 
-/* ---------- Vistas (contenidos de cada sub-tab) ---------- */
 .bd-vista {
     display: none;
     animation: bdVistaIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1553,7 +1631,6 @@ body {
     to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ---------- Input de código de invitación (Unirme) ---------- */
 .bd-join-codigo-input {
     width: 100%;
     padding: 14px 16px;
@@ -1583,7 +1660,6 @@ body {
     letter-spacing: 0;
 }
 
-/* ---------- Preview del código ---------- */
 .bd-join-preview {
     display: flex;
     align-items: center;
@@ -2890,7 +2966,6 @@ body {
         max-width: none;
     }
 
-    /* Sidebar como drawer */
     .sidebar {
         position: fixed;
         top: 0;
@@ -3069,7 +3144,6 @@ body {
         font-size: 14px;
     }
 
-    /* --- Nuevas secciones (subtabs, compartir, responsive del wizard) --- */
     .bd-subtabs {
         margin-bottom: 16px;
     }
@@ -3229,7 +3303,6 @@ body {
     .config-nav-item span { font-size: 9.5px; }
     .config-panel-header h3 { font-size: 15px; }
 
-    .bd-token-opciones { grid-template-columns: 1fr; }
     .bd-comunidad-card { padding: 12px; gap: 10px; }
     .bd-comunidad-icono { width: 36px; height: 36px; }
     .bd-comunidad-icono [data-lucide] { width: 16px; height: 16px; }
@@ -3250,7 +3323,6 @@ body {
     .noti-borrar { opacity: 1; }
     .noti-vacio { padding: 36px 16px; }
 
-    /* --- Nuevas secciones --- */
     .bd-subtab span {
         font-size: 11.5px;
     }
@@ -3265,7 +3337,6 @@ body {
         font-size: 13.5px;
     }
 
-    /* --- Wizard en móvil --- */
     .ow-card {
         padding: 18px;
         gap: 14px;
