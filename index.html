@@ -73,6 +73,7 @@
                     </button>
                 </div>
 
+                <!-- Chip de comunidad activa -->
                 <div class="sidebar-comunidad" id="sidebarComunidad" style="display:none;">
                     <div class="sidebar-comunidad-icono">
                         <i data-lucide="users"></i>
@@ -152,8 +153,10 @@
             </main>
         </div>
 
+        <!-- Overlay del drawer móvil -->
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
+        <!-- Panel de notificaciones -->
         <div class="noti-panel" id="notiPanel"></div>
     </div>
 
@@ -312,7 +315,7 @@
                     <section class="config-panel" data-panel="widgets">
                         <div class="config-panel-header">
                             <h3>Widgets</h3>
-                            <p>Solo los widgets instalados desde Stor-He aparecen aquí. Actívalos para verlos en el inicio. Máximo 6 (recomendamos 3: cada widget consume recursos del navegador, y en PCs o Android antiguos poco potentes puede ralentizar todo el sistema).</p>
+                              <p>Solo los widgets instalados desde Stor-He aparecen aquí. Actívalos para verlos en el inicio. Máximo 6 (recomendamos 3: cada widget consume recursos del navegador, y en PCs o Android antiguos poco potentes puede ralentizar todo el sistema).</p>
                         </div>
                         <div id="configWidgetsLista" class="config-widgets-lista"></div>
                     </section>
@@ -394,25 +397,40 @@
                                         <label class="bd-token-opcion">
                                             <input type="radio" name="bdTipoToken" value="classic" checked>
                                             <div class="bd-token-card">
-                                                <i data-lucide="key-round"></i>
-                                                <strong>Clásico</strong>
-                                                <span>Permite crear repositorios automáticamente. Ideal para empezar rápido.</span>
+                                                <span class="bd-token-radio" aria-hidden="true"></span>
+                                                <div class="bd-token-cuerpo">
+                                                    <div class="bd-token-cabecera">
+                                                        <i data-lucide="key-round"></i>
+                                                        <strong>Clásico</strong>
+                                                    </div>
+                                                    <p class="bd-token-desc">Permite crear repositorios automáticamente. Ideal para empezar rápido.</p>
+                                                </div>
                                             </div>
                                         </label>
                                         <label class="bd-token-opcion">
                                             <input type="radio" name="bdTipoToken" value="fine-grained">
                                             <div class="bd-token-card">
-                                                <i data-lucide="shield-check"></i>
-                                                <strong>Fine-grained</strong>
-                                                <span>Más seguro, permiso solo en repos concretos. El repo debe existir ya.</span>
+                                                <span class="bd-token-radio" aria-hidden="true"></span>
+                                                <div class="bd-token-cuerpo">
+                                                    <div class="bd-token-cabecera">
+                                                        <i data-lucide="shield-check"></i>
+                                                        <strong>Fine-grained</strong>
+                                                    </div>
+                                                    <p class="bd-token-desc">Más seguro, permiso solo en repos concretos. El repo debe existir ya.</p>
+                                                </div>
                                             </div>
                                         </label>
                                         <label class="bd-token-opcion">
                                             <input type="radio" name="bdTipoToken" value="assisted">
                                             <div class="bd-token-card">
-                                                <i data-lucide="wand-2"></i>
-                                                <strong>Asistido</strong>
-                                                <span>Te guiamos paso a paso. Ideal si nunca creaste un token.</span>
+                                                <span class="bd-token-radio" aria-hidden="true"></span>
+                                                <div class="bd-token-cuerpo">
+                                                    <div class="bd-token-cabecera">
+                                                        <i data-lucide="wand-2"></i>
+                                                        <strong>Asistido</strong>
+                                                    </div>
+                                                    <p class="bd-token-desc">Te guiamos paso a paso. Ideal si nunca creaste un token.</p>
+                                                </div>
                                             </div>
                                         </label>
                                     </div>
@@ -464,25 +482,40 @@
                                     <label class="bd-token-opcion">
                                         <input type="radio" name="bdJoinTipoToken" value="classic" checked>
                                         <div class="bd-token-card">
-                                            <i data-lucide="key-round"></i>
-                                            <strong>Clásico</strong>
-                                            <span>Token con scope <code>repo</code>. Debes ser colaborador del repo si es privado.</span>
+                                            <span class="bd-token-radio" aria-hidden="true"></span>
+                                            <div class="bd-token-cuerpo">
+                                                <div class="bd-token-cabecera">
+                                                    <i data-lucide="key-round"></i>
+                                                    <strong>Clásico</strong>
+                                                </div>
+                                                <p class="bd-token-desc">Token con scope <code>repo</code>. Debes ser colaborador del repo si es privado.</p>
+                                            </div>
                                         </div>
                                     </label>
                                     <label class="bd-token-opcion">
                                         <input type="radio" name="bdJoinTipoToken" value="fine-grained">
                                         <div class="bd-token-card">
-                                            <i data-lucide="shield-check"></i>
-                                            <strong>Fine-grained</strong>
-                                            <span>Token con permiso <code>Contents: R/W</code> sobre el repo de la comunidad.</span>
+                                            <span class="bd-token-radio" aria-hidden="true"></span>
+                                            <div class="bd-token-cuerpo">
+                                                <div class="bd-token-cabecera">
+                                                    <i data-lucide="shield-check"></i>
+                                                    <strong>Fine-grained</strong>
+                                                </div>
+                                                <p class="bd-token-desc">Token con permiso <code>Contents: R/W</code> sobre el repo de la comunidad.</p>
+                                            </div>
                                         </div>
                                     </label>
                                     <label class="bd-token-opcion">
                                         <input type="radio" name="bdJoinTipoToken" value="assisted">
                                         <div class="bd-token-card">
-                                            <i data-lucide="wand-2"></i>
-                                            <strong>Asistido</strong>
-                                            <span>Te guiamos paso a paso para crear el token.</span>
+                                            <span class="bd-token-radio" aria-hidden="true"></span>
+                                            <div class="bd-token-cuerpo">
+                                                <div class="bd-token-cabecera">
+                                                    <i data-lucide="wand-2"></i>
+                                                    <strong>Asistido</strong>
+                                                </div>
+                                                <p class="bd-token-desc">Te guiamos paso a paso para crear el token.</p>
+                                            </div>
                                         </div>
                                     </label>
                                 </div>
@@ -560,6 +593,7 @@
                             VicWebOs funciona gracias a la infraestructura gratuita de GitHub. Cuidarla es cuidarnos entre todos. 💜
                         </p>
 
+                        <!-- Aviso legal -->
                         <div class="practicas-legal">
                             <div class="practicas-legal-titulo">
                                 <i data-lucide="scale"></i>
@@ -579,6 +613,7 @@
                             <p>VicWebOs es posible gracias a estas personas y proyectos</p>
                         </div>
 
+                        <!-- Programador -->
                         <div class="creditos-bloque">
                             <div class="creditos-bloque-titulo">
                                 <i data-lucide="code-2"></i>
@@ -593,6 +628,7 @@
                             </div>
                         </div>
 
+                        <!-- GitHub — con todo el cariño -->
                         <div class="creditos-bloque">
                             <div class="creditos-bloque-titulo">
                                 <i data-lucide="heart"></i>
@@ -626,6 +662,7 @@
                             </ul>
                         </div>
 
+                        <!-- APIs externas -->
                         <div class="creditos-bloque">
                             <div class="creditos-bloque-titulo">
                                 <i data-lucide="cloud"></i>
@@ -650,6 +687,7 @@
                             </ul>
                         </div>
 
+                        <!-- Librerías -->
                         <div class="creditos-bloque">
                             <div class="creditos-bloque-titulo">
                                 <i data-lucide="package"></i>
@@ -684,6 +722,7 @@
                             </ul>
                         </div>
 
+                        <!-- Recursos creativos -->
                         <div class="creditos-bloque">
                             <div class="creditos-bloque-titulo">
                                 <i data-lucide="palette"></i>
@@ -698,6 +737,7 @@
                             </ul>
                         </div>
 
+                        <!-- Tipografías -->
                         <div class="creditos-bloque">
                             <div class="creditos-bloque-titulo">
                                 <i data-lucide="type"></i>
@@ -717,6 +757,7 @@
                             </ul>
                         </div>
 
+                        <!-- Agradecimientos -->
                         <div class="creditos-bloque">
                             <div class="creditos-bloque-titulo">
                                 <i data-lucide="heart"></i>
