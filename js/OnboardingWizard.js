@@ -12,14 +12,21 @@
 //    - Si alguien quiere fine-grained (que en GitHub NO puede
 //      ser sin expiración), lo hace manual.
 //
+//  MODOS:
+//    - 'crear'  → el usuario está creando una comunidad nueva.
+//                 El paso final habla de crear repositorio.
+//    - 'unirse' → el usuario se está uniendo a una existente.
+//                 El paso final habla de conectarse a la comunidad.
+//
 //  API pública:
-//    OnboardingWizard.mostrar(contenedor)  → pinta el wizard
-//    OnboardingWizard.ocultar()            → lo limpia
+//    OnboardingWizard.mostrar(contenedor, opciones)
+//      opciones.modo = 'crear' | 'unirse'   (default: 'crear')
+//    OnboardingWizard.ocultar()
 //    OnboardingWizard.obtenerToken()       → token validado o null
 //    OnboardingWizard.estaListo()          → bool
-//    OnboardingWizard.reset()              → vuelve al paso 1
+//    OnboardingWizard.reset()
 //
-//  Depende de: ConfigBD.js (GH_HEADERS, ghObtenerUsuario)
+//  Depende de: ConfigBD.js (GH_HEADERS)
 //  Si ConfigBD no existe, el wizard igual muestra la UI.
 // ============================================================
 
@@ -34,6 +41,11 @@
         GENERAR: 'generar',
         PEGAR: 'pegar',
         VALIDAR: 'validar'
+    };
+
+    const MODOS = {
+        CREAR: 'crear',
+        UNIRSE: 'unirse'
     };
 
     // URL de creación de token clásico:
@@ -54,6 +66,7 @@
     let _token = null;
     let _tokenValidado = false;
     let _usuarioGitHub = null;
+    let _modo = MODOS.CREAR;
 
     // ------------------------------------------------------------
     //  Helpers
@@ -71,6 +84,7 @@
         const wrapper = document.createElement('div');
         wrapper.className = 'ow-wrapper';
         wrapper.setAttribute('data-paso', _pasoActual);
+        wrapper.setAttribute('data-modo', _modo);
 
         switch (_pasoActual) {
             case PASOS.BIENVENIDA:
@@ -97,6 +111,15 @@
     //  PASO 1 — Bienvenida
     // ------------------------------------------------------------
     function _htmlBienvenida() {
+        // Textos adaptados al modo
+        const intro = _modo === MODOS.UNIRSE
+            ? 'Te guiaremos para crear un <strong>token de GitHub</strong> y usarlo para conectarte a tu comunidad. Son solo 3 pasos y no necesitas saber programar.'
+            : 'Te guiaremos para crear un <strong>token de GitHub</strong> y conectarlo a tu comunidad. Son solo 3 pasos y no necesitas saber programar.';
+
+        const paso3 = _modo === MODOS.UNIRSE
+            ? 'Lo validamos y listo. Te unirás a la comunidad.'
+            : 'Lo validamos y listo. Tu comunidad queda conectada.';
+
         return `
             <div class="ow-card ow-card-bienvenida">
                 <div class="ow-icono-hero">
@@ -104,8 +127,7 @@
                 </div>
                 <h3 class="ow-titulo">Vamos paso a paso</h3>
                 <p class="ow-desc">
-                    Te guiaremos para crear un <strong>token de GitHub</strong> y conectarlo
-                    a tu comunidad. Son solo 3 pasos y no necesitas saber programar.
+                    ${intro}
                 </p>
 
                 <div class="ow-pasos-lista">
@@ -127,7 +149,7 @@
                         <span class="ow-paso-num">3</span>
                         <div class="ow-paso-texto">
                             <strong>Pegarlo aquí</strong>
-                            <span>Lo validamos y listo. Tu comunidad queda conectada.</span>
+                            <span>${paso3}</span>
                         </div>
                     </div>
                 </div>
@@ -252,6 +274,12 @@
     // ------------------------------------------------------------
     function _htmlValidar() {
         const nombre = _usuarioGitHub?.login || 'tu cuenta';
+
+        // Texto clave adaptado al modo
+        const textoFinal = _modo === MODOS.UNIRSE
+            ? 'Tu token funciona. Ahora vuelve al formulario y pulsa <strong>"Unirme a esta comunidad"</strong>.'
+            : 'Tu token funciona. Ahora ponle un nombre a tu comunidad y pulsa <strong>"Conectar"</strong>.';
+
         return `
             <div class="ow-card ow-card-exito">
                 <div class="ow-icono-exito">
@@ -260,7 +288,7 @@
                 <h3 class="ow-titulo">¡Token válido!</h3>
                 <p class="ow-desc">
                     Conectado como <strong>@${_escapar(nombre)}</strong>.
-                    Ahora solo falta ponerle un nombre a tu comunidad y crear el repositorio.
+                    ${textoFinal}
                 </p>
 
                 <div class="ow-resumen">
@@ -299,7 +327,6 @@
                 const accion = btn.dataset.owAccion;
 
                 // ⚠️ Los <a> con href deben seguir su curso natural.
-                // No hacemos preventDefault para el link a GitHub.
                 if (accion === 'abrir-github') {
                     return;
                 }
@@ -486,13 +513,15 @@
             detail: {
                 token: _token,
                 usuario: _usuarioGitHub,
-                tipo: 'classic'
+                tipo: 'classic',
+                modo: _modo
             }
         }));
 
         window.__vicwebos_onboarding_token = _token;
         window.__vicwebos_onboarding_usuario = _usuarioGitHub;
         window.__vicwebos_onboarding_tipo = 'classic';
+        window.__vicwebos_onboarding_modo = _modo;
 
         _contenedor.style.display = 'none';
     }
@@ -501,7 +530,13 @@
     //  API pública
     // ------------------------------------------------------------
     const OnboardingWizard = {
-        mostrar(contenedor) {
+        /**
+         * Muestra el wizard en el contenedor indicado.
+         * @param {HTMLElement|string} contenedor
+         * @param {Object} [opciones]
+         * @param {'crear'|'unirse'} [opciones.modo='crear']
+         */
+        mostrar(contenedor, opciones = {}) {
             if (typeof contenedor === 'string') {
                 _contenedor = document.querySelector(contenedor);
             } else if (contenedor instanceof HTMLElement) {
@@ -512,6 +547,8 @@
                 console.warn('[OnboardingWizard] Contenedor no encontrado.');
                 return;
             }
+
+            _modo = (opciones.modo === MODOS.UNIRSE) ? MODOS.UNIRSE : MODOS.CREAR;
 
             _contenedor.style.display = 'block';
             _pasoActual = PASOS.BIENVENIDA;
@@ -544,6 +581,10 @@
         // El wizard solo genera tokens clásicos, sin expiración.
         obtenerTipo() {
             return 'classic';
+        },
+
+        obtenerModo() {
+            return _modo;
         },
 
         reset() {
