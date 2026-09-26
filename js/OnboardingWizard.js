@@ -48,10 +48,6 @@
         UNIRSE: 'unirse'
     };
 
-    // URL de creación de token clásico:
-    //   - scopes=repo,read:user  → permisos necesarios
-    //   - expires_in=0           → SIN EXPIRACIÓN
-    //   - description           → texto visible en GitHub
     const URL_TOKEN =
         'https://github.com/settings/tokens/new' +
         '?scopes=repo,read:user' +
@@ -111,7 +107,6 @@
     //  PASO 1 — Bienvenida
     // ------------------------------------------------------------
     function _htmlBienvenida() {
-        // Textos adaptados al modo
         const intro = _modo === MODOS.UNIRSE
             ? 'Te guiaremos para crear un <strong>token de GitHub</strong> y usarlo para conectarte a tu comunidad. Son solo 3 pasos y no necesitas saber programar.'
             : 'Te guiaremos para crear un <strong>token de GitHub</strong> y conectarlo a tu comunidad. Son solo 3 pasos y no necesitas saber programar.';
@@ -275,7 +270,6 @@
     function _htmlValidar() {
         const nombre = _usuarioGitHub?.login || 'tu cuenta';
 
-        // Texto clave adaptado al modo
         const textoFinal = _modo === MODOS.UNIRSE
             ? 'Tu token funciona. Ahora vuelve al formulario y pulsa <strong>"Unirme a esta comunidad"</strong>.'
             : 'Tu token funciona. Ahora ponle un nombre a tu comunidad y pulsa <strong>"Conectar"</strong>.';
@@ -326,7 +320,6 @@
             btn.addEventListener('click', async (e) => {
                 const accion = btn.dataset.owAccion;
 
-                // ⚠️ Los <a> con href deben seguir su curso natural.
                 if (accion === 'abrir-github') {
                     return;
                 }
@@ -501,7 +494,7 @@
     }
 
     // ------------------------------------------------------------
-    //  Finalizar — emitir evento para que ConfigBD tome el token
+    //  Finalizar
     // ------------------------------------------------------------
     function _finalizar() {
         if (!_tokenValidado || !_token) {
@@ -530,12 +523,6 @@
     //  API pública
     // ------------------------------------------------------------
     const OnboardingWizard = {
-        /**
-         * Muestra el wizard en el contenedor indicado.
-         * @param {HTMLElement|string} contenedor
-         * @param {Object} [opciones]
-         * @param {'crear'|'unirse'} [opciones.modo='crear']
-         */
         mostrar(contenedor, opciones = {}) {
             if (typeof contenedor === 'string') {
                 _contenedor = document.querySelector(contenedor);
@@ -578,7 +565,6 @@
             return _usuarioGitHub;
         },
 
-        // El wizard solo genera tokens clásicos, sin expiración.
         obtenerTipo() {
             return 'classic';
         },
