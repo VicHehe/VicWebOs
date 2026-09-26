@@ -1,17 +1,20 @@
 // ============================================================
 //  Invitaciones.js — Compartir y unirse a comunidades
 //  ------------------------------------------------------------
-//  Flujo de "Unirme a una" en 3 pasos visuales:
-//    1. Pegar código → preview
-//    2. Elegir método (clásico / fine-grained / asistido)
-//    3. Unirme
+//  Código de invitación autocontenido (base64url de un JSON).
 //
-//  Los pasos 2 y 3 se revelan a medida que avanza el usuario.
-//  Así el flujo se siente lineal y no abruma.
+//  Puede llevar DOS variantes:
+//    - Solo metadata (nombre, owner, repo)
+//      → el invitado aporta su propio token
+//    - Metadata + token del dueño embebido
+//      → el invitado se une con UN SOLO PEGADO
+//
+//  El token va codificado en base64url (mismo tratamiento que el
+//  resto del payload). El dueño decide si lo incluye o no.
 //
 //  API pública:
-//    Invitaciones.generar(comId)     → string "VWO1.xxxxx"
-//    Invitaciones.decodificar(codigo) → { nombre, owner, repo }
+//    Invitaciones.generar(comId, { incluirToken })
+//    Invitaciones.decodificar(codigo) → { nombre, owner, repo, token?, modo }
 //    Invitaciones.mostrarModal(comId)
 //    Invitaciones.ocultarModal()
 //    Invitaciones.unirse()
@@ -23,9 +26,6 @@
     const PREFIJO = 'VWO1.';
     const VERSION = 1;
 
-    // ------------------------------------------------------------
-    //  Helpers base64 URL-safe
-    // ------------------------------------------------------------
     function _b64urlEncode(str) {
         return btoa(unescape(encodeURIComponent(str)))
             .replace(/\+/g, '-')
@@ -49,9 +49,9 @@
     }
 
     // ------------------------------------------------------------
-    //  Generar / decodificar código
+    //  Generar código
     // ------------------------------------------------------------
-    function generar(comId) {
+    function generar(comId, opciones = {}) {
         const com = ConfigBD.obtenerComunidadPorId(comId);
         if (!com) throw new Error('Comunidad no encontrada.');
 
@@ -62,9 +62,16 @@
             r: com.githubRepo
         };
 
+        if (opciones.incluirToken === true && com.githubToken) {
+            payload.t = com.githubToken;
+        }
+
         return PREFIJO + _b64urlEncode(JSON.stringify(payload));
     }
 
+    // ------------------------------------------------------------
+    //  Decodificar código
+    // ------------------------------------------------------------
     function decodificar(codigo) {
         const limpio = String(codigo || '').trim();
 
@@ -93,17 +100,23 @@
             throw new Error('El código está incompleto.');
         }
 
+        const token = (typeof data.t === 'string' && data.t.trim()) ? data.t.trim() : null;
+
         return {
             version: data.v,
             nombre:  data.n || data.r,
             owner:   data.o,
-            repo:    data.r
+            repo:    data.r,
+            token:   token,
+            modo:    token ? 'shared' : 'own-token'
         };
     }
 
     // ------------------------------------------------------------
     //  Modal de compartir
     // ------------------------------------------------------------
+    let _comIdCompartiendo = null;
+
     function mostrarModal(comId) {
         const com = ConfigBD.obtenerComunidadPorId(comId);
         if (!com) return;
@@ -111,19 +124,66 @@
         const modal = document.getElementById('modalCompartir');
         if (!modal) return;
 
+        _comIdCompartiendo = comId;
+
         const nombreEl = document.getElementById('compartirNombre');
-        const ta = document.getElementById('compartirCodigo');
+        const checkbox = document.getElementById('compartirIncluirToken');
 
         if (nombreEl) nombreEl.textContent = com.nombre || com.githubRepo;
-        if (ta) ta.value = generar(comId);
+        if (checkbox) checkbox.checked = true;
+
+        _actualizarCodigoCompartir();
+        _actualizarHintCompartir();
 
         modal.style.display = 'flex';
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function _actualizarCodigoCompartir() {
+        if (!_comIdCompartiendo) return;
+
+        const ta = document.getElementById('compartirCodigo');
+        const checkbox = document.getElementById('compartirIncluirToken');
+        if (!ta || !checkbox) return;
+
+        try {
+            ta.value = generar(_comIdCompartiendo, {
+                incluirToken: checkbox.checked
+            });
+        } catch (e) {
+            ta.value = '';
+        }
+    }
+
+    function _actualizarHintCompartir() {
+        const checkbox = document.getElementById('compartirIncluirToken');
+        const hint     = document.getElementById('compartirHint');
+        if (!hint) return;
+
+        if (checkbox && checkbox.checked) {
+            hint.className = 'compartir-hint compartir-hint-alerta';
+            hint.innerHTML = `
+                <i data-lucide="alert-triangle"></i>
+                <span>
+                    El código lleva tu token. Cualquiera que lo vea podrá escribir en el repo <strong>como vos</strong>.
+                    Enviálo solo por chat privado. Si se filtra, <strong>revocá tu token</strong> en GitHub y regenerálo.
+                </span>
+            `;
+        } else {
+            hint.className = 'compartir-hint';
+            hint.innerHTML = `
+                <i data-lucide="shield-check"></i>
+                <span>El código no contiene tu token. El invitado tendrá que aportar el suyo.</span>
+            `;
+        }
+
         if (window.lucide) lucide.createIcons();
     }
 
     function ocultarModal() {
         const modal = document.getElementById('modalCompartir');
         if (modal) modal.style.display = 'none';
+        _comIdCompartiendo = null;
     }
 
     async function copiarCodigo() {
@@ -170,8 +230,7 @@
     }
 
     // ------------------------------------------------------------
-    //  Preview del código en el flujo "Unirme"
-    //  Devuelve true si el código es válido (para revelar paso 2).
+    //  Preview del código en "Unirme"
     // ------------------------------------------------------------
     function _renderPreview(codigoRaw) {
         const preview = document.getElementById('bdJoinPreview');
@@ -192,24 +251,49 @@
 
         try {
             const info = decodificar(val);
-            preview.className = 'bd-join-preview valido';
-            preview.innerHTML = `
-                <div class="bd-join-preview-icono">
-                    <i data-lucide="package-check"></i>
-                </div>
-                <div class="bd-join-preview-info">
-                    <strong>${_escapar(info.nombre)}</strong>
-                    <span>@${_escapar(info.owner)}/${_escapar(info.repo)}</span>
-                </div>
-            `;
+
+            if (info.modo === 'shared') {
+                preview.className = 'bd-join-preview valido';
+                preview.innerHTML = `
+                    <div class="bd-join-preview-icono">
+                        <i data-lucide="package-check"></i>
+                    </div>
+                    <div class="bd-join-preview-info">
+                        <strong>${_escapar(info.nombre)}</strong>
+                        <span>@${_escapar(info.owner)}/${_escapar(info.repo)}</span>
+                        <em class="bd-join-preview-tag">
+                            <i data-lucide="check"></i>
+                            Listo para unirte
+                        </em>
+                    </div>
+                `;
+
+                if (paso2) paso2.style.display = 'none';
+                if (paso3) paso3.style.display = 'block';
+
+            } else {
+                preview.className = 'bd-join-preview valido';
+                preview.innerHTML = `
+                    <div class="bd-join-preview-icono">
+                        <i data-lucide="package-check"></i>
+                    </div>
+                    <div class="bd-join-preview-info">
+                        <strong>${_escapar(info.nombre)}</strong>
+                        <span>@${_escapar(info.owner)}/${_escapar(info.repo)}</span>
+                        <em class="bd-join-preview-tag bd-join-preview-tag-neutro">
+                            Necesitarás tu propio token
+                        </em>
+                    </div>
+                `;
+
+                if (paso2) paso2.style.display = 'block';
+                if (paso3) paso3.style.display = 'block';
+            }
+
             preview.style.display = 'flex';
-
-            // Revelar pasos 2 y 3
-            if (paso2) paso2.style.display = 'block';
-            if (paso3) paso3.style.display = 'block';
-
             if (window.lucide) lucide.createIcons();
             return true;
+
         } catch (err) {
             preview.className = 'bd-join-preview invalido';
             preview.innerHTML = `
@@ -222,7 +306,6 @@
             `;
             preview.style.display = 'flex';
 
-            // Ocultar pasos 2 y 3 si el código es inválido
             if (paso2) paso2.style.display = 'none';
             if (paso3) paso3.style.display = 'none';
 
@@ -246,7 +329,6 @@
             status.className = 'config-status ' + (tipo || '');
         };
 
-        // 1) Código
         const codigoRaw = taCodigo ? taCodigo.value.trim() : '';
         if (!codigoRaw) {
             setMsg('❌ Pega el código de invitación.', 'error');
@@ -260,27 +342,23 @@
             return;
         }
 
-        // 2) Token según tipo
-        const tipo = document.querySelector('input[name="bdJoinTipoToken"]:checked')?.value || 'classic';
         let token = '';
 
-        if (tipo === 'assisted') {
+        if (info.modo === 'shared' && info.token) {
+            token = info.token;
+        } else {
             if (window.OnboardingWizard && OnboardingWizard.estaListo()) {
                 token = OnboardingWizard.obtenerToken();
             }
             if (!token) {
-                setMsg('❌ Completa el asistente para obtener tu token.', 'error');
-                return;
+                token = inputToken ? inputToken.value.trim() : '';
             }
-        } else {
-            token = inputToken ? inputToken.value.trim() : '';
             if (!token) {
                 setMsg('❌ Introduce tu token personal de GitHub.', 'error');
                 return;
             }
         }
 
-        // 3) Duplicados
         const yaExiste = ConfigBD.listarComunidades().some(c =>
             c.githubOwner === info.owner && c.githubRepo === info.repo
         );
@@ -289,7 +367,6 @@
             return;
         }
 
-        // 4) Ejecutar
         if (!btn) return;
 
         btn.disabled = true;
@@ -305,8 +382,9 @@
             if (!tieneAcceso) {
                 throw new Error(
                     `No tienes acceso a "${info.owner}/${info.repo}". ` +
-                    `Pídele al dueño que te agregue como colaborador en GitHub ` +
-                    `(Settings → Collaborators) y vuelve a intentar.`
+                    (info.modo === 'shared'
+                        ? 'El token del código no es válido o fue revocado. Pídele al dueño que genere uno nuevo.'
+                        : 'Pídele al dueño que te agregue como colaborador en GitHub (Settings → Collaborators) y vuelve a intentar.')
                 );
             }
 
@@ -315,7 +393,7 @@
                 token,
                 repo:      info.repo,
                 owner:     info.owner,
-                tipoToken: tipo
+                tipoToken: 'classic'
             });
 
             setMsg('✅ ¡Te uniste a la comunidad!', 'success');
@@ -363,7 +441,6 @@
                 const vista = document.querySelector(`.bd-vista[data-bdvista="${target}"]`);
                 if (vista) vista.classList.add('active');
 
-                // Limpiar estados al cambiar de vista
                 if (window.OnboardingWizard) {
                     OnboardingWizard.ocultar();
                 }
@@ -374,7 +451,6 @@
                 }
 
                 if (target === 'unirme') {
-                    // Asegurar que el paso 2 y 3 estén ocultos al entrar
                     const paso2 = document.getElementById('bdJoinPaso2');
                     const paso3 = document.getElementById('bdJoinPaso3');
                     const preview = document.getElementById('bdJoinPreview');
@@ -391,9 +467,11 @@
     }
 
     function _inicializarModal() {
-        const modal = document.getElementById('modalCompartir');
+        const modal    = document.getElementById('modalCompartir');
         const btnCerrar = document.getElementById('compartirCerrar');
         const btnCopiar = document.getElementById('compartirCopiar');
+        const checkbox  = document.getElementById('compartirIncluirToken');
+        const btnAbrirWizard = document.getElementById('bdJoinAbrirWizard');
 
         if (btnCerrar && !btnCerrar.dataset.wired) {
             btnCerrar.dataset.wired = '1';
@@ -403,10 +481,28 @@
             btnCopiar.dataset.wired = '1';
             btnCopiar.addEventListener('click', copiarCodigo);
         }
+        if (checkbox && !checkbox.dataset.wired) {
+            checkbox.dataset.wired = '1';
+            checkbox.addEventListener('change', () => {
+                _actualizarCodigoCompartir();
+                _actualizarHintCompartir();
+            });
+        }
         if (modal && !modal.dataset.wired) {
             modal.dataset.wired = '1';
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) ocultarModal();
+            });
+        }
+
+        if (btnAbrirWizard && !btnAbrirWizard.dataset.wired) {
+            btnAbrirWizard.dataset.wired = '1';
+            btnAbrirWizard.addEventListener('click', () => {
+                const slot = document.getElementById('onboardingWizardSlotJoin');
+                if (!slot || !window.OnboardingWizard) return;
+
+                slot.style.display = 'block';
+                OnboardingWizard.mostrar(slot, { modo: 'unirse' });
             });
         }
 
