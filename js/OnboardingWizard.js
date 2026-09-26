@@ -4,6 +4,14 @@
 //  Módulo autocontenido que guía al usuario paso a paso para
 //  obtener un Personal Access Token (PAT) de GitHub y validarlo.
 //
+//  IMPORTANTE: el wizard SOLO genera tokens clásicos SIN
+//  EXPIRACIÓN (expires_in=0). Esto es intencional:
+//    - El usuario objetivo no sabe de GitHub.
+//    - Un token que expira se rompe solo y el usuario no sabe
+//      por qué. Mejor uno que dure para siempre.
+//    - Si alguien quiere fine-grained (que en GitHub NO puede
+//      ser sin expiración), lo hace manual.
+//
 //  API pública:
 //    OnboardingWizard.mostrar(contenedor)  → pinta el wizard
 //    OnboardingWizard.ocultar()            → lo limpia
@@ -28,15 +36,15 @@
         VALIDAR: 'validar'
     };
 
-    const URL_TOKEN_CLASICO =
+    // URL de creación de token clásico:
+    //   - scopes=repo,read:user  → permisos necesarios
+    //   - expires_in=0           → SIN EXPIRACIÓN
+    //   - description           → texto visible en GitHub
+    const URL_TOKEN =
         'https://github.com/settings/tokens/new' +
         '?scopes=repo,read:user' +
         '&description=VicWebOs+%E2%80%94+Token+personal' +
-        '&expires_in=90';
-
-    const URL_TOKEN_FINE =
-        'https://github.com/settings/personal-access-tokens/new' +
-        '?name=VicWebOs&description=VicWebOs+Token&expires_in=90';
+        '&expires_in=0';
 
     // ------------------------------------------------------------
     //  Estado interno
@@ -46,13 +54,11 @@
     let _token = null;
     let _tokenValidado = false;
     let _usuarioGitHub = null;
-    let _tipoToken = 'classic'; // 'classic' | 'fine-grained'
 
     // ------------------------------------------------------------
     //  Helpers
     // ------------------------------------------------------------
     function _qs(sel, root = document) { return root.querySelector(sel); }
-    function _qsa(sel, root = document) { return root.querySelectorAll(sel); }
 
     function _limpiarContenedor() {
         if (_contenedor) _contenedor.innerHTML = '';
@@ -114,7 +120,7 @@
                         <span class="ow-paso-num">2</span>
                         <div class="ow-paso-texto">
                             <strong>Generar el token</strong>
-                            <span>Solo un clic, ya viene con los permisos justos.</span>
+                            <span>Solo un clic. Ya viene con los permisos justos.</span>
                         </div>
                     </div>
                     <div class="ow-paso-item">
@@ -143,9 +149,6 @@
     //  PASO 2 — Generar token
     // ------------------------------------------------------------
     function _htmlGenerar() {
-        const url = _tipoToken === 'fine-grained' ? URL_TOKEN_FINE : URL_TOKEN_CLASICO;
-        const label = _tipoToken === 'fine-grained' ? 'fine-grained' : 'clásico';
-
         return `
             <div class="ow-card">
                 <div class="ow-header-paso">
@@ -159,23 +162,10 @@
                     y copiar el código que aparece.
                 </p>
 
-                <div class="ow-tipo-selector">
-                    <button class="ow-tipo-btn ${_tipoToken === 'classic' ? 'activo' : ''}"
-                            data-ow-tipo="classic">
-                        <i data-lucide="key-round"></i>
-                        Clásico
-                    </button>
-                    <button class="ow-tipo-btn ${_tipoToken === 'fine-grained' ? 'activo' : ''}"
-                            data-ow-tipo="fine-grained">
-                        <i data-lucide="shield-check"></i>
-                        Fine-grained
-                    </button>
-                </div>
-
-                <a href="${url}" target="_blank" rel="noopener noreferrer"
+                <a href="${URL_TOKEN}" target="_blank" rel="noopener noreferrer"
                    class="ow-btn-primario ow-btn-link" data-ow-accion="abrir-github">
                     <i data-lucide="external-link"></i>
-                    Abrir GitHub y generar token ${label}
+                    Abrir GitHub y generar token
                 </a>
 
                 <div class="ow-pasos-lista ow-pasos-compacta">
@@ -189,15 +179,15 @@
                     <div class="ow-paso-item">
                         <span class="ow-paso-num">2</span>
                         <div class="ow-paso-texto">
-                            <strong>Verifica los permisos</strong>
-                            <span>Ya vienen marcados: <code>repo</code> y <code>read:user</code>.</span>
+                            <strong>Baja hasta el final del formulario</strong>
+                            <span>Ya viene todo configurado. Solo toca "Generate token".</span>
                         </div>
                     </div>
                     <div class="ow-paso-item">
                         <span class="ow-paso-num">3</span>
                         <div class="ow-paso-texto">
-                            <strong>Genera y copia</strong>
-                            <span>El token empieza con <code>ghp_</code> o <code>github_pat_</code>.</span>
+                            <strong>Copia el código que aparece</strong>
+                            <span>Empieza con <code>ghp_</code>. Guárdalo un momento, lo pegarás aquí.</span>
                         </div>
                     </div>
                 </div>
@@ -234,7 +224,7 @@
 
                 <div class="ow-input-wrapper">
                     <textarea class="ow-input-token"
-                              placeholder="ghp_xxxxxxxxxxxxxxxxxxxx o github_pat_xxxxxxxxxxxxxxxxxxxx"
+                              placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
                               rows="3"
                               spellcheck="false"
                               autocomplete="off"></textarea>
@@ -279,8 +269,8 @@
                         <span class="ow-resumen-valor">@${_escapar(nombre)}</span>
                     </div>
                     <div class="ow-resumen-item">
-                        <span class="ow-resumen-label">Tipo de token</span>
-                        <span class="ow-resumen-valor">${_tipoToken === 'fine-grained' ? 'Fine-grained' : 'Clásico'}</span>
+                        <span class="ow-resumen-label">Tipo</span>
+                        <span class="ow-resumen-valor">Clásico</span>
                     </div>
                 </div>
 
@@ -304,15 +294,14 @@
     function _bindEventosPaso() {
         if (!_contenedor) return;
 
-        // Acciones generales
         _contenedor.querySelectorAll('[data-ow-accion]').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 const accion = btn.dataset.owAccion;
 
-                // ⚠️ IMPORTANTE: los <a> con href deben seguir su curso natural.
-                // Solo hacemos preventDefault para los botones que manejan pasos.
+                // ⚠️ Los <a> con href deben seguir su curso natural.
+                // No hacemos preventDefault para el link a GitHub.
                 if (accion === 'abrir-github') {
-                    return; // Dejamos que el <a> abra GitHub en pestaña nueva
+                    return;
                 }
 
                 e.preventDefault();
@@ -343,15 +332,6 @@
             });
         });
 
-        // Selector de tipo de token (solo en PASO GENERAR)
-        _contenedor.querySelectorAll('[data-ow-tipo]').forEach(btn => {
-            btn.addEventListener('click', () => {
-                _tipoToken = btn.dataset.owTipo;
-                _renderPaso();
-            });
-        });
-
-        // Input de token
         const textarea = _qs('.ow-input-token', _contenedor);
         if (textarea) {
             textarea.addEventListener('input', () => {
@@ -506,13 +486,13 @@
             detail: {
                 token: _token,
                 usuario: _usuarioGitHub,
-                tipo: _tipoToken
+                tipo: 'classic'
             }
         }));
 
         window.__vicwebos_onboarding_token = _token;
         window.__vicwebos_onboarding_usuario = _usuarioGitHub;
-        window.__vicwebos_onboarding_tipo = _tipoToken;
+        window.__vicwebos_onboarding_tipo = 'classic';
 
         _contenedor.style.display = 'none';
     }
@@ -538,7 +518,6 @@
             _token = null;
             _tokenValidado = false;
             _usuarioGitHub = null;
-            _tipoToken = 'classic';
 
             _renderPaso();
         },
@@ -562,8 +541,9 @@
             return _usuarioGitHub;
         },
 
+        // El wizard solo genera tokens clásicos, sin expiración.
         obtenerTipo() {
-            return _tipoToken;
+            return 'classic';
         },
 
         reset() {
@@ -571,7 +551,6 @@
             _token = null;
             _tokenValidado = false;
             _usuarioGitHub = null;
-            _tipoToken = 'classic';
             _renderPaso();
         }
     };
