@@ -2479,3 +2479,489 @@ body {
         font-size: 12px;
     }
 }
+
+/* ================================================================
+   ONBOARDING WIZARD — Estilos del asistente de token
+   ----------------------------------------------------------------
+   Este bloque se añade al final de style.css.
+   Usa variables de tema para ser 100% compatible.
+   ================================================================ */
+
+/* --- Contenedor principal del wizard --- */
+#onboardingWizardSlot {
+    animation: owFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes owFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.ow-wrapper {
+    width: 100%;
+}
+
+/* --- Card del wizard --- */
+.ow-card {
+    background: var(--white, #FFFFFF);
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: var(--r-lg, 16px);
+    padding: 24px;
+    box-shadow: var(--shadow-md, 0 4px 12px rgba(24,24,27,0.06));
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transition: var(--t, 0.22s cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+/* --- Icono hero (bienvenida) --- */
+.ow-icono-hero {
+    width: 64px;
+    height: 64px;
+    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 8px 20px var(--accent-shadow, rgba(139,92,246,0.28));
+    margin: 0 auto 4px;
+}
+.ow-icono-hero [data-lucide] {
+    width: 32px;
+    height: 32px;
+    stroke-width: 2;
+}
+
+/* --- Título y descripción --- */
+.ow-titulo {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--gray-900, #18181B);
+    letter-spacing: -0.02em;
+    text-align: center;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.ow-desc {
+    font-size: 13.5px;
+    color: var(--gray-500, #71717A);
+    line-height: 1.6;
+    text-align: center;
+    margin: 0;
+}
+
+.ow-desc strong {
+    color: var(--gray-700, #3F3F46);
+    font-weight: 800;
+}
+
+.ow-desc code {
+    background: var(--violet-50, #F5F3FF);
+    color: var(--violet-700, #6D28D9);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: 'SF Mono', Monaco, Consolas, monospace;
+}
+
+/* --- Lista de pasos --- */
+.ow-pasos-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.ow-pasos-compacta {
+    gap: 10px;
+}
+
+.ow-paso-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.ow-paso-num {
+    width: 28px;
+    height: 28px;
+    background: var(--violet-100, #EDE9FE);
+    color: var(--violet-700, #6D28D9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 900;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.ow-paso-texto {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+.ow-paso-texto strong {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--gray-800, #27272A);
+    letter-spacing: -0.01em;
+}
+.ow-paso-texto span {
+    font-size: 12.5px;
+    color: var(--gray-500, #71717A);
+    line-height: 1.45;
+}
+
+/* --- Header de paso (generar, pegar) --- */
+.ow-header-paso {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: center;
+}
+
+.ow-paso-indicador {
+    font-size: 10.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--violet-600, #7C3AED);
+    background: var(--violet-50, #F5F3FF);
+    padding: 3px 12px;
+    border-radius: var(--r-full, 999px);
+    align-self: center;
+    border: 1px solid var(--violet-200, #DDD6FE);
+}
+
+/* --- Selector de tipo de token --- */
+.ow-tipo-selector {
+    display: flex;
+    gap: 8px;
+    background: var(--gray-100, #F4F4F7);
+    padding: 4px;
+    border-radius: var(--r-md, 12px);
+}
+
+.ow-tipo-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 10px 12px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gray-600, #52525B);
+    cursor: pointer;
+    transition: var(--t-fast, 0.15s cubic-bezier(0.4, 0, 0.2, 1));
+}
+.ow-tipo-btn [data-lucide] {
+    width: 14px;
+    height: 14px;
+}
+.ow-tipo-btn:hover {
+    color: var(--gray-900, #18181B);
+}
+.ow-tipo-btn.activo {
+    background: var(--white, #FFFFFF);
+    color: var(--violet-700, #6D28D9);
+    box-shadow: var(--shadow-xs, 0 1px 2px rgba(24,24,27,0.04));
+}
+.ow-tipo-btn.activo [data-lucide] {
+    color: var(--violet-600, #7C3AED);
+}
+
+/* --- Botones --- */
+.ow-btn-primario {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: var(--r-md, 12px);
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: white;
+    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
+    transition: var(--t, 0.22s cubic-bezier(0.4, 0, 0.2, 1));
+    text-decoration: none;
+    width: 100%;
+}
+.ow-btn-primario [data-lucide] {
+    width: 16px;
+    height: 16px;
+}
+.ow-btn-primario:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px var(--accent-shadow-hover, rgba(139,92,246,0.38));
+}
+.ow-btn-primario:active {
+    transform: translateY(0);
+}
+.ow-btn-primario:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.ow-btn-link {
+    text-decoration: none;
+}
+
+.ow-btn-secundario {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: var(--r-md, 12px);
+    font-size: 13.5px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    background: var(--white, #FFFFFF);
+    color: var(--gray-700, #3F3F46);
+    transition: var(--t-fast, 0.15s cubic-bezier(0.4, 0, 0.2, 1));
+    width: auto;
+}
+.ow-btn-secundario [data-lucide] {
+    width: 15px;
+    height: 15px;
+}
+.ow-btn-secundario:hover {
+    background: var(--gray-100, #F4F4F7);
+    border-color: var(--gray-300, #D4D4DD);
+}
+
+/* --- Navegación entre pasos --- */
+.ow-acciones-nav {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.ow-acciones-nav .ow-btn-primario {
+    width: auto;
+    flex: 1;
+}
+
+/* --- Nota al pie (bienvenida) --- */
+.ow-nota {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: var(--gray-500, #71717A);
+    font-weight: 600;
+    text-align: center;
+    margin: 0;
+    padding-top: 4px;
+    border-top: 1px solid var(--gray-100, #F4F4F7);
+}
+.ow-nota [data-lucide] {
+    width: 13px;
+    height: 13px;
+    color: var(--violet-500, #8B5CF6);
+    flex-shrink: 0;
+}
+
+/* --- Input de token --- */
+.ow-input-wrapper {
+    width: 100%;
+}
+
+.ow-input-token {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: var(--r-md, 12px);
+    font-size: 13px;
+    font-family: 'SF Mono', Monaco, Consolas, monospace;
+    font-weight: 600;
+    background: var(--gray-50, #FAFAFB);
+    color: var(--text, #18181B);
+    resize: vertical;
+    min-height: 70px;
+    transition: var(--t, 0.22s cubic-bezier(0.4, 0, 0.2, 1));
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+}
+.ow-input-token:focus {
+    outline: none;
+    border-color: var(--violet-400, #A78BFA);
+    box-shadow: var(--shadow-glow, 0 0 0 4px rgba(139,92,246,0.10));
+    background: var(--white, #FFFFFF);
+}
+.ow-input-token::placeholder {
+    color: var(--gray-400, #A1A1AD);
+    font-weight: 500;
+    letter-spacing: 0;
+}
+
+/* --- Mensajes de error/éxito --- */
+.ow-error-msg,
+.ow-exito-msg {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: var(--r-md, 12px);
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.45;
+    animation: owFadeIn 0.2s ease;
+}
+.ow-error-msg [data-lucide],
+.ow-exito-msg [data-lucide] {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.ow-error-msg {
+    background: #FEF2F2;
+    color: #991B1B;
+    border: 1px solid #FECACA;
+}
+.ow-error-msg [data-lucide] {
+    color: #DC2626;
+}
+
+.ow-exito-msg {
+    background: #ECFDF5;
+    color: #065F46;
+    border: 1px solid #A7F3D0;
+}
+.ow-exito-msg [data-lucide] {
+    color: #10B981;
+}
+
+/* --- Card de éxito (validación) --- */
+.ow-card-exito {
+    border-color: var(--violet-300, #C4B5FD);
+    background: linear-gradient(135deg, var(--white, #FFFFFF) 0%, var(--violet-50, #F5F3FF) 100%);
+    box-shadow: 0 8px 24px var(--accent-shadow, rgba(139,92,246,0.15));
+}
+
+.ow-icono-exito {
+    width: 72px;
+    height: 72px;
+    background: linear-gradient(135deg, #10B981, #059669);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin: 0 auto;
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35);
+    animation: owPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.ow-icono-exito [data-lucide] {
+    width: 36px;
+    height: 36px;
+    stroke-width: 2.5;
+}
+
+@keyframes owPop {
+    from { transform: scale(0.6); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+
+/* --- Resumen de validación --- */
+.ow-resumen {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px 16px;
+    background: var(--white, #FFFFFF);
+    border: 1px solid var(--violet-200, #DDD6FE);
+    border-radius: var(--r-md, 12px);
+}
+
+.ow-resumen-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.ow-resumen-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gray-500, #71717A);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.ow-resumen-valor {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--violet-700, #6D28D9);
+    font-family: 'SF Mono', Monaco, Consolas, monospace;
+    letter-spacing: 0.02em;
+}
+
+/* --- Responsive --- */
+@media (max-width: 480px) {
+    .ow-card {
+        padding: 18px;
+        gap: 14px;
+    }
+    .ow-titulo {
+        font-size: 18px;
+    }
+    .ow-desc {
+        font-size: 13px;
+    }
+    .ow-icono-hero {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+    }
+    .ow-icono-hero [data-lucide] {
+        width: 28px;
+        height: 28px;
+    }
+    .ow-icono-exito {
+        width: 60px;
+        height: 60px;
+    }
+    .ow-icono-exito [data-lucide] {
+        width: 30px;
+        height: 30px;
+    }
+    .ow-btn-primario {
+        padding: 11px 20px;
+        font-size: 13.5px;
+    }
+    .ow-btn-secundario {
+        padding: 9px 16px;
+        font-size: 13px;
+    }
+    .ow-acciones-nav {
+        flex-direction: column-reverse;
+        gap: 8px;
+    }
+    .ow-acciones-nav .ow-btn-primario,
+    .ow-acciones-nav .ow-btn-secundario {
+        width: 100%;
+    }
+}
