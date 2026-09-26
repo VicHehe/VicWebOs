@@ -42,10 +42,11 @@
         UNIRSE: 'unirse'
     };
 
-    const URL_TOKEN =
+        const URL_TOKEN =
         'https://github.com/settings/tokens/new' +
         '?scopes=repo,read:user' +
-        '&description=VicWebOs+%E2%80%94+Token+personal';
+        '&description=VicWebOs+%E2%80%94+Token+personal' +
+        '&default_expires_at=none';
 
     let _contenedor = null;
     let _pasoActual = PASOS.BIENVENIDA;
