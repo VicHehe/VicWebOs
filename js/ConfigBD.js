@@ -11,7 +11,7 @@
 //        [id]: {
 //          id, nombre,
 //          githubToken, githubRepo, githubOwner,
-//          tipoToken: 'classic' | 'fine-grained',
+//          tipoToken: 'classic' | 'fine-grained' | 'assisted',
 //          conectado: bool,
 //          creada: ISO
 //        }
@@ -111,6 +111,14 @@ function guardarConfigBD(config) {
     if (config.githubOwner !== undefined)     com.githubOwner = config.githubOwner;
     if (config.githubConectado !== undefined) com.conectado = config.githubConectado;
     guardarComunidades(data);
+}
+
+// ------------------------------------------------------------
+//  Traducción de tipo de token: 'assisted' → 'classic'
+//  (internamente el flujo de API es el mismo)
+// ------------------------------------------------------------
+function tipoTokenEfectivo(tipo) {
+    return tipo === 'assisted' ? 'classic' : tipo;
 }
 
 // ============================================================
@@ -301,10 +309,11 @@ function esperar(ms) {
 
 // ------------------------------------------------------------
 //  Conectar a GitHub. Según tipo de token:
-//  - classic      → si el repo no existe, lo crea (privado)
-//  - fine-grained → el repo DEBE existir previamente
+//  - classic / assisted → si el repo no existe, lo crea (privado)
+//  - fine-grained       → el repo DEBE existir previamente
 // ------------------------------------------------------------
 async function conectarGitHub(token, nombreRepo, tipoToken = 'classic') {
+    const tipoEfectivo = tipoTokenEfectivo(tipoToken);
     const usuario = await ghObtenerUsuario(token);
     const owner = usuario.login;
     const existe = await ghRepoExiste(token, owner, nombreRepo);
@@ -312,7 +321,7 @@ async function conectarGitHub(token, nombreRepo, tipoToken = 'classic') {
     let creadoAhora = false;
 
     if (!existe) {
-        if (tipoToken === 'fine-grained') {
+        if (tipoEfectivo === 'fine-grained') {
             throw new Error(`Con token fine-grained el repositorio "${nombreRepo}" debe existir ya en tu cuenta. Créalo en github.com/new y vuelve a intentar.`);
         }
         await ghCrearRepo(token, nombreRepo);
@@ -566,6 +575,7 @@ window.leerComunidades = leerComunidades;
 window.guardarComunidades = guardarComunidades;
 window.obtenerComunidadActiva = obtenerComunidadActiva;
 window.obtenerComunidadPorId = obtenerComunidadPorId;
+window.tipoTokenEfectivo = tipoTokenEfectivo;
 
 // ============================================================
 //  UI: SECCIÓN "COMUNIDADES"
@@ -610,7 +620,7 @@ function renderComunidadesUI() {
             </div>
             <div class="bd-comunidad-info">
                 <h4>${escaparHTML(com.nombre || com.githubRepo)}</h4>
-                <p>@${escaparHTML(com.githubOwner)}/${escaparHTML(com.githubRepo)} · ${com.tipoToken === 'fine-grained' ? 'Fine-grained' : 'Clásico'}</p>
+                <p>@${escaparHTML(com.githubOwner)}/${escaparHTML(com.githubRepo)} · ${_etiquetaTipo(com.tipoToken)}</p>
             </div>
             <div class="bd-comunidad-acciones">
                 ${!activa ? `<button class="bd-accion" data-accion="activar" data-id="${com.id}" title="Activar esta comunidad"><i data-lucide="power"></i></button>` : ''}
@@ -644,6 +654,12 @@ function renderComunidadesUI() {
     });
 }
 
+function _etiquetaTipo(tipo) {
+    if (tipo === 'fine-grained') return 'Fine-grained';
+    if (tipo === 'assisted') return 'Asistido';
+    return 'Clásico';
+}
+
 function abrirFormularioComunidad(id = null) {
     _editandoId = id;
     const form = document.getElementById('bdFormulario');
@@ -656,8 +672,15 @@ function abrirFormularioComunidad(id = null) {
     const ayudaToken  = document.getElementById('bdTokenAyuda');
     const ayudaRepo   = document.getElementById('bdRepoAyuda');
     const status      = document.getElementById('bdFormStatus');
+    const wizardSlot  = document.getElementById('onboardingWizardSlot');
 
     if (status) { status.textContent = ''; status.className = 'config-status'; }
+
+    // Ocultar wizard si estaba visible
+    if (wizardSlot) {
+        wizardSlot.style.display = 'none';
+        if (window.OnboardingWizard) OnboardingWizard.ocultar();
+    }
 
     if (id) {
         const com = ConfigBD.obtenerComunidadPorId(id);
@@ -666,8 +689,12 @@ function abrirFormularioComunidad(id = null) {
         inputNombre.value = com.nombre || '';
         inputToken.value = com.githubToken || '';
         inputRepo.value = com.githubRepo || '';
-        radios.forEach(r => { r.checked = r.value === (com.tipoToken || 'classic'); });
+        // Mapear 'assisted' a 'classic' para los radios
+        const tipoRadio = com.tipoToken === 'assisted' ? 'classic' : (com.tipoToken || 'classic');
+        radios.forEach(r => { r.checked = r.value === tipoRadio; });
         guardarTxt.textContent = 'Guardar cambios';
+        // Al editar, no mostrar el wizard (ya tiene token)
+        if (inputToken.parentElement) inputToken.parentElement.style.display = 'block';
     } else {
         titulo.textContent = 'Nueva comunidad';
         inputNombre.value = '';
@@ -675,6 +702,7 @@ function abrirFormularioComunidad(id = null) {
         inputRepo.value = '';
         radios.forEach(r => { r.checked = r.value === 'classic'; });
         guardarTxt.textContent = 'Conectar';
+        if (inputToken.parentElement) inputToken.parentElement.style.display = 'block';
     }
 
     actualizarAyudaToken();
@@ -686,13 +714,45 @@ function cerrarFormularioComunidad() {
     _editandoId = null;
     const form = document.getElementById('bdFormulario');
     if (form) form.style.display = 'none';
+    if (window.OnboardingWizard) OnboardingWizard.ocultar();
 }
 
 function actualizarAyudaToken() {
     const tipo = document.querySelector('input[name="bdTipoToken"]:checked')?.value || 'classic';
     const ayudaToken = document.getElementById('bdTokenAyuda');
     const ayudaRepo  = document.getElementById('bdRepoAyuda');
+    const inputToken = document.getElementById('bdToken');
+    const wizardSlot = document.getElementById('onboardingWizardSlot');
+
     if (!ayudaToken || !ayudaRepo) return;
+
+    // --- Modo asistido: mostrar wizard, ocultar input manual ---
+    if (tipo === 'assisted') {
+        if (inputToken && inputToken.parentElement) {
+            inputToken.parentElement.style.display = 'none';
+        }
+        if (ayudaToken) ayudaToken.style.display = 'none';
+        if (wizardSlot) {
+            wizardSlot.style.display = 'block';
+            if (window.OnboardingWizard) {
+                OnboardingWizard.mostrar(wizardSlot);
+            }
+        }
+        if (ayudaRepo) {
+            ayudaRepo.textContent = 'Si no existe, se creará automáticamente como privado.';
+        }
+        return;
+    }
+
+    // --- Modo manual: ocultar wizard, mostrar input ---
+    if (wizardSlot) {
+        wizardSlot.style.display = 'none';
+        if (window.OnboardingWizard) OnboardingWizard.ocultar();
+    }
+    if (inputToken && inputToken.parentElement) {
+        inputToken.parentElement.style.display = 'block';
+    }
+    if (ayudaToken) ayudaToken.style.display = 'block';
 
     if (tipo === 'classic') {
         ayudaToken.innerHTML = 'Créalo en <code>github.com/settings/tokens</code> con scope <code>repo</code>.';
@@ -750,7 +810,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnGuardar) {
         btnGuardar.addEventListener('click', async () => {
             const nombre = document.getElementById('bdNombreComunidad').value.trim();
-            const token  = document.getElementById('bdToken').value.trim();
             const repo   = document.getElementById('bdRepo').value.trim();
             const tipo   = document.querySelector('input[name="bdTipoToken"]:checked')?.value || 'classic';
             const status = document.getElementById('bdFormStatus');
@@ -760,7 +819,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 status.className = 'config-status ' + (tipoClase || '');
             };
 
-            if (!token) { setMsg('❌ Introduce tu token personal.', 'error'); return; }
+            // --- Obtener token según el tipo ---
+            let token = '';
+
+            if (tipo === 'assisted') {
+                // El token viene del wizard
+                if (window.OnboardingWizard && OnboardingWizard.estaListo()) {
+                    token = OnboardingWizard.obtenerToken();
+                }
+                if (!token) {
+                    setMsg('❌ Completa el asistente para obtener tu token.', 'error');
+                    return;
+                }
+            } else {
+                // Token manual del input
+                token = document.getElementById('bdToken').value.trim();
+                if (!token) {
+                    setMsg('❌ Introduce tu token personal.', 'error');
+                    return;
+                }
+            }
+
             if (!repo)  { setMsg('❌ Introduce un nombre de repositorio.', 'error'); return; }
             if (!/^[a-zA-Z0-9._-]+$/.test(repo)) {
                 setMsg('❌ El nombre solo puede tener letras, números, puntos, guiones y guiones bajos.', 'error');
