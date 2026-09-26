@@ -396,10 +396,21 @@
                                             <span>Más seguro, permiso solo en repos concretos. El repo debe existir ya.</span>
                                         </div>
                                     </label>
+                                    <label class="bd-token-opcion">
+                                        <input type="radio" name="bdTipoToken" value="assisted">
+                                        <div class="bd-token-card">
+                                            <i data-lucide="wand-2"></i>
+                                            <strong>Asistido</strong>
+                                            <span>Te guiamos paso a paso. Ideal si nunca creaste un token.</span>
+                                        </div>
+                                    </label>
                                 </div>
                             </div>
 
-                            <div class="config-field">
+                            <!-- Slot para el wizard de onboarding -->
+                            <div id="onboardingWizardSlot" style="display:none; margin-bottom: 20px;"></div>
+
+                            <div class="config-field" id="bdTokenField">
                                 <label>Token personal</label>
                                 <input type="password" id="bdToken" placeholder="ghp_... o github_pat_..." autocomplete="off">
                                 <p class="config-help" id="bdTokenAyuda">Créalo en <code>github.com/settings/tokens</code> con scope <code>repo</code>.</p>
@@ -698,6 +709,7 @@
     <script src="js/ConfigBD.binarios.js"></script>
     <script src="js/MasterHad.js"></script>
     <script src="js/Cuenta.js"></script>
+    <script src="js/OnboardingWizard.js"></script>
     <script src="Logros/JsLogros1.js"></script>
     <script src="Logros/JsLogros2.js"></script>
     <script src="Logros/chequeo.js"></script>
