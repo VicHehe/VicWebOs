@@ -358,9 +358,7 @@
                             </button>
                         </div>
 
-                        <!-- ============================================ -->
-                        <!-- VISTA: MIS COMUNIDADES                        -->
-                        <!-- ============================================ -->
+                        <!-- ============ VISTA: MIS COMUNIDADES ============ -->
                         <div class="bd-vista active" data-bdvista="mias">
                             <div class="config-info-box">
                                 <i data-lucide="info"></i>
@@ -374,6 +372,7 @@
                                 Crear nueva comunidad
                             </button>
 
+                            <!-- Formulario (crear/editar) -->
                             <div id="bdFormulario" class="bd-formulario" style="display:none;">
                                 <div class="bd-formulario-header">
                                     <h4 id="bdFormularioTitulo">Nueva comunidad</h4>
@@ -382,69 +381,81 @@
                                     </button>
                                 </div>
 
+                                <!-- PASO 1: Nombre -->
                                 <div class="config-field">
-                                    <label>Nombre de la comunidad</label>
-                                    <input type="text" id="bdNombreComunidad" placeholder="Ej: Mi pareja" maxlength="40">
+                                    <label>1. Ponle un nombre a tu comunidad</label>
+                                    <input type="text" id="bdNombreComunidad" placeholder="Ej: Mi pareja, Amigos del barrio..." maxlength="40">
                                     <p class="config-help">Solo para identificarla en la lista. No afecta al repositorio.</p>
                                 </div>
 
+                                <div class="config-field" style="display:none;" id="bdRepoField">
+                                    <label>Nombre del repositorio</label>
+                                    <input type="text" id="bdRepo" placeholder="vicwebos-...">
+                                    <p class="config-help">Se autogenera a partir del nombre. Puedes cambiarlo.</p>
+                                    <button type="button" class="bd-link-config" id="bdEditarRepo">
+                                        <i data-lucide="pencil"></i>
+                                        Cambiar nombre del repositorio
+                                    </button>
+                                </div>
+
+                                <!-- PASO 2: Método -->
                                 <div class="config-field">
-                                    <label>¿Cómo quieres autenticarte?</label>
-                                    <div class="bd-token-opciones">
-                                        <label class="bd-token-opcion">
-                                            <input type="radio" name="bdTipoToken" value="classic" checked>
-                                            <div class="bd-token-card">
-                                                <span class="bd-token-radio" aria-hidden="true"></span>
-                                                <div class="bd-token-cuerpo">
-                                                    <div class="bd-token-cabecera">
-                                                        <i data-lucide="key-round"></i>
-                                                        <strong>Pegar mi token</strong>
-                                                    </div>
-                                                    <p class="bd-token-desc">Ya tengo un token clásico de GitHub. Lo pego y listo.</p>
-                                                </div>
-                                            </div>
-                                        </label>
-                                        <label class="bd-token-opcion">
-                                            <input type="radio" name="bdTipoToken" value="fine-grained">
-                                            <div class="bd-token-card">
-                                                <span class="bd-token-radio" aria-hidden="true"></span>
-                                                <div class="bd-token-cuerpo">
-                                                    <div class="bd-token-cabecera">
-                                                        <i data-lucide="shield-check"></i>
-                                                        <strong>Token fine-grained</strong>
-                                                    </div>
-                                                    <p class="bd-token-desc">Más seguro. El repositorio debe existir ya en tu cuenta.</p>
-                                                </div>
-                                            </div>
-                                        </label>
-                                        <label class="bd-token-opcion">
-                                            <input type="radio" name="bdTipoToken" value="assisted">
-                                            <div class="bd-token-card">
-                                                <span class="bd-token-radio" aria-hidden="true"></span>
-                                                <div class="bd-token-cuerpo">
-                                                    <div class="bd-token-cabecera">
+                                    <label>2. ¿Cómo quieres autenticarte?</label>
+                                    <div class="bd-metodo-opciones">
+                                        <label class="bd-metodo-opcion">
+                                            <input type="radio" name="bdMetodo" value="sencillo" checked>
+                                            <div class="bd-metodo-card">
+                                                <span class="bd-metodo-radio" aria-hidden="true"></span>
+                                                <div class="bd-metodo-cuerpo">
+                                                    <div class="bd-metodo-cabecera">
                                                         <i data-lucide="wand-2"></i>
-                                                        <strong>No tengo token, guíame</strong>
+                                                        <strong>Sencillo</strong>
                                                     </div>
-                                                    <p class="bd-token-desc">Te llevamos paso a paso para crear uno sin complicaciones.</p>
+                                                    <p class="bd-metodo-desc">Te guiamos paso a paso. Token <strong>sin expiración</strong>.</p>
+                                                </div>
+                                            </div>
+                                        </label>
+                                        <label class="bd-metodo-opcion">
+                                            <input type="radio" name="bdMetodo" value="seguro">
+                                            <div class="bd-metodo-card">
+                                                <span class="bd-metodo-radio" aria-hidden="true"></span>
+                                                <div class="bd-metodo-cuerpo">
+                                                    <div class="bd-metodo-cabecera">
+                                                        <i data-lucide="shield-check"></i>
+                                                        <strong>Seguro</strong>
+                                                    </div>
+                                                    <p class="bd-metodo-desc">Token fine-grained con permisos mínimos. Puede expirar en 1 año.</p>
                                                 </div>
                                             </div>
                                         </label>
                                     </div>
                                 </div>
 
+                                <!-- Slot del wizard (para método sencillo) -->
                                 <div id="onboardingWizardSlot" style="display:none; margin-bottom: 20px;"></div>
 
-                                <div class="config-field" id="bdTokenField">
-                                    <label>Token personal</label>
-                                    <input type="password" id="bdToken" placeholder="ghp_... o github_pat_..." autocomplete="off">
-                                    <p class="config-help" id="bdTokenAyuda">Créalo en <code>github.com/settings/tokens</code> con scope <code>repo</code>.</p>
+                                <!-- Token manual (para método seguro) -->
+                                <div class="config-field" id="bdTokenField" style="display:none;">
+                                    <label>Pega tu token fine-grained</label>
+                                    <input type="password" id="bdToken" placeholder="github_pat_..." autocomplete="off">
+                                    <p class="config-help" id="bdTokenAyuda">Créalo en <code>github.com/settings/personal-access-tokens</code> con permisos <code>Contents: R/W</code> y <code>Administration: R/W</code>.</p>
                                 </div>
 
-                                <div class="config-field">
-                                    <label>Nombre del repositorio</label>
-                                    <input type="text" id="bdRepo" placeholder="vicwebos-data">
-                                    <p class="config-help" id="bdRepoAyuda">Si no existe, se creará automáticamente como privado.</p>
+                                <!-- Resumen -->
+                                <div class="bd-resumen" id="bdResumen" style="display:none;">
+                                    <div class="bd-resumen-titulo">Estás creando:</div>
+                                    <div class="bd-resumen-linea">
+                                        <i data-lucide="package"></i>
+                                        <span id="bdResumenNombre">—</span>
+                                    </div>
+                                    <div class="bd-resumen-linea">
+                                        <i data-lucide="user"></i>
+                                        <span id="bdResumenUsuario">@—</span>
+                                    </div>
+                                    <div class="bd-resumen-linea">
+                                        <i data-lucide="folder"></i>
+                                        <span id="bdResumenRepo">—</span>
+                                    </div>
                                 </div>
 
                                 <div class="bd-formulario-acciones">
@@ -458,16 +469,13 @@
                             </div>
                         </div>
 
-                        <!-- ============================================ -->
-                        <!-- VISTA: UNIRME A UNA                          -->
-                        <!-- ============================================ -->
+                        <!-- ============ VISTA: UNIRME A UNA ============ -->
                         <div class="bd-vista" data-bdvista="unirme">
                             <div class="config-info-box">
                                 <i data-lucide="mail"></i>
                                 <span>Pídele a alguien de la comunidad su <strong>código de invitación</strong> y pégalo abajo. Te conectarás automáticamente a su repositorio.</span>
                             </div>
 
-                            <!-- PASO 1: Código -->
                             <div class="bd-join-paso-card">
                                 <div class="bd-join-paso-header">
                                     <span class="bd-join-paso-num">1</span>
@@ -480,30 +488,6 @@
                                 <div id="bdJoinPreview" class="bd-join-preview" style="display:none;"></div>
                             </div>
 
-                            <!-- PASO 2: Token (solo si el código NO lo trae) -->
-                            <div class="bd-join-paso-card" id="bdJoinPaso2" style="display:none;">
-                                <div class="bd-join-paso-header">
-                                    <span class="bd-join-paso-num">2</span>
-                                    <div class="bd-join-paso-info">
-                                        <strong>Tu token de GitHub</strong>
-                                        <span>Pega tu token personal para autenticarte.</span>
-                                    </div>
-                                </div>
-
-                                <div class="config-field" id="bdJoinTokenField" style="margin-top: 4px;">
-                                    <input type="password" id="bdJoinToken" placeholder="ghp_... o github_pat_..." autocomplete="off">
-                                    <p class="config-help" id="bdJoinTokenAyuda">Tu token debe tener scope <code>repo</code> y acceso al repositorio de la comunidad.</p>
-                                </div>
-
-                                <button type="button" class="bd-join-link-wizard" id="bdJoinAbrirWizard">
-                                    <i data-lucide="wand-2"></i>
-                                    ¿No tenés token? Creálo paso a paso →
-                                </button>
-
-                                <div id="onboardingWizardSlotJoin" style="display:none; margin-top: 16px;"></div>
-                            </div>
-
-                            <!-- PASO FINAL: Unirme -->
                             <div class="bd-join-paso-card" id="bdJoinPaso3" style="display:none;">
                                 <div class="bd-join-paso-header">
                                     <span class="bd-join-paso-num">
