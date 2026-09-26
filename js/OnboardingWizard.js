@@ -4,17 +4,14 @@
 //  Módulo autocontenido que guía al usuario paso a paso para
 //  obtener un Personal Access Token (PAT) de GitHub y validarlo.
 //
-//  IMPORTANTE: el wizard SOLO genera tokens clásicos. Se fuerza
-//  al usuario a elegir "No expiration" con un PASO DE AVISO
-//  crítico antes de abrir GitHub, porque si no el token muere
-//  en 30 días y el usuario no entiende por qué.
-//
-//  GitHub NO acepta `no_expiration=true` por URL — hay que
-//  marcar el campo a mano. Por eso el aviso es bloqueante.
+//  IMPORTANTE: el wizard SOLO genera tokens clásicos SIN
+//  EXPIRACIÓN. GitHub respeta `default_expires_at=none` en la
+//  URL del formulario, así que la opción "No expiration" ya
+//  viene pre-seleccionada cuando el usuario abre GitHub.
 //
 //  MODOS:
 //    - 'crear'  → el usuario está creando una comunidad nueva.
-//    - 'unirse' → el usuario se está uniendo a una existente.
+//    - 'unirse' → el usuario está uniéndose a una existente.
 //
 //  API pública:
 //    OnboardingWizard.mostrar(contenedor, { modo })
@@ -31,7 +28,6 @@
 
     const PASOS = {
         BIENVENIDA: 'bienvenida',
-        AVISO:      'aviso',
         GENERAR:    'generar',
         PEGAR:      'pegar',
         VALIDAR:    'validar'
@@ -42,7 +38,11 @@
         UNIRSE: 'unirse'
     };
 
-        const URL_TOKEN =
+    // URL del formulario de token clásico:
+    //   - scopes=repo,read:user    → permisos necesarios
+    //   - default_expires_at=none  → "No expiration" pre-seleccionado
+    //   - description              → texto visible en GitHub
+    const URL_TOKEN =
         'https://github.com/settings/tokens/new' +
         '?scopes=repo,read:user' +
         '&description=VicWebOs+%E2%80%94+Token+personal' +
@@ -72,7 +72,6 @@
 
         switch (_pasoActual) {
             case PASOS.BIENVENIDA: wrapper.innerHTML = _htmlBienvenida(); break;
-            case PASOS.AVISO:      wrapper.innerHTML = _htmlAviso();      break;
             case PASOS.GENERAR:    wrapper.innerHTML = _htmlGenerar();    break;
             case PASOS.PEGAR:      wrapper.innerHTML = _htmlPegar();      break;
             case PASOS.VALIDAR:    wrapper.innerHTML = _htmlValidar();    break;
@@ -91,8 +90,8 @@
         const esUnirse = _modo === MODOS.UNIRSE;
 
         const intro = esUnirse
-            ? 'Te guiaremos para generar un <strong>token de GitHub</strong> y usarlo para unirte a la comunidad. Son solo unos pasos y no necesitas saber programar.'
-            : 'Te guiaremos para generar un <strong>token de GitHub</strong> y conectarlo a tu comunidad. Son solo unos pasos y no necesitas saber programar.';
+            ? 'Te guiaremos para generar un <strong>token de GitHub</strong> y usarlo para unirte a la comunidad. Son solo 3 pasos y no necesitas saber programar.'
+            : 'Te guiaremos para generar un <strong>token de GitHub</strong> y conectarlo a tu comunidad. Son solo 3 pasos y no necesitas saber programar.';
 
         return `
             <div class="ow-card ow-card-bienvenida">
@@ -106,15 +105,15 @@
                     <div class="ow-paso-item">
                         <span class="ow-paso-num">1</span>
                         <div class="ow-paso-texto">
-                            <strong>Leer el aviso importante</strong>
-                            <span>Hay un detalle clave que no debes saltarte.</span>
+                            <strong>Abrir GitHub</strong>
+                            <span>Te llevamos directo al formulario correcto, ya configurado.</span>
                         </div>
                     </div>
                     <div class="ow-paso-item">
                         <span class="ow-paso-num">2</span>
                         <div class="ow-paso-texto">
-                            <strong>Abrir GitHub y generar el token</strong>
-                            <span>Ya te llevamos al formulario correcto.</span>
+                            <strong>Generar el token</strong>
+                            <span>Un clic. Ya viene con los permisos y la expiración justa.</span>
                         </div>
                     </div>
                     <div class="ow-paso-item">
@@ -140,82 +139,20 @@
     }
 
     // ------------------------------------------------------------
-    //  PASO 2 — AVISO CRÍTICO (bloqueante)
-    // ------------------------------------------------------------
-    function _htmlAviso() {
-        return `
-            <div class="ow-card">
-                <div class="ow-header-paso">
-                    <span class="ow-paso-indicador">Importante</span>
-                    <h3 class="ow-titulo">Antes de generar tu token</h3>
-                </div>
-
-                <div class="ow-aviso-critico">
-                    <div class="ow-aviso-critico-icono">
-                        <i data-lucide="alert-triangle"></i>
-                    </div>
-                    <div class="ow-aviso-critico-cuerpo">
-                        <div class="ow-aviso-critico-titulo">Cambiá la expiración a "No expiration"</div>
-                        <div class="ow-aviso-critico-texto">
-                            En la pantalla de GitHub vas a ver un campo que dice
-                            <strong>Expiration</strong>. Por defecto viene en
-                            <strong>"30 days"</strong>. Si no lo cambiás, en 30 días
-                            tu token va a dejar de funcionar y no podrás acceder a tu
-                            comunidad.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="ow-aviso-referencia">
-                    <div class="ow-aviso-referencia-label">Lo que tenés que ver:</div>
-                    <div class="ow-aviso-referencia-mock">
-                        <div class="ow-aviso-referencia-mock-fila">
-                            <i data-lucide="x-circle"></i>
-                            <span>30 days</span>
-                            <em>Mal</em>
-                        </div>
-                        <div class="ow-aviso-referencia-mock-fila ok">
-                            <i data-lucide="check-circle-2"></i>
-                            <span>No expiration</span>
-                            <em>Bien</em>
-                        </div>
-                    </div>
-                </div>
-
-                <p class="ow-desc" style="text-align:left;">
-                    Vas a ver algo así en GitHub. Tocá el menú <strong>Expiration</strong>
-                    y elegí la opción <strong>"No expiration"</strong>.
-                </p>
-
-                <div class="ow-acciones-nav">
-                    <button class="ow-btn-secundario" data-ow-accion="volver">
-                        <i data-lucide="arrow-left"></i>
-                        Volver
-                    </button>
-                    <button class="ow-btn-primario" data-ow-accion="entendido">
-                        <i data-lucide="check"></i>
-                        Entendido, continuar
-                    </button>
-                </div>
-            </div>
-        `;
-    }
-
-    // ------------------------------------------------------------
-    //  PASO 3 — Generar token
+    //  PASO 2 — Generar token
     // ------------------------------------------------------------
     function _htmlGenerar() {
         return `
             <div class="ow-card">
                 <div class="ow-header-paso">
-                    <span class="ow-paso-indicador">Genera tu token</span>
-                    <h3 class="ow-titulo">Abrí GitHub y generá el token</h3>
+                    <span class="ow-paso-indicador">Paso 2 de 3</span>
+                    <h3 class="ow-titulo">Genera tu token</h3>
                 </div>
 
                 <p class="ow-desc">
                     Hemos preparado el enlace con los permisos exactos que VicWebOs necesita.
-                    Solo tenés que abrirlo, <strong>cambiar la expiración a "No expiration"</strong>,
-                    hacer clic en <strong>"Generate token"</strong> y copiar el código.
+                    Solo tienes que abrirlo, hacer clic en <strong>"Generate token"</strong>
+                    y copiar el código que aparece.
                 </p>
 
                 <a href="${URL_TOKEN}" target="_blank" rel="noopener noreferrer"
@@ -235,15 +172,15 @@
                     <div class="ow-paso-item">
                         <span class="ow-paso-num">2</span>
                         <div class="ow-paso-texto">
-                            <strong>Cambiá "Expiration" a "No expiration"</strong>
-                            <span>Es lo más importante del formulario.</span>
+                            <strong>Verifica la expiración</strong>
+                            <span>Ya viene en <strong>"No expiration"</strong>. Si no, cambiala a mano.</span>
                         </div>
                     </div>
                     <div class="ow-paso-item">
                         <span class="ow-paso-num">3</span>
                         <div class="ow-paso-texto">
                             <strong>Baja y toca "Generate token"</strong>
-                            <span>Después copia el código que aparece.</span>
+                            <span>Después copia el código que aparece (empieza con <code>ghp_</code>).</span>
                         </div>
                     </div>
                 </div>
@@ -263,13 +200,13 @@
     }
 
     // ------------------------------------------------------------
-    //  PASO 4 — Pegar token
+    //  PASO 3 — Pegar token
     // ------------------------------------------------------------
     function _htmlPegar() {
         return `
             <div class="ow-card">
                 <div class="ow-header-paso">
-                    <span class="ow-paso-indicador">Paso final</span>
+                    <span class="ow-paso-indicador">Paso 3 de 3</span>
                     <h3 class="ow-titulo">Pega tu token</h3>
                 </div>
 
@@ -304,7 +241,7 @@
     }
 
     // ------------------------------------------------------------
-    //  PASO 5 — Validación exitosa
+    //  PASO 4 — Validación exitosa
     // ------------------------------------------------------------
     function _htmlValidar() {
         const nombre = _usuarioGitHub?.login || 'tu cuenta';
@@ -332,7 +269,7 @@
                     </div>
                     <div class="ow-resumen-item">
                         <span class="ow-resumen-label">Tipo</span>
-                        <span class="ow-resumen-valor">Clásico</span>
+                        <span class="ow-resumen-valor">Clásico · Sin expiración</span>
                     </div>
                 </div>
 
@@ -366,10 +303,6 @@
 
                 switch (accion) {
                     case 'empezar':
-                        _pasoActual = PASOS.AVISO;
-                        _renderPaso();
-                        break;
-                    case 'entendido':
                         _pasoActual = PASOS.GENERAR;
                         _renderPaso();
                         break;
@@ -398,8 +331,7 @@
 
     function _irAtras() {
         switch (_pasoActual) {
-            case PASOS.AVISO:   _pasoActual = PASOS.BIENVENIDA; break;
-            case PASOS.GENERAR: _pasoActual = PASOS.AVISO;      break;
+            case PASOS.GENERAR: _pasoActual = PASOS.BIENVENIDA; break;
             case PASOS.PEGAR:   _pasoActual = PASOS.GENERAR;    break;
             case PASOS.VALIDAR: _pasoActual = PASOS.PEGAR; _tokenValidado = false; break;
         }
