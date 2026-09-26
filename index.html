@@ -73,7 +73,6 @@
                     </button>
                 </div>
 
-                <!-- Chip de comunidad activa -->
                 <div class="sidebar-comunidad" id="sidebarComunidad" style="display:none;">
                     <div class="sidebar-comunidad-icono">
                         <i data-lucide="users"></i>
@@ -153,10 +152,8 @@
             </main>
         </div>
 
-        <!-- Overlay del drawer móvil -->
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-        <!-- Panel de notificaciones -->
         <div class="noti-panel" id="notiPanel"></div>
     </div>
 
@@ -362,7 +359,9 @@
                             </button>
                         </div>
 
-                        <!-- ============ VISTA: MIS COMUNIDADES ============ -->
+                        <!-- ============================================ -->
+                        <!-- VISTA: MIS COMUNIDADES                        -->
+                        <!-- ============================================ -->
                         <div class="bd-vista active" data-bdvista="mias">
                             <div class="config-info-box">
                                 <i data-lucide="info"></i>
@@ -392,7 +391,7 @@
                                 </div>
 
                                 <div class="config-field">
-                                    <label>Tipo de token</label>
+                                    <label>¿Cómo quieres autenticarte?</label>
                                     <div class="bd-token-opciones">
                                         <label class="bd-token-opcion">
                                             <input type="radio" name="bdTipoToken" value="classic" checked>
@@ -401,9 +400,9 @@
                                                 <div class="bd-token-cuerpo">
                                                     <div class="bd-token-cabecera">
                                                         <i data-lucide="key-round"></i>
-                                                        <strong>Clásico</strong>
+                                                        <strong>Pegar mi token</strong>
                                                     </div>
-                                                    <p class="bd-token-desc">Permite crear repositorios automáticamente. Ideal para empezar rápido.</p>
+                                                    <p class="bd-token-desc">Ya tengo un token clásico de GitHub. Lo pego y listo.</p>
                                                 </div>
                                             </div>
                                         </label>
@@ -414,9 +413,9 @@
                                                 <div class="bd-token-cuerpo">
                                                     <div class="bd-token-cabecera">
                                                         <i data-lucide="shield-check"></i>
-                                                        <strong>Fine-grained</strong>
+                                                        <strong>Token fine-grained</strong>
                                                     </div>
-                                                    <p class="bd-token-desc">Más seguro, permiso solo en repos concretos. El repo debe existir ya.</p>
+                                                    <p class="bd-token-desc">Más seguro. El repositorio debe existir ya en tu cuenta.</p>
                                                 </div>
                                             </div>
                                         </label>
@@ -427,9 +426,9 @@
                                                 <div class="bd-token-cuerpo">
                                                     <div class="bd-token-cabecera">
                                                         <i data-lucide="wand-2"></i>
-                                                        <strong>Asistido</strong>
+                                                        <strong>No tengo token, guíame</strong>
                                                     </div>
-                                                    <p class="bd-token-desc">Te guiamos paso a paso. Ideal si nunca creaste un token.</p>
+                                                    <p class="bd-token-desc">Te llevamos paso a paso para crear uno sin complicaciones.</p>
                                                 </div>
                                             </div>
                                         </label>
@@ -461,23 +460,37 @@
                             </div>
                         </div>
 
-                        <!-- ============ VISTA: UNIRME A UNA ============ -->
+                        <!-- ============================================ -->
+                        <!-- VISTA: UNIRME A UNA                          -->
+                        <!-- ============================================ -->
                         <div class="bd-vista" data-bdvista="unirme">
                             <div class="config-info-box">
                                 <i data-lucide="mail"></i>
-                                <span>Pídele a alguien de la comunidad el <strong>código de invitación</strong> y pégalo aquí. Se rellenará automáticamente a qué repositorio conectarte.</span>
+                                <span>Pídele a alguien de la comunidad su <strong>código de invitación</strong> y sigue estos 3 pasos. Te conectarás automáticamente a su repositorio.</span>
                             </div>
 
-                            <div class="config-field">
-                                <label>Código de invitación</label>
+                            <!-- PASO 1: Código de invitación -->
+                            <div class="bd-join-paso-card">
+                                <div class="bd-join-paso-header">
+                                    <span class="bd-join-paso-num">1</span>
+                                    <div class="bd-join-paso-info">
+                                        <strong>Pega el código</strong>
+                                        <span>Es un texto largo que empieza con <code>VWO1.</code></span>
+                                    </div>
+                                </div>
                                 <textarea id="bdJoinCodigo" class="bd-join-codigo-input" placeholder="VWO1.eyJ2IjoxLCJuIjoi..."></textarea>
-                                <p class="config-help">Pega el código completo que te compartieron.</p>
+                                <div id="bdJoinPreview" class="bd-join-preview" style="display:none;"></div>
                             </div>
 
-                            <div id="bdJoinPreview" class="bd-join-preview" style="display:none;"></div>
-
-                            <div class="config-field">
-                                <label>Tu tipo de token</label>
+                            <!-- PASO 2: Método de autenticación (se muestra solo si hay código válido) -->
+                            <div class="bd-join-paso-card" id="bdJoinPaso2" style="display:none;">
+                                <div class="bd-join-paso-header">
+                                    <span class="bd-join-paso-num">2</span>
+                                    <div class="bd-join-paso-info">
+                                        <strong>¿Cómo te autenticas?</strong>
+                                        <span>Elige cómo conectar tu cuenta de GitHub.</span>
+                                    </div>
+                                </div>
                                 <div class="bd-token-opciones">
                                     <label class="bd-token-opcion">
                                         <input type="radio" name="bdJoinTipoToken" value="classic" checked>
@@ -486,9 +499,9 @@
                                             <div class="bd-token-cuerpo">
                                                 <div class="bd-token-cabecera">
                                                     <i data-lucide="key-round"></i>
-                                                    <strong>Clásico</strong>
+                                                    <strong>Pegar mi token</strong>
                                                 </div>
-                                                <p class="bd-token-desc">Token con scope <code>repo</code>. Debes ser colaborador del repo si es privado.</p>
+                                                <p class="bd-token-desc">Ya tengo un token clásico con scope <code>repo</code>.</p>
                                             </div>
                                         </div>
                                     </label>
@@ -499,9 +512,9 @@
                                             <div class="bd-token-cuerpo">
                                                 <div class="bd-token-cabecera">
                                                     <i data-lucide="shield-check"></i>
-                                                    <strong>Fine-grained</strong>
+                                                    <strong>Token fine-grained</strong>
                                                 </div>
-                                                <p class="bd-token-desc">Token con permiso <code>Contents: R/W</code> sobre el repo de la comunidad.</p>
+                                                <p class="bd-token-desc">Token con permiso <code>Contents: Read & Write</code> sobre el repo.</p>
                                             </div>
                                         </div>
                                     </label>
@@ -512,28 +525,38 @@
                                             <div class="bd-token-cuerpo">
                                                 <div class="bd-token-cabecera">
                                                     <i data-lucide="wand-2"></i>
-                                                    <strong>Asistido</strong>
+                                                    <strong>No tengo token, guíame</strong>
                                                 </div>
-                                                <p class="bd-token-desc">Te guiamos paso a paso para crear el token.</p>
+                                                <p class="bd-token-desc">Te llevamos paso a paso para crear uno.</p>
                                             </div>
                                         </div>
                                     </label>
                                 </div>
+
+                                <div id="onboardingWizardSlotJoin" style="display:none; margin-top: 16px;"></div>
+
+                                <div class="config-field" id="bdJoinTokenField" style="margin-top: 16px;">
+                                    <label>Tu token personal</label>
+                                    <input type="password" id="bdJoinToken" placeholder="ghp_... o github_pat_..." autocomplete="off">
+                                    <p class="config-help" id="bdJoinTokenAyuda">Tu token debe tener scope <code>repo</code> y acceso al repositorio de la comunidad.</p>
+                                </div>
                             </div>
 
-                            <div id="onboardingWizardSlotJoin" style="display:none; margin-bottom: 20px;"></div>
-
-                            <div class="config-field" id="bdJoinTokenField">
-                                <label>Tu token personal de GitHub</label>
-                                <input type="password" id="bdJoinToken" placeholder="ghp_... o github_pat_..." autocomplete="off">
-                                <p class="config-help" id="bdJoinTokenAyuda">Tu token debe tener scope <code>repo</code> y acceso al repositorio de la comunidad.</p>
+                            <!-- PASO 3: Unirme -->
+                            <div class="bd-join-paso-card" id="bdJoinPaso3" style="display:none;">
+                                <div class="bd-join-paso-header">
+                                    <span class="bd-join-paso-num">3</span>
+                                    <div class="bd-join-paso-info">
+                                        <strong>Unirme a la comunidad</strong>
+                                        <span>Verificaremos tu acceso y te conectaremos.</span>
+                                    </div>
+                                </div>
+                                <button class="btn-primario" id="btnUnirseComunidad" type="button">
+                                    <i data-lucide="log-in"></i>
+                                    Unirme a esta comunidad
+                                </button>
+                                <div id="bdJoinStatus" class="config-status"></div>
                             </div>
-
-                            <button class="btn-primario" id="btnUnirseComunidad" type="button">
-                                <i data-lucide="log-in"></i>
-                                Unirme a esta comunidad
-                            </button>
-                            <div id="bdJoinStatus" class="config-status"></div>
                         </div>
                     </section>
 
@@ -593,7 +616,6 @@
                             VicWebOs funciona gracias a la infraestructura gratuita de GitHub. Cuidarla es cuidarnos entre todos. 💜
                         </p>
 
-                        <!-- Aviso legal -->
                         <div class="practicas-legal">
                             <div class="practicas-legal-titulo">
                                 <i data-lucide="scale"></i>
@@ -613,7 +635,6 @@
                             <p>VicWebOs es posible gracias a estas personas y proyectos</p>
                         </div>
 
-                        <!-- Programador -->
                         <div class="creditos-bloque">
                             <div class="creditos-bloque-titulo">
                                 <i data-lucide="code-2"></i>
@@ -628,7 +649,6 @@
                             </div>
                         </div>
 
-                        <!-- GitHub — con todo el cariño -->
                         <div class="creditos-bloque">
                             <div class="creditos-bloque-titulo">
                                 <i data-lucide="heart"></i>
@@ -662,7 +682,6 @@
                             </ul>
                         </div>
 
-                        <!-- APIs externas -->
                         <div class="creditos-bloque">
                             <div class="creditos-bloque-titulo">
                                 <i data-lucide="cloud"></i>
@@ -687,7 +706,6 @@
                             </ul>
                         </div>
 
-                        <!-- Librerías -->
                         <div class="creditos-bloque">
                             <div class="creditos-bloque-titulo">
                                 <i data-lucide="package"></i>
@@ -722,7 +740,6 @@
                             </ul>
                         </div>
 
-                        <!-- Recursos creativos -->
                         <div class="creditos-bloque">
                             <div class="creditos-bloque-titulo">
                                 <i data-lucide="palette"></i>
@@ -737,7 +754,6 @@
                             </ul>
                         </div>
 
-                        <!-- Tipografías -->
                         <div class="creditos-bloque">
                             <div class="creditos-bloque-titulo">
                                 <i data-lucide="type"></i>
@@ -757,7 +773,6 @@
                             </ul>
                         </div>
 
-                        <!-- Agradecimientos -->
                         <div class="creditos-bloque">
                             <div class="creditos-bloque-titulo">
                                 <i data-lucide="heart"></i>
