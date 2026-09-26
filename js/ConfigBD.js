@@ -5,20 +5,6 @@
 //  Cada comunidad tiene su propio token, repo y sesión.
 //  Los datos de cada comunidad están TOTALMENTE aislados.
 //
-//  Estructura en localStorage (vicwebos_bd):
-//    {
-//      comunidades: {
-//        [id]: {
-//          id, nombre,
-//          githubToken, githubRepo, githubOwner,
-//          tipoToken: 'classic' | 'fine-grained' | 'assisted',
-//          conectado: bool,
-//          creada: ISO
-//        }
-//      },
-//      activa: id
-//    }
-//
 //  IndexedDB NO es fuente de datos, solo caché temporal.
 // ============================================================
 
@@ -84,9 +70,6 @@ function obtenerComunidadPorId(id) {
     return data.comunidades[id] || null;
 }
 
-// ------------------------------------------------------------
-//  Compatibilidad con el código existente
-// ------------------------------------------------------------
 function cargarConfigBD() {
     const com = obtenerComunidadActiva();
     if (!com) {
@@ -112,15 +95,12 @@ function guardarConfigBD(config) {
     guardarComunidades(data);
 }
 
-// ------------------------------------------------------------
-//  Traducción de tipo de token: 'assisted' → 'classic'
-// ------------------------------------------------------------
 function tipoTokenEfectivo(tipo) {
     return tipo === 'assisted' ? 'classic' : tipo;
 }
 
 // ============================================================
-//  INDEXEDDB — solo caché
+//  INDEXEDDB
 // ============================================================
 const IDB_NAME = 'VicWebOsCache';
 const IDB_VERSION = 1;
@@ -180,9 +160,6 @@ async function idbClear() {
     });
 }
 
-// ============================================================
-//  CACHÉ con TTL — namespace por comunidad activa
-// ============================================================
 function _prefijoCache() {
     const com = obtenerComunidadActiva();
     return 'cache_' + (com ? com.id : 'none') + '_';
@@ -305,9 +282,6 @@ function esperar(ms) {
     return new Promise(r => setTimeout(r, ms));
 }
 
-// ------------------------------------------------------------
-//  Conectar a GitHub
-// ------------------------------------------------------------
 async function conectarGitHub(token, nombreRepo, tipoToken = 'classic') {
     const tipoEfectivo = tipoTokenEfectivo(tipoToken);
     const usuario = await ghObtenerUsuario(token);
@@ -350,17 +324,9 @@ const ConfigBD = {
         );
     },
 
-    obtenerComunidadActiva() {
-        return obtenerComunidadActiva();
-    },
-
-    obtenerComunidadPorId(id) {
-        return obtenerComunidadPorId(id);
-    },
-
-    obtenerIdComunidadActiva() {
-        return leerComunidades().activa;
-    },
+    obtenerComunidadActiva() { return obtenerComunidadActiva(); },
+    obtenerComunidadPorId(id) { return obtenerComunidadPorId(id); },
+    obtenerIdComunidadActiva() { return leerComunidades().activa; },
 
     async crearComunidad({ nombre, token, repo, tipoToken }) {
         if (!token) throw new Error('Falta el token.');
@@ -557,13 +523,8 @@ const ConfigBD = {
         }
     },
 
-    async invalidarCache(nombre) {
-        return await invalidarCache(nombre);
-    },
-
-    async invalidarTodo() {
-        return await invalidarTodoCache();
-    },
+    async invalidarCache(nombre) { return await invalidarCache(nombre); },
+    async invalidarTodo() { return await invalidarTodoCache(); },
 
     async conectar(token, repo) {
         const activa = obtenerComunidadActiva();
@@ -678,7 +639,6 @@ function renderComunidadesUI() {
             }
 
             if (accion === 'editar') abrirFormularioComunidad(id);
-
             if (accion === 'eliminar') eliminarComunidadUI(id);
         });
     });
@@ -693,8 +653,6 @@ function abrirFormularioComunidad(id = null) {
     const inputRepo   = document.getElementById('bdRepo');
     const radios      = document.querySelectorAll('input[name="bdTipoToken"]');
     const guardarTxt  = document.getElementById('bdGuardarTexto');
-    const ayudaToken  = document.getElementById('bdTokenAyuda');
-    const ayudaRepo   = document.getElementById('bdRepoAyuda');
     const status      = document.getElementById('bdFormStatus');
     const wizardSlot  = document.getElementById('onboardingWizardSlot');
 
@@ -756,7 +714,7 @@ function actualizarAyudaToken() {
         if (wizardSlot) {
             wizardSlot.style.display = 'block';
             if (window.OnboardingWizard) {
-                // Modo CREAR: el paso final habla de crear repositorio
+                // Modo CREAR: paso final habla de crear repositorio
                 OnboardingWizard.mostrar(wizardSlot, { modo: 'crear' });
             }
         }
@@ -799,7 +757,7 @@ function actualizarAyudaTokenUnirse() {
         if (wizardSlot) {
             wizardSlot.style.display = 'block';
             if (window.OnboardingWizard) {
-                // Modo UNIRSE: el paso final habla de conectarse a la comunidad
+                // Modo UNIRSE: paso final habla de unirse a la comunidad
                 OnboardingWizard.mostrar(wizardSlot, { modo: 'unirse' });
             }
         }
