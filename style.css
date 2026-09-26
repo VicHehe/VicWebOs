@@ -472,8 +472,10 @@ body {
 }
 .noti-vacio p { margin: 0; font-weight: 600; }
 
+/* ========== BODY ========== */
 .app-body { display: flex; flex: 1; min-height: 0; overflow: hidden; }
 
+/* ========== SIDEBAR ========== */
 .sidebar {
     width: 240px; min-width: 240px; flex-shrink: 0;
     background: var(--bg-alt);
@@ -1282,9 +1284,6 @@ body {
     flex-shrink: 0; margin-top: 1px;
 }
 
-/* ================================================
-   MULTI-COMUNIDAD — lista y formulario
-   ================================================ */
 .bd-lista-comunidades {
     display: flex;
     flex-direction: column;
@@ -1430,27 +1429,21 @@ body {
     font-size: 13px;
 }
 
-/* ============================================================
-   SELECTOR DE TIPO DE TOKEN — Lista vertical con radio custom
-   ============================================================ */
 .bd-token-opciones {
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
-
 .bd-token-opcion {
     position: relative;
     cursor: pointer;
     display: block;
 }
-
 .bd-token-opcion input {
     position: absolute;
     opacity: 0;
     pointer-events: none;
 }
-
 .bd-token-card {
     display: flex;
     align-items: flex-start;
@@ -1461,18 +1454,15 @@ body {
     border-radius: var(--r-md);
     transition: var(--t-fast);
 }
-
 .bd-token-opcion:hover .bd-token-card {
     border-color: var(--violet-300);
     background: var(--gray-50);
 }
-
 .bd-token-opcion input:checked + .bd-token-card {
     border-color: var(--violet-400);
     background: var(--violet-50);
     box-shadow: var(--shadow-glow);
 }
-
 .bd-token-radio {
     width: 18px;
     height: 18px;
@@ -1484,15 +1474,12 @@ body {
     background: var(--white);
     transition: var(--t-fast);
 }
-
 .bd-token-opcion:hover .bd-token-card .bd-token-radio {
     border-color: var(--gray-400);
 }
-
 .bd-token-opcion input:checked + .bd-token-card .bd-token-radio {
     border-color: var(--violet-500);
 }
-
 .bd-token-opcion input:checked + .bd-token-card .bd-token-radio::after {
     content: '';
     position: absolute;
@@ -1500,7 +1487,6 @@ body {
     border-radius: 50%;
     background: var(--violet-500);
 }
-
 .bd-token-cuerpo {
     flex: 1;
     min-width: 0;
@@ -1508,13 +1494,11 @@ body {
     flex-direction: column;
     gap: 3px;
 }
-
 .bd-token-cabecera {
     display: flex;
     align-items: center;
     gap: 8px;
 }
-
 .bd-token-cabecera [data-lucide] {
     width: 16px;
     height: 16px;
@@ -1522,22 +1506,18 @@ body {
     flex-shrink: 0;
     stroke-width: 2.25;
 }
-
 .bd-token-opcion input:checked + .bd-token-card .bd-token-cabecera [data-lucide] {
     color: var(--violet-600);
 }
-
 .bd-token-cabecera strong {
     font-size: 13.5px;
     font-weight: 800;
     color: var(--gray-900);
     letter-spacing: -0.01em;
 }
-
 .bd-token-opcion input:checked + .bd-token-card .bd-token-cabecera strong {
     color: var(--violet-700);
 }
-
 .bd-token-desc {
     font-size: 12.5px;
     color: var(--gray-500);
@@ -1545,7 +1525,6 @@ body {
     margin: 0;
     font-weight: 500;
 }
-
 .bd-token-desc code {
     background: var(--white);
     padding: 1px 5px;
@@ -1555,7 +1534,6 @@ body {
     color: var(--violet-700);
     border: 1px solid var(--border);
 }
-
 .bd-token-opcion input:checked + .bd-token-card .bd-token-desc code {
     border-color: var(--violet-200);
 }
@@ -1649,6 +1627,11 @@ body {
     font-size: 14px;
     font-weight: 900;
     box-shadow: 0 4px 10px var(--accent-shadow);
+}
+.bd-join-paso-num [data-lucide] {
+    width: 16px;
+    height: 16px;
+    stroke-width: 3;
 }
 
 .bd-join-paso-info {
@@ -1779,8 +1762,60 @@ body {
     font-family: 'SF Mono', Monaco, Consolas, monospace;
 }
 
+.bd-join-preview-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #065F46;
+    background: #ECFDF5;
+    border: 1px solid #A7F3D0;
+    padding: 2px 8px;
+    border-radius: var(--r-full, 999px);
+    align-self: flex-start;
+    font-style: normal;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+.bd-join-preview-tag [data-lucide] {
+    width: 11px;
+    height: 11px;
+    stroke-width: 3;
+}
+.bd-join-preview-tag-neutro {
+    color: var(--gray-600, #52525B);
+    background: var(--gray-100, #F4F4F7);
+    border-color: var(--border, #E8E8EE);
+}
+
+.bd-join-link-wizard {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 6px 10px;
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--violet-600, #7C3AED);
+    cursor: pointer;
+    border-radius: var(--r-sm, 8px);
+    transition: var(--t-fast);
+}
+.bd-join-link-wizard:hover {
+    background: var(--violet-50, #F5F3FF);
+}
+.bd-join-link-wizard [data-lucide] {
+    width: 14px;
+    height: 14px;
+}
+
 /* ================================================================
-   ONBOARDING WIZARD — Estilos del asistente de token
+   ONBOARDING WIZARD
    ================================================================ */
 
 #onboardingWizardSlot,
@@ -2262,6 +2297,58 @@ body {
     font-weight: 800;
 }
 
+.compartir-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--violet-50);
+    border: 1.5px solid var(--violet-200);
+    border-radius: var(--r-md, 12px);
+    cursor: pointer;
+    user-select: none;
+    transition: var(--t-fast);
+    position: relative;
+    z-index: 1;
+}
+.compartir-checkbox:hover {
+    border-color: var(--violet-300);
+}
+.compartir-checkbox input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+.compartir-checkbox-box {
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+    border: 2px solid var(--violet-300);
+    background: var(--white);
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: var(--t-fast);
+    position: relative;
+}
+.compartir-checkbox input:checked + .compartir-checkbox-box {
+    background: var(--violet-500);
+    border-color: var(--violet-500);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+    background-size: 12px 12px;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.compartir-checkbox-texto {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--violet-700);
+    line-height: 1.45;
+}
+.compartir-checkbox-texto strong {
+    font-weight: 800;
+}
+
 .compartir-codigo-wrap {
     display: flex;
     flex-direction: column;
@@ -2349,7 +2436,22 @@ body {
 .compartir-hint strong {
     font-weight: 800;
 }
+.compartir-hint-alerta {
+    background: #FFFBEB !important;
+    border-color: #FDE68A !important;
+    color: #92400E !important;
+}
+.compartir-hint-alerta [data-lucide] {
+    color: #D97706 !important;
+}
+.compartir-hint-alerta strong {
+    color: #78350F !important;
+    font-weight: 800;
+}
 
+/* ================================================
+   FOOTER / BOTONES / EMPTY / STATUS (config)
+   ================================================ */
 .config-footer {
     display: flex; justify-content: space-between; align-items: center;
     padding: 16px 26px; border-top: 1px solid var(--border);
@@ -2536,13 +2638,11 @@ body {
     color: var(--violet-700);
     font-weight: 700;
 }
-
 .config-checkbox-label input[type="checkbox"] {
     position: absolute;
     opacity: 0;
     pointer-events: none;
 }
-
 .config-checkbox-icono {
     width: 32px;
     height: 32px;
@@ -2561,7 +2661,6 @@ body {
     box-shadow: 0 2px 8px var(--accent-shadow);
 }
 .config-checkbox-icono [data-lucide] { width: 16px; height: 16px; }
-
 .config-checkbox-texto {
     flex: 1;
     min-width: 0;
@@ -2569,7 +2668,6 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-
 .config-checkbox-label::after {
     content: '';
     width: 18px;
@@ -2593,7 +2691,6 @@ body {
     margin-bottom: 24px;
 }
 .creditos-bloque:last-child { margin-bottom: 0; }
-
 .creditos-bloque-titulo {
     display: flex;
     align-items: center;
@@ -2610,7 +2707,6 @@ body {
     height: 14px;
     color: var(--violet-500, #8B5CF6);
 }
-
 .creditos-creador {
     display: flex;
     align-items: center;
@@ -2620,7 +2716,6 @@ body {
     border: 1.5px solid var(--violet-200, #DDD6FE);
     border-radius: var(--r-md, 12px);
 }
-
 .creditos-creador-avatar {
     width: 52px;
     height: 52px;
@@ -2636,7 +2731,6 @@ body {
     box-shadow: 0 6px 16px var(--accent-shadow, rgba(139,92,246,0.28));
     flex-shrink: 0;
 }
-
 .creditos-creador-info {
     flex: 1;
     min-width: 0;
@@ -2654,7 +2748,6 @@ body {
     font-weight: 600;
     margin: 0;
 }
-
 .creditos-lista {
     list-style: none;
     display: flex;
@@ -2663,7 +2756,6 @@ body {
     padding: 0;
     margin: 0;
 }
-
 .creditos-lista li {
     display: grid;
     grid-template-columns: 1fr auto;
@@ -2675,12 +2767,10 @@ body {
     border-radius: var(--r-md, 12px);
     transition: all 0.15s;
 }
-
 .creditos-lista li:hover {
     border-color: var(--violet-200, #DDD6FE);
     background: var(--violet-50, #F5F3FF);
 }
-
 .creditos-lista strong {
     font-size: 13px;
     font-weight: 800;
@@ -2688,7 +2778,6 @@ body {
     letter-spacing: -0.01em;
     grid-column: 1;
 }
-
 .creditos-lista span {
     font-size: 11.5px;
     font-weight: 600;
@@ -2696,7 +2785,6 @@ body {
     grid-column: 1;
     line-height: 1.4;
 }
-
 .creditos-lista a {
     grid-column: 2;
     grid-row: 1 / span 2;
@@ -2716,7 +2804,6 @@ body {
     color: white;
     border-color: var(--violet-500, #8B5CF6);
 }
-
 .creditos-texto {
     font-size: 12.5px;
     line-height: 1.65;
@@ -2742,14 +2829,12 @@ body {
 .compartir-card {
     isolation: isolate;
 }
-
 .config-card::before,
 .modal-todas-card::before,
 .compartir-card::before {
     z-index: 0 !important;
     pointer-events: none !important;
 }
-
 .config-header,
 .config-layout,
 .config-footer,
@@ -2757,11 +2842,11 @@ body {
 .modal-todas-body,
 .compartir-header,
 .compartir-codigo-wrap,
-.compartir-hint {
+.compartir-hint,
+.compartir-checkbox {
     position: relative;
     z-index: 10;
 }
-
 .config-nav,
 .config-content {
     position: relative;
@@ -2785,7 +2870,6 @@ body {
 .practicas-bloque:last-of-type {
     margin-bottom: 0;
 }
-
 .practicas-bloque-icono {
     width: 40px;
     height: 40px;
@@ -2808,7 +2892,6 @@ body {
     height: 20px;
     stroke-width: 2;
 }
-
 .practicas-bloque-info {
     flex: 1;
     min-width: 0;
@@ -2831,7 +2914,6 @@ body {
     color: var(--violet-700, #6D28D9);
     font-weight: 800;
 }
-
 .practicas-cierre {
     font-size: 12.5px;
     line-height: 1.65;
@@ -2844,7 +2926,6 @@ body {
     border: 1px solid var(--violet-200, #DDD6FE);
     border-radius: var(--r-md, 12px);
 }
-
 .practicas-legal {
     margin-top: 24px;
     padding: 18px 20px;
@@ -3131,9 +3212,12 @@ body {
     .compartir-card { padding: 16px; }
     .compartir-desc { font-size: 12.5px; }
     .compartir-copiar { padding: 11px 18px; font-size: 13.5px; }
+    .compartir-checkbox { padding: 10px 12px; }
+    .compartir-checkbox-texto { font-size: 12.5px; }
 
     .bd-join-paso-card { padding: 14px; }
     .bd-join-paso-num { width: 28px; height: 28px; font-size: 13px; }
+    .bd-join-paso-num [data-lucide] { width: 14px; height: 14px; }
     .bd-join-paso-info strong { font-size: 13px; }
     .bd-join-paso-info span { font-size: 12px; }
 
