@@ -14,28 +14,23 @@
 //
 //  MODOS:
 //    - 'crear'  → el usuario está creando una comunidad nueva.
-//                 El paso final habla de crear repositorio.
 //    - 'unirse' → el usuario se está uniendo a una existente.
-//                 El paso final habla de conectarse a la comunidad.
+//                 Los textos del wizard se adaptan para NO
+//                 mencionar "crear repositorio" ni "nombre".
 //
 //  API pública:
-//    OnboardingWizard.mostrar(contenedor, opciones)
-//      opciones.modo = 'crear' | 'unirse'   (default: 'crear')
+//    OnboardingWizard.mostrar(contenedor, { modo })
 //    OnboardingWizard.ocultar()
-//    OnboardingWizard.obtenerToken()       → token validado o null
-//    OnboardingWizard.estaListo()          → bool
+//    OnboardingWizard.obtenerToken()
+//    OnboardingWizard.estaListo()
 //    OnboardingWizard.reset()
 //
 //  Depende de: ConfigBD.js (GH_HEADERS)
-//  Si ConfigBD no existe, el wizard igual muestra la UI.
 // ============================================================
 
 (function () {
     'use strict';
 
-    // ------------------------------------------------------------
-    //  Constantes
-    // ------------------------------------------------------------
     const PASOS = {
         BIENVENIDA: 'bienvenida',
         GENERAR: 'generar',
@@ -54,9 +49,6 @@
         '&description=VicWebOs+%E2%80%94+Token+personal' +
         '&expires_in=0';
 
-    // ------------------------------------------------------------
-    //  Estado interno
-    // ------------------------------------------------------------
     let _contenedor = null;
     let _pasoActual = PASOS.BIENVENIDA;
     let _token = null;
@@ -64,9 +56,6 @@
     let _usuarioGitHub = null;
     let _modo = MODOS.CREAR;
 
-    // ------------------------------------------------------------
-    //  Helpers
-    // ------------------------------------------------------------
     function _qs(sel, root = document) { return root.querySelector(sel); }
 
     function _limpiarContenedor() {
@@ -104,15 +93,17 @@
     }
 
     // ------------------------------------------------------------
-    //  PASO 1 — Bienvenida
+    //  PASO 1
     // ------------------------------------------------------------
     function _htmlBienvenida() {
-        const intro = _modo === MODOS.UNIRSE
-            ? 'Te guiaremos para crear un <strong>token de GitHub</strong> y usarlo para conectarte a tu comunidad. Son solo 3 pasos y no necesitas saber programar.'
-            : 'Te guiaremos para crear un <strong>token de GitHub</strong> y conectarlo a tu comunidad. Son solo 3 pasos y no necesitas saber programar.';
+        const esUnirse = _modo === MODOS.UNIRSE;
 
-        const paso3 = _modo === MODOS.UNIRSE
-            ? 'Lo validamos y listo. Te unirás a la comunidad.'
+        const intro = esUnirse
+            ? 'Te guiaremos para generar un <strong>token de GitHub</strong> y usarlo para unirte a la comunidad. Son solo 3 pasos y no necesitas saber programar.'
+            : 'Te guiaremos para generar un <strong>token de GitHub</strong> y conectarlo a tu comunidad. Son solo 3 pasos y no necesitas saber programar.';
+
+        const paso3Texto = esUnirse
+            ? 'Lo validamos y listo. Ya podrás unirte a la comunidad.'
             : 'Lo validamos y listo. Tu comunidad queda conectada.';
 
         return `
@@ -120,7 +111,7 @@
                 <div class="ow-icono-hero">
                     <i data-lucide="wand-2"></i>
                 </div>
-                <h3 class="ow-titulo">Vamos paso a paso</h3>
+                <h3 class="ow-titulo">Vamos a crear tu token</h3>
                 <p class="ow-desc">
                     ${intro}
                 </p>
@@ -144,7 +135,7 @@
                         <span class="ow-paso-num">3</span>
                         <div class="ow-paso-texto">
                             <strong>Pegarlo aquí</strong>
-                            <span>${paso3}</span>
+                            <span>${paso3Texto}</span>
                         </div>
                     </div>
                 </div>
@@ -163,7 +154,7 @@
     }
 
     // ------------------------------------------------------------
-    //  PASO 2 — Generar token
+    //  PASO 2
     // ------------------------------------------------------------
     function _htmlGenerar() {
         return `
@@ -224,7 +215,7 @@
     }
 
     // ------------------------------------------------------------
-    //  PASO 3 — Pegar token
+    //  PASO 3
     // ------------------------------------------------------------
     function _htmlPegar() {
         return `
@@ -265,21 +256,24 @@
     }
 
     // ------------------------------------------------------------
-    //  PASO 4 — Validación exitosa
+    //  PASO 4
     // ------------------------------------------------------------
     function _htmlValidar() {
         const nombre = _usuarioGitHub?.login || 'tu cuenta';
+        const esUnirse = _modo === MODOS.UNIRSE;
 
-        const textoFinal = _modo === MODOS.UNIRSE
-            ? 'Tu token funciona. Ahora vuelve al formulario y pulsa <strong>"Unirme a esta comunidad"</strong>.'
+        const textoFinal = esUnirse
+            ? 'Tu token funciona. Ahora pégalo en el formulario de arriba y pulsa <strong>"Unirme a esta comunidad"</strong>.'
             : 'Tu token funciona. Ahora ponle un nombre a tu comunidad y pulsa <strong>"Conectar"</strong>.';
+
+        const labelBoton = esUnirse ? 'Entendido, ya lo pego' : 'Continuar';
 
         return `
             <div class="ow-card ow-card-exito">
                 <div class="ow-icono-exito">
                     <i data-lucide="check-circle-2"></i>
                 </div>
-                <h3 class="ow-titulo">¡Token válido!</h3>
+                <h3 class="ow-titulo">¡Token listo!</h3>
                 <p class="ow-desc">
                     Conectado como <strong>@${_escapar(nombre)}</strong>.
                     ${textoFinal}
@@ -303,7 +297,7 @@
                     </button>
                     <button class="ow-btn-primario" data-ow-accion="finalizar">
                         <i data-lucide="check"></i>
-                        Continuar
+                        ${labelBoton}
                     </button>
                 </div>
             </div>
@@ -311,7 +305,7 @@
     }
 
     // ------------------------------------------------------------
-    //  Eventos por paso
+    //  Eventos
     // ------------------------------------------------------------
     function _bindEventosPaso() {
         if (!_contenedor) return;
@@ -331,20 +325,16 @@
                         _pasoActual = PASOS.GENERAR;
                         _renderPaso();
                         break;
-
                     case 'volver':
                         _irAtras();
                         break;
-
                     case 'ya-lo-tengo':
                         _pasoActual = PASOS.PEGAR;
                         _renderPaso();
                         break;
-
                     case 'validar':
                         await _validarToken();
                         break;
-
                     case 'finalizar':
                         _finalizar();
                         break;
@@ -383,9 +373,6 @@
         if (exito) exito.style.display = 'none';
     }
 
-    // ------------------------------------------------------------
-    //  Validar token
-    // ------------------------------------------------------------
     async function _validarToken() {
         const textarea = _qs('.ow-input-token', _contenedor);
         if (!textarea) return;
@@ -493,9 +480,6 @@
             .replace(/'/g, '&#39;');
     }
 
-    // ------------------------------------------------------------
-    //  Finalizar
-    // ------------------------------------------------------------
     function _finalizar() {
         if (!_tokenValidado || !_token) {
             _mostrarError('Primero debes validar el token.');
@@ -519,9 +503,6 @@
         _contenedor.style.display = 'none';
     }
 
-    // ------------------------------------------------------------
-    //  API pública
-    // ------------------------------------------------------------
     const OnboardingWizard = {
         mostrar(contenedor, opciones = {}) {
             if (typeof contenedor === 'string') {
