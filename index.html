@@ -73,7 +73,6 @@
                     </button>
                 </div>
 
-                <!-- Chip de comunidad activa -->
                 <div class="sidebar-comunidad" id="sidebarComunidad" style="display:none;">
                     <div class="sidebar-comunidad-icono">
                         <i data-lucide="users"></i>
@@ -153,10 +152,8 @@
             </main>
         </div>
 
-        <!-- Overlay del drawer móvil -->
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-        <!-- Panel de notificaciones -->
         <div class="noti-panel" id="notiPanel"></div>
     </div>
 
@@ -315,7 +312,7 @@
                     <section class="config-panel" data-panel="widgets">
                         <div class="config-panel-header">
                             <h3>Widgets</h3>
-                              <p>Solo los widgets instalados desde Stor-He aparecen aquí. Actívalos para verlos en el inicio. Máximo 6 (recomendamos 3: cada widget consume recursos del navegador, y en PCs o Android antiguos poco potentes puede ralentizar todo el sistema).</p>
+                            <p>Solo los widgets instalados desde Stor-He aparecen aquí. Actívalos para verlos en el inicio. Máximo 6 (recomendamos 3: cada widget consume recursos del navegador, y en PCs o Android antiguos poco potentes puede ralentizar todo el sistema).</p>
                         </div>
                         <div id="configWidgetsLista" class="config-widgets-lista"></div>
                     </section>
@@ -347,89 +344,163 @@
                     <section class="config-panel" data-panel="bd">
                         <div class="config-panel-header">
                             <h3>Comunidades</h3>
-                            <p>Cada comunidad tiene su propia base de datos en GitHub</p>
+                            <p>Crea una comunidad nueva o únete a una existente</p>
                         </div>
 
-                        <div class="config-info-box">
-                            <i data-lucide="info"></i>
-                            <span>Puedes tener varias comunidades (pareja, amigos, familia). Los datos están <strong>totalmente aislados</strong>: en cada comunidad tendrás un perfil propio e independiente.</span>
+                        <!-- Sub-tabs: Mis comunidades / Unirme -->
+                        <div class="bd-subtabs">
+                            <button class="bd-subtab active" data-bdtab="mias">
+                                <i data-lucide="list"></i>
+                                <span>Mis comunidades</span>
+                            </button>
+                            <button class="bd-subtab" data-bdtab="unirme">
+                                <i data-lucide="user-plus"></i>
+                                <span>Unirme a una</span>
+                            </button>
                         </div>
 
-                        <div id="bdListaComunidades" class="bd-lista-comunidades"></div>
+                        <!-- ============ VISTA: MIS COMUNIDADES ============ -->
+                        <div class="bd-vista active" data-bdvista="mias">
+                            <div class="config-info-box">
+                                <i data-lucide="info"></i>
+                                <span>Puedes tener varias comunidades (pareja, amigos, familia). Los datos están <strong>totalmente aislados</strong>: en cada comunidad tendrás un perfil propio e independiente.</span>
+                            </div>
 
-                        <button class="btn-primario" id="btnNuevaComunidad" style="margin-top: 16px;">
-                            <i data-lucide="plus"></i>
-                            Añadir comunidad
-                        </button>
+                            <div id="bdListaComunidades" class="bd-lista-comunidades"></div>
 
-                        <!-- Formulario (crear/editar) -->
-                        <div id="bdFormulario" class="bd-formulario" style="display:none;">
-                            <div class="bd-formulario-header">
-                                <h4 id="bdFormularioTitulo">Nueva comunidad</h4>
-                                <button class="bd-formulario-cerrar" id="bdFormularioCerrar" aria-label="Cerrar formulario">
-                                    <i data-lucide="x"></i>
-                                </button>
+                            <button class="btn-primario" id="btnNuevaComunidad" style="margin-top: 16px;">
+                                <i data-lucide="plus"></i>
+                                Crear nueva comunidad
+                            </button>
+
+                            <!-- Formulario (crear/editar) -->
+                            <div id="bdFormulario" class="bd-formulario" style="display:none;">
+                                <div class="bd-formulario-header">
+                                    <h4 id="bdFormularioTitulo">Nueva comunidad</h4>
+                                    <button class="bd-formulario-cerrar" id="bdFormularioCerrar" aria-label="Cerrar formulario">
+                                        <i data-lucide="x"></i>
+                                    </button>
+                                </div>
+
+                                <div class="config-field">
+                                    <label>Nombre de la comunidad</label>
+                                    <input type="text" id="bdNombreComunidad" placeholder="Ej: Mi pareja" maxlength="40">
+                                    <p class="config-help">Solo para identificarla en la lista. No afecta al repositorio.</p>
+                                </div>
+
+                                <div class="config-field">
+                                    <label>Tipo de token</label>
+                                    <div class="bd-token-opciones">
+                                        <label class="bd-token-opcion">
+                                            <input type="radio" name="bdTipoToken" value="classic" checked>
+                                            <div class="bd-token-card">
+                                                <i data-lucide="key-round"></i>
+                                                <strong>Clásico</strong>
+                                                <span>Permite crear repositorios automáticamente. Ideal para empezar rápido.</span>
+                                            </div>
+                                        </label>
+                                        <label class="bd-token-opcion">
+                                            <input type="radio" name="bdTipoToken" value="fine-grained">
+                                            <div class="bd-token-card">
+                                                <i data-lucide="shield-check"></i>
+                                                <strong>Fine-grained</strong>
+                                                <span>Más seguro, permiso solo en repos concretos. El repo debe existir ya.</span>
+                                            </div>
+                                        </label>
+                                        <label class="bd-token-opcion">
+                                            <input type="radio" name="bdTipoToken" value="assisted">
+                                            <div class="bd-token-card">
+                                                <i data-lucide="wand-2"></i>
+                                                <strong>Asistido</strong>
+                                                <span>Te guiamos paso a paso. Ideal si nunca creaste un token.</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div id="onboardingWizardSlot" style="display:none; margin-bottom: 20px;"></div>
+
+                                <div class="config-field" id="bdTokenField">
+                                    <label>Token personal</label>
+                                    <input type="password" id="bdToken" placeholder="ghp_... o github_pat_..." autocomplete="off">
+                                    <p class="config-help" id="bdTokenAyuda">Créalo en <code>github.com/settings/tokens</code> con scope <code>repo</code>.</p>
+                                </div>
+
+                                <div class="config-field">
+                                    <label>Nombre del repositorio</label>
+                                    <input type="text" id="bdRepo" placeholder="vicwebos-data">
+                                    <p class="config-help" id="bdRepoAyuda">Si no existe, se creará automáticamente como privado.</p>
+                                </div>
+
+                                <div class="bd-formulario-acciones">
+                                    <button class="btn-secundario" id="bdCancelarForm" type="button">Cancelar</button>
+                                    <button class="btn-primario" id="bdGuardarComunidad" type="button">
+                                        <i data-lucide="link-2"></i>
+                                        <span id="bdGuardarTexto">Conectar</span>
+                                    </button>
+                                </div>
+                                <div id="bdFormStatus" class="config-status"></div>
+                            </div>
+                        </div>
+
+                        <!-- ============ VISTA: UNIRME A UNA ============ -->
+                        <div class="bd-vista" data-bdvista="unirme">
+                            <div class="config-info-box">
+                                <i data-lucide="mail"></i>
+                                <span>Pídele a alguien de la comunidad el <strong>código de invitación</strong> y pégalo aquí. Se rellenará automáticamente a qué repositorio conectarte.</span>
                             </div>
 
                             <div class="config-field">
-                                <label>Nombre de la comunidad</label>
-                                <input type="text" id="bdNombreComunidad" placeholder="Ej: Mi pareja" maxlength="40">
-                                <p class="config-help">Solo para identificarla en la lista. No afecta al repositorio.</p>
+                                <label>Código de invitación</label>
+                                <textarea id="bdJoinCodigo" class="bd-join-codigo-input" placeholder="VWO1.eyJ2IjoxLCJuIjoi..."></textarea>
+                                <p class="config-help">Pega el código completo que te compartieron.</p>
                             </div>
 
+                            <div id="bdJoinPreview" class="bd-join-preview" style="display:none;"></div>
+
                             <div class="config-field">
-                                <label>Tipo de token</label>
+                                <label>Tu tipo de token</label>
                                 <div class="bd-token-opciones">
                                     <label class="bd-token-opcion">
-                                        <input type="radio" name="bdTipoToken" value="classic" checked>
+                                        <input type="radio" name="bdJoinTipoToken" value="classic" checked>
                                         <div class="bd-token-card">
                                             <i data-lucide="key-round"></i>
                                             <strong>Clásico</strong>
-                                            <span>Permite crear repositorios automáticamente. Ideal para empezar rápido.</span>
+                                            <span>Token con scope <code>repo</code>. Debes ser colaborador del repo si es privado.</span>
                                         </div>
                                     </label>
                                     <label class="bd-token-opcion">
-                                        <input type="radio" name="bdTipoToken" value="fine-grained">
+                                        <input type="radio" name="bdJoinTipoToken" value="fine-grained">
                                         <div class="bd-token-card">
                                             <i data-lucide="shield-check"></i>
                                             <strong>Fine-grained</strong>
-                                            <span>Más seguro, permiso solo en repos concretos. El repo debe existir ya.</span>
+                                            <span>Token con permiso <code>Contents: R/W</code> sobre el repo de la comunidad.</span>
                                         </div>
                                     </label>
                                     <label class="bd-token-opcion">
-                                        <input type="radio" name="bdTipoToken" value="assisted">
+                                        <input type="radio" name="bdJoinTipoToken" value="assisted">
                                         <div class="bd-token-card">
                                             <i data-lucide="wand-2"></i>
                                             <strong>Asistido</strong>
-                                            <span>Te guiamos paso a paso. Ideal si nunca creaste un token.</span>
+                                            <span>Te guiamos paso a paso para crear el token.</span>
                                         </div>
                                     </label>
                                 </div>
                             </div>
 
-                            <!-- Slot para el wizard de onboarding -->
-                            <div id="onboardingWizardSlot" style="display:none; margin-bottom: 20px;"></div>
+                            <div id="onboardingWizardSlotJoin" style="display:none; margin-bottom: 20px;"></div>
 
-                            <div class="config-field" id="bdTokenField">
-                                <label>Token personal</label>
-                                <input type="password" id="bdToken" placeholder="ghp_... o github_pat_..." autocomplete="off">
-                                <p class="config-help" id="bdTokenAyuda">Créalo en <code>github.com/settings/tokens</code> con scope <code>repo</code>.</p>
+                            <div class="config-field" id="bdJoinTokenField">
+                                <label>Tu token personal de GitHub</label>
+                                <input type="password" id="bdJoinToken" placeholder="ghp_... o github_pat_..." autocomplete="off">
+                                <p class="config-help" id="bdJoinTokenAyuda">Tu token debe tener scope <code>repo</code> y acceso al repositorio de la comunidad.</p>
                             </div>
 
-                            <div class="config-field">
-                                <label>Nombre del repositorio</label>
-                                <input type="text" id="bdRepo" placeholder="vicwebos-data">
-                                <p class="config-help" id="bdRepoAyuda">Si no existe, se creará automáticamente como privado.</p>
-                            </div>
-
-                            <div class="bd-formulario-acciones">
-                                <button class="btn-secundario" id="bdCancelarForm" type="button">Cancelar</button>
-                                <button class="btn-primario" id="bdGuardarComunidad" type="button">
-                                    <i data-lucide="link-2"></i>
-                                    <span id="bdGuardarTexto">Conectar</span>
-                                </button>
-                            </div>
-                            <div id="bdFormStatus" class="config-status"></div>
+                            <button class="btn-primario" id="btnUnirseComunidad" type="button">
+                                <i data-lucide="log-in"></i>
+                                Unirme a esta comunidad
+                            </button>
+                            <div id="bdJoinStatus" class="config-status"></div>
                         </div>
                     </section>
 
@@ -489,7 +560,6 @@
                             VicWebOs funciona gracias a la infraestructura gratuita de GitHub. Cuidarla es cuidarnos entre todos. 💜
                         </p>
 
-                        <!-- Aviso legal -->
                         <div class="practicas-legal">
                             <div class="practicas-legal-titulo">
                                 <i data-lucide="scale"></i>
@@ -509,7 +579,6 @@
                             <p>VicWebOs es posible gracias a estas personas y proyectos</p>
                         </div>
 
-                        <!-- Programador -->
                         <div class="creditos-bloque">
                             <div class="creditos-bloque-titulo">
                                 <i data-lucide="code-2"></i>
@@ -524,7 +593,6 @@
                             </div>
                         </div>
 
-                        <!-- GitHub — con todo el cariño -->
                         <div class="creditos-bloque">
                             <div class="creditos-bloque-titulo">
                                 <i data-lucide="heart"></i>
@@ -558,7 +626,6 @@
                             </ul>
                         </div>
 
-                        <!-- APIs externas -->
                         <div class="creditos-bloque">
                             <div class="creditos-bloque-titulo">
                                 <i data-lucide="cloud"></i>
@@ -583,7 +650,6 @@
                             </ul>
                         </div>
 
-                        <!-- Librerías -->
                         <div class="creditos-bloque">
                             <div class="creditos-bloque-titulo">
                                 <i data-lucide="package"></i>
@@ -618,7 +684,6 @@
                             </ul>
                         </div>
 
-                        <!-- Recursos creativos -->
                         <div class="creditos-bloque">
                             <div class="creditos-bloque-titulo">
                                 <i data-lucide="palette"></i>
@@ -633,7 +698,6 @@
                             </ul>
                         </div>
 
-                        <!-- Tipografías -->
                         <div class="creditos-bloque">
                             <div class="creditos-bloque-titulo">
                                 <i data-lucide="type"></i>
@@ -653,7 +717,6 @@
                             </ul>
                         </div>
 
-                        <!-- Agradecimientos -->
                         <div class="creditos-bloque">
                             <div class="creditos-bloque-titulo">
                                 <i data-lucide="heart"></i>
@@ -701,22 +764,19 @@
         </div>
     </div>
 
-    <script src="js/JsRutas.js"></script>
-    <script src="js/JsTemas.js"></script>
-    <script src="js/JsWidgets.js"></script>
-    <script src="js/PaquetePromo.js"></script>
-    <script src="js/ConfigBD.js"></script>
-    <script src="js/ConfigBD.binarios.js"></script>
-    <script src="js/MasterHad.js"></script>
-    <script src="js/Cuenta.js"></script>
-    <script src="js/OnboardingWizard.js"></script>
-    <script src="Logros/JsLogros1.js"></script>
-    <script src="Logros/JsLogros2.js"></script>
-    <script src="Logros/chequeo.js"></script>
-    <script src="js/configuracion.js"></script>
-    <script src="js/JsIndex.js"></script>
-    <script src="js/Notificaciones.js"></script>
-    <script src="js/MobileUI.js"></script>
-    <script>lucide.createIcons();</script>
-</body>
-</html>
+    <!-- ====== MODAL COMPARTIR COMUNIDAD ====== -->
+    <div id="modalCompartir" class="compartir-overlay" style="display:none;">
+        <div class="compartir-card">
+            <div class="compartir-header">
+                <div>
+                    <h3>Compartir comunidad</h3>
+                    <p class="compartir-sub" id="compartirNombre">—</p>
+                </div>
+                <button class="compartir-cerrar" id="compartirCerrar" aria-label="Cerrar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
+            <p class="compartir-desc">
+                Envía este código a quien quieras invitar. Lo pegará en
+                <strong>Comunidades → Unirme a una</strong> y podrá entrar a la comunidad.
