@@ -5,6 +5,15 @@
 //  Cada comunidad tiene su propio token, repo y sesión.
 //  Los datos de cada comunidad están TOTALMENTE aislados.
 //
+//  Flujo de CREAR comunidad (rediseñado):
+//    1. Nombre de la comunidad (obligatorio)
+//    2. Método de autenticación:
+//       - "sencillo" → wizard asistido con token clásico sin expiración
+//       - "seguro"   → input manual para token fine-grained
+//    3. Resumen visual + botón "Conectar"
+//    El nombre del repo se autogenera a partir del nombre de la
+//    comunidad (prefijo "vicwebos-"). Es editable con un link.
+//
 //  IndexedDB NO es fuente de datos, solo caché temporal.
 // ============================================================
 
@@ -569,11 +578,75 @@ function escaparHTML(s) {
 let _editandoId = null;
 
 function _etiquetaTipo(tipo) {
-    if (tipo === 'fine-grained') return 'Fine-grained';
-    if (tipo === 'assisted') return 'Asistido';
-    return 'Clásico';
+    if (tipo === 'fine-grained') return 'Seguro';
+    if (tipo === 'assisted' || tipo === 'classic') return 'Sencillo';
+    return 'Sencillo';
 }
 
+// ------------------------------------------------------------
+//  Slug para el nombre del repositorio
+// ------------------------------------------------------------
+function _slugificar(texto) {
+    return String(texto || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 40);
+}
+
+function _autogenerarRepo(nombreComunidad) {
+    const slug = _slugificar(nombreComunidad);
+    if (!slug) return '';
+    return 'vicwebos-' + slug;
+}
+
+// ------------------------------------------------------------
+//  Resumen dinámico
+// ------------------------------------------------------------
+function _actualizarResumen() {
+    const resumen = document.getElementById('bdResumen');
+    if (!resumen) return;
+
+    const nombre  = (document.getElementById('bdNombreComunidad')?.value || '').trim();
+    const repo    = (document.getElementById('bdRepo')?.value || '').trim();
+    const metodo  = document.querySelector('input[name="bdMetodo"]:checked')?.value || 'sencillo';
+
+    // Solo mostrar resumen si hay nombre
+    if (!nombre || !repo) {
+        resumen.style.display = 'none';
+        return;
+    }
+
+    resumen.style.display = 'block';
+
+    const elNombre = document.getElementById('bdResumenNombre');
+    const elUsuario = document.getElementById('bdResumenUsuario');
+    const elRepo = document.getElementById('bdResumenRepo');
+
+    if (elNombre) elNombre.textContent = nombre;
+    if (elRepo) elRepo.textContent = repo;
+
+    // Usuario: si tenemos token validado del wizard, mostrar login
+    if (elUsuario) {
+        if (window.OnboardingWizard && OnboardingWizard.estaListo()) {
+            const u = OnboardingWizard.obtenerUsuario();
+            elUsuario.textContent = u ? '@' + u.login : 'Token listo ✅';
+        } else if (metodo === 'seguro') {
+            const tokenManual = (document.getElementById('bdToken')?.value || '').trim();
+            elUsuario.textContent = tokenManual ? 'Token pegado ✅' : 'Pendiente';
+        } else {
+            elUsuario.textContent = 'Pendiente';
+        }
+    }
+
+    if (window.lucide) lucide.createIcons();
+}
+
+// ------------------------------------------------------------
+//  Render de la lista de comunidades
+// ------------------------------------------------------------
 function renderComunidadesUI() {
     const cont = document.getElementById('bdListaComunidades');
     if (!cont) return;
@@ -644,17 +717,21 @@ function renderComunidadesUI() {
     });
 }
 
+// ------------------------------------------------------------
+//  Abrir formulario de crear/editar
+// ------------------------------------------------------------
 function abrirFormularioComunidad(id = null) {
     _editandoId = id;
     const form = document.getElementById('bdFormulario');
     const titulo = document.getElementById('bdFormularioTitulo');
     const inputNombre = document.getElementById('bdNombreComunidad');
-    const inputToken  = document.getElementById('bdToken');
     const inputRepo   = document.getElementById('bdRepo');
-    const radios      = document.querySelectorAll('input[name="bdTipoToken"]');
-    const guardarTxt  = document.getElementById('bdGuardarTexto');
+    const inputToken  = document.getElementById('bdToken');
+    const repoField   = document.getElementById('bdRepoField');
+    const metodoRadio = document.querySelectorAll('input[name="bdMetodo"]');
     const status      = document.getElementById('bdFormStatus');
     const wizardSlot  = document.getElementById('onboardingWizardSlot');
+    const resumen     = document.getElementById('bdResumen');
 
     if (status) { status.textContent = ''; status.className = 'config-status'; }
 
@@ -662,26 +739,30 @@ function abrirFormularioComunidad(id = null) {
         wizardSlot.style.display = 'none';
         if (window.OnboardingWizard) OnboardingWizard.ocultar();
     }
+    if (resumen) resumen.style.display = 'none';
 
     if (id) {
+        // Editar (flujo sin resumen ni autogen; se cargan los datos directos)
         const com = ConfigBD.obtenerComunidadPorId(id);
         if (!com) return;
         titulo.textContent = 'Editar comunidad';
         inputNombre.value = com.nombre || '';
-        inputToken.value = com.githubToken || '';
         inputRepo.value = com.githubRepo || '';
-        const tipoRadio = com.tipoToken === 'assisted' ? 'classic' : (com.tipoToken || 'classic');
-        radios.forEach(r => { r.checked = r.value === tipoRadio; });
-        guardarTxt.textContent = 'Guardar cambios';
-        if (inputToken.parentElement) inputToken.parentElement.style.display = 'block';
+        inputToken.value = com.githubToken || '';
+        // Mostrar repo siempre en edición
+        if (repoField) repoField.style.display = 'block';
+        // Marcar el método correspondiente
+        const tipoRadio = (com.tipoToken === 'fine-grained') ? 'seguro' : 'sencillo';
+        metodoRadio.forEach(r => { r.checked = r.value === tipoRadio; });
     } else {
+        // Crear
         titulo.textContent = 'Nueva comunidad';
         inputNombre.value = '';
-        inputToken.value = '';
         inputRepo.value = '';
-        radios.forEach(r => { r.checked = r.value === 'classic'; });
-        guardarTxt.textContent = 'Conectar';
-        if (inputToken.parentElement) inputToken.parentElement.style.display = 'block';
+        inputToken.value = '';
+        // Ocultar el campo repo (se autogenera)
+        if (repoField) repoField.style.display = 'none';
+        metodoRadio.forEach(r => { r.checked = r.value === 'sencillo'; });
     }
 
     actualizarAyudaToken();
@@ -696,91 +777,47 @@ function cerrarFormularioComunidad() {
     if (window.OnboardingWizard) OnboardingWizard.ocultar();
 }
 
-// ---------- AYUDA DE TOKEN: CREAR ----------
+// ------------------------------------------------------------
+//  AYUDA DE TOKEN según método
+// ------------------------------------------------------------
 function actualizarAyudaToken() {
-    const tipo = document.querySelector('input[name="bdTipoToken"]:checked')?.value || 'classic';
+    const metodo = document.querySelector('input[name="bdMetodo"]:checked')?.value || 'sencillo';
     const ayudaToken = document.getElementById('bdTokenAyuda');
-    const ayudaRepo  = document.getElementById('bdRepoAyuda');
     const inputToken = document.getElementById('bdToken');
+    const tokenField = document.getElementById('bdTokenField');
     const wizardSlot = document.getElementById('onboardingWizardSlot');
+    const repoField  = document.getElementById('bdRepoField');
 
-    if (!ayudaToken || !ayudaRepo) return;
+    // En modo edición el repo siempre visible
+    if (_editandoId && repoField) repoField.style.display = 'block';
 
-    if (tipo === 'assisted') {
-        if (inputToken && inputToken.parentElement) {
-            inputToken.parentElement.style.display = 'none';
-        }
-        if (ayudaToken) ayudaToken.style.display = 'none';
+    if (metodo === 'sencillo') {
+        // Wizard
+        if (tokenField) tokenField.style.display = 'none';
         if (wizardSlot) {
             wizardSlot.style.display = 'block';
             if (window.OnboardingWizard) {
-                // Modo CREAR: paso final habla de crear repositorio
                 OnboardingWizard.mostrar(wizardSlot, { modo: 'crear' });
             }
         }
-        if (ayudaRepo) {
-            ayudaRepo.textContent = 'Si no existe, se creará automáticamente como privado.';
-        }
-        return;
-    }
-
-    if (wizardSlot) {
-        wizardSlot.style.display = 'none';
-        if (window.OnboardingWizard) OnboardingWizard.ocultar();
-    }
-    if (inputToken && inputToken.parentElement) {
-        inputToken.parentElement.style.display = 'block';
-    }
-    if (ayudaToken) ayudaToken.style.display = 'block';
-
-    if (tipo === 'classic') {
-        ayudaToken.innerHTML = 'Créalo en <code>github.com/settings/tokens</code> con scope <code>repo</code>.';
-        ayudaRepo.textContent = 'Si no existe, se creará automáticamente como privado.';
     } else {
-        ayudaToken.innerHTML = 'Créalo en <code>github.com/settings/personal-access-tokens</code> con permisos <code>Contents: Read & Write</code>.';
-        ayudaRepo.textContent = 'El repositorio debe existir YA en tu cuenta. Con fine-grained no se crean repos.';
-    }
-}
-
-// ---------- AYUDA DE TOKEN: UNIRSE ----------
-function actualizarAyudaTokenUnirse() {
-    const tipo = document.querySelector('input[name="bdJoinTipoToken"]:checked')?.value || 'classic';
-    const inputToken = document.getElementById('bdJoinToken');
-    const wizardSlot = document.getElementById('onboardingWizardSlotJoin');
-    const ayuda      = document.getElementById('bdJoinTokenAyuda');
-
-    if (tipo === 'assisted') {
-        if (inputToken && inputToken.parentElement) {
-            inputToken.parentElement.style.display = 'none';
-        }
-        if (ayuda) ayuda.style.display = 'none';
+        // Input manual para fine-grained
         if (wizardSlot) {
-            wizardSlot.style.display = 'block';
-            if (window.OnboardingWizard) {
-                // Modo UNIRSE: paso final habla de unirse a la comunidad
-                OnboardingWizard.mostrar(wizardSlot, { modo: 'unirse' });
-            }
+            wizardSlot.style.display = 'none';
+            if (window.OnboardingWizard) OnboardingWizard.ocultar();
         }
-        return;
+        if (tokenField) tokenField.style.display = 'block';
+        if (ayudaToken) {
+            ayudaToken.innerHTML = 'Créalo en <code>github.com/settings/personal-access-tokens</code> con permisos <code>Contents: R/W</code> y <code>Administration: R/W</code>.';
+        }
     }
 
-    if (wizardSlot) {
-        wizardSlot.style.display = 'none';
-        if (window.OnboardingWizard) OnboardingWizard.ocultar();
-    }
-    if (inputToken && inputToken.parentElement) {
-        inputToken.parentElement.style.display = 'block';
-    }
-    if (ayuda) {
-        ayuda.style.display = 'block';
-        if (tipo === 'classic') {
-            ayuda.innerHTML = 'Tu token debe tener scope <code>repo</code> y acceso al repositorio de la comunidad.';
-        } else {
-            ayuda.innerHTML = 'Tu token fine-grained debe tener permiso <code>Contents: Read & Write</code> sobre el repositorio de la comunidad.';
-        }
-    }
+    _actualizarResumen();
 }
 
+// ------------------------------------------------------------
+//  Eliminar comunidad
+// ------------------------------------------------------------
 async function eliminarComunidadUI(id) {
     const com = ConfigBD.obtenerComunidadPorId(id);
     if (!com) return;
@@ -808,29 +845,78 @@ async function eliminarComunidadUI(id) {
     if (window.lucide) lucide.createIcons();
 }
 
+// ------------------------------------------------------------
+//  DOMContentLoaded — listeners del formulario
+// ------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
     const btnNueva   = document.getElementById('btnNuevaComunidad');
     const btnGuardar = document.getElementById('bdGuardarComunidad');
     const btnCancel  = document.getElementById('bdCancelarForm');
     const btnCerrar  = document.getElementById('bdFormularioCerrar');
+    const btnEditarRepo = document.getElementById('bdEditarRepo');
 
-    const radiosCrear = document.querySelectorAll('input[name="bdTipoToken"]');
-    const radiosUnir  = document.querySelectorAll('input[name="bdJoinTipoToken"]');
+    const inputNombre = document.getElementById('bdNombreComunidad');
+    const inputRepo   = document.getElementById('bdRepo');
+    const inputToken  = document.getElementById('bdToken');
+    const repoField   = document.getElementById('bdRepoField');
+    const radiosMetodo = document.querySelectorAll('input[name="bdMetodo"]');
+
+    let repoEditadoManualmente = false;
 
     if (btnNueva) {
-        btnNueva.addEventListener('click', () => abrirFormularioComunidad(null));
+        btnNueva.addEventListener('click', () => {
+            repoEditadoManualmente = false;
+            abrirFormularioComunidad(null);
+        });
     }
     if (btnCancel) btnCancel.addEventListener('click', cerrarFormularioComunidad);
     if (btnCerrar) btnCerrar.addEventListener('click', cerrarFormularioComunidad);
 
-    radiosCrear.forEach(r => r.addEventListener('change', actualizarAyudaToken));
-    radiosUnir.forEach(r => r.addEventListener('change', actualizarAyudaTokenUnirse));
+    // Autogenerar repo mientras el usuario escribe el nombre
+    if (inputNombre && inputRepo) {
+        inputNombre.addEventListener('input', () => {
+            if (!_editandoId && !repoEditadoManualmente) {
+                inputRepo.value = _autogenerarRepo(inputNombre.value);
+            }
+            _actualizarResumen();
+        });
+    }
 
+    // Si el usuario edita el repo manualmente, marcamos la bandera
+    if (inputRepo) {
+        inputRepo.addEventListener('input', () => {
+            repoEditadoManualmente = true;
+            _actualizarResumen();
+        });
+    }
+
+    // Botón "Cambiar nombre del repositorio" → muestra el campo
+    if (btnEditarRepo && repoField) {
+        btnEditarRepo.addEventListener('click', () => {
+            repoField.style.display = 'block';
+            if (inputRepo) {
+                inputRepo.focus();
+                inputRepo.select();
+            }
+            if (window.lucide) lucide.createIcons();
+        });
+    }
+
+    // Actualizar ayuda + resumen al cambiar método
+    radiosMetodo.forEach(r => r.addEventListener('change', actualizarAyudaToken));
+
+    // Actualizar resumen al escribir token (modo seguro)
+    if (inputToken) {
+        inputToken.addEventListener('input', _actualizarResumen);
+    }
+
+    // Botón Guardar/Conectar
     if (btnGuardar) {
         btnGuardar.addEventListener('click', async () => {
             const nombre = document.getElementById('bdNombreComunidad').value.trim();
             const repo   = document.getElementById('bdRepo').value.trim();
-            const tipo   = document.querySelector('input[name="bdTipoToken"]:checked')?.value || 'classic';
+            const metodo = document.querySelector('input[name="bdMetodo"]:checked')?.value || 'sencillo';
+            const tipoTokenReal = (metodo === 'sencillo') ? 'classic' : 'fine-grained';
             const status = document.getElementById('bdFormStatus');
 
             const setMsg = (txt, tipoClase) => {
@@ -838,27 +924,45 @@ document.addEventListener('DOMContentLoaded', () => {
                 status.className = 'config-status ' + (tipoClase || '');
             };
 
+            // Validaciones básicas
+            if (!nombre) {
+                setMsg('❌ Ponle un nombre a tu comunidad.', 'error');
+                return;
+            }
+
+            // Asegurar que el repo esté autogenerado si está vacío
+            let repoFinal = repo;
+            if (!repoFinal && !_editandoId) {
+                repoFinal = _autogenerarRepo(nombre);
+                if (inputRepo) inputRepo.value = repoFinal;
+            }
+
+            if (!repoFinal) {
+                setMsg('❌ Falta el nombre del repositorio.', 'error');
+                return;
+            }
+
+            if (!/^[a-zA-Z0-9._-]+$/.test(repoFinal)) {
+                setMsg('❌ El nombre del repositorio solo puede tener letras, números, puntos, guiones y guiones bajos.', 'error');
+                return;
+            }
+
+            // Obtener el token según método
             let token = '';
-            if (tipo === 'assisted') {
+            if (metodo === 'sencillo') {
                 if (window.OnboardingWizard && OnboardingWizard.estaListo()) {
                     token = OnboardingWizard.obtenerToken();
                 }
                 if (!token) {
-                    setMsg('❌ Completa el asistente para obtener tu token.', 'error');
+                    setMsg('❌ Completá el asistente para obtener tu token.', 'error');
                     return;
                 }
             } else {
-                token = document.getElementById('bdToken').value.trim();
+                token = inputToken ? inputToken.value.trim() : '';
                 if (!token) {
-                    setMsg('❌ Introduce tu token personal.', 'error');
+                    setMsg('❌ Pega tu token fine-grained.', 'error');
                     return;
                 }
-            }
-
-            if (!repo)  { setMsg('❌ Introduce un nombre de repositorio.', 'error'); return; }
-            if (!/^[a-zA-Z0-9._-]+$/.test(repo)) {
-                setMsg('❌ El nombre solo puede tener letras, números, puntos, guiones y guiones bajos.', 'error');
-                return;
             }
 
             if (btnGuardar.disabled) return;
@@ -871,13 +975,23 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 if (_editandoId) {
                     const esActiva = ConfigBD.obtenerIdComunidadActiva() === _editandoId;
-                    await ConfigBD.actualizarComunidad(_editandoId, { nombre, token, repo, tipoToken: tipo });
+                    await ConfigBD.actualizarComunidad(_editandoId, {
+                        nombre,
+                        token,
+                        repo: repoFinal,
+                        tipoToken: tipoTokenReal
+                    });
                     setMsg('✅ Comunidad actualizada.', 'success');
                     if (esActiva && typeof window.cambiarComunidad === 'function') {
                         await window.cambiarComunidad(_editandoId);
                     }
                 } else {
-                    const res = await ConfigBD.crearComunidad({ nombre, token, repo, tipoToken: tipo });
+                    const res = await ConfigBD.crearComunidad({
+                        nombre,
+                        token,
+                        repo: repoFinal,
+                        tipoToken: tipoTokenReal
+                    });
                     setMsg(`✅ Comunidad conectada como ${res.owner}.`, 'success');
                     if (typeof window.cambiarComunidad === 'function') {
                         await window.cambiarComunidad(res.id);
