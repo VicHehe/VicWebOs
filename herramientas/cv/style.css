@@ -526,35 +526,55 @@ html, body {
 .cv-card-item .cv-field { margin-bottom: 10px; }
 .cv-card-item .cv-field:last-child { margin-bottom: 0; }
 
+/* ============================================================
+   FECHAS + CHECK "ACTUAL" / "EN CURSO"
+   El checkbox va en una fila propia debajo de los inputs,
+   así no pelea con el ancho mínimo nativo de input[type=month].
+   ============================================================ */
 .cv-fechas {
     display: grid;
-    grid-template-columns: 1fr 1fr auto;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 8px;
-    align-items: end;
+    margin-bottom: 14px;
 }
-.cv-fechas .cv-field { margin-bottom: 0; }
+.cv-fechas .cv-field {
+    margin-bottom: 0;
+    min-width: 0;
+}
+.cv-fechas .cv-field input {
+    min-width: 0;
+    width: 100%;
+}
+
 .cv-check-actual {
+    grid-column: 1 / -1;
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 10px 12px;
+    gap: 8px;
+    padding: 10px 14px;
     background: var(--white, #FFFFFF);
     border: 1.5px solid var(--border, #E8E8EE);
     border-radius: 11px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
     color: var(--gray-600, #52525B);
     transition: var(--t-fast, 0.15s);
     white-space: nowrap;
     user-select: none;
+    justify-content: flex-start;
+    margin-bottom: 0;
 }
-.cv-check-actual:hover { border-color: var(--violet-300, #C4B5FD); }
+.cv-check-actual:hover {
+    border-color: var(--violet-300, #C4B5FD);
+    background: var(--violet-50, #F5F3FF);
+}
 .cv-check-actual input {
     accent-color: var(--violet-500, #8B5CF6);
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
     cursor: pointer;
+    flex-shrink: 0;
 }
 
 /* ============ CHIPS (habilidades) ============ */
@@ -1097,8 +1117,6 @@ html, body {
     .cv-btn-pri { width: 38px; padding: 0; }
 
     .cv-grid-2 { grid-template-columns: 1fr; }
-    .cv-fechas { grid-template-columns: 1fr 1fr; }
-    .cv-check-actual { grid-column: 1 / -1; justify-content: center; }
     .cv-foto-row { padding: 12px; gap: 12px; }
     .cv-foto-preview { width: 72px; height: 72px; }
     .cv-foto-acciones { flex-direction: column; }
