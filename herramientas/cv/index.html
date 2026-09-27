@@ -69,7 +69,7 @@
                 </button>
                 <button class="cv-nav-item" data-seccion="resumen">
                     <i data-lucide="align-left"></i>
-                    <span>Resumen</span>
+                    <span>Perfil</span>
                 </button>
                 <button class="cv-nav-item" data-seccion="experiencia">
                     <i data-lucide="briefcase"></i>
@@ -161,15 +161,22 @@
 
                 <section class="cv-panel" data-panel="resumen">
                     <div class="cv-panel-header">
-                        <h2><i data-lucide="align-left"></i> Resumen profesional</h2>
-                        <p>2-4 líneas que resuman quién sos y qué aportás.</p>
+                        <h2><i data-lucide="align-left"></i> Perfil profesional</h2>
+                        <p>Quién sos, qué hacés y qué estás buscando. Dos bloques cortos.</p>
                     </div>
 
                     <div class="cv-field">
-                        <label>Resumen</label>
-                        <textarea id="inResumen" rows="6" maxlength="800"
-                            placeholder="Profesional con X años de experiencia en... Especializado en... Buscando..."></textarea>
-                        <div class="cv-field-hint"><span id="resumenCount">0</span> / 800</div>
+                        <label>Resumen profesional</label>
+                        <textarea id="inResumen" rows="5" maxlength="600"
+                            placeholder="Ej: Desarrollador autodidacta con perfil híbrido entre programación, diseño y arte digital. Experiencia creando videojuegos, sitios web y herramientas propias."></textarea>
+                        <div class="cv-field-hint"><span id="resumenCount">0</span> / 600</div>
+                    </div>
+
+                    <div class="cv-field">
+                        <label>Objetivo profesional (opcional)</label>
+                        <textarea id="inObjetivo" rows="3" maxlength="400"
+                            placeholder="Ej: Busco mi primera oportunidad profesional para seguir creciendo en equipos que valoren la versatilidad técnica y creativa."></textarea>
+                        <div class="cv-field-hint"><span id="objetivoCount">0</span> / 400</div>
                     </div>
                 </section>
 
