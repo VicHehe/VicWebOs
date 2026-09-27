@@ -325,6 +325,17 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 6,
         monedas: 35
     },
+    {
+    id: 'stevan-fonda',
+    nombre: 'Stevan Fonda',
+    icono: 'chef-hat',
+    ruta: 'herramientas/stevan-fonda/index.html',
+    descripcion: 'Atendé tu fonda chilena: completos, sopaipillas y terremotos. Idle con progresión offline.',
+    categoria: 'Juegos',
+    esBase: false,
+    espacio: 6,
+    monedas: 80
+},
 
     // ============================================================
     //  SOCIAL
