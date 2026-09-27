@@ -5,6 +5,10 @@
 //  · Público:  app/calendario/publicos.json
 //  · Cada evento tiene color, título, descripción y visibilidad.
 //  · Notificación al abrir si hoy tiene eventos (1 vez por día).
+//  ------------------------------------------------------------
+//  NOTA sobre fechas: input[type="date"] no es escribible en
+//  Chrome dentro de iframes anidados. Se usan 3 <select> (día,
+//  mes, año). El valor se guarda igual: "YYYY-MM-DD".
 // ============================================================
 
 'use strict';
@@ -19,16 +23,17 @@ const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto'
 
 // ---------- ESTADO ----------
 let usuarioActual = null;
-let eventosPersonales = [];   // solo míos
-let eventosPublicos = [];     // de toda la comunidad
+let eventosPersonales = [];
+let eventosPublicos = [];
 let mesActual = new Date().getMonth();
 let añoActual = new Date().getFullYear();
 let fechaSeleccionada = null;
 let colorSeleccionado = COLORES[0];
-let eventoEditando = null;    // { id, tipo } o null
+let eventoEditando = null;
 let filtroActual = 'todos';
 let toastTimer = null;
 let guardando = false;
+let pendingBorrar = null;
 
 const API = () => window.parent.__vicwebos || null;
 
@@ -105,6 +110,91 @@ function generarId(prefijo) {
     return (prefijo || 'ev') + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
 
+function DIAS_POR_MES(mes, anio) {
+    return new Date(anio, mes + 1, 0).getDate();
+}
+
+// ============================================================
+//  SELECTORES DE FECHA (3 selects: día, mes, año)
+// ============================================================
+function inicializarSelectoresFecha() {
+    const selDia  = document.getElementById('caFechaDia');
+    const selMes  = document.getElementById('caFechaMes');
+    const selAnio = document.getElementById('caFechaAnio');
+    if (!selDia || !selMes || !selAnio) return;
+
+    // Meses
+    selMes.innerHTML = MESES.map((nombre, i) =>
+        `<option value="${i}">${nombre}</option>`
+    ).join('');
+
+    // Años: rango razonable (5 atrás, 10 adelante)
+    const anioActual = new Date().getFullYear();
+    let htmlAnios = '';
+    for (let a = anioActual - 5; a <= anioActual + 10; a++) {
+        htmlAnios += `<option value="${a}">${a}</option>`;
+    }
+    selAnio.innerHTML = htmlAnios;
+
+    // Cuando cambia mes o año, regenerar días
+    const regenerarDias = () => {
+        const mes = parseInt(selMes.value, 10);
+        const anio = parseInt(selAnio.value, 10);
+        const totalDias = DIAS_POR_MES(mes, anio);
+        const diaActual = parseInt(selDia.value, 10) || 1;
+        const nuevoDia = Math.min(diaActual, totalDias);
+
+        let html = '';
+        for (let d = 1; d <= totalDias; d++) {
+            html += `<option value="${d}">${d}</option>`;
+        }
+        selDia.innerHTML = html;
+        selDia.value = nuevoDia;
+    };
+
+    selMes.addEventListener('change', regenerarDias);
+    selAnio.addEventListener('change', regenerarDias);
+
+    setSelectoresFecha(hoyISO());
+}
+
+function setSelectoresFecha(iso) {
+    const selDia  = document.getElementById('caFechaDia');
+    const selMes  = document.getElementById('caFechaMes');
+    const selAnio = document.getElementById('caFechaAnio');
+    if (!selDia || !selMes || !selAnio) return;
+
+    const [y, m, d] = String(iso || hoyISO()).split('-').map(v => parseInt(v, 10));
+
+    // Asegurar que el año exista como opción
+    if (!selAnio.querySelector(`option[value="${y}"]`)) {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y;
+        selAnio.appendChild(opt);
+    }
+
+    selAnio.value = y;
+    selMes.value = (m - 1);
+
+    // Regenerar días según mes/año
+    const totalDias = DIAS_POR_MES(m - 1, y);
+    let html = '';
+    for (let i = 1; i <= totalDias; i++) {
+        html += `<option value="${i}">${i}</option>`;
+    }
+    selDia.innerHTML = html;
+    selDia.value = Math.min(d, totalDias);
+}
+
+function leerFechaDeSelectores() {
+    const d = parseInt(document.getElementById('caFechaDia').value, 10);
+    const m = parseInt(document.getElementById('caFechaMes').value, 10);
+    const y = parseInt(document.getElementById('caFechaAnio').value, 10);
+    if (isNaN(d) || isNaN(m) || isNaN(y)) return null;
+    return fechaISO(y, m + 1, d);
+}
+
 // ============================================================
 //  CARGA
 // ============================================================
@@ -172,7 +262,7 @@ async function notificarEventosDeHoy() {
     try {
         const hoy = hoyISO();
         const clave = `vicscal_notif_${usuarioActual.codigo}_${hoy}`;
-        if (localStorage.getItem(clave)) return;   // ya notificado hoy
+        if (localStorage.getItem(clave)) return;
 
         const eventosHoy = [...eventosPersonales, ...eventosPublicos]
             .filter(e => e.fecha === hoy);
@@ -408,14 +498,12 @@ function abrirModalNuevo(fecha) {
         <span>Nuevo evento</span>`;
     document.getElementById('caModalGuardarTxt').textContent = 'Crear';
 
-    document.getElementById('caFecha').value = fecha || hoyISO();
+    setSelectoresFecha(fecha || hoyISO());
     document.getElementById('caTitulo').value = '';
     document.getElementById('caDescripcion').value = '';
 
-    // Visibilidad default: personal
     document.querySelector('input[name="caVisibilidad"][value="personal"]').checked = true;
 
-    // Color default
     colorSeleccionado = COLORES[0];
     renderColores();
 
@@ -444,7 +532,7 @@ function abrirModalEditar(id, tipo) {
         <span>Editar evento</span>`;
     document.getElementById('caModalGuardarTxt').textContent = 'Guardar';
 
-    document.getElementById('caFecha').value = ev.fecha;
+    setSelectoresFecha(ev.fecha);
     document.getElementById('caTitulo').value = ev.titulo;
     document.getElementById('caDescripcion').value = ev.descripcion || '';
 
@@ -468,6 +556,7 @@ function cerrarModal() {
 
 function renderColores() {
     const cont = document.getElementById('caColores');
+    if (!cont) return;
     cont.innerHTML = COLORES.map(c => `
         <button type="button" class="ca-color ${c === colorSeleccionado ? 'seleccionado' : ''}"
                 data-color="${c}" style="background:${c};"
@@ -485,7 +574,7 @@ async function guardarEvento(e) {
     e.preventDefault();
     if (guardando) return;
 
-    const fecha = document.getElementById('caFecha').value;
+    const fecha = leerFechaDeSelectores();
     const titulo = document.getElementById('caTitulo').value.trim();
     const descripcion = document.getElementById('caDescripcion').value.trim();
     const visibilidad = document.querySelector('input[name="caVisibilidad"]:checked').value;
@@ -497,7 +586,7 @@ async function guardarEvento(e) {
         status.className = 'ca-status ' + (tipo || '');
     };
 
-    if (!fecha) { setStatus('Elegí una fecha.', 'error'); return; }
+    if (!fecha) { setStatus('Elegí una fecha válida.', 'error'); return; }
     if (!titulo) { setStatus('El título es obligatorio.', 'error'); return; }
     if (titulo.length > MAX_TITULO) { setStatus(`Máximo ${MAX_TITULO} caracteres.`, 'error'); return; }
 
@@ -523,18 +612,14 @@ async function guardarEvento(e) {
 
     try {
         if (eventoEditando) {
-            // Editar
             const { id, tipo } = eventoEditando;
 
-            // Si cambió de tipo, mover de archivo
             if (tipo === 'personal' && esPublico) {
-                // personal → público
                 eventosPersonales = eventosPersonales.filter(x => x.id !== id);
                 eventosPublicos.push(evBase);
                 await guardarPersonal();
                 await guardarPublicos();
             } else if (tipo === 'publico' && !esPublico) {
-                // público → personal (solo si es mío)
                 const ev = eventosPublicos.find(x => x.id === id);
                 if (!ev || ev.autor !== usuarioActual.codigo) {
                     throw new Error('No podés mover un evento ajeno.');
@@ -554,7 +639,6 @@ async function guardarEvento(e) {
             }
             toast('Evento actualizado', 'success');
         } else {
-            // Crear
             if (esPublico) {
                 eventosPublicos.push(evBase);
                 await guardarPublicos();
@@ -569,7 +653,6 @@ async function guardarEvento(e) {
         fechaSeleccionada = fecha;
         renderizarCalendario();
         renderizarPanel();
-        // Reintentar notificación por si agregó un evento para hoy
         await notificarEventosDeHoy();
     } catch (err) {
         console.warn('[VicsCal] Error guardando:', err);
@@ -585,8 +668,6 @@ async function guardarEvento(e) {
 // ============================================================
 //  ELIMINAR
 // ============================================================
-let pendingBorrar = null;
-
 function pedirBorrar(id, tipo) {
     const lista = tipo === 'personal' ? eventosPersonales : eventosPublicos;
     const ev = lista.find(e => e.id === id);
@@ -739,17 +820,15 @@ async function inicializar() {
     const badge = document.getElementById('caUserBadge');
     if (badge) badge.textContent = `@${usuarioActual.codigo} · ${usuarioActual.nombre}`;
 
-    // Cargar datos
     await cargarTodo();
 
-    // Render
     fechaSeleccionada = hoyISO();
     renderizarCalendario();
     renderizarPanel();
+    inicializarSelectoresFecha();
     renderColores();
     bindUI();
 
-    // Notificación de eventos del día
     setTimeout(() => notificarEventosDeHoy(), 800);
 
     if (window.lucide) window.lucide.createIcons();
