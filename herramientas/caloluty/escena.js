@@ -1,8 +1,9 @@
 // ============================================================
 //  Caloluty — Escena Three.js con temas y ciudad viva
 //  ------------------------------------------------------------
-//  · Targets a nivel de calle, caminando por la ciudad
-//  · Colores del escenario heredados del tema del shell
+//  · Cielo/fog leídos del tema activo (--bg-alt)
+//  · Detección de tema claro/oscuro para ajustar estrellas y fog
+//  · Targets caminando a nivel de calle, sin atravesar el suelo
 //  · Estrellas, neón parpadeante, coches de fondo, luciérnagas
 // ============================================================
 
@@ -12,8 +13,8 @@
     const Z_MIN = -22;
     const Z_MAX = -8;
     const X_MAX = 4.5;
-    const Y_SUELO = 1.0;
-    const Y_MAX_DESVIO = 1.2;
+    const Y_BASE_MIN = 0.9;      // altura mínima del centro del sprite
+    const Y_MAX_DESVIO = 1.1;    // cuánto puede subir el centro
 
     let escena = null;
     let camara = null;
@@ -28,6 +29,8 @@
     let grupoEstrellas = null;
     let grupoCoches = null;
     let grupoLuciernagas = null;
+    let grupoFondo = null;
+
     let cochesDeFondo = [];
     let luciernagas = [];
     let ventanasNeon = [];
@@ -42,6 +45,9 @@
         edificio: 0x3F3F46,
         edificioOscuro: 0x1F1F23,
         estrella: 0xFFFFFF,
+        esClaro: false,
+        nieblaNear: 26,
+        nieblaFar: 60,
         neon1: 0xEF4444,
         neon2: 0x10B981,
         neon3: 0xF59E0B
@@ -56,21 +62,60 @@
     }
 
     function hexAInt(hex) {
+        if (typeof hex !== 'string') return 0;
         const h = hex.replace('#', '').trim();
         if (h.length === 3) {
             return parseInt(h[0]+h[0]+h[1]+h[1]+h[2]+h[2], 16);
         }
-        return parseInt(h, 16);
+        if (h.length === 6 || h.length === 8) {
+            return parseInt(h.slice(0, 6), 16);
+        }
+        return 0;
+    }
+
+    function luminancia(hex) {
+        const r = (hex >> 16) & 255;
+        const g = (hex >> 8) & 255;
+        const b = hex & 255;
+        return 0.299 * r + 0.587 * g + 0.114 * b;
     }
 
     function leerTema() {
-        T.acento         = hexAInt(cssVar('--violet-500', '#8B5CF6'));
-        T.acentoOscuro   = hexAInt(cssVar('--violet-700', '#6D28D9'));
-        T.acentoClaro    = hexAInt(cssVar('--violet-400', '#A78BFA'));
-        T.fondo          = hexAInt(cssVar('--gray-900', '#18181B'));
-        T.fondoSec       = hexAInt(cssVar('--gray-800', '#27272A'));
-        T.edificio       = hexAInt(cssVar('--gray-700', '#3F3F46'));
-        T.edificioOscuro = hexAInt(cssVar('--gray-900', '#1F1F23'));
+        // Acento (siempre existe en el tema activo)
+        T.acento       = hexAInt(cssVar('--violet-500', '#8B5CF6'));
+        T.acentoOscuro = hexAInt(cssVar('--violet-700', '#6D28D9'));
+        T.acentoClaro  = hexAInt(cssVar('--violet-400', '#A78BFA'));
+
+        // Cielo: usamos --bg-alt como base, con fallback al --bg
+        const bgAlt = cssVar('--bg-alt', '');
+        const bg    = cssVar('--bg', '#FBFBFD');
+        const cieloHex = bgAlt || bg;
+
+        T.fondo    = hexAInt(cieloHex);
+        T.fondoSec = hexAInt(bg);
+
+        // Edificios: preferimos grises del tema, sino derivamos del fondo
+        const g700 = cssVar('--gray-700', '');
+        const g900 = cssVar('--gray-900', '');
+        T.edificio       = g700 ? hexAInt(g700) : T.fondo;
+        T.edificioOscuro = g900 ? hexAInt(g900) : T.fondoSec;
+
+        // Detectar tema claro u oscuro según luminancia del cielo
+        T.esClaro = luminancia(T.fondo) > 140;
+
+        if (T.esClaro) {
+            // Cielo claro: estrellas oscuras, fog más suave y alejada
+            T.estrella   = hexAInt(cssVar('--gray-600', '#52525B'));
+            T.nieblaNear = 32;
+            T.nieblaFar  = 85;
+        } else {
+            // Cielo oscuro: estrellas blancas
+            T.estrella   = 0xFFFFFF;
+            T.nieblaNear = 26;
+            T.nieblaFar  = 60;
+        }
+
+        // Colores semánticos de neón (fijos, siempre visibles)
         T.neon1 = 0xEF4444;
         T.neon2 = 0x10B981;
         T.neon3 = 0xF59E0B;
@@ -149,7 +194,7 @@
 
         escena = new THREE.Scene();
         escena.background = new THREE.Color(T.fondo);
-        escena.fog = new THREE.Fog(T.fondo, 26, 60);
+        escena.fog = new THREE.Fog(T.fondo, T.nieblaNear, T.nieblaFar);
 
         const w = contenedor.clientWidth || 400;
         const h = contenedor.clientHeight || 600;
@@ -163,14 +208,20 @@
         renderer.setSize(w, h);
         contenedor.appendChild(renderer.domElement);
 
-        escena.add(new THREE.AmbientLight(T.acentoClaro, 0.9));
-        const dir = new THREE.DirectionalLight(0xfff0d0, 1.15);
+        // Luces que respiran el tema
+        const ambientIntensity = T.esClaro ? 1.15 : 0.9;
+        escena.add(new THREE.AmbientLight(T.acentoClaro, ambientIntensity));
+
+        const dirLuzColor = T.esClaro ? 0xFFFFFF : 0xfff0d0;
+        const dir = new THREE.DirectionalLight(dirLuzColor, 1.15);
         dir.position.set(5, 10, 5);
         escena.add(dir);
-        const dir2 = new THREE.DirectionalLight(T.acento, 0.6);
+
+        const dir2 = new THREE.DirectionalLight(T.acento, T.esClaro ? 0.4 : 0.6);
         dir2.position.set(-5, 5, -10);
         escena.add(dir2);
 
+        // Suelo (calle)
         const sueloGeo = new THREE.PlaneGeometry(80, 80);
         const sueloMat = new THREE.MeshStandardMaterial({
             color: T.fondoSec,
@@ -182,12 +233,14 @@
         suelo.position.set(0, 0, -20);
         escena.add(suelo);
 
+        // Grid de neón
         const gridHelper = new THREE.GridHelper(60, 30, T.acento, T.acentoOscuro);
         gridHelper.position.set(0, 0.02, -20);
-        gridHelper.material.opacity = 0.32;
+        gridHelper.material.opacity = T.esClaro ? 0.5 : 0.32;
         gridHelper.material.transparent = true;
         escena.add(gridHelper);
 
+        // Acera
         const aceraGeo = new THREE.BoxGeometry(20, 0.15, 5);
         const aceraMat = new THREE.MeshStandardMaterial({
             color: T.edificio,
@@ -208,7 +261,7 @@
     // ---------- Estrellas ----------
     function construirEstrellas() {
         grupoEstrellas = new THREE.Group();
-        const cantidad = 180;
+        const cantidad = T.esClaro ? 90 : 180;
         const geo = new THREE.BufferGeometry();
         const posiciones = new Float32Array(cantidad * 3);
         for (let i = 0; i < cantidad; i++) {
@@ -219,10 +272,10 @@
         geo.setAttribute('position', new THREE.BufferAttribute(posiciones, 3));
         const mat = new THREE.PointsMaterial({
             color: T.estrella,
-            size: 0.15,
+            size: T.esClaro ? 0.22 : 0.15,
             sizeAttenuation: true,
             transparent: true,
-            opacity: 0.85,
+            opacity: T.esClaro ? 0.55 : 0.85,
             fog: false
         });
         const puntos = new THREE.Points(geo, mat);
@@ -245,9 +298,13 @@
                 const x = lado * (9 + Math.random() * 3);
                 const z = -12 - i * 3.2 - Math.random() * 1;
 
-                const color = (Math.random() < 0.5 ? T.edificio : T.edificioOscuro);
-                const emissive = (Math.random() < 0.4 ? T.acento : T.acentoOscuro);
-                const emissiveIntensity = 0.05 + Math.random() * 0.15;
+                // Edificios: mezcla entre color base del tema y su variante oscura
+                const usarOscuro = Math.random() < 0.5;
+                const color = usarOscuro ? T.edificioOscuro : T.edificio;
+                const emissive = (Math.random() < 0.5 ? T.acento : T.acentoOscuro);
+                const emissiveIntensity = T.esClaro
+                    ? 0.03 + Math.random() * 0.06
+                    : 0.05 + Math.random() * 0.15;
 
                 const mat = new THREE.MeshStandardMaterial({
                     color: color,
@@ -266,6 +323,7 @@
                     fase: Math.random() * Math.PI * 2
                 });
 
+                // Ventanas de neón
                 const ventanasCant = Math.floor(alto / 1.2);
                 for (let v = 0; v < ventanasCant; v++) {
                     if (Math.random() < 0.55) {
@@ -277,7 +335,8 @@
                             color: wColor,
                             transparent: true,
                             opacity: 0.85,
-                            side: THREE.DoubleSide
+                            side: THREE.DoubleSide,
+                            fog: true
                         });
                         const w = new THREE.Mesh(wGeo, wMat);
                         const offset = (lado > 0) ? -ancho / 2 - 0.01 : ancho / 2 + 0.01;
@@ -295,6 +354,7 @@
             }
         }
 
+        // Edificios del fondo (silueta contra el horizonte)
         for (let i = 0; i < 25; i++) {
             const alto = 4 + Math.random() * 10;
             const ancho = 1.8 + Math.random() * 3;
@@ -361,7 +421,8 @@
             const mat = new THREE.MeshBasicMaterial({
                 color,
                 transparent: true,
-                opacity: 0.85
+                opacity: 0.85,
+                fog: true
             });
             const l = new THREE.Mesh(geo, mat);
             const x = (Math.random() - 0.5) * 14;
@@ -397,10 +458,15 @@
 
         const desdeIzquierda = Math.random() < 0.5;
         const xIni = desdeIzquierda ? -X_MAX - 0.5 : X_MAX + 0.5;
-        const y = Y_SUELO + (Math.random() - 0.5) * Y_MAX_DESVIO;
         const z = Z_MIN + Math.random() * (Z_MAX - Z_MIN);
 
+        // Escala en base a profundidad
         const escala = 0.9 + (z - Z_MIN) / (Z_MAX - Z_MIN) * 0.5;
+
+        // Altura del centro: mínimo = suelo + mitad de altura del sprite + margen
+        // Así el sprite nunca atraviesa el suelo.
+        const alturaMinimaCentro = 0.15 + escala * 0.5;
+        const y = alturaMinimaCentro + Math.random() * Y_MAX_DESVIO;
 
         sprite.position.set(xIni, y, z);
         sprite.scale.set(escala * 0.2, escala * 0.2, 1);
@@ -422,7 +488,8 @@
             vidaMaxMs: 3600,
             muerto: false,
             apareciendoMs: 220,
-            bobFase: Math.random() * Math.PI * 2
+            bobFase: Math.random() * Math.PI * 2,
+            alturaMinimaCentro
         };
 
         targets.push(target);
@@ -461,9 +528,11 @@
             if (t.x < -X_MAX) { t.x = -X_MAX; t.vx = Math.abs(t.vx); }
 
             t.bobFase += dt * 8;
-            const bob = Math.sin(t.bobFase) * 0.06;
+            const bob = Math.sin(t.bobFase) * 0.05;
 
-            t.sprite.position.set(t.x, t.y + bob, t.z);
+            // La altura del centro nunca baja de alturaMinimaCentro - bob
+            const yFinal = Math.max(t.alturaMinimaCentro, t.y + bob);
+            t.sprite.position.set(t.x, yFinal, t.z);
         }
 
         cochesDeFondo.forEach(c => {
@@ -492,7 +561,7 @@
         });
 
         edificiosEmissive.forEach(e => {
-            e.mat.emissiveIntensity = e.baseIntensity + Math.sin(tiempo * 0.8 + e.fase) * 0.05;
+            e.mat.emissiveIntensity = e.baseIntensity + Math.sin(tiempo * 0.8 + e.fase) * 0.04;
         });
 
         ventanasNeon.forEach(v => {
@@ -554,7 +623,7 @@
     }
 
     function proyectarTarget(t) {
-        const v = new THREE.Vector3(t.x, t.y + 0.06, t.z);
+        const v = new THREE.Vector3(t.x, t.sprite.position.y, t.z);
         v.project(camara);
         const rect = contenedorActual.getBoundingClientRect();
         return {
@@ -564,8 +633,8 @@
     }
 
     function radioEnPantalla(t) {
-        const c = new THREE.Vector3(t.x, t.y, t.z).project(camara);
-        const e = new THREE.Vector3(t.x + t.radio, t.y, t.z).project(camara);
+        const c = new THREE.Vector3(t.x, t.sprite.position.y, t.z).project(camara);
+        const e = new THREE.Vector3(t.x + t.radio, t.sprite.position.y, t.z).project(camara);
         const rect = contenedorActual.getBoundingClientRect();
         return Math.abs(e.x - c.x) * 0.5 * rect.width;
     }
