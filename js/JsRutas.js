@@ -325,6 +325,17 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 6,
         monedas: 35
     },
+    {
+    id: 'caloluty',
+    nombre: 'Caloluty',
+    icono: 'crosshair',
+    ruta: 'herramientas/caloluty/index.html',
+    descripcion: 'Galería de tiro en 3D. 40 dianas, 60 segundos. Comprá armas y demostrá tu puntería.',
+    categoria: 'Juegos',
+    esBase: false,
+    espacio: 6,
+    monedas: 10
+},
 
     // ============================================================
     //  SOCIAL
