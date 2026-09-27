@@ -87,6 +87,17 @@ const RUTAS_HERRAMIENTAS = [
     //  CREATIVIDAD
     // ============================================================
         {
+        id: 'piano',
+        nombre: 'Piano Virtual',
+        icono: 'piano',
+        ruta: 'herramientas/piano/index.html',
+        descripcion: 'Piano con teclado del PC o toque. Graba tus composiciones y descárgalas como MIDI.',
+        categoria: 'Creatividad',
+        esBase: false,
+        espacio: 4,
+        monedas: 40
+    },
+        {
         id: 'ocs',
         nombre: 'Mis OCs',
         icono: 'sparkles',
