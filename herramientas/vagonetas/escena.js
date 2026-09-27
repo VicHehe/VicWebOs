@@ -1,54 +1,99 @@
 // ============================================================
-//  Vagonetas — Capa visual (Three.js) con curvas y decoraciones
+//  Vagonetas — Capa visual con CURVAS DISCRETAS
 //  ------------------------------------------------------------
-//  El track NO es recto. La función `curva(z)` desplaza en X
-//  todos los elementos según su Z. Así se siente serpenteante.
+//  El track es recto… recto… ¡curva!… recto…
+//  Las curvas están pre-generadas como segmentos. Se ven desde
+//  lejos y se toman solas (el jugador no hace nada).
 //
-//  5 carriles: X = [-4, -2, 0, 2, 4]
-//  Cámara sigue la curva al 30% para dar sensación de giro.
+//  Estrategia técnica:
+//  · `curvaMundo(z)` devuelve el offset X en world-Z
+//  · Los rieles/durmientes/postes/decoración viven en `mundoGroup`
+//  · `mundoGroup.position.z = progreso` (el mundo pasa, no el jugador)
+//  · El jugador está en Z=0 local siempre
+//  · La cámara sigue la curva con lerp para efecto cinematográfico
 // ============================================================
 
 (function () {
     'use strict';
 
     const CARRILES_X = [-4, -2, 0, 2, 4];
-    const CARRILES = [0, 1, 2, 3, 4];
+    const CANT_CARRILES = 5;
 
-    // Curva del track: suma de dos senoidales. Normalizada para que
-    // curva(0) = 0 (el jugador en Z=0 queda en su X de carril puro).
-    const CURVA_A_FREQ  = 0.0075;
-    const CURVA_A_AMP   = 3.8;
-    const CURVA_B_FREQ  = 0.0028;
-    const CURVA_B_AMP   = 1.6;
-    const CURVA_B_PHASE = 1.1;
-    const CURVA_OFFSET  = Math.sin(0) * CURVA_A_AMP +
-                          Math.sin(0 + CURVA_B_PHASE) * CURVA_B_AMP;
+    // ---- Segmentos de curva (mundo) ----
+    let curvaSegmentos = [];
 
-    function curva(z) {
-        return (
-            Math.sin(z * CURVA_A_FREQ) * CURVA_A_AMP +
-            Math.sin(z * CURVA_B_FREQ + CURVA_B_PHASE) * CURVA_B_AMP -
-            CURVA_OFFSET
-        );
+    function generarCurvas() {
+        curvaSegmentos = [];
+        let z = 60;    // empezamos un poco detrás del jugador
+        let x = 0;
+
+        while (z > -900) {
+            // Tramo recto (60-100m)
+            const largRecto = 60 + Math.random() * 40;
+            curvaSegmentos.push({
+                z1: z, z2: z - largRecto,
+                x1: x, x2: x
+            });
+            z -= largRecto;
+
+            // 70% de las veces metemos una curva
+            if (Math.random() < 0.70) {
+                const lado = Math.random() < 0.5 ? -1 : 1;
+                const dx = lado * (6 + Math.random() * 4);     // ±6-10 unidades
+                const largCurva = 35 + Math.random() * 15;     // 35-50m
+                curvaSegmentos.push({
+                    z1: z, z2: z - largCurva,
+                    x1: x, x2: x + dx
+                });
+                z -= largCurva;
+                x += dx;
+            }
+        }
     }
 
+    function curvaMundo(zMundo) {
+        if (curvaSegmentos.length === 0) return 0;
+        for (let i = 0; i < curvaSegmentos.length; i++) {
+            const s = curvaSegmentos[i];
+            if (zMundo <= s.z1 && zMundo >= s.z2) {
+                const t = (s.z1 - zMundo) / (s.z1 - s.z2);
+                const ts = t * t * (3 - 2 * t);  // smoothstep
+                return s.x1 + (s.x2 - s.x1) * ts;
+            }
+        }
+        // Fuera de rango
+        if (zMundo < curvaSegmentos[curvaSegmentos.length - 1].z2) {
+            return curvaSegmentos[curvaSegmentos.length - 1].x2;
+        }
+        return 0;
+    }
+
+    // ---- Refs ----
     let escena = null;
     let camara = null;
     let renderer = null;
     let contenedorActual = null;
     let mapaActual = null;
 
+    let mundoGroup = null;
     let carritoJugador = null;
     let carritosRivales = [];
-    let grupoMundo = null;
+    let grupoObstaculos = null;
     let poolObstaculos = [];
     let decoracionesAnimadas = [];
+
+    // ---- Cámara ----
+    let camaraXTarget = 0;
+    let camaraXActual = 0;
+    let shakeIntensidad = 0;
 
     // ---------- Init ----------
     function init(contenedor, mapaConfig, jugadorInfo) {
         limpiarEscena();
         contenedorActual = contenedor;
         mapaActual = mapaConfig;
+
+        generarCurvas();
 
         escena = new THREE.Scene();
         escena.background = new THREE.Color(mapaConfig.cielo);
@@ -61,8 +106,9 @@
         const w = contenedor.clientWidth || 400;
         const h = contenedor.clientHeight || 600;
 
-        camara = new THREE.PerspectiveCamera(62, w / h, 0.1, 500);
-        camara.position.set(0, 7, 12.5);
+        camara = new THREE.PerspectiveCamera(62, w / h, 0.1, 600);
+        camara.position.set(0, 7.5, 13);
+        camara.lookAt(0, 1.6, -10);
 
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -81,8 +127,12 @@
         dir.position.set(...mapaConfig.luzDir.pos);
         escena.add(dir);
 
+        // ---- Grupo del MUNDO (todo lo que se mueve con progreso) ----
+        mundoGroup = new THREE.Group();
+        escena.add(mundoGroup);
+
         // Suelo extendido
-        const sueloGeo = new THREE.PlaneGeometry(120, 700);
+        const sueloGeo = new THREE.PlaneGeometry(200, 1100);
         const sueloMat = new THREE.MeshStandardMaterial({
             color: mapaConfig.suelo,
             roughness: 0.95,
@@ -90,30 +140,24 @@
         });
         const suelo = new THREE.Mesh(sueloGeo, sueloMat);
         suelo.rotation.x = -Math.PI / 2;
-        suelo.position.set(0, 0, -250);
-        escena.add(suelo);
+        suelo.position.set(0, 0, -450);
+        mundoGroup.add(suelo);
 
-        // Rieles curvos (InstancedMesh)
+        // Rieles, durmientes, postes (todo en el mundoGroup)
         construirRieles(mapaConfig);
-
-        // Durmientes curvos
         construirDurmientes(mapaConfig);
-
-        // Postes laterales (dan sensación de velocidad)
         construirPostes(mapaConfig);
-
-        // Decoración por mapa
         construirDecoracion(mapaConfig);
 
-        // Grupo obstáculos
-        grupoMundo = new THREE.Group();
-        escena.add(grupoMundo);
+        // ---- Grupo de obstáculos (fuera del mundoGroup, son relativos al jugador) ----
+        grupoObstaculos = new THREE.Group();
+        escena.add(grupoObstaculos);
 
-        // Carrito del jugador
+        // ---- Carrito del jugador ----
         carritoJugador = crearCarrito(mapaConfig.jugador, jugadorInfo, false);
         escena.add(carritoJugador);
 
-        // Rivales (con "?")
+        // ---- Rivales ----
         carritosRivales = [];
         for (let i = 0; i < 2; i++) {
             const color = i === 0 ? mapaConfig.rival1 : mapaConfig.rival2;
@@ -122,6 +166,9 @@
             carritosRivales.push(c);
         }
 
+        camaraXActual = curvaMundo(0);
+        camaraXTarget = camaraXActual;
+
         render();
     }
 
@@ -129,40 +176,38 @@
     function construirRieles(mapaConfig) {
         const rielMat = new THREE.MeshStandardMaterial({
             color: mapaConfig.riel,
-            metalness: 0.7,
-            roughness: 0.35,
+            metalness: 0.75,
+            roughness: 0.3,
             emissive: mapaConfig.riel,
-            emissiveIntensity: 0.25
+            emissiveIntensity: 0.28
         });
 
-        const SEG = 220;              // segmentos por riel
-        const LARGO = 640;            // longitud total
-        const step = LARGO / SEG;
-        const rielesPorCarril = 2;
-        const offsetLateral = 0.55;   // mitad de ancho del carril
-        const cantidad = SEG * rielesPorCarril * CARRILES.length;
+        const Z_INI = 20;
+        const Z_FIN = -900;
+        const SEG = 300;
+        const step = (Z_INI - Z_FIN) / SEG;
+        const offsetLateral = 0.5;
+        const anchoRiel = 0.09;
+        const altoRiel = 0.07;
 
-        // Geo: caja alineada a Z (lado largo = Z)
-        const geo = new THREE.BoxGeometry(0.1, 0.08, step * 1.05);
+        const cantidad = SEG * 2 * CANT_CARRILES;
+        const geo = new THREE.BoxGeometry(anchoRiel, altoRiel, Math.abs(step) * 1.05);
         const instanced = new THREE.InstancedMesh(geo, rielMat, cantidad);
-
         const dummy = new THREE.Object3D();
         let idx = 0;
 
         CARRILES_X.forEach(xCarril => {
             [-offsetLateral, offsetLateral].forEach(off => {
                 for (let i = 0; i < SEG; i++) {
-                    const z1 = 15 - i * step;
-                    const z2 = z1 - step;
-                    const x1 = xCarril + off + curva(z1);
-                    const x2 = xCarril + off + curva(z2);
+                    const z1 = Z_INI - i * Math.abs(step);
+                    const z2 = z1 - Math.abs(step);
+                    const x1 = xCarril + off + curvaMundo(z1);
+                    const x2 = xCarril + off + curvaMundo(z2);
                     const xm = (x1 + x2) / 2;
                     const zm = (z1 + z2) / 2;
-
-                    dummy.position.set(xm, 0.08, zm);
-                    // Rotación para alinear al tramo
                     const dx = x2 - x1;
                     const dz = z2 - z1;
+                    dummy.position.set(xm, 0.08, zm);
                     dummy.rotation.set(0, Math.atan2(dx, -dz), 0);
                     dummy.updateMatrix();
                     instanced.setMatrixAt(idx++, dummy.matrix);
@@ -170,59 +215,61 @@
             });
         });
 
-        escena.add(instanced);
+        mundoGroup.add(instanced);
     }
 
-    // ---------- Durmientes ----------
     function construirDurmientes(mapaConfig) {
         const geo = new THREE.BoxGeometry(2.0, 0.06, 0.28);
         const mat = new THREE.MeshStandardMaterial({
             color: mapaConfig.rielMetal,
             roughness: 0.9
         });
-        const cantidadPorCarril = 130;
-        const total = cantidadPorCarril * CARRILES.length;
+        const Z_INI = 20;
+        const step = 5;
+        const cantidadPorCarril = Math.floor((-Z_INI + 900) / step);
+        const total = cantidadPorCarril * CANT_CARRILES;
         const instanced = new THREE.InstancedMesh(geo, mat, total);
-
         const dummy = new THREE.Object3D();
         let idx = 0;
-        const step = 5;
 
         CARRILES_X.forEach(xCarril => {
             for (let i = 0; i < cantidadPorCarril; i++) {
-                const z = 15 - i * step;
-                const x = xCarril + curva(z);
+                const z = Z_INI - i * step;
+                const x = xCarril + curvaMundo(z);
                 dummy.position.set(x, 0.04, z);
                 dummy.rotation.set(0, 0, 0);
                 dummy.updateMatrix();
                 instanced.setMatrixAt(idx++, dummy.matrix);
             }
         });
-        escena.add(instanced);
+        mundoGroup.add(instanced);
     }
 
-    // ---------- Postes laterales ----------
     function construirPostes(mapaConfig) {
         const mat = new THREE.MeshStandardMaterial({
             color: mapaConfig.rielMetal,
             roughness: 0.6,
-            metalness: 0.3
+            metalness: 0.35,
+            emissive: mapaConfig.rielMetal,
+            emissiveIntensity: 0.15
         });
-        const geo = new THREE.BoxGeometry(0.18, 2.0, 0.18);
-        const cantidad = 90;
+        const geo = new THREE.BoxGeometry(0.2, 2.2, 0.2);
+        const step = 8;
+        const cantidad = Math.floor((-20 + 900) / step);
         const instanced = new THREE.InstancedMesh(geo, mat, cantidad * 2);
         const dummy = new THREE.Object3D();
         let idx = 0;
+
         for (let i = 0; i < cantidad; i++) {
-            const z = 15 - i * 7;
-            const c = curva(z);
-            [-5.5, 5.5].forEach(x => {
-                dummy.position.set(x + c, 1.0, z);
+            const z = 20 - i * step;
+            const c = curvaMundo(z);
+            [-5.8, 5.8].forEach(x => {
+                dummy.position.set(x + c, 1.1, z);
                 dummy.updateMatrix();
                 instanced.setMatrixAt(idx++, dummy.matrix);
             });
         }
-        escena.add(instanced);
+        mundoGroup.add(instanced);
     }
 
     // ---------- Decoración por mapa ----------
@@ -232,48 +279,47 @@
         const color = mapaConfig.decoColor;
 
         if (tipo === 'sol') {
-            // Sol gigante al fondo
-            const solGeo = new THREE.CircleGeometry(28, 48);
+            // Sol gigante + halo
+            const solGeo = new THREE.CircleGeometry(32, 48);
             const solMat = new THREE.MeshBasicMaterial({
                 color: 0xffe0c4,
                 transparent: true,
-                opacity: 0.9
+                opacity: 0.92
             });
             const sol = new THREE.Mesh(solGeo, solMat);
-            sol.position.set(0, 18, -240);
-            escena.add(sol);
+            sol.position.set(0, 22, -420);
+            mundoGroup.add(sol);
 
-            const haloGeo = new THREE.CircleGeometry(42, 48);
+            const haloGeo = new THREE.CircleGeometry(46, 48);
             const haloMat = new THREE.MeshBasicMaterial({
                 color: 0xffb890,
                 transparent: true,
-                opacity: 0.35
+                opacity: 0.32
             });
             const halo = new THREE.Mesh(haloGeo, haloMat);
-            halo.position.set(0, 18, -242);
-            escena.add(halo);
+            halo.position.set(0, 22, -422);
+            mundoGroup.add(halo);
         }
 
         else if (tipo === 'cristales') {
-            // Cristales flotantes a los costados
-            const geo = new THREE.OctahedronGeometry(1.2, 0);
+            const geo = new THREE.OctahedronGeometry(1.4, 0);
             const mat = new THREE.MeshStandardMaterial({
                 color,
                 emissive: color,
-                emissiveIntensity: 0.65,
-                metalness: 0.3,
-                roughness: 0.3,
+                emissiveIntensity: 0.75,
+                metalness: 0.35,
+                roughness: 0.25,
                 transparent: true,
-                opacity: 0.9
+                opacity: 0.92
             });
-            const cantidad = 24;
+            const cantidad = 40;
             const instanced = new THREE.InstancedMesh(geo, mat, cantidad);
             const dummy = new THREE.Object3D();
             for (let i = 0; i < cantidad; i++) {
-                const z = 10 - i * 20;
+                const z = 20 - i * 22;
                 const lado = i % 2 === 0 ? -1 : 1;
-                const x = lado * (6 + Math.random() * 4) + curva(z);
-                const y = 2 + Math.random() * 3.5;
+                const x = lado * (7 + Math.random() * 5) + curvaMundo(z);
+                const y = 2.5 + Math.random() * 4;
                 dummy.position.set(x, y, z);
                 dummy.rotation.set(
                     Math.random() * Math.PI,
@@ -284,109 +330,109 @@
                 dummy.updateMatrix();
                 instanced.setMatrixAt(i, dummy.matrix);
             }
-            escena.add(instanced);
+            mundoGroup.add(instanced);
             decoracionesAnimadas.push({ tipo: 'cristales', mesh: instanced });
         }
 
         else if (tipo === 'reflectores') {
-            // Conos de luz desde arriba
-            const cantidad = 6;
+            const cantidad = 10;
             for (let i = 0; i < cantidad; i++) {
-                const z = 0 - i * 60;
+                const z = 15 - i * 60;
                 const lado = i % 2 === 0 ? -1 : 1;
-                const conoGeo = new THREE.ConeGeometry(2.5, 14, 16, 1, true);
+                const conoGeo = new THREE.ConeGeometry(3, 18, 16, 1, true);
                 const conoMat = new THREE.MeshBasicMaterial({
                     color,
                     transparent: true,
-                    opacity: 0.18,
+                    opacity: 0.16,
                     side: THREE.DoubleSide
                 });
                 const cono = new THREE.Mesh(conoGeo, conoMat);
-                cono.position.set(lado * 7 + curva(z), 8, z);
+                cono.position.set(lado * 8 + curvaMundo(z), 10, z);
                 cono.rotation.x = Math.PI;
-                escena.add(cono);
+                mundoGroup.add(cono);
                 decoracionesAnimadas.push({
                     tipo: 'reflector',
                     mesh: cono,
-                    fase: i * 0.7
+                    fase: i * 0.6
                 });
             }
         }
 
         else if (tipo === 'engranajes') {
-            // Engranajes girando a los costados
-            const cantidad = 12;
+            const cantidad = 20;
             for (let i = 0; i < cantidad; i++) {
-                const z = 5 - i * 45;
+                const z = 15 - i * 45;
                 const lado = i % 2 === 0 ? -1 : 1;
-                const r = 1.5 + Math.random() * 1.5;
-                const geo = new THREE.TorusGeometry(r, r * 0.18, 8, 16);
+                const r = 1.6 + Math.random() * 1.6;
+                const geo = new THREE.TorusGeometry(r, r * 0.2, 8, 18);
                 const mat = new THREE.MeshStandardMaterial({
                     color,
-                    metalness: 0.7,
-                    roughness: 0.4,
+                    metalness: 0.75,
+                    roughness: 0.35,
                     emissive: color,
-                    emissiveIntensity: 0.15
+                    emissiveIntensity: 0.18
                 });
                 const g = new THREE.Mesh(geo, mat);
-                g.position.set(lado * 7 + curva(z), 4 + Math.random() * 3, z);
+                g.position.set(lado * 8 + curvaMundo(z), 4.5 + Math.random() * 3, z);
                 g.rotation.y = Math.random() * Math.PI;
-                escena.add(g);
+                mundoGroup.add(g);
                 decoracionesAnimadas.push({
                     tipo: 'engranaje',
                     mesh: g,
-                    vel: (i % 2 === 0 ? 1 : -1) * (0.4 + Math.random() * 0.4)
+                    vel: (i % 2 === 0 ? 1 : -1) * (0.5 + Math.random() * 0.5)
                 });
             }
         }
     }
 
-    // ---------- Carrito (más chico y low-poly) ----------
+    // ---------- Carrito ----------
     function crearCarrito(color, jugadorInfo, esRival) {
         const group = new THREE.Group();
 
-        // Cuerpo: 1.4 × 0.8 × 2.2
-        const cuerpoGeo = new THREE.BoxGeometry(1.4, 0.8, 2.2);
+        // Cuerpo bajo, chico: 1.3 × 0.7 × 2.0
+        const cuerpoGeo = new THREE.BoxGeometry(1.3, 0.7, 2.0);
         const cuerpoMat = new THREE.MeshStandardMaterial({
             color,
-            metalness: 0.5,
-            roughness: 0.5
+            metalness: 0.55,
+            roughness: 0.45,
+            emissive: color,
+            emissiveIntensity: 0.12
         });
         const cuerpo = new THREE.Mesh(cuerpoGeo, cuerpoMat);
-        cuerpo.position.y = 0.65;
+        cuerpo.position.y = 0.55;
         group.add(cuerpo);
 
-        // Borde superior
-        const bordeGeo = new THREE.BoxGeometry(1.5, 0.12, 2.35);
+        // Borde superior oscuro
+        const bordeGeo = new THREE.BoxGeometry(1.4, 0.1, 2.15);
         const bordeMat = new THREE.MeshStandardMaterial({ color: 0x18181b });
         const borde = new THREE.Mesh(bordeGeo, bordeMat);
-        borde.position.y = 1.1;
+        borde.position.y = 0.92;
         group.add(borde);
 
         // Frente brillante
-        const frenteGeo = new THREE.BoxGeometry(1.2, 0.5, 0.08);
+        const frenteGeo = new THREE.BoxGeometry(1.1, 0.4, 0.06);
         const frenteMat = new THREE.MeshStandardMaterial({
             color: 0xffffff,
-            metalness: 0.4,
+            metalness: 0.3,
             roughness: 0.3,
             emissive: 0xffffff,
-            emissiveIntensity: 0.15
+            emissiveIntensity: 0.25
         });
         const frente = new THREE.Mesh(frenteGeo, frenteMat);
-        frente.position.set(0, 0.65, -1.11);
+        frente.position.set(0, 0.55, -1.01);
         group.add(frente);
 
         // Ruedas
-        const ruedaGeo = new THREE.CylinderGeometry(0.3, 0.3, 0.2, 10);
+        const ruedaGeo = new THREE.CylinderGeometry(0.28, 0.28, 0.18, 10);
         const ruedaMat = new THREE.MeshStandardMaterial({
             color: 0x18181b,
             roughness: 0.85
         });
         [
-            [-0.75, 0.3, -0.75],
-            [ 0.75, 0.3, -0.75],
-            [-0.75, 0.3,  0.75],
-            [ 0.75, 0.3,  0.75]
+            [-0.72, 0.28, -0.7],
+            [ 0.72, 0.28, -0.7],
+            [-0.72, 0.28,  0.7],
+            [ 0.72, 0.28,  0.7]
         ].forEach(p => {
             const r = new THREE.Mesh(ruedaGeo, ruedaMat);
             r.rotation.z = Math.PI / 2;
@@ -394,14 +440,16 @@
             group.add(r);
         });
 
-        // Foto / inicial / signo "?"
+        // Disco superior con foto / inicial / "?"
         const canvas = document.createElement('canvas');
         canvas.width = 128;
         canvas.height = 128;
         const c = canvas.getContext('2d');
 
+        const colorHex = '#' + color.toString(16).padStart(6, '0');
+
         if (esRival) {
-            c.fillStyle = '#' + color.toString(16).padStart(6, '0');
+            c.fillStyle = colorHex;
             c.beginPath();
             c.arc(64, 64, 58, 0, Math.PI * 2);
             c.fill();
@@ -411,7 +459,11 @@
             c.textBaseline = 'middle';
             c.fillText('?', 64, 72);
         } else if (jugadorInfo && jugadorInfo.foto) {
-            // Foto real (se carga async y se redibuja)
+            c.fillStyle = colorHex;
+            c.beginPath();
+            c.arc(64, 64, 58, 0, Math.PI * 2);
+            c.fill();
+
             const img = new Image();
             img.crossOrigin = 'anonymous';
             img.onload = () => {
@@ -430,15 +482,8 @@
                 tex.needsUpdate = true;
             };
             img.src = jugadorInfo.foto;
-
-            // Base mientras carga
-            c.fillStyle = '#' + color.toString(16).padStart(6, '0');
-            c.beginPath();
-            c.arc(64, 64, 58, 0, Math.PI * 2);
-            c.fill();
         } else {
-            // Inicial
-            c.fillStyle = '#' + color.toString(16).padStart(6, '0');
+            c.fillStyle = colorHex;
             c.beginPath();
             c.arc(64, 64, 58, 0, Math.PI * 2);
             c.fill();
@@ -453,13 +498,13 @@
         const tex = new THREE.CanvasTexture(canvas);
         tex.minFilter = THREE.LinearFilter;
 
-        const planeGeo = new THREE.PlaneGeometry(0.75, 0.75);
+        const planeGeo = new THREE.PlaneGeometry(0.7, 0.7);
         const planeMat = new THREE.MeshBasicMaterial({
             map: tex,
             transparent: true
         });
         const plane = new THREE.Mesh(planeGeo, planeMat);
-        plane.position.set(0, 1.55, 0);
+        plane.position.set(0, 1.35, 0);
         group.add(plane);
 
         return group;
@@ -469,15 +514,17 @@
     function obtenerObstaculoDelPool() {
         let o = poolObstaculos.pop();
         if (!o) {
-            const geo = new THREE.BoxGeometry(1.1, 0.9, 1.1);
+            const geo = new THREE.BoxGeometry(1.05, 0.85, 1.05);
             const mat = new THREE.MeshStandardMaterial({
                 color: mapaActual.obstaculo,
                 roughness: 0.7,
-                metalness: 0.2
+                metalness: 0.25,
+                emissive: mapaActual.obstaculo,
+                emissiveIntensity: 0.2
             });
             o = new THREE.Mesh(geo, mat);
 
-            const bordeGeo = new THREE.BoxGeometry(1.2, 0.12, 1.2);
+            const bordeGeo = new THREE.BoxGeometry(1.15, 0.12, 1.15);
             const bordeMat = new THREE.MeshStandardMaterial({
                 color: mapaActual.obstaculoB
             });
@@ -494,67 +541,91 @@
     }
 
     // ---------- Update ----------
-    function updateEscena(jugadorData, rivalesData, obstaculosData, dt) {
+    function updateEscena(jugadorData, rivalesData, obstaculosData, dt, shakeMs) {
         if (!escena) return;
 
-        // Jugador en Z = 0
+        const progreso = jugadorData.progreso;
+
+        // Mover el mundo en Z
+        mundoGroup.position.z = progreso;
+
+        // Curva del jugador
+        const curvaJ = curvaMundo(-progreso);
+
+        // ---- Jugador ----
         if (carritoJugador) {
-            const xBase = CARRILES_X[jugadorData.carril];
-            const xFinal = xBase + curva(0);
-            // Interpolación suave desde la X actual
-            carritoJugador.position.x += (xFinal - carritoJugador.position.x) * Math.min(dt * 14, 1);
+            const xJ = CARRILES_X[jugadorData.carril];
+            // Suavizado al cambiar de carril
+            carritoJugador.position.x += (xJ - carritoJugador.position.x) * Math.min(dt * 15, 1);
             carritoJugador.position.z = 0;
+            // Tilt al cambiar de carril
+            const dx = xJ - carritoJugador.position.x;
+            carritoJugador.rotation.z = -dx * 0.08;
         }
 
-        // Rivales
+        // ---- Rivales ----
         carritosRivales.forEach((c, i) => {
             const r = rivalesData[i];
             if (!r) return;
-            const zRel = -(r.progreso - jugadorData.progreso);
-            const xBase = CARRILES_X[r.carril];
-            const xFinal = xBase + curva(zRel);
-            c.position.x += (xFinal - c.position.x) * Math.min(dt * 14, 1);
+            const zRel = -(r.progreso - progreso);
+            const xR = CARRILES_X[r.carril];
+            c.position.x += (xR - c.position.x) * Math.min(dt * 15, 1);
             c.position.z = zRel;
         });
 
-        // Cámara: sigue la curva al 30%
-        const curvaCam = curva(-2) * 0.3;
-        camara.position.x += (curvaCam - camara.position.x) * Math.min(dt * 4, 1);
-        camara.lookAt(
-            camara.position.x * 0.5,
-            1.5,
-            -8
-        );
-
-        // Obstáculos
+        // ---- Obstáculos ----
         const idsVivos = new Set(obstaculosData.map(o => o.id));
-        grupoMundo.children.slice().forEach(child => {
+        grupoObstaculos.children.slice().forEach(child => {
             if (!idsVivos.has(child.userData.id)) {
                 devolverAlPool(child);
             }
         });
 
         obstaculosData.forEach(o => {
-            let mesh = grupoMundo.children.find(c => c.userData.id === o.id);
+            let mesh = grupoObstaculos.children.find(c => c.userData.id === o.id);
             if (!mesh) {
                 mesh = obtenerObstaculoDelPool();
                 mesh.userData.id = o.id;
-                grupoMundo.add(mesh);
+                grupoObstaculos.add(mesh);
             }
-            const xBase = CARRILES_X[o.carril];
-            mesh.position.set(xBase + curva(o.z), 0.45, o.z);
+            // X del carril + diferencia de curva entre obstáculo y jugador
+            const zMundoObs = -progreso + o.z;
+            const curvaObs = curvaMundo(zMundoObs);
+            const xFinal = CARRILES_X[o.carril] + (curvaObs - curvaJ);
+            mesh.position.set(xFinal, 0.42, o.z);
         });
 
-        // Decoraciones animadas
+        // ---- Cámara: sigue la curva (lerp lento) ----
+        camaraXTarget = curvaJ;
+        camaraXActual += (camaraXTarget - camaraXActual) * Math.min(dt * 4, 1);
+
+        // Shake al chocar
+        let shakeX = 0, shakeY = 0;
+        if (shakeMs > 0) {
+            const intensidad = Math.min(shakeMs / 350, 1) * 0.45;
+            shakeX = (Math.random() - 0.5) * intensidad;
+            shakeY = (Math.random() - 0.5) * intensidad;
+        }
+
+        camara.position.set(camaraXActual + shakeX, 7.5 + shakeY, 13);
+
+        // Look at un punto levemente adelantado en la curva
+        const lookAheadX = curvaMundo(-progreso - 20);
+        camara.lookAt(
+            lookAheadX * 0.6 + camaraXActual * 0.4,
+            1.6,
+            -10
+        );
+
+        // ---- Decoraciones animadas ----
         const t = performance.now() / 1000;
         decoracionesAnimadas.forEach(d => {
             if (d.tipo === 'engranaje') {
                 d.mesh.rotation.z += d.vel * dt;
             } else if (d.tipo === 'reflector') {
-                d.mesh.rotation.y = Math.sin(t * 0.6 + d.fase) * 0.4;
+                d.mesh.rotation.y = Math.sin(t * 0.7 + d.fase) * 0.5;
             } else if (d.tipo === 'cristales') {
-                // Rotación global lenta
-                d.mesh.rotation.y = t * 0.15;
+                d.mesh.rotation.y = t * 0.2;
             }
         });
 
@@ -576,11 +647,13 @@
         }
         escena = null;
         camara = null;
+        mundoGroup = null;
         carritoJugador = null;
         carritosRivales = [];
-        grupoMundo = null;
+        grupoObstaculos = null;
         poolObstaculos = [];
         decoracionesAnimadas = [];
+        curvaSegmentos = [];
         if (contenedorActual) contenedorActual.innerHTML = '';
     }
 
@@ -596,7 +669,7 @@
 
     window.VG_Escena = {
         CARRILES_X,
-        curva,
+        curvaMundo,
         init,
         updateEscena,
         limpiarEscena,
