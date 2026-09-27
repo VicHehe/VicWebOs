@@ -24,8 +24,7 @@ let estado = {
 let usuarioActual = null;
 let inicializado = false;
 
-// Game state
-let fase = 'idle';           // idle | countdown | playing | finished
+let fase = 'idle';
 let tiempoCountdown = 3.0;
 let tiempoRestanteMs = 0;
 let totalAciertos = 0;
@@ -92,7 +91,7 @@ function toast(txt, tipo = 'info') {
 }
 
 // ============================================================
-//  AUDIO (Web Audio API, sin assets)
+//  AUDIO
 // ============================================================
 let audioCtx = null;
 function initAudio() {
@@ -117,33 +116,39 @@ function reproducirTono(freq, durMs, tipo = 'sine', vol = 0.15) {
     } catch (e) {}
 }
 
-function sonidoDisparo() {
-    reproducirTono(180, 90, 'square', 0.08);
-}
-function sonidoAcierto() {
+function sonidoDisparo()  { reproducirTono(180, 90, 'square', 0.08); }
+function sonidoAcierto()  {
     reproducirTono(880, 100, 'sine', 0.15);
     setTimeout(() => reproducirTono(1320, 90, 'sine', 0.12), 60);
 }
-function sonidoFallo() {
-    reproducirTono(140, 180, 'sawtooth', 0.12);
-}
+function sonidoFallo()    { reproducirTono(140, 180, 'sawtooth', 0.12); }
 function sonidoAzul() {
     reproducirTono(220, 200, 'square', 0.15);
     setTimeout(() => reproducirTono(160, 220, 'square', 0.12), 100);
 }
 
 // ============================================================
-//  UI: header / armas / pantallas
+//  MONEDAS — lectura fresca desde el shell
+// ============================================================
+function obtenerMonedasActuales() {
+    try {
+        const api = window.parent.__vicwebos;
+        if (api && typeof api.obtenerMonedas === 'function') {
+            return api.obtenerMonedas() ?? 0;
+        }
+    } catch (e) {}
+    return 0;
+}
+
+// ============================================================
+//  UI
 // ============================================================
 function renderHeader() {
     const badge = document.getElementById('clUserBadge');
     if (badge) badge.textContent = `@${usuarioActual.codigo} · ${usuarioActual.nombre}`;
 
     const elMon = document.getElementById('clMonedas');
-    if (elMon) {
-        const cfg = window.configCuentaActual;
-        elMon.textContent = cfg ? (cfg.monedas ?? 0) : 0;
-    }
+    if (elMon) elMon.textContent = obtenerMonedasActuales();
 }
 
 function renderArmas() {
@@ -151,8 +156,7 @@ function renderArmas() {
     if (!cont) return;
     cont.innerHTML = '';
 
-    const cfg = window.configCuentaActual;
-    const monedas = cfg ? (cfg.monedas ?? 0) : 0;
+    const monedas = obtenerMonedasActuales();
 
     ARMAS.forEach(a => {
         const comprada = estado.armasCompradas.includes(a.id);
@@ -209,7 +213,8 @@ async function comprarArma(arma) {
         estado.armasCompradas.push(arma.id);
         estado.armaActual = arma.id;
         await guardarEstado();
-        await recargarMonedas();
+        await new Promise(r => setTimeout(r, 350));
+        renderHeader();
         renderArmas();
         actualizarBotonEmpezar();
         actualizarArmaHud();
@@ -217,15 +222,6 @@ async function comprarArma(arma) {
     } catch (e) {
         toast(e.message || 'No se pudo comprar', 'error');
     }
-}
-
-async function recargarMonedas() {
-    try {
-        if (typeof window.parent.obtenerConfigCuenta === 'function' && window.cuentaActual) {
-            window.configCuentaActual = await window.parent.obtenerConfigCuenta(window.cuentaActual.codigo);
-        }
-    } catch (e) {}
-    renderHeader();
 }
 
 function actualizarBotonEmpezar() {
@@ -289,17 +285,13 @@ async function guardarEstado() {
 //  Plan de spawns
 // ============================================================
 function generarPlanSpawns() {
-    // 40 rojos + 15 azules = 55 targets en 60s
-    const total = TOTAL_ROJOS + TOTAL_AZULES;
     const plan = [];
     for (let i = 0; i < TOTAL_ROJOS; i++) plan.push('rojo');
     for (let i = 0; i < TOTAL_AZULES; i++) plan.push('azul');
-    // Intercalar: barajar manteniendo que el primer 25% tenga más rojos
     for (let i = plan.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [plan[i], plan[j]] = [plan[j], plan[i]];
     }
-    // Forzar 2 rojos al principio para que arranque enganchado
     plan[0] = 'rojo';
     plan[1] = 'rojo';
     return plan;
@@ -312,14 +304,12 @@ function bindInputs() {
     tocaDispositivo = matchMedia('(pointer: coarse)').matches;
 
     const wrap = document.querySelector('.cl-canvas-wrap');
-    const crosshairEl = document.getElementById('clCrosshair');
     const fireBtn = document.getElementById('clFireBtn');
 
-    if (!tocaDispositivo) {
-        if (fireBtn) fireBtn.style.display = 'none';
+    if (!tocaDispositivo && fireBtn) {
+        fireBtn.style.display = 'none';
     }
 
-    // Pointer move (mouse + touch)
     wrap.addEventListener('mousemove', (e) => {
         if (tocaDispositivo) return;
         actualizarCrosshair(e.clientX, e.clientY);
@@ -341,17 +331,14 @@ function bindInputs() {
         }
     }, { passive: false });
 
-    // Click directo (desktop)
     wrap.addEventListener('click', (e) => {
         if (tocaDispositivo) return;
         if (fase !== 'playing') return;
-        // Ignorar clics en el fire button
         if (e.target.closest('.cl-fire-btn')) return;
         actualizarCrosshair(e.clientX, e.clientY);
         disparar();
     });
 
-    // Fire button (móvil)
     if (fireBtn) {
         fireBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -383,7 +370,6 @@ function disparar() {
     cadenciaTimerMs = armaActual.cadenciaMs;
     sonidoDisparo();
 
-    // Flash de pantalla
     const flash = document.getElementById('clFlash');
     if (flash) {
         flash.classList.remove('activo');
@@ -391,7 +377,6 @@ function disparar() {
         flash.classList.add('activo');
     }
 
-    // Detectar impacto
     const targets = window.CL_Escena.obtenerTargets();
     let impacto = null;
 
@@ -412,7 +397,6 @@ function disparar() {
     if (impacto) {
         procesarImpacto(impacto, crosshair.x, crosshair.y);
     } else {
-        // Fondo: pequeño puff
         mostrarPuff(crosshair.x, crosshair.y, false);
     }
 }
@@ -498,7 +482,6 @@ function tickCountdown(dt) {
 }
 
 function tickJuego(dt) {
-    // Timer
     tiempoRestanteMs -= dt * 1000;
     if (tiempoRestanteMs <= 0) {
         tiempoRestanteMs = 0;
@@ -506,14 +489,11 @@ function tickJuego(dt) {
         return;
     }
 
-    // Cadencia
     if (cadenciaTimerMs > 0) cadenciaTimerMs -= dt * 1000;
 
-    // Spawns
     spawnTimerMs -= dt * 1000;
     if (spawnTimerMs <= 0 && spawnIndex < planSpawns.length) {
         spawnTarget(planSpawns[spawnIndex++]);
-        // 55 targets en 60s → 1090ms promedio
         spawnTimerMs = 1000 + Math.random() * 200;
     }
 
@@ -536,14 +516,13 @@ function actualizarHUD() {
 }
 
 // ============================================================
-//  Inicio / fin de partida
+//  Inicio / fin
 // ============================================================
 function iniciarPartida() {
     if (!estado.armaActual) return;
     armaActual = obtenerArma(estado.armaActual);
     if (!armaActual) return;
 
-    // Reset
     tiempoCountdown = 3.0;
     tiempoRestanteMs = DURACION_MS;
     totalAciertos = 0;
@@ -557,11 +536,9 @@ function iniciarPartida() {
     document.getElementById('clScreenStart').hidden = true;
     document.getElementById('clScreenFin').hidden = true;
 
-    // Init escena
     const contenedor = document.getElementById('clCanvas');
     window.CL_Escena.init(contenedor);
 
-    // Crosshair al centro
     const wrap = document.querySelector('.cl-canvas-wrap');
     const rect = wrap.getBoundingClientRect();
     crosshair.x = rect.width / 2;
@@ -572,7 +549,6 @@ function iniciarPartida() {
         elCh.style.top = crosshair.y + 'px';
     }
 
-    // Countdown UI
     const c = document.getElementById('clCountdown');
     const n = document.getElementById('clCountdownNum');
     if (c && n) {
@@ -603,7 +579,6 @@ async function finDePartida() {
     fase = 'finished';
     if (rafId) cancelAnimationFrame(rafId);
 
-    // Aplicar cap diario
     const hoy = diaChileHoy();
     if (estado.diaUltimo !== hoy) {
         estado.diaUltimo = hoy;
@@ -613,16 +588,15 @@ async function finDePartida() {
     const monedasFinal = Math.min(monedasPartida, disponible);
     estado.monedasHoy += monedasFinal;
 
-    // Stats
     estado.partidasJugadas++;
     estado.aciertosTotales += totalAciertos;
     estado.monedasGanadasTotales += monedasFinal;
     await guardarEstado();
 
-    // Otorgar
     if (monedasFinal > 0) {
         await otorgarMonedas(monedasFinal);
-        await recargarMonedas();
+        await new Promise(r => setTimeout(r, 350));
+        renderHeader();
     }
 
     mostrarFin(monedasFinal, monedasPartida > monedasFinal);
@@ -700,6 +674,7 @@ function bindBotones() {
         window.CL_Escena.limpiar();
         fase = 'idle';
         if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+        renderHeader();
         renderArmas();
         actualizarBotonEmpezar();
     });
@@ -727,6 +702,11 @@ async function inicializar() {
     actualizarArmaHud();
     bindInputs();
     bindBotones();
+
+    // Refrescar monedas cada 5s si estamos en el lobby
+    setInterval(() => {
+        if (fase === 'idle') renderHeader();
+    }, 5000);
 
     if (window.lucide) window.lucide.createIcons();
 }
