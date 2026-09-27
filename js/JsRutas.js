@@ -325,17 +325,6 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 6,
         monedas: 35
     },
-    {
-    id: 'clan-torral',
-    nombre: 'Clan Torral',
-    icono: 'castle',
-    ruta: 'herramientas/clan-torral/index.html',
-    descripcion: 'Batalla estratégica 1v1 en grid. Desplegá tropas, derribá torres, conquistá el campo.',
-    categoria: 'Juegos',
-    esBase: false,
-    espacio: 8,
-    monedas: 180
-},
 
     // ============================================================
     //  SOCIAL
