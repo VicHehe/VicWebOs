@@ -200,6 +200,17 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 6,
         monedas: 70
     },
+        {
+        id: 'cv',
+        nombre: 'Currículum',
+        icono: 'file-user',
+        ruta: 'herramientas/cv/index.html',
+        descripcion: 'Creá tu CV profesional. Rellená el formulario, elegí un tema y descargalo en PDF o PNG.',
+        categoria: 'Herramientas Prácticas',
+        esBase: false,
+        espacio: 6,
+        monedas: 75
+    },
 
     // ============================================================
     //  JUEGOS
