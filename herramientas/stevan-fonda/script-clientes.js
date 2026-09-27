@@ -1,8 +1,5 @@
 // ============================================================
 //  Stevan Fonda — Clientes y trabajadores reales
-//  ------------------------------------------------------------
-//  · Trabajador = tu foto de perfil (como Whack-a-mole, MetroRun)
-//  · Clientes   = vos + otros miembros de la comunidad (aleatorio)
 //  Se carga DESPUÉS de script.js.
 // ============================================================
 
@@ -57,13 +54,12 @@ function inicialesDe(nombre) {
     return String(nombre || '?').charAt(0).toUpperCase();
 }
 
-// Hook que usa el core para asignar cliente a cada mesa
 window.__sfAsignarCliente = function () {
     return elegirClienteAleatorio();
 };
 
 // ============================================================
-//  RENDER de las mesas (evita parpadeo, actualiza in-place)
+//  RENDER de mesas
 // ============================================================
 function renderizarMesas() {
     const cont = document.getElementById('sfMesas');
@@ -71,7 +67,6 @@ function renderizarMesas() {
 
     const mesas = window.__sfMesasActivas?.() || [];
 
-    // Reconstruir DOM si la cantidad cambió
     if (cont.children.length !== mesas.length) {
         cont.innerHTML = '';
         mesas.forEach(m => {
@@ -110,7 +105,7 @@ function renderizarMesas() {
         const cliNombre = el.querySelector('[data-role="cliente-nombre"]');
         if (m.cliente && cliAvatar && cliNombre) {
             if (m.cliente.foto) {
-                if (!cliAvatar.querySelector('img') || cliAvatar.dataset.codigo !== m.cliente.codigo) {
+                if (cliAvatar.dataset.codigo !== m.cliente.codigo) {
                     cliAvatar.innerHTML = `<img src="${m.cliente.foto}" alt="">`;
                     cliAvatar.dataset.codigo = m.cliente.codigo;
                 }
@@ -150,21 +145,14 @@ function renderizarMesas() {
         }
     });
 
-    // Actualizar los avatares de cocinero (todos con tu foto)
     actualizarCocinero();
 
-    // Actualizar info de mesas en el header
     const info = document.getElementById('sfMesasInfo');
     if (info) {
-        info.textContent = mesas.length === 1
-            ? '1 mesa'
-            : mesas.length + ' mesas';
+        info.textContent = mesas.length === 1 ? '1 mesa' : mesas.length + ' mesas';
     }
 }
 
-// ============================================================
-//  Popups de venta
-// ============================================================
 function mostrarPopup(mesaId, cantidad) {
     const el = document.querySelector(`.sf-mesa[data-mesa-id="${mesaId}"]`);
     if (!el) return;
@@ -179,9 +167,6 @@ function mostrarPopup(mesaId, cantidad) {
     setTimeout(() => el.classList.remove('vendiendo'), 500);
 }
 
-// ============================================================
-//  Avatar del cocinero = tu foto (como Whack-a-mole)
-// ============================================================
 function actualizarCocinero() {
     const cocineros = document.querySelectorAll('[data-role="cocinero"]');
     cocineros.forEach(el => {
@@ -198,17 +183,11 @@ function actualizarCocinero() {
     });
 }
 
-// ============================================================
-//  INIT
-// ============================================================
 async function inicializarClientes() {
     await cargarMiembros();
     renderizarMesas();
 }
 
-// ============================================================
-//  HOOKS EXPUESTOS
-// ============================================================
 window.__sfInitClientes = inicializarClientes;
 window.__sfRenderMesas = renderizarMesas;
 window.__sfMostrarPopup = mostrarPopup;
