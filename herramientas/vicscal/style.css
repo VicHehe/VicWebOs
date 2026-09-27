@@ -333,14 +333,20 @@ html, body {
     color: var(--violet-700, #6D28D9);
 }
 
+/* ----------------------------------------------------------------
+   Grid de días: SIEMPRE visible completo, sin scroll.
+   minmax(0, 1fr) deja que las filas se repartan el alto disponible
+   y se encojan si hace falta. El overflow:hidden corta el contenido
+   de cada celda si es muy chica — los eventos se ven en el panel.
+   ---------------------------------------------------------------- */
 .ca-dias-grid {
     flex: 1;
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    grid-auto-rows: minmax(80px, 1fr);
+    grid-auto-rows: minmax(0, 1fr);
     min-height: 0;
-    overflow-y: auto;
     background: var(--white, #FFFFFF);
+    overflow: hidden;
 }
 
 .ca-dia {
@@ -697,8 +703,6 @@ html, body {
     to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-/* El <form> es el wrapper del body y las acciones.
-   Tiene que heredar flex del card para que el body scrollee. */
 .ca-modal-card > form {
     flex: 1;
     min-height: 0;
@@ -775,7 +779,6 @@ html, body {
     flex-direction: column;
     gap: 6px;
 }
-/* Solo el label directo del field va en mayúsculas — no los que están anidados en las cards */
 .ca-field > label {
     font-size: 11.5px;
     font-weight: 800;
@@ -1070,13 +1073,10 @@ html, body {
 
     .ca-body {
         grid-template-columns: 1fr;
-        grid-template-rows: minmax(0, 1fr) auto;
+        grid-template-rows: minmax(280px, 1fr) auto;
         gap: 10px;
     }
     .ca-grid-wrap { min-height: 0; }
-    .ca-dias-grid {
-        grid-auto-rows: minmax(60px, 1fr);
-    }
     .ca-panel {
         max-height: 40dvh;
     }
