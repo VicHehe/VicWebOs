@@ -1,7 +1,8 @@
 /* ================================================================
    Constructor de CV — Estilos
-   Toda la app usa el tema del shell.
-   El preview del CV usa el tema elegido de forma AISLADA.
+   · Shell de la app: Nunito (como todo VicWebOs)
+   · CV exportable: Inter (tipografía profesional)
+   · Preview: tema elegido, independiente del shell
    ================================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -254,16 +255,31 @@ html, body {
     overflow: hidden;
 }
 
+/* ============ NAV (con scrollbar visible) ============ */
 .cv-form-nav {
     flex-shrink: 0;
     display: flex;
     gap: 2px;
-    padding: 10px 10px 0;
+    padding: 10px 10px 6px;
     overflow-x: auto;
-    scrollbar-width: none;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-300, #D4D4DD) transparent;
     border-bottom: 1px solid var(--border, #E8E8EE);
 }
-.cv-form-nav::-webkit-scrollbar { display: none; }
+.cv-form-nav::-webkit-scrollbar {
+    height: 6px;
+}
+.cv-form-nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+.cv-form-nav::-webkit-scrollbar-thumb {
+    background: var(--gray-300, #D4D4DD);
+    border-radius: 999px;
+}
+.cv-form-nav::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-400, #A1A1AD);
+}
 
 .cv-nav-item {
     display: inline-flex;
@@ -661,7 +677,7 @@ html, body {
 .cv-btn-add [data-lucide] { width: 15px; height: 15px; }
 
 /* ================================================================
-   PREVIEW STAGE (columna derecha)
+   PREVIEW STAGE
    ================================================================ */
 .cv-preview-stage {
     flex: 1;
@@ -678,12 +694,10 @@ html, body {
 }
 
 .cv-preview-wrapper {
-    /* El wrapper mantiene el tamaño visual escalado */
     position: relative;
 }
 
 .cv-preview {
-    /* Tamaño A4 a 96dpi: 794 × 1123 px (ratio 1:1.414) */
     width: 794px;
     min-height: 1123px;
     background: var(--bg, #FFFFFF);
@@ -692,8 +706,7 @@ html, body {
         0 4px 12px rgba(0,0,0,0.06),
         0 12px 40px rgba(0,0,0,0.12);
     transform-origin: top left;
-    /* Las CSS vars del tema elegido se aplican inline via JS */
-    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -704,6 +717,7 @@ html, body {
     padding: 48px 56px;
     color: inherit;
     flex: 1;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* Header del CV */
@@ -735,20 +749,21 @@ html, body {
 .cv-doc-header-info { flex: 1; min-width: 0; }
 .cv-doc-nombre {
     font-size: 30px;
-    font-weight: 900;
-    letter-spacing: -0.03em;
+    font-weight: 800;
+    letter-spacing: -0.025em;
     color: var(--text, #18181B);
     line-height: 1.1;
     margin: 0 0 4px;
     word-break: break-word;
 }
 .cv-doc-titulo {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--violet-500, #8B5CF6);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--violet-600, #7C3AED);
     letter-spacing: 0.01em;
     margin: 0 0 12px;
     word-break: break-word;
+    text-transform: uppercase;
 }
 
 .cv-doc-contacto {
@@ -756,7 +771,7 @@ html, body {
     grid-template-columns: 1fr 1fr;
     gap: 4px 20px;
     font-size: 12.5px;
-    font-weight: 600;
+    font-weight: 500;
     color: var(--text-2, #52525B);
 }
 .cv-doc-contacto-linea {
@@ -788,10 +803,10 @@ html, body {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 12.5px;
-    font-weight: 900;
+    font-size: 11.5px;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.16em;
     color: var(--violet-700, #6D28D9);
     margin-bottom: 12px;
 }
@@ -803,10 +818,10 @@ html, body {
 }
 
 .cv-doc-resumen {
-    font-size: 13.5px;
-    line-height: 1.65;
+    font-size: 13px;
+    line-height: 1.7;
     color: var(--text, #18181B);
-    font-weight: 500;
+    font-weight: 400;
     white-space: pre-wrap;
     word-break: break-word;
 }
@@ -825,15 +840,15 @@ html, body {
     margin-bottom: 3px;
 }
 .cv-doc-item-titulo {
-    font-size: 14.5px;
-    font-weight: 800;
+    font-size: 14px;
+    font-weight: 700;
     color: var(--text, #18181B);
-    letter-spacing: -0.01em;
+    letter-spacing: -0.005em;
     word-break: break-word;
-    line-height: 1.25;
+    line-height: 1.3;
 }
 .cv-doc-item-fecha {
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 700;
     color: var(--violet-600, #7C3AED);
     white-space: nowrap;
@@ -841,21 +856,21 @@ html, body {
     padding: 3px 9px;
     border-radius: 999px;
     flex-shrink: 0;
+    letter-spacing: 0.02em;
 }
 .cv-doc-item-sub {
     font-size: 12.5px;
-    font-weight: 700;
+    font-weight: 500;
     color: var(--text-2, #52525B);
     margin-bottom: 6px;
-    font-style: italic;
 }
 .cv-doc-item-desc {
-    font-size: 12.5px;
-    line-height: 1.6;
+    font-size: 12px;
+    line-height: 1.65;
     color: var(--text-2, #52525B);
     white-space: pre-wrap;
     word-break: break-word;
-    font-weight: 500;
+    font-weight: 400;
 }
 
 /* Habilidades en el CV */
@@ -871,8 +886,8 @@ html, body {
     background: var(--violet-50, #F5F3FF);
     border: 1px solid var(--violet-200, #DDD6FE);
     border-radius: 999px;
-    font-size: 12px;
-    font-weight: 700;
+    font-size: 11.5px;
+    font-weight: 600;
     color: var(--violet-700, #6D28D9);
 }
 
@@ -893,7 +908,7 @@ html, body {
     font-size: 12.5px;
 }
 .cv-doc-idioma-nombre {
-    font-weight: 800;
+    font-weight: 700;
     color: var(--text, #18181B);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -901,7 +916,7 @@ html, body {
     min-width: 0;
 }
 .cv-doc-idioma-nivel {
-    font-weight: 700;
+    font-weight: 600;
     color: var(--violet-600, #7C3AED);
     font-size: 11.5px;
     flex-shrink: 0;
@@ -918,6 +933,7 @@ html, body {
     text-align: center;
     color: var(--gray-400, #A1A1AD);
     padding: 80px 40px;
+    font-family: 'Nunito', sans-serif;
 }
 .cv-doc-vacio [data-lucide] {
     width: 64px;
@@ -1047,7 +1063,7 @@ html, body {
         pointer-events: none;
     }
     .cv-form-nav {
-        padding: 8px 8px 0;
+        padding: 8px 8px 4px;
     }
     .cv-nav-item {
         padding: 8px 9px 11px;
@@ -1058,7 +1074,7 @@ html, body {
     .cv-form-panels { padding: 16px 16px 32px; }
     .cv-doc { padding: 32px 28px; }
     .cv-doc-nombre { font-size: 24px; }
-    .cv-doc-titulo { font-size: 13.5px; }
+    .cv-doc-titulo { font-size: 13px; }
     .cv-doc-contacto { grid-template-columns: 1fr; }
     .cv-doc-header { gap: 16px; padding-bottom: 16px; margin-bottom: 18px; }
     .cv-doc-foto { width: 72px; height: 72px; }
