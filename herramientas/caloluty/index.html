@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Caloluty</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+<div class="cl-app">
+
+    <header class="cl-header">
+        <div class="cl-logo">
+            <div class="cl-logo-mark"><i data-lucide="crosshair"></i></div>
+            <div class="cl-logo-text">
+                <h1>Caloluty</h1>
+                <p id="clUserBadge">—</p>
+            </div>
+        </div>
+        <div class="cl-caja">
+            <i data-lucide="coins"></i>
+            <span id="clMonedas">0</span>
+        </div>
+    </header>
+
+    <div class="cl-hud">
+        <div class="cl-hud-item">
+            <i data-lucide="timer"></i>
+            <span id="clHudTiempo">60.0s</span>
+        </div>
+        <div class="cl-hud-item cl-hud-aciertos">
+            <i data-lucide="target"></i>
+            <span id="clHudAciertos">0</span>
+        </div>
+        <div class="cl-hud-item cl-hud-ganancia">
+            <i data-lucide="coins"></i>
+            <span id="clHudGanancia">+0</span>
+        </div>
+        <div class="cl-hud-item cl-hud-arma">
+            <i data-lucide="crosshair"></i>
+            <span id="clHudArma">Pistola</span>
+        </div>
+    </div>
+
+    <div class="cl-canvas-wrap">
+        <div class="cl-canvas" id="clCanvas"></div>
+
+        <div class="cl-crosshair" id="clCrosshair">
+            <div class="cl-crosshair-dot"></div>
+            <div class="cl-crosshair-line cl-ch-top"></div>
+            <div class="cl-crosshair-line cl-ch-bottom"></div>
+            <div class="cl-crosshair-line cl-ch-left"></div>
+            <div class="cl-crosshair-line cl-ch-right"></div>
+        </div>
+
+        <div class="cl-flash" id="clFlash"></div>
+
+        <div class="cl-popup-zona" id="clPopupZona"></div>
+
+        <div class="cl-overlay cl-countdown" id="clCountdown" hidden>
+            <div class="cl-countdown-num" id="clCountdownNum">3</div>
+        </div>
+
+        <button class="cl-fire-btn" id="clFireBtn" aria-label="Disparar">
+            <i data-lucide="zap"></i>
+        </button>
+    </div>
+
+</div>
+
+<!-- ===== Pantalla inicio / armas ===== -->
+<div class="cl-screen" id="clScreenStart">
+    <div class="cl-screen-card">
+        <div class="cl-screen-icono"><i data-lucide="crosshair"></i></div>
+        <h2>Caloluty</h2>
+        <p>Tenés <strong>60 segundos</strong> y 40 dianas rojas. No le dispares a las azules: te restan tiempo. Elegí tu arma y demostrá tu puntería.</p>
+
+        <div class="cl-armas-seccion">
+            <div class="cl-armas-titulo">
+                <i data-lucide="crosshair"></i>
+                <span>Arsenal</span>
+            </div>
+            <div class="cl-armas-grid" id="clArmasGrid"></div>
+        </div>
+
+        <button class="cl-btn-pri" id="clBtnEmpezar" disabled>
+            <i data-lucide="play"></i>
+            <span>Elegí un arma</span>
+        </button>
+    </div>
+</div>
+
+<!-- ===== Pantalla fin ===== -->
+<div class="cl-screen" id="clScreenFin" hidden>
+    <div class="cl-screen-card">
+        <div class="cl-screen-icono" id="clFinIcono"><i data-lucide="target"></i></div>
+        <h2 id="clFinTitulo">¡Buen tiro!</h2>
+        <p id="clFinSubtitulo">—</p>
+
+        <div class="cl-fin-resumen">
+            <div class="cl-fin-fila">
+                <span>Rojos acertados</span>
+                <strong id="clFinAciertos">0 / 40</strong>
+            </div>
+            <div class="cl-fin-fila">
+                <span>Azules fallados</span>
+                <strong id="clFinFallos">0</strong>
+            </div>
+            <div class="cl-fin-fila">
+                <span>Precisión</span>
+                <strong id="clFinPrecision">0%</strong>
+            </div>
+            <div class="cl-fin-fila">
+                <span>Arma</span>
+                <strong id="clFinArma">—</strong>
+            </div>
+            <div class="cl-fin-fila cl-fin-destacada">
+                <span><i data-lucide="coins"></i> Recompensa</span>
+                <strong id="clFinMonedas">+0</strong>
+            </div>
+        </div>
+
+        <div class="cl-fin-acciones">
+            <button class="cl-btn-sec" id="clBtnArsenal">
+                <i data-lucide="crosshair"></i>
+                <span>Arsenal</span>
+            </button>
+            <button class="cl-btn-pri" id="clBtnReintentar">
+                <i data-lucide="rotate-ccw"></i>
+                <span>Reintentar</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="cl-toast" id="clToast"></div>
+
+<script src="armas.js"></script>
+<script src="escena.js"></script>
+<script src="script.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>
