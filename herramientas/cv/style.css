@@ -378,7 +378,7 @@ html, body {
     resize: vertical;
     line-height: 1.55;
     font-weight: 500;
-    min-height: 90px;
+    min-height: 80px;
 }
 .cv-field input:focus,
 .cv-field textarea:focus,
@@ -526,7 +526,6 @@ html, body {
 
 /* ============================================================
    FECHAS — dos <select> por fecha (mes + año)
-   Máxima compatibilidad con todos los navegadores.
    ============================================================ */
 .cv-fechas {
     display: grid;
@@ -612,7 +611,7 @@ html, body {
 .cv-chips-lista {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 8px;
     min-height: 30px;
     margin-bottom: 12px;
 }
@@ -627,7 +626,7 @@ html, body {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    padding: 5px 8px 5px 11px;
+    padding: 6px 9px 6px 12px;
     background: var(--violet-50, #F5F3FF);
     border: 1px solid var(--violet-200, #DDD6FE);
     border-radius: 999px;
@@ -874,6 +873,20 @@ html, body {
     word-break: break-word;
 }
 
+/* Objetivo: un pelín más destacado que el resumen */
+.cv-doc-objetivo {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text, #18181B);
+    font-weight: 500;
+    white-space: pre-wrap;
+    word-break: break-word;
+    padding: 10px 14px;
+    background: var(--violet-50, #F5F3FF);
+    border-left: 3px solid var(--violet-400, #A78BFA);
+    border-radius: 8px;
+}
+
 .cv-doc-item {
     margin-bottom: 14px;
 }
@@ -923,12 +936,12 @@ html, body {
 .cv-doc-habilidades {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 8px;
 }
 .cv-doc-habilidad {
     display: inline-flex;
     align-items: center;
-    padding: 5px 12px;
+    padding: 6px 13px;
     background: var(--violet-50, #F5F3FF);
     border: 1px solid var(--violet-200, #DDD6FE);
     border-radius: 999px;
@@ -937,17 +950,18 @@ html, body {
     color: var(--violet-700, #6D28D9);
 }
 
+/* Idiomas: una línea completa por idioma, nivel al final */
 .cv-doc-idiomas {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 .cv-doc-idioma {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
-    padding: 7px 12px;
+    gap: 12px;
+    padding: 8px 14px;
     background: var(--violet-50, #F5F3FF);
     border-radius: 9px;
     font-size: 12.5px;
@@ -965,6 +979,8 @@ html, body {
     color: var(--violet-600, #7C3AED);
     font-size: 11.5px;
     flex-shrink: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .cv-doc-vacio {
@@ -1119,7 +1135,6 @@ html, body {
     .cv-doc-contacto { grid-template-columns: 1fr; }
     .cv-doc-header { gap: 16px; padding-bottom: 16px; margin-bottom: 18px; }
     .cv-doc-foto { width: 72px; height: 72px; }
-    .cv-doc-idiomas { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 640px) {
