@@ -1,11 +1,6 @@
 // ============================================================
 //  Vagonetas — Motor del juego
-//  ------------------------------------------------------------
-//  · 3 carriles, 3D con Three.js
-//  · Jugador + 2 rivales CPU
-//  · 550m de carrera
-//  · Recompensa por posición + racha diaria
-//  · BD: 1 escritura al terminar
+//  5 carriles · curvas · obstáculos constantes
 // ============================================================
 
 'use strict';
@@ -14,20 +9,26 @@ const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const APP_ID = 'vagonetas';
 const ARCHIVO_BASE = 'app/vagonetas/';
 
-// Balance
-const CARRILES_X        = [-2, 0, 2];
-const DISTANCIA_META    = 550;     // metros
-const VELOCIDAD_BASE    = 18;      // unidades por segundo
-const VELOCIDAD_RIVAL_1 = 17.4;    // un poco más lento
-const VELOCIDAD_RIVAL_2 = 18.6;    // un poco más rápido
-const OBSTACULOS_CADA   = 1.35;    // segundos entre spawns
-const CHOQUE_PENALIZACION = 0.45;  // multiplicador al chocar
-const CHOQUE_DURACION   = 1.1;     // segundos penalizado
+const CARRILES_X      = [-4, -2, 0, 2, 4];
+const TOTAL_CARRILES  = 5;
 
-// Recompensas
+const DISTANCIA_META  = 600;
+const VELOCIDAD_BASE  = 22;
+
+// Rivales: uno un poco más lento pero muy listo, otro más rápido pero más bruto
+const RIVALES_CFG = [
+    { velocidad: 21.4, agilidad: 0.9, nombre: 'Rival Rojo' },   // más lento, más listo
+    { velocidad: 23.0, agilidad: 0.55, nombre: 'Rival Verde' }  // más rápido, más bruto
+];
+
+const OBSTACULOS_CADA       = 0.32;   // MUCHO más seguido que antes (era 1.35)
+const OBSTACULOS_CADA_JITTER = 0.35;
+const CHOQUE_PENALIZACION    = 0.40;
+const CHOQUE_DURACION        = 1.2;
+
 const BASE_POR_CARRERA  = 10;
-const TOPE_RACHA        = 60;      // tope absoluto de monedas por carrera
-const SEGUNDO_LUGAR_PCT = 0.5;     // 50% del valor del 1º
+const TOPE_RACHA        = 60;
+const SEGUNDO_LUGAR_PCT = 0.5;
 
 // ---------- ESTADO ----------
 let estado = {
@@ -46,9 +47,7 @@ let usuarioActual = null;
 let inicializado = false;
 let mapaActual = null;
 let mapaElegido = null;
-let mapaPendienteCarga = null;
 
-// Game
 let fase = 'idle';   // idle | countdown | racing | finished
 let tiempoCountdown = 3.0;
 let tiempoCarreraMs = 0;
@@ -62,12 +61,11 @@ let obstaculos = [];
 let rafId = null;
 let ultimoFrameMs = 0;
 let toastTimer = null;
+let shakeMs = 0;
 
 const API = () => window.parent.__vicwebos || null;
 const BD  = () => window.parent.ConfigBD || null;
 
-// ============================================================
-//  FECHA CHILE
 // ============================================================
 function diaChileHoy() {
     return new Intl.DateTimeFormat('en-CA', {
@@ -75,15 +73,12 @@ function diaChileHoy() {
         year: 'numeric', month: '2-digit', day: '2-digit'
     }).format(new Date());
 }
-
 function diasEntre(aISO, bISO) {
     const a = new Date(aISO + 'T12:00:00');
     const b = new Date(bISO + 'T12:00:00');
     return Math.round((b - a) / 86400000);
 }
 
-// ============================================================
-//  TEMA
 // ============================================================
 function aplicarTemaDelPadre() {
     try {
@@ -112,8 +107,6 @@ window.addEventListener('message', (e) => {
 });
 
 // ============================================================
-//  TOAST
-// ============================================================
 function toast(txt, tipo = 'info') {
     const el = document.getElementById('vgToast');
     if (!el) return;
@@ -124,15 +117,10 @@ function toast(txt, tipo = 'info') {
 }
 
 // ============================================================
-//  JUGADOR / RIVALES
-// ============================================================
 function crearJugadorVacio() {
     return {
-        carril: 1,
-        x: 0,
-        targetX: 0,
+        carril: 2,
         progreso: 0,
-        velocidadMult: 1,
         penalizadoMs: 0,
         terminado: false,
         tiempoFinalMs: 0
@@ -140,20 +128,20 @@ function crearJugadorVacio() {
 }
 
 function crearRival(idx) {
+    const cfg = RIVALES_CFG[idx];
     return {
         idx,
-        carril: idx === 0 ? 0 : 2,
+        carril: idx === 0 ? 1 : 3,
         progreso: 0,
-        velocidad: idx === 0 ? VELOCIDAD_RIVAL_1 : VELOCIDAD_RIVAL_2,
+        velocidad: cfg.velocidad,
+        agilidad: cfg.agilidad,
         terminado: false,
         tiempoFinalMs: 0,
-        // IA
-        cambioPendiente: 0
+        cambioPendiente: 0,
+        nombre: cfg.nombre
     };
 }
 
-// ============================================================
-//  MAPAS
 // ============================================================
 function obtenerTemasInstalados() {
     const api = API();
@@ -166,7 +154,6 @@ function obtenerTemasInstalados() {
 function renderMapas() {
     const cont = document.getElementById('vgMapasGrid');
     if (!cont) return;
-
     const temas = obtenerTemasInstalados();
     cont.innerHTML = '';
 
@@ -176,19 +163,14 @@ function renderMapas() {
         const elegido = mapaElegido === m.id;
 
         const el = document.createElement('button');
-        el.className = 'vg-mapa-card'
-            + (bloqueado ? ' bloqueado' : '')
-            + (elegido ? ' elegido' : '');
-        el.dataset.id = m.id;
+        el.className = 'vg-mapa-card' + (bloqueado ? ' bloqueado' : '') + (elegido ? ' elegido' : '');
         el.disabled = bloqueado;
 
-        // Preview: gradiente de fondo con los colores del mapa
         const colorCielo = '#' + m.cielo.toString(16).padStart(6, '0');
         const colorRiel  = '#' + m.riel.toString(16).padStart(6, '0');
 
         el.innerHTML = `
-            <div class="vg-mapa-preview"
-                 style="background: linear-gradient(180deg, ${colorCielo} 0%, ${colorRiel} 100%);">
+            <div class="vg-mapa-preview" style="background: linear-gradient(180deg, ${colorCielo} 0%, ${colorRiel} 100%);">
                 <div class="vg-mapa-preview-linea" style="background:${colorRiel};"></div>
                 <div class="vg-mapa-preview-linea" style="background:${colorRiel};"></div>
                 ${bloqueado ? '<div class="vg-mapa-lock"><i data-lucide="lock"></i></div>' : ''}
@@ -226,33 +208,22 @@ function actualizarBotonEmpezar() {
 }
 
 // ============================================================
-//  RACHA
-// ============================================================
 function actualizarRachaAlEntrar() {
     const hoy = diaChileHoy();
     const ultima = estado.ultimaFechaJugada;
-
-    if (!ultima) {
-        estado.rachaDias = 1;
-    } else {
+    if (!ultima) estado.rachaDias = 1;
+    else {
         const diff = diasEntre(ultima, hoy);
-        if (diff === 0) {
-            // mismo día, no cambia
-        } else if (diff === 1) {
-            estado.rachaDias = (estado.rachaDias || 0) + 1;
-        } else {
-            estado.rachaDias = 1;
-        }
+        if (diff === 1) estado.rachaDias = (estado.rachaDias || 0) + 1;
+        else if (diff > 1) estado.rachaDias = 1;
     }
     estado.ultimaFechaJugada = hoy;
-
     renderRacha();
 }
 
 function renderRacha() {
     const el = document.getElementById('vgRacha');
     if (el) el.textContent = estado.rachaDias;
-
     const info = document.getElementById('vgRachaInfo');
     if (info) {
         const premio = calcularPremioBase();
@@ -266,41 +237,34 @@ function calcularPremioBase() {
 }
 
 // ============================================================
-//  START / RESET
-// ============================================================
 function iniciarCarrera() {
     if (!mapaElegido) return;
     mapaActual = MAPAS.find(m => m.id === mapaElegido);
     if (!mapaActual) return;
 
-    // Reset estado del juego
     jugador = crearJugadorVacio();
     rivales = [crearRival(0), crearRival(1)];
     obstaculos = [];
-    obstaculosSpawnTimer = 0;
+    obstaculosSpawnTimer = 0.15;   // primer obstáculo casi de inmediato
     proximoIdObstaculo = 1;
     tiempoCarreraMs = 0;
     tiempoCountdown = 3.0;
+    shakeMs = 0;
 
-    // Ocultar pantallas
     document.getElementById('vgScreenStart').hidden = true;
     document.getElementById('vgScreenFin').hidden = true;
 
-    // Foto del jugador
     const jugadorInfo = {
         foto: usuarioActual?.foto || null,
         inicial: (usuarioActual?.nombre || '?').charAt(0).toUpperCase()
     };
 
-    // Init escena
     const contenedor = document.getElementById('vgCanvas');
     window.VG_Escena.init(contenedor, mapaActual, jugadorInfo);
 
-    // Mostrar posiciones live
     const posLive = document.getElementById('vgPosLive');
     if (posLive) posLive.hidden = false;
 
-    // Fase
     fase = 'countdown';
     mostrarCountdown();
     actualizarHUD();
@@ -309,7 +273,6 @@ function iniciarCarrera() {
     if (rafId) cancelAnimationFrame(rafId);
     rafId = requestAnimationFrame(loop);
 
-    // Listeners de resize
     window.addEventListener('resize', onResize);
 }
 
@@ -325,26 +288,16 @@ function mostrarCountdown() {
 }
 
 // ============================================================
-//  INPUT
-// ============================================================
 function moverIzquierda() {
     if (fase !== 'racing') return;
-    if (jugador.carril > 0) {
-        jugador.carril--;
-        jugador.targetX = CARRILES_X[jugador.carril];
-    }
+    if (jugador.carril > 0) jugador.carril--;
 }
-
 function moverDerecha() {
     if (fase !== 'racing') return;
-    if (jugador.carril < 2) {
-        jugador.carril++;
-        jugador.targetX = CARRILES_X[jugador.carril];
-    }
+    if (jugador.carril < TOTAL_CARRILES - 1) jugador.carril++;
 }
 
 function bindControles() {
-    // Tap zones
     document.querySelectorAll('.vg-tap-zone').forEach(zona => {
         zona.addEventListener('pointerdown', (e) => {
             e.preventDefault();
@@ -353,7 +306,6 @@ function bindControles() {
         });
     });
 
-    // Teclado (bonus en PC)
     document.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
             e.preventDefault(); moverIzquierda();
@@ -368,19 +320,14 @@ function onResize() {
 }
 
 // ============================================================
-//  LOOP
-// ============================================================
 function loop(now) {
     if (fase === 'idle') return;
     if (!ultimoFrameMs) ultimoFrameMs = now;
     const dt = Math.min((now - ultimoFrameMs) / 1000, 0.1);
     ultimoFrameMs = now;
 
-    if (fase === 'countdown') {
-        tickCountdown(dt);
-    } else if (fase === 'racing') {
-        tickCarrera(dt);
-    }
+    if (fase === 'countdown') tickCountdown(dt);
+    else if (fase === 'racing') tickCarrera(dt);
 
     rafId = requestAnimationFrame(loop);
 }
@@ -388,13 +335,11 @@ function loop(now) {
 function tickCountdown(dt) {
     const prev = Math.ceil(tiempoCountdown);
     tiempoCountdown -= dt;
-
     if (tiempoCountdown <= 0) {
         document.getElementById('vgCountdown').hidden = true;
         fase = 'racing';
         return;
     }
-
     const actual = Math.ceil(tiempoCountdown);
     if (actual !== prev) {
         const n = document.getElementById('vgCountdownNum');
@@ -410,35 +355,27 @@ function tickCountdown(dt) {
 function tickCarrera(dt) {
     tiempoCarreraMs += dt * 1000;
 
-    // Velocidad base del jugador
     let velJugador = VELOCIDAD_BASE;
     if (jugador.penalizadoMs > 0) {
         jugador.penalizadoMs -= dt * 1000;
         velJugador *= CHOQUE_PENALIZACION;
     }
 
-    // Progreso
     jugador.progreso += velJugador * dt;
     rivales.forEach(r => {
         if (r.terminado) return;
         r.progreso += r.velocidad * dt;
     });
 
-    // Suavizado del jugador x
-    jugador.x += (jugador.targetX - jugador.x) * Math.min(dt * 12, 1);
-
-    // Spawn de obstáculos
+    // Spawn obstáculos — RÁPIDO
     obstaculosSpawnTimer -= dt;
     if (obstaculosSpawnTimer <= 0) {
         spawnObstaculo();
-        obstaculosSpawnTimer = OBSTACULOS_CADA * (0.8 + Math.random() * 0.4);
+        obstaculosSpawnTimer = OBSTACULOS_CADA + Math.random() * OBSTACULOS_CADA_JITTER;
     }
 
     // Mover obstáculos
-    obstaculos.forEach(o => {
-        o.z += velJugador * dt;
-    });
-    // Filtrar (los que ya pasaron)
+    obstaculos.forEach(o => { o.z += velJugador * dt; });
     obstaculos = obstaculos.filter(o => o.z < 15);
 
     // Colisiones
@@ -447,6 +384,8 @@ function tickCarrera(dt) {
         if (Math.abs(o.z) < 0.9 && o.carril === jugador.carril) {
             o.golpeado = true;
             jugador.penalizadoMs = CHOQUE_DURACION * 1000;
+            shakeMs = 0.35;
+            if (navigator.vibrate) navigator.vibrate(40);
         }
     }
 
@@ -454,21 +393,16 @@ function tickCarrera(dt) {
     rivales.forEach(r => tickRival(r, dt));
 
     // Update escena
-    window.VG_Escena.updateEscena(
-        jugador.x,
-        jugador.progreso,
-        rivales,
-        obstaculos,
-        dt
-    );
+    window.VG_Escena.updateEscena(jugador, rivales, obstaculos, dt);
 
-    // Posición live
+    // Shake
+    if (shakeMs > 0) {
+        shakeMs -= dt;
+        // se aplica dentro de updateEscena si querés, o acá no hace nada
+    }
+
     actualizarPosLive();
-
-    // HUD
     actualizarHUD();
-
-    // ¿Terminó la carrera?
     chequearFin();
 }
 
@@ -479,49 +413,74 @@ function tickRival(r, dt) {
         return;
     }
 
-    // IA simple: mirar obstáculos cercanos en mi carril
+    // Ve obstáculos adelante. `agilidad` define cuánto mira
     const miZ = -(r.progreso - jugador.progreso);
-    const enRango = obstaculos.filter(o =>
+    const ojoAdelante = 25 * r.agilidad;
+
+    const miCarrilOcupado = obstaculos.some(o =>
         o.carril === r.carril &&
-        o.z > miZ - 30 &&
-        o.z < miZ + 5
+        o.z > miZ - ojoAdelante &&
+        o.z < miZ + 3
     );
 
-    if (enRango.length > 0) {
-        // Intentar cambiar de carril
-        const libres = [0, 1, 2].filter(c => {
-            if (c === r.carril) return false;
-            return !obstaculos.some(o =>
-                o.carril === c &&
-                o.z > miZ - 25 &&
-                o.z < miZ + 5
-            );
-        });
-        if (libres.length > 0) {
-            // Elegir el más cercano
-            libres.sort((a, b) => Math.abs(a - r.carril) - Math.abs(b - r.carril));
-            r.carril = libres[0];
-            r.cambioPendiente = 0.5;
+    if (!miCarrilOcupado) return;
+
+    // Buscar carril libre cercano
+    const carrilesOrden = [...Array(TOTAL_CARRILES).keys()]
+        .filter(c => c !== r.carril)
+        .sort((a, b) => Math.abs(a - r.carril) - Math.abs(b - r.carril));
+
+    for (const c of carrilesOrden) {
+        const libre = !obstaculos.some(o =>
+            o.carril === c &&
+            o.z > miZ - ojoAdelante * 0.8 &&
+            o.z < miZ + 3
+        );
+        if (libre) {
+            r.carril = c;
+            r.cambioPendiente = 0.28;
+            return;
         }
     }
 }
 
 function spawnObstaculo() {
-    const carril = Math.floor(Math.random() * 3);
-    // Evitar spawn sobre otro muy cercano
-    const muyCerca = obstaculos.some(o => o.carril === carril && o.z < -60);
-    if (muyCerca) return;
+    // Elegir carril evitando dejar el track sin salida
+    const carrilesLibres = [...Array(TOTAL_CARRILES).keys()].filter(c => {
+        return !obstaculos.some(o => o.carril === c && o.z < -60);
+    });
+
+    if (carrilesLibres.length <= 1) return;   // al menos 4 libres
+
+    // Elegir al azar de los libres, con preferencia por los carriles laterales
+    // para no siempre bloquear el centro
+    const carril = carrilesLibres[Math.floor(Math.random() * carrilesLibres.length)];
+
+    // Spawn: a veces generamos un "bloque" de 2 obstáculos en distintos carriles
+    const enBloque = Math.random() < 0.18;
+    const z = -170 - Math.random() * 25;
 
     obstaculos.push({
         id: proximoIdObstaculo++,
         carril,
-        z: -180 - Math.random() * 20,
+        z,
         golpeado: false
     });
+
+    if (enBloque) {
+        const otros = carrilesLibres.filter(c => c !== carril);
+        if (otros.length >= 1) {
+            const carril2 = otros[Math.floor(Math.random() * otros.length)];
+            obstaculos.push({
+                id: proximoIdObstaculo++,
+                carril: carril2,
+                z: z + (Math.random() * 10 - 5),
+                golpeado: false
+            });
+        }
+    }
 }
 
-// ============================================================
-//  POSICIÓN Y HUD
 // ============================================================
 function calcularPosicion() {
     const lista = [
@@ -534,14 +493,6 @@ function calcularPosicion() {
 
 function actualizarPosLive() {
     const lista = calcularPosicion();
-
-    const nombres = [
-        'Tú',
-        'Rival 1',
-        'Rival 2'
-    ];
-
-    // Actualizar las 3 posiciones
     for (let i = 0; i < 3; i++) {
         const item = lista[i];
         if (!item) continue;
@@ -551,13 +502,11 @@ function actualizarPosLive() {
                 elNombre.textContent = 'Tú';
                 elNombre.classList.add('tu-nombre');
             } else {
-                elNombre.textContent = 'Rival ' + (item.idx + 1);
+                elNombre.textContent = RIVALES_CFG[item.idx].nombre;
                 elNombre.classList.remove('tu-nombre');
             }
         }
     }
-
-    // Destacar el item del jugador
     const miPos = lista.findIndex(x => x.tipo === 'jugador') + 1;
     document.querySelectorAll('.vg-pos-item').forEach(el => {
         el.classList.toggle('yo', parseInt(el.dataset.pos) === miPos);
@@ -567,7 +516,6 @@ function actualizarPosLive() {
 function actualizarHUD() {
     const pos = calcularPosicion();
     const miPos = pos.findIndex(x => x.tipo === 'jugador') + 1;
-
     const elPos = document.getElementById('vgHudPosNum');
     if (elPos) elPos.textContent = miPos;
 
@@ -576,19 +524,12 @@ function actualizarHUD() {
         const d = Math.min(DISTANCIA_META, Math.floor(jugador.progreso));
         elDist.textContent = `${d} / ${DISTANCIA_META}m`;
     }
-
     const elTime = document.getElementById('vgHudTime');
-    if (elTime) {
-        const s = (tiempoCarreraMs / 1000).toFixed(1);
-        elTime.textContent = s + 's';
-    }
+    if (elTime) elTime.textContent = (tiempoCarreraMs / 1000).toFixed(1) + 's';
 }
 
 // ============================================================
-//  FIN DE CARRERA
-// ============================================================
 function chequearFin() {
-    // ¿Alguien terminó?
     if (jugador.progreso >= DISTANCIA_META && !jugador.terminado) {
         jugador.terminado = true;
         jugador.tiempoFinalMs = tiempoCarreraMs;
@@ -608,18 +549,14 @@ function finDeCarrera() {
     fase = 'finished';
     if (rafId) cancelAnimationFrame(rafId);
 
-    // Calcular posición
     const lista = calcularPosicion();
     const miPos = lista.findIndex(x => x.tipo === 'jugador') + 1;
 
-    // Recompensa
     let monedas = 0;
     const base = calcularPremioBase();
     if (miPos === 1)      monedas = base;
     else if (miPos === 2) monedas = Math.floor(base * SEGUNDO_LUGAR_PCT);
-    else                  monedas = 0;
 
-    // Actualizar stats
     if (miPos === 1) estado.victorias++;
     else if (miPos === 2) estado.segundos++;
     else estado.terceros++;
@@ -632,14 +569,8 @@ function finDeCarrera() {
 
     guardarEstado();
 
-    // UI
-    setTimeout(() => {
-        mostrarFinCarrera(miPos, monedas, tiempoMs);
-    }, 500);
-
-    if (monedas > 0) {
-        otorgarMonedas(monedas);
-    }
+    setTimeout(() => mostrarFinCarrera(miPos, monedas, tiempoMs), 400);
+    if (monedas > 0) otorgarMonedas(monedas);
 }
 
 async function otorgarMonedas(cantidad) {
@@ -685,13 +616,10 @@ function mostrarFinCarrera(pos, monedas, tiempoMs) {
         titulo.textContent = 'Tercer lugar';
         sub.textContent = 'Los rivales fueron más rápidos esta vez.';
     }
-
     document.getElementById('vgScreenFin').hidden = false;
-    if (window.lucide) lucide.createIcons();
+    if (window.lucide) window.lucide.createIcons();
 }
 
-// ============================================================
-//  BD
 // ============================================================
 function rutaArchivo() {
     if (!usuarioActual) return null;
@@ -706,12 +634,11 @@ async function cargarEstado() {
         const data = await bd.leerArchivo(ruta);
         if (data && typeof data === 'object') {
             estado = { ...estado, ...data };
-            // Normalizar
-            estado.victorias           = Number.isFinite(estado.victorias) ? estado.victorias : 0;
-            estado.segundos            = Number.isFinite(estado.segundos) ? estado.segundos : 0;
-            estado.terceros            = Number.isFinite(estado.terceros) ? estado.terceros : 0;
-            estado.rachaDias           = Number.isFinite(estado.rachaDias) ? estado.rachaDias : 1;
-            estado.mejorTiempoMs       = Number.isFinite(estado.mejorTiempoMs) ? estado.mejorTiempoMs : 0;
+            estado.victorias    = Number.isFinite(estado.victorias) ? estado.victorias : 0;
+            estado.segundos     = Number.isFinite(estado.segundos) ? estado.segundos : 0;
+            estado.terceros     = Number.isFinite(estado.terceros) ? estado.terceros : 0;
+            estado.rachaDias    = Number.isFinite(estado.rachaDias) ? estado.rachaDias : 1;
+            estado.mejorTiempoMs = Number.isFinite(estado.mejorTiempoMs) ? estado.mejorTiempoMs : 0;
             estado.monedasGanadasTotales = Number.isFinite(estado.monedasGanadasTotales) ? estado.monedasGanadasTotales : 0;
         }
     } catch (e) {
@@ -732,20 +659,13 @@ async function guardarEstado() {
 }
 
 // ============================================================
-//  BOTONES
-// ============================================================
 function bindBotones() {
     document.getElementById('vgBtnEmpezar')?.addEventListener('click', () => {
         if (!mapaElegido) return;
         iniciarCarrera();
     });
-
-    document.getElementById('vgBtnReintentar')?.addEventListener('click', () => {
-        iniciarCarrera();
-    });
-
+    document.getElementById('vgBtnReintentar')?.addEventListener('click', () => iniciarCarrera());
     document.getElementById('vgBtnCambiarMapa')?.addEventListener('click', () => {
-        // Volver a la pantalla de selección
         document.getElementById('vgScreenFin').hidden = true;
         document.getElementById('vgScreenStart').hidden = false;
         window.VG_Escena.limpiarEscena();
@@ -756,8 +676,6 @@ function bindBotones() {
     });
 }
 
-// ============================================================
-//  INIT
 // ============================================================
 async function inicializar() {
     if (inicializado) return;
@@ -777,7 +695,6 @@ async function inicializar() {
     await cargarEstado();
     actualizarRachaAlEntrar();
 
-    // Elegir automáticamente el mapa base por defecto
     const mapaBase = MAPAS.find(m => m.esBase);
     if (mapaBase) mapaElegido = mapaBase.id;
 
@@ -786,7 +703,7 @@ async function inicializar() {
     bindControles();
     bindBotones();
 
-    if (window.lucide) lucide.createIcons();
+    if (window.lucide) window.lucide.createIcons();
 }
 
 document.addEventListener('DOMContentLoaded', inicializar);
