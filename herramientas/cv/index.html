@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Constructor de CV</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+<div class="cv-app">
+
+    <!-- ============ HEADER ============ -->
+    <header class="cv-header">
+        <div class="cv-logo">
+            <div class="cv-logo-mark"><i data-lucide="file-user"></i></div>
+            <div class="cv-logo-text">
+                <h1>Constructor de CV</h1>
+                <p id="cvUserBadge">—</p>
+            </div>
+        </div>
+
+        <div class="cv-header-actions">
+            <div class="cv-tema-picker">
+                <i data-lucide="palette" class="cv-tema-picker-icono"></i>
+                <select id="cvTemaSelect" title="Tema del CV"></select>
+            </div>
+
+            <button class="cv-btn-icono" id="btnGuardar" title="Guardar ahora">
+                <i data-lucide="save"></i>
+            </button>
+
+            <button class="cv-btn-sec" id="btnDescargarPNG" title="Descargar como PNG">
+                <i data-lucide="image-down"></i>
+                <span>PNG</span>
+            </button>
+
+            <button class="cv-btn-pri" id="btnDescargarPDF" title="Descargar como PDF">
+                <i data-lucide="download"></i>
+                <span>PDF</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ============ TABS MÓVIL ============ -->
+    <div class="cv-tabs-movil" id="cvTabsMovil">
+        <button class="cv-tab-movil active" data-vista="editar">
+            <i data-lucide="pencil"></i>
+            <span>Editar</span>
+        </button>
+        <button class="cv-tab-movil" data-vista="preview">
+            <i data-lucide="eye"></i>
+            <span>Vista previa</span>
+        </button>
+    </div>
+
+    <!-- ============ BODY ============ -->
+    <div class="cv-body">
+
+        <!-- ============ COLUMNA IZQUIERDA: FORM ============ -->
+        <aside class="cv-form" id="cvForm">
+
+            <nav class="cv-form-nav" id="cvFormNav">
+                <button class="cv-nav-item active" data-seccion="datos">
+                    <i data-lucide="user"></i>
+                    <span>Datos</span>
+                </button>
+                <button class="cv-nav-item" data-seccion="resumen">
+                    <i data-lucide="align-left"></i>
+                    <span>Resumen</span>
+                </button>
+                <button class="cv-nav-item" data-seccion="experiencia">
+                    <i data-lucide="briefcase"></i>
+                    <span>Experiencia</span>
+                </button>
+                <button class="cv-nav-item" data-seccion="educacion">
+                    <i data-lucide="graduation-cap"></i>
+                    <span>Educación</span>
+                </button>
+                <button class="cv-nav-item" data-seccion="habilidades">
+                    <i data-lucide="sparkles"></i>
+                    <span>Habilidades</span>
+                </button>
+                <button class="cv-nav-item" data-seccion="idiomas">
+                    <i data-lucide="languages"></i>
+                    <span>Idiomas</span>
+                </button>
+                <button class="cv-nav-item" data-seccion="certificaciones">
+                    <i data-lucide="award"></i>
+                    <span>Certificados</span>
+                </button>
+            </nav>
+
+            <div class="cv-form-panels" id="cvFormPanels">
+
+                <!-- ============ DATOS PERSONALES ============ -->
+                <section class="cv-panel active" data-panel="datos">
+                    <div class="cv-panel-header">
+                        <h2><i data-lucide="user"></i> Datos personales</h2>
+                        <p>Lo primero que verá quien lea tu CV.</p>
+                    </div>
+
+                    <div class="cv-foto-row">
+                        <div class="cv-foto-preview" id="cvFotoPreview">
+                            <div class="cv-foto-placeholder" id="cvFotoPlaceholder">
+                                <i data-lucide="image-plus"></i>
+                                <span>Sin foto</span>
+                            </div>
+                            <img id="cvFotoImg" alt="">
+                        </div>
+                        <div class="cv-foto-acciones">
+                            <button class="cv-btn-sec cv-btn-full" id="btnElegirFoto">
+                                <i data-lucide="images"></i>
+                                <span id="cvFotoBtnTxt">Elegir foto</span>
+                            </button>
+                            <button class="cv-btn-sec cv-btn-full cv-btn-danger" id="btnQuitarFoto" hidden>
+                                <i data-lucide="x"></i>
+                                <span>Quitar</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="cv-field">
+                        <label>Nombre completo *</label>
+                        <input type="text" id="inNombre" maxlength="80" placeholder="Ej: Juan Pérez González" autocomplete="off">
+                    </div>
+
+                    <div class="cv-field">
+                        <label>Título profesional *</label>
+                        <input type="text" id="inTitulo" maxlength="80" placeholder="Ej: Ingeniero de Software Full-Stack" autocomplete="off">
+                    </div>
+
+                    <div class="cv-grid-2">
+                        <div class="cv-field">
+                            <label>Email</label>
+                            <input type="email" id="inEmail" maxlength="80" placeholder="juan@mail.com" autocomplete="off">
+                        </div>
+                        <div class="cv-field">
+                            <label>Teléfono</label>
+                            <input type="tel" id="inTelefono" maxlength="30" placeholder="+56 9 1234 5678" autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="cv-field">
+                        <label>Ubicación</label>
+                        <input type="text" id="inUbicacion" maxlength="80" placeholder="Ej: Santiago, Chile" autocomplete="off">
+                    </div>
+
+                    <div class="cv-grid-2">
+                        <div class="cv-field">
+                            <label>Sitio web / Portfolio</label>
+                            <input type="text" id="inWeb" maxlength="80" placeholder="juanperez.dev" autocomplete="off">
+                        </div>
+                        <div class="cv-field">
+                            <label>LinkedIn</label>
+                            <input type="text" id="inLinkedin" maxlength="80" placeholder="linkedin.com/in/juanperez" autocomplete="off">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============ RESUMEN ============ -->
+                <section class="cv-panel" data-panel="resumen">
+                    <div class="cv-panel-header">
+                        <h2><i data-lucide="align-left"></i> Resumen profesional</h2>
+                        <p>2-4 líneas que resuman quién sos y qué aportás.</p>
+                    </div>
+
+                    <div class="cv-field">
+                        <label>Resumen</label>
+                        <textarea id="inResumen" rows="6" maxlength="800"
+                            placeholder="Profesional con X años de experiencia en... Especializado en... Buscando..."></textarea>
+                        <div class="cv-field-hint"><span id="resumenCount">0</span> / 800</div>
+                    </div>
+                </section>
+
+                <!-- ============ EXPERIENCIA ============ -->
+                <section class="cv-panel" data-panel="experiencia">
+                    <div class="cv-panel-header">
+                        <h2><i data-lucide="briefcase"></i> Experiencia laboral</h2>
+                        <p>Tus trabajos, del más reciente al más antiguo.</p>
+                    </div>
+
+                    <div class="cv-lista" id="listaExperiencia"></div>
+
+                    <button class="cv-btn-add" data-add="experiencia">
+                        <i data-lucide="plus"></i>
+                        Añadir experiencia
+                    </button>
+                </section>
+
+                <!-- ============ EDUCACIÓN ============ -->
+                <section class="cv-panel" data-panel="educacion">
+                    <div class="cv-panel-header">
+                        <h2><i data-lucide="graduation-cap"></i> Educación</h2>
+                        <p>Estudios formales, universitarios o técnicos.</p>
+                    </div>
+
+                    <div class="cv-lista" id="listaEducacion"></div>
+
+                    <button class="cv-btn-add" data-add="educacion">
+                        <i data-lucide="plus"></i>
+                        Añadir educación
+                    </button>
+                </section>
+
+                <!-- ============ HABILIDADES ============ -->
+                <section class="cv-panel" data-panel="habilidades">
+                    <div class="cv-panel-header">
+                        <h2><i data-lucide="sparkles"></i> Habilidades</h2>
+                        <p>Herramientas, tecnologías o competencias.</p>
+                    </div>
+
+                    <div class="cv-chips-lista" id="listaHabilidades"></div>
+
+                    <div class="cv-chip-input-wrap">
+                        <input type="text" id="inHabilidad" maxlength="40" placeholder="Ej: JavaScript, Liderazgo, Figma...">
+                        <button class="cv-btn-add-chip" id="btnAddHabilidad" title="Añadir">
+                            <i data-lucide="plus"></i>
+                        </button>
+                    </div>
+                    <div class="cv-field-hint">
+                        Escribí y pulsá Enter. Máximo 30 habilidades.
+                    </div>
+                </section>
+
+                <!-- ============ IDIOMAS ============ -->
+                <section class="cv-panel" data-panel="idiomas">
+                    <div class="cv-panel-header">
+                        <h2><i data-lucide="languages"></i> Idiomas</h2>
+                        <p>Idiomas que hablás y tu nivel.</p>
+                    </div>
+
+                    <div class="cv-lista" id="listaIdiomas"></div>
+
+                    <button class="cv-btn-add" data-add="idiomas">
+                        <i data-lucide="plus"></i>
+                        Añadir idioma
+                    </button>
+                </section>
+
+                <!-- ============ CERTIFICACIONES ============ -->
+                <section class="cv-panel" data-panel="certificaciones">
+                    <div class="cv-panel-header">
+                        <h2><i data-lucide="award"></i> Certificaciones</h2>
+                        <p>Cursos, certificados y acreditaciones (opcional).</p>
+                    </div>
+
+                    <div class="cv-lista" id="listaCertificaciones"></div>
+
+                    <button class="cv-btn-add" data-add="certificaciones">
+                        <i data-lucide="plus"></i>
+                        Añadir certificación
+                    </button>
+                </section>
+
+            </div>
+        </aside>
+
+        <!-- ============ COLUMNA DERECHA: PREVIEW ============ -->
+        <main class="cv-preview-stage" id="cvPreviewStage">
+            <div class="cv-preview-wrapper">
+                <div class="cv-preview" id="cvPreview" data-tema="oficina">
+                    <!-- Se rellena por JS -->
+                </div>
+            </div>
+        </main>
+
+    </div>
+
+    <!-- ============ OVERLAY DE DESCARGA ============ -->
+    <div class="cv-overlay" id="cvOverlay" hidden>
+        <div class="cv-overlay-card">
+            <div class="cv-overlay-spinner"></div>
+            <p id="cvOverlayTxt">Generando archivo...</p>
+        </div>
+    </div>
+
+    <div class="cv-toast" id="cvToast"></div>
+
+</div>
+
+<script src="script.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>
