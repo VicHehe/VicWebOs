@@ -6,7 +6,7 @@
     <title>Constructor de CV</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -16,7 +16,6 @@
 
 <div class="cv-app">
 
-    <!-- ============ HEADER ============ -->
     <header class="cv-header">
         <div class="cv-logo">
             <div class="cv-logo-mark"><i data-lucide="file-user"></i></div>
@@ -48,7 +47,6 @@
         </div>
     </header>
 
-    <!-- ============ TABS MÓVIL ============ -->
     <div class="cv-tabs-movil" id="cvTabsMovil">
         <button class="cv-tab-movil active" data-vista="editar">
             <i data-lucide="pencil"></i>
@@ -60,10 +58,8 @@
         </button>
     </div>
 
-    <!-- ============ BODY ============ -->
     <div class="cv-body">
 
-        <!-- ============ COLUMNA IZQUIERDA: FORM ============ -->
         <aside class="cv-form" id="cvForm">
 
             <nav class="cv-form-nav" id="cvFormNav">
@@ -99,7 +95,6 @@
 
             <div class="cv-form-panels" id="cvFormPanels">
 
-                <!-- ============ DATOS PERSONALES ============ -->
                 <section class="cv-panel active" data-panel="datos">
                     <div class="cv-panel-header">
                         <h2><i data-lucide="user"></i> Datos personales</h2>
@@ -164,7 +159,6 @@
                     </div>
                 </section>
 
-                <!-- ============ RESUMEN ============ -->
                 <section class="cv-panel" data-panel="resumen">
                     <div class="cv-panel-header">
                         <h2><i data-lucide="align-left"></i> Resumen profesional</h2>
@@ -179,7 +173,6 @@
                     </div>
                 </section>
 
-                <!-- ============ EXPERIENCIA ============ -->
                 <section class="cv-panel" data-panel="experiencia">
                     <div class="cv-panel-header">
                         <h2><i data-lucide="briefcase"></i> Experiencia laboral</h2>
@@ -194,7 +187,6 @@
                     </button>
                 </section>
 
-                <!-- ============ EDUCACIÓN ============ -->
                 <section class="cv-panel" data-panel="educacion">
                     <div class="cv-panel-header">
                         <h2><i data-lucide="graduation-cap"></i> Educación</h2>
@@ -209,7 +201,6 @@
                     </button>
                 </section>
 
-                <!-- ============ HABILIDADES ============ -->
                 <section class="cv-panel" data-panel="habilidades">
                     <div class="cv-panel-header">
                         <h2><i data-lucide="sparkles"></i> Habilidades</h2>
@@ -229,7 +220,6 @@
                     </div>
                 </section>
 
-                <!-- ============ IDIOMAS ============ -->
                 <section class="cv-panel" data-panel="idiomas">
                     <div class="cv-panel-header">
                         <h2><i data-lucide="languages"></i> Idiomas</h2>
@@ -244,7 +234,6 @@
                     </button>
                 </section>
 
-                <!-- ============ CERTIFICACIONES ============ -->
                 <section class="cv-panel" data-panel="certificaciones">
                     <div class="cv-panel-header">
                         <h2><i data-lucide="award"></i> Certificaciones</h2>
@@ -262,7 +251,6 @@
             </div>
         </aside>
 
-        <!-- ============ COLUMNA DERECHA: PREVIEW ============ -->
         <main class="cv-preview-stage" id="cvPreviewStage">
             <div class="cv-preview-wrapper">
                 <div class="cv-preview" id="cvPreview" data-tema="oficina">
@@ -273,7 +261,6 @@
 
     </div>
 
-    <!-- ============ OVERLAY DE DESCARGA ============ -->
     <div class="cv-overlay" id="cvOverlay" hidden>
         <div class="cv-overlay-card">
             <div class="cv-overlay-spinner"></div>
