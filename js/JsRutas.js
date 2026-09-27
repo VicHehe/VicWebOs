@@ -200,6 +200,17 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 4,
         monedas: 20
     },
+        {
+        id: 'traductor',
+        nombre: 'Vicslate',
+        icono: 'languages',
+        ruta: 'herramientas/vicslate/index.html',
+        descripcion: 'Traducí texto a más de 35 idiomas. Historial, favoritos y comparador de motores incluidos.',
+        categoria: 'Herramientas Prácticas',
+        esBase: false,
+        espacio: 2,
+        monedas: 45
+    },
     {
         id: 'photo-shinny',
         nombre: 'Photo Shinny',
