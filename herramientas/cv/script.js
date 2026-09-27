@@ -2,9 +2,11 @@
 //  Constructor de CV — VicWebOs
 //  ------------------------------------------------------------
 //  · Datos privados: app/cv/{codigo}cv.json
-//  · Un CV por usuario (como Notas)
-//  · Preview en vivo, tema independiente del shell
-//  · Descarga como PDF (html2canvas + jsPDF) o PNG
+//  · Un CV por usuario
+//  · Preview en vivo, tema INDEPENDIENTE del shell
+//  · Temas disponibles = solo los que el usuario tiene instalados
+//  · Descarga PDF (html2canvas + jsPDF) y PNG
+//  · Fuente del CV: Inter (profesional)
 //  · Guardado automático con debounce
 // ============================================================
 
@@ -14,6 +16,7 @@ const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const RUTA_BASE = 'app/cv/';
 const AUTOSAVE_DELAY = 1200;
 const MAX_HABILIDADES = 30;
+const TEMA_BN = '__bn';  // Tema interno "Blanco y Negro", siempre disponible
 
 const NIVELES_IDIOMA = ['Básico', 'Intermedio', 'Avanzado', 'Nativo'];
 
@@ -21,20 +24,20 @@ const NIVELES_IDIOMA = ['Básico', 'Intermedio', 'Avanzado', 'Nativo'];
 let usuarioActual = null;
 let datos = crearDatosVacios();
 let temaCVActual = 'oficina';
-let temaShellActual = 'violeta';
 let temasDisponibles = [];
-let fotoPreviewUrl = null;
+let cacheVarsTemas = {};  // id → { variable: valor }
 let fotoIdActual = null;
 let autosaveTimer = null;
 let guardando = false;
 let toastTimer = null;
+let inicializado = false;
 
 const API = () => window.parent.__vicwebos || null;
 const BD  = () => window.parent.ConfigBD || null;
 const MH  = () => window.parent.MasterHad || null;
 
 // ============================================================
-//  TEMA DEL SHELL (para la app)
+//  TEMA DEL SHELL
 // ============================================================
 function aplicarTemaDelPadre() {
     try {
@@ -153,12 +156,6 @@ function normalizarDatos(d) {
     if (Array.isArray(d.idiomas))         base.idiomas = d.idiomas;
     if (Array.isArray(d.certificaciones)) base.certificaciones = d.certificaciones;
 
-    // Normalizar items de listas
-    const normalizeItem = (item, camposExtra = []) => ({
-        id: item.id || generarId('x'),
-        ...Object.fromEntries(camposExtra.map(c => [c, item[c] || ''])),
-    });
-
     base.experiencia = base.experiencia.map(e => ({
         id: e.id || generarId('exp'),
         puesto: e.puesto || '',
@@ -235,31 +232,172 @@ function agendarGuardado() {
 }
 
 // ============================================================
-//  TEMA DEL CV (independiente del shell)
+//  TEMAS DEL CV
+//  ------------------------------------------------------------
+//  · Solo se muestran los temas que el usuario tiene instalados.
+//  · Se aplica el CSS real del tema (extrayendo las variables
+//    del bloque :root), no solo lo que diga el catálogo.
+//  · El tema "Blanco y Negro" (__bn) es interno y siempre está.
 // ============================================================
+
+// Variables CSS que nos interesan para el CV.
+// Filtramos esto para no ensuciar el preview con variables de layout del shell.
+const VARS_UTILES = new Set([
+    '--violet-50','--violet-100','--violet-200','--violet-300',
+    '--violet-400','--violet-500','--violet-600','--violet-700',
+    '--bg','--bg-alt','--white',
+    '--text','--text-2','--text-3',
+    '--gray-100','--gray-200','--gray-300','--gray-400','--gray-500'
+]);
+
+const VARS_BN = {
+    '--violet-50':  '#F4F4F5',
+    '--violet-100': '#F4F4F5',
+    '--violet-200': '#E4E4E7',
+    '--violet-300': '#A1A1AA',
+    '--violet-400': '#71717A',
+    '--violet-500': '#27272A',
+    '--violet-600': '#3F3F46',
+    '--violet-700': '#18181B',
+    '--bg':         '#FFFFFF',
+    '--bg-alt':     '#FAFAFA',
+    '--white':      '#FFFFFF',
+    '--text':       '#18181B',
+    '--text-2':     '#52525B',
+    '--text-3':     '#71717A',
+    '--gray-100':   '#F4F4F7',
+    '--gray-200':   '#E8E8EE',
+    '--gray-300':   '#D4D4DD',
+    '--gray-400':   '#A1A1AD',
+    '--gray-500':   '#71717A'
+};
+
 function cargarTemasDisponibles() {
+    let todos = [];
+    let instalados = [];
+
     try {
-        const temas = window.parent.TEMAS_DISPONIBLES;
-        if (Array.isArray(temas)) {
-            temasDisponibles = temas.slice();
+        todos = window.parent.TEMAS_DISPONIBLES || [];
+    } catch (e) { todos = []; }
+
+    try {
+        const api = API();
+        instalados = api?.obtenerTemasInstalados?.() || [];
+    } catch (e) { instalados = []; }
+
+    // Si por algún motivo no tenemos la lista de instalados
+    // (por ejemplo, fuera del shell), usamos los base + temas por defecto.
+    if (!Array.isArray(instalados) || instalados.length === 0) {
+        instalados = todos.filter(t => t.esBase).map(t => t.id);
+        if (instalados.length === 0 && todos.length > 0) {
+            instalados = [todos[0].id];
         }
-    } catch (e) {
-        temasDisponibles = [];
     }
 
-    if (temasDisponibles.length === 0) {
-        // Fallback mínimo
-        temasDisponibles = [
-            { id: 'violeta', nombre: 'Violeta Clásico', colores: {
-                '--violet-100': '#EDE9FE', '--violet-300': '#C4B5FD', '--violet-500': '#8B5CF6',
-                '--bg': '#FFFFFF', '--text': '#18181B', '--text-2': '#52525B'
-            }},
-            { id: 'oficina', nombre: 'Oficina', colores: {
-                '--violet-100': '#E4E6EA', '--violet-300': '#A8AEB8', '--violet-500': '#4A5260',
-                '--bg': '#FFFFFF', '--text': '#18181B', '--text-2': '#52525B'
-            }}
-        ];
+    // Filtramos: solo temas instalados. Ordenados por categoría + nombre.
+    const filtrados = todos
+        .filter(t => instalados.includes(t.id))
+        .sort((a, b) => {
+            const catA = a.categoria || '';
+            const catB = b.categoria || '';
+            if (catA !== catB) return catA.localeCompare(catB);
+            return (a.nombre || '').localeCompare(b.nombre || '');
+        });
+
+    temasDisponibles = filtrados;
+
+    // Tema interno BN siempre disponible
+    temasDisponibles.push({
+        id: TEMA_BN,
+        nombre: 'Blanco y Negro',
+        categoria: 'Sobrios',
+        colores: { ...VARS_BN },
+        ruta: null,
+        _interno: true
+    });
+}
+
+/**
+ * Lee el CSS del tema y extrae las variables del bloque :root.
+ * Cachea el resultado por id de tema.
+ */
+async function obtenerVarsTema(temaId) {
+    if (cacheVarsTemas[temaId]) return cacheVarsTemas[temaId];
+
+    const tema = temasDisponibles.find(t => t.id === temaId);
+    if (!tema) return {};
+
+    // BN: variables fijas
+    if (tema.id === TEMA_BN) {
+        cacheVarsTemas[temaId] = { ...VARS_BN };
+        return cacheVarsTemas[temaId];
     }
+
+    // Fallback: objeto `colores` del catálogo
+    let vars = { ...(tema.colores || {}) };
+
+    // Intentar leer el CSS real para obtener TODAS las variables
+    if (tema.ruta) {
+        try {
+            // El CV vive en herramientas/cv/, el tema en Temas/
+            const url = '../../' + tema.ruta;
+            const res = await fetch(url);
+            if (res.ok) {
+                const css = await res.text();
+                const rootMatch = css.match(/:root\s*\{([\s\S]*?)\}/);
+                if (rootMatch) {
+                    const bloque = rootMatch[1];
+                    const varRegex = /(--[\w-]+)\s*:\s*([^;]+);/g;
+                    let m;
+                    while ((m = varRegex.exec(bloque)) !== null) {
+                        const nombre = m[1].trim();
+                        const valor  = m[2].trim();
+                        if (VARS_UTILES.has(nombre)) {
+                            vars[nombre] = valor;
+                        }
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn('[CV] No se pudo leer CSS del tema', temaId, e);
+        }
+    }
+
+    // Garantías mínimas: bg, text
+    if (!vars['--bg'])   vars['--bg']   = '#FFFFFF';
+    if (!vars['--text']) vars['--text'] = '#18181B';
+    if (!vars['--text-2']) vars['--text-2'] = '#52525B';
+    if (!vars['--white']) vars['--white'] = '#FFFFFF';
+
+    cacheVarsTemas[temaId] = vars;
+    return vars;
+}
+
+async function aplicarTemaCV(temaId) {
+    temaCVActual = temaId;
+    datos.tema = temaId;
+
+    const preview = document.getElementById('cvPreview');
+    if (!preview) return;
+
+    // Limpiar variables previas
+    const limpiar = [
+        '--violet-50','--violet-100','--violet-200','--violet-300',
+        '--violet-400','--violet-500','--violet-600','--violet-700',
+        '--bg','--bg-alt','--white',
+        '--text','--text-2','--text-3',
+        '--gray-100','--gray-200','--gray-300','--gray-400','--gray-500'
+    ];
+    limpiar.forEach(v => preview.style.removeProperty(v));
+
+    const vars = await obtenerVarsTema(temaId);
+    Object.entries(vars).forEach(([k, v]) => {
+        if (VARS_UTILES.has(k)) {
+            preview.style.setProperty(k, v);
+        }
+    });
+
+    preview.setAttribute('data-tema', temaId);
 }
 
 function llenarSelectorTemas() {
@@ -269,74 +407,15 @@ function llenarSelectorTemas() {
     temasDisponibles.forEach(t => {
         const opt = document.createElement('option');
         opt.value = t.id;
-        opt.textContent = t.nombre;
+        const prefijo = t.categoria ? `${t.categoria} · ` : '';
+        opt.textContent = prefijo + t.nombre;
         sel.appendChild(opt);
     });
-
-    // Añadir tema "Blanco y negro" como opción sobria extra
-    const opt = document.createElement('option');
-    opt.value = '__bn';
-    opt.textContent = 'Blanco y Negro (sobrio)';
-    sel.appendChild(opt);
-
-    sel.value = datos.tema || 'oficina';
-}
-
-function aplicarTemaCV(temaId) {
-    temaCVActual = temaId;
-    datos.tema = temaId;
-
-    const preview = document.getElementById('cvPreview');
-    if (!preview) return;
-
-    // Limpiar vars previas
-    const vars = [
-        '--violet-100','--violet-200','--violet-300','--violet-400',
-        '--violet-500','--violet-600','--violet-700',
-        '--bg','--bg-alt','--white','--text','--text-2','--text-3',
-        '--gray-100','--gray-200','--gray-400','--gray-500'
-    ];
-    vars.forEach(v => preview.style.removeProperty(v));
-
-    if (temaId === '__bn') {
-        // Tema sobrio blanco y negro
-        preview.style.setProperty('--violet-100', '#F4F4F5');
-        preview.style.setProperty('--violet-200', '#E4E4E7');
-        preview.style.setProperty('--violet-300', '#A1A1AA');
-        preview.style.setProperty('--violet-400', '#71717A');
-        preview.style.setProperty('--violet-500', '#27272A');
-        preview.style.setProperty('--violet-600', '#3F3F46');
-        preview.style.setProperty('--violet-700', '#18181B');
-        preview.style.setProperty('--bg', '#FFFFFF');
-        preview.style.setProperty('--bg-alt', '#FAFAFA');
-        preview.style.setProperty('--white', '#FFFFFF');
-        preview.style.setProperty('--text', '#18181B');
-        preview.style.setProperty('--text-2', '#52525B');
-        preview.style.setProperty('--text-3', '#71717A');
-    } else {
-        const tema = temasDisponibles.find(t => t.id === temaId);
-        if (tema && tema.colores) {
-            const colores = { ...tema.colores };
-            // Forzar fondo blanco y texto oscuro para que el CV sea legible/imprimible
-            // salvo que el tema sea oscuro explícito Y el usuario quiera conservarlo.
-            // Regla: usamos --bg del tema, pero garantizamos --white = blanco para las cards.
-            Object.entries(colores).forEach(([k, v]) => {
-                preview.style.setProperty(k, v);
-            });
-            // Garantías para legibilidad del CV
-            if (!preview.style.getPropertyValue('--text')) {
-                preview.style.setProperty('--text', '#18181B');
-            }
-            if (!preview.style.getPropertyValue('--text-2')) {
-                preview.style.setProperty('--text-2', '#52525B');
-            }
-        }
-    }
-    preview.setAttribute('data-tema', temaId);
+    sel.value = temaCVActual;
 }
 
 // ============================================================
-//  RENDER DEL FORM (rellenar inputs desde `datos`)
+//  RENDER DEL FORM
 // ============================================================
 function renderForm() {
     document.getElementById('inNombre').value = datos.datos.nombre;
@@ -349,7 +428,6 @@ function renderForm() {
     document.getElementById('inResumen').value = datos.datos.resumen;
     document.getElementById('resumenCount').textContent = datos.datos.resumen.length;
 
-    // Foto
     fotoIdActual = datos.datos.fotoId;
     actualizarFotoPreview();
 
@@ -366,23 +444,24 @@ function actualizarFotoPreview() {
     const btnQuitar = document.getElementById('btnQuitarFoto');
     const btnTxt = document.getElementById('cvFotoBtnTxt');
 
-    if (fotoPreviewUrl) {
-        try { URL.revokeObjectURL(fotoPreviewUrl); } catch (e) {}
-        fotoPreviewUrl = null;
-    }
-
     if (fotoIdActual) {
         wrap.classList.add('con-foto');
         btnQuitar.hidden = false;
         btnTxt.textContent = 'Cambiar foto';
         const mh = MH();
         if (mh) {
-            mh.galeria.leerImagenURL(fotoIdActual).then(url => {
-                if (url) {
-                    fotoPreviewUrl = url;
-                    img.src = url;
-                }
-            }).catch(() => {});
+            // Preferimos base64 para que se pueda exportar sin CORS
+            mh.galeria.leerImagenBlob(fotoIdActual).then(blob => {
+                if (!blob) return;
+                const r = new FileReader();
+                r.onload = () => { img.src = r.result; };
+                r.readAsDataURL(blob);
+            }).catch(() => {
+                // Fallback: URL directa
+                mh.galeria.leerImagenURL(fotoIdActual).then(url => {
+                    if (url) img.src = url;
+                }).catch(() => {});
+            });
         }
     } else {
         wrap.classList.remove('con-foto');
@@ -445,7 +524,6 @@ function renderListaExperiencia() {
             </div>
         `;
 
-        // Rellenar valores
         el.querySelector('[data-campo="puesto"]').value = exp.puesto;
         el.querySelector('[data-campo="empresa"]').value = exp.empresa;
         el.querySelector('[data-campo="ubicacion"]').value = exp.ubicacion;
@@ -453,25 +531,16 @@ function renderListaExperiencia() {
         el.querySelector('[data-campo="fin"]').value = exp.fin;
         el.querySelector('[data-campo="descripcion"]').value = exp.descripcion;
 
-        // Eventos
-        el.querySelectorAll('input[data-campo], textarea[data-campo]').forEach(inp => {
-            inp.addEventListener('input', (e) => {
-                const campo = e.target.dataset.campo;
-                if (campo === 'actual') return;
-                exp[campo] = e.target.value;
+        el.querySelectorAll('input[data-campo]:not([type="checkbox"]), textarea[data-campo]').forEach(inp => {
+            const handler = (e) => {
+                exp[e.target.dataset.campo] = e.target.value;
                 renderPreview();
                 agendarGuardado();
-            });
-            inp.addEventListener('change', (e) => {
-                const campo = e.target.dataset.campo;
-                if (campo === 'actual') return;
-                exp[campo] = e.target.value;
-                renderPreview();
-                agendarGuardado();
-            });
+            };
+            inp.addEventListener('input', handler);
+            inp.addEventListener('change', handler);
         });
 
-        // Check "actual"
         const chkActual = el.querySelector('[data-campo="actual"]');
         const inFin = el.querySelector('[data-campo="fin"]');
         chkActual.addEventListener('change', (e) => {
@@ -650,16 +719,13 @@ function renderListaIdiomas() {
         el.querySelector('[data-campo="nivel"]').value = idi.nivel;
 
         el.querySelectorAll('[data-campo]').forEach(inp => {
-            inp.addEventListener('input', (e) => {
+            const handler = (e) => {
                 idi[e.target.dataset.campo] = e.target.value;
                 renderPreview();
                 agendarGuardado();
-            });
-            inp.addEventListener('change', (e) => {
-                idi[e.target.dataset.campo] = e.target.value;
-                renderPreview();
-                agendarGuardado();
-            });
+            };
+            inp.addEventListener('input', handler);
+            inp.addEventListener('change', handler);
         });
 
         el.querySelector('[data-accion="eliminar"]').addEventListener('click', () => {
@@ -735,7 +801,7 @@ function renderListaCertificaciones() {
 }
 
 // ============================================================
-//  RENDER: PREVIEW DEL CV
+//  RENDER: PREVIEW
 // ============================================================
 function renderPreview() {
     const preview = document.getElementById('cvPreview');
@@ -751,7 +817,7 @@ function renderPreview() {
             <div class="cv-doc-vacio">
                 <i data-lucide="file-user"></i>
                 <h3>Tu CV está vacío</h3>
-                <p>Empezá a rellenar el formulario de la izquierda y verás tu CV aparecer acá.</p>
+                <p>Empezá a rellenar el formulario y verás tu CV aparecer acá.</p>
             </div>
         `;
         if (window.lucide) window.lucide.createIcons();
@@ -891,21 +957,27 @@ function renderPreview() {
         html += '</section>';
     }
 
-    html += '</div>';  // .cv-doc
+    html += '</div>';
 
     preview.innerHTML = html;
 
-    // Cargar foto real si existe
+    // Foto → base64 (garantiza export sin CORS)
     if (d.fotoId) {
         const mh = MH();
         const fotoEl = preview.querySelector(`[data-foto-id="${d.fotoId}"]`);
         if (mh && fotoEl) {
-            mh.galeria.leerImagenURL(d.fotoId).then(url => {
-                if (url) {
-                    fotoEl.innerHTML = `<img src="${url}" alt="">`;
-                    fotoEl.querySelector('img').onload = () => URL.revokeObjectURL(url);
-                }
-            }).catch(() => {});
+            mh.galeria.leerImagenBlob(d.fotoId).then(blob => {
+                if (!blob) return;
+                const r = new FileReader();
+                r.onload = () => {
+                    fotoEl.innerHTML = `<img src="${r.result}" alt="">`;
+                };
+                r.readAsDataURL(blob);
+            }).catch(() => {
+                mh.galeria.leerImagenURL(d.fotoId).then(url => {
+                    if (url) fotoEl.innerHTML = `<img src="${url}" alt="">`;
+                }).catch(() => {});
+            });
         }
     }
 
@@ -914,7 +986,7 @@ function renderPreview() {
 }
 
 // ============================================================
-//  ESCALA DEL PREVIEW (para que quepa en el contenedor)
+//  ESCALA DEL PREVIEW
 // ============================================================
 function ajustarEscalaPreview() {
     const wrapper = document.querySelector('.cv-preview-wrapper');
@@ -922,17 +994,14 @@ function ajustarEscalaPreview() {
     const stage = document.getElementById('cvPreviewStage');
     if (!wrapper || !preview || !stage) return;
 
-    // Tamaño natural del preview
     const ancho = preview.offsetWidth;
     const alto = preview.offsetHeight;
 
-    // Espacio disponible
     const stageRect = stage.getBoundingClientRect();
-    const padding = 48;  // 24 por lado
+    const padding = 48;
     const anchoDisp = stageRect.width - padding;
     const altoDisp = stageRect.height - padding;
 
-    // Calcular escala
     const escala = Math.min(1, anchoDisp / ancho, altoDisp / alto);
 
     preview.style.transform = `scale(${escala})`;
@@ -968,9 +1037,6 @@ function bindForm() {
     });
 }
 
-// ============================================================
-//  EVENTOS: NAVEGACIÓN DEL FORM
-// ============================================================
 function bindNavegacion() {
     document.querySelectorAll('.cv-nav-item').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -983,9 +1049,6 @@ function bindNavegacion() {
     });
 }
 
-// ============================================================
-//  EVENTOS: AÑADIR ITEMS
-// ============================================================
 function bindAddItems() {
     document.querySelectorAll('[data-add]').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1024,9 +1087,6 @@ function bindAddItems() {
     });
 }
 
-// ============================================================
-//  EVENTOS: HABILIDADES
-// ============================================================
 function bindHabilidades() {
     const input = document.getElementById('inHabilidad');
     const btn = document.getElementById('btnAddHabilidad');
@@ -1053,9 +1113,6 @@ function bindHabilidades() {
     });
 }
 
-// ============================================================
-//  EVENTOS: FOTO
-// ============================================================
 function bindFoto() {
     document.getElementById('btnElegirFoto')?.addEventListener('click', async () => {
         const mh = MH();
@@ -1082,21 +1139,15 @@ function bindFoto() {
     });
 }
 
-// ============================================================
-//  EVENTOS: SELECTOR DE TEMA DEL CV
-// ============================================================
 function bindTemaSelect() {
     const sel = document.getElementById('cvTemaSelect');
-    sel?.addEventListener('change', (e) => {
-        aplicarTemaCV(e.target.value);
+    sel?.addEventListener('change', async (e) => {
+        await aplicarTemaCV(e.target.value);
         renderPreview();
         agendarGuardado();
     });
 }
 
-// ============================================================
-//  EVENTOS: TABS MÓVIL
-// ============================================================
 function bindTabsMovil() {
     const app = document.querySelector('.cv-app');
     document.querySelectorAll('.cv-tab-movil').forEach(tab => {
@@ -1114,6 +1165,62 @@ function bindTabsMovil() {
 }
 
 // ============================================================
+//  ESPERAS (para export confiable)
+// ============================================================
+async function esperarFuentes() {
+    if (document.fonts && document.fonts.ready) {
+        try { await document.fonts.ready; } catch (e) {}
+    }
+}
+
+async function esperarImagenes(preview) {
+    const imgs = Array.from(preview.querySelectorAll('img'));
+    if (imgs.length === 0) return;
+    await Promise.all(imgs.map(img => {
+        if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+        return new Promise(resolve => {
+            const done = () => resolve();
+            img.addEventListener('load',  done, { once: true });
+            img.addEventListener('error', done, { once: true });
+            // Timeout de seguridad (3s por si nunca carga)
+            setTimeout(done, 3000);
+        });
+    }));
+}
+
+// ============================================================
+//  EXPORT: preparación
+// ============================================================
+async function prepararCaptura() {
+    const preview = document.getElementById('cvPreview');
+    const wrapper = document.querySelector('.cv-preview-wrapper');
+
+    const prevTransform = preview.style.transform;
+    const prevWrapperW = wrapper.style.width;
+    const prevWrapperH = wrapper.style.height;
+
+    preview.style.transform = 'none';
+    wrapper.style.width = '';
+    wrapper.style.height = '';
+
+    // Esperar a que el layout se aplique
+    await new Promise(r => requestAnimationFrame(r));
+    await new Promise(r => setTimeout(r, 60));
+
+    // Esperar fuentes e imágenes
+    await esperarFuentes();
+    await esperarImagenes(preview);
+
+    return { prevTransform, prevWrapperW, prevWrapperH };
+}
+
+function restaurarCaptura(preview, wrapper, prev) {
+    preview.style.transform = prev.prevTransform;
+    wrapper.style.width = prev.prevWrapperW;
+    wrapper.style.height = prev.prevWrapperH;
+}
+
+// ============================================================
 //  DESCARGA: PNG
 // ============================================================
 async function descargarPNG() {
@@ -1122,184 +1229,18 @@ async function descargarPNG() {
     if (overlay) overlay.hidden = false;
     if (overlayTxt) overlayTxt.textContent = 'Generando PNG...';
 
-    // Quitar transform temporalmente
     const preview = document.getElementById('cvPreview');
     const wrapper = document.querySelector('.cv-preview-wrapper');
-    const prevTransform = preview.style.transform;
-    const prevWrapperW = wrapper.style.width;
-    const prevWrapperH = wrapper.style.height;
 
-    preview.style.transform = 'none';
-    wrapper.style.width = '';
-    wrapper.style.height = '';
-
-    await new Promise(r => requestAnimationFrame(r));
-    await new Promise(r => setTimeout(r, 60));
+    const prev = await prepararCaptura();
 
     try {
         const canvas = await html2canvas(preview, {
             scale: 2,
             useCORS: true,
+            allowTaint: false,
             backgroundColor: '#FFFFFF',
-            logging: false
+            logging: false,
+            imageTimeout: 5000
         });
-        const nombre = (datos.datos.nombre || 'CV').replace(/[^a-z0-9]/gi, '_');
-        const url = canvas.toDataURL('image/png');
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `CV_${nombre}.png`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        toast('PNG descargado', 'success');
-    } catch (e) {
-        console.warn('[CV] Error PNG:', e);
-        toast('No se pudo generar el PNG', 'error');
-    } finally {
-        preview.style.transform = prevTransform;
-        wrapper.style.width = prevWrapperW;
-        wrapper.style.height = prevWrapperH;
-        if (overlay) overlay.hidden = true;
-    }
-}
-
-// ============================================================
-//  DESCARGA: PDF
-// ============================================================
-async function descargarPDF() {
-    const overlay = document.getElementById('cvOverlay');
-    const overlayTxt = document.getElementById('cvOverlayTxt');
-    if (overlay) overlay.hidden = false;
-    if (overlayTxt) overlayTxt.textContent = 'Generando PDF...';
-
-    const preview = document.getElementById('cvPreview');
-    const wrapper = document.querySelector('.cv-preview-wrapper');
-    const prevTransform = preview.style.transform;
-    const prevWrapperW = wrapper.style.width;
-    const prevWrapperH = wrapper.style.height;
-
-    preview.style.transform = 'none';
-    wrapper.style.width = '';
-    wrapper.style.height = '';
-
-    await new Promise(r => requestAnimationFrame(r));
-    await new Promise(r => setTimeout(r, 60));
-
-    try {
-        const canvas = await html2canvas(preview, {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: '#FFFFFF',
-            logging: false
-        });
-        const imgData = canvas.toDataURL('image/png');
-
-        // jsPDF en UMD: window.jspdf.jsPDF
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4',
-            compress: true
-        });
-
-        const anchoPaginaMM = 210;
-        const altoPaginaMM = 297;
-        const margenMM = 0;
-
-        // Escalar imagen al ancho de la página
-        const anchoImgMM = anchoPaginaMM - (margenMM * 2);
-        const altoImgMM = (canvas.height / canvas.width) * anchoImgMM;
-
-        if (altoImgMM <= altoPaginaMM - (margenMM * 2)) {
-            // Una sola página
-            pdf.addImage(imgData, 'PNG', margenMM, margenMM, anchoImgMM, altoImgMM);
-        } else {
-            // Multi-página: cortamos la imagen
-            const altoDisponible = altoPaginaMM - (margenMM * 2);
-            const cantidadPaginas = Math.ceil(altoImgMM / altoDisponible);
-
-            for (let i = 0; i < cantidadPaginas; i++) {
-                if (i > 0) pdf.addPage();
-                const offsetMM = -i * altoDisponible;
-                pdf.addImage(imgData, 'PNG', margenMM, margenMM + offsetMM, anchoImgMM, altoImgMM);
-            }
-        }
-
-        const nombre = (datos.datos.nombre || 'CV').replace(/[^a-z0-9]/gi, '_');
-        pdf.save(`CV_${nombre}.pdf`);
-        toast('PDF descargado', 'success');
-    } catch (e) {
-        console.warn('[CV] Error PDF:', e);
-        toast('No se pudo generar el PDF', 'error');
-    } finally {
-        preview.style.transform = prevTransform;
-        wrapper.style.width = prevWrapperW;
-        wrapper.style.height = prevWrapperH;
-        if (overlay) overlay.hidden = true;
-    }
-}
-
-// ============================================================
-//  EVENTOS: DESCARGA Y GUARDADO MANUAL
-// ============================================================
-function bindDescargas() {
-    document.getElementById('btnDescargarPDF')?.addEventListener('click', descargarPDF);
-    document.getElementById('btnDescargarPNG')?.addEventListener('click', descargarPNG);
-    document.getElementById('btnGuardar')?.addEventListener('click', () => guardar(false));
-}
-
-// ============================================================
-//  INIT
-// ============================================================
-async function inicializar() {
-    aplicarTemaDelPadre();
-
-    const api = API();
-    if (!api) { alert('Constructor de CV necesita estar dentro de VicWebOs.'); return; }
-
-    usuarioActual = api.obtenerCuenta?.();
-    if (!usuarioActual) { alert('Necesitás iniciar sesión.'); return; }
-
-    const badge = document.getElementById('cvUserBadge');
-    if (badge) badge.textContent = `@${usuarioActual.codigo} · ${usuarioActual.nombre}`;
-
-    cargarTemasDisponibles();
-    await cargar();
-
-    // Si el CV está vacío, pre-rellenamos el nombre con el del usuario
-    if (!datos.datos.nombre && usuarioActual.nombre) {
-        datos.datos.nombre = usuarioActual.nombre;
-    }
-
-    llenarSelectorTemas();
-    aplicarTemaCV(datos.tema || 'oficina');
-    renderForm();
-    renderPreview();
-
-    // Bindings
-    bindForm();
-    bindNavegacion();
-    bindAddItems();
-    bindHabilidades();
-    bindFoto();
-    bindTemaSelect();
-    bindTabsMovil();
-    bindDescargas();
-
-    // Resize para reajustar la escala
-    window.addEventListener('resize', () => {
-        ajustarEscalaPreview();
-    });
-
-    // Guardado al cerrar
-    window.addEventListener('pagehide', () => {
-        clearTimeout(autosaveTimer);
-        guardar(true);
-    });
-
-    if (window.lucide) window.lucide.createIcons();
-    setTimeout(ajustarEscalaPreview, 100);
-}
-
-document.addEventListener('DOMContentLoaded', inicializar);
+        const nombre = (datos.datos.n
