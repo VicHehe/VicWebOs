@@ -1243,4 +1243,149 @@ async function descargarPNG() {
             logging: false,
             imageTimeout: 5000
         });
-        const nombre = (datos.datos.n
+        const nombre = (datos.datos.nombre || 'CV').replace(/[^a-z0-9]/gi, '_');
+        const url = canvas.toDataURL('image/png');
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `CV_${nombre}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        toast('PNG descargado', 'success');
+    } catch (e) {
+        console.warn('[CV] Error PNG:', e);
+        toast('No se pudo generar el PNG', 'error');
+    } finally {
+        restaurarCaptura(preview, wrapper, prev);
+        if (overlay) overlay.hidden = true;
+    }
+}
+
+// ============================================================
+//  DESCARGA: PDF
+// ============================================================
+async function descargarPDF() {
+    const overlay = document.getElementById('cvOverlay');
+    const overlayTxt = document.getElementById('cvOverlayTxt');
+    if (overlay) overlay.hidden = false;
+    if (overlayTxt) overlayTxt.textContent = 'Generando PDF...';
+
+    const preview = document.getElementById('cvPreview');
+    const wrapper = document.querySelector('.cv-preview-wrapper');
+
+    const prev = await prepararCaptura();
+
+    try {
+        const canvas = await html2canvas(preview, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: false,
+            backgroundColor: '#FFFFFF',
+            logging: false,
+            imageTimeout: 5000
+        });
+        const imgData = canvas.toDataURL('image/png');
+
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4',
+            compress: true
+        });
+
+        const anchoPaginaMM = 210;
+        const altoPaginaMM = 297;
+        const margenMM = 0;
+
+        const anchoImgMM = anchoPaginaMM - (margenMM * 2);
+        const altoImgMM = (canvas.height / canvas.width) * anchoImgMM;
+
+        if (altoImgMM <= altoPaginaMM - (margenMM * 2)) {
+            pdf.addImage(imgData, 'PNG', margenMM, margenMM, anchoImgMM, altoImgMM);
+        } else {
+            const altoDisponible = altoPaginaMM - (margenMM * 2);
+            const cantidadPaginas = Math.ceil(altoImgMM / altoDisponible);
+            for (let i = 0; i < cantidadPaginas; i++) {
+                if (i > 0) pdf.addPage();
+                const offsetMM = -i * altoDisponible;
+                pdf.addImage(imgData, 'PNG', margenMM, margenMM + offsetMM, anchoImgMM, altoImgMM);
+            }
+        }
+
+        const nombre = (datos.datos.nombre || 'CV').replace(/[^a-z0-9]/gi, '_');
+        pdf.save(`CV_${nombre}.pdf`);
+        toast('PDF descargado', 'success');
+    } catch (e) {
+        console.warn('[CV] Error PDF:', e);
+        toast('No se pudo generar el PDF', 'error');
+    } finally {
+        restaurarCaptura(preview, wrapper, prev);
+        if (overlay) overlay.hidden = true;
+    }
+}
+
+function bindDescargas() {
+    document.getElementById('btnDescargarPDF')?.addEventListener('click', descargarPDF);
+    document.getElementById('btnDescargarPNG')?.addEventListener('click', descargarPNG);
+    document.getElementById('btnGuardar')?.addEventListener('click', () => guardar(false));
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+async function inicializar() {
+    if (inicializado) return;
+    inicializado = true;
+
+    aplicarTemaDelPadre();
+
+    const api = API();
+    if (!api) { alert('Constructor de CV necesita estar dentro de VicWebOs.'); return; }
+
+    usuarioActual = api.obtenerCuenta?.();
+    if (!usuarioActual) { alert('Necesitás iniciar sesión.'); return; }
+
+    const badge = document.getElementById('cvUserBadge');
+    if (badge) badge.textContent = `@${usuarioActual.codigo} · ${usuarioActual.nombre}`;
+
+    cargarTemasDisponibles();
+    await cargar();
+
+    // Si el tema guardado ya no está disponible (no está comprado),
+    // elegimos el primer tema disponible.
+    if (!temasDisponibles.find(t => t.id === datos.tema)) {
+        datos.tema = temasDisponibles[0]?.id || TEMA_BN;
+    }
+
+    // Pre-rellenar nombre si está vacío
+    if (!datos.datos.nombre && usuarioActual.nombre) {
+        datos.datos.nombre = usuarioActual.nombre;
+    }
+
+    llenarSelectorTemas();
+    await aplicarTemaCV(datos.tema);
+    renderForm();
+    renderPreview();
+
+    bindForm();
+    bindNavegacion();
+    bindAddItems();
+    bindHabilidades();
+    bindFoto();
+    bindTemaSelect();
+    bindTabsMovil();
+    bindDescargas();
+
+    window.addEventListener('resize', ajustarEscalaPreview);
+
+    window.addEventListener('pagehide', () => {
+        clearTimeout(autosaveTimer);
+        guardar(true);
+    });
+
+    if (window.lucide) window.lucide.createIcons();
+    setTimeout(ajustarEscalaPreview, 100);
+}
+
+document.addEventListener('DOMContentLoaded', inicializar);
