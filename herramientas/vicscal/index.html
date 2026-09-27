@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>VicsCal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<div class="ca-app">
+
+    <!-- ============ HEADER ============ -->
+    <header class="ca-header">
+        <div class="ca-header-left">
+            <div class="ca-logo-mark"><i data-lucide="calendar-days"></i></div>
+            <div class="ca-logo-text">
+                <h1>VicsCal</h1>
+                <p id="caUserBadge">—</p>
+            </div>
+        </div>
+        <div class="ca-header-right">
+            <button class="ca-btn-icono" id="btnHoy" title="Ir a hoy">
+                <i data-lucide="calendar-check"></i>
+            </button>
+            <button class="ca-btn-icono" id="btnRefrescar" title="Refrescar">
+                <i data-lucide="refresh-cw"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- ============ FILTRO + NAVEGACIÓN ============ -->
+    <div class="ca-controles">
+        <div class="ca-nav-mes">
+            <button class="ca-btn-nav" id="btnMesAnterior" title="Mes anterior">
+                <i data-lucide="chevron-left"></i>
+            </button>
+            <span class="ca-mes-titulo" id="caMesTitulo">—</span>
+            <button class="ca-btn-nav" id="btnMesSiguiente" title="Mes siguiente">
+                <i data-lucide="chevron-right"></i>
+            </button>
+        </div>
+
+        <div class="ca-filtros">
+            <button class="ca-filtro active" data-filtro="todos">
+                <i data-lucide="calendar"></i>
+                <span>Todos</span>
+            </button>
+            <button class="ca-filtro" data-filtro="mios">
+                <i data-lucide="user"></i>
+                <span>Míos</span>
+            </button>
+            <button class="ca-filtro" data-filtro="publicos">
+                <i data-lucide="globe"></i>
+                <span>Públicos</span>
+            </button>
+        </div>
+
+        <button class="ca-btn-pri" id="btnNuevoEvento">
+            <i data-lucide="plus"></i>
+            <span>Nuevo evento</span>
+        </button>
+    </div>
+
+    <!-- ============ CUERPO ============ -->
+    <div class="ca-body">
+
+        <!-- ---------- GRID DEL MES ---------- -->
+        <div class="ca-grid-wrap">
+            <div class="ca-dias-semana">
+                <div>Lun</div><div>Mar</div><div>Mié</div>
+                <div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div>
+            </div>
+            <div class="ca-dias-grid" id="caDiasGrid"></div>
+        </div>
+
+        <!-- ---------- PANEL DETALLE ---------- -->
+        <aside class="ca-panel" id="caPanel">
+            <div class="ca-panel-header">
+                <h2 id="caPanelTitulo">Detalle del día</h2>
+                <span class="ca-panel-fecha" id="caPanelFecha">—</span>
+            </div>
+            <div class="ca-panel-body" id="caPanelBody">
+                <div class="ca-vacio">
+                    <i data-lucide="calendar-search"></i>
+                    <p>Elegí un día para ver sus eventos, o creá uno nuevo.</p>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+</div>
+
+<!-- ============ MODAL EVENTO ============ -->
+<div class="ca-modal" id="caModalEvento" hidden>
+    <div class="ca-modal-card">
+        <div class="ca-modal-header">
+            <h2 id="caModalTitulo">
+                <i data-lucide="calendar-plus"></i>
+                <span>Nuevo evento</span>
+            </h2>
+            <button class="ca-modal-cerrar" id="caModalCerrar">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+
+        <form id="caFormEvento">
+            <div class="ca-modal-body">
+
+                <div class="ca-field">
+                    <label>Fecha</label>
+                    <input type="date" id="caFecha" required>
+                </div>
+
+                <div class="ca-field">
+                    <label>Título</label>
+                    <input type="text" id="caTitulo" maxlength="80" placeholder="Ej: Cumpleaños de Nico" required>
+                </div>
+
+                <div class="ca-field">
+                    <label>Descripción (opcional)</label>
+                    <textarea id="caDescripcion" rows="3" maxlength="400" placeholder="Detalles, hora, lugar..."></textarea>
+                </div>
+
+                <div class="ca-field">
+                    <label>Visibilidad</label>
+                    <div class="ca-visibilidad">
+                        <label class="ca-vis-opcion">
+                            <input type="radio" name="caVisibilidad" value="personal" checked>
+                            <div class="ca-vis-card">
+                                <span class="ca-vis-radio" aria-hidden="true"></span>
+                                <div class="ca-vis-cuerpo">
+                                    <div class="ca-vis-cabecera">
+                                        <i data-lucide="user"></i>
+                                        <strong>Personal</strong>
+                                    </div>
+                                    <p>Solo vos lo vas a ver.</p>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="ca-vis-opcion">
+                            <input type="radio" name="caVisibilidad" value="publico">
+                            <div class="ca-vis-card">
+                                <span class="ca-vis-radio" aria-hidden="true"></span>
+                                <div class="ca-vis-cuerpo">
+                                    <div class="ca-vis-cabecera">
+                                        <i data-lucide="globe"></i>
+                                        <strong>Público</strong>
+                                    </div>
+                                    <p>Toda la comunidad lo verá.</p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="ca-field">
+                    <label>Color</label>
+                    <div class="ca-colores" id="caColores"></div>
+                </div>
+
+                <div id="caModalStatus" class="ca-status"></div>
+            </div>
+
+            <div class="ca-modal-acciones">
+                <button type="button" class="ca-btn-sec" id="caModalCancelar">Cancelar</button>
+                <button type="submit" class="ca-btn-pri ca-btn-full-md" id="caModalGuardar">
+                    <i data-lucide="check"></i>
+                    <span id="caModalGuardarTxt">Guardar</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ============ MODAL CONFIRMAR ELIMINAR ============ -->
+<div class="ca-modal" id="caModalEliminar" hidden>
+    <div class="ca-modal-card ca-modal-sm">
+        <div class="ca-modal-header">
+            <h2>
+                <i data-lucide="trash-2"></i>
+                <span>Eliminar evento</span>
+            </h2>
+            <button class="ca-modal-cerrar" id="caEliminarCerrar">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <div class="ca-modal-body">
+            <p class="ca-texto-modal" id="caEliminarTexto">¿Eliminar este evento?</p>
+        </div>
+        <div class="ca-modal-acciones">
+            <button type="button" class="ca-btn-sec" id="caEliminarCancelar">Cancelar</button>
+            <button type="button" class="ca-btn-danger" id="caEliminarConfirmar">
+                <i data-lucide="trash-2"></i>
+                <span>Eliminar</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="ca-toast" id="caToast"></div>
+
+<script src="script.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>
