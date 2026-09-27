@@ -4,6 +4,9 @@
 //  · Web Audio API (sin dependencias externas para sonido)
 //  · Síntesis tipo piano: fundamental + 3 armónicos + lowpass
 //    + envolvente ADSR (ataque corto, decay, sustain, release).
+//  · Dos modos de vista: 'octava' (C→C, 8 blancas) y 'doble'
+//    (14 blancas). En táctil arranca en 'octava' para que las
+//    teclas sean más grandes.
 //  · Grabación de notas con timestamps (JSON por usuario).
 //  · Reproducción con setTimeout encadenado.
 //  · Exportación a MIDI (Standard MIDI File, formato 0).
@@ -28,6 +31,16 @@ const OCTAVA_MIN = 0;   // C0 (MIDI 12)
 const OCTAVA_MAX = 7;   // C7 (MIDI 96)
 const NOTAS_BLANCAS = [0, 2, 4, 5, 7, 9, 11]; // semitonos dentro de la octava
 const NOMBRES_NOTA = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+// Posiciones de las teclas negras dentro de una octava (índice de blanca + semitono)
+// C# va entre C (wi 0) y D (wi 1); D# entre D (wi 1) y E (wi 2); etc.
+const NEGRAS_POR_OCTAVA = [
+    { wiDentro: 0, sem: 1 },   // C#
+    { wiDentro: 1, sem: 3 },   // D#
+    { wiDentro: 3, sem: 6 },   // F#
+    { wiDentro: 4, sem: 8 },   // G#
+    { wiDentro: 5, sem: 10 }   // A#
+];
 
 // Mapa de teclado PC → offset desde la nota base (0 = C de la octava actual)
 const MAPA_TECLADO = {
@@ -61,6 +74,7 @@ let masterGain = null;
 let vocesActivas = new Map(); // midi → { osciladores, gain }
 
 let octavaBase = 4;           // C4 = MIDI 60
+let modoPiano = 'octava';     // 'octava' (C→C) | 'doble' (2 octavas)
 let teclasPulsadas = new Set(); // teclas PC ya pulsadas (evitar repeat)
 let notasActivasPorPuntero = new Map(); // pointerId → midi
 
@@ -228,10 +242,6 @@ function crearVoz(midi, velocity = 1) {
     filtro.Q.value = 0.7;
 
     // ---- Osciladores (fundamental + armónicos) ----
-    // 1: triángulo (cuerpo principal)
-    // 2: senoidal x2 (brillo)
-    // 3: senoidal x3 (carácter)
-    // 4: senoidal x4 (aire sutil)
     const config = [
         { tipo: 'triangle', mult: 1, amp: 1.0 },
         { tipo: 'sine',     mult: 2, amp: 0.35 },
@@ -244,7 +254,6 @@ function crearVoz(midi, velocity = 1) {
         const osc = audioCtx.createOscillator();
         osc.type = cfg.tipo;
         osc.frequency.value = freq * cfg.mult;
-        // Ligero detune para naturalidad
         osc.detune.value = (Math.random() - 0.5) * 6;
         const g = audioCtx.createGain();
         g.gain.value = cfg.amp;
@@ -257,7 +266,6 @@ function crearVoz(midi, velocity = 1) {
     filtro.connect(gain);
     gain.connect(masterGain);
 
-    // ---- Función para detener la voz con release ----
     const detener = () => {
         if (!audioCtx) return;
         const ahora = audioCtx.currentTime;
@@ -272,14 +280,10 @@ function crearVoz(midi, velocity = 1) {
     return { osciladores, gain, filtro, detener };
 }
 
-/**
- * Nota ON. Si la misma nota ya estaba sonando, detiene la voz previa.
- */
 function noteOn(midi, velocity = 1, registrar = true) {
     initAudio();
     if (!audioCtx) return;
 
-    // Detener voz previa de la misma nota (por si se toca dos veces)
     if (vocesActivas.has(midi)) {
         try { vocesActivas.get(midi).detener(); } catch (e) {}
         vocesActivas.delete(midi);
@@ -324,69 +328,83 @@ function marcarTeclaActiva(midi, activa) {
     if (el) el.classList.toggle('activa', activa);
 }
 
+function liberarTodasLasVoces() {
+    vocesActivas.forEach(v => { try { v.detener(); } catch (e) {} });
+    vocesActivas.clear();
+    notasActivasPorPuntero.clear();
+    teclasPulsadas.clear();
+}
+
 // ============================================================
 //  CONSTRUCCIÓN DEL PIANO
+//  ------------------------------------------------------------
+//  Se dibuja según `modoPiano`:
+//    · 'octava' → 8 blancas (C→C)
+//    · 'doble'  → 14 blancas (2 octavas + C final)
+//  Las teclas negras se posicionan con porcentajes calculados
+//  sobre el total de blancas. Así el layout es flexible.
 // ============================================================
 function construirPiano() {
     const piano = document.getElementById('pnPiano');
     if (!piano) return;
     piano.innerHTML = '';
 
-    // 2 octavas a partir de octavaBase
-    for (let i = 0; i < 2; i++) {
-        const octava = octavaBase + i;
-        const cont = document.createElement('div');
-        cont.className = 'pn-octava';
+    const numOctavas = modoPiano === 'doble' ? 2 : 1;
+    const totalBlancas = numOctavas * 7 + 1; // +1 por la C final
 
-        // MIDI base de la octava: C de esta octava
-        const midiBase = (octava + 1) * 12;
+    const midiBase = (octavaBase + 1) * 12;
 
-        // Teclas blancas
-        NOTAS_BLANCAS.forEach(sem => {
-            const midi = midiBase + sem;
-            const tecla = document.createElement('div');
-            tecla.className = 'pn-tecla pn-tecla-blanca';
-            tecla.dataset.nota = midi;
-            tecla.innerHTML = `<span class="pn-nota-label">${midiANombre(midi)}</span>`;
-            adjuntarEventosTecla(tecla, midi);
-            cont.appendChild(tecla);
-        });
+    // ---------- Teclas blancas ----------
+    const blancas = [];
+    for (let o = 0; o < numOctavas; o++) {
+        for (const sem of NOTAS_BLANCAS) {
+            blancas.push(midiBase + o * 12 + sem);
+        }
+    }
+    // C de cierre
+    blancas.push(midiBase + numOctavas * 12);
 
-        // Teclas negras (posiciones específicas)
-        // posiciones dentro de la octava: después de C(0), D(1), F(3), G(4), A(5)
-        const negrasPos = [
-            { pos: 1, sem: 1 },  // C#
-            { pos: 2, sem: 3 },  // D#
-            { pos: 4, sem: 6 },  // F#
-            { pos: 5, sem: 8 },  // G#
-            { pos: 6, sem: 10 }  // A#
-        ];
-        negrasPos.forEach(({ pos, sem }) => {
-            const midi = midiBase + sem;
+    blancas.forEach(midi => {
+        const tecla = document.createElement('div');
+        tecla.className = 'pn-tecla pn-tecla-blanca';
+        tecla.dataset.nota = midi;
+        tecla.innerHTML = `<span class="pn-nota-label">${midiANombre(midi)}</span>`;
+        adjuntarEventosTecla(tecla, midi);
+        piano.appendChild(tecla);
+    });
+
+    // ---------- Teclas negras ----------
+    // Para cada octava completa (no para la C de cierre):
+    const pctPorBlanca = 100 / totalBlancas;
+    const anchoNegra = 0.6 * pctPorBlanca;   // 60% del ancho de una blanca
+
+    for (let o = 0; o < numOctavas; o++) {
+        for (const negra of NEGRAS_POR_OCTAVA) {
+            const wiGlobal = o * 7 + negra.wiDentro;
+            const midi = midiBase + o * 12 + negra.sem;
+            // La negra se centra en el límite entre la blanca wiGlobal y la wiGlobal+1
+            const leftPct = (wiGlobal + 1) * pctPorBlanca - anchoNegra / 2;
+
             const tecla = document.createElement('div');
             tecla.className = 'pn-tecla pn-tecla-negra';
             tecla.dataset.nota = midi;
-            tecla.dataset.pos = pos;
+            tecla.style.left = leftPct.toFixed(4) + '%';
+            tecla.style.width = anchoNegra.toFixed(4) + '%';
             adjuntarEventosTecla(tecla, midi);
-            cont.appendChild(tecla);
-        });
-
-        piano.appendChild(cont);
+            piano.appendChild(tecla);
+        }
     }
 
-    // Etiqueta del rango actual
-    const midiInicio = (octavaBase + 1) * 12;
-    const midiFin = ((octavaBase + 2) + 1) * 12 - 1; // B de la 2da octava
+    // ---------- Etiqueta del rango ----------
+    const midiFin = midiBase + numOctavas * 12;
     document.getElementById('pnOctLabel').textContent =
-        `${midiANombre(midiInicio)} — ${midiANombre(midiFin)}`;
+        `${midiANombre(midiBase)} — ${midiANombre(midiFin)}`;
 }
 
 function adjuntarEventosTecla(el, midi) {
-    // Pointer events (mouse + touch + stylus, unificados)
     el.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         el.setPointerCapture(e.pointerId);
-        // Registrar el pointer → nota
         notasActivasPorPuntero.set(e.pointerId, midi);
         noteOn(midi, 1);
     });
@@ -400,8 +418,6 @@ function adjuntarEventosTecla(el, midi) {
     el.addEventListener('pointerup', soltar);
     el.addEventListener('pointercancel', soltar);
     el.addEventListener('lostpointercapture', soltar);
-
-    // Bloquear context menu (por si acaso)
     el.addEventListener('contextmenu', e => e.preventDefault());
 }
 
@@ -409,7 +425,6 @@ function adjuntarEventosTecla(el, midi) {
 //  TECLADO PC
 // ============================================================
 document.addEventListener('keydown', (e) => {
-    // Ignorar si hay un input/textarea enfocado
     const tag = (e.target.tagName || '').toLowerCase();
     if (tag === 'input' || tag === 'textarea') return;
 
@@ -429,7 +444,6 @@ document.addEventListener('keydown', (e) => {
         return;
     }
 
-    // Ignorar repetición para notas
     if (e.repeat) return;
     if (!(k in MAPA_TECLADO)) return;
     if (teclasPulsadas.has(k)) return;
@@ -455,7 +469,6 @@ document.addEventListener('keyup', (e) => {
     noteOff(midi);
 });
 
-// Al perder foco, liberar todas las teclas
 window.addEventListener('blur', () => {
     teclasPulsadas.forEach(k => {
         const offset = MAPA_TECLADO[k];
@@ -472,14 +485,30 @@ function cambiarOctava(delta) {
     const nueva = Math.max(OCTAVA_MIN, Math.min(OCTAVA_MAX, octavaBase + delta));
     if (nueva === octavaBase) return;
 
-    // Liberar todas las voces activas antes de cambiar
-    vocesActivas.forEach((voz, midi) => {
-        try { voz.detener(); } catch (e) {}
-    });
-    vocesActivas.clear();
-    notasActivasPorPuntero.clear();
-
+    liberarTodasLasVoces();
     octavaBase = nueva;
+    construirPiano();
+}
+
+// ============================================================
+//  CAMBIAR MODO (C→C / Doble)
+// ============================================================
+function actualizarBtnModo() {
+    const label = document.getElementById('pnModoLabel');
+    if (label) label.textContent = modoPiano === 'octava' ? 'C→C' : '2 Oct';
+
+    const btn = document.getElementById('btnModo');
+    if (btn) {
+        btn.title = modoPiano === 'octava'
+            ? 'Cambiar a 2 octavas'
+            : 'Cambiar a C→C (más grande)';
+    }
+}
+
+function toggleModo() {
+    liberarTodasLasVoces();
+    modoPiano = modoPiano === 'octava' ? 'doble' : 'octava';
+    actualizarBtnModo();
     construirPiano();
 }
 
@@ -487,11 +516,8 @@ function cambiarOctava(delta) {
 //  GRABACIÓN
 // ============================================================
 function toggleGrabacion() {
-    if (grabando) {
-        detenerGrabacion();
-    } else {
-        iniciarGrabacion();
-    }
+    if (grabando) detenerGrabacion();
+    else iniciarGrabacion();
 }
 
 function iniciarGrabacion() {
@@ -504,19 +530,16 @@ function iniciarGrabacion() {
         eventos: []
     };
 
-    // UI
     const btn = document.getElementById('btnGrabar');
     btn.classList.add('grabando');
     document.getElementById('btnGrabarTxt').textContent = 'Parar';
     document.getElementById('pnIndicador').hidden = false;
     document.getElementById('btnDetener').disabled = false;
 
-    // Timer visual
     clearInterval(timerGrabacion);
     timerGrabacion = setInterval(actualizarTiempo, 100);
     actualizarTiempo();
 
-    // Auto-stop a los 5 min
     setTimeout(() => {
         if (grabando && grabacionActual &&
             (performance.now() - grabacionActual.inicio) / 1000 >= MAX_DURACION_GRAB) {
@@ -536,7 +559,6 @@ function detenerGrabacion() {
     const eventos = grabacionActual.eventos.slice();
     grabacionActual = null;
 
-    // UI
     const btn = document.getElementById('btnGrabar');
     btn.classList.remove('grabando');
     document.getElementById('btnGrabarTxt').textContent = 'Grabar';
@@ -549,7 +571,6 @@ function detenerGrabacion() {
         return;
     }
 
-    // Abrir modal para ponerle nombre
     grabacionPendienteGuardar = {
         id: generarId('grab'),
         nombre: '',
@@ -661,7 +682,6 @@ function renderGrabaciones() {
         return;
     }
 
-    // Orden: más reciente primero
     const ordenadas = [...datos.grabaciones].sort((a, b) =>
         new Date(b.creada) - new Date(a.creada)
     );
@@ -727,9 +747,6 @@ function reproducirGrabacion(grab) {
     reproduciendo = true;
     grabacionReproduciendo = grab;
 
-    const inicio = performance.now();
-
-    // Programar cada evento
     grab.eventos.forEach(ev => {
         const delay = ev.t * 1000;
         const timeout = setTimeout(() => {
@@ -746,7 +763,6 @@ function reproducirGrabacion(grab) {
         timeoutsReproduccion.push(timeout);
     });
 
-    // Timeout de fin
     const finMs = (grab.duracion + 0.8) * 1000;
     const timeoutFin = setTimeout(() => {
         if (reproduciendo && grabacionReproduciendo?.id === grab.id) {
@@ -764,7 +780,6 @@ function detenerReproduccion() {
     timeoutsReproduccion.forEach(t => clearTimeout(t));
     timeoutsReproduccion = [];
 
-    // Soltar notas que quedaron activas
     notasReproduccionActivas.forEach(midi => {
         noteOff(midi, false);
     });
@@ -801,26 +816,20 @@ function exportarMIDI(grab) {
     }
 
     const DIVISION = 480;
-    const TEMPO_US = 500000; // 120 BPM
-    const TICKS_POR_SEG = DIVISION * (1000000 / TEMPO_US); // 960
+    const TEMPO_US = 500000;
+    const TICKS_POR_SEG = DIVISION * (1000000 / TEMPO_US);
 
-    // Ordenar eventos cronológicamente
     const eventos = [...grab.eventos].sort((a, b) => a.t - b.t);
-
-    // Construir el track
     const track = [];
 
-    // Meta: tempo
     track.push(...encodeVarLen(0));
     track.push(0xFF, 0x51, 0x03);
     track.push((TEMPO_US >> 16) & 0xFF, (TEMPO_US >> 8) & 0xFF, TEMPO_US & 0xFF);
 
-    // Meta: nombre de pista
     const nombreBytes = [...grab.nombre].map(c => c.charCodeAt(0) & 0x7F);
     track.push(...encodeVarLen(0));
     track.push(0xFF, 0x03, ...encodeVarLen(nombreBytes.length), ...nombreBytes);
 
-    // Eventos de nota
     let tickAnterior = 0;
     eventos.forEach(ev => {
         const tick = Math.round(ev.t * TICKS_POR_SEG);
@@ -835,22 +844,19 @@ function exportarMIDI(grab) {
         }
     });
 
-    // Meta: end of track
     track.push(...encodeVarLen(0));
     track.push(0xFF, 0x2F, 0x00);
 
-    // Header
     const header = [
-        0x4D, 0x54, 0x68, 0x64, // "MThd"
-        0x00, 0x00, 0x00, 0x06, // length = 6
-        0x00, 0x00,             // format = 0
-        0x00, 0x01,             // 1 track
+        0x4D, 0x54, 0x68, 0x64,
+        0x00, 0x00, 0x00, 0x06,
+        0x00, 0x00,
+        0x00, 0x01,
         (DIVISION >> 8) & 0xFF, DIVISION & 0xFF
     ];
 
-    // Track chunk header
     const trackHeader = [
-        0x4D, 0x54, 0x72, 0x6B, // "MTrk"
+        0x4D, 0x54, 0x72, 0x6B,
         (track.length >> 24) & 0xFF,
         (track.length >> 16) & 0xFF,
         (track.length >> 8) & 0xFF,
@@ -882,7 +888,6 @@ async function confirmarGuardado() {
     const nombre = document.getElementById('pnNombreInput').value.trim().slice(0, 50) || 'Sin nombre';
     grabacionPendienteGuardar.nombre = nombre;
 
-    // Verificar límite
     if (datos.grabaciones.length >= MAX_GRABACIONES) {
         toast(`Máximo ${MAX_GRABACIONES} grabaciones`, 'error');
         return;
@@ -915,7 +920,6 @@ async function confirmarBorrar() {
     const id = document.getElementById('pnModalBorrar').dataset.id;
     if (!id) return;
 
-    // Si se está reproduciendo, detener
     if (grabacionReproduciendo?.id === id) detenerReproduccion();
 
     datos.grabaciones = datos.grabaciones.filter(g => g.id !== id);
@@ -962,6 +966,9 @@ function bindUI() {
             toast('Grabación descartada', 'info');
         }
     });
+
+    // Modo C→C / Doble
+    document.getElementById('btnModo')?.addEventListener('click', toggleModo);
 
     // Octavas
     document.getElementById('btnOctDown')?.addEventListener('click', () => cambiarOctava(-1));
@@ -1042,6 +1049,12 @@ async function inicializar() {
     const badge = document.getElementById('pnUserBadge');
     if (badge) badge.textContent = `@${usuarioActual.codigo} · ${usuarioActual.nombre}`;
 
+    // Detectar si el dispositivo es táctil → arrancar en C→C para teclas más grandes
+    const esTactil = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    const pantallaChica = window.innerWidth <= 640;
+    modoPiano = (esTactil || pantallaChica) ? 'octava' : 'doble';
+
+    actualizarBtnModo();
     construirPiano();
     await cargarDatos();
     renderGrabaciones();
@@ -1056,7 +1069,6 @@ async function inicializar() {
     window.addEventListener('pointerdown', initOnce, { once: false });
     window.addEventListener('keydown', initOnce, { once: false });
 
-    // Guardar al cerrar
     window.addEventListener('pagehide', () => {
         clearTimeout(autosaveTimer);
         guardarDatos();
