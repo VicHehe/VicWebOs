@@ -1,6 +1,8 @@
 // ============================================================
 //  Vagonetas — Motor del juego
-//  5 carriles · curvas · obstáculos constantes
+//  ------------------------------------------------------------
+//  · 5 carriles · curvas automáticas · velocidad progresiva
+//  · Rivales con daño real · ritmo de obstáculos por patrones
 // ============================================================
 
 'use strict';
@@ -9,25 +11,29 @@ const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const APP_ID = 'vagonetas';
 const ARCHIVO_BASE = 'app/vagonetas/';
 
-const CARRILES_X      = [-4, -2, 0, 2, 4];
-const TOTAL_CARRILES  = 5;
+const CARRILES_X = [-4, -2, 0, 2, 4];
+const TOTAL_CARRILES = 5;
 
-const DISTANCIA_META  = 600;
-const VELOCIDAD_BASE  = 22;
+// ---- Balance ----
+const DISTANCIA_META = 500;       // metros (shorter, more intense)
+const VEL_INICIAL = 20;           // m/s
+const VEL_FINAL   = 28;           // m/s
 
-// Rivales: uno un poco más lento pero muy listo, otro más rápido pero más bruto
+// Rivales: ambos tienen daño real. El verde es más rápido pero más bruto.
 const RIVALES_CFG = [
-    { velocidad: 21.4, agilidad: 0.9, nombre: 'Rival Rojo' },   // más lento, más listo
-    { velocidad: 23.0, agilidad: 0.55, nombre: 'Rival Verde' }  // más rápido, más bruto
+    { nombre: 'Rival Rojo',  velocidad: 22.0, agilidad: 0.95 },  // más lento, muy listo
+    { nombre: 'Rival Verde', velocidad: 23.5, agilidad: 0.55 }   // más rápido, más bruto
 ];
 
-const OBSTACULOS_CADA       = 0.32;   // MUCHO más seguido que antes (era 1.35)
-const OBSTACULOS_CADA_JITTER = 0.35;
-const CHOQUE_PENALIZACION    = 0.40;
-const CHOQUE_DURACION        = 1.2;
+// Ritmo de obstáculos
+const INTERVALO_PATRON_BASE = 1400;  // ms entre patrones
+const INTERVALO_PATRON_MIN  = 900;   // al final de la carrera
 
-const BASE_POR_CARRERA  = 10;
-const TOPE_RACHA        = 60;
+const CHOQUE_PENALIZACION = 0.42;
+const CHOQUE_DURACION = 1.15;
+
+const BASE_POR_CARRERA = 10;
+const TOPE_RACHA = 60;
 const SEGUNDO_LUGAR_PCT = 0.5;
 
 // ---------- ESTADO ----------
@@ -48,10 +54,10 @@ let inicializado = false;
 let mapaActual = null;
 let mapaElegido = null;
 
-let fase = 'idle';   // idle | countdown | racing | finished
+let fase = 'idle';
 let tiempoCountdown = 3.0;
 let tiempoCarreraMs = 0;
-let obstaculosSpawnTimer = 0;
+let proximoPatronMs = 0;
 let proximoIdObstaculo = 1;
 
 let jugador = crearJugadorVacio();
@@ -135,10 +141,11 @@ function crearRival(idx) {
         progreso: 0,
         velocidad: cfg.velocidad,
         agilidad: cfg.agilidad,
+        nombre: cfg.nombre,
+        penalizadoMs: 0,
         terminado: false,
         tiempoFinalMs: 0,
-        cambioPendiente: 0,
-        nombre: cfg.nombre
+        cambioPendiente: 0
     };
 }
 
@@ -237,6 +244,14 @@ function calcularPremioBase() {
 }
 
 // ============================================================
+//  Velocidad progresiva
+// ============================================================
+function velocidadJugadorBase() {
+    const t = Math.min(jugador.progreso / DISTANCIA_META, 1);
+    return VEL_INICIAL + (VEL_FINAL - VEL_INICIAL) * t;
+}
+
+// ============================================================
 function iniciarCarrera() {
     if (!mapaElegido) return;
     mapaActual = MAPAS.find(m => m.id === mapaElegido);
@@ -245,7 +260,7 @@ function iniciarCarrera() {
     jugador = crearJugadorVacio();
     rivales = [crearRival(0), crearRival(1)];
     obstaculos = [];
-    obstaculosSpawnTimer = 0.15;   // primer obstáculo casi de inmediato
+    proximoPatronMs = 800;
     proximoIdObstaculo = 1;
     tiempoCarreraMs = 0;
     tiempoCountdown = 3.0;
@@ -305,7 +320,6 @@ function bindControles() {
             else moverDerecha();
         });
     });
-
     document.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
             e.preventDefault(); moverIzquierda();
@@ -355,57 +369,152 @@ function tickCountdown(dt) {
 function tickCarrera(dt) {
     tiempoCarreraMs += dt * 1000;
 
-    let velJugador = VELOCIDAD_BASE;
+    // ---- Velocidad del jugador (con rampa progresiva) ----
+    let velJugador = velocidadJugadorBase();
     if (jugador.penalizadoMs > 0) {
         jugador.penalizadoMs -= dt * 1000;
         velJugador *= CHOQUE_PENALIZACION;
     }
 
     jugador.progreso += velJugador * dt;
+
+    // ---- Rivales: velocidad con penalización ----
     rivales.forEach(r => {
         if (r.terminado) return;
-        r.progreso += r.velocidad * dt;
+        let v = r.velocidad;
+        if (r.penalizadoMs > 0) {
+            r.penalizadoMs -= dt * 1000;
+            v *= CHOQUE_PENALIZACION;
+        }
+        r.progreso += v * dt;
     });
 
-    // Spawn obstáculos — RÁPIDO
-    obstaculosSpawnTimer -= dt;
-    if (obstaculosSpawnTimer <= 0) {
-        spawnObstaculo();
-        obstaculosSpawnTimer = OBSTACULOS_CADA + Math.random() * OBSTACULOS_CADA_JITTER;
+    // ---- Spawns por PATRONES (no constantes, sino "beats") ----
+    proximoPatronMs -= dt * 1000;
+    if (proximoPatronMs <= 0) {
+        spawnPatron();
+        proximoPatronMs = intervaloPatronMs();
     }
 
-    // Mover obstáculos
+    // ---- Mover obstáculos ----
     obstaculos.forEach(o => { o.z += velJugador * dt; });
     obstaculos = obstaculos.filter(o => o.z < 15);
 
-    // Colisiones
+    // ---- Colisiones jugador ----
     for (const o of obstaculos) {
-        if (o.golpeado) continue;
+        if (o.golpeadoPor.jugador) continue;
         if (Math.abs(o.z) < 0.9 && o.carril === jugador.carril) {
-            o.golpeado = true;
+            o.golpeadoPor.jugador = true;
             jugador.penalizadoMs = CHOQUE_DURACION * 1000;
             shakeMs = 0.35;
-            if (navigator.vibrate) navigator.vibrate(40);
+            if (navigator.vibrate) navigator.vibrate(50);
         }
     }
 
-    // IA rivales
+    // ---- Colisiones rivales ----
+    for (const o of obstaculos) {
+        rivales.forEach((r, i) => {
+            const key = 'r' + i;
+            if (o.golpeadoPor[key]) return;
+            if (r.penalizadoMs > 0) return;
+            // z del obstáculo relativo al rival
+            const zRel = o.z + (r.progreso - jugador.progreso);
+            if (Math.abs(zRel) < 0.9 && o.carril === r.carril) {
+                o.golpeadoPor[key] = true;
+                r.penalizadoMs = CHOQUE_DURACION * 1000;
+            }
+        });
+    }
+
+    // ---- IA rivales ----
     rivales.forEach(r => tickRival(r, dt));
 
-    // Update escena
-    window.VG_Escena.updateEscena(jugador, rivales, obstaculos, dt);
+    // ---- Update escena ----
+    if (shakeMs > 0) shakeMs -= dt * 1000;
+    if (shakeMs < 0) shakeMs = 0;
 
-    // Shake
-    if (shakeMs > 0) {
-        shakeMs -= dt;
-        // se aplica dentro de updateEscena si querés, o acá no hace nada
-    }
+    window.VG_Escena.updateEscena(jugador, rivales, obstaculos, dt, shakeMs);
 
     actualizarPosLive();
     actualizarHUD();
     chequearFin();
 }
 
+// ============================================================
+//  Ritmo de obstáculos
+// ============================================================
+function intervaloPatronMs() {
+    const t = Math.min(jugador.progreso / DISTANCIA_META, 1);
+    const base = INTERVALO_PATRON_BASE + (INTERVALO_PATRON_MIN - INTERVALO_PATRON_BASE) * t;
+    // Jitter leve
+    return base * (0.85 + Math.random() * 0.3);
+}
+
+function spawnPatron() {
+    // Verificar cuántos obstáculos activos hay adelante (limitar)
+    const activos = obstaculos.filter(o => o.z < -80).length;
+    if (activos >= 6) return;
+
+    // Carriles libres en la "ventana de spawn" (z entre -260 y -140)
+    const ocupadosCerca = new Set();
+    obstaculos.forEach(o => {
+        if (o.z > -260 && o.z < -140) ocupadosCerca.add(o.carril);
+    });
+
+    const libres = [];
+    for (let i = 0; i < TOTAL_CARRILES; i++) {
+        if (!ocupadosCerca.has(i)) libres.push(i);
+    }
+    if (libres.length < 2) return;  // siempre dejar al menos 2 libres
+
+    const r = Math.random();
+    const zBase = -180 - Math.random() * 20;
+
+    if (r < 0.55) {
+        // SINGLE — 1 obstáculo
+        const c = libres[Math.floor(Math.random() * libres.length)];
+        crearObstaculo(c, zBase);
+
+    } else if (r < 0.85) {
+        // DOBLE — 2 obstáculos al mismo Z, distintos carriles
+        const shuffled = shuffle([...libres]);
+        const c1 = shuffled[0];
+        const c2 = shuffled[1];
+        crearObstaculo(c1, zBase);
+        crearObstaculo(c2, zBase);
+
+    } else {
+        // ZIGZAG — 3 obstáculos en carriles alternos
+        if (libres.length < 3) return;
+        const shuffled = shuffle([...libres]);
+        // Elegir 3 carriles de los libres
+        const c1 = shuffled[0];
+        const c2 = shuffled[1];
+        const c3 = shuffled[2];
+        crearObstaculo(c1, zBase);
+        crearObstaculo(c2, zBase - 12);
+        crearObstaculo(c3, zBase - 24);
+    }
+}
+
+function crearObstaculo(carril, z) {
+    obstaculos.push({
+        id: proximoIdObstaculo++,
+        carril,
+        z,
+        golpeadoPor: { jugador: false, r0: false, r1: false }
+    });
+}
+
+function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
+// ============================================================
 function tickRival(r, dt) {
     if (r.terminado) return;
     if (r.cambioPendiente > 0) {
@@ -413,9 +522,8 @@ function tickRival(r, dt) {
         return;
     }
 
-    // Ve obstáculos adelante. `agilidad` define cuánto mira
     const miZ = -(r.progreso - jugador.progreso);
-    const ojoAdelante = 25 * r.agilidad;
+    const ojoAdelante = 32 * r.agilidad;
 
     const miCarrilOcupado = obstaculos.some(o =>
         o.carril === r.carril &&
@@ -425,12 +533,12 @@ function tickRival(r, dt) {
 
     if (!miCarrilOcupado) return;
 
-    // Buscar carril libre cercano
-    const carrilesOrden = [...Array(TOTAL_CARRILES).keys()]
+    // Carriles ordenados por cercanía al actual
+    const candidatos = [...Array(TOTAL_CARRILES).keys()]
         .filter(c => c !== r.carril)
         .sort((a, b) => Math.abs(a - r.carril) - Math.abs(b - r.carril));
 
-    for (const c of carrilesOrden) {
+    for (const c of candidatos) {
         const libre = !obstaculos.some(o =>
             o.carril === c &&
             o.z > miZ - ojoAdelante * 0.8 &&
@@ -440,43 +548,6 @@ function tickRival(r, dt) {
             r.carril = c;
             r.cambioPendiente = 0.28;
             return;
-        }
-    }
-}
-
-function spawnObstaculo() {
-    // Elegir carril evitando dejar el track sin salida
-    const carrilesLibres = [...Array(TOTAL_CARRILES).keys()].filter(c => {
-        return !obstaculos.some(o => o.carril === c && o.z < -60);
-    });
-
-    if (carrilesLibres.length <= 1) return;   // al menos 4 libres
-
-    // Elegir al azar de los libres, con preferencia por los carriles laterales
-    // para no siempre bloquear el centro
-    const carril = carrilesLibres[Math.floor(Math.random() * carrilesLibres.length)];
-
-    // Spawn: a veces generamos un "bloque" de 2 obstáculos en distintos carriles
-    const enBloque = Math.random() < 0.18;
-    const z = -170 - Math.random() * 25;
-
-    obstaculos.push({
-        id: proximoIdObstaculo++,
-        carril,
-        z,
-        golpeado: false
-    });
-
-    if (enBloque) {
-        const otros = carrilesLibres.filter(c => c !== carril);
-        if (otros.length >= 1) {
-            const carril2 = otros[Math.floor(Math.random() * otros.length)];
-            obstaculos.push({
-                id: proximoIdObstaculo++,
-                carril: carril2,
-                z: z + (Math.random() * 10 - 5),
-                golpeado: false
-            });
         }
     }
 }
@@ -568,7 +639,6 @@ function finDeCarrera() {
     estado.monedasGanadasTotales += monedas;
 
     guardarEstado();
-
     setTimeout(() => mostrarFinCarrera(miPos, monedas, tiempoMs), 400);
     if (monedas > 0) otorgarMonedas(monedas);
 }
@@ -685,7 +755,6 @@ async function inicializar() {
 
     const api = API();
     if (!api) { alert('Vagonetas necesita estar dentro de VicWebOs.'); return; }
-
     usuarioActual = api.obtenerCuenta?.();
     if (!usuarioActual) { alert('Necesitás iniciar sesión.'); return; }
 
