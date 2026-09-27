@@ -91,11 +91,50 @@ body {
     white-space: nowrap;
 }
 .cl-hud-item [data-lucide] { width: 12px; height: 12px; }
-.cl-hud-item [data-lucide] { color: var(--violet-500, #8B5CF6); }
-.cl-hud-aciertos [data-lucide] { color: #DC2626; }
-.cl-hud-ganancia [data-lucide] { color: #D97706; }
+.cl-hud-item > [data-lucide] { color: var(--violet-500, #8B5CF6); }
+.cl-hud-aciertos > [data-lucide] { color: #DC2626; }
+.cl-hud-ganancia > [data-lucide] { color: #D97706; }
 .cl-hud-arma { justify-self: end; }
-.cl-hud-arma [data-lucide] { color: var(--violet-600, #7C3AED); }
+
+/* ===== Anillo de cooldown del arma en HUD ===== */
+.cl-arma-cd {
+    position: relative;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: conic-gradient(
+        var(--violet-500, #8B5CF6) calc(var(--cd, 100) * 1%),
+        var(--gray-200, #E8E8EE) 0
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.04s linear;
+}
+.cl-arma-cd::before {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    background: var(--white, #FFFFFF);
+    border-radius: 50%;
+    z-index: 0;
+}
+.cl-arma-cd [data-lucide] {
+    position: relative;
+    z-index: 1;
+    width: 10px;
+    height: 10px;
+    color: var(--gray-500, #71717A);
+    stroke-width: 3;
+    transition: color 0.1s;
+}
+.cl-arma-cd.listo [data-lucide] {
+    color: var(--violet-600, #7C3AED);
+}
+.cl-arma-cd.listo {
+    box-shadow: 0 0 0 2px var(--violet-100, #EDE9FE);
+}
 
 /* ===== CANVAS ===== */
 .cl-canvas-wrap {
@@ -127,7 +166,10 @@ body {
     pointer-events: none;
     z-index: 5;
     transform: translate(-50%, -50%);
-    transition: transform 0.05s;
+    transition: opacity 0.15s;
+}
+.cl-crosshair.cd {
+    opacity: 0.35;
 }
 .cl-crosshair-dot {
     position: absolute;
@@ -244,7 +286,7 @@ body {
     100% { transform: scale(1); opacity: 1; }
 }
 
-/* Botón de disparo (móvil) */
+/* ===== Botón de disparo (móvil) con anillo de cooldown ===== */
 .cl-fire-btn {
     position: absolute;
     bottom: 20px;
@@ -265,6 +307,20 @@ body {
     z-index: 10;
     transition: transform 0.1s;
     touch-action: manipulation;
+    isolation: isolate;
+}
+.cl-fire-btn::before {
+    content: '';
+    position: absolute;
+    inset: -9px;
+    border-radius: 50%;
+    background: conic-gradient(
+        rgba(255,255,255,0.95) calc(var(--cd, 100) * 1%),
+        rgba(255,255,255,0.12) 0
+    );
+    z-index: -1;
+    pointer-events: none;
+    transition: background 0.04s linear;
 }
 .cl-fire-btn:active {
     transform: scale(0.92);
@@ -273,6 +329,9 @@ body {
     width: 36px;
     height: 36px;
     stroke-width: 2.5;
+}
+.cl-fire-btn.cd {
+    opacity: 0.75;
 }
 
 /* ===== PANTALLAS ===== */
@@ -605,7 +664,7 @@ body {
     .cl-caja { padding: 5px 10px; font-size: 12px; }
     .cl-hud { padding: 5px 8px; gap: 4px; }
     .cl-hud-item { font-size: 11.5px; }
-    .cl-hud-arma { display: none; }
+    .cl-arma-cd { width: 20px; height: 20px; }
     .cl-countdown-num { font-size: 72px; }
     .cl-fire-btn { width: 72px; height: 72px; bottom: 16px; right: 16px; }
     .cl-fire-btn [data-lucide] { width: 30px; height: 30px; }
