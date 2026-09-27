@@ -25,7 +25,7 @@ let usuarioActual = null;
 let datos = crearDatosVacios();
 let temaCVActual = 'oficina';
 let temasDisponibles = [];
-let cacheVarsTemas = {};  // id → { variable: valor }
+let cacheVarsTemas = {};
 let fotoIdActual = null;
 let autosaveTimer = null;
 let guardando = false;
@@ -240,8 +240,6 @@ function agendarGuardado() {
 //  · El tema "Blanco y Negro" (__bn) es interno y siempre está.
 // ============================================================
 
-// Variables CSS que nos interesan para el CV.
-// Filtramos esto para no ensuciar el preview con variables de layout del shell.
 const VARS_UTILES = new Set([
     '--violet-50','--violet-100','--violet-200','--violet-300',
     '--violet-400','--violet-500','--violet-600','--violet-700',
@@ -273,20 +271,24 @@ const VARS_BN = {
 };
 
 function cargarTemasDisponibles() {
+    const api = API();
+
+    // Sin API (por ejemplo, probando la app suelta): solo BN
+    if (!api) {
+        temasDisponibles = [crearTemaBN()];
+        return;
+    }
+
+    // IMPORTANTE: TEMAS_DISPONIBLES es `const` en el shell, no está en window.
+    // Desde el iframe hay que pedirlo por la API del shell.
     let todos = [];
     let instalados = [];
+    try { todos = api.obtenerTemas?.() || []; }
+    catch (e) { todos = []; }
+    try { instalados = api.obtenerTemasInstalados?.() || []; }
+    catch (e) { instalados = []; }
 
-    try {
-        todos = window.parent.TEMAS_DISPONIBLES || [];
-    } catch (e) { todos = []; }
-
-    try {
-        const api = API();
-        instalados = api?.obtenerTemasInstalados?.() || [];
-    } catch (e) { instalados = []; }
-
-    // Si por algún motivo no tenemos la lista de instalados
-    // (por ejemplo, fuera del shell), usamos los base + temas por defecto.
+    // Fallback si no tenemos lista de instalados
     if (!Array.isArray(instalados) || instalados.length === 0) {
         instalados = todos.filter(t => t.esBase).map(t => t.id);
         if (instalados.length === 0 && todos.length > 0) {
@@ -294,7 +296,6 @@ function cargarTemasDisponibles() {
         }
     }
 
-    // Filtramos: solo temas instalados. Ordenados por categoría + nombre.
     const filtrados = todos
         .filter(t => instalados.includes(t.id))
         .sort((a, b) => {
@@ -305,16 +306,18 @@ function cargarTemasDisponibles() {
         });
 
     temasDisponibles = filtrados;
+    temasDisponibles.push(crearTemaBN());
+}
 
-    // Tema interno BN siempre disponible
-    temasDisponibles.push({
+function crearTemaBN() {
+    return {
         id: TEMA_BN,
         nombre: 'Blanco y Negro',
         categoria: 'Sobrios',
         colores: { ...VARS_BN },
         ruta: null,
         _interno: true
-    });
+    };
 }
 
 /**
@@ -327,19 +330,15 @@ async function obtenerVarsTema(temaId) {
     const tema = temasDisponibles.find(t => t.id === temaId);
     if (!tema) return {};
 
-    // BN: variables fijas
     if (tema.id === TEMA_BN) {
         cacheVarsTemas[temaId] = { ...VARS_BN };
         return cacheVarsTemas[temaId];
     }
 
-    // Fallback: objeto `colores` del catálogo
     let vars = { ...(tema.colores || {}) };
 
-    // Intentar leer el CSS real para obtener TODAS las variables
     if (tema.ruta) {
         try {
-            // El CV vive en herramientas/cv/, el tema en Temas/
             const url = '../../' + tema.ruta;
             const res = await fetch(url);
             if (res.ok) {
@@ -363,11 +362,10 @@ async function obtenerVarsTema(temaId) {
         }
     }
 
-    // Garantías mínimas: bg, text
-    if (!vars['--bg'])   vars['--bg']   = '#FFFFFF';
-    if (!vars['--text']) vars['--text'] = '#18181B';
+    if (!vars['--bg'])     vars['--bg']     = '#FFFFFF';
+    if (!vars['--text'])   vars['--text']   = '#18181B';
     if (!vars['--text-2']) vars['--text-2'] = '#52525B';
-    if (!vars['--white']) vars['--white'] = '#FFFFFF';
+    if (!vars['--white'])  vars['--white']  = '#FFFFFF';
 
     cacheVarsTemas[temaId] = vars;
     return vars;
@@ -380,7 +378,6 @@ async function aplicarTemaCV(temaId) {
     const preview = document.getElementById('cvPreview');
     if (!preview) return;
 
-    // Limpiar variables previas
     const limpiar = [
         '--violet-50','--violet-100','--violet-200','--violet-300',
         '--violet-400','--violet-500','--violet-600','--violet-700',
@@ -404,6 +401,16 @@ function llenarSelectorTemas() {
     const sel = document.getElementById('cvTemaSelect');
     if (!sel) return;
     sel.innerHTML = '';
+
+    if (temasDisponibles.length === 0) {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = 'Sin temas disponibles';
+        opt.disabled = true;
+        sel.appendChild(opt);
+        return;
+    }
+
     temasDisponibles.forEach(t => {
         const opt = document.createElement('option');
         opt.value = t.id;
@@ -450,14 +457,12 @@ function actualizarFotoPreview() {
         btnTxt.textContent = 'Cambiar foto';
         const mh = MH();
         if (mh) {
-            // Preferimos base64 para que se pueda exportar sin CORS
             mh.galeria.leerImagenBlob(fotoIdActual).then(blob => {
                 if (!blob) return;
                 const r = new FileReader();
                 r.onload = () => { img.src = r.result; };
                 r.readAsDataURL(blob);
             }).catch(() => {
-                // Fallback: URL directa
                 mh.galeria.leerImagenURL(fotoIdActual).then(url => {
                     if (url) img.src = url;
                 }).catch(() => {});
@@ -472,7 +477,7 @@ function actualizarFotoPreview() {
 }
 
 // ============================================================
-//  RENDER: LISTA EXPERIENCIA
+//  RENDER: LISTAS DINÁMICAS
 // ============================================================
 function renderListaExperiencia() {
     const cont = document.getElementById('listaExperiencia');
@@ -564,9 +569,6 @@ function renderListaExperiencia() {
     if (window.lucide) window.lucide.createIcons();
 }
 
-// ============================================================
-//  RENDER: LISTA EDUCACIÓN
-// ============================================================
 function renderListaEducacion() {
     const cont = document.getElementById('listaEducacion');
     if (!cont) return;
@@ -656,9 +658,6 @@ function renderListaEducacion() {
     if (window.lucide) window.lucide.createIcons();
 }
 
-// ============================================================
-//  RENDER: HABILIDADES
-// ============================================================
 function renderListaHabilidades() {
     const cont = document.getElementById('listaHabilidades');
     if (!cont) return;
@@ -683,9 +682,6 @@ function renderListaHabilidades() {
     if (window.lucide) window.lucide.createIcons();
 }
 
-// ============================================================
-//  RENDER: IDIOMAS
-// ============================================================
 function renderListaIdiomas() {
     const cont = document.getElementById('listaIdiomas');
     if (!cont) return;
@@ -740,9 +736,6 @@ function renderListaIdiomas() {
     if (window.lucide) window.lucide.createIcons();
 }
 
-// ============================================================
-//  RENDER: CERTIFICACIONES
-// ============================================================
 function renderListaCertificaciones() {
     const cont = document.getElementById('listaCertificaciones');
     if (!cont) return;
@@ -834,7 +827,6 @@ function renderPreview() {
 
     let html = '<div class="cv-doc">';
 
-    // ---- HEADER ----
     html += '<div class="cv-doc-header">';
     if (d.fotoId) {
         html += `<div class="cv-doc-foto" data-foto-id="${escapar(d.fotoId)}"><i data-lucide="user"></i></div>`;
@@ -856,7 +848,6 @@ function renderPreview() {
     }
     html += '</div></div>';
 
-    // ---- RESUMEN ----
     if (d.resumen) {
         html += `
             <section class="cv-doc-seccion">
@@ -866,7 +857,6 @@ function renderPreview() {
         `;
     }
 
-    // ---- EXPERIENCIA ----
     if (datos.experiencia.length > 0) {
         html += `
             <section class="cv-doc-seccion">
@@ -888,7 +878,6 @@ function renderPreview() {
         html += '</section>';
     }
 
-    // ---- EDUCACIÓN ----
     if (datos.educacion.length > 0) {
         html += `
             <section class="cv-doc-seccion">
@@ -910,7 +899,6 @@ function renderPreview() {
         html += '</section>';
     }
 
-    // ---- HABILIDADES ----
     if (datos.habilidades.length > 0) {
         html += `
             <section class="cv-doc-seccion">
@@ -922,7 +910,6 @@ function renderPreview() {
         `;
     }
 
-    // ---- IDIOMAS ----
     if (datos.idiomas.length > 0) {
         html += `
             <section class="cv-doc-seccion">
@@ -939,7 +926,6 @@ function renderPreview() {
         `;
     }
 
-    // ---- CERTIFICACIONES ----
     if (datos.certificaciones.length > 0) {
         html += `
             <section class="cv-doc-seccion">
@@ -1142,6 +1128,7 @@ function bindFoto() {
 function bindTemaSelect() {
     const sel = document.getElementById('cvTemaSelect');
     sel?.addEventListener('change', async (e) => {
+        if (!e.target.value) return;
         await aplicarTemaCV(e.target.value);
         renderPreview();
         agendarGuardado();
@@ -1165,7 +1152,7 @@ function bindTabsMovil() {
 }
 
 // ============================================================
-//  ESPERAS (para export confiable)
+//  ESPERAS PARA EXPORT
 // ============================================================
 async function esperarFuentes() {
     if (document.fonts && document.fonts.ready) {
@@ -1182,15 +1169,11 @@ async function esperarImagenes(preview) {
             const done = () => resolve();
             img.addEventListener('load',  done, { once: true });
             img.addEventListener('error', done, { once: true });
-            // Timeout de seguridad (3s por si nunca carga)
             setTimeout(done, 3000);
         });
     }));
 }
 
-// ============================================================
-//  EXPORT: preparación
-// ============================================================
 async function prepararCaptura() {
     const preview = document.getElementById('cvPreview');
     const wrapper = document.querySelector('.cv-preview-wrapper');
@@ -1203,11 +1186,9 @@ async function prepararCaptura() {
     wrapper.style.width = '';
     wrapper.style.height = '';
 
-    // Esperar a que el layout se aplique
     await new Promise(r => requestAnimationFrame(r));
     await new Promise(r => setTimeout(r, 60));
 
-    // Esperar fuentes e imágenes
     await esperarFuentes();
     await esperarImagenes(preview);
 
@@ -1352,13 +1333,11 @@ async function inicializar() {
     cargarTemasDisponibles();
     await cargar();
 
-    // Si el tema guardado ya no está disponible (no está comprado),
-    // elegimos el primer tema disponible.
+    // Si el tema guardado ya no está disponible, elegimos el primero disponible
     if (!temasDisponibles.find(t => t.id === datos.tema)) {
         datos.tema = temasDisponibles[0]?.id || TEMA_BN;
     }
 
-    // Pre-rellenar nombre si está vacío
     if (!datos.datos.nombre && usuarioActual.nombre) {
         datos.datos.nombre = usuarioActual.nombre;
     }
