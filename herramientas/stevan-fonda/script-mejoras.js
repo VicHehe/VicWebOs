@@ -1,6 +1,7 @@
 // ============================================================
-//  Stevan Fonda — UI: mejoras, productos, hitos, prestigio
-//  Se carga ÚLTIMO (después de script.js y script-clientes.js).
+//  Stevan Fonda — UI: mejoras, productos, misiones, bolsas,
+//  hitos, prestigio, modal de canje.
+//  Se carga ÚLTIMO.
 // ============================================================
 
 'use strict';
@@ -20,7 +21,7 @@ function toast(texto, tipo = 'info') {
 }
 
 // ============================================================
-//  HUD
+//  HELPERS
 // ============================================================
 function formatearNumero(n) {
     n = Math.floor(Number(n) || 0);
@@ -30,6 +31,9 @@ function formatearNumero(n) {
     return n.toString();
 }
 
+// ============================================================
+//  HUD
+// ============================================================
 function actualizarHUD() {
     const estado = window.__sfEstado?.();
     if (!estado) return;
@@ -44,29 +48,112 @@ function actualizarHUD() {
     if (e) e.textContent = estado.estrellas;
 
     const p = document.getElementById('sfProduccion');
-    if (p) p.textContent = calcularProduccionMostrar();
+    if (p) {
+        const prods = window.__sfProductos || [];
+        const mesas = estado.upgrades.mesas;
+        const vel = (1 + (estado.upgrades.velocidad - 1) * 0.1)
+                  * (1 + (estado.upgrades.empleados - 1) * 0.05);
+        const cookSeg = 30 / vel;
+        const activos = prods.filter(x => estado.productosDesbloqueados.includes(x.id));
+        if (activos.length) {
+            const prom = activos.reduce((a, x) =>
+                a + x.precioBase
+                    * (1 + (estado.upgrades.precio - 1) * 0.15)
+                    * (1 + estado.upgrades.decoracion * 0.05)
+                    * (1 + estado.estrellas * 0.1), 0) / activos.length;
+            const porSeg = (mesas / cookSeg) * prom;
+            p.textContent = porSeg >= 10 ? formatearNumero(Math.round(porSeg))
+                                         : (Math.round(porSeg * 10) / 10).toString();
+        } else {
+            p.textContent = '0';
+        }
+    }
 }
 
-function calcularProduccionMostrar() {
+// ============================================================
+//  BOLSAS
+// ============================================================
+function renderBolsas() {
     const estado = window.__sfEstado?.();
-    const prods = window.__sfProductos || [];
-    if (!estado) return '0';
+    if (!estado) return;
 
-    const mesas = estado.upgrades.mesas;
-    const vel = (1 + (estado.upgrades.velocidad - 1) * 0.1)
-              * (1 + (estado.upgrades.empleados - 1) * 0.05);
-    const cookSeg = 30 / vel;
-    const activos = prods.filter(p => estado.productosDesbloqueados.includes(p.id));
-    if (!activos.length) return '0';
+    // Bolsa producción
+    const bProd = Math.floor(estado.bolsaProduccion);
+    const netoProd = window.__sfCalcularNeto?.(bProd) ?? bProd;
+    const impuesto = bProd > 0 ? Math.round((1 - netoProd / bProd) * 100) : 0;
 
-    const prom = activos.reduce((a, p) =>
-        a + p.precioBase
-            * (1 + (estado.upgrades.precio - 1) * 0.15)
-            * (1 + estado.upgrades.decoracion * 0.05)
-            * (1 + estado.estrellas * 0.1), 0) / activos.length;
+    const prodCant = document.getElementById('sfBolsaProdCantidad');
+    if (prodCant) prodCant.textContent = formatearNumero(bProd);
 
-    const porSeg = (mesas / cookSeg) * prom;
-    return porSeg >= 10 ? formatearNumero(Math.round(porSeg)) : (Math.round(porSeg * 10) / 10).toString();
+    const prodNeto = document.getElementById('sfBolsaProdNeto');
+    if (prodNeto) prodNeto.textContent = formatearNumero(netoProd);
+
+    const prodDetalle = document.getElementById('sfBolsaProdDetalle');
+    if (prodDetalle) {
+        prodDetalle.classList.remove('impuesto-bajo', 'impuesto-medio', 'impuesto-alto');
+        if (bProd === 0) {
+            prodDetalle.textContent = 'Sin acumular';
+        } else if (impuesto === 0) {
+            prodDetalle.textContent = 'Sin impuesto';
+            prodDetalle.classList.add('impuesto-bajo');
+        } else if (impuesto <= 15) {
+            prodDetalle.textContent = `Impuesto ${impuesto}%`;
+            prodDetalle.classList.add('impuesto-bajo');
+        } else if (impuesto <= 30) {
+            prodDetalle.textContent = `Impuesto ${impuesto}%`;
+            prodDetalle.classList.add('impuesto-medio');
+        } else {
+            prodDetalle.textContent = `Impuesto ${impuesto}% · ¡canjeá ya!`;
+            prodDetalle.classList.add('impuesto-alto');
+        }
+    }
+
+    const prodBtn = document.getElementById('sfBolsaProdBtn');
+    if (prodBtn) prodBtn.disabled = bProd <= 0 || netoProd <= 0;
+
+    // Bolsa logros
+    const bLogros = Math.floor(estado.bolsaHitosMisiones);
+    const logrosCant = document.getElementById('sfBolsaLogrosCantidad');
+    if (logrosCant) logrosCant.textContent = formatearNumero(bLogros);
+
+    const logrosNeto = document.getElementById('sfBolsaLogrosNeto');
+    if (logrosNeto) logrosNeto.textContent = formatearNumero(bLogros);
+
+    const logrosBtn = document.getElementById('sfBolsaLogrosBtn');
+    if (logrosBtn) logrosBtn.disabled = bLogros <= 0;
+}
+
+// ============================================================
+//  MISIONES
+// ============================================================
+function renderMisiones() {
+    const cont = document.getElementById('sfMisionesLista');
+    const sub = document.getElementById('sfMisionesSub');
+    if (!cont) return;
+
+    const estado = window.__sfEstado?.();
+    const misiones = window.__sfMisionesDelDiaObjs?.() || [];
+    if (!estado) return;
+
+    const completadas = estado.misionesCompletadas.length;
+    if (sub) sub.textContent = `${completadas}/${misiones.length}`;
+
+    cont.innerHTML = misiones.map(m => {
+        const done = estado.misionesCompletadas.includes(m.id);
+        return `
+            <div class="sf-mision ${done ? 'completada' : ''}">
+                <div class="sf-mision-check">
+                    ${done ? '<i data-lucide="check"></i>' : ''}
+                </div>
+                <div class="sf-mision-texto">${m.texto}</div>
+                <div class="sf-mision-premio">
+                    <i data-lucide="coins"></i>+${m.premio}
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    if (window.lucide) lucide.createIcons();
 }
 
 // ============================================================
@@ -99,32 +186,6 @@ function renderProductos() {
 
     if (window.lucide) lucide.createIcons();
     if (info) info.textContent = `${estado.productosDesbloqueados.length}/${prods.length}`;
-}
-
-function checkDesbloqueos() {
-    const estado = window.__sfEstado?.();
-    const prods = window.__sfProductos || [];
-    if (!estado) return;
-
-    const nuevos = [];
-    for (const p of prods) {
-        if (!estado.productosDesbloqueados.includes(p.id) && estado.totalVendidos >= p.desbloqueo) {
-            estado.productosDesbloqueados.push(p.id);
-            nuevos.push(p);
-        }
-    }
-    if (nuevos.length === 0) return;
-
-    // Mostrar el último en modal, el resto por toast
-    if (nuevos.length === 1) {
-        mostrarModalUnlock(nuevos[0]);
-    } else {
-        mostrarModalUnlock(nuevos[nuevos.length - 1]);
-        nuevos.slice(0, -1).forEach(p => toast(`¡Desbloqueado: ${p.nombre}!`, 'success'));
-    }
-
-    renderProductos();
-    window.__sfGuardarDebounce?.();
 }
 
 // ============================================================
@@ -182,12 +243,12 @@ function renderMejoras() {
         btnP.disabled = !puede;
 
         if (estado.estrellas > 0) {
-            infoP.textContent = `Tenés ${estado.estrellas} estrella${estado.estrellas === 1 ? '' : 's'} · +${estado.estrellas * 10}% de producción permanente`;
+            infoP.textContent = `Tenés ${estado.estrellas} estrella${estado.estrellas === 1 ? '' : 's'} · +${estado.estrellas * 10}% producción permanente`;
         } else if (!puede) {
             infoP.textContent = `Necesitás ${formatearNumero(costo)} monedas de fonda para reabrir`;
         } else {
             const st = Math.floor(estado.monedasFonda / costo);
-            infoP.textContent = `¡Listo para reabrir! Te llevarás +${st} estrella${st === 1 ? '' : 's'}`;
+            infoP.textContent = `¡Listo! Te llevarás +${st} estrella${st === 1 ? '' : 's'}`;
         }
     }
 }
@@ -200,11 +261,18 @@ function comprarMejora(id) {
 
     const costo = costoMejora(up);
     if (estado.monedasFonda < costo) {
-        toast('No te alcanzan las monedas', 'error');
+        toast('No te alcanzan las monedas de fonda', 'error');
         return;
     }
-    estado.monedasFonda -= costo;
+    estado.monedasFondaFloat -= costo;
+    estado.monedasFonda = Math.floor(estado.monedasFondaFloat);
     estado.upgrades[id] = (estado.upgrades[id] || 0) + 1;
+
+    // Registrar para misiones
+    if (id === 'velocidad') window.__sfUpHoyRef?.velocidad++;
+    if (id === 'precio')    window.__sfUpHoyRef?.precio++;
+    if (id === 'mesas')     window.__sfUpHoyRef?.mesas++;
+    if (id === 'empleados') window.__sfUpHoyRef?.empleados++;
 
     renderMejoras();
     renderProductos();
@@ -213,40 +281,11 @@ function comprarMejora(id) {
 }
 
 // ============================================================
-//  HITOS (monedas reales VicWebOs)
+//  HITOS (referencia UI)
 // ============================================================
-const HITOS = [
-    { id: 'h100',    tipo: 'vendidos',  req: 100,  monedas: 5,   texto: 'Vender 100 productos' },
-    { id: 'h500',    tipo: 'vendidos',  req: 500,  monedas: 15,  texto: 'Vender 500 productos' },
-    { id: 'h1000',   tipo: 'vendidos',  req: 1000, monedas: 30,  texto: 'Vender 1.000 productos' },
-    { id: 'h5prod',  tipo: 'productos', req: 5,    monedas: 10,  texto: 'Desbloquear 5 productos' },
-    { id: 'h10prod', tipo: 'productos', req: 10,   monedas: 20,  texto: 'Desbloquear 10 productos' },
-    { id: 'h14prod', tipo: 'productos', req: 14,   monedas: 100, texto: 'Completar el menú' }
-];
-
-async function checkHitos() {
-    const estado = window.__sfEstado?.();
-    if (!estado) return;
-
-    for (const h of HITOS) {
-        if (estado.hitosCompletados.includes(h.id)) continue;
-        const valor = h.tipo === 'vendidos' ? estado.totalVendidos : estado.productosDesbloqueados.length;
-        if (valor >= h.req) {
-            estado.hitosCompletados.push(h.id);
-            await otorgarMonedas(h.monedas, h.texto);
-        }
-    }
-}
-
-async function otorgarMonedas(cantidad, descripcion) {
-    const api = window.parent.__vicwebos;
-    if (!api) return;
-    try {
-        await api.canjear('chef-hat', 'stevan-fonda', descripcion, cantidad);
-        toast(`¡+${cantidad} monedas! ${descripcion}`, 'success');
-    } catch (e) {
-        console.warn('[Stevan Fonda] No se pudo otorgar:', e);
-    }
+function renderHitos() {
+    // No hay panel aparte — los hitos se muestran via toast al completarse
+    // Esta función existe por si querés añadir un panel en el futuro
 }
 
 // ============================================================
@@ -261,26 +300,96 @@ function mostrarOffline(cantidad) {
     if (window.lucide) lucide.createIcons();
 }
 
-function mostrarModalUnlock(prod) {
+function mostrarUnlock(prod) {
     const modal = document.getElementById('sfModalUnlock');
-    const desc  = document.getElementById('sfUnlockDesc');
     const item  = document.getElementById('sfUnlockItem');
     if (!modal || !item) return;
-
-    if (desc) desc.textContent = '¡Desbloqueaste un plato nuevo para tu fonda!';
-    item.innerHTML = `
-        <i data-lucide="${prod.icono}"></i>
-        <span>${prod.nombre}</span>
-    `;
+    item.innerHTML = `<i data-lucide="${prod.icono}"></i><span>${prod.nombre}</span>`;
     modal.hidden = false;
     if (window.lucide) lucide.createIcons();
 }
 
-function mostrarModalPrestigio() {
-    const modal = document.getElementById('sfModalPrestigio');
-    if (!modal) return;
+function abrirModalCanje(tipo) {
+    const modal = document.getElementById('sfModalCanje');
+    const desc  = document.getElementById('sfCanjeDesc');
+    const desp  = document.getElementById('sfCanjeDesglose');
+    if (!modal || !desc || !desp) return;
+
+    const estado = window.__sfEstado?.();
+    if (!estado) return;
+
+    if (tipo === 'produccion') {
+        const b = Math.floor(estado.bolsaProduccion);
+        if (b <= 0) { toast('Nada que canjear', 'info'); return; }
+        desc.textContent = `Vas a canjear tu bolsa de producción con el impuesto del SII.`;
+
+        const desglose = window.__sfCalcularDesglose?.(b) || [];
+        let html = '';
+        for (const l of desglose) {
+            const netoLinea = l.tasa === 0
+                ? l.monto
+                : Math.floor(l.monto * (1 - l.tasa / 100));
+            const cssClass = l.tasa === 0 ? 'sf-canje-gratis'
+                           : 'sf-canje-impuesto';
+            html += `
+                <div class="sf-canje-linea ${cssClass}">
+                    <span>${l.label}</span>
+                    <span>${l.tasa === 0 ? l.monto : `${l.monto} → ${netoLinea}`}</span>
+                </div>
+            `;
+        }
+        const neto = window.__sfCalcularNeto?.(b) ?? b;
+        html += `
+            <div class="sf-canje-linea sf-canje-total">
+                <span>Recibirás</span>
+                <strong>${neto}</strong>
+            </div>
+        `;
+        desp.innerHTML = html;
+    } else {
+        const b = Math.floor(estado.bolsaHitosMisiones);
+        if (b <= 0) { toast('Nada que canjear', 'info'); return; }
+        desc.textContent = `Premios de hitos y misiones. Sin impuesto, van directo a tu chequera.`;
+        desp.innerHTML = `
+            <div class="sf-canje-linea sf-canje-gratis">
+                <span>Hitos + Misiones</span>
+                <span>${b} sin impuesto</span>
+            </div>
+            <div class="sf-canje-linea sf-canje-total">
+                <span>Recibirás</span>
+                <strong>${b}</strong>
+            </div>
+        `;
+    }
+
+    modal.dataset.tipo = tipo;
     modal.hidden = false;
     if (window.lucide) lucide.createIcons();
+}
+
+async function confirmarCanje() {
+    const modal = document.getElementById('sfModalCanje');
+    const tipo = modal?.dataset.tipo;
+    if (!tipo) return;
+
+    const btn = document.getElementById('sfCanjeConfirmar');
+    if (btn) btn.disabled = true;
+
+    try {
+        let cantidad;
+        if (tipo === 'produccion') {
+            cantidad = await window.__sfCanjearProduccion?.();
+        } else {
+            cantidad = await window.__sfCanjearLogros?.();
+        }
+        modal.hidden = true;
+        toast(`¡+${formatearNumero(cantidad)} monedas a la chequera!`, 'success');
+        renderBolsas();
+    } catch (e) {
+        toast(e.message || 'No se pudo canjear', 'error');
+    } finally {
+        if (btn) btn.disabled = false;
+    }
 }
 
 // ============================================================
@@ -299,25 +408,16 @@ function hacerPrestigio() {
     estado.estrellas += estrellasNuevas;
     estado.prestigios++;
 
-    // Reset de monedas y mejoras (mantiene estrellas, hitos, productos... 
-    // Espera: productos SÍ se resetean, pero los hitos completados se quedan)
+    estado.monedasFondaFloat = 0;
     estado.monedasFonda = 0;
     estado.totalVendidos = 0;
     estado.productosDesbloqueados = ['italiano'];
-    estado.upgrades = {
-        velocidad: 1,
-        precio: 1,
-        mesas: 1,
-        empleados: 1,
-        decoracion: 0
-    };
+    estado.upgrades = { velocidad: 1, precio: 1, mesas: 1, empleados: 1, decoracion: 0 };
 
     document.getElementById('sfModalPrestigio').hidden = true;
-
     renderMejoras();
     renderProductos();
     window.__sfGuardar?.();
-
     toast(`¡Reabriste la fonda! +${estrellasNuevas} estrella${estrellasNuevas > 1 ? 's' : ''}`, 'success');
 }
 
@@ -334,27 +434,43 @@ async function inicializarMejoras() {
         document.getElementById('sfModalUnlock').hidden = true;
     });
 
-    document.getElementById('btnPrestigio')?.addEventListener('click', mostrarModalPrestigio);
+    document.getElementById('btnPrestigio')?.addEventListener('click', () => {
+        document.getElementById('sfModalPrestigio').hidden = false;
+        if (window.lucide) lucide.createIcons();
+    });
     document.getElementById('sfPrestigioCancelar')?.addEventListener('click', () => {
         document.getElementById('sfModalPrestigio').hidden = true;
     });
     document.getElementById('sfPrestigioConfirmar')?.addEventListener('click', hacerPrestigio);
 
+    // Canje
+    document.getElementById('sfBolsaProdBtn')?.addEventListener('click', () => abrirModalCanje('produccion'));
+    document.getElementById('sfBolsaLogrosBtn')?.addEventListener('click', () => abrirModalCanje('logros'));
+    document.getElementById('sfCanjeCancelar')?.addEventListener('click', () => {
+        document.getElementById('sfModalCanje').hidden = true;
+    });
+    document.getElementById('sfCanjeConfirmar')?.addEventListener('click', confirmarCanje);
+    document.getElementById('sfModalCanje')?.addEventListener('click', (e) => {
+        if (e.target.id === 'sfModalCanje') e.target.hidden = true;
+    });
+
     renderProductos();
     renderMejoras();
+    renderMisiones();
+    renderBolsas();
     actualizarHUD();
 }
 
 // ============================================================
-//  HOOKS EXPUESTOS
+//  HOOKS
 // ============================================================
 window.__sfInitMejoras     = inicializarMejoras;
 window.__sfRenderProductos = renderProductos;
 window.__sfRenderMejoras   = renderMejoras;
+window.__sfRenderMisiones  = renderMisiones;
+window.__sfRenderBolsas    = renderBolsas;
+window.__sfRenderHitos     = renderHitos;
 window.__sfActualizarHUD   = actualizarHUD;
-window.__sfCheckDesbloqueos = checkDesbloqueos;
-window.__sfCheckHitos      = checkHitos;
-window.__sfMostrarOffline  = offlineHook;
-
-// Alias para que el core lo encuentre como __sfMostrarOffline
-function offlineHook(n) { mostrarOffline(n); }
+window.__sfMostrarOffline  = mostrarOffline;
+window.__sfMostrarUnlock   = mostrarUnlock;
+window.__sfToast           = toast;
