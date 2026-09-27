@@ -16,42 +16,179 @@
 <div class="vc-app">
 
     <!-- ============ VISTA: CONECTAR TOKEN ============ -->
-    <section class="vc-view vc-view-centro" id="viewWelcome">
-        <div class="vc-card-grande">
-            <div class="vc-logo-hero">
-                <div class="vc-logo-mark"><i data-lucide="square-code"></i></div>
-                <h1>VicsCode</h1>
-                <p>Editor de código para tus repositorios de GitHub.</p>
+    <section class="vc-view vc-view-welcome" id="viewWelcome">
+
+        <header class="vc-header">
+            <div class="vc-header-left">
+                <div class="vc-logo-mark vc-logo-mark-sm"><i data-lucide="square-code"></i></div>
+                <div class="vc-repo-info">
+                    <span class="vc-repo-nombre">VicsCode</span>
+                    <span class="vc-header-user">Editor de código para GitHub</span>
+                </div>
+            </div>
+            <div class="vc-header-right">
+                <a href="https://docs.github.com/es/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="vc-btn-sec vc-btn-help">
+                    <i data-lucide="help-circle"></i>
+                    <span>Ayuda</span>
+                </a>
+            </div>
+        </header>
+
+        <div class="vc-welcome-body">
+
+            <!-- ============ Mockup del editor ============ -->
+            <div class="vc-welcome-preview">
+
+                <div class="vc-mock-editor">
+                    <div class="vc-mock-topbar">
+                        <div class="vc-mock-dots">
+                            <span class="vc-mock-dot-red"></span>
+                            <span class="vc-mock-dot-yellow"></span>
+                            <span class="vc-mock-dot-green"></span>
+                        </div>
+                        <div class="vc-mock-tabs">
+                            <div class="vc-mock-tab active">
+                                <i data-lucide="file-code"></i>
+                                <span>index.html</span>
+                            </div>
+                            <div class="vc-mock-tab">
+                                <i data-lucide="palette"></i>
+                                <span>style.css</span>
+                            </div>
+                            <div class="vc-mock-tab">
+                                <i data-lucide="file-code-2"></i>
+                                <span>script.js</span>
+                            </div>
+                        </div>
+                        <div class="vc-mock-branch">
+                            <i data-lucide="git-branch"></i>
+                            <span>main</span>
+                        </div>
+                    </div>
+
+                    <div class="vc-mock-body">
+                        <div class="vc-mock-sidebar">
+                            <div class="vc-mock-tree-titulo">EXPLORER</div>
+                            <div class="vc-mock-tree-item carpeta">
+                                <i data-lucide="chevron-down"></i>
+                                <i data-lucide="folder-open"></i>
+                                <span>mi-proyecto</span>
+                            </div>
+                            <div class="vc-mock-tree-item activo">
+                                <span class="vc-mock-tree-spacer"></span>
+                                <i data-lucide="file-code"></i>
+                                <span>index.html</span>
+                            </div>
+                            <div class="vc-mock-tree-item">
+                                <span class="vc-mock-tree-spacer"></span>
+                                <i data-lucide="palette"></i>
+                                <span>style.css</span>
+                            </div>
+                            <div class="vc-mock-tree-item">
+                                <span class="vc-mock-tree-spacer"></span>
+                                <i data-lucide="file-code-2"></i>
+                                <span>script.js</span>
+                            </div>
+                            <div class="vc-mock-tree-item">
+                                <span class="vc-mock-tree-spacer"></span>
+                                <i data-lucide="file-text"></i>
+                                <span>README.md</span>
+                            </div>
+                        </div>
+
+                        <div class="vc-mock-code">
+                            <div class="vc-mock-line"><span class="vc-mock-ln">1</span><span class="tk-com">&lt;!-- Mi primer repo --&gt;</span></div>
+                            <div class="vc-mock-line"><span class="vc-mock-ln">2</span><span class="tk-tag">&lt;!DOCTYPE</span> <span class="tk-attr">html</span><span class="tk-tag">&gt;</span></div>
+                            <div class="vc-mock-line"><span class="vc-mock-ln">3</span><span class="tk-tag">&lt;html</span> <span class="tk-attr">lang</span>=<span class="tk-str">"es"</span><span class="tk-tag">&gt;</span></div>
+                            <div class="vc-mock-line"><span class="vc-mock-ln">4</span><span class="tk-tag">&lt;head&gt;</span></div>
+                            <div class="vc-mock-line"><span class="vc-mock-ln">5</span>  <span class="tk-tag">&lt;title&gt;</span>Hola GitHub<span class="tk-tag">&lt;/title&gt;</span></div>
+                            <div class="vc-mock-line"><span class="vc-mock-ln">6</span><span class="tk-tag">&lt;/head&gt;</span></div>
+                            <div class="vc-mock-line"><span class="vc-mock-ln">7</span><span class="tk-tag">&lt;body&gt;</span></div>
+                            <div class="vc-mock-line cursor"><span class="vc-mock-ln">8</span>  <span class="tk-tag">&lt;h1&gt;</span>Editá y subí tus archivos<span class="tk-tag">&lt;/h1&gt;</span></div>
+                            <div class="vc-mock-line"><span class="vc-mock-ln">9</span><span class="tk-tag">&lt;/body&gt;</span></div>
+                            <div class="vc-mock-line"><span class="vc-mock-ln">10</span><span class="tk-tag">&lt;/html&gt;</span></div>
+                        </div>
+                    </div>
+
+                    <div class="vc-mock-status">
+                        <span><i data-lucide="git-branch"></i> main</span>
+                        <span><i data-lucide="circle"></i> 0 problems</span>
+                        <span class="vc-mock-status-right">UTF-8 · Ln 8, Col 1</span>
+                    </div>
+                </div>
+
+                <!-- Features -->
+                <ul class="vc-welcome-features">
+                    <li>
+                        <div class="vc-feature-icono"><i data-lucide="file-code-2"></i></div>
+                        <div>
+                            <strong>Editor Monaco</strong>
+                            <span>Mismo motor de VS Code</span>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="vc-feature-icono"><i data-lucide="git-commit-horizontal"></i></div>
+                        <div>
+                            <strong>Commit directo</strong>
+                            <span>Subí sin salir de aquí</span>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="vc-feature-icono"><i data-lucide="git-branch"></i></div>
+                        <div>
+                            <strong>Multi-rama</strong>
+                            <span>Cambiá de branch</span>
+                        </div>
+                    </li>
+                </ul>
+
             </div>
 
-            <div class="vc-info-box">
-                <i data-lucide="key-round"></i>
-                <div>
-                    <strong>Necesitás un token clásico de GitHub</strong>
-                    <p>Con permisos <code>repo</code>. Se guarda <strong>solo en este dispositivo</strong>, nunca se envía a la comunidad.</p>
-                    <a href="https://github.com/settings/tokens/new?scopes=repo&description=VicsCode" target="_blank" rel="noopener noreferrer" class="vc-link-token">
+            <!-- ============ Panel de conexión ============ -->
+            <div class="vc-welcome-connect">
+                <div class="vc-connect-card">
+
+                    <div class="vc-connect-header">
+                        <div class="vc-connect-icono">
+                            <i data-lucide="github"></i>
+                        </div>
+                        <h2>Conectar con GitHub</h2>
+                        <p>Pegá tu token personal para empezar a editar tus repositorios.</p>
+                    </div>
+
+                    <div class="vc-field">
+                        <label>Token personal</label>
+                        <input type="password" id="inputToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off" spellcheck="false">
+                    </div>
+
+                    <div id="welcomeMsg" class="vc-status"></div>
+
+                    <button class="vc-btn-pri vc-btn-full vc-btn-conectar" id="btnConectar">
+                        <i data-lucide="log-in"></i>
+                        <span>Conectar</span>
+                    </button>
+
+                    <div class="vc-connect-sep"></div>
+
+                    <a href="https://github.com/settings/tokens/new?scopes=repo&description=VicsCode"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="vc-connect-link">
                         <i data-lucide="external-link"></i>
-                        Crear token en GitHub
+                        <span>Crear un token en GitHub</span>
                     </a>
+
+                    <div class="vc-connect-info">
+                        <i data-lucide="shield-check"></i>
+                        <span>El token se guarda cifrado por el navegador en tu dispositivo. Nunca sale de aquí.</span>
+                    </div>
+
                 </div>
             </div>
 
-            <div class="vc-field">
-                <label>Token personal (ghp_...)</label>
-                <input type="password" id="inputToken" placeholder="ghp_xxxxxxxxxxxxxxxx" autocomplete="off" spellcheck="false">
-            </div>
-
-            <div id="welcomeMsg" class="vc-status"></div>
-
-            <button class="vc-btn-pri vc-btn-full" id="btnConectar">
-                <i data-lucide="log-in"></i>
-                <span>Conectar</span>
-            </button>
-
-            <p class="vc-hint">
-                <i data-lucide="shield-check"></i>
-                El token se guarda cifrado por el navegador en IndexedDB. Si limpiás los datos del navegador, se borra.
-            </p>
         </div>
     </section>
 
@@ -116,7 +253,6 @@
 
         <div class="vc-body">
 
-            <!-- EXPLORADOR -->
             <aside class="vc-sidebar">
                 <div class="vc-sidebar-toolbar">
                     <button class="vc-icon-btn" id="btnRaiz" title="Raíz">
@@ -133,7 +269,6 @@
                 <div class="vc-explorador" id="explorador"></div>
             </aside>
 
-            <!-- EDITOR -->
             <main class="vc-main">
                 <div class="vc-tabs-bar" id="tabsBar" hidden>
                     <div class="vc-tabs-scroll" id="tabsScroll"></div>
@@ -231,7 +366,6 @@
 
 <div class="vc-toast" id="vcToast"></div>
 
-<!-- ============ MONACO LOADER (AMD via CDN) ============ -->
 <script>
   window.MonacoEnvironment = {
     getWorkerUrl: function () {
