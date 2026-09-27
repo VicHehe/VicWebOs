@@ -1,6 +1,6 @@
 /* ================================================================
    Constructor de CV — Estilos
-   · Shell de la app: Nunito (como todo VicWebOs)
+   · Shell de la app: Nunito
    · CV exportable: Inter (tipografía profesional)
    · Preview: tema elegido, independiente del shell
    ================================================================ */
@@ -106,7 +106,6 @@ html, body {
     flex-shrink: 0;
 }
 
-/* Selector de tema */
 .cv-tema-picker {
     display: flex;
     align-items: center;
@@ -255,7 +254,6 @@ html, body {
     overflow: hidden;
 }
 
-/* ============ NAV (con scrollbar visible) ============ */
 .cv-form-nav {
     flex-shrink: 0;
     display: flex;
@@ -527,9 +525,8 @@ html, body {
 .cv-card-item .cv-field:last-child { margin-bottom: 0; }
 
 /* ============================================================
-   FECHAS + CHECK "ACTUAL" / "EN CURSO"
-   El checkbox va en una fila propia debajo de los inputs,
-   así no pelea con el ancho mínimo nativo de input[type=month].
+   FECHAS — dos <select> por fecha (mes + año)
+   Máxima compatibilidad con todos los navegadores.
    ============================================================ */
 .cv-fechas {
     display: grid;
@@ -541,9 +538,43 @@ html, body {
     margin-bottom: 0;
     min-width: 0;
 }
-.cv-fechas .cv-field input {
-    min-width: 0;
+
+.cv-fecha-par {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 6px;
+}
+.cv-fecha-par select {
     width: 100%;
+    min-width: 0;
+    padding: 10px 8px;
+    padding-right: 24px;
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 11px;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    background-color: var(--white, #FFFFFF);
+    color: var(--gray-900, #18181B);
+    outline: none;
+    transition: var(--t-fast, 0.15s);
+    cursor: pointer;
+    color-scheme: light dark;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2371717A' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 12px;
+}
+.cv-fecha-par select:focus {
+    border-color: var(--violet-400, #A78BFA);
+    box-shadow: 0 0 0 3px var(--shadow-glow, rgba(139,92,246,0.10));
+}
+.cv-fecha-par select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: var(--gray-100, #F4F4F7);
 }
 
 .cv-check-actual {
@@ -577,7 +608,7 @@ html, body {
     flex-shrink: 0;
 }
 
-/* ============ CHIPS (habilidades) ============ */
+/* ============ CHIPS ============ */
 .cv-chips-lista {
     display: flex;
     flex-wrap: wrap;
@@ -732,7 +763,6 @@ html, body {
     flex-direction: column;
 }
 
-/* ============ CV INTERNO ============ */
 .cv-doc {
     padding: 48px 56px;
     color: inherit;
@@ -740,7 +770,6 @@ html, body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Header del CV */
 .cv-doc-header {
     display: flex;
     align-items: center;
@@ -813,7 +842,6 @@ html, body {
     min-width: 0;
 }
 
-/* Sección del CV */
 .cv-doc-seccion {
     margin-bottom: 22px;
 }
@@ -846,7 +874,6 @@ html, body {
     word-break: break-word;
 }
 
-/* Items (experiencia, educación) */
 .cv-doc-item {
     margin-bottom: 14px;
 }
@@ -893,7 +920,6 @@ html, body {
     font-weight: 400;
 }
 
-/* Habilidades en el CV */
 .cv-doc-habilidades {
     display: flex;
     flex-wrap: wrap;
@@ -911,7 +937,6 @@ html, body {
     color: var(--violet-700, #6D28D9);
 }
 
-/* Idiomas en el CV */
 .cv-doc-idiomas {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -942,7 +967,6 @@ html, body {
     flex-shrink: 0;
 }
 
-/* ============ CV VACÍO ============ */
 .cv-doc-vacio {
     flex: 1;
     display: flex;
@@ -976,7 +1000,7 @@ html, body {
 }
 
 /* ================================================================
-   OVERLAY DE DESCARGA
+   OVERLAY + TOAST
    ================================================================ */
 .cv-overlay {
     position: fixed;
@@ -1019,9 +1043,6 @@ html, body {
     margin: 0;
 }
 
-/* ================================================================
-   TOAST
-   ================================================================ */
 .cv-toast {
     position: fixed;
     bottom: 20px;
@@ -1121,6 +1142,9 @@ html, body {
     .cv-foto-preview { width: 72px; height: 72px; }
     .cv-foto-acciones { flex-direction: column; }
     .cv-btn-full { width: 100%; padding: 10px 12px; }
+
+    .cv-fechas { grid-template-columns: 1fr; }
+    .cv-fecha-par { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
 
     .cv-doc { padding: 24px 20px; }
     .cv-doc-nombre { font-size: 20px; }
