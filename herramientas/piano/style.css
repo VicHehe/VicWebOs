@@ -165,6 +165,21 @@ html, body {
 }
 .pn-btn-oct:hover { border-color: var(--border, #E8E8EE) !important; color: var(--gray-700, #3F3F46) !important; background: var(--white, #FFFFFF) !important; }
 
+/* Botón de modo (C→C / 2 Oct) */
+.pn-btn-modo {
+    background: var(--violet-50, #F5F3FF);
+    color: var(--violet-700, #6D28D9);
+    border-color: var(--violet-200, #DDD6FE);
+    min-width: 90px;
+    font-variant-numeric: tabular-nums;
+}
+.pn-btn-modo:hover:not(:disabled) {
+    background: var(--violet-100, #EDE9FE);
+    border-color: var(--violet-300, #C4B5FD);
+    color: var(--violet-700, #6D28D9);
+}
+.pn-btn-modo [data-lucide] { width: 15px; height: 15px; }
+
 /* Indicador de grabación */
 .pn-indicador {
     display: inline-flex;
@@ -384,13 +399,6 @@ html, body {
 /* ============================================================
    TECLAS
    ============================================================ */
-.pn-octava {
-    position: relative;
-    flex: 1;
-    display: flex;
-    min-width: 0;
-}
-
 .pn-tecla-blanca {
     flex: 1;
     background: linear-gradient(180deg, #FFFFFF 0%, #F2F2F5 100%);
@@ -411,7 +419,7 @@ html, body {
     -webkit-user-select: none;
     user-select: none;
 }
-.pn-octava .pn-tecla-blanca:last-child { border-right: none; }
+.pn-tecla-blanca:last-child { border-right: none; }
 
 .pn-tecla-blanca:hover {
     background: linear-gradient(180deg, #FFFFFF 0%, #ECECF0 100%);
@@ -427,7 +435,6 @@ html, body {
 .pn-tecla-negra {
     position: absolute;
     top: 0;
-    width: calc((100% / 7) * 0.6);
     height: 60%;
     background: linear-gradient(180deg, #2A2A2E 0%, #0F0F12 100%);
     border-radius: 0 0 4px 4px;
@@ -454,17 +461,11 @@ html, body {
         inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 
-/* Posiciones de las negras dentro de cada octava */
-.pn-tecla-negra[data-pos="1"]  { left: calc((100% / 7) * 1 - (100% / 7) * 0.3); }
-.pn-tecla-negra[data-pos="2"]  { left: calc((100% / 7) * 2 - (100% / 7) * 0.3); }
-.pn-tecla-negra[data-pos="4"]  { left: calc((100% / 7) * 4 - (100% / 7) * 0.3); }
-.pn-tecla-negra[data-pos="5"]  { left: calc((100% / 7) * 5 - (100% / 7) * 0.3); }
-.pn-tecla-negra[data-pos="6"]  { left: calc((100% / 7) * 6 - (100% / 7) * 0.3); }
-
 /* Etiqueta de nota activa */
 .pn-tecla-blanca .pn-nota-label {
     opacity: 0;
     transition: opacity 0.15s;
+    pointer-events: none;
 }
 .pn-tecla-blanca.activa .pn-nota-label { opacity: 1; }
 
@@ -492,6 +493,14 @@ html, body {
     margin: 0 1px;
     min-width: 18px;
     text-align: center;
+}
+
+/* Ocultar la ayuda de teclado en dispositivos táctiles y pantallas chicas */
+@media (hover: none) and (pointer: coarse) {
+    .pn-piano-hint { display: none; }
+}
+@media (max-width: 640px) {
+    .pn-piano-hint { display: none; }
 }
 
 /* ================================================================
@@ -615,6 +624,7 @@ html, body {
     font-weight: 700;
     color: var(--gray-500, #71717A);
     font-variant-numeric: tabular-nums;
+    flex-wrap: wrap;
 }
 .pn-grab-meta span {
     display: inline-flex;
@@ -827,11 +837,11 @@ html, body {
 
     .pn-indicador { padding: 5px 10px; font-size: 11px; }
     .pn-btn-oct { min-width: 76px; font-size: 11.5px; padding: 0 8px; }
+    .pn-btn-modo { min-width: 78px; font-size: 11.5px; padding: 0 8px; }
 
     .pn-piano-wrapper { padding: 12px 8px; }
     .pn-piano { max-height: 220px; min-height: 120px; }
     .pn-tecla-blanca { font-size: 9px; padding-bottom: 8px; }
-    .pn-piano-hint { font-size: 10px; }
 
     .pn-grabaciones { max-height: 45dvh; }
 }
@@ -845,10 +855,12 @@ html, body {
     .pn-header-actions { width: 100%; justify-content: space-between; }
     .pn-indicador { order: -1; }
 
-    .pn-btn-sec span:not(#pnOctLabel) { display: none; }
+    .pn-btn-sec span:not(#pnOctLabel):not(#pnModoLabel) { display: none; }
     .pn-btn-sec { width: 38px; padding: 0; }
     .pn-btn-oct { width: auto; min-width: 72px; }
     .pn-btn-oct span { display: inline !important; }
+    .pn-btn-modo { width: auto; min-width: 72px; }
+    .pn-btn-modo span { display: inline !important; }
 
     .pn-controles { padding: 10px 12px; gap: 6px; }
     .pn-btn-grabar, .pn-btn-accion { padding: 9px 12px; font-size: 12.5px; flex: 1 1 auto; }
