@@ -16,8 +16,6 @@ let estado = {
     partidasJugadas: 0,
     aciertosTotales: 0,
     monedasGanadasTotales: 0,
-    monedasHoy: 0,
-    diaUltimo: '',
     ultimaVez: new Date().toISOString()
 };
 
@@ -46,14 +44,6 @@ const API = () => window.parent.__vicwebos || null;
 const BD  = () => window.parent.ConfigBD || null;
 
 // ============================================================
-function diaChileHoy() {
-    return new Intl.DateTimeFormat('en-CA', {
-        timeZone: 'America/Santiago',
-        year: 'numeric', month: '2-digit', day: '2-digit'
-    }).format(new Date());
-}
-
-// ============================================================
 function aplicarTemaDelPadre() {
     try {
         const rootPadre = window.parent.document.documentElement;
@@ -79,7 +69,6 @@ function aplicarTemaDelPadre() {
 window.addEventListener('message', (e) => {
     if (e.data && e.data.type === MENSAJE_TEMA) {
         aplicarTemaDelPadre();
-        // Regenerar el escenario con los nuevos colores si estamos en el lobby
         if (fase === 'idle') {
             const contenedor = document.getElementById('clCanvas');
             if (contenedor) window.CL_Escena.init(contenedor);
@@ -619,27 +608,18 @@ async function finDePartida() {
     fase = 'finished';
     if (rafId) cancelAnimationFrame(rafId);
 
-    const hoy = diaChileHoy();
-    if (estado.diaUltimo !== hoy) {
-        estado.diaUltimo = hoy;
-        estado.monedasHoy = 0;
-    }
-    const disponible = Math.max(0, CAP_DIARIO - estado.monedasHoy);
-    const monedasFinal = Math.min(monedasPartida, disponible);
-    estado.monedasHoy += monedasFinal;
-
     estado.partidasJugadas++;
     estado.aciertosTotales += totalAciertos;
-    estado.monedasGanadasTotales += monedasFinal;
+    estado.monedasGanadasTotales += monedasPartida;
     await guardarEstado();
 
-    if (monedasFinal > 0) {
-        await otorgarMonedas(monedasFinal);
+    if (monedasPartida > 0) {
+        await otorgarMonedas(monedasPartida);
         await new Promise(r => setTimeout(r, 350));
         renderHeader();
     }
 
-    mostrarFin(monedasFinal, monedasPartida > monedasFinal);
+    mostrarFin(monedasPartida);
 }
 
 async function otorgarMonedas(cantidad) {
@@ -652,7 +632,7 @@ async function otorgarMonedas(cantidad) {
     }
 }
 
-function mostrarFin(monedasOtorgadas, capAplicado) {
+function mostrarFin(monedasOtorgadas) {
     const icono = document.getElementById('clFinIcono');
     const titulo = document.getElementById('clFinTitulo');
     const sub = document.getElementById('clFinSubtitulo');
@@ -671,30 +651,26 @@ function mostrarFin(monedasOtorgadas, capAplicado) {
     elArm.textContent = armaActual?.nombre || '—';
     elMon.textContent = '+' + monedasOtorgadas;
 
-    if (capAplicado) {
-        sub.textContent = `Llegaste al cap diario. La ganancia real fue limitada.`;
-    }
-
     if (totalAciertos >= 35) {
         icono.className = 'cl-screen-icono excelente';
         icono.innerHTML = '<i data-lucide="trophy"></i>';
         titulo.textContent = '¡Francotirador!';
-        if (!capAplicado) sub.textContent = 'Puntería legendaria.';
+        sub.textContent = 'Puntería legendaria.';
     } else if (totalAciertos >= 20) {
         icono.className = 'cl-screen-icono bueno';
         icono.innerHTML = '<i data-lucide="target"></i>';
         titulo.textContent = '¡Buen tiro!';
-        if (!capAplicado) sub.textContent = 'Vas por buen camino.';
+        sub.textContent = 'Vas por buen camino.';
     } else if (totalAciertos >= 10) {
         icono.className = 'cl-screen-icono normal';
         icono.innerHTML = '<i data-lucide="crosshair"></i>';
         titulo.textContent = 'Nada mal';
-        if (!capAplicado) sub.textContent = 'Podés mejorar.';
+        sub.textContent = 'Podés mejorar.';
     } else {
         icono.className = 'cl-screen-icono bajo';
         icono.innerHTML = '<i data-lucide="x"></i>';
         titulo.textContent = 'Necesitás práctica';
-        if (!capAplicado) sub.textContent = 'Probá de nuevo.';
+        sub.textContent = 'Probá de nuevo.';
     }
 
     document.getElementById('clScreenFin').hidden = false;
