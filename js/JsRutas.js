@@ -201,6 +201,17 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 20
     },
         {
+        id: 'calendario',
+        nombre: 'VicsCal',
+        icono: 'calendar-days',
+        ruta: 'herramientas/vicscal/index.html',
+        descripcion: 'Calendario con eventos personales y públicos de la comunidad. Con notificaciones del día.',
+        categoria: 'Herramientas Prácticas',
+        esBase: false,
+        espacio: 4,
+        monedas: 35
+    },
+        {
         id: 'traductor',
         nombre: 'Vicslate',
         icono: 'languages',
