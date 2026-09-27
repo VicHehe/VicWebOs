@@ -49,8 +49,7 @@ html, body {
     justify-content: center;
     padding: 24px;
     background:
-        radial-gradient(circle at 20% 15%, var(--violet-50, #F5F3FF) 0%, transparent 45%),
-        radial-gradient(circle at 80% 85%, var(--violet-100, #EDE9FE) 0%, transparent 50%),
+        radial-gradient(circle at 50% 0%, var(--violet-50, #F5F3FF) 0%, transparent 55%),
         var(--bg, #FBFBFD);
     overflow-y: auto;
 }
@@ -62,115 +61,131 @@ html, body {
 }
 
 /* ================================================================
-   WELCOME
+   WELCOME — Login de VicsCode
+   Estética limpia, tipo GitHub/VS Code login
    ================================================================ */
 .vc-card-grande {
     background: var(--white, #FFFFFF);
-    border-radius: 20px;
+    border-radius: 16px;
     padding: 40px 36px 32px;
-    max-width: 460px;
+    max-width: 400px;
     width: 100%;
-    box-shadow:
-        0 4px 12px rgba(0, 0, 0, 0.04),
-        0 12px 40px rgba(0, 0, 0, 0.10);
     border: 1px solid var(--border, #E8E8EE);
+    box-shadow:
+        0 1px 2px rgba(24, 24, 27, 0.03),
+        0 12px 32px rgba(24, 24, 27, 0.08);
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 20px;
+    position: relative;
 }
 
+/* Encabezado del card */
 .vc-logo-hero {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 14px;
     text-align: center;
+    padding-bottom: 4px;
 }
 .vc-logo-mark {
-    width: 64px;
-    height: 64px;
+    width: 56px;
+    height: 56px;
     background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
-    border-radius: 18px;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    box-shadow: 0 12px 28px var(--accent-shadow, rgba(139,92,246,0.30));
+    box-shadow:
+        0 8px 20px var(--accent-shadow, rgba(139, 92, 246, 0.24)),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.12);
     flex-shrink: 0;
 }
-.vc-logo-mark [data-lucide] { width: 32px; height: 32px; stroke-width: 2.25; }
+.vc-logo-mark [data-lucide] { width: 28px; height: 28px; stroke-width: 2.25; }
 .vc-logo-mark-sm { width: 34px; height: 34px; border-radius: 10px; }
 .vc-logo-mark-sm [data-lucide] { width: 17px; height: 17px; }
 
 .vc-logo-hero h1 {
-    font-size: 26px;
+    font-size: 24px;
     font-weight: 800;
-    letter-spacing: -0.03em;
-    background: var(--accent-text-gradient, linear-gradient(135deg, #18181B, #7C3AED));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    letter-spacing: -0.025em;
+    color: var(--gray-900, #18181B);
     margin: 0;
+    line-height: 1.1;
 }
 .vc-logo-hero p {
     font-size: 13.5px;
     color: var(--gray-500, #71717A);
-    font-weight: 600;
+    font-weight: 500;
     margin: 0;
+    line-height: 1.5;
+    max-width: 280px;
 }
 
+/* Caja informativa — más discreta */
 .vc-info-box {
     display: flex;
-    gap: 12px;
-    padding: 14px;
-    background: var(--violet-50, #F5F3FF);
-    border: 1px solid var(--violet-200, #DDD6FE);
-    border-radius: 12px;
-    color: var(--violet-700, #6D28D9);
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--gray-50, #FAFAFB);
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: 10px;
+    color: var(--gray-600, #52525B);
     font-size: 12.5px;
     line-height: 1.5;
 }
 .vc-info-box [data-lucide] {
-    width: 18px;
-    height: 18px;
-    color: var(--violet-600, #7C3AED);
+    width: 15px;
+    height: 15px;
+    color: var(--violet-500, #8B5CF6);
     flex-shrink: 0;
-    margin-top: 1px;
+    margin-top: 2px;
 }
+.vc-info-box > div { flex: 1; min-width: 0; }
 .vc-info-box strong {
     display: block;
     font-weight: 800;
-    margin-bottom: 3px;
-    font-size: 13px;
+    color: var(--gray-800, #27272A);
+    margin-bottom: 4px;
+    font-size: 12.5px;
 }
-.vc-info-box p { margin: 0 0 8px; font-weight: 500; }
+.vc-info-box p {
+    margin: 0 0 10px;
+    font-weight: 500;
+}
+.vc-info-box p:last-child { margin-bottom: 0; }
 .vc-info-box code {
     background: var(--white, #FFFFFF);
     padding: 1px 5px;
     border-radius: 4px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11.5px;
+    font-size: 11px;
+    color: var(--violet-700, #6D28D9);
+    border: 1px solid var(--border, #E8E8EE);
 }
 .vc-link-token {
     display: inline-flex;
     align-items: center;
     gap: 5px;
     font-size: 12px;
-    font-weight: 800;
+    font-weight: 700;
     color: var(--violet-700, #6D28D9);
     text-decoration: none;
     padding: 5px 10px;
-    border-radius: 8px;
+    border-radius: 7px;
     background: var(--white, #FFFFFF);
-    border: 1px solid var(--violet-200, #DDD6FE);
+    border: 1px solid var(--border, #E8E8EE);
     transition: all 0.15s;
+    margin-top: 2px;
 }
 .vc-link-token:hover {
-    background: var(--violet-600, #7C3AED);
-    color: white;
-    border-color: var(--violet-600, #7C3AED);
+    background: var(--violet-50, #F5F3FF);
+    border-color: var(--violet-300, #C4B5FD);
+    color: var(--violet-700, #6D28D9);
 }
-.vc-link-token [data-lucide] { width: 12px; height: 12px; }
+.vc-link-token [data-lucide] { width: 12px; height: 12px; color: inherit; margin: 0; }
 
 .vc-hint {
     display: flex;
@@ -178,13 +193,16 @@ html, body {
     gap: 6px;
     font-size: 11.5px;
     color: var(--gray-500, #71717A);
-    font-weight: 600;
+    font-weight: 500;
     line-height: 1.5;
+    padding-top: 4px;
+    border-top: 1px solid var(--gray-100, #F4F4F7);
+    margin-top: 2px;
 }
 .vc-hint [data-lucide] {
-    width: 13px;
-    height: 13px;
-    color: var(--violet-500, #8B5CF6);
+    width: 12px;
+    height: 12px;
+    color: var(--gray-400, #A1A1AD);
     flex-shrink: 0;
     margin-top: 2px;
 }
@@ -217,14 +235,14 @@ html, body {
     font-weight: 800;
     color: var(--gray-700, #3F3F46);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
 }
 .vc-field input,
 .vc-field select {
     width: 100%;
     padding: 11px 14px;
     border: 1.5px solid var(--border, #E8E8EE);
-    border-radius: 11px;
+    border-radius: 10px;
     font-family: inherit;
     font-size: 13.5px;
     font-weight: 600;
@@ -237,11 +255,17 @@ html, body {
 .vc-field input[type="password"] {
     font-family: 'JetBrains Mono', monospace;
     letter-spacing: 0.02em;
+    font-size: 13px;
+}
+.vc-field input::placeholder {
+    color: var(--gray-400, #A1A1AD);
+    font-weight: 500;
+    letter-spacing: 0;
 }
 .vc-field input:focus,
 .vc-field select:focus {
     border-color: var(--violet-400, #A78BFA);
-    box-shadow: 0 0 0 3px var(--shadow-glow, rgba(139,92,246,0.10));
+    box-shadow: 0 0 0 3px var(--shadow-glow, rgba(139, 92, 246, 0.10));
 }
 
 .vc-status {
@@ -264,9 +288,9 @@ html, body {
     border: 1px solid #A7F3D0;
 }
 .vc-status.info {
-    background: var(--violet-50, #F5F3FF);
-    color: var(--violet-700, #6D28D9);
-    border: 1px solid var(--violet-200, #DDD6FE);
+    background: var(--gray-50, #FAFAFB);
+    color: var(--gray-700, #3F3F46);
+    border: 1px solid var(--border, #E8E8EE);
 }
 
 /* ================================================================
@@ -281,7 +305,7 @@ html, body {
     gap: 8px;
     padding: 11px 20px;
     border: none;
-    border-radius: 11px;
+    border-radius: 10px;
     font-family: inherit;
     font-size: 13.5px;
     font-weight: 800;
@@ -293,11 +317,11 @@ html, body {
 .vc-btn-pri {
     background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
     color: white;
-    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
+    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139, 92, 246, 0.28));
 }
 .vc-btn-pri:hover:not(:disabled) {
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px var(--accent-shadow-hover, rgba(139,92,246,0.38));
+    box-shadow: 0 6px 16px var(--accent-shadow-hover, rgba(139, 92, 246, 0.38));
 }
 .vc-btn-pri:disabled {
     opacity: 0.5;
@@ -405,7 +429,6 @@ html, body {
     flex-shrink: 0;
 }
 
-/* Repo info + rama */
 .vc-repo-info {
     display: flex;
     flex-direction: column;
@@ -451,7 +474,6 @@ html, body {
     text-overflow: ellipsis;
 }
 
-/* Botón commit */
 .vc-btn-commit {
     position: relative;
     padding: 8px 14px;
@@ -522,7 +544,7 @@ html, body {
 .vc-buscador:focus-within {
     background: var(--white, #FFFFFF);
     border-color: var(--violet-400, #A78BFA);
-    box-shadow: 0 0 0 3px var(--shadow-glow, rgba(139,92,246,0.10));
+    box-shadow: 0 0 0 3px var(--shadow-glow, rgba(139, 92, 246, 0.10));
 }
 .vc-buscador [data-lucide] { color: var(--gray-500, #71717A); width: 15px; height: 15px; }
 .vc-buscador input {
@@ -556,7 +578,7 @@ html, body {
 .vc-repo-card:hover {
     border-color: var(--violet-400, #A78BFA);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px var(--accent-shadow, rgba(139,92,246,0.14));
+    box-shadow: 0 6px 20px var(--accent-shadow, rgba(139, 92, 246, 0.14));
 }
 .vc-repo-card-top {
     display: flex;
@@ -768,7 +790,6 @@ html, body {
     overflow: hidden;
 }
 
-/* Tabs */
 .vc-tabs-bar {
     flex-shrink: 0;
     height: 36px;
@@ -856,7 +877,6 @@ html, body {
 }
 .vc-tab-cerrar [data-lucide] { width: 11px; height: 11px; stroke-width: 3; }
 
-/* Monaco */
 .vc-monaco {
     flex: 1;
     min-height: 0;
@@ -893,7 +913,6 @@ html, body {
     margin: 0;
 }
 
-/* Status bar */
 .vc-status-bar {
     flex-shrink: 0;
     height: 26px;
@@ -953,7 +972,7 @@ html, body {
     max-height: 90dvh;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 24px 48px rgba(0,0,0,0.3);
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.3);
     animation: vcZoom 0.22s cubic-bezier(0.16, 1, 0.3, 1);
     overflow: hidden;
 }
@@ -1033,7 +1052,6 @@ html, body {
     margin: 0;
 }
 
-/* Lista de archivos para commit */
 .vc-lista-commit {
     display: flex;
     flex-direction: column;
@@ -1089,7 +1107,7 @@ html, body {
     border-radius: 999px;
     font-size: 13px;
     font-weight: 700;
-    box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
     opacity: 0;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     pointer-events: none;
@@ -1128,8 +1146,11 @@ html, body {
     .vc-btn-commit span:not(.vc-commit-badge) { display: none; }
     .vc-btn-commit { padding: 8px 10px; }
 
-    .vc-card-grande { padding: 28px 22px 24px; }
+    .vc-card-grande { padding: 32px 24px 26px; max-width: 100%; border-radius: 14px; }
+    .vc-logo-mark { width: 52px; height: 52px; border-radius: 14px; }
+    .vc-logo-mark [data-lucide] { width: 26px; height: 26px; }
     .vc-logo-hero h1 { font-size: 22px; }
+    .vc-logo-hero p { font-size: 13px; }
 
     .vc-repos-lista { grid-template-columns: 1fr; }
     .vc-body-pad { padding: 14px; }
