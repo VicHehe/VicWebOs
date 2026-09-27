@@ -19,6 +19,32 @@ body {
 
 [data-lucide] { width: 18px; height: 18px; stroke-width: 2; flex-shrink: 0; }
 
+/* ============================================================
+   Scrollbar global
+   ============================================================ */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--gray-300, #D4D4DD);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-400, #A1A1AD);
+    background-clip: content-box;
+    border: 2px solid transparent;
+}
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-300, #D4D4DD) transparent;
+}
+
 .cl-app {
     height: 100dvh;
     max-width: 720px;
@@ -96,7 +122,7 @@ body {
 .cl-hud-ganancia > [data-lucide] { color: #D97706; }
 .cl-hud-arma { justify-self: end; }
 
-/* ===== Anillo de cooldown del arma en HUD ===== */
+/* Anillo de cooldown del arma en HUD */
 .cl-arma-cd {
     position: relative;
     width: 22px;
@@ -110,7 +136,6 @@ body {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    transition: background 0.04s linear;
 }
 .cl-arma-cd::before {
     content: '';
@@ -286,7 +311,7 @@ body {
     100% { transform: scale(1); opacity: 1; }
 }
 
-/* ===== Botón de disparo (móvil) con anillo de cooldown ===== */
+/* Botón de disparo (móvil) con anillo de cooldown */
 .cl-fire-btn {
     position: absolute;
     bottom: 20px;
@@ -320,7 +345,6 @@ body {
     );
     z-index: -1;
     pointer-events: none;
-    transition: background 0.04s linear;
 }
 .cl-fire-btn:active {
     transform: scale(0.92);
