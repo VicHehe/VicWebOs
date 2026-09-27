@@ -2,8 +2,7 @@
 //  Caloluty — Escena Three.js con temas y ciudad viva
 //  ------------------------------------------------------------
 //  · Cielo/fog leídos del tema activo (--bg-alt)
-//  · Detección de tema claro/oscuro para ajustar estrellas y fog
-//  · Targets caminando a nivel de calle, sin atravesar el suelo
+//  · Targets caminando con borde inferior SIEMPRE sobre el piso
 //  · Estrellas, neón parpadeante, coches de fondo, luciérnagas
 // ============================================================
 
@@ -13,8 +12,8 @@
     const Z_MIN = -22;
     const Z_MAX = -8;
     const X_MAX = 4.5;
-    const Y_BASE_MIN = 0.9;      // altura mínima del centro del sprite
-    const Y_MAX_DESVIO = 1.1;    // cuánto puede subir el centro
+    const BORDE_INFERIOR_MIN = 0.18;   // altura mínima del borde inferior del sprite
+    const ALTURA_EXTRA_MAX = 1.0;      // desvío aleatorio por encima del mínimo
 
     let escena = null;
     let camara = null;
@@ -25,11 +24,10 @@
     let proximoId = 1;
     let tiempo = 0;
 
-    let grupoCiudad = null;
     let grupoEstrellas = null;
+    let grupoCiudad = null;
     let grupoCoches = null;
     let grupoLuciernagas = null;
-    let grupoFondo = null;
 
     let cochesDeFondo = [];
     let luciernagas = [];
@@ -81,41 +79,32 @@
     }
 
     function leerTema() {
-        // Acento (siempre existe en el tema activo)
         T.acento       = hexAInt(cssVar('--violet-500', '#8B5CF6'));
         T.acentoOscuro = hexAInt(cssVar('--violet-700', '#6D28D9'));
         T.acentoClaro  = hexAInt(cssVar('--violet-400', '#A78BFA'));
 
-        // Cielo: usamos --bg-alt como base, con fallback al --bg
         const bgAlt = cssVar('--bg-alt', '');
         const bg    = cssVar('--bg', '#FBFBFD');
-        const cieloHex = bgAlt || bg;
-
-        T.fondo    = hexAInt(cieloHex);
+        T.fondo    = hexAInt(bgAlt || bg);
         T.fondoSec = hexAInt(bg);
 
-        // Edificios: preferimos grises del tema, sino derivamos del fondo
         const g700 = cssVar('--gray-700', '');
         const g900 = cssVar('--gray-900', '');
         T.edificio       = g700 ? hexAInt(g700) : T.fondo;
         T.edificioOscuro = g900 ? hexAInt(g900) : T.fondoSec;
 
-        // Detectar tema claro u oscuro según luminancia del cielo
         T.esClaro = luminancia(T.fondo) > 140;
 
         if (T.esClaro) {
-            // Cielo claro: estrellas oscuras, fog más suave y alejada
             T.estrella   = hexAInt(cssVar('--gray-600', '#52525B'));
             T.nieblaNear = 32;
             T.nieblaFar  = 85;
         } else {
-            // Cielo oscuro: estrellas blancas
             T.estrella   = 0xFFFFFF;
             T.nieblaNear = 26;
             T.nieblaFar  = 60;
         }
 
-        // Colores semánticos de neón (fijos, siempre visibles)
         T.neon1 = 0xEF4444;
         T.neon2 = 0x10B981;
         T.neon3 = 0xF59E0B;
@@ -208,7 +197,6 @@
         renderer.setSize(w, h);
         contenedor.appendChild(renderer.domElement);
 
-        // Luces que respiran el tema
         const ambientIntensity = T.esClaro ? 1.15 : 0.9;
         escena.add(new THREE.AmbientLight(T.acentoClaro, ambientIntensity));
 
@@ -221,7 +209,6 @@
         dir2.position.set(-5, 5, -10);
         escena.add(dir2);
 
-        // Suelo (calle)
         const sueloGeo = new THREE.PlaneGeometry(80, 80);
         const sueloMat = new THREE.MeshStandardMaterial({
             color: T.fondoSec,
@@ -233,14 +220,12 @@
         suelo.position.set(0, 0, -20);
         escena.add(suelo);
 
-        // Grid de neón
         const gridHelper = new THREE.GridHelper(60, 30, T.acento, T.acentoOscuro);
         gridHelper.position.set(0, 0.02, -20);
         gridHelper.material.opacity = T.esClaro ? 0.5 : 0.32;
         gridHelper.material.transparent = true;
         escena.add(gridHelper);
 
-        // Acera
         const aceraGeo = new THREE.BoxGeometry(20, 0.15, 5);
         const aceraMat = new THREE.MeshStandardMaterial({
             color: T.edificio,
@@ -258,7 +243,6 @@
         render();
     }
 
-    // ---------- Estrellas ----------
     function construirEstrellas() {
         grupoEstrellas = new THREE.Group();
         const cantidad = T.esClaro ? 90 : 180;
@@ -283,7 +267,6 @@
         escena.add(grupoEstrellas);
     }
 
-    // ---------- Ciudad ----------
     function construirCiudad() {
         grupoCiudad = new THREE.Group();
         edificiosEmissive = [];
@@ -298,7 +281,6 @@
                 const x = lado * (9 + Math.random() * 3);
                 const z = -12 - i * 3.2 - Math.random() * 1;
 
-                // Edificios: mezcla entre color base del tema y su variante oscura
                 const usarOscuro = Math.random() < 0.5;
                 const color = usarOscuro ? T.edificioOscuro : T.edificio;
                 const emissive = (Math.random() < 0.5 ? T.acento : T.acentoOscuro);
@@ -323,7 +305,6 @@
                     fase: Math.random() * Math.PI * 2
                 });
 
-                // Ventanas de neón
                 const ventanasCant = Math.floor(alto / 1.2);
                 for (let v = 0; v < ventanasCant; v++) {
                     if (Math.random() < 0.55) {
@@ -354,7 +335,6 @@
             }
         }
 
-        // Edificios del fondo (silueta contra el horizonte)
         for (let i = 0; i < 25; i++) {
             const alto = 4 + Math.random() * 10;
             const ancho = 1.8 + Math.random() * 3;
@@ -376,7 +356,6 @@
         escena.add(grupoCiudad);
     }
 
-    // ---------- Coches de fondo ----------
     function construirCochesDeFondo() {
         grupoCoches = new THREE.Group();
         cochesDeFondo = [];
@@ -409,7 +388,6 @@
         escena.add(grupoCoches);
     }
 
-    // ---------- Luciérnagas ----------
     function construirLuciernagas() {
         grupoLuciernagas = new THREE.Group();
         luciernagas = [];
@@ -460,16 +438,17 @@
         const xIni = desdeIzquierda ? -X_MAX - 0.5 : X_MAX + 0.5;
         const z = Z_MIN + Math.random() * (Z_MAX - Z_MIN);
 
-        // Escala en base a profundidad
+        // Escala base (0.9 en el fondo, 1.4 cerca)
         const escala = 0.9 + (z - Z_MIN) / (Z_MAX - Z_MIN) * 0.5;
 
-        // Altura del centro: mínimo = suelo + mitad de altura del sprite + margen
-        // Así el sprite nunca atraviesa el suelo.
-        const alturaMinimaCentro = 0.15 + escala * 0.5;
-        const y = alturaMinimaCentro + Math.random() * Y_MAX_DESVIO;
+        // Altura del borde inferior: fija mínima + desvío aleatorio
+        const bordeInferiorBase = BORDE_INFERIOR_MIN + Math.random() * ALTURA_EXTRA_MAX;
 
-        sprite.position.set(xIni, y, z);
-        sprite.scale.set(escala * 0.2, escala * 0.2, 1);
+        // Posición inicial (aparece muy chico en pantalla, se anima creciendo)
+        const escalaInicial = escala * 0.2;
+        const yInicial = bordeInferiorBase + escalaInicial / 2;
+        sprite.position.set(xIni, yInicial, z);
+        sprite.scale.set(escalaInicial, escalaInicial, 1);
 
         escena.add(sprite);
 
@@ -479,17 +458,17 @@
             id: proximoId++,
             tipo,
             sprite,
-            x: xIni, y, z,
+            x: xIni, z,
             vx: velCaminar,
-            vy: 0,
             escala,
             radio: escala * 0.55,
             vidaMs: 0,
             vidaMaxMs: 3600,
             muerto: false,
             apareciendoMs: 220,
+            bordeInferiorBase,
             bobFase: Math.random() * Math.PI * 2,
-            alturaMinimaCentro
+            y: yInicial   // se recalcula en cada update
         };
 
         targets.push(target);
@@ -503,14 +482,17 @@
         for (let i = targets.length - 1; i >= 0; i--) {
             const t = targets[i];
 
+            // --- Escala visual (para aparecer) ---
+            let escalaActual = t.escala;
             if (t.apareciendoMs > 0) {
                 t.apareciendoMs -= dt * 1000;
                 const p = Math.max(0, 1 - t.apareciendoMs / 220);
                 const ease = 1 - Math.pow(1 - p, 3);
-                const s = t.escala * (0.2 + 0.8 * ease);
-                t.sprite.scale.set(s, s, 1);
+                escalaActual = t.escala * (0.2 + 0.8 * ease);
+                t.sprite.scale.set(escalaActual, escalaActual, 1);
             }
 
+            // --- Vida ---
             t.vidaMs += dt * 1000;
             if (t.vidaMs >= t.vidaMaxMs) {
                 animarDespawn(t);
@@ -522,16 +504,22 @@
                 t.sprite.material.opacity = (Math.sin(t.vidaMs / 40) > 0) ? 0.4 : 1;
             }
 
+            // --- Caminar ---
             t.x += t.vx * dt;
-
             if (t.x > X_MAX) { t.x = X_MAX; t.vx = -Math.abs(t.vx); }
             if (t.x < -X_MAX) { t.x = -X_MAX; t.vx = Math.abs(t.vx); }
 
+            // --- Bob de caminar (sobre el borde inferior, nunca bajo el piso) ---
             t.bobFase += dt * 8;
-            const bob = Math.sin(t.bobFase) * 0.05;
+            const bob = Math.sin(t.bobFase) * 0.04;
+            const bordeInferiorActual = Math.max(
+                BORDE_INFERIOR_MIN,
+                t.bordeInferiorBase + bob
+            );
+            // Y del centro = borde inferior + mitad de la escala actual
+            const yFinal = bordeInferiorActual + escalaActual / 2;
+            t.y = yFinal;
 
-            // La altura del centro nunca baja de alturaMinimaCentro - bob
-            const yFinal = Math.max(t.alturaMinimaCentro, t.y + bob);
             t.sprite.position.set(t.x, yFinal, t.z);
         }
 
@@ -577,6 +565,7 @@
 
     function animarDespawn(t) {
         const baseEscala = t.sprite.scale.x;
+        const bordeInferiorFijo = t.y - baseEscala / 2;
         const startTime = performance.now();
         const durMs = 180;
 
@@ -588,6 +577,8 @@
             const s = baseEscala * (1 - ease);
             t.sprite.scale.set(s, s, 1);
             t.sprite.material.opacity = 1 - ease;
+            // Mantener borde inferior pegado al piso
+            t.sprite.position.y = bordeInferiorFijo + s / 2;
             if (p < 1) requestAnimationFrame(step);
             else {
                 if (t.sprite.parent) escena.remove(t.sprite);
@@ -603,6 +594,7 @@
         targets.splice(idx, 1);
 
         const baseEscala = target.sprite.scale.x;
+        const bordeInferiorFijo = target.y - baseEscala / 2;
         const startTime = performance.now();
         const durMs = 220;
 
@@ -613,6 +605,8 @@
             const s = baseEscala * (1 + ease * 0.8);
             target.sprite.scale.set(s, s, 1);
             target.sprite.material.opacity = 1 - ease;
+            // Mantener borde inferior pegado al piso
+            target.sprite.position.y = bordeInferiorFijo + s / 2;
             if (p < 1) requestAnimationFrame(step);
             else {
                 if (target.sprite.parent) escena.remove(target.sprite);
