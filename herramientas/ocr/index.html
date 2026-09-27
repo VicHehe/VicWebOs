@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Vicsion — Lector OCR</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</head>
+<body>
+
+<div class="ocr-app">
+
+    <!-- ============ HEADER ============ -->
+    <header class="ocr-header">
+        <div class="ocr-logo">
+            <div class="ocr-logo-mark"><i data-lucide="scan-text"></i></div>
+            <div class="ocr-logo-text">
+                <h1>Vicsion</h1>
+                <p id="ocrUserBadge">—</p>
+            </div>
+        </div>
+
+        <div class="ocr-header-actions">
+            <button class="ocr-btn-icono" id="btnReset" title="Empezar de cero">
+                <i data-lucide="rotate-ccw"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- ============ CONTENIDO ============ -->
+    <main class="ocr-main">
+
+        <!-- ======= VISTA: SUBIR IMAGEN ======= -->
+        <section class="ocr-vista" id="vistaSubir">
+
+            <div class="ocr-drop" id="ocrDrop">
+                <div class="ocr-drop-inner">
+                    <div class="ocr-drop-icono">
+                        <i data-lucide="file-image"></i>
+                    </div>
+                    <h2>Extrae texto de una imagen</h2>
+                    <p>Arrastrá una imagen acá, o elegí una desde tu dispositivo o la Galería.</p>
+                    <div class="ocr-drop-acciones">
+                        <button class="ocr-btn-pri" id="btnSubirArchivo">
+                            <i data-lucide="upload"></i>
+                            <span>Subir imagen</span>
+                        </button>
+                        <button class="ocr-btn-sec" id="btnElegirGaleria">
+                            <i data-lucide="images"></i>
+                            <span>Desde la Galería</span>
+                        </button>
+                    </div>
+                    <p class="ocr-drop-nota">
+                        <i data-lucide="shield-check"></i>
+                        El texto se procesa en tu dispositivo. Nada se sube a internet.
+                    </p>
+                </div>
+            </div>
+
+            <input type="file" id="inputArchivo" accept="image/*" hidden>
+
+        </section>
+
+        <!-- ======= VISTA: PROCESAR / RESULTADO ======= -->
+        <section class="ocr-vista" id="vistaProcesar" hidden>
+
+            <div class="ocr-layout">
+
+                <!-- Columna izquierda: imagen -->
+                <div class="ocr-col-imagen">
+                    <div class="ocr-imagen-header">
+                        <span class="ocr-imagen-label">
+                            <i data-lucide="image"></i>
+                            Imagen
+                        </span>
+                        <button class="ocr-btn-icono-mini" id="btnCambiarImagen" title="Cambiar imagen">
+                            <i data-lucide="refresh-cw"></i>
+                        </button>
+                    </div>
+                    <div class="ocr-imagen-wrap">
+                        <img id="ocrImagenPreview" alt="">
+                    </div>
+                </div>
+
+                <!-- Columna derecha: controles + resultado -->
+                <div class="ocr-col-resultado">
+
+                    <div class="ocr-config">
+                        <div class="ocr-config-field">
+                            <label><i data-lucide="languages"></i> Idioma</label>
+                            <select id="ocrIdioma">
+                                <option value="spa">Español</option>
+                                <option value="eng">Inglés</option>
+                                <option value="spa+eng" selected>Español + Inglés</option>
+                                <option value="por">Portugués</option>
+                                <option value="fra">Francés</option>
+                                <option value="ita">Italiano</option>
+                                <option value="deu">Alemán</option>
+                            </select>
+                        </div>
+
+                        <button class="ocr-btn-pri ocr-btn-full" id="btnExtraer">
+                            <i data-lucide="sparkles"></i>
+                            <span id="btnExtraerTxt">Extraer texto</span>
+                        </button>
+                    </div>
+
+                    <!-- Estado: procesando -->
+                    <div class="ocr-procesando" id="ocrProcesando" hidden>
+                        <div class="ocr-progreso">
+                            <div class="ocr-progreso-fill" id="ocrProgresoFill"></div>
+                        </div>
+                        <div class="ocr-progreso-info">
+                            <span id="ocrProgresoEstado">Iniciando...</span>
+                            <span id="ocrProgresoPct">0%</span>
+                        </div>
+                    </div>
+
+                    <!-- Estado: resultado -->
+                    <div class="ocr-resultado" id="ocrResultado" hidden>
+                        <div class="ocr-resultado-header">
+                            <span class="ocr-resultado-label">
+                                <i data-lucide="file-text"></i>
+                                Texto extraído
+                            </span>
+                            <span class="ocr-resultado-stats" id="ocrStats">—</span>
+                        </div>
+
+                        <textarea id="ocrTexto" placeholder="El texto aparecerá acá..." spellcheck="false"></textarea>
+
+                        <div class="ocr-resultado-acciones">
+                            <button class="ocr-btn-sec" id="btnCopiar">
+                                <i data-lucide="copy"></i>
+                                <span>Copiar</span>
+                            </button>
+                            <button class="ocr-btn-sec" id="btnDescargarTxt">
+                                <i data-lucide="download"></i>
+                                <span>Descargar .txt</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Estado: vacío (todavía no procesado) -->
+                    <div class="ocr-vacio" id="ocrVacio">
+                        <div class="ocr-vacio-icono">
+                            <i data-lucide="scan-text"></i>
+                        </div>
+                        <p>Elegí el idioma y pulsá <strong>Extraer texto</strong>.</p>
+                        <small>La primera vez puede tardar unos segundos mientras se carga el modelo (después queda cacheado).</small>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<div class="ocr-toast" id="ocrToast"></div>
+
+<script src="script.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>
