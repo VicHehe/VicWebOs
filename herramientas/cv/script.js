@@ -8,6 +8,11 @@
 //  · Descarga PDF (html2canvas + jsPDF) y PNG
 //  · Fuente del CV: Inter (profesional)
 //  · Guardado automático con debounce
+//  ------------------------------------------------------------
+//  NOTA sobre fechas: input[type="month"] no es escribible en
+//  Chrome y no funciona bien en Firefox dentro de iframes.
+//  Se usan dos <select> (mes + año) para máxima compatibilidad.
+//  El valor se guarda igual: "YYYY-MM".
 // ============================================================
 
 'use strict';
@@ -16,9 +21,28 @@ const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const RUTA_BASE = 'app/cv/';
 const AUTOSAVE_DELAY = 1200;
 const MAX_HABILIDADES = 30;
-const TEMA_BN = '__bn';  // Tema interno "Blanco y Negro", siempre disponible
+const TEMA_BN = '__bn';
 
 const NIVELES_IDIOMA = ['Básico', 'Intermedio', 'Avanzado', 'Nativo'];
+
+const MESES = [
+    { v: '01', n: 'Enero' },
+    { v: '02', n: 'Febrero' },
+    { v: '03', n: 'Marzo' },
+    { v: '04', n: 'Abril' },
+    { v: '05', n: 'Mayo' },
+    { v: '06', n: 'Junio' },
+    { v: '07', n: 'Julio' },
+    { v: '08', n: 'Agosto' },
+    { v: '09', n: 'Septiembre' },
+    { v: '10', n: 'Octubre' },
+    { v: '11', n: 'Noviembre' },
+    { v: '12', n: 'Diciembre' }
+];
+
+const ANIO_ACTUAL = new Date().getFullYear();
+const ANIO_MIN = 1970;
+const ANIO_MAX = ANIO_ACTUAL + 10;
 
 // ---------- ESTADO ----------
 let usuarioActual = null;
@@ -192,6 +216,34 @@ function normalizarDatos(d) {
 }
 
 // ============================================================
+//  HELPERS DE FECHAS (dos selects: mes + año)
+// ============================================================
+function opcionesMeses(valor) {
+    return MESES.map(m =>
+        `<option value="${m.v}" ${valor === m.v ? 'selected' : ''}>${m.n}</option>`
+    ).join('');
+}
+
+function opcionesAnios(valor) {
+    let html = `<option value="">Año</option>`;
+    for (let a = ANIO_MAX; a >= ANIO_MIN; a--) {
+        html += `<option value="${a}" ${String(valor) === String(a) ? 'selected' : ''}>${a}</option>`;
+    }
+    return html;
+}
+
+function parsearFecha(yyyymm) {
+    if (!yyyymm || typeof yyyymm !== 'string') return { mes: '', anio: '' };
+    const [y, m] = yyyymm.split('-');
+    return { mes: m || '', anio: y || '' };
+}
+
+function componerFecha(mes, anio) {
+    if (!mes || !anio) return '';
+    return `${anio}-${mes}`;
+}
+
+// ============================================================
 //  CARGA / GUARDA
 // ============================================================
 async function cargar() {
@@ -233,13 +285,7 @@ function agendarGuardado() {
 
 // ============================================================
 //  TEMAS DEL CV
-//  ------------------------------------------------------------
-//  · Solo se muestran los temas que el usuario tiene instalados.
-//  · Se aplica el CSS real del tema (extrayendo las variables
-//    del bloque :root), no solo lo que diga el catálogo.
-//  · El tema "Blanco y Negro" (__bn) es interno y siempre está.
 // ============================================================
-
 const VARS_UTILES = new Set([
     '--violet-50','--violet-100','--violet-200','--violet-300',
     '--violet-400','--violet-500','--violet-600','--violet-700',
@@ -278,7 +324,6 @@ function cargarTemasDisponibles() {
         return;
     }
 
-    // TEMAS_DISPONIBLES es `const` en el shell → pedirlo por la API.
     let todos = [];
     let instalados = [];
     try { todos = api.obtenerTemas?.() || []; }
@@ -412,9 +457,6 @@ function llenarSelectorTemas() {
         sel.appendChild(opt);
     });
 
-    // Ahora temaCVActual debería estar sincronizado con datos.tema.
-    // Si por algún motivo no está en la lista, el navegador mostrará vacío,
-    // pero eso ya no debería pasar porque aplicamos fallback antes.
     sel.value = temaCVActual || '';
 }
 
@@ -474,7 +516,7 @@ function actualizarFotoPreview() {
 }
 
 // ============================================================
-//  RENDER: LISTAS DINÁMICAS
+//  RENDER: LISTA EXPERIENCIA
 // ============================================================
 function renderListaExperiencia() {
     const cont = document.getElementById('listaExperiencia');
@@ -484,6 +526,10 @@ function renderListaExperiencia() {
         const el = document.createElement('div');
         el.className = 'cv-card-item';
         el.dataset.id = exp.id;
+
+        const fIni = parsearFecha(exp.inicio);
+        const fFin = parsearFecha(exp.fin);
+
         el.innerHTML = `
             <div class="cv-card-item-header">
                 <span class="cv-card-item-titulo">Experiencia ${i + 1}</span>
@@ -508,15 +554,21 @@ function renderListaExperiencia() {
             <div class="cv-fechas">
                 <div class="cv-field">
                     <label>Inicio</label>
-                    <input type="month" data-campo="inicio">
+                    <div class="cv-fecha-par">
+                        <select data-fecha="inicio-mes">${opcionesMeses(fIni.mes)}</select>
+                        <select data-fecha="inicio-anio">${opcionesAnios(fIni.anio)}</select>
+                    </div>
                 </div>
                 <div class="cv-field">
                     <label>Fin</label>
-                    <input type="month" data-campo="fin" ${exp.actual ? 'disabled' : ''}>
+                    <div class="cv-fecha-par">
+                        <select data-fecha="fin-mes" ${exp.actual ? 'disabled' : ''}>${opcionesMeses(fFin.mes)}</select>
+                        <select data-fecha="fin-anio" ${exp.actual ? 'disabled' : ''}>${opcionesAnios(fFin.anio)}</select>
+                    </div>
                 </div>
                 <label class="cv-check-actual">
                     <input type="checkbox" data-campo="actual" ${exp.actual ? 'checked' : ''}>
-                    <span>Actual</span>
+                    <span>Trabajo actual</span>
                 </label>
             </div>
             <div class="cv-field">
@@ -529,10 +581,9 @@ function renderListaExperiencia() {
         el.querySelector('[data-campo="puesto"]').value = exp.puesto;
         el.querySelector('[data-campo="empresa"]').value = exp.empresa;
         el.querySelector('[data-campo="ubicacion"]').value = exp.ubicacion;
-        el.querySelector('[data-campo="inicio"]').value = exp.inicio;
-        el.querySelector('[data-campo="fin"]').value = exp.fin;
         el.querySelector('[data-campo="descripcion"]').value = exp.descripcion;
 
+        // Inputs de texto
         el.querySelectorAll('input[data-campo]:not([type="checkbox"]), textarea[data-campo]').forEach(inp => {
             const handler = (e) => {
                 exp[e.target.dataset.campo] = e.target.value;
@@ -543,12 +594,38 @@ function renderListaExperiencia() {
             inp.addEventListener('change', handler);
         });
 
+        // Fechas — selects
+        const selIniMes  = el.querySelector('[data-fecha="inicio-mes"]');
+        const selIniAnio = el.querySelector('[data-fecha="inicio-anio"]');
+        const selFinMes  = el.querySelector('[data-fecha="fin-mes"]');
+        const selFinAnio = el.querySelector('[data-fecha="fin-anio"]');
+
+        const actualizarInicio = () => {
+            exp.inicio = componerFecha(selIniMes.value, selIniAnio.value);
+            renderPreview();
+            agendarGuardado();
+        };
+        const actualizarFin = () => {
+            exp.fin = componerFecha(selFinMes.value, selFinAnio.value);
+            renderPreview();
+            agendarGuardado();
+        };
+        selIniMes.addEventListener('change', actualizarInicio);
+        selIniAnio.addEventListener('change', actualizarInicio);
+        selFinMes.addEventListener('change', actualizarFin);
+        selFinAnio.addEventListener('change', actualizarFin);
+
+        // Check "Trabajo actual"
         const chkActual = el.querySelector('[data-campo="actual"]');
-        const inFin = el.querySelector('[data-campo="fin"]');
         chkActual.addEventListener('change', (e) => {
             exp.actual = e.target.checked;
-            inFin.disabled = exp.actual;
-            if (exp.actual) exp.fin = '';
+            selFinMes.disabled = exp.actual;
+            selFinAnio.disabled = exp.actual;
+            if (exp.actual) {
+                exp.fin = '';
+                selFinMes.value = '';
+                selFinAnio.value = '';
+            }
             renderPreview();
             agendarGuardado();
         });
@@ -566,6 +643,9 @@ function renderListaExperiencia() {
     if (window.lucide) window.lucide.createIcons();
 }
 
+// ============================================================
+//  RENDER: LISTA EDUCACIÓN
+// ============================================================
 function renderListaEducacion() {
     const cont = document.getElementById('listaEducacion');
     if (!cont) return;
@@ -573,6 +653,10 @@ function renderListaEducacion() {
     datos.educacion.forEach((edu, i) => {
         const el = document.createElement('div');
         el.className = 'cv-card-item';
+
+        const fIni = parsearFecha(edu.inicio);
+        const fFin = parsearFecha(edu.fin);
+
         el.innerHTML = `
             <div class="cv-card-item-header">
                 <span class="cv-card-item-titulo">Educación ${i + 1}</span>
@@ -597,11 +681,17 @@ function renderListaEducacion() {
             <div class="cv-fechas">
                 <div class="cv-field">
                     <label>Inicio</label>
-                    <input type="month" data-campo="inicio">
+                    <div class="cv-fecha-par">
+                        <select data-fecha="inicio-mes">${opcionesMeses(fIni.mes)}</select>
+                        <select data-fecha="inicio-anio">${opcionesAnios(fIni.anio)}</select>
+                    </div>
                 </div>
                 <div class="cv-field">
                     <label>Fin</label>
-                    <input type="month" data-campo="fin" ${edu.actual ? 'disabled' : ''}>
+                    <div class="cv-fecha-par">
+                        <select data-fecha="fin-mes" ${edu.actual ? 'disabled' : ''}>${opcionesMeses(fFin.mes)}</select>
+                        <select data-fecha="fin-anio" ${edu.actual ? 'disabled' : ''}>${opcionesAnios(fFin.anio)}</select>
+                    </div>
                 </div>
                 <label class="cv-check-actual">
                     <input type="checkbox" data-campo="actual" ${edu.actual ? 'checked' : ''}>
@@ -618,8 +708,6 @@ function renderListaEducacion() {
         el.querySelector('[data-campo="titulo"]').value = edu.titulo;
         el.querySelector('[data-campo="institucion"]').value = edu.institucion;
         el.querySelector('[data-campo="ubicacion"]').value = edu.ubicacion;
-        el.querySelector('[data-campo="inicio"]').value = edu.inicio;
-        el.querySelector('[data-campo="fin"]').value = edu.fin;
         el.querySelector('[data-campo="descripcion"]').value = edu.descripcion;
 
         el.querySelectorAll('input[data-campo]:not([type="checkbox"]), textarea[data-campo]').forEach(inp => {
@@ -632,12 +720,36 @@ function renderListaEducacion() {
             inp.addEventListener('change', handler);
         });
 
+        const selIniMes  = el.querySelector('[data-fecha="inicio-mes"]');
+        const selIniAnio = el.querySelector('[data-fecha="inicio-anio"]');
+        const selFinMes  = el.querySelector('[data-fecha="fin-mes"]');
+        const selFinAnio = el.querySelector('[data-fecha="fin-anio"]');
+
+        const actualizarInicio = () => {
+            edu.inicio = componerFecha(selIniMes.value, selIniAnio.value);
+            renderPreview();
+            agendarGuardado();
+        };
+        const actualizarFin = () => {
+            edu.fin = componerFecha(selFinMes.value, selFinAnio.value);
+            renderPreview();
+            agendarGuardado();
+        };
+        selIniMes.addEventListener('change', actualizarInicio);
+        selIniAnio.addEventListener('change', actualizarInicio);
+        selFinMes.addEventListener('change', actualizarFin);
+        selFinAnio.addEventListener('change', actualizarFin);
+
         const chkActual = el.querySelector('[data-campo="actual"]');
-        const inFin = el.querySelector('[data-campo="fin"]');
         chkActual.addEventListener('change', (e) => {
             edu.actual = e.target.checked;
-            inFin.disabled = edu.actual;
-            if (edu.actual) edu.fin = '';
+            selFinMes.disabled = edu.actual;
+            selFinAnio.disabled = edu.actual;
+            if (edu.actual) {
+                edu.fin = '';
+                selFinMes.value = '';
+                selFinAnio.value = '';
+            }
             renderPreview();
             agendarGuardado();
         });
@@ -655,6 +767,9 @@ function renderListaEducacion() {
     if (window.lucide) window.lucide.createIcons();
 }
 
+// ============================================================
+//  RENDER: HABILIDADES
+// ============================================================
 function renderListaHabilidades() {
     const cont = document.getElementById('listaHabilidades');
     if (!cont) return;
@@ -679,6 +794,9 @@ function renderListaHabilidades() {
     if (window.lucide) window.lucide.createIcons();
 }
 
+// ============================================================
+//  RENDER: IDIOMAS
+// ============================================================
 function renderListaIdiomas() {
     const cont = document.getElementById('listaIdiomas');
     if (!cont) return;
@@ -733,6 +851,9 @@ function renderListaIdiomas() {
     if (window.lucide) window.lucide.createIcons();
 }
 
+// ============================================================
+//  RENDER: CERTIFICACIONES
+// ============================================================
 function renderListaCertificaciones() {
     const cont = document.getElementById('listaCertificaciones');
     if (!cont) return;
@@ -740,6 +861,9 @@ function renderListaCertificaciones() {
     datos.certificaciones.forEach((cer, i) => {
         const el = document.createElement('div');
         el.className = 'cv-card-item';
+
+        const fFecha = parsearFecha(cer.fecha);
+
         el.innerHTML = `
             <div class="cv-card-item-header">
                 <span class="cv-card-item-titulo">Certificación ${i + 1}</span>
@@ -753,22 +877,23 @@ function renderListaCertificaciones() {
                 <label>Nombre</label>
                 <input type="text" data-campo="nombre" maxlength="80" placeholder="Ej: AWS Certified Solutions Architect">
             </div>
-            <div class="cv-grid-2">
-                <div class="cv-field">
-                    <label>Emisor</label>
-                    <input type="text" data-campo="emisor" maxlength="80" placeholder="Ej: Amazon Web Services">
-                </div>
-                <div class="cv-field">
-                    <label>Fecha</label>
-                    <input type="month" data-campo="fecha">
+            <div class="cv-field">
+                <label>Emisor</label>
+                <input type="text" data-campo="emisor" maxlength="80" placeholder="Ej: Amazon Web Services">
+            </div>
+            <div class="cv-field">
+                <label>Fecha</label>
+                <div class="cv-fecha-par">
+                    <select data-fecha="fecha-mes">${opcionesMeses(fFecha.mes)}</select>
+                    <select data-fecha="fecha-anio">${opcionesAnios(fFecha.anio)}</select>
                 </div>
             </div>
         `;
+
         el.querySelector('[data-campo="nombre"]').value = cer.nombre;
         el.querySelector('[data-campo="emisor"]').value = cer.emisor;
-        el.querySelector('[data-campo="fecha"]').value = cer.fecha;
 
-        el.querySelectorAll('[data-campo]').forEach(inp => {
+        el.querySelectorAll('input[data-campo]').forEach(inp => {
             const handler = (e) => {
                 cer[e.target.dataset.campo] = e.target.value;
                 renderPreview();
@@ -777,6 +902,16 @@ function renderListaCertificaciones() {
             inp.addEventListener('input', handler);
             inp.addEventListener('change', handler);
         });
+
+        const selMes  = el.querySelector('[data-fecha="fecha-mes"]');
+        const selAnio = el.querySelector('[data-fecha="fecha-anio"]');
+        const actualizarFecha = () => {
+            cer.fecha = componerFecha(selMes.value, selAnio.value);
+            renderPreview();
+            agendarGuardado();
+        };
+        selMes.addEventListener('change', actualizarFecha);
+        selAnio.addEventListener('change', actualizarFecha);
 
         el.querySelector('[data-accion="eliminar"]').addEventListener('click', () => {
             datos.certificaciones = datos.certificaciones.filter(x => x.id !== cer.id);
@@ -1329,13 +1464,6 @@ async function inicializar() {
     cargarTemasDisponibles();
     await cargar();
 
-    // ------------------------------------------------------------------
-    //  FIX: elegir el tema definitivo ANTES de llenar el selector.
-    //  · Si datos.tema es null (primera vez) → primer tema disponible.
-    //  · Si datos.tema ya no existe (ya no está comprado) → primer tema.
-    //  · Sincronizamos temaCVActual para que llenarSelectorTemas lo
-    //    encuentre y el <select> no quede en blanco.
-    // ------------------------------------------------------------------
     if (!datos.tema || !temasDisponibles.find(t => t.id === datos.tema)) {
         datos.tema = temasDisponibles[0]?.id || TEMA_BN;
     }
