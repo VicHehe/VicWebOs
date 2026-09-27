@@ -1320,4 +1320,182 @@ async function confirmarEliminar() {
     const path = document.getElementById('modalEliminar').dataset.path;
     if (!path) return;
 
-    const btn = document.getElementById('elim
+    const btn = document.getElementById('eliminarConfirmar');
+    btn.disabled = true;
+    try {
+        const data = await ghLeerArchivo(repoActual.owner, repoActual.name, path, ramaActual);
+        await ghEliminarArchivo(
+            repoActual.owner, repoActual.name, path,
+            data.sha, ramaActual, `Delete ${basename(path)}`
+        );
+
+        const p = pestanas.find(x => x.path === path);
+        if (p) {
+            if (modelos[p.modeloId]) {
+                modelos[p.modeloId].dispose();
+                delete modelos[p.modeloId];
+            }
+            pestanas = pestanas.filter(x => x.id !== p.id);
+            if (pestanaActiva === p) mostrarEditorVacio();
+        }
+
+        document.getElementById('modalEliminar').hidden = true;
+        toast('Archivo eliminado', 'success');
+        await cargarDirectorio();
+    } catch (e) {
+        toast('No se pudo eliminar: ' + e.message, 'error');
+    } finally {
+        btn.disabled = false;
+    }
+}
+
+// ============================================================
+//  EVENTOS
+// ============================================================
+function bindUI() {
+    // Welcome
+    document.getElementById('btnConectar')?.addEventListener('click', conectar);
+    document.getElementById('inputToken')?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') conectar();
+    });
+
+    // Repos
+    document.getElementById('btnCambiarToken')?.addEventListener('click', async () => {
+        if (!confirm('¿Desconectar el token actual?\nVas a tener que pegar uno nuevo.')) return;
+        await olvidarTokenLocal();
+        token = null;
+        ghUser = null;
+        mostrarVista('welcome');
+        document.getElementById('inputToken').value = '';
+        setWelcomeMsg('');
+    });
+
+    // Editor — header
+    document.getElementById('btnIrRepos')?.addEventListener('click', () => {
+        if (hayCambiosPendientes()) {
+            if (!confirm('Tenés cambios sin guardar. ¿Salir igual?')) return;
+        }
+        limpiarPestanas();
+        entrarRepos();
+    });
+
+    document.getElementById('btnCommit')?.addEventListener('click', abrirModalCommit);
+
+    document.getElementById('btnRefrescar')?.addEventListener('click', async () => {
+        await cargarDirectorio();
+        toast('Actualizado', 'info');
+    });
+
+    // Sidebar
+    document.getElementById('btnRaiz')?.addEventListener('click', () => {
+        rutaActual = [];
+        cargarDirectorio();
+    });
+    document.getElementById('btnSubir')?.addEventListener('click', () => {
+        if (rutaActual.length === 0) return;
+        rutaActual.pop();
+        cargarDirectorio();
+    });
+    document.getElementById('btnNuevoArchivo')?.addEventListener('click', abrirModalNuevoArchivo);
+
+    // Modal commit
+    document.getElementById('commitCerrar')?.addEventListener('click', () => {
+        document.getElementById('modalCommit').hidden = true;
+    });
+    document.getElementById('commitCancelar')?.addEventListener('click', () => {
+        document.getElementById('modalCommit').hidden = true;
+    });
+    document.getElementById('commitConfirmar')?.addEventListener('click', confirmarCommit);
+    document.getElementById('modalCommit')?.addEventListener('click', (e) => {
+        if (e.target.id === 'modalCommit') e.target.hidden = true;
+    });
+    document.getElementById('inputCommitMsg')?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') confirmarCommit();
+    });
+
+    // Modal nuevo archivo
+    document.getElementById('nuevoCerrar')?.addEventListener('click', () => {
+        document.getElementById('modalNuevoArchivo').hidden = true;
+    });
+    document.getElementById('nuevoCancelar')?.addEventListener('click', () => {
+        document.getElementById('modalNuevoArchivo').hidden = true;
+    });
+    document.getElementById('nuevoConfirmar')?.addEventListener('click', confirmarNuevoArchivo);
+    document.getElementById('modalNuevoArchivo')?.addEventListener('click', (e) => {
+        if (e.target.id === 'modalNuevoArchivo') e.target.hidden = true;
+    });
+    document.getElementById('inputNuevoNombre')?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') confirmarNuevoArchivo();
+    });
+
+    // Modal eliminar
+    document.getElementById('eliminarCerrar')?.addEventListener('click', () => {
+        document.getElementById('modalEliminar').hidden = true;
+    });
+    document.getElementById('eliminarCancelar')?.addEventListener('click', () => {
+        document.getElementById('modalEliminar').hidden = true;
+    });
+    document.getElementById('eliminarConfirmar')?.addEventListener('click', confirmarEliminar);
+    document.getElementById('modalEliminar')?.addEventListener('click', (e) => {
+        if (e.target.id === 'modalEliminar') e.target.hidden = true;
+    });
+
+    // Escape global
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        ['modalCommit','modalNuevoArchivo','modalEliminar'].forEach(id => {
+            const m = document.getElementById(id);
+            if (m && !m.hidden) m.hidden = true;
+        });
+    });
+
+    // Aviso al cerrar con cambios pendientes
+    window.addEventListener('beforeunload', (e) => {
+        if (hayCambiosPendientes()) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+async function inicializar() {
+    aplicarTemaDelPadre();
+
+    const api = API();
+    usuarioActual = api?.obtenerCuenta?.() || { codigo: 'anon', nombre: 'Anónimo' };
+
+    bindUI();
+    mostrarVista('welcome');
+
+    // Cargar token guardado
+    const tieneToken = await cargarTokenGuardado();
+    if (tieneToken && ghUser) {
+        // Validar contra GitHub (podría haber expirado)
+        try {
+            const u = await ghValidarToken();
+            ghUser = u;
+            await guardarTokenLocal();
+            entrarRepos();
+        } catch (_) {
+            // Token inválido → pedir de nuevo
+            await olvidarTokenLocal();
+            token = null;
+            ghUser = null;
+            mostrarVista('welcome');
+        }
+    }
+
+    // Inicializar Monaco en background (no bloquea)
+    try {
+        await initMonaco();
+        if (window.lucide) window.lucide.createIcons();
+    } catch (e) {
+        console.error('[VicsCode] Monaco no cargó:', e);
+        toast('No se pudo cargar el editor. Revisá tu conexión.', 'error');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', inicializar);
