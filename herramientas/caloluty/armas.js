@@ -56,7 +56,7 @@ const ARMAS = [
 const ARMA_BASE = 'pistola';
 const DURACION_MS = 60000;
 const TOTAL_ROJOS = 40;
-const TOTAL_AZULES = 35;
+const TOTAL_AZULES = 20;
 const PENALIZACION_AZUL_MS = 2000;
 
 function obtenerArma(id) {
