@@ -1469,3 +1469,8 @@ html, body {
     .vc-rama-selector select { max-width: 100px; }
     .vc-status-bar { font-size: 10px; }
 }
+.vc-connect-icono svg {
+    width: 22px;
+    height: 22px;
+    display: block;
+}
