@@ -23,7 +23,7 @@ const NIVELES_IDIOMA = ['Básico', 'Intermedio', 'Avanzado', 'Nativo'];
 // ---------- ESTADO ----------
 let usuarioActual = null;
 let datos = crearDatosVacios();
-let temaCVActual = 'oficina';
+let temaCVActual = null;
 let temasDisponibles = [];
 let cacheVarsTemas = {};
 let fotoIdActual = null;
@@ -117,7 +117,7 @@ function crearDatosVacios() {
     return {
         version: 1,
         actualizado: null,
-        tema: 'oficina',
+        tema: null,
         datos: {
             nombre: '',
             titulo: '',
@@ -143,7 +143,7 @@ function normalizarDatos(d) {
 
     base.version = 1;
     base.actualizado = d.actualizado || null;
-    base.tema = d.tema || 'oficina';
+    base.tema = d.tema || null;
 
     if (d.datos && typeof d.datos === 'object') {
         Object.keys(base.datos).forEach(k => {
@@ -273,14 +273,12 @@ const VARS_BN = {
 function cargarTemasDisponibles() {
     const api = API();
 
-    // Sin API (por ejemplo, probando la app suelta): solo BN
     if (!api) {
         temasDisponibles = [crearTemaBN()];
         return;
     }
 
-    // IMPORTANTE: TEMAS_DISPONIBLES es `const` en el shell, no está en window.
-    // Desde el iframe hay que pedirlo por la API del shell.
+    // TEMAS_DISPONIBLES es `const` en el shell → pedirlo por la API.
     let todos = [];
     let instalados = [];
     try { todos = api.obtenerTemas?.() || []; }
@@ -288,7 +286,6 @@ function cargarTemasDisponibles() {
     try { instalados = api.obtenerTemasInstalados?.() || []; }
     catch (e) { instalados = []; }
 
-    // Fallback si no tenemos lista de instalados
     if (!Array.isArray(instalados) || instalados.length === 0) {
         instalados = todos.filter(t => t.esBase).map(t => t.id);
         if (instalados.length === 0 && todos.length > 0) {
@@ -320,10 +317,6 @@ function crearTemaBN() {
     };
 }
 
-/**
- * Lee el CSS del tema y extrae las variables del bloque :root.
- * Cachea el resultado por id de tema.
- */
 async function obtenerVarsTema(temaId) {
     if (cacheVarsTemas[temaId]) return cacheVarsTemas[temaId];
 
@@ -418,7 +411,11 @@ function llenarSelectorTemas() {
         opt.textContent = prefijo + t.nombre;
         sel.appendChild(opt);
     });
-    sel.value = temaCVActual;
+
+    // Ahora temaCVActual debería estar sincronizado con datos.tema.
+    // Si por algún motivo no está en la lista, el navegador mostrará vacío,
+    // pero eso ya no debería pasar porque aplicamos fallback antes.
+    sel.value = temaCVActual || '';
 }
 
 // ============================================================
@@ -947,7 +944,6 @@ function renderPreview() {
 
     preview.innerHTML = html;
 
-    // Foto → base64 (garantiza export sin CORS)
     if (d.fotoId) {
         const mh = MH();
         const fotoEl = preview.querySelector(`[data-foto-id="${d.fotoId}"]`);
@@ -1333,10 +1329,17 @@ async function inicializar() {
     cargarTemasDisponibles();
     await cargar();
 
-    // Si el tema guardado ya no está disponible, elegimos el primero disponible
-    if (!temasDisponibles.find(t => t.id === datos.tema)) {
+    // ------------------------------------------------------------------
+    //  FIX: elegir el tema definitivo ANTES de llenar el selector.
+    //  · Si datos.tema es null (primera vez) → primer tema disponible.
+    //  · Si datos.tema ya no existe (ya no está comprado) → primer tema.
+    //  · Sincronizamos temaCVActual para que llenarSelectorTemas lo
+    //    encuentre y el <select> no quede en blanco.
+    // ------------------------------------------------------------------
+    if (!datos.tema || !temasDisponibles.find(t => t.id === datos.tema)) {
         datos.tema = temasDisponibles[0]?.id || TEMA_BN;
     }
+    temaCVActual = datos.tema;
 
     if (!datos.datos.nombre && usuarioActual.nombre) {
         datos.datos.nombre = usuarioActual.nombre;
