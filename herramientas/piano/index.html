@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>Piano Virtual</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<div class="pn-app">
+
+    <!-- ============ HEADER ============ -->
+    <header class="pn-header">
+        <div class="pn-logo">
+            <div class="pn-logo-mark"><i data-lucide="piano"></i></div>
+            <div class="pn-logo-text">
+                <h1>Piano Virtual</h1>
+                <p id="pnUserBadge">—</p>
+            </div>
+        </div>
+
+        <div class="pn-header-actions">
+            <div class="pn-indicador" id="pnIndicador" hidden>
+                <span class="pn-indicador-punto"></span>
+                <span id="pnIndicadorTxt">Grabando</span>
+            </div>
+
+            <button class="pn-btn-sec" id="btnOctDown" title="Bajar octava">
+                <i data-lucide="chevron-down"></i>
+            </button>
+            <button class="pn-btn-sec pn-btn-oct" id="btnOctLabel" title="Rango actual" disabled>
+                <span id="pnOctLabel">C4 — B5</span>
+            </button>
+            <button class="pn-btn-sec" id="btnOctUp" title="Subir octava">
+                <i data-lucide="chevron-up"></i>
+            </button>
+
+            <button class="pn-btn-sec" id="btnVolumen" title="Volumen">
+                <i data-lucide="volume-2"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- ============ PANEL VOLUMEN ============ -->
+    <div class="pn-volumen-panel" id="pnVolumenPanel" hidden>
+        <div class="pn-volumen-wrap">
+            <i data-lucide="volume-1"></i>
+            <input type="range" id="pnVolumenSlider" min="0" max="100" value="70">
+            <i data-lucide="volume-2"></i>
+        </div>
+    </div>
+
+    <!-- ============ CONTROLES DE GRABACIÓN ============ -->
+    <div class="pn-controles">
+        <button class="pn-btn-grabar" id="btnGrabar" title="Grabar">
+            <span class="pn-record-dot"></span>
+            <span id="btnGrabarTxt">Grabar</span>
+        </button>
+
+        <button class="pn-btn-accion" id="btnDetener" title="Detener" disabled>
+            <i data-lucide="square"></i>
+            <span>Detener</span>
+        </button>
+
+        <button class="pn-btn-accion" id="btnLimpiarPista" title="Limpiar la pista actual">
+            <i data-lucide="eraser"></i>
+            <span>Limpiar</span>
+        </button>
+
+        <div class="pn-tiempo" id="pnTiempo">0:00.0</div>
+    </div>
+
+    <!-- ============ PIANO ============ -->
+    <div class="pn-piano-wrapper" id="pnPianoWrapper">
+        <div class="pn-piano" id="pnPiano">
+            <!-- Se rellena por JS -->
+        </div>
+        <div class="pn-piano-hint">
+            Teclado: <kbd>A</kbd> <kbd>W</kbd> <kbd>S</kbd> <kbd>E</kbd> <kbd>D</kbd> ... ·
+            Octava: <kbd>Z</kbd> / <kbd>X</kbd> · Grabar: <kbd>Espacio</kbd>
+        </div>
+    </div>
+
+    <!-- ============ LISTA DE GRABACIONES ============ -->
+    <section class="pn-grabaciones">
+        <div class="pn-grabaciones-header">
+            <h2>
+                <i data-lucide="music-4"></i>
+                <span>Mis grabaciones</span>
+                <span class="pn-grabaciones-count" id="pnGrabCount">0</span>
+            </h2>
+        </div>
+        <div class="pn-grabaciones-lista" id="pnGrabLista"></div>
+    </section>
+
+</div>
+
+<!-- ============ MODAL: PONER NOMBRE ============ -->
+<div class="pn-modal" id="pnModalNombre" hidden>
+    <div class="pn-modal-card">
+        <div class="pn-modal-header">
+            <h2><i data-lucide="save"></i> Guardar grabación</h2>
+        </div>
+        <div class="pn-modal-body">
+            <div class="pn-field">
+                <label>Nombre</label>
+                <input type="text" id="pnNombreInput" maxlength="50" placeholder="Ej: Melodía 1" autocomplete="off">
+            </div>
+            <div class="pn-modal-info" id="pnModalInfo">Duración: 0:00.0</div>
+        </div>
+        <div class="pn-modal-actions">
+            <button class="pn-btn-sec" id="btnCancelarGuardar">Cancelar</button>
+            <button class="pn-btn-pri" id="btnConfirmarGuardar">
+                <i data-lucide="save"></i>
+                <span>Guardar</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============ MODAL: CONFIRMAR BORRAR ============ -->
+<div class="pn-modal" id="pnModalBorrar" hidden>
+    <div class="pn-modal-card">
+        <div class="pn-modal-header">
+            <h2><i data-lucide="trash-2"></i> Eliminar grabación</h2>
+        </div>
+        <div class="pn-modal-body">
+            <p class="pn-modal-text" id="pnBorrarTexto">¿Eliminar esta grabación? No se puede deshacer.</p>
+        </div>
+        <div class="pn-modal-actions">
+            <button class="pn-btn-sec" id="btnCancelarBorrar">Cancelar</button>
+            <button class="pn-btn-danger" id="btnConfirmarBorrar">
+                <i data-lucide="trash-2"></i>
+                <span>Eliminar</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="pn-toast" id="pnToast"></div>
+
+<script src="script.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>
