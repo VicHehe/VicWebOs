@@ -198,7 +198,7 @@ const RUTAS_HERRAMIENTAS = [
         categoria: 'Herramientas Prácticas',
         esBase: false,
         espacio: 4,
-        monedas: 40
+        monedas: 20
     },
     {
         id: 'photo-shinny',
