@@ -189,6 +189,17 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 2,
         monedas: 15
     },
+        {
+        id: 'ocr',
+        nombre: 'Vicsion',
+        icono: 'scan-text',
+        ruta: 'herramientas/ocr/index.html',
+        descripcion: 'Ve una imagen y te devuelve el texto. Reconoce varios idiomas, sin subir nada a internet.',
+        categoria: 'Herramientas Prácticas',
+        esBase: false,
+        espacio: 4,
+        monedas: 40
+    },
     {
         id: 'photo-shinny',
         nombre: 'Photo Shinny',
