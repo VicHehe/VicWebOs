@@ -151,7 +151,8 @@ function crearDatosVacios() {
             web: '',
             linkedin: '',
             fotoId: null,
-            resumen: ''
+            resumen: '',
+            objetivo: ''
         },
         experiencia: [],
         educacion: [],
@@ -473,6 +474,8 @@ function renderForm() {
     document.getElementById('inLinkedin').value = datos.datos.linkedin;
     document.getElementById('inResumen').value = datos.datos.resumen;
     document.getElementById('resumenCount').textContent = datos.datos.resumen.length;
+    document.getElementById('inObjetivo').value = datos.datos.objetivo;
+    document.getElementById('objetivoCount').textContent = datos.datos.objetivo.length;
 
     fotoIdActual = datos.datos.fotoId;
     actualizarFotoPreview();
@@ -583,7 +586,6 @@ function renderListaExperiencia() {
         el.querySelector('[data-campo="ubicacion"]').value = exp.ubicacion;
         el.querySelector('[data-campo="descripcion"]').value = exp.descripcion;
 
-        // Inputs de texto
         el.querySelectorAll('input[data-campo]:not([type="checkbox"]), textarea[data-campo]').forEach(inp => {
             const handler = (e) => {
                 exp[e.target.dataset.campo] = e.target.value;
@@ -594,7 +596,6 @@ function renderListaExperiencia() {
             inp.addEventListener('change', handler);
         });
 
-        // Fechas — selects
         const selIniMes  = el.querySelector('[data-fecha="inicio-mes"]');
         const selIniAnio = el.querySelector('[data-fecha="inicio-anio"]');
         const selFinMes  = el.querySelector('[data-fecha="fin-mes"]');
@@ -615,7 +616,6 @@ function renderListaExperiencia() {
         selFinMes.addEventListener('change', actualizarFin);
         selFinAnio.addEventListener('change', actualizarFin);
 
-        // Check "Trabajo actual"
         const chkActual = el.querySelector('[data-campo="actual"]');
         chkActual.addEventListener('change', (e) => {
             exp.actual = e.target.checked;
@@ -933,7 +933,7 @@ function renderPreview() {
     if (!preview) return;
 
     const d = datos.datos;
-    const tieneAlgo = d.nombre || d.titulo || d.email || d.telefono || d.resumen ||
+    const tieneAlgo = d.nombre || d.titulo || d.email || d.telefono || d.resumen || d.objetivo ||
         datos.experiencia.length || datos.educacion.length ||
         datos.habilidades.length || datos.idiomas.length || datos.certificaciones.length;
 
@@ -985,6 +985,15 @@ function renderPreview() {
             <section class="cv-doc-seccion">
                 <div class="cv-doc-seccion-titulo">Perfil profesional</div>
                 <div class="cv-doc-resumen">${escapar(d.resumen)}</div>
+            </section>
+        `;
+    }
+
+    if (d.objetivo) {
+        html += `
+            <section class="cv-doc-seccion">
+                <div class="cv-doc-seccion-titulo">Objetivo</div>
+                <div class="cv-doc-objetivo">${escapar(d.objetivo)}</div>
             </section>
         `;
     }
@@ -1138,7 +1147,8 @@ function bindForm() {
         ['inUbicacion',  'ubicacion'],
         ['inWeb',        'web'],
         ['inLinkedin',   'linkedin'],
-        ['inResumen',    'resumen']
+        ['inResumen',    'resumen'],
+        ['inObjetivo',   'objetivo']
     ];
     binds.forEach(([id, campo]) => {
         const el = document.getElementById(id);
@@ -1147,6 +1157,9 @@ function bindForm() {
             datos.datos[campo] = e.target.value;
             if (campo === 'resumen') {
                 document.getElementById('resumenCount').textContent = e.target.value.length;
+            }
+            if (campo === 'objetivo') {
+                document.getElementById('objetivoCount').textContent = e.target.value.length;
             }
             renderPreview();
             agendarGuardado();
