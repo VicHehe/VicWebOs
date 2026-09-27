@@ -325,17 +325,6 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 6,
         monedas: 35
     },
-    {
-    id: 'vagonetas',
-    nombre: 'Vagonetas',
-    icono: 'flag',
-    ruta: 'herramientas/vagonetas/index.html',
-    descripcion: 'Carreras 3D de vagonetas en mapas temáticos. Jugá gratis, desbloqueá mapas con tus temas.',
-    categoria: 'Juegos',
-    esBase: false,
-    espacio: 8,
-    monedas: 0
-},
 
     // ============================================================
     //  SOCIAL
