@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Stevan Fonda</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<div class="sf-app">
+
+    <header class="sf-header">
+        <div class="sf-logo">
+            <div class="sf-logo-mark"><i data-lucide="chef-hat"></i></div>
+            <div class="sf-logo-text">
+                <h1>Stevan Fonda</h1>
+                <p id="sfUserBadge">—</p>
+            </div>
+        </div>
+        <div class="sf-caja" title="Monedas de fonda">
+            <i data-lucide="coins"></i>
+            <span id="sfMonedas">0</span>
+        </div>
+    </header>
+
+    <div class="sf-hud">
+        <div class="sf-hud-item">
+            <i data-lucide="utensils"></i>
+            <span id="sfTotalVendidos">0</span>
+            <em>vendidos</em>
+        </div>
+        <div class="sf-hud-item">
+            <i data-lucide="star"></i>
+            <span id="sfEstrellas">0</span>
+            <em>estrellas</em>
+        </div>
+        <div class="sf-hud-item">
+            <i data-lucide="trending-up"></i>
+            <span id="sfProduccion">0</span>
+            <em>/seg</em>
+        </div>
+    </div>
+
+    <section class="sf-fonda">
+        <div class="sf-fonda-header">
+            <span class="sf-fonda-titulo">
+                <i data-lucide="store"></i>
+                Tu fonda
+            </span>
+            <span class="sf-fonda-sub" id="sfMesasInfo">1 mesa</span>
+        </div>
+        <div class="sf-mesas" id="sfMesas"></div>
+    </section>
+
+    <section class="sf-productos">
+        <div class="sf-productos-header">
+            <span class="sf-sec-titulo"><i data-lucide="menu"></i> Menú</span>
+            <span class="sf-productos-sub" id="sfProductosInfo">1/14</span>
+        </div>
+        <div class="sf-productos-grid" id="sfProductosGrid"></div>
+    </section>
+
+    <section class="sf-mejoras">
+        <div class="sf-productos-header">
+            <span class="sf-sec-titulo"><i data-lucide="wrench"></i> Mejoras</span>
+        </div>
+        <div class="sf-mejoras-grid" id="sfMejorasGrid"></div>
+    </section>
+
+    <section class="sf-prestigio">
+        <button class="sf-btn-prestigio" id="btnPrestigio">
+            <i data-lucide="sparkles"></i>
+            <span>Reabrir Fonda</span>
+        </button>
+        <p class="sf-prestigio-info" id="sfPrestigioInfo">—</p>
+    </section>
+
+</div>
+
+<!-- Modal: ganancia offline -->
+<div class="sf-modal" id="sfModalOffline" hidden>
+    <div class="sf-modal-card">
+        <div class="sf-modal-icono">
+            <i data-lucide="moon"></i>
+        </div>
+        <h2>Mientras no estabas…</h2>
+        <p>Tu fonda siguió trabajando a media máquina.</p>
+        <div class="sf-offline-caja">
+            <i data-lucide="coins"></i>
+            <span id="sfOfflineCantidad">+0</span>
+        </div>
+        <button class="sf-btn-primario" id="sfOfflineOk">
+            <i data-lucide="check"></i>
+            ¡Recoger!
+        </button>
+    </div>
+</div>
+
+<!-- Modal: producto desbloqueado -->
+<div class="sf-modal" id="sfModalUnlock" hidden>
+    <div class="sf-modal-card">
+        <div class="sf-modal-icono sf-modal-icono-verde">
+            <i data-lucide="package-open"></i>
+        </div>
+        <h2>¡Nuevo producto!</h2>
+        <p id="sfUnlockDesc">Se desbloqueó un plato nuevo.</p>
+        <div class="sf-unlock-item" id="sfUnlockItem"></div>
+        <button class="sf-btn-primario" id="sfUnlockOk">
+            <i data-lucide="check"></i>
+            ¡Genial!
+        </button>
+    </div>
+</div>
+
+<!-- Modal: confirmar prestigio -->
+<div class="sf-modal" id="sfModalPrestigio" hidden>
+    <div class="sf-modal-card">
+        <div class="sf-modal-icono sf-modal-icono-dorado">
+            <i data-lucide="sparkles"></i>
+        </div>
+        <h2>¿Reabrir la fonda?</h2>
+        <p>Vas a resetear monedas y mejoras, pero te llevarás <strong>estrellas permanentes</strong>. Cada estrella da <strong>+10% de producción</strong> para siempre.</p>
+        <div class="sf-modal-acciones">
+            <button class="sf-btn-sec" id="sfPrestigioCancelar">Cancelar</button>
+            <button class="sf-btn-primario" id="sfPrestigioConfirmar">
+                <i data-lucide="sparkles"></i>
+                <span>Reabrir</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="sf-toast" id="sfToast"></div>
+
+<script src="script.js"></script>
+<script src="script-clientes.js"></script>
+<script src="script-mejoras.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>
