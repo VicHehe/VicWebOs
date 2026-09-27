@@ -77,7 +77,14 @@ function aplicarTemaDelPadre() {
 }
 
 window.addEventListener('message', (e) => {
-    if (e.data && e.data.type === MENSAJE_TEMA) aplicarTemaDelPadre();
+    if (e.data && e.data.type === MENSAJE_TEMA) {
+        aplicarTemaDelPadre();
+        // Regenerar el escenario con los nuevos colores si estamos en el lobby
+        if (fase === 'idle') {
+            const contenedor = document.getElementById('clCanvas');
+            if (contenedor) window.CL_Escena.init(contenedor);
+        }
+    }
 });
 
 // ============================================================
@@ -128,7 +135,7 @@ function sonidoAzul() {
 }
 
 // ============================================================
-//  MONEDAS — lectura fresca desde el shell
+//  MONEDAS
 // ============================================================
 function obtenerMonedasActuales() {
     try {
@@ -399,6 +406,8 @@ function disparar() {
     } else {
         mostrarPuff(crosshair.x, crosshair.y, false);
     }
+
+    actualizarCooldownUI();
 }
 
 function procesarImpacto(target, x, y) {
@@ -446,6 +455,32 @@ function mostrarPopup(x, y, texto, tipo) {
 }
 
 // ============================================================
+//  Cooldown UI
+// ============================================================
+function actualizarCooldownUI() {
+    const listo = cadenciaTimerMs <= 0;
+    const total = armaActual?.cadenciaMs || 1;
+    const pct = listo ? 100 : Math.max(0, Math.min(100, (1 - cadenciaTimerMs / total) * 100));
+
+    const elCd = document.getElementById('clArmaCd');
+    if (elCd) {
+        elCd.style.setProperty('--cd', pct);
+        elCd.classList.toggle('listo', listo);
+    }
+
+    const fireBtn = document.getElementById('clFireBtn');
+    if (fireBtn) {
+        fireBtn.style.setProperty('--cd', pct);
+        fireBtn.classList.toggle('cd', !listo);
+    }
+
+    const crossEl = document.getElementById('clCrosshair');
+    if (crossEl) {
+        crossEl.classList.toggle('cd', !listo);
+    }
+}
+
+// ============================================================
 //  Loop
 // ============================================================
 function loop(now) {
@@ -489,7 +524,10 @@ function tickJuego(dt) {
         return;
     }
 
-    if (cadenciaTimerMs > 0) cadenciaTimerMs -= dt * 1000;
+    if (cadenciaTimerMs > 0) {
+        cadenciaTimerMs -= dt * 1000;
+        if (cadenciaTimerMs < 0) cadenciaTimerMs = 0;
+    }
 
     spawnTimerMs -= dt * 1000;
     if (spawnTimerMs <= 0 && spawnIndex < planSpawns.length) {
@@ -497,6 +535,7 @@ function tickJuego(dt) {
         spawnTimerMs = 1000 + Math.random() * 200;
     }
 
+    actualizarCooldownUI();
     actualizarHUD();
 }
 
@@ -562,6 +601,7 @@ function iniciarPartida() {
     fase = 'countdown';
     actualizarHUD();
     actualizarArmaHud();
+    actualizarCooldownUI();
 
     ultimoFrameMs = 0;
     if (rafId) cancelAnimationFrame(rafId);
@@ -703,7 +743,6 @@ async function inicializar() {
     bindInputs();
     bindBotones();
 
-    // Refrescar monedas cada 5s si estamos en el lobby
     setInterval(() => {
         if (fase === 'idle') renderHeader();
     }, 5000);
