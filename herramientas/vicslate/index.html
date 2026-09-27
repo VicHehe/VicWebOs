@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Vicslate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<div class="tra-app">
+
+    <!-- ============ HEADER ============ -->
+    <header class="tra-header">
+        <div class="tra-header-left">
+            <div class="tra-logo-mark"><i data-lucide="languages"></i></div>
+            <div class="tra-logo-text">
+                <h1>Vicslate</h1>
+                <p id="traUserBadge">—</p>
+            </div>
+        </div>
+        <div class="tra-header-right">
+            <button class="tra-btn-icono" id="btnLimpiar" title="Limpiar todo">
+                <i data-lucide="eraser"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- ============ SELECTORES + OPCIONES ============ -->
+    <div class="tra-controles">
+        <div class="tra-lang-selector">
+            <label>De</label>
+            <select id="langFrom"></select>
+        </div>
+
+        <button class="tra-swap" id="btnSwap" title="Intercambiar idiomas">
+            <i data-lucide="arrow-left-right"></i>
+        </button>
+
+        <div class="tra-lang-selector">
+            <label>A</label>
+            <select id="langTo"></select>
+        </div>
+
+        <label class="tra-toggle" title="Comparar con un segundo motor">
+            <input type="checkbox" id="chkCompare">
+            <span class="tra-toggle-track"><span class="tra-toggle-dot"></span></span>
+            <span class="tra-toggle-label">Comparar motores</span>
+        </label>
+    </div>
+
+    <!-- ============ CUERPO ============ -->
+    <div class="tra-body">
+
+        <!-- ---------- Origen ---------- -->
+        <div class="tra-card tra-card-from">
+            <div class="tra-card-header">
+                <span class="tra-card-label" id="langFromLabel">Detectar</span>
+                <span class="tra-counter"><span id="charCount">0</span> / 5000</span>
+            </div>
+            <textarea id="textFrom"
+                      placeholder="Escribí o pegá el texto a traducir..."
+                      maxlength="5000"
+                      spellcheck="false"></textarea>
+        </div>
+
+        <!-- ---------- Destino ---------- -->
+        <div class="tra-card tra-card-to" id="resultCard">
+            <div class="tra-card-header">
+                <span class="tra-card-label" id="langToLabel">Inglés</span>
+                <span class="tra-engine" id="engineInfo">—</span>
+            </div>
+            <div class="tra-result" id="resultText">
+                <span class="tra-placeholder">La traducción aparecerá aquí...</span>
+            </div>
+            <div class="tra-card-actions">
+                <button class="tra-action" id="btnCopy" title="Copiar">
+                    <i data-lucide="copy"></i>
+                    <span>Copiar</span>
+                </button>
+                <button class="tra-action" id="btnFav" title="Guardar en favoritos">
+                    <i data-lucide="star"></i>
+                    <span>Favorito</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ---------- Comparación ---------- -->
+        <div class="tra-card tra-card-compare" id="compareCard" hidden>
+            <div class="tra-card-header">
+                <span class="tra-card-label">Comparación</span>
+                <span class="tra-engine" id="engineInfo2">—</span>
+            </div>
+            <div class="tra-result" id="resultText2">
+                <span class="tra-placeholder">Traducción alternativa...</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ============ HISTORIAL / FAVORITOS ============ -->
+    <div class="tra-footer">
+        <div class="tra-tabs">
+            <button class="tra-tab active" data-tab="historial">
+                <i data-lucide="history"></i>
+                <span>Historial</span>
+            </button>
+            <button class="tra-tab" data-tab="favoritos">
+                <i data-lucide="star"></i>
+                <span>Favoritos</span>
+            </button>
+        </div>
+        <div class="tra-tab-content" id="tabContent"></div>
+    </div>
+
+</div>
+
+<div class="tra-toast" id="traToast"></div>
+
+<script src="script.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>
