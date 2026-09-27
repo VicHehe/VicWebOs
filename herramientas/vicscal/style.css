@@ -126,7 +126,7 @@ html, body {
 .ca-btn-icono [data-lucide] { width: 16px; height: 16px; }
 
 /* ================================================================
-   CONTROLES (nav mes + filtros + nuevo)
+   CONTROLES
    ================================================================ */
 .ca-controles {
     flex-shrink: 0;
@@ -292,7 +292,7 @@ html, body {
 .ca-btn-danger [data-lucide] { width: 15px; height: 15px; }
 
 /* ================================================================
-   CUERPO (grid + panel)
+   CUERPO
    ================================================================ */
 .ca-body {
     flex: 1;
@@ -518,7 +518,6 @@ html, body {
     stroke-width: 1.5;
 }
 
-/* Tarjeta de evento en el panel */
 .ca-evento {
     background: var(--white, #FFFFFF);
     border: 1px solid var(--border, #E8E8EE);
@@ -774,7 +773,6 @@ html, body {
     letter-spacing: 0.04em;
 }
 .ca-field input[type="text"],
-.ca-field input[type="date"],
 .ca-field textarea {
     width: 100%;
     padding: 11px 14px;
@@ -804,6 +802,42 @@ html, body {
 .ca-field textarea::placeholder {
     color: var(--gray-400, #A1A1AD);
     font-weight: 500;
+}
+
+/* ============================================================
+   Selector de fecha (3 selects) — input[type="date"] no es
+   escribible en Chrome ni dentro de iframes anidados.
+   ============================================================ */
+.ca-fecha-par {
+    display: grid;
+    grid-template-columns: 90px minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 8px;
+}
+.ca-fecha-par select {
+    width: 100%;
+    min-width: 0;
+    padding: 11px 30px 11px 12px;
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    background-color: var(--white, #FFFFFF);
+    color: var(--gray-900, #18181B);
+    outline: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    color-scheme: light dark;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2371717A' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
+}
+.ca-fecha-par select:focus {
+    border-color: var(--violet-400, #A78BFA);
+    box-shadow: 0 0 0 3px var(--shadow-glow, rgba(139, 92, 246, 0.10));
 }
 
 /* Visibilidad */
@@ -1063,4 +1097,8 @@ html, body {
         font-size: 8.5px;
     }
     .ca-mini { padding: 1px 3px; }
+
+    .ca-fecha-par {
+        grid-template-columns: 70px minmax(0, 1.4fr) minmax(0, 1fr);
+    }
 }
