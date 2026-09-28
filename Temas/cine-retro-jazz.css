@@ -1,208 +1,187 @@
 /* ================================================
    Tema: Cine Retro Jazz
-   Un club de jazz a las 3am. Solo quedan dos mesas
-   ocupadas. El trompetista toca solo bajo el
-   spotlight. Hay copas a medio tomar, un piano
-   cerrado en la esquina, cortinas de terciopelo
-   en la entrada. Afuera llueve.
+   Un bar de jazz a las 3am. Un único foco de luz
+   que barre lentamente la sala. Cuando pasa por
+   encima de una app abierta, la ilumina.
 
-   Cada elemento del shell es parte de la escena:
-     · Header      → cartel de neón titilando
-     · Sidebar     → cortina de terciopelo rojo
-     · Welcome     → escenario con spotlight barriendo
-     · Accesos     → mesas con copas a medio tomar
-     · Widgets     → sillas de bar de cuero
-     · Modales     → barra de bar con botellas
-     · Pestañas    → notas musicales
-     · Botones     → sellos de cera
+   Arquitectura (heredada de Tormenta):
+     · @property --spotlight-x  → posición horizontal
+     · @property --spotlight-power → intensidad
+     · Ambos se animan en :root y se PROPAGAN a
+       TODO el shell + iframes de apps abiertas
+     · El foco barre la escena cada 30s (ida/vuelta)
+
+   Material (heredado de Libro): todo es un solo
+   material — cuero de bar envejecido, ámbar
+   cálido, y detalles dorados grabados.
    ================================================ */
 
+/* ------------------------------------------------------------
+   @property — variables animables
+   ------------------------------------------------------------ */
 @property --spotlight-x {
     syntax: '<percentage>';
     inherits: true;
-    initial-value: 25%;
+    initial-value: 50%;
+}
+@property --spotlight-power {
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 0.35;
 }
 
+/* ------------------------------------------------------------
+   :root — la escena
+   ------------------------------------------------------------ */
 :root {
-    /* Ámbar cálido (bombilla incandescente) */
-    --violet-50:  #2A1E10;
-    --violet-100: #3A2A18;
-    --violet-200: #4E3A20;
+    /* El foco: posición horizontal + intensidad */
+    --spotlight-x: 50%;
+    --spotlight-power: 0.35;
+
+    /* Ciclo: 30s de ida, alternate para la vuelta */
+    animation: jazz-spotlight-sweep 30s ease-in-out infinite alternate;
+
+    /* ============================================================
+       PALETA — cuero de bar + ámbar cálido
+       ============================================================ */
+
+    /* Acento: ámbar de bombilla incandescente */
+    --violet-50:  #2E1A0E;
+    --violet-100: #3E2514;
+    --violet-200: #5A3620;
     --violet-300: #8A6A38;
     --violet-400: #B89052;
-    --violet-500: #D4A24C;
-    --violet-600: #B8883A;
-    --violet-700: #8A6428;
+    --violet-500: #E8B54B;
+    --violet-600: #D19A2E;
+    --violet-700: #A87A1F;
 
-    /* Superficies: cuero nogal + terciopelo */
-    --white:   #141C2E;
-    --bg:      #0A0E1A;
-    --bg-alt:  #0E1524;
-    --gray-50:  #0E1524;
-    --gray-100: #141C2E;
-    --gray-200: #1E2842;
-    --gray-300: #2E3A58;
-    --gray-400: #4A5878;
-    --gray-500: #7A88A8;
-    --gray-600: #A8B4CC;
-    --gray-700: #C8D2E4;
-    --gray-800: #E0E8F4;
-    --gray-900: #F0F4FC;
+    /* Superficies: cuero café rojizo */
+    --white:   #2A1810;
+    --bg:      #140A06;
+    --bg-alt:  #1E1008;
+    --gray-50:  #1E1008;
+    --gray-100: #2A1810;
+    --gray-200: #3A241A;
+    --gray-300: #4E3224;
+    --gray-400: #6E4A38;
+    --gray-500: #9A7860;
+    --gray-600: #C0A088;
+    --gray-700: #DCC8B0;
+    --gray-800: #EEE0D0;
+    --gray-900: #FAF0E2;
 
-    --border:  #1E2842;
-    --text:    #F5EDE0;
-    --text-2:  #C8D2E4;
-    --text-3:  #7A88A8;
+    --border:  #3A241A;
+    --text:    #FAF0E2;
+    --text-2:  #C0A088;
+    --text-3:  #9A7860;
 
-    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.50);
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.60);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.60);
-    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.70);
-    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.80);
-    --shadow-glow: 0 0 0 4px rgba(212, 162, 76, 0.20);
+    /* Sombras cálidas */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.55);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.65);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.65);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.75);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.85);
+    --shadow-glow: 0 0 0 4px rgba(232, 181, 75, 0.22);
 
-    --accent-gradient: linear-gradient(135deg, #D4A24C, #8A6428);
-    --accent-gradient-hover: linear-gradient(135deg, #E8B54B, #B8883A);
-    --accent-shadow: rgba(212, 162, 76, 0.38);
-    --accent-shadow-hover: rgba(212, 162, 76, 0.60);
-    --accent-text-gradient: linear-gradient(135deg, #F5EDE0, #D4A24C);
+    --accent-gradient: linear-gradient(135deg, #E8B54B, #A87A1F);
+    --accent-gradient-hover: linear-gradient(135deg, #F5C518, #C99852);
+    --accent-shadow: rgba(232, 181, 75, 0.38);
+    --accent-shadow-hover: rgba(232, 181, 75, 0.60);
+    --accent-text-gradient: linear-gradient(135deg, #FAF0E2, #E8B54B);
 
-    /* Terciopelo y neón */
+    /* Rojo vino (terciopelo, notas de fondo) */
     --jazz-velvet: #6B1A1A;
     --jazz-velvet-dark: #3A0A0A;
-    --jazz-neon: #F5C518;
-    --jazz-neon-glow: rgba(245, 197, 24, 0.55);
+
+    /* Radios secos: cuero no es moderno */
+    --r-sm: 3px;
+    --r-md: 5px;
+    --r-lg: 7px;
+    --r-xl: 10px;
 
     /* ------------------------------------------------------------
-       HUMO DE CIGARRILLO — curva en S
+       TROMPETA — silueta en perfil, apuntando a la derecha
        ------------------------------------------------------------ */
-    --theme-smoke: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 200' preserveAspectRatio='none'%3E%3Cpath d='M20,200 C10,180 30,160 20,140 C10,120 30,100 20,80 C10,60 30,40 20,20 C15,10 20,5 20,0' stroke='%23D4A24C' stroke-width='2.5' fill='none' stroke-linecap='round' opacity='0.45'/%3E%3Cpath d='M26,200 C18,178 34,158 26,138 C18,118 34,98 26,78 C18,58 34,38 26,18' stroke='%23B89052' stroke-width='1.4' fill='none' stroke-linecap='round' opacity='0.25'/%3E%3C/svg%3E");
+    --theme-trumpet: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E%3Cg fill='%23E8B54B'%3E%3Crect x='12' y='22' width='58' height='6' rx='1'/%3E%3Crect x='6' y='23' width='8' height='4' rx='1' opacity='0.75'/%3E%3Crect x='30' y='14' width='3' height='10' rx='1'/%3E%3Crect x='40' y='12' width='3' height='12' rx='1'/%3E%3Crect x='50' y='14' width='3' height='10' rx='1'/%3E%3Ccircle cx='31.5' cy='13' r='2'/%3E%3Ccircle cx='41.5' cy='11' r='2'/%3E%3Ccircle cx='51.5' cy='13' r='2'/%3E%3Cpath d='M70,15 C80,13 88,9 93,4 C95,7 94,12 92,17 C90,22 90,30 92,35 C94,40 95,45 93,48 C88,43 80,39 70,37 Z'/%3E%3C/g%3E%3C/svg%3E");
 
     /* ------------------------------------------------------------
-       TROMPETA — silueta en perfil
+       COPA — copa de martini con líquido ámbar
        ------------------------------------------------------------ */
-    --theme-trumpet: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E%3Cg fill='%23D4A24C'%3E%3Crect x='12' y='22' width='58' height='6' rx='1'/%3E%3Crect x='6' y='23' width='8' height='4' rx='1' opacity='0.7'/%3E%3Crect x='30' y='14' width='3' height='10' rx='1'/%3E%3Crect x='40' y='12' width='3' height='12' rx='1'/%3E%3Crect x='50' y='14' width='3' height='10' rx='1'/%3E%3Ccircle cx='31.5' cy='13' r='2'/%3E%3Ccircle cx='41.5' cy='11' r='2'/%3E%3Ccircle cx='51.5' cy='13' r='2'/%3E%3Cpath d='M70,15 C80,13 88,9 93,4 C95,7 94,12 92,17 C90,22 90,30 92,35 C94,40 95,45 93,48 C88,43 80,39 70,37 Z'/%3E%3C/g%3E%3C/svg%3E");
+    --theme-copa: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 50'%3E%3Cpath d='M8,8 L32,8 L22,26 L18,26 Z' fill='none' stroke='%23E8B54B' stroke-width='1.8' stroke-linejoin='round' opacity='0.90'/%3E%3Cpath d='M10,10 L30,10 L22,22 L18,22 Z' fill='%23E8B54B' fill-opacity='0.40'/%3E%3Cline x1='20' y1='26' x2='20' y2='42' stroke='%23E8B54B' stroke-width='1.8' opacity='0.90'/%3E%3Cpath d='M12,42 L28,42' stroke='%23E8B54B' stroke-width='1.8' stroke-linecap='round' opacity='0.90'/%3E%3Ccircle cx='27' cy='6' r='2' fill='%23A04545'/%3E%3C/svg%3E");
 
     /* ------------------------------------------------------------
        NOTA MUSICAL — corchea
        ------------------------------------------------------------ */
-    --theme-note: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 30'%3E%3Cpath d='M14,2 L14,22 M14,2 L20,4 L20,7 L14,5' stroke='%23F5C518' stroke-width='1.4' fill='none' stroke-linejoin='round'/%3E%3Cellipse cx='9' cy='24' rx='5' ry='3.5' fill='%23F5C518' transform='rotate(-15 9 24)'/%3E%3C/svg%3E");
+    --theme-note: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 30'%3E%3Cpath d='M14,2 L14,22 M14,2 L20,4 L20,7 L14,5' stroke='%23E8B54B' stroke-width='1.6' fill='none' stroke-linejoin='round'/%3E%3Cellipse cx='9' cy='24' rx='5' ry='3.5' fill='%23E8B54B' transform='rotate(-15 9 24)'/%3E%3C/svg%3E");
 
     /* ------------------------------------------------------------
-       COPA — copa de martini vista de perfil con líquido
+       MESAS AL PIE — silueta horizontal de mesas redondas con copas
+       Repite cada 240px, deja una franja al pie del welcome.
        ------------------------------------------------------------ */
-    --theme-copa: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 50'%3E%3Cpath d='M8,8 L32,8 L22,26 L18,26 Z' fill='none' stroke='%23D4A24C' stroke-width='1.6' stroke-linejoin='round' opacity='0.75'/%3E%3Cpath d='M10,10 L30,10 L22,22 L18,22 Z' fill='%23D4A24C' fill-opacity='0.35'/%3E%3Cline x1='20' y1='26' x2='20' y2='42' stroke='%23D4A24C' stroke-width='1.6' opacity='0.75'/%3E%3Cpath d='M12,42 L28,42' stroke='%23D4A24C' stroke-width='1.6' stroke-linecap='round' opacity='0.75'/%3E%3Ccircle cx='27' cy='6' r='2' fill='%23A04545'/%3E%3C/svg%3E");
+    --theme-tables: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 80' preserveAspectRatio='none'%3E%3Cellipse cx='60' cy='22' rx='52' ry='6' fill='%232A1810' stroke='%23E8B54B' stroke-width='0.8' stroke-opacity='0.55'/%3E%3Crect x='56' y='28' width='8' height='38' fill='%231E1008'/%3E%3Cellipse cx='60' cy='66' rx='22' ry='4' fill='%231E1008'/%3E%3Cg fill='%23E8B54B'%3E%3Cpath d='M35,10 L35,16 M33,16 L37,16 M35,16 L35,22' stroke='%23E8B54B' stroke-width='1' fill='none' opacity='0.75'/%3E%3Cpath d='M85,10 L85,16 M83,16 L87,16 M85,16 L85,22' stroke='%23E8B54B' stroke-width='1' fill='none' opacity='0.75'/%3E%3C/g%3E%3Cellipse cx='180' cy='22' rx='52' ry='6' fill='%232A1810' stroke='%23E8B54B' stroke-width='0.8' stroke-opacity='0.55'/%3E%3Crect x='176' y='28' width='8' height='38' fill='%231E1008'/%3E%3Cellipse cx='180' cy='66' rx='22' ry='4' fill='%231E1008'/%3E%3Cg fill='%23E8B54B'%3E%3Cpath d='M155,10 L155,16 M153,16 L157,16 M155,16 L155,22' stroke='%23E8B54B' stroke-width='1' fill='none' opacity='0.75'/%3E%3Cpath d='M205,10 L205,16 M203,16 L207,16 M205,16 L205,22' stroke='%23E8B54B' stroke-width='1' fill='none' opacity='0.75'/%3E%3C/g%3E%3C/svg%3E");
+}
 
-    /* ------------------------------------------------------------
-       CORTINA DE TERCIOPELO — franja vertical con pliegues
-       ------------------------------------------------------------ */
-    --theme-curtain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 200' preserveAspectRatio='none'%3E%3Crect width='40' height='200' fill='%233A0A0A'/%3E%3Cpath d='M0,0 Q5,100 0,200 L10,200 Q15,100 10,0 Z M10,0 Q15,100 10,200 L20,200 Q25,100 20,0 Z M20,0 Q25,100 20,200 L30,200 Q35,100 30,0 Z M30,0 Q35,100 30,200 L40,200 L40,0 Z' fill='%236B1A1A'/%3E%3C/svg%3E");
+/* ------------------------------------------------------------
+   @keyframes — el foco barre la sala
+   Va y vuelve con alternate. La potencia sigue el ritmo:
+   sube cuando pasa por el centro (donde suele estar la app),
+   baja cuando toca los bordes.
+   ------------------------------------------------------------ */
+@keyframes jazz-spotlight-sweep {
+    0%   { --spotlight-x: 15%; --spotlight-power: 0.20; }
+    25%  { --spotlight-x: 32%; --spotlight-power: 0.42; }
+    50%  { --spotlight-x: 50%; --spotlight-power: 0.70; }
+    75%  { --spotlight-x: 68%; --spotlight-power: 0.42; }
+    100% { --spotlight-x: 85%; --spotlight-power: 0.20; }
+}
 
-    /* ------------------------------------------------------------
-       TECLA DE PIANO — vista cenital
-       ------------------------------------------------------------ */
-    --theme-key: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Crect x='0' y='0' width='40' height='20' fill='%23F5EDE0' stroke='%23241F18' stroke-width='0.8'/%3E%3Crect x='8' y='0' width='4' height='12' fill='%230A0A0A'/%3E%3Crect x='20' y='0' width='4' height='12' fill='%230A0A0A'/%3E%3Crect x='32' y='0' width='4' height='12' fill='%230A0A0A'/%3E%3C/svg%3E");
-
-    /* ------------------------------------------------------------
-       BOTELLA — silueta alta de whisky
-       ------------------------------------------------------------ */
-    --theme-bottle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 60'%3E%3Cpath d='M8,2 L8,10 L5,14 L5,56 L15,56 L15,14 L12,10 L12,2 Z' fill='%232A4A2A' stroke='%23D4A24C' stroke-width='0.8'/%3E%3Crect x='5' y='30' width='10' height='12' fill='%23D4A24C' opacity='0.4'/%3E%3C/svg%3E");
+/* ------------------------------------------------------------
+   IFRAMES DE APPS — se iluminan cuando el foco los alumbra
+   filter: brightness() sobre la caja renderizada del iframe.
+   No toca su contenido. Solo ilumina la escena desde afuera.
+   ------------------------------------------------------------ */
+.panel-container iframe.tool-iframe {
+    filter: brightness(calc(1 + var(--spotlight-power) * 0.30));
+    transition: filter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ================================================================
-   1. HEADER — cartel de neón titilando
-   ================================================================ */
-.app-header {
-    position: relative;
-    background: linear-gradient(180deg, #0E1524 0%, #0A0E1A 100%);
-    border-bottom: 1px solid rgba(245, 197, 24, 0.25);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.50);
-}
-
-/* Línea de neón ámbar titilando suave */
-.app-header::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 10%;
-    right: 10%;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #F5C518, transparent);
-    opacity: 0.8;
-    pointer-events: none;
-    z-index: 1;
-    box-shadow: 0 0 12px rgba(245, 197, 24, 0.65);
-    animation: jazz-neon-flicker 8s ease-in-out infinite;
-}
-@keyframes jazz-neon-flicker {
-    0%, 100%      { opacity: 0.85; }
-    42%, 44%      { opacity: 0.35; }
-    43%           { opacity: 0.90; }
-    78%, 80%      { opacity: 0.55; }
-    79%           { opacity: 0.95; }
-}
-
-/* ================================================================
-   2. SIDEBAR — cortina de terciopelo a la derecha
-   ================================================================ */
-.sidebar {
-    position: relative;
-    background: linear-gradient(180deg, #0E1524 0%, #0A0E1A 100%);
-    border-right: 1px solid rgba(212, 162, 76, 0.16);
-    overflow: hidden;
-}
-
-/* Cortina vertical en el borde derecho */
-.sidebar::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    width: 22px;
-    background: var(--theme-curtain) repeat-y right / 22px 100px;
-    opacity: 0.55;
-    pointer-events: none;
-    z-index: 1;
-    box-shadow: -4px 0 12px rgba(107, 26, 26, 0.35);
-}
-
-.sidebar-comunidad,
-.sidebar-label,
-.sidebar-nav,
-.sidebar-mobile-header {
-    position: relative;
-    z-index: 2;
-    padding-right: 20px;
-}
-
-.nav-item.active::before {
-    background: linear-gradient(180deg, #E8B54B, #8A6428);
-    width: 3px;
-    border-radius: 0 3px 3px 0;
-    box-shadow: 0 0 10px rgba(212, 162, 76, 0.65);
-}
-.nav-item.active {
-    background: rgba(212, 162, 76, 0.08);
-}
-.nav-item.active .nav-icon {
-    color: var(--violet-500);
-}
-
-@media (max-width: 768px) {
-    .sidebar { position: fixed; }
-}
-
-/* ================================================================
-   3. WELCOME — el escenario
+   1. WELCOME — la sala
    ================================================================ */
 .welcome-placeholder {
     position: relative;
-    background: var(--bg);
+    background-color: var(--bg);
+    background-image:
+        /* Mesas al pie */
+        var(--theme-tables),
+        /* Textura de cuero (puntos sutiles) */
+        radial-gradient(circle at 20% 30%, rgba(232, 181, 75, 0.04) 0.6px, transparent 1.2px),
+        radial-gradient(circle at 70% 60%, rgba(232, 181, 75, 0.03) 0.5px, transparent 1px),
+        radial-gradient(circle at 40% 80%, rgba(232, 181, 75, 0.035) 0.5px, transparent 1px),
+        /* Viñeta del cuero */
+        radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.55) 100%);
+    background-size:
+        240px 80px,
+        130px 130px,
+        180px 180px,
+        100px 100px,
+        100% 100%;
+    background-position:
+        bottom left,
+        0 0,
+        0 0,
+        0 0,
+        center;
+    background-repeat:
+        repeat-x,
+        repeat,
+        repeat,
+        repeat,
+        no-repeat;
     overflow-x: hidden;
 }
 
-/* SPOTLIGHT — barre lentamente el escenario */
+/* EL FOCO — gradiente radial desde arriba que barre */
 .welcome-placeholder::before {
     content: '';
     position: absolute;
@@ -210,67 +189,74 @@
     pointer-events: none;
     z-index: 0;
     background: radial-gradient(
-        ellipse 45% 85% at var(--spotlight-x) -15%,
-        rgba(212, 162, 76, 0.24) 0%,
-        rgba(212, 162, 76, 0.10) 25%,
-        rgba(212, 162, 76, 0.03) 50%,
-        transparent 75%
+        ellipse 40% 90% at var(--spotlight-x) -20%,
+        rgba(232, 181, 75, calc(0.20 + var(--spotlight-power) * 0.30)) 0%,
+        rgba(232, 181, 75, calc(0.08 + var(--spotlight-power) * 0.15)) 30%,
+        rgba(232, 181, 75, 0.03) 55%,
+        transparent 78%
     );
-    animation: jazz-spotlight 22s ease-in-out infinite alternate;
-}
-@keyframes jazz-spotlight {
-    0%   { --spotlight-x: 20%; }
-    100% { --spotlight-x: 80%; }
+    transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* HUMO — 3 columnas curvas + NOTAS MUSICALES flotando */
+/* ELEMENTOS FLOTANDO: trompetas + copas + notas */
 .welcome-placeholder::after {
     content: '';
     position: absolute;
     inset: 0;
     pointer-events: none;
-    z-index: 0;
+    z-index: 1;
     background-image:
-        var(--theme-smoke),
-        var(--theme-smoke),
-        var(--theme-smoke),
+        /* Trompetas */
+        var(--theme-trumpet),
+        var(--theme-trumpet),
+        /* Copas */
+        var(--theme-copa),
+        var(--theme-copa),
+        var(--theme-copa),
+        /* Notas musicales */
         var(--theme-note),
         var(--theme-note),
         var(--theme-note),
         var(--theme-note);
     background-size:
-        44px 200px,
-        44px 200px,
-        44px 200px,
-        18px 28px,
+        76px 38px,
+        58px 30px,
+        30px 40px,
+        26px 34px,
+        22px 28px,
         16px 24px,
         14px 22px,
-        20px 30px;
+        18px 28px,
+        12px 20px;
     background-position:
-        22% 105%,
-        50% 108%,
-        78% 105%,
-        62% 40%,
-        70% 60%,
-        55% 70%,
-        66% 22%;
+        88% 12%,
+        8% 22%,
+        6% 78%,
+        94% 72%,
+        50% 88%,
+        22% 42%,
+        78% 56%,
+        62% 30%,
+        42% 68%;
     background-repeat: no-repeat;
-    opacity: 0.85;
-    animation: jazz-smoke-rise 14s ease-in-out infinite;
+    opacity: 0.75;
+    animation: jazz-elements-float 8s ease-in-out infinite;
 }
-@keyframes jazz-smoke-rise {
-    0%, 100% { transform: translateY(0)     translateX(0);    opacity: 0.70; }
-    25%      { transform: translateY(-20px) translateX(-4px); opacity: 0.90; }
-    50%      { transform: translateY(-40px) translateX(3px);  opacity: 0.75; }
-    75%      { transform: translateY(-25px) translateX(-3px); opacity: 0.95; }
+@keyframes jazz-elements-float {
+    0%, 100% { transform: translateY(0) translateX(0); }
+    33%      { transform: translateY(-4px) translateX(2px); }
+    66%      { transform: translateY(-2px) translateX(-2px); }
 }
 
+/* Glow del welcome sincronizado con la potencia del foco */
 .welcome-glow {
     background: radial-gradient(
-        circle at 50% 40%,
-        rgba(212, 162, 76, 0.08) 0%,
-        transparent 65%
+        circle at var(--spotlight-x) 30%,
+        rgba(232, 181, 75, calc(0.10 + var(--spotlight-power) * 0.25)) 0%,
+        rgba(232, 181, 75, 0.05) 35%,
+        transparent 68%
     );
+    transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .welcome-hero,
@@ -285,59 +271,54 @@
 .welcome-hero {
     position: relative;
     padding: 40px 34px 36px;
-    background: linear-gradient(180deg, rgba(20, 28, 46, 0.94) 0%, rgba(10, 14, 26, 0.98) 100%);
-    border: 1px solid rgba(212, 162, 76, 0.28);
+    background:
+        linear-gradient(180deg,
+            rgba(42, 24, 16, 0.94) 0%,
+            rgba(20, 10, 6, 0.98) 100%);
+    border: 1px solid rgba(232, 181, 75, 0.35);
     border-radius: 4px;
     box-shadow:
-        inset 0 0 0 1px rgba(212, 162, 76, 0.08),
-        inset 0 0 80px rgba(0, 0, 0, 0.50),
-        0 12px 32px rgba(0, 0, 0, 0.70),
-        0 0 60px rgba(212, 162, 76, 0.10);
+        inset 0 0 0 1px rgba(232, 181, 75, 0.10),
+        inset 0 0 80px rgba(0, 0, 0, 0.55),
+        0 12px 32px rgba(0, 0, 0, 0.75),
+        0 0 60px rgba(232, 181, 75, calc(0.08 + var(--spotlight-power) * 0.15));
     max-width: 660px;
     margin-left: auto;
     margin-right: auto;
     overflow: visible;
+    transition: box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* TROMPETA flotando arriba a la derecha */
+/* Marco doble interior — como el borde grabado de un libro */
+.welcome-hero::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 1px solid rgba(232, 181, 75, 0.18);
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* TROMPETA grande flotando arriba del hero */
 .welcome-hero::after {
     content: '';
     position: absolute;
-    top: -26px;
+    top: -30px;
     right: 22px;
-    width: 84px;
-    height: 42px;
+    width: 96px;
+    height: 48px;
     background: var(--theme-trumpet) center/contain no-repeat;
     pointer-events: none;
     z-index: 3;
-    opacity: 0.92;
+    opacity: 0.95;
     transform: rotate(-12deg);
-    filter: drop-shadow(0 4px 12px rgba(212, 162, 76, 0.65));
+    filter: drop-shadow(0 4px 14px rgba(232, 181, 75, 0.70));
     animation: jazz-trumpet-float 6s ease-in-out infinite;
 }
 @keyframes jazz-trumpet-float {
     0%, 100% { transform: rotate(-12deg) translateY(0); }
     50%      { transform: rotate(-10deg) translateY(-5px); }
-}
-
-/* COPA a medio tomar sobre la mesa — esquina inferior izquierda */
-.welcome-hero::before {
-    content: '';
-    position: absolute;
-    bottom: 12px;
-    left: 18px;
-    width: 32px;
-    height: 42px;
-    background: var(--theme-copa) center/contain no-repeat;
-    pointer-events: none;
-    z-index: 3;
-    opacity: 0.85;
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.65));
-    animation: jazz-copa-sway 7s ease-in-out infinite;
-}
-@keyframes jazz-copa-sway {
-    0%, 100% { transform: rotate(-2deg); }
-    50%      { transform: rotate(2deg); }
 }
 
 .welcome-hero > * {
@@ -346,90 +327,178 @@
 }
 
 .welcome-hero h1 {
-    color: #F5EDE0;
+    color: #FAF0E2;
     letter-spacing: 0.005em;
-    text-shadow: 0 0 24px rgba(212, 162, 76, 0.35);
+    text-shadow:
+        0 0 24px rgba(232, 181, 75, 0.40),
+        0 1px 0 rgba(0, 0, 0, 0.6);
 }
 
+.welcome-hero p {
+    color: #C0A088;
+}
+
+/* Icono — círculo con doble anillo dorado, pulsa con el foco */
 .welcome-icon-wrap {
-    background: linear-gradient(135deg, #B89052, #4E3A20);
+    background: linear-gradient(135deg, #B89052, #3E2514);
     border-radius: 50%;
     box-shadow:
-        0 12px 28px rgba(212, 162, 76, 0.45),
+        0 12px 28px rgba(232, 181, 75, calc(0.40 + var(--spotlight-power) * 0.25)),
         0 4px 8px rgba(0, 0, 0, 0.60),
-        0 0 0 3px rgba(212, 162, 76, 0.20),
-        0 0 0 6px rgba(212, 162, 76, 0.06);
-    animation: jazz-glow-pulse 4s ease-in-out infinite;
-}
-@keyframes jazz-glow-pulse {
-    0%, 100% {
-        box-shadow:
-            0 12px 28px rgba(212, 162, 76, 0.45),
-            0 4px 8px rgba(0, 0, 0, 0.60),
-            0 0 0 3px rgba(212, 162, 76, 0.20),
-            0 0 0 6px rgba(212, 162, 76, 0.06);
-    }
-    50% {
-        box-shadow:
-            0 12px 28px rgba(212, 162, 76, 0.70),
-            0 4px 8px rgba(0, 0, 0, 0.60),
-            0 0 0 3px rgba(212, 162, 76, 0.40),
-            0 0 0 7px rgba(212, 162, 76, 0.12),
-            0 0 44px rgba(212, 162, 76, 0.40);
-    }
+        0 0 0 3px rgba(232, 181, 75, 0.25),
+        0 0 0 6px rgba(232, 181, 75, calc(0.06 + var(--spotlight-power) * 0.12));
+    transition: box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ------------------------------------------------------------
-   SECCIÓN del welcome — como una mesa del club
+   SECCIONES del welcome — como mesas del bar
    ------------------------------------------------------------ */
 .welcome-section {
     position: relative;
-    background: rgba(14, 21, 36, 0.55);
+    background: rgba(42, 24, 16, 0.60);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
-    border: 1px solid rgba(212, 162, 76, 0.18);
-    border-radius: 6px;
+    border: 1px solid rgba(232, 181, 75, 0.22);
+    border-radius: 4px;
     padding: 20px 22px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+    box-shadow:
+        inset 0 0 0 1px rgba(232, 181, 75, 0.05),
+        0 8px 24px rgba(0, 0, 0, 0.55);
 }
 
-/* Borde superior tipo "barra de bar" */
+/* Borde superior tipo barra de bar */
 .welcome-section::before {
     content: '';
     position: absolute;
-    top: -6px;
+    top: -3px;
     left: 20px;
     right: 20px;
-    height: 4px;
-    background: linear-gradient(180deg, #B89052, #4E3A20);
-    border-radius: 3px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    height: 3px;
+    background: linear-gradient(180deg, #E8B54B, #8A6A38);
+    border-radius: 2px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
     pointer-events: none;
+    opacity: 0.75;
+}
+
+.welcome-section-header h2 {
+    color: var(--violet-500);
 }
 
 /* ================================================================
-   4. ACCESOS RÁPIDOS — mesas con copas
+   2. HEADER — cartel de neón con marco dorado
+   ================================================================ */
+.app-header {
+    position: relative;
+    background: linear-gradient(180deg, #1E1008 0%, #140A06 100%);
+    border-bottom: 1px solid rgba(232, 181, 75, 0.30);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+}
+.app-header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 8%;
+    right: 8%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #E8B54B, transparent);
+    opacity: calc(0.55 + var(--spotlight-power) * 0.45);
+    pointer-events: none;
+    z-index: 1;
+    box-shadow: 0 0 calc(var(--spotlight-power) * 16px) rgba(232, 181, 75, 0.75);
+    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ================================================================
+   3. SIDEBAR — cuero café con cortina vino al borde
+   ================================================================ */
+.sidebar {
+    position: relative;
+    background: linear-gradient(180deg, #1E1008 0%, #140A06 100%);
+    border-right: 1px solid rgba(232, 181, 75, 0.16);
+    overflow: hidden;
+}
+
+/* Franja de cortina vino al borde derecho */
+.sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 3px;
+    background: linear-gradient(180deg, #6B1A1A, #3A0A0A, #6B1A1A);
+    opacity: 0.75;
+    pointer-events: none;
+    z-index: 2;
+    box-shadow: 0 0 8px rgba(107, 26, 26, 0.55);
+}
+
+/* Puntos de cuero */
+.sidebar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.35;
+    background-image:
+        radial-gradient(circle at 20% 30%, rgba(232, 181, 75, 0.10) 0.6px, transparent 1.2px),
+        radial-gradient(circle at 70% 60%, rgba(232, 181, 75, 0.08) 0.5px, transparent 1px);
+    background-size: 60px 60px, 90px 90px;
+}
+
+.sidebar-comunidad,
+.sidebar-label,
+.sidebar-nav,
+.sidebar-mobile-header {
+    position: relative;
+    z-index: 3;
+}
+
+.nav-item.active::before {
+    background: linear-gradient(180deg, #E8B54B, #8A6428);
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    box-shadow: 0 0 10px rgba(232, 181, 75, 0.65);
+}
+.nav-item.active {
+    background: rgba(232, 181, 75, 0.08);
+}
+.nav-item.active .nav-icon {
+    color: var(--violet-500);
+}
+
+@media (max-width: 768px) {
+    .sidebar { position: fixed; }
+}
+
+/* ================================================================
+   4. ACCESOS RÁPIDOS — portarretratos dorados colgados
    ================================================================ */
 .acceso-item {
     position: relative;
-    background: linear-gradient(180deg, #141C2E 0%, #0E1524 100%);
-    border-color: rgba(212, 162, 76, 0.22);
-    border-radius: 6px;
+    background: linear-gradient(180deg, #2A1810 0%, #1E1008 100%);
+    border: 1px solid rgba(232, 181, 75, 0.30);
+    border-radius: 3px;
     box-shadow:
-        inset 0 1px 0 rgba(212, 162, 76, 0.05),
-        0 2px 6px rgba(0, 0, 0, 0.50);
+        inset 0 0 0 1px rgba(232, 181, 75, 0.08),
+        inset 0 0 0 3px rgba(20, 10, 6, 0.75),
+        inset 0 0 0 4px rgba(232, 181, 75, 0.15),
+        0 2px 6px rgba(0, 0, 0, 0.55);
     transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: visible;
 }
 
-/* COPA pequeña que aparece al hover — como si alguien pidiera algo */
+/* COPA que asoma al hover */
 .acceso-item::after {
     content: '';
     position: absolute;
-    top: -14px;
-    right: -8px;
-    width: 22px;
-    height: 30px;
+    top: -16px;
+    right: -10px;
+    width: 26px;
+    height: 34px;
     background: var(--theme-copa) center/contain no-repeat;
     opacity: 0;
     transform: translateY(6px) scale(0.5);
@@ -438,7 +507,7 @@
         transform 0.40s cubic-bezier(0.34, 1.56, 0.64, 1);
     pointer-events: none;
     z-index: 3;
-    filter: drop-shadow(0 4px 8px rgba(212, 162, 76, 0.65));
+    filter: drop-shadow(0 4px 10px rgba(232, 181, 75, 0.70));
 }
 .acceso-item:hover::after {
     opacity: 1;
@@ -449,42 +518,43 @@
     border-color: var(--violet-500);
     transform: translateY(-3px);
     box-shadow:
-        0 10px 22px rgba(212, 162, 76, 0.28),
-        0 0 0 1px rgba(212, 162, 76, 0.32),
-        0 0 24px rgba(212, 162, 76, 0.15);
+        inset 0 0 0 1px rgba(232, 181, 75, 0.18),
+        inset 0 0 0 3px rgba(20, 10, 6, 0.75),
+        inset 0 0 0 4px rgba(232, 181, 75, 0.30),
+        0 10px 22px rgba(232, 181, 75, 0.30),
+        0 0 0 1px rgba(232, 181, 75, 0.35);
 }
 .acceso-icon-wrap {
-    background: rgba(212, 162, 76, 0.10);
-    border: 1px solid rgba(212, 162, 76, 0.28);
+    background: rgba(232, 181, 75, 0.10);
+    border: 1px solid rgba(232, 181, 75, 0.35);
     color: var(--violet-500);
     border-radius: 50%;
     transition: all 0.22s;
 }
 .acceso-item:hover .acceso-icon-wrap {
     background: var(--accent-gradient);
-    color: #0A0E1A;
-    box-shadow: 0 0 0 3px rgba(212, 162, 76, 0.22);
+    color: #140A06;
+    box-shadow: 0 0 0 3px rgba(232, 181, 75, 0.25);
 }
 
 /* ================================================================
-   5. WIDGETS — mismo tratamiento, con teclas de piano al borde
+   5. WIDGETS — mismo marco dorado
    ================================================================ */
 .widget-item {
-    position: relative;
-    border-color: rgba(212, 162, 76, 0.22);
-    border-radius: 6px;
+    border: 1px solid rgba(232, 181, 75, 0.28);
+    border-radius: 3px;
     box-shadow:
-        inset 0 1px 0 rgba(212, 162, 76, 0.05),
-        0 4px 10px rgba(0, 0, 0, 0.55);
+        inset 0 0 0 1px rgba(232, 181, 75, 0.06),
+        0 4px 10px rgba(0, 0, 0, 0.60);
     transition: all 0.22s;
 }
 .widget-item:hover {
     border-color: var(--violet-500);
-    box-shadow: 0 10px 22px rgba(212, 162, 76, 0.22);
+    box-shadow: 0 10px 22px rgba(232, 181, 75, 0.24);
 }
 
 /* ================================================================
-   6. PESTAÑAS — nota musical arriba
+   6. PESTAÑAS — línea dorada arriba
    ================================================================ */
 .tab-item.active::before {
     content: '';
@@ -493,30 +563,39 @@
     left: 14px;
     right: 14px;
     height: 2px;
-    background: linear-gradient(90deg, transparent, #D4A24C, transparent);
+    background: linear-gradient(90deg, transparent, #E8B54B, transparent);
     border-radius: 2px 2px 0 0;
-    box-shadow: 0 0 10px rgba(212, 162, 76, 0.65);
+    box-shadow:
+        0 0 10px rgba(232, 181, 75, 0.65),
+        0 0 calc(var(--spotlight-power) * 20px) rgba(232, 181, 75, 0.55);
     pointer-events: none;
+    transition: box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .tab-item.active [data-lucide] {
     color: var(--violet-500);
 }
 
 /* ================================================================
-   7. MODALES — barra de bar
+   7. MODALES — barra de bar con marco dorado doble
    ================================================================ */
 .config-card,
 .modal-todas-card {
     position: relative;
     overflow: hidden;
-    border: 1px solid rgba(212, 162, 76, 0.32);
-    border-radius: 6px;
+    border: 1px solid rgba(232, 181, 75, 0.42);
+    border-radius: 4px;
+    background: linear-gradient(180deg, #2A1810 0%, #1E1008 100%);
     box-shadow:
-        inset 0 0 0 1px rgba(212, 162, 76, 0.10),
-        inset 0 0 80px rgba(0, 0, 0, 0.40),
+        inset 0 0 0 1px rgba(232, 181, 75, 0.12),
+        inset 0 0 0 3px rgba(20, 10, 6, 0.85),
+        inset 0 0 0 4px rgba(232, 181, 75, 0.20),
+        inset 0 0 80px rgba(0, 0, 0, 0.45),
         0 24px 48px rgba(0, 0, 0, 0.85),
-        0 0 60px rgba(212, 162, 76, 0.10);
+        0 0 calc(var(--spotlight-power) * 60px) rgba(232, 181, 75, 0.20);
+    transition: box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* Línea superior dorada */
 .config-card::before,
 .modal-todas-card::before {
     content: '';
@@ -525,47 +604,47 @@
     left: 0;
     right: 0;
     height: 2px;
-    background: linear-gradient(90deg, transparent, #D4A24C, #E8B54B, #D4A24C, transparent);
+    background: linear-gradient(90deg, transparent, #E8B54B, #F5C518, #E8B54B, transparent);
     pointer-events: none;
     z-index: 3;
-    box-shadow: 0 0 12px rgba(212, 162, 76, 0.60);
+    box-shadow: 0 0 12px rgba(232, 181, 75, 0.70);
 }
 
-/* BOTELLA en la esquina inferior derecha del modal */
+/* Copa en la esquina inferior derecha */
 .config-card::after,
 .modal-todas-card::after {
     content: '';
     position: absolute;
     bottom: 14px;
-    right: 14px;
-    width: 16px;
-    height: 48px;
-    background: var(--theme-bottle) center/contain no-repeat;
-    opacity: 0.35;
+    right: 16px;
+    width: 20px;
+    height: 26px;
+    background: var(--theme-copa) center/contain no-repeat;
+    opacity: 0.40;
     pointer-events: none;
     z-index: 4;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.65));
+    filter: drop-shadow(0 2px 4px rgba(232, 181, 75, 0.55));
 }
 
 .config-header,
 .modal-todas-header {
-    background: linear-gradient(180deg, #141C2E 0%, #0E1524 100%);
-    border-bottom-color: rgba(212, 162, 76, 0.20);
+    background: linear-gradient(180deg, #2A1810 0%, #1E1008 100%);
+    border-bottom: 1px solid rgba(232, 181, 75, 0.25);
 }
 
 /* ================================================================
-   8. BOTÓN PRIMARIO — ámbar con shimmer
+   8. BOTÓN PRIMARIO — ámbar macizo con shimmer
    ================================================================ */
 .btn-primario {
     position: relative;
     overflow: hidden;
     background: linear-gradient(135deg, #B8883A, #8A6428);
-    border: 1px solid rgba(232, 181, 75, 0.38);
-    color: #F5EDE0;
+    border: 1px solid rgba(245, 197, 24, 0.40);
+    color: #FAF0E2;
     font-weight: 800;
     box-shadow:
-        0 4px 12px rgba(212, 162, 76, 0.35),
-        inset 0 1px 0 rgba(245, 237, 224, 0.15);
+        0 4px 12px rgba(232, 181, 75, 0.38),
+        inset 0 1px 0 rgba(245, 237, 224, 0.18);
 }
 .btn-primario::after {
     content: '';
@@ -574,7 +653,7 @@
     left: -100%;
     width: 60%;
     height: 100%;
-    background: linear-gradient(120deg, transparent, rgba(245, 237, 224, 0.30), transparent);
+    background: linear-gradient(120deg, transparent, rgba(245, 237, 224, 0.32), transparent);
     pointer-events: none;
     transition: left 0.55s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -582,10 +661,10 @@
     left: 130%;
 }
 .btn-primario:hover {
-    background: linear-gradient(135deg, #D4A24C, #B8883A);
+    background: linear-gradient(135deg, #E8B54B, #B8883A);
     box-shadow:
-        0 8px 22px rgba(212, 162, 76, 0.55),
-        0 0 0 3px rgba(212, 162, 76, 0.20);
+        0 8px 22px rgba(232, 181, 75, 0.60),
+        0 0 0 3px rgba(232, 181, 75, 0.22);
 }
 
 /* ================================================================
@@ -594,8 +673,8 @@
 .config-field input,
 .config-field select,
 .config-select {
-    background: rgba(10, 14, 26, 0.60);
-    border: 1px solid rgba(212, 162, 76, 0.20);
+    background: rgba(20, 10, 6, 0.65);
+    border: 1px solid rgba(232, 181, 75, 0.22);
     color: var(--text);
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.55);
 }
@@ -605,28 +684,28 @@
     border-color: var(--violet-500);
     box-shadow:
         inset 0 1px 3px rgba(0, 0, 0, 0.55),
-        0 0 0 3px rgba(212, 162, 76, 0.22);
+        0 0 0 3px rgba(232, 181, 75, 0.22);
 }
 
 /* ================================================================
    10. AVATAR Y NOTIFICACIONES
    ================================================================ */
 .avatar-config {
-    background: linear-gradient(135deg, #B89052, #4E3A20);
-    border: 2px solid rgba(232, 181, 75, 0.50);
+    background: linear-gradient(135deg, #B89052, #3E2514);
+    border: 2px solid rgba(245, 197, 24, 0.55);
     box-shadow:
         var(--shadow-sm),
-        0 0 0 1px rgba(10, 14, 26, 0.9),
-        0 0 0 3px rgba(212, 162, 76, 0.18);
+        0 0 0 1px rgba(20, 10, 6, 0.9),
+        0 0 0 3px rgba(232, 181, 75, 0.20);
 }
 .avatar-config:hover {
     box-shadow:
-        0 6px 16px rgba(212, 162, 76, 0.55),
+        0 6px 16px rgba(232, 181, 75, 0.55),
         0 0 0 1px var(--violet-400),
-        0 0 0 4px rgba(212, 162, 76, 0.20);
+        0 0 0 4px rgba(232, 181, 75, 0.22);
 }
 .noti-btn.tiene-no-leidas {
-    background: rgba(212, 162, 76, 0.14);
+    background: rgba(232, 181, 75, 0.15);
     color: var(--violet-500);
 }
 .search-bar:focus-within {
@@ -639,17 +718,19 @@
 
 /* ================================================================
    11. PREFERS-REDUCED-MOTION
+   El foco es lento y suave, pero por accesibilidad lo apagamos.
    ================================================================ */
 @media (prefers-reduced-motion: reduce) {
-    .welcome-placeholder::before,
+    :root {
+        animation: none !important;
+        --spotlight-x: 50%;
+        --spotlight-power: 0.35;
+    }
     .welcome-placeholder::after,
-    .welcome-hero::after,
-    .welcome-hero::before,
-    .welcome-icon-wrap,
-    .app-header::after {
+    .welcome-hero::after {
         animation: none !important;
     }
-    .acceso-item::after {
-        transition: none !important;
+    .panel-container iframe.tool-iframe {
+        filter: none;
     }
 }
