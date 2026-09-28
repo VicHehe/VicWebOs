@@ -777,8 +777,8 @@ const TEMAS_DISPONIBLES = [
         descripcion: 'Comedia romántica de secundaria. Cuaderno rayado, corazón y luz cálida de tarde noventera.',
         categoria: 'Cine',
         ruta: 'Temas/cine-romance-escolar.css',
-        espacio: 4,
-        monedas: 30,
+        espacio: 2,
+        monedas: 25,
         colores: {
             '--violet-100': '#FFE4DE',
             '--violet-300': '#E8A0A0',
@@ -787,60 +787,6 @@ const TEMAS_DISPONIBLES = [
             '--bg-alt':     '#FCEFE4',
             '--white':      '#FFFFFF'
         }
-    },
-    {
-        id: 'cine-ciencia-ficcion',
-        nombre: 'Cine de Ciencia Ficción',
-        icono: 'rocket',
-        descripcion: 'Sci-fi clásico. Grid HUD, estrellas titilando, líneas de datos y azul eléctrico de nave nodriza.',
-        categoria: 'Cine',
-        ruta: 'Temas/cine-ciencia-ficcion.css',
-        espacio: 4,
-        monedas: 40,
-        colores: {
-            '--violet-100': '#0F1E36',
-            '--violet-300': '#2E5A8C',
-            '--violet-500': '#6EC8F0',
-            '--bg':         '#060D1A',
-            '--bg-alt':     '#0A1526',
-            '--white':      '#0F1A30'
-        }
-    },
-    {
-        id: 'cine-terror',
-        nombre: 'Cine de Terror',
-        icono: 'skull',
-        descripcion: 'Terror clásico. Negro carbón, rojo sangre, niebla arrastrándose y luz titilante de proyector viejo.',
-        categoria: 'Cine',
-        ruta: 'Temas/cine-terror.css',
-        espacio: 4,
-        monedas: 40,
-        colores: {
-            '--violet-100': '#2A0A0A',
-            '--violet-300': '#7A1010',
-            '--violet-500': '#DC2626',
-            '--bg':         '#050505',
-            '--bg-alt':     '#0A0A0A',
-            '--white':      '#0A0A0A'
-        }
-    },
-    {
-    id: 'cine-retro-jazz',
-    nombre: 'Cine Retro Jazz',
-    icono: 'music-4',
-    descripcion: 'Un trompetista solo, bajo un spotlight, en un club cerrado a las 3am. Humo de cigarrillo subiendo, ámbar cálido sobre azul medianoche.',
-    categoria: 'Cine',
-    ruta: 'Temas/cine-retro-jazz.css',
-    espacio: 4,
-    monedas: 45,
-    colores: {
-        '--violet-100': '#3A2A18',
-        '--violet-300': '#8A6A38',
-        '--violet-500': '#D4A24C',
-        '--bg':         '#0A0E1A',
-        '--bg-alt':     '#0E1524',
-        '--white':      '#141C2E'
     }
-},
 ];
 
