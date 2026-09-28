@@ -89,7 +89,7 @@
     --accent-shadow-hover: rgba(232, 181, 75, 0.60);
     --accent-text-gradient: linear-gradient(135deg, #FAF0E2, #E8B54B);
 
-    /* Rojo vino (terciopelo, notas de fondo) */
+    /* Rojo vino (terciopelo, cortina) */
     --jazz-velvet: #6B1A1A;
     --jazz-velvet-dark: #3A0A0A;
 
@@ -110,11 +110,6 @@
     --theme-copa: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 50'%3E%3Cpath d='M8,8 L32,8 L22,26 L18,26 Z' fill='none' stroke='%23E8B54B' stroke-width='1.8' stroke-linejoin='round' opacity='0.90'/%3E%3Cpath d='M10,10 L30,10 L22,22 L18,22 Z' fill='%23E8B54B' fill-opacity='0.40'/%3E%3Cline x1='20' y1='26' x2='20' y2='42' stroke='%23E8B54B' stroke-width='1.8' opacity='0.90'/%3E%3Cpath d='M12,42 L28,42' stroke='%23E8B54B' stroke-width='1.8' stroke-linecap='round' opacity='0.90'/%3E%3Ccircle cx='27' cy='6' r='2' fill='%23A04545'/%3E%3C/svg%3E");
 
     /* ------------------------------------------------------------
-       NOTA MUSICAL — corchea
-       ------------------------------------------------------------ */
-    --theme-note: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 30'%3E%3Cpath d='M14,2 L14,22 M14,2 L20,4 L20,7 L14,5' stroke='%23E8B54B' stroke-width='1.6' fill='none' stroke-linejoin='round'/%3E%3Cellipse cx='9' cy='24' rx='5' ry='3.5' fill='%23E8B54B' transform='rotate(-15 9 24)'/%3E%3C/svg%3E");
-
-    /* ------------------------------------------------------------
        MESAS AL PIE — silueta horizontal de mesas redondas con copas
        Repite cada 240px, deja una franja al pie del welcome.
        ------------------------------------------------------------ */
@@ -128,11 +123,11 @@
    baja cuando toca los bordes.
    ------------------------------------------------------------ */
 @keyframes jazz-spotlight-sweep {
-    0%   { --spotlight-x: 15%; --spotlight-power: 0.20; }
-    25%  { --spotlight-x: 32%; --spotlight-power: 0.42; }
-    50%  { --spotlight-x: 50%; --spotlight-power: 0.70; }
-    75%  { --spotlight-x: 68%; --spotlight-power: 0.42; }
-    100% { --spotlight-x: 85%; --spotlight-power: 0.20; }
+    0%   { --spotlight-x: 20%; --spotlight-power: 0.20; }
+    25%  { --spotlight-x: 35%; --spotlight-power: 0.45; }
+    50%  { --spotlight-x: 50%; --spotlight-power: 0.75; }
+    75%  { --spotlight-x: 65%; --spotlight-power: 0.45; }
+    100% { --spotlight-x: 80%; --spotlight-power: 0.20; }
 }
 
 /* ------------------------------------------------------------
@@ -181,80 +176,36 @@
     overflow-x: hidden;
 }
 
-/* EL FOCO — gradiente radial desde arriba que barre */
+/* EL FOCO — un solo haz limpio desde arriba.
+   Cae por el borde superior, sin cortes laterales.
+   La intensidad depende de --spotlight-power. */
 .welcome-placeholder::before {
     content: '';
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     pointer-events: none;
     z-index: 0;
-    background: radial-gradient(
-        ellipse 40% 90% at var(--spotlight-x) -20%,
-        rgba(232, 181, 75, calc(0.20 + var(--spotlight-power) * 0.30)) 0%,
-        rgba(232, 181, 75, calc(0.08 + var(--spotlight-power) * 0.15)) 30%,
-        rgba(232, 181, 75, 0.03) 55%,
-        transparent 78%
-    );
+    background:
+        /* Halo amplio centrado en la posición del foco */
+        radial-gradient(
+            ellipse 55% 70% at var(--spotlight-x) 0%,
+            rgba(232, 181, 75, calc(0.22 + var(--spotlight-power) * 0.28)) 0%,
+            rgba(232, 181, 75, calc(0.10 + var(--spotlight-power) * 0.14)) 35%,
+            rgba(232, 181, 75, 0.03) 65%,
+            transparent 90%
+        );
     transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ELEMENTOS FLOTANDO: trompetas + copas + notas */
-.welcome-placeholder::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 1;
-    background-image:
-        /* Trompetas */
-        var(--theme-trumpet),
-        var(--theme-trumpet),
-        /* Copas */
-        var(--theme-copa),
-        var(--theme-copa),
-        var(--theme-copa),
-        /* Notas musicales */
-        var(--theme-note),
-        var(--theme-note),
-        var(--theme-note),
-        var(--theme-note);
-    background-size:
-        76px 38px,
-        58px 30px,
-        30px 40px,
-        26px 34px,
-        22px 28px,
-        16px 24px,
-        14px 22px,
-        18px 28px,
-        12px 20px;
-    background-position:
-        88% 12%,
-        8% 22%,
-        6% 78%,
-        94% 72%,
-        50% 88%,
-        22% 42%,
-        78% 56%,
-        62% 30%,
-        42% 68%;
-    background-repeat: no-repeat;
-    opacity: 0.75;
-    animation: jazz-elements-float 8s ease-in-out infinite;
-}
-@keyframes jazz-elements-float {
-    0%, 100% { transform: translateY(0) translateX(0); }
-    33%      { transform: translateY(-4px) translateX(2px); }
-    66%      { transform: translateY(-2px) translateX(-2px); }
-}
-
-/* Glow del welcome sincronizado con la potencia del foco */
+/* Glow secundario que refuerza el mismo centro */
 .welcome-glow {
     background: radial-gradient(
-        circle at var(--spotlight-x) 30%,
-        rgba(232, 181, 75, calc(0.10 + var(--spotlight-power) * 0.25)) 0%,
-        rgba(232, 181, 75, 0.05) 35%,
-        transparent 68%
+        circle at var(--spotlight-x) 35%,
+        rgba(232, 181, 75, calc(0.08 + var(--spotlight-power) * 0.20)) 0%,
+        transparent 65%
     );
     transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -300,7 +251,7 @@
     z-index: 0;
 }
 
-/* TROMPETA grande flotando arriba del hero */
+/* TROMPETA grande flotando arriba del hero — ÚNICA decoración flotante */
 .welcome-hero::after {
     content: '';
     position: absolute;
