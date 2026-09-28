@@ -7,13 +7,9 @@
 //  - Empate devuelve la apuesta.
 //  - Doblar: solo con las 2 primeras cartas.
 //
-//  Integración con el SO:
-//   - gastoBoleta al apostar.
-//   - canjear al ganar / devolver en empate.
-//   - obtenerMonedas para mostrar el saldo actual.
-//
-//  Visibilidad de pantallas: manejada por style.display inline
-//  para no depender del CSS (robusto ante temas raros).
+//  FIX v3: ID de ronda para matar timers zombie.
+//  Cada nueva ronda incrementa _rondaID. Los setTimeout viejos
+//  chequean ese ID al dispararse y mueren si ya no es el actual.
 // ============================================================
 
 'use strict';
@@ -23,8 +19,8 @@ const APP_ID = 'blackjack';
 
 const APUESTA_MIN = 20;
 const APUESTA_MAX = 64;
-const PAGO_BLACKJACK = 1.5;   // 3:2
-const PAGO_NORMAL = 1.0;      // 1:1
+const PAGO_BLACKJACK = 1.5;
+const PAGO_NORMAL = 1.0;
 
 let usuarioActual = null;
 
@@ -36,6 +32,10 @@ let apuestaActual = 0;
 let juegoTerminado = false;
 let puedeActuar = false;
 let esperando = false;
+let procesando = false;
+
+// ---- ID de ronda: la clave del fix ----
+let _rondaID = 0;
 
 // ---- DOM ----
 const DOM = {};
@@ -96,7 +96,7 @@ function toast(texto, tipo = 'info') {
 }
 
 // ============================================================
-//  VISIBILIDAD DE PANTALLAS (a prueba de CSS)
+//  VISIBILIDAD DE PANTALLAS
 // ============================================================
 function mostrarConfig() {
     if (DOM.configScreen) {
@@ -118,6 +118,12 @@ function mostrarJuego() {
         DOM.gameScreen.hidden = false;
         DOM.gameScreen.style.display = 'flex';
     }
+}
+
+function ocultarModal() {
+    if (!DOM.modalResultado) return;
+    DOM.modalResultado.hidden = true;
+    DOM.modalResultado.style.display = 'none';
 }
 
 // ============================================================
@@ -219,6 +225,20 @@ function actualizarSaldoUI() {
 }
 
 // ============================================================
+//  TIMERS CON ID DE RONDA
+//  ------------------------------------------------------------
+//  Helper que programa un callback pero lo mata silenciosamente
+//  si la ronda cambió. Es la clave para que los timers de la
+//  ronda anterior no pisen la nueva.
+// ============================================================
+function setRondaTimeout(fn, ms, rondaID) {
+    setTimeout(() => {
+        if (rondaID !== _rondaID) return;   // ronda vieja, ignorar
+        fn();
+    }, ms);
+}
+
+// ============================================================
 //  LÓGICA DEL JUEGO
 // ============================================================
 function robarCarta() {
@@ -231,24 +251,35 @@ function robarCarta() {
 }
 
 async function iniciarPartida() {
+    if (procesando) return;
+    procesando = true;
+
+    // Nueva ronda: ID nuevo invalida cualquier timer de la anterior
+    _rondaID++;
+    const miID = _rondaID;
+
     const apuesta = parseInt(DOM.apuestaInput.value, 10);
     if (isNaN(apuesta) || apuesta < APUESTA_MIN) {
         mostrarMsg(`La apuesta mínima es ${APUESTA_MIN} monedas.`, 'error');
+        procesando = false;
         return;
     }
     if (apuesta > APUESTA_MAX) {
         mostrarMsg(`La apuesta máxima es ${APUESTA_MAX} monedas.`, 'error');
+        procesando = false;
         return;
     }
     const saldo = leerSaldoOS();
     if (apuesta > saldo) {
         mostrarMsg('No tenés saldo suficiente.', 'error');
+        procesando = false;
         return;
     }
 
     const api = API();
     if (!api || typeof api.gastoBoleta !== 'function') {
         mostrarMsg('Sin conexión con el SO.', 'error');
+        procesando = false;
         return;
     }
 
@@ -258,9 +289,17 @@ async function iniciarPartida() {
     } catch (e) {
         DOM.btnIniciar.disabled = false;
         mostrarMsg(e.message || 'No se pudo apostar.', 'error');
+        procesando = false;
         return;
     }
     DOM.btnIniciar.disabled = false;
+
+    // Si mientras esperábamos el gasto, el usuario lanzó otra ronda,
+    // esta ya no es válida: abortamos silenciosamente.
+    if (miID !== _rondaID) {
+        procesando = false;
+        return;
+    }
 
     apuestaActual = apuesta;
     juegoTerminado = false;
@@ -278,10 +317,8 @@ async function iniciarPartida() {
     manoJugador.push(robarCarta());
     manoCrupier.push(robarCarta());
 
-    // Cambiar pantalla (a prueba de CSS)
     mostrarJuego();
-    DOM.modalResultado.hidden = true;
-    DOM.modalResultado.style.display = 'none';
+    ocultarModal();
 
     DOM.apuestaMostrada.textContent = apuestaActual;
     setEstado('En juego', 'target');
@@ -289,57 +326,71 @@ async function iniciarPartida() {
     actualizarSaldoUI();
     renderizarJuego();
 
+    procesando = false;
+
+    // Chequeo de blackjack natural
     if (esBlackjack(manoJugador) || esBlackjack(manoCrupier)) {
-        setTimeout(() => terminarRonda(), 500);
+        setRondaTimeout(() => terminarRonda(miID), 500, miID);
     }
 }
 
 function accionHit() {
     if (!puedeActuar || juegoTerminado) return;
+    const miID = _rondaID;
     manoJugador.push(robarCarta());
     renderizarJuego();
     if (calcularMano(manoJugador) > 21) {
         puedeActuar = false;
         juegoTerminado = true;
-        setTimeout(() => terminarRonda(), 450);
+        setRondaTimeout(() => terminarRonda(miID), 450, miID);
     }
 }
 
 function accionStand() {
     if (!puedeActuar || juegoTerminado) return;
+    const miID = _rondaID;
     puedeActuar = false;
     juegoTerminado = true;
     setEstado('Crupier...', 'hourglass');
-    setTimeout(() => turnoCrupier(), 350);
+    setRondaTimeout(() => turnoCrupier(miID), 350, miID);
 }
 
 async function accionDouble() {
     if (!puedeActuar || juegoTerminado || manoJugador.length !== 2) return;
+    if (procesando) return;
+    procesando = true;
 
+    const miID = _rondaID;
     const saldo = leerSaldoOS();
     if (apuestaActual > saldo) {
         toast('No tenés saldo para doblar.', 'error');
+        procesando = false;
         return;
     }
     if (apuestaActual * 2 > APUESTA_MAX) {
         toast(`Doblar te dejaría en ${apuestaActual * 2}, arriba del máximo de ${APUESTA_MAX}.`, 'error');
+        procesando = false;
         return;
     }
 
     const api = API();
-    if (!api) return;
+    if (!api) { procesando = false; return; }
 
     DOM.btnDouble.disabled = true;
     try {
         await api.gastoBoleta('chevrons-up', APP_ID, `Doblar apuesta Blackjack`, apuestaActual);
-        apuestaActual *= 2;
-        DOM.apuestaMostrada.textContent = apuestaActual;
-        actualizarSaldoUI();
     } catch (e) {
         toast(e.message || 'No se pudo doblar.', 'error');
         DOM.btnDouble.disabled = false;
+        procesando = false;
         return;
     }
+
+    if (miID !== _rondaID) { procesando = false; return; }
+
+    apuestaActual *= 2;
+    DOM.apuestaMostrada.textContent = apuestaActual;
+    actualizarSaldoUI();
 
     manoJugador.push(robarCarta());
     renderizarJuego();
@@ -347,22 +398,24 @@ async function accionDouble() {
     const total = calcularMano(manoJugador);
     puedeActuar = false;
     juegoTerminado = true;
+    procesando = false;
 
     if (total > 21) {
-        setTimeout(() => terminarRonda(), 450);
+        setRondaTimeout(() => terminarRonda(miID), 450, miID);
     } else {
         setEstado('Crupier...', 'hourglass');
-        setTimeout(() => turnoCrupier(), 450);
+        setRondaTimeout(() => turnoCrupier(miID), 450, miID);
     }
 }
 
-function turnoCrupier() {
+function turnoCrupier(miID) {
+    if (miID !== _rondaID) return;   // ronda vieja
     while (calcularMano(manoCrupier) < 17) {
         manoCrupier.push(robarCarta());
     }
     juegoTerminado = true;
     renderizarJuego();
-    setTimeout(() => terminarRonda(), 500);
+    setRondaTimeout(() => terminarRonda(miID), 500, miID);
 }
 
 function setEstado(texto, icono) {
@@ -375,7 +428,8 @@ function setEstado(texto, icono) {
 // ============================================================
 //  TERMINAR RONDA
 // ============================================================
-async function terminarRonda() {
+async function terminarRonda(miID) {
+    if (miID !== _rondaID) return;   // ronda vieja, no hacer nada
     if (esperando) return;
     esperando = true;
     juegoTerminado = true;
@@ -451,10 +505,16 @@ async function terminarRonda() {
         }
     }
 
-    setTimeout(() => {
+    // Si cambió la ronda mientras pagábamos, no mostrar el modal viejo
+    if (miID !== _rondaID) {
+        esperando = false;
+        return;
+    }
+
+    setRondaTimeout(() => {
         mostrarModalResultado(resultado, mensaje, ganancia, pago);
         esperando = false;
-    }, 900);
+    }, 900, miID);
 }
 
 // ============================================================
@@ -465,25 +525,11 @@ function mostrarModalResultado(resultado, mensaje, ganancia, pago) {
     let icono = '';
 
     switch (resultado) {
-        case 'ganaste':
-            titulo = '¡Ganaste!';
-            icono = 'trophy';
-            break;
-        case 'blackjack':
-            titulo = '¡Blackjack!';
-            icono = 'sparkles';
-            break;
-        case 'perdiste':
-            titulo = 'Perdiste';
-            icono = 'x';
-            break;
-        case 'empate':
-            titulo = 'Empate';
-            icono = 'equal';
-            break;
-        default:
-            titulo = 'Ronda terminada';
-            icono = 'flag';
+        case 'ganaste':    titulo = '¡Ganaste!';  icono = 'trophy';   break;
+        case 'blackjack':  titulo = '¡Blackjack!'; icono = 'sparkles'; break;
+        case 'perdiste':   titulo = 'Perdiste';    icono = 'x';        break;
+        case 'empate':     titulo = 'Empate';      icono = 'equal';    break;
+        default:           titulo = 'Ronda terminada'; icono = 'flag';
     }
 
     DOM.resultadoTitulo.textContent = titulo;
@@ -505,22 +551,22 @@ function mostrarModalResultado(resultado, mensaje, ganancia, pago) {
         montoEl.textContent = '';
     }
 
-    // Mostrar modal a prueba de CSS
     DOM.modalResultado.hidden = false;
     DOM.modalResultado.style.display = 'flex';
     if (window.lucide) window.lucide.createIcons();
-}
-
-function ocultarModal() {
-    if (!DOM.modalResultado) return;
-    DOM.modalResultado.hidden = true;
-    DOM.modalResultado.style.display = 'none';
 }
 
 // ============================================================
 //  NAVEGACIÓN
 // ============================================================
 function volverMenu() {
+    // Invalidar cualquier timer pendiente
+    _rondaID++;
+    esperando = false;
+    procesando = false;
+    juegoTerminado = true;
+    puedeActuar = false;
+
     mostrarConfig();
     ocultarModal();
 
@@ -540,14 +586,15 @@ function volverMenu() {
     actualizarSaldoUI();
 }
 
-function nuevaRonda() {
+async function nuevaRonda() {
+    if (procesando) return;
     ocultarModal();
     manoJugador = [];
     manoCrupier = [];
     juegoTerminado = false;
     puedeActuar = false;
     esperando = false;
-    iniciarPartida();
+    await iniciarPartida();
 }
 
 function mostrarMsg(texto, tipo) {
@@ -681,16 +728,13 @@ function inicializar() {
 
     DOM.userBadge.textContent = `@${usuarioActual.codigo} · ${usuarioActual.nombre}`;
 
-    // Estado inicial de botones
     DOM.btnHit.disabled = true;
     DOM.btnStand.disabled = true;
     DOM.btnDouble.disabled = true;
 
-    // Saldo + apuesta inicial
     actualizarSaldoUI();
     setApuesta(APUESTA_MIN);
 
-    // Forzar visibilidad de la pantalla de configuración
     mostrarConfig();
     ocultarModal();
 
