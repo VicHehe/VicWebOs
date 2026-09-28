@@ -1,13 +1,13 @@
 // ============================================================
 //  script.js — UI de MiniCity
 //  ------------------------------------------------------------
-//  Render isométrico, input, modales, HUD, loop.
-//  CAMBIOS v2:
-//   · Usa getGrillaSize() en vez de GRILLA_COLS.
-//   · Botón fijo de tienda en el header.
-//   · HUD muestra "/min" para créditos.
-//   · Hint contextual cuando hay edificios pero 0 comerciales.
-//   · Soporte de expansión desde la tienda.
+//  CAMBIOS v4:
+//   · dibujarEdificio lee colores, altura, tamaño y detalle
+//     desde la definición del tipo (sin if/else por tipo).
+//   · abrirModalConstruir itera sobre MiniCity.ORDEN_TIPOS.
+//   · abrirModalEdificio lee stats del tipo (1 o 2 filas).
+//   · Detalles visuales nuevos: arbol, plantas, fuente,
+//     columnas.
 // ============================================================
 
 'use strict';
@@ -29,19 +29,13 @@ let rafId = null;
 let ultimoTick = 0;
 
 const colores = {
-    cesped:      '#E8E8EE',
-    cespedAlt:   '#DDDDE5',
-    borde:       '#C4C4CF',
-    selBorde:    '#8B5CF6',
-    selRelleno:  'rgba(139,92,246,0.18)',
-    resBase:     '#10B981',
-    resOscuro:   '#047857',
-    comBase:     '#3B82F6',
-    comOscuro:   '#1E40AF',
-    indBase:     '#F59E0B',
-    indOscuro:   '#B45309',
-    humo:        'rgba(120,120,140,0.55)',
-    texto:       '#18181B'
+    cesped:    '#E8E8EE',
+    cespedAlt: '#DDDDE5',
+    borde:     '#C4C4CF',
+    selBorde:  '#8B5CF6',
+    selRelleno:'rgba(139,92,246,0.18)',
+    humo:      'rgba(120,120,140,0.55)',
+    texto:     '#18181B'
 };
 
 const API = () => window.parent.__vicwebos || null;
@@ -114,7 +108,7 @@ function ajustarCanvas() {
     if (!canvas || !wrapEl) return;
     const rect = wrapEl.getBoundingClientRect();
     anchoCSS = rect.width;
-    altoCSS = rect.height;
+    altoCSS  = rect.height;
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width  = Math.round(anchoCSS * dpr);
     canvas.height = Math.round(altoCSS * dpr);
@@ -127,15 +121,10 @@ function ajustarCanvas() {
 
 function calcularOrigen() {
     const N = window.MiniCity.getGrillaSize();
-    // El "centro visual" del rombo grande está en (originX, originY + (N-1)*TILE_H/2)
-    // Lo centramos en el canvas con un pequeño offset hacia arriba
     originX = anchoCSS / 2;
     originY = altoCSS / 2 - (N - 1) * TILE_H / 2 - 10;
 }
 
-// ============================================================
-//  Proyección isométrica
-// ============================================================
 function proyCentroCelda(col, fila) {
     const x = originX + (col - fila) * (TILE_W / 2);
     const y = originY + (col + fila) * (TILE_H / 2);
@@ -149,9 +138,7 @@ function screenToCell(px, py) {
     const hh = TILE_H / 2;
     const c = (rx / hw + ry / hh) / 2;
     const f = (ry / hh - rx / hw) / 2;
-    const col = Math.floor(c + 0.5);
-    const fila = Math.floor(f + 0.5);
-    return { col, fila };
+    return { col: Math.floor(c + 0.5), fila: Math.floor(f + 0.5) };
 }
 
 // ============================================================
@@ -173,9 +160,7 @@ function dibujar() {
         return a.col - b.col;
     });
 
-    ordenadas.forEach(celda => {
-        dibujarSuelo(celda, celdaSeleccionada === celda);
-    });
+    ordenadas.forEach(celda => dibujarSuelo(celda, celdaSeleccionada === celda));
     ordenadas.forEach(celda => {
         if ((celda.tipo && celda.nivel > 0) || (celda.tipo && celda.finConstruccion)) {
             dibujarEdificio(celda);
@@ -195,8 +180,7 @@ function dibujarSuelo(celda, seleccionada) {
     ctx.lineTo(x - hw, y);
     ctx.closePath();
 
-    const esPar = (celda.col + celda.fila) % 2 === 0;
-    ctx.fillStyle = esPar ? colores.cesped : colores.cespedAlt;
+    ctx.fillStyle = ((celda.col + celda.fila) % 2 === 0) ? colores.cesped : colores.cespedAlt;
     ctx.fill();
 
     ctx.strokeStyle = seleccionada ? colores.selBorde : colores.borde;
@@ -210,27 +194,21 @@ function dibujarSuelo(celda, seleccionada) {
 }
 
 function dibujarEdificio(celda) {
+    const def = window.MiniCity.TIPOS[celda.tipo];
+    if (!def) return;
+
     const { x, y } = proyCentroCelda(celda.col, celda.fila);
-    const tipo = celda.tipo;
     const nivelMostrado = celda.finConstruccion
         ? Math.max(1, celda.nivel)
         : celda.nivel;
     const nivel = Math.max(1, Math.min(3, nivelMostrado));
 
-    let base, oscuro;
-    if (tipo === 'residencial') { base = colores.resBase; oscuro = colores.resOscuro; }
-    else if (tipo === 'comercial') { base = colores.comBase; oscuro = colores.comOscuro; }
-    else { base = colores.indBase; oscuro = colores.indOscuro; }
+    const base   = def.colores.base;
+    const oscuro = def.colores.oscuro;
+    const altura = def.alturaPorNivel[nivel];
 
-    const alturas    = { 1: 22, 2: 34, 3: 48 };
-    const alturasCom = { 1: 26, 2: 40, 3: 56 };
-    const alturasInd = { 1: 18, 2: 26, 3: 36 };
-    let altura = alturas[nivel];
-    if (tipo === 'comercial') altura = alturasCom[nivel];
-    if (tipo === 'industrial') altura = alturasInd[nivel];
-
-    const cuerpoW = TILE_W * 0.55;
-    const cuerpoH = TILE_H * 0.55;
+    const cuerpoW = TILE_W * (def.tamano?.w || 0.55);
+    const cuerpoH = TILE_H * (def.tamano?.h || 0.55);
     const hw = cuerpoW / 2;
     const hh = cuerpoH / 2;
 
@@ -250,7 +228,7 @@ function dibujarEdificio(celda) {
     const enConstruccion = !!celda.finConstruccion;
     ctx.globalAlpha = enConstruccion ? 0.55 : 1;
 
-    // Pared izquierda
+    // Pared izquierda (oscura)
     ctx.beginPath();
     ctx.moveTo(x - hw, y);
     ctx.lineTo(x,      y + hh);
@@ -260,7 +238,7 @@ function dibujarEdificio(celda) {
     ctx.fillStyle = oscuro;
     ctx.fill();
 
-    // Pared derecha
+    // Pared derecha (base)
     ctx.beginPath();
     ctx.moveTo(x,      y + hh);
     ctx.lineTo(x + hw, y);
@@ -280,43 +258,19 @@ function dibujarEdificio(celda) {
     ctx.fillStyle = aclarar(base, 0.15);
     ctx.fill();
 
-    // Detalles
-    if (tipo === 'residencial') {
-        const puertaW = 6;
-        const puertaH = Math.max(8, altura * 0.4);
-        ctx.fillStyle = 'rgba(0,0,0,0.35)';
-        ctx.fillRect(x + 4, y + hh - altura / 2 - puertaH / 2 - 2, puertaW, puertaH);
-        if (nivel >= 2) {
-            ctx.fillStyle = 'rgba(255,255,255,0.55)';
-            ctx.fillRect(x - hw + 4, y - altura + 6, 6, 6);
-        }
-    } else if (tipo === 'comercial') {
-        ctx.fillStyle = 'rgba(255,255,255,0.6)';
-        const vW = hw * 0.7;
-        const vH = Math.max(6, altura * 0.35);
-        ctx.fillRect(x + 3, y + hh - altura / 2 - vH / 2 - 2, vW, vH);
-        if (nivel >= 2) {
-            ctx.fillRect(x + 3, y + hh - altura / 2 - vH / 2 - 2 - vH - 4, vW, vH);
-        }
-        if (nivel >= 3) {
-            ctx.fillRect(x + 3, y + hh - altura / 2 - vH / 2 - 2 - (vH + 4) * 2, vW, vH);
-        }
-    } else if (tipo === 'industrial') {
-        const chimW = 5;
-        const chimAlto = Math.max(10, altura * 0.7);
-        ctx.fillStyle = 'rgba(0,0,0,0.4)';
-        ctx.fillRect(x - 6, y - altura - chimAlto + 4, chimW, chimAlto + 4);
-        if (!enConstruccion) {
-            ctx.fillStyle = colores.humo;
-            const t = (performance.now() / 700) % 1;
-            const humY = y - altura - chimAlto - t * 18;
-            const humR = 3 + t * 4;
-            ctx.beginPath();
-            ctx.arc(x - 3 + Math.sin(t * 6) * 2, humY, humR, 0, Math.PI * 2);
-            ctx.fill();
-        }
+    // Detalles según tipo
+    const ctxDetalle = { x, y, hw, hh, altura, nivel, base, oscuro, enConstruccion };
+    switch (def.detalle) {
+        case 'puerta':    detallePuerta(ctxDetalle);   break;
+        case 'ventanal':  detalleVentanal(ctxDetalle); break;
+        case 'chimenea':  detalleChimenea(ctxDetalle); break;
+        case 'arbol':     detalleArbol(ctxDetalle);    break;
+        case 'fuente':    detalleFuente(ctxDetalle);   break;
+        case 'columnas':  detalleColumnas(ctxDetalle); break;
+        case 'plantas':   detallePlantas(ctxDetalle);  break;
     }
 
+    // Andamio
     if (enConstruccion) {
         ctx.globalAlpha = 0.9;
         ctx.strokeStyle = 'rgba(120, 60, 200, 0.6)';
@@ -334,6 +288,128 @@ function dibujarEdificio(celda) {
     }
 
     ctx.globalAlpha = 1;
+}
+
+// ------------------------------------------------------------
+//  Detalles visuales
+// ------------------------------------------------------------
+function detallePuerta({ x, y, hh, altura, nivel }) {
+    const puertaW = 6;
+    const puertaH = Math.max(8, altura * 0.4);
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.fillRect(x + 4, y + hh - altura / 2 - puertaH / 2 - 2, puertaW, puertaH);
+    if (nivel >= 2) {
+        ctx.fillStyle = 'rgba(255,255,255,0.55)';
+        ctx.fillRect(x - 10, y - altura + 6, 6, 6);
+    }
+    if (nivel >= 3) {
+        ctx.fillRect(x + 4, y - altura + 6, 6, 6);
+    }
+}
+
+function detalleVentanal({ x, y, hw, hh, altura, nivel }) {
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    const vW = hw * 0.7;
+    const vH = Math.max(6, altura * 0.3);
+    const baseY = y + hh - altura / 2 - vH / 2 - 2;
+    ctx.fillRect(x + 3, baseY, vW, vH);
+    if (nivel >= 2) {
+        ctx.fillRect(x + 3, baseY - vH - 4, vW, vH);
+    }
+    if (nivel >= 3) {
+        ctx.fillRect(x + 3, baseY - (vH + 4) * 2, vW, vH);
+    }
+}
+
+function detalleChimenea({ x, y, altura, enConstruccion }) {
+    const chimW = 5;
+    const chimAlto = Math.max(10, altura * 0.7);
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.fillRect(x - 6, y - altura - chimAlto + 4, chimW, chimAlto + 4);
+    if (!enConstruccion) {
+        ctx.fillStyle = colores.humo;
+        const t = (performance.now() / 700) % 1;
+        const humY = y - altura - chimAlto - t * 18;
+        const humR = 3 + t * 4;
+        ctx.beginPath();
+        ctx.arc(x - 3 + Math.sin(t * 6) * 2, humY, humR, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+function detalleArbol({ x, y, altura }) {
+    // Dos o tres arbolitos sobre el bloque
+    const baseY = y - altura + 2;
+    const colorCopa = '#166534';
+    const colorTronco = '#7C2D12';
+    const posiciones = [
+        { dx: -10, dy:  0, r: 5 },
+        { dx:   4, dy: -2, r: 6 },
+        { dx:  14, dy:  2, r: 4 }
+    ];
+    posiciones.forEach(({ dx, dy, r }) => {
+        // Tronco
+        ctx.fillStyle = colorTronco;
+        ctx.fillRect(x + dx - 1, baseY + dy - 1, 2, 4);
+        // Copa
+        ctx.fillStyle = colorCopa;
+        ctx.beginPath();
+        ctx.arc(x + dx, baseY + dy - r + 1, r, 0, Math.PI * 2);
+        ctx.fill();
+    });
+}
+
+function detalleFuente({ x, y, altura }) {
+    // Chorrito de agua desde el centro del techo
+    const topY = y - altura - 4;
+    ctx.fillStyle = 'rgba(96, 165, 250, 0.85)';
+    // Base circular
+    ctx.beginPath();
+    ctx.arc(x, topY + 2, 5, 0, Math.PI * 2);
+    ctx.fill();
+    // Gotas
+    const t = (performance.now() / 400) % 1;
+    ctx.globalAlpha *= 0.7;
+    ctx.beginPath();
+    ctx.arc(x - 3 + Math.sin(t * 8) * 2, topY - 6 - t * 6, 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x + 3 + Math.cos(t * 6) * 2, topY - 4 - t * 5, 1.6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha /= 0.7;
+}
+
+function detalleColumnas({ x, y, hw, altura, nivel }) {
+    // Columnas verticales en la pared derecha
+    ctx.strokeStyle = 'rgba(255,255,255,0.65)';
+    ctx.lineWidth = 1.5;
+    const columnas = nivel + 1;
+    const anchoDisp = hw * 0.7;
+    for (let i = 0; i < columnas; i++) {
+        const xx = x + 4 + (i / Math.max(1, columnas - 1)) * anchoDisp;
+        ctx.beginPath();
+        ctx.moveTo(xx, y + 4);
+        ctx.lineTo(xx, y - altura + 2);
+        ctx.stroke();
+    }
+}
+
+function detallePlantas({ x, y, altura }) {
+    // Matitas pequeñas en el techo
+    const baseY = y - altura;
+    const color = '#166534';
+    const puntos = [
+        { dx: -12, dy: 0 },
+        { dx: -4,  dy: -2 },
+        { dx:  6,  dy: 0 },
+        { dx:  14, dy: -1 }
+    ];
+    ctx.fillStyle = color;
+    puntos.forEach(({ dx, dy }) => {
+        ctx.beginPath();
+        ctx.arc(x + dx, baseY + dy, 3, 0, Math.PI * 2);
+        ctx.fill();
+    });
 }
 
 function aclarar(hex, factor) {
@@ -389,11 +465,8 @@ function abrirCelda(col, fila) {
     celdaSeleccionada = celda;
     dibujar();
 
-    if (!celda.tipo) {
-        abrirModalConstruir(celda, idx);
-    } else {
-        abrirModalEdificio(celda, idx);
-    }
+    if (!celda.tipo) abrirModalConstruir(celda, idx);
+    else             abrirModalEdificio(celda, idx);
 }
 
 function abrirModalConstruir(celda, idx) {
@@ -406,7 +479,8 @@ function abrirModalConstruir(celda, idx) {
     const libres = window.MiniCity.constructoresDisponibles();
 
     cont.innerHTML = '';
-    ['residencial', 'comercial', 'industrial'].forEach(tipoId => {
+
+    window.MiniCity.ORDEN_TIPOS.forEach(tipoId => {
         const def = window.MiniCity.TIPOS[tipoId];
         const puede = window.MiniCity.puedeConstruir(idx, tipoId);
         const costo = def.costos[0];
@@ -414,7 +488,9 @@ function abrirModalConstruir(celda, idx) {
         const btn = document.createElement('button');
         btn.className = 'mc-opcion' + (puede.ok ? '' : ' bloqueada');
         btn.innerHTML = `
-            <div class="mc-opcion-icono ${tipoId}"><i data-lucide="${def.icono}"></i></div>
+            <div class="mc-opcion-icono" style="background:linear-gradient(135deg, ${def.colores.base}, ${def.colores.oscuro})">
+                <i data-lucide="${def.icono}"></i>
+            </div>
             <div class="mc-opcion-info">
                 <span class="mc-opcion-nombre">${def.nombre}</span>
                 <span class="mc-opcion-desc">${def.descripcion}</span>
@@ -432,11 +508,7 @@ function abrirModalConstruir(celda, idx) {
                     celdaSeleccionada = null;
                     dibujar();
                     actualizarUI();
-                    if (tipoId === 'comercial') {
-                        toast(`Comercial en camino · producirá créditos`, 'info');
-                    } else {
-                        toast(`Construyendo ${def.nombre}…`, 'info');
-                    }
+                    toast(`Construyendo ${def.nombre}…`, 'info');
                 } catch (e) {
                     toast(e.message || 'No se pudo construir', 'error');
                 }
@@ -453,11 +525,14 @@ function abrirModalConstruir(celda, idx) {
         aviso.style.cssText = 'font-size:12px;color:#991B1B;font-weight:700;text-align:center;margin-top:8px;';
         aviso.textContent = 'Todos tus constructores están ocupados.';
         cont.appendChild(aviso);
-    } else if (creditos < 50) {
-        const aviso = document.createElement('p');
-        aviso.style.cssText = 'font-size:12px;color:#92400E;font-weight:700;text-align:center;margin-top:8px;';
-        aviso.textContent = `Tenés ${creditos} créditos. Esperá a juntar más.`;
-        cont.appendChild(aviso);
+    } else {
+        const costoMin = Math.min(...window.MiniCity.ORDEN_TIPOS.map(t => window.MiniCity.TIPOS[t].costos[0]));
+        if (creditos < costoMin) {
+            const aviso = document.createElement('p');
+            aviso.style.cssText = 'font-size:12px;color:#92400E;font-weight:700;text-align:center;margin-top:8px;';
+            aviso.textContent = `Tenés ${creditos} créditos. Esperá a juntar más.`;
+            cont.appendChild(aviso);
+        }
     }
 
     document.getElementById('mcModalConstruir').hidden = false;
@@ -491,26 +566,23 @@ function abrirModalEdificio(celda, idx) {
         </div>
     `;
 
-    const aporte = nivelActual > 0 ? def.aporte[nivelActual - 1] : 0;
-    let statLabel = 'Aporta';
-    let statValor = aporte;
-    let statUnidad = '';
-    if (celda.tipo === 'residencial') statLabel = 'Población';
-    if (celda.tipo === 'comercial')   { statLabel = 'Créditos'; statUnidad = '/min'; }
-    if (celda.tipo === 'industrial')  statLabel = 'Empleos';
-
-    html += `
-        <div class="mc-edif-stats">
+    // Stats: leer del tipo (1 o 2 filas)
+    const stats = (def.stats || []).slice(0, 2);
+    const nivelIdx = Math.max(0, Math.min(2, (nivelActual || 1) - 1));
+    html += `<div class="mc-edif-stats" data-cols="${stats.length}">`;
+    stats.forEach(s => {
+        const valor = nivelActual > 0
+            ? (def.aportes[s.key]?.[nivelIdx] ?? 0)
+            : 0;
+        const signo = valor >= 0 ? '+' : '';
+        html += `
             <div class="mc-edif-stat">
-                <span class="mc-edif-stat-label">${statLabel}</span>
-                <span class="mc-edif-stat-valor">+${statValor}${statUnidad}</span>
+                <span class="mc-edif-stat-label">${s.label}</span>
+                <span class="mc-edif-stat-valor">${signo}${valor}${s.unidad}</span>
             </div>
-            <div class="mc-edif-stat">
-                <span class="mc-edif-stat-label">Tipo</span>
-                <span class="mc-edif-stat-valor">${def.nombre}</span>
-            </div>
-        </div>
-    `;
+        `;
+    });
+    html += `</div>`;
 
     if (enConstruccion) {
         html += `
@@ -641,7 +713,7 @@ function abrirTienda() {
     const cont = document.getElementById('mcTiendaCuerpo');
     cont.innerHTML = '';
 
-    // --- Expansión de terreno ---
+    // Expansión
     const puedeExp = window.MiniCity.puedeExpandir();
     const sizeActual = window.MiniCity.getGrillaSize();
     const sizeMax = window.MiniCity.GRILLA_SIZE_MAX;
@@ -653,7 +725,7 @@ function abrirTienda() {
             <div class="mc-tienda-icono"><i data-lucide="layout-grid"></i></div>
             <div class="mc-tienda-info">
                 <span class="mc-tienda-nombre">Terreno máximo alcanzado</span>
-                <span class="mc-tienda-desc">Tu grilla es de ${sizeActual}×${sizeActual}. No hay más expansiones.</span>
+                <span class="mc-tienda-desc">Tu grilla es de ${sizeActual}×${sizeActual}.</span>
             </div>
         `;
         cont.appendChild(item);
@@ -675,7 +747,7 @@ function abrirTienda() {
         cont.appendChild(item);
     }
 
-    // --- Constructor 2 ---
+    // Constructor 2
     if (estado.constructoresComprados >= 2) {
         const item = document.createElement('div');
         item.className = 'mc-tienda-item comprado';
@@ -703,7 +775,7 @@ function abrirTienda() {
         cont.appendChild(item);
     }
 
-    // --- Constructor 3 ---
+    // Constructor 3
     if (estado.constructoresComprados >= 3) {
         const item = document.createElement('div');
         item.className = 'mc-tienda-item comprado';
@@ -713,6 +785,18 @@ function abrirTienda() {
                 <span class="mc-tienda-nombre">Tercer constructor</span>
                 <span class="mc-tienda-desc">Ya lo tenés.</span>
             </div>
+        `;
+        cont.appendChild(item);
+    } else if (estado.constructoresComprados < 2) {
+        const item = document.createElement('div');
+        item.className = 'mc-tienda-item mc-tienda-item-bloqueado';
+        item.innerHTML = `
+            <div class="mc-tienda-icono os"><i data-lucide="lock"></i></div>
+            <div class="mc-tienda-info">
+                <span class="mc-tienda-nombre">Tercer constructor</span>
+                <span class="mc-tienda-desc">Requiere tener el Segundo constructor primero.</span>
+            </div>
+            <span class="mc-tienda-tag-bloqueado">Bloqueado</span>
         `;
         cont.appendChild(item);
     } else {
@@ -802,7 +886,6 @@ function actualizarUI() {
     set('mcProdHora', stats.creditosMinuto.toFixed(1) + '/min');
     set('mcBanco', Math.floor(estado.bancoOS));
 
-    // Color del HUD de producción si está en 0
     const prodEl = document.getElementById('mcProdHora');
     if (prodEl) {
         prodEl.style.color = stats.creditosMinuto > 0 ? '' : 'var(--gray-400, #A1A1AD)';
@@ -827,7 +910,6 @@ function actualizarUI() {
     if (cont) {
         cont.innerHTML = '';
 
-        // Botón fijo de tienda (siempre visible)
         const shopBtn = document.createElement('div');
         shopBtn.className = 'mc-constructor-slot mc-constructor-tienda';
         shopBtn.title = 'Abrir tienda';
@@ -853,17 +935,19 @@ function actualizarUI() {
         }
     }
 
-    // Hint contextual del canvas
+    // Hint contextual
     const hint = document.getElementById('mcCanvasHint');
     if (hint) {
         const tieneAlgo = estado.celdas.some(c => c.tipo);
-        const tieneComercial = estado.celdas.some(c => c.tipo === 'comercial');
+        const tieneCreditos = estado.celdas.some(c =>
+            c.tipo && window.MiniCity.TIPOS[c.tipo]?.aportes.creditos.some(v => v > 0)
+        );
         if (!tieneAlgo) {
             hint.classList.remove('oculto');
             hint.innerHTML = '<i data-lucide="hand-pointer"></i><span>Tocá una celda vacía para construir</span>';
-        } else if (!tieneComercial) {
+        } else if (!tieneCreditos) {
             hint.classList.remove('oculto');
-            hint.innerHTML = '<i data-lucide="store"></i><span>Poné un Comercial para producir créditos</span>';
+            hint.innerHTML = '<i data-lucide="store"></i><span>Poné un edificio que genere créditos</span>';
         } else {
             hint.classList.add('oculto');
         }
@@ -885,7 +969,7 @@ function loop() {
         if (terminadas.length > 0) {
             terminadas.forEach(t => {
                 const def = window.MiniCity.TIPOS[t.tipo];
-                toast(`${def.nombre} nivel ${t.nivel} completado`, 'success');
+                if (def) toast(`${def.nombre} nivel ${t.nivel} completado`, 'success');
             });
             window.MiniCity.guardar();
             actualizarUI();
