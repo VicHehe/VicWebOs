@@ -1,11 +1,20 @@
 /* ================================================
    Tema: Cine Retro Jazz
    Club de jazz noir + salón de apuestas de los 50.
-   Dorado ámbar, humo subiendo, luz cálida de
-   pantalla, cartas al hover. Flagship.
+   Humo que se enrosca, neón azul y ámbar, vinilo
+   girando, spotlight barriendo, cartas flotando,
+   cortinas de terciopelo y patrón art déco.
+   Flagship.
    ================================================ */
 
+@property --jazz-spotlight-x {
+    syntax: '<percentage>';
+    inherits: true;
+    initial-value: 50%;
+}
+
 :root {
+    /* Acento: Dorado cálido de la época */
     --violet-50:  #2A1A0F;
     --violet-100: #3E2818;
     --violet-200: #5A3A20;
@@ -15,6 +24,7 @@
     --violet-600: #D19A2E;
     --violet-700: #A87A1F;
 
+    /* Superficies: Nogal oscuro y terciopelo */
     --white:   #1A1208;
     --bg:      #0F0A05;
     --bg-alt:  #1A1208;
@@ -47,23 +57,49 @@
     --accent-shadow-hover: rgba(232, 181, 75, 0.60);
     --accent-text-gradient: linear-gradient(135deg, #FAF0E2, #E8B54B);
 
-    /* Humo de cigarro subiendo */
-    --theme-smoke: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 60'%3E%3Cpath d='M15,58 Q8,50 15,42 Q22,34 15,26 Q8,18 15,10 Q19,5 15,0' stroke='%23E8B54B' stroke-width='1.8' fill='none' stroke-linecap='round' opacity='0.45'/%3E%3C/svg%3E");
+    /* Neón azul del club */
+    --jazz-neon: #6EC8F0;
+    --jazz-neon-glow: rgba(110, 200, 240, 0.55);
 
-    /* Carta de naipe (as de corazones) */
+    /* ------------------------------------------------------------
+       HUMO DE CIGARRILLO — espiral larga y delgada
+       ------------------------------------------------------------ */
+    --theme-smoke: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 120'%3E%3Cpath d='M20,118 Q10,105 20,92 Q30,79 20,66 Q10,53 20,40 Q30,27 20,14 Q15,8 20,2' stroke='%23E8B54B' stroke-width='2.2' fill='none' stroke-linecap='round' opacity='0.50'/%3E%3Cpath d='M14,115 Q6,104 14,93 Q22,82 14,71 Q6,60 14,49' stroke='%23C99852' stroke-width='1.4' fill='none' stroke-linecap='round' opacity='0.30'/%3E%3C/svg%3E");
+
+    /* ------------------------------------------------------------
+       BORDE ART DÉCO — esquina con líneas escalonadas
+       ------------------------------------------------------------ */
+    --theme-deco-corner: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cg fill='none' stroke='%23E8B54B' stroke-width='1.2' stroke-opacity='0.55'%3E%3Cpath d='M0 0 L30 0 M0 0 L0 30'/%3E%3Cpath d='M4 4 L26 4 M4 4 L4 26'/%3E%3Cpath d='M8 8 L20 8 M8 8 L8 20'/%3E%3Cpath d='M12 12 L14 12 M12 12 L12 14'/%3E%3Ccircle cx='30' cy='30' r='2' fill='%23E8B54B' fill-opacity='0.6' stroke='none'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* ------------------------------------------------------------
+       CARTA DE NAIPE — As de corazones
+       ------------------------------------------------------------ */
     --theme-card: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 32'%3E%3Crect x='0.5' y='0.5' width='23' height='31' rx='2' fill='%23FAF0E2' stroke='%23A87A1F' stroke-width='0.8'/%3E%3Cpath d='M12 24 C7 20 4 17 4 14 C4 12 5.5 10.5 7.5 10.5 C9 10.5 10.5 11.5 12 13 C13.5 11.5 15 10.5 16.5 10.5 C18.5 10.5 20 12 20 14 C20 17 17 20 12 24 Z' fill='%23A04545'/%3E%3C/svg%3E");
+
+    /* ------------------------------------------------------------
+       VINILO — disco con surcos y etiqueta central
+       ------------------------------------------------------------ */
+    --theme-vinyl: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%230A0A0A'/%3E%3Ccircle cx='50' cy='50' r='42' fill='none' stroke='%231F1F1F' stroke-width='0.4'/%3E%3Ccircle cx='50' cy='50' r='36' fill='none' stroke='%231F1F1F' stroke-width='0.4'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%231F1F1F' stroke-width='0.4'/%3E%3Ccircle cx='50' cy='50' r='24' fill='none' stroke='%231F1F1F' stroke-width='0.4'/%3E%3Ccircle cx='50' cy='50' r='18' fill='none' stroke='%231F1F1F' stroke-width='0.4'/%3E%3Ccircle cx='50' cy='50' r='14' fill='%23A87A1F'/%3E%3Ccircle cx='50' cy='50' r='3' fill='%230A0A0A'/%3E%3C/svg%3E");
+
+    /* ------------------------------------------------------------
+       TECLA DE PIANO — tecla blanca y negra
+       ------------------------------------------------------------ */
+    --theme-key: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 20'%3E%3Crect x='0' y='0' width='30' height='20' fill='%23FAF0E2' stroke='%234A3428' stroke-width='0.8'/%3E%3Crect x='6' y='0' width='18' height='12' fill='%230A0A0A' stroke='%234A3428' stroke-width='0.8'/%3E%3C/svg%3E");
 }
 
-/* ============ WELCOME ============ */
+/* ================================================================
+   1. WELCOME — Club de jazz: humo, spotlight, vinilo, cartas
+   ================================================================ */
 .welcome-placeholder {
     position: relative;
     background:
-        radial-gradient(ellipse at bottom left, rgba(232, 181, 75, 0.12) 0%, transparent 55%),
-        radial-gradient(ellipse at top right, rgba(232, 181, 75, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 0%, rgba(232, 181, 75, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 100%, rgba(110, 200, 240, 0.06) 0%, transparent 45%),
         var(--bg);
+    overflow-x: hidden;
 }
 
-/* Humo subiendo en 4 columnas */
+/* Humo subiendo en 5 columnas con movimiento curvo */
 .welcome-placeholder::before {
     content: '';
     position: absolute;
@@ -74,44 +110,53 @@
         var(--theme-smoke),
         var(--theme-smoke),
         var(--theme-smoke),
+        var(--theme-smoke),
         var(--theme-smoke);
-    background-size: 34px 68px;
+    background-size: 40px 120px;
     background-position:
-        15% 100%,
-        35% 100%,
-        65% 100%,
-        85% 100%;
+        10% 110%,
+        28% 105%,
+        48% 108%,
+        68% 105%,
+        88% 110%;
     background-repeat: no-repeat;
-    animation: jazz-smoke 9s ease-in-out infinite;
+    opacity: 0.70;
+    animation: jazz-smoke-rise 12s ease-in-out infinite;
 }
-@keyframes jazz-smoke {
-    0%, 100% { transform: translateY(0); opacity: 0.55; }
-    50%      { transform: translateY(-24px); opacity: 0.85; }
+@keyframes jazz-smoke-rise {
+    0%, 100% { transform: translateY(0)    translateX(0);    opacity: 0.55; }
+    25%      { transform: translateY(-30px) translateX(-6px); opacity: 0.80; }
+    50%      { transform: translateY(-60px) translateX(4px);  opacity: 0.65; }
+    75%      { transform: translateY(-40px) translateX(-4px); opacity: 0.85; }
 }
 
-/* Carta flotante arriba a la derecha */
+/* Spotlight barriendo la pantalla lentamente */
 .welcome-placeholder::after {
     content: '';
     position: absolute;
-    top: 30px;
-    right: 40px;
-    width: 48px;
-    height: 64px;
-    background: var(--theme-card) center/contain no-repeat;
-    opacity: 0.85;
+    inset: 0;
     pointer-events: none;
-    z-index: 0;
-    filter: drop-shadow(0 6px 12px rgba(232, 181, 75, 0.35));
-    transform: rotate(-8deg);
-    animation: jazz-card-sway 6s ease-in-out infinite;
+    z-index: 1;
+    background: radial-gradient(
+        ellipse 50% 40% at var(--jazz-spotlight-x) 30%,
+        rgba(232, 181, 75, 0.10) 0%,
+        rgba(232, 181, 75, 0.04) 30%,
+        transparent 70%
+    );
+    animation: jazz-spotlight 20s ease-in-out infinite alternate;
 }
-@keyframes jazz-card-sway {
-    0%, 100% { transform: rotate(-8deg) translateY(0); }
-    50%      { transform: rotate(-3deg) translateY(-6px); }
+@keyframes jazz-spotlight {
+    0%   { --jazz-spotlight-x: 15%; }
+    100% { --jazz-spotlight-x: 85%; }
 }
 
 .welcome-glow {
-    background: radial-gradient(circle at 50% 60%, rgba(232, 181, 75, 0.18) 0%, transparent 68%);
+    background: radial-gradient(
+        circle at 50% 40%,
+        rgba(232, 181, 75, 0.16) 0%,
+        rgba(110, 200, 240, 0.06) 40%,
+        transparent 68%
+    );
 }
 
 .welcome-hero,
@@ -120,31 +165,78 @@
     z-index: 2;
 }
 
+/* Hero: cartel de club con marco art déco */
 .welcome-hero {
     position: relative;
-    padding: 34px 28px 30px;
+    padding: 38px 32px 34px;
     background: linear-gradient(180deg, rgba(26, 18, 8, 0.94) 0%, rgba(15, 10, 5, 0.98) 100%);
-    border: 1px solid rgba(232, 181, 75, 0.32);
-    border-radius: 6px;
+    border: 2px solid rgba(232, 181, 75, 0.32);
+    border-radius: 4px;
     box-shadow:
         inset 0 0 0 1px rgba(232, 181, 75, 0.10),
-        inset 0 0 60px rgba(0, 0, 0, 0.50),
-        0 12px 32px rgba(0, 0, 0, 0.65),
+        inset 0 0 80px rgba(0, 0, 0, 0.50),
+        0 12px 32px rgba(0, 0, 0, 0.70),
         0 0 60px rgba(232, 181, 75, 0.12);
     max-width: 660px;
     margin-left: auto;
     margin-right: auto;
 }
 
-/* Esquinas con ornamento dorado (líneas dobles) */
+/* Esquinas art déco */
 .welcome-hero::before {
     content: '';
     position: absolute;
-    inset: 12px;
-    border: 1px dashed rgba(232, 181, 75, 0.22);
-    border-radius: 3px;
+    inset: 0;
+    border-radius: inherit;
     pointer-events: none;
     z-index: 0;
+    background-image:
+        var(--theme-deco-corner),
+        var(--theme-deco-corner),
+        var(--theme-deco-corner),
+        var(--theme-deco-corner);
+    background-size: 60px 60px;
+    background-position:
+        8px 8px,
+        calc(100% - 8px) 8px,
+        8px calc(100% - 8px),
+        calc(100% - 8px) calc(100% - 8px);
+    background-repeat: no-repeat;
+}
+
+/* Vinilo flotando en la esquina superior derecha */
+.welcome-hero::after {
+    content: '';
+    position: absolute;
+    top: -30px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    background: var(--theme-vinyl) center/contain no-repeat;
+    pointer-events: none;
+    z-index: 3;
+    filter: drop-shadow(0 6px 12px rgba(232, 181, 75, 0.45));
+    animation: jazz-vinyl-spin 12s linear infinite;
+}
+@keyframes jazz-vinyl-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* Carta flotando en la esquina inferior izquierda */
+.welcome-section::before {
+    content: '';
+    position: absolute;
+    bottom: -16px;
+    left: 18px;
+    width: 22px;
+    height: 30px;
+    background: var(--theme-card) center/contain no-repeat;
+    opacity: 0.55;
+    pointer-events: none;
+    z-index: 3;
+    transform: rotate(-14deg);
+    filter: drop-shadow(0 3px 6px rgba(232, 181, 75, 0.45));
 }
 
 .welcome-hero > * {
@@ -153,7 +245,9 @@
 }
 
 .welcome-hero h1 {
-    text-shadow: 0 0 24px rgba(232, 181, 75, 0.35);
+    text-shadow:
+        0 0 24px rgba(232, 181, 75, 0.40),
+        0 0 40px rgba(110, 200, 240, 0.15);
     letter-spacing: 0.005em;
 }
 
@@ -164,59 +258,125 @@
         0 12px 28px rgba(232, 181, 75, 0.40),
         0 4px 8px rgba(0, 0, 0, 0.60),
         0 0 0 3px rgba(232, 181, 75, 0.20),
-        0 0 0 6px rgba(232, 181, 75, 0.06);
-    animation: jazz-glow 4s ease-in-out infinite;
+        0 0 0 6px rgba(110, 200, 240, 0.10);
+    animation: jazz-glow-pulse 4s ease-in-out infinite;
 }
-@keyframes jazz-glow {
+@keyframes jazz-glow-pulse {
     0%, 100% {
         box-shadow:
             0 12px 28px rgba(232, 181, 75, 0.40),
             0 4px 8px rgba(0, 0, 0, 0.60),
             0 0 0 3px rgba(232, 181, 75, 0.20),
-            0 0 0 6px rgba(232, 181, 75, 0.06);
+            0 0 0 6px rgba(110, 200, 240, 0.10);
     }
     50% {
         box-shadow:
             0 12px 28px rgba(232, 181, 75, 0.70),
             0 4px 8px rgba(0, 0, 0, 0.60),
             0 0 0 3px rgba(232, 181, 75, 0.40),
-            0 0 0 7px rgba(232, 181, 75, 0.12),
+            0 0 0 7px rgba(110, 200, 240, 0.18),
             0 0 40px rgba(232, 181, 75, 0.45);
     }
 }
 
-/* ============ HEADER ============ */
+/* ================================================================
+   2. HEADER — Barra del club con neón
+   ================================================================ */
 .app-header {
     position: relative;
     background: linear-gradient(180deg, #1A1208 0%, #0F0A05 100%);
-    border-bottom: 1px solid rgba(232, 181, 75, 0.25);
+    border-bottom: 1px solid rgba(232, 181, 75, 0.28);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.50);
 }
+
+/* Línea de neón azul brillando */
 .app-header::after {
     content: '';
     position: absolute;
     bottom: -1px;
-    left: 18%;
-    right: 18%;
+    left: 12%;
+    right: 12%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, #E8B54B, transparent);
-    opacity: 0.75;
+    background: linear-gradient(90deg, transparent, #6EC8F0, #E8B54B, #6EC8F0, transparent);
+    opacity: 0.80;
     pointer-events: none;
     z-index: 1;
-    box-shadow: 0 0 8px rgba(232, 181, 75, 0.55);
+    box-shadow:
+        0 0 10px rgba(110, 200, 240, 0.60),
+        0 0 20px rgba(232, 181, 75, 0.30);
 }
 
-/* ============ SIDEBAR ============ */
+/* Logo con pulso de neón */
+.logo-mark {
+    position: relative;
+    background: linear-gradient(135deg, #E8B54B, #5A3A20);
+    box-shadow:
+        0 4px 12px rgba(232, 181, 75, 0.45),
+        inset 0 0 0 1px rgba(232, 181, 75, 0.25);
+    animation: jazz-neon-pulse 3s ease-in-out infinite;
+}
+@keyframes jazz-neon-pulse {
+    0%, 100% { box-shadow: 0 4px 12px rgba(232, 181, 75, 0.45), inset 0 0 0 1px rgba(232, 181, 75, 0.25); }
+    50%      { box-shadow: 0 4px 20px rgba(232, 181, 75, 0.75), inset 0 0 0 1px rgba(232, 181, 75, 0.45), 0 0 30px rgba(232, 181, 75, 0.30); }
+}
+
+/* ================================================================
+   3. SIDEBAR — Barra con cortina de terciopelo y humo
+   ================================================================ */
 .sidebar {
+    position: relative;
     background: linear-gradient(180deg, #1A1208 0%, #0F0A05 100%);
     border-right: 1px solid rgba(232, 181, 75, 0.20);
+    overflow: hidden;
+}
+
+/* Humo en el sidebar */
+.sidebar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.20;
+    background-image: var(--theme-smoke);
+    background-size: 50px 150px;
+    background-position: 50% 100%;
+    background-repeat: no-repeat;
+    animation: jazz-sidebar-smoke 10s ease-in-out infinite;
+}
+@keyframes jazz-sidebar-smoke {
+    0%, 100% { opacity: 0.15; transform: translateY(0); }
+    50%      { opacity: 0.30; transform: translateY(-10px); }
+}
+
+/* Cortina de terciopelo a la derecha */
+.sidebar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 3px;
+    background: linear-gradient(180deg, #7A1010, #3E0F0F, #7A1010);
+    opacity: 0.60;
+    pointer-events: none;
+    z-index: 2;
+    box-shadow: 0 0 8px rgba(122, 16, 16, 0.50);
+}
+
+.sidebar-comunidad,
+.sidebar-label,
+.sidebar-nav,
+.sidebar-mobile-header {
+    position: relative;
+    z-index: 3;
 }
 
 .nav-item.active::before {
     background: linear-gradient(180deg, #F5C518, #A87A1F);
     width: 3px;
     border-radius: 0 3px 3px 0;
-    box-shadow: 0 0 10px rgba(232, 181, 75, 0.65);
+    box-shadow: 0 0 12px rgba(232, 181, 75, 0.70);
 }
 .nav-item.active {
     background: rgba(232, 181, 75, 0.08);
@@ -229,12 +389,14 @@
     .sidebar { position: fixed; }
 }
 
-/* ============ ACCESOS ============ */
+/* ================================================================
+   4. ACCESOS RÁPIDOS — Carteles con carta flotante y deco
+   ================================================================ */
 .acceso-item {
     position: relative;
     background: linear-gradient(180deg, #241810 0%, #1A1208 100%);
-    border-color: rgba(232, 181, 75, 0.24);
-    border-radius: 8px;
+    border-color: rgba(232, 181, 75, 0.26);
+    border-radius: 6px;
     box-shadow:
         inset 0 1px 0 rgba(232, 181, 75, 0.06),
         0 2px 6px rgba(0, 0, 0, 0.50);
@@ -242,25 +404,25 @@
     overflow: visible;
 }
 
-/* Carta que asoma al hover */
+/* Carta que asoma y gira al hover */
 .acceso-item::after {
     content: '';
     position: absolute;
     top: -14px;
-    right: -10px;
-    width: 24px;
-    height: 32px;
+    right: -12px;
+    width: 26px;
+    height: 34px;
     background: var(--theme-card) center/contain no-repeat;
     opacity: 0;
-    transform: translateY(6px) rotate(-20deg) scale(0.6);
-    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform: translateY(8px) rotate(-30deg) scale(0.5);
+    transition: all 0.40s cubic-bezier(0.34, 1.56, 0.64, 1);
     pointer-events: none;
     z-index: 3;
     filter: drop-shadow(0 4px 8px rgba(232, 181, 75, 0.55));
 }
 .acceso-item:hover::after {
     opacity: 1;
-    transform: translateY(0) rotate(-8deg) scale(1);
+    transform: translateY(0) rotate(-10deg) scale(1);
 }
 
 .acceso-item:hover {
@@ -268,34 +430,43 @@
     transform: translateY(-3px);
     box-shadow:
         0 10px 22px rgba(232, 181, 75, 0.28),
-        0 0 0 1px rgba(232, 181, 75, 0.32);
+        0 0 0 1px rgba(232, 181, 75, 0.32),
+        0 0 30px rgba(110, 200, 240, 0.12);
 }
 .acceso-icon-wrap {
     background: rgba(232, 181, 75, 0.10);
     border: 1px solid rgba(232, 181, 75, 0.28);
     color: var(--violet-500);
     border-radius: 50%;
+    transition: all 0.22s;
 }
 .acceso-item:hover .acceso-icon-wrap {
     background: var(--accent-gradient);
     color: #0F0A05;
-    box-shadow: 0 0 0 3px rgba(232, 181, 75, 0.22);
+    box-shadow:
+        0 0 0 3px rgba(232, 181, 75, 0.22),
+        0 0 20px rgba(110, 200, 240, 0.20);
 }
 
-/* ============ WIDGETS ============ */
+/* ================================================================
+   5. WIDGETS — Mismo tratamiento con tecla de piano
+   ================================================================ */
 .widget-item {
-    border-color: rgba(232, 181, 75, 0.26);
-    border-radius: 8px;
+    border-color: rgba(232, 181, 75, 0.24);
+    border-radius: 6px;
     box-shadow:
         inset 0 1px 0 rgba(232, 181, 75, 0.06),
         0 4px 10px rgba(0, 0, 0, 0.55);
+    transition: all 0.22s;
 }
 .widget-item:hover {
     border-color: var(--violet-500);
     box-shadow: 0 10px 22px rgba(232, 181, 75, 0.24);
 }
 
-/* ============ PESTAÑAS ============ */
+/* ================================================================
+   6. PESTAÑAS — Neón dorado arriba
+   ================================================================ */
 .tab-item.active::before {
     content: '';
     position: absolute;
@@ -303,57 +474,69 @@
     left: 14px;
     right: 14px;
     height: 2px;
-    background: linear-gradient(90deg, transparent, #E8B54B, transparent);
+    background: linear-gradient(90deg, transparent, #E8B54B, #F5C518, #E8B54B, transparent);
     border-radius: 2px 2px 0 0;
-    box-shadow: 0 0 10px rgba(232, 181, 75, 0.65);
+    box-shadow:
+        0 0 10px rgba(232, 181, 75, 0.70),
+        0 0 20px rgba(232, 181, 75, 0.35);
     pointer-events: none;
 }
 .tab-item.active [data-lucide] {
     color: var(--violet-500);
 }
 
-/* ============ MODALES ============ */
+/* ================================================================
+   7. MODALES — Marco art déco con cartas y vinilo
+   ================================================================ */
 .config-card,
 .modal-todas-card {
     position: relative;
     overflow: hidden;
-    border: 1px solid rgba(232, 181, 75, 0.35);
-    border-radius: 8px;
+    border: 2px solid rgba(232, 181, 75, 0.38);
+    border-radius: 6px;
     box-shadow:
         inset 0 0 0 1px rgba(232, 181, 75, 0.12),
-        inset 0 0 60px rgba(0, 0, 0, 0.35),
+        inset 0 0 80px rgba(0, 0, 0, 0.40),
         0 24px 48px rgba(0, 0, 0, 0.85),
-        0 0 60px rgba(232, 181, 75, 0.14);
+        0 0 80px rgba(232, 181, 75, 0.14);
 }
+
+/* Esquinas art déco en el modal */
 .config-card::before,
 .modal-todas-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 4;
+    background-image:
+        var(--theme-deco-corner),
+        var(--theme-deco-corner),
+        var(--theme-deco-corner),
+        var(--theme-deco-corner);
+    background-size: 50px 50px;
+    background-position:
+        6px 6px,
+        calc(100% - 6px) 6px,
+        6px calc(100% - 6px),
+        calc(100% - 6px) calc(100% - 6px);
+    background-repeat: no-repeat;
+    opacity: 0.55;
+}
+
+/* Línea superior dorada */
+.config-card::after,
+.modal-todas-card::after {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 2px;
+    height: 3px;
     background: linear-gradient(90deg, transparent, #E8B54B, #F5C518, #E8B54B, transparent);
     pointer-events: none;
     z-index: 3;
-    box-shadow: 0 0 12px rgba(232, 181, 75, 0.65);
-}
-
-/* Carta decorativa en la esquina */
-.config-card::after,
-.modal-todas-card::after {
-    content: '';
-    position: absolute;
-    bottom: 12px;
-    right: 12px;
-    width: 20px;
-    height: 26px;
-    background: var(--theme-card) center/contain no-repeat;
-    opacity: 0.30;
-    pointer-events: none;
-    z-index: 4;
-    filter: drop-shadow(0 2px 4px rgba(232, 181, 75, 0.55));
-    transform: rotate(-12deg);
+    box-shadow: 0 0 12px rgba(232, 181, 75, 0.70);
 }
 
 .config-header,
@@ -362,8 +545,12 @@
     border-bottom-color: rgba(232, 181, 75, 0.22);
 }
 
-/* ============ BOTÓN ============ */
+/* ================================================================
+   8. BOTÓN PRIMARIO — Oro macizo con shimmer
+   ================================================================ */
 .btn-primario {
+    position: relative;
+    overflow: hidden;
     background: linear-gradient(135deg, #D19A2E, #A87A1F);
     border: 1px solid rgba(245, 197, 24, 0.40);
     color: #0F0A05;
@@ -371,15 +558,33 @@
     box-shadow:
         0 4px 12px rgba(232, 181, 75, 0.35),
         inset 0 1px 0 rgba(245, 197, 24, 0.30);
+    transition: all 0.22s;
+}
+.btn-primario::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(245, 197, 24, 0.45), transparent);
+    pointer-events: none;
+    transition: left 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-primario:hover::after {
+    left: 130%;
 }
 .btn-primario:hover {
     background: linear-gradient(135deg, #F5C518, #C99852);
     box-shadow:
         0 8px 22px rgba(232, 181, 75, 0.55),
-        0 0 0 3px rgba(232, 181, 75, 0.20);
+        0 0 0 3px rgba(232, 181, 75, 0.20),
+        0 0 30px rgba(110, 200, 240, 0.15);
 }
 
-/* ============ INPUTS ============ */
+/* ================================================================
+   9. INPUTS
+   ================================================================ */
 .config-field input,
 .config-field select,
 .config-select {
@@ -394,10 +599,13 @@
     border-color: var(--violet-500);
     box-shadow:
         inset 0 1px 3px rgba(0, 0, 0, 0.55),
-        0 0 0 3px rgba(232, 181, 75, 0.22);
+        0 0 0 3px rgba(232, 181, 75, 0.22),
+        0 0 20px rgba(110, 200, 240, 0.12);
 }
 
-/* ============ AVATAR Y NOTIF ============ */
+/* ================================================================
+   10. AVATAR Y NOTIFICACIONES
+   ================================================================ */
 .avatar-config {
     background: linear-gradient(135deg, #C99852, #A87A1F);
     border: 2px solid rgba(245, 197, 24, 0.55);
@@ -410,7 +618,8 @@
     box-shadow:
         0 6px 16px rgba(232, 181, 75, 0.55),
         0 0 0 1px var(--violet-400),
-        0 0 0 4px rgba(232, 181, 75, 0.22);
+        0 0 0 4px rgba(232, 181, 75, 0.22),
+        0 0 24px rgba(110, 200, 240, 0.15);
 }
 
 .noti-btn.tiene-no-leidas {
@@ -426,13 +635,20 @@
     color: var(--violet-500);
 }
 
-/* ============ REDUCED MOTION ============ */
+/* ================================================================
+   11. PREFERS-REDUCED-MOTION
+   ================================================================ */
 @media (prefers-reduced-motion: reduce) {
     .welcome-placeholder::before,
     .welcome-placeholder::after,
+    .welcome-hero::after,
     .welcome-icon-wrap,
+    .logo-mark,
     .acceso-item::after {
         animation: none !important;
         transition: none !important;
+    }
+    .sidebar::before {
+        animation: none !important;
     }
 }
