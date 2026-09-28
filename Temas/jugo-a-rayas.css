@@ -1,120 +1,215 @@
 /* ================================================
    Tema: Jugo a Rayas
-   Musicales. Inspirado en la estética del musical:
-   verde tóxico, morado profundo, rayas blanco y
-   negro, humo de escenario y luces de neón.
+   Musicales. Estética fiel al musical:
+   · Rayas blanco y negro verticales (icónicas)
+   · Sandworms (gusanos de arena) rayados
+   · Verde tóxico fluorescente que gotea
+   · Puertas del Netherworld flotando
+   · Humo de escenario
    ================================================ */
 
+@property --drip-y {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 0px;
+}
+
 :root {
-    /* Acento: Verde tóxico de Beetlejuice */
-    --violet-50:  #1A2E1A;
-    --violet-100: #1F3A1F;
-    --violet-200: #2A4A2A;
-    --violet-300: #4F983C;
-    --violet-400: #6BBF5A;
-    --violet-500: #8FD67E;
-    --violet-600: #4F983C;
-    --violet-700: #3A7A2A;
+    /* Acento: verde tóxico fluorescente */
+    --violet-50:  #0A1A0A;
+    --violet-100: #0F2A0F;
+    --violet-200: #1A3F1A;
+    --violet-300: #4ADE4A;
+    --violet-400: #6EE66E;
+    --violet-500: #8FFF8F;
+    --violet-600: #4ADE4A;
+    --violet-700: #2DA82D;
 
-    /* Superficies oscuras teatrales */
-    --white:   #1A1A1A;
-    --bg:      #0D0D0D;
-    --bg-alt:  #141414;
-    --gray-50:  #141414;
-    --gray-100: #1A1A1A;
-    --gray-200: #262626;
-    --gray-300: #3A3A3A;
-    --gray-400: #5A5A5A;
-    --gray-500: #8A8A8A;
-    --gray-600: #B0B0B0;
+    /* Superficies: negro puro con tinte */
+    --white:   #0F0F0F;
+    --bg:      #000000;
+    --bg-alt:  #0A0A0A;
+    --gray-50:  #0A0A0A;
+    --gray-100: #141414;
+    --gray-200: #1F1F1F;
+    --gray-300: #2E2E2E;
+    --gray-400: #4A4A4A;
+    --gray-500: #757575;
+    --gray-600: #A8A8A8;
     --gray-700: #D0D0D0;
-    --gray-800: #E5E5E5;
-    --gray-900: #F5F5F5;
+    --gray-800: #E8E8E8;
+    --gray-900: #FFFFFF;
 
-    --border:  #2A2A2A;
-    --text:    #F5F5F5;
-    --text-2:  #B0B0B0;
-    --text-3:  #8A8A8A;
+    --border:  #1F1F1F;
+    --text:    #FFFFFF;
+    --text-2:  #A8A8A8;
+    --text-3:  #757575;
 
-    /* Sombras teatrales */
-    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.5);
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.6);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
-    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.7);
-    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.8);
-    --shadow-glow: 0 0 0 4px rgba(79, 152, 60, 0.25);
+    /* Sombras */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.6);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.7);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.7);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.8);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.9);
+    --shadow-glow: 0 0 0 4px rgba(74, 222, 74, 0.30);
 
-    /* Acentos */
-    --accent-gradient: linear-gradient(135deg, #4F983C, #2A4A2A);
-    --accent-gradient-hover: linear-gradient(135deg, #6BBF5A, #3A7A2A);
-    --accent-shadow: rgba(79, 152, 60, 0.35);
-    --accent-shadow-hover: rgba(79, 152, 60, 0.55);
-    --accent-text-gradient: linear-gradient(135deg, #F5F5F5, #8FD67E);
+    --accent-gradient: linear-gradient(135deg, #4ADE4A, #2DA82D);
+    --accent-gradient-hover: linear-gradient(135deg, #6EE66E, #4ADE4A);
+    --accent-shadow: rgba(74, 222, 74, 0.45);
+    --accent-shadow-hover: rgba(74, 222, 74, 0.65);
+    --accent-text-gradient: linear-gradient(135deg, #FFFFFF, #8FFF8F);
 
-    /* Morado profundo del musical */
-    --teatro-morado: #7861D3;
-    --teatro-morado-claro: #9B7FE8;
+    /* Radios duros: estilo cartel */
+    --r-sm: 2px;
+    --r-md: 3px;
+    --r-lg: 4px;
+    --r-xl: 6px;
 
-    /* Radios: esquinas ligeramente irregulares */
-    --r-sm: 3px;
-    --r-md: 5px;
-    --r-lg: 8px;
-    --r-xl: 12px;
+    /* ------------------------------------------------------------
+       RAYAS BLANCO Y NEGRO — la firma visual del traje
+       ------------------------------------------------------------ */
+    --theme-stripes-v:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23FFFFFF'/%3E%3Cpath d='M0 0 L0 32 M8 0 L8 32 M16 0 L16 32 M24 0 L24 32' stroke='%23000000' stroke-width='4'/%3E%3C/svg%3E");
 
-    /* Rayas blanco y negro */
-    --theme-stripes: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%230D0D0D'/%3E%3Cpath d='M0 6 L40 6 M0 16 L40 16 M0 26 L40 26 M0 36 L40 36' stroke='%23FFFFFF' stroke-width='3' stroke-opacity='0.15'/%3E%3C/svg%3E");
+    --theme-stripes-d:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23FFFFFF'/%3E%3Cpath d='M-8 32 L32 -8 M-8 40 L40 -8 M0 32 L32 0 M8 32 L32 8 M16 32 L32 16 M24 32 L32 24' stroke='%23000000' stroke-width='4'/%3E%3C/svg%3E");
 
-    /* Humo de escenario (fijo al viewport para no cortarse) */
-    --theme-smoke: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,80 C200,50 400,95 600,70 C800,45 1000,90 1200,65 L1200,120 L0,120 Z' fill='%234F983C' fill-opacity='0.10'/%3E%3Cpath d='M0,95 C250,70 500,105 750,85 C1000,65 1100,95 1200,85 L1200,120 L0,120 Z' fill='%237861D3' fill-opacity='0.08'/%3E%3C/svg%3E");
+    /* ------------------------------------------------------------
+       PUERTA DEL NETHERWORLD — rectángulo blanco con rayas negras
+       ------------------------------------------------------------ */
+    --theme-door:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 90'%3E%3Crect width='60' height='90' fill='%23FFFFFF'/%3E%3Cpath d='M6 0 L6 90 M16 0 L16 90 M26 0 L26 90 M36 0 L36 90 M46 0 L46 90 M56 0 L56 90' stroke='%23000000' stroke-width='4'/%3E%3Crect x='0' y='0' width='60' height='90' fill='none' stroke='%23000000' stroke-width='3'/%3E%3C/svg%3E");
 
-    /* Estrella de marquesina */
-    --theme-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50,5 L61,35 L95,35 L68,55 L79,85 L50,65 L21,85 L32,55 L5,35 L39,35 Z' fill='%23F5C518'/%3E%3C/svg%3E");
+    /* ------------------------------------------------------------
+       SANDWORM — gusano de arena con rayas blanco y negro
+       y ojos amarillos. Cuerpo serpentino grueso.
+       ------------------------------------------------------------ */
+    --theme-sandworm:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 100'%3E%3Cdefs%3E%3CclipPath id='worm'%3E%3Cpath d='M20 50 C60 15 100 85 140 50 C180 15 220 85 260 50 C300 15 340 85 380 50 L380 70 C340 100 300 40 260 70 C220 100 180 40 140 70 C100 100 60 40 20 70 Z'/%3E%3C/clipPath%3E%3C/defs%3E%3Cg clip-path='url(%23worm)'%3E%3Crect width='400' height='100' fill='%23FFFFFF'/%3E%3Cg stroke='%23000000' stroke-width='6'%3E%3Cpath d='M0 0 L0 100 M16 0 L16 100 M32 0 L32 100 M48 0 L48 100 M64 0 L64 100 M80 0 L80 100 M96 0 L96 100 M112 0 L112 100 M128 0 L128 100 M144 0 L144 100 M160 0 L160 100 M176 0 L176 100 M192 0 L192 100 M208 0 L208 100 M224 0 L224 100 M240 0 L240 100 M256 0 L256 100 M272 0 L272 100 M288 0 L288 100 M304 0 L304 100 M320 0 L320 100 M336 0 L336 100 M352 0 L352 100 M368 0 L368 100 M384 0 L384 100 M400 0 L400 100'/%3E%3C/g%3E%3C/g%3E%3Cg%3E%3Ccircle cx='40' cy='42' r='4' fill='%23FFD400'/%3E%3Ccircle cx='40' cy='42' r='2' fill='%23000000'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* ------------------------------------------------------------
+       VERDE TÓXICO — gota que cuelga
+       ------------------------------------------------------------ */
+    --theme-drip:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 80' preserveAspectRatio='none'%3E%3Cpath d='M0 0 L40 0 L40 30 C34 34 30 40 28 50 C26 60 22 66 20 72 C18 66 14 60 12 50 C10 40 6 34 0 30 Z' fill='%234ADE4A'/%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   1. WELCOME — Escenario oscuro con humo fijo
+   1. WELCOME — Escenario del Netherworld
    ================================================================ */
 .welcome-placeholder {
     position: relative;
+    background-color: var(--bg);
     background-image:
-        var(--theme-smoke),
-        var(--theme-stripes),
-        radial-gradient(ellipse at top, rgba(79, 152, 60, 0.08) 0%, transparent 55%),
-        radial-gradient(ellipse at bottom, rgba(120, 97, 211, 0.06) 0%, transparent 50%);
+        /* Capa 1: sandworm cruzando por el medio */
+        var(--theme-sandworm),
+        /* Capa 2: puertas flotando */
+        var(--theme-door),
+        var(--theme-door),
+        var(--theme-door),
+        /* Capa 3: rayas diagonales sutiles */
+        var(--theme-stripes-d),
+        /* Capa 4: glow verde */
+        radial-gradient(ellipse at top, rgba(74, 222, 74, 0.10) 0%, transparent 55%),
+        radial-gradient(ellipse at bottom, rgba(74, 222, 74, 0.06) 0%, transparent 50%);
     background-size:
-        1200px 120px,
-        80px 80px,
+        380px 95px,
+        60px 90px,
+        45px 68px,
+        52px 78px,
+        40px 40px,
         100% 100%,
         100% 100%;
     background-position:
-        0% bottom,
+        center 180px,
+        8% 25%,
+        88% 15%,
+        12% 75%,
         0 0,
         center top,
         center bottom;
     background-repeat:
-        repeat-x,
+        no-repeat,
+        no-repeat,
+        no-repeat,
+        no-repeat,
         repeat,
         no-repeat,
         no-repeat;
     background-attachment:
-        fixed,       /* Humo fijo al viewport: nunca se corta */
+        fixed,
+        fixed,
+        fixed,
+        fixed,
         fixed,
         scroll,
         scroll;
-    background-color: var(--bg);
-    animation: smoke-drift 35s linear infinite;
+    overflow-x: hidden;
 }
 
-@keyframes smoke-drift {
-    from { background-position: 0% bottom, 0 0, center top, center bottom; }
-    to   { background-position: -1200px bottom, 0 0, center top, center bottom; }
+/* Verde tóxico goteando desde arriba del welcome */
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    pointer-events: none;
+    z-index: 1;
+    background-image:
+        var(--theme-drip),
+        var(--theme-drip),
+        var(--theme-drip),
+        var(--theme-drip),
+        var(--theme-drip),
+        var(--theme-drip);
+    background-size: 34px 60px;
+    background-position:
+        6% 0,
+        20% 0,
+        38% 0,
+        55% 0,
+        72% 0,
+        90% 0;
+    background-repeat: no-repeat;
+    filter: drop-shadow(0 4px 8px rgba(74, 222, 74, 0.45));
+    animation: toxic-drip 6s ease-in-out infinite;
+}
+@keyframes toxic-drip {
+    0%, 100% { transform: translateY(-4px); }
+    50%      { transform: translateY(2px); }
+}
+
+/* Segunda capa de goteo con delay distinto */
+.welcome-placeholder::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    pointer-events: none;
+    z-index: 1;
+    background-image:
+        var(--theme-drip),
+        var(--theme-drip),
+        var(--theme-drip);
+    background-size: 26px 45px;
+    background-position:
+        13% 0,
+        47% 0,
+        82% 0;
+    background-repeat: no-repeat;
+    opacity: 0.75;
+    animation: toxic-drip 4.5s ease-in-out infinite 1.5s;
 }
 
 .welcome-glow {
     background: radial-gradient(
         circle,
-        rgba(79, 152, 60, 0.15) 0%,
-        rgba(120, 97, 211, 0.08) 35%,
+        rgba(74, 222, 74, 0.18) 0%,
+        rgba(74, 222, 74, 0.06) 40%,
         transparent 68%
     );
 }
@@ -125,25 +220,36 @@
     z-index: 2;
 }
 
-/* Hero: marco teatral con borde verde neón */
+/* Hero: cartel de obra con marco rayado */
 .welcome-hero {
     position: relative;
     padding: 36px 28px 32px;
-    background: linear-gradient(
-        180deg,
-        rgba(26, 26, 26, 0.92) 0%,
-        rgba(13, 13, 13, 0.96) 100%
-    );
-    border: 2px solid rgba(79, 152, 60, 0.35);
-    border-radius: 4px;
+    background: #FFFFFF;
+    border: 4px solid #000000;
+    border-radius: 2px;
     box-shadow:
-        inset 0 0 0 1px rgba(79, 152, 60, 0.10),
-        inset 0 0 60px rgba(0, 0, 0, 0.50),
-        0 12px 32px rgba(0, 0, 0, 0.60),
-        0 0 60px rgba(79, 152, 60, 0.10);
+        8px 8px 0 #4ADE4A,
+        0 16px 40px rgba(0, 0, 0, 0.85);
     max-width: 660px;
     margin-left: auto;
     margin-right: auto;
+    overflow: hidden;
+}
+
+/* Rayas verticales sutiles dentro del hero */
+.welcome-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        90deg,
+        transparent 0,
+        transparent 20px,
+        rgba(0, 0, 0, 0.05) 20px,
+        rgba(0, 0, 0, 0.05) 22px
+    );
+    pointer-events: none;
+    z-index: 0;
 }
 
 .welcome-hero > * {
@@ -151,85 +257,113 @@
     z-index: 1;
 }
 
+/* Título: negro sobre blanco, con sombra verde tóxica */
 .welcome-hero h1 {
-    letter-spacing: 0.005em;
-    text-shadow: 0 0 20px rgba(79, 152, 60, 0.40);
+    color: #000000 !important;
+    letter-spacing: -0.01em;
+    text-shadow: 3px 3px 0 #4ADE4A;
+    font-weight: 900;
 }
 
-/* Icono: círculo oscuro con anillo verde neón */
+.welcome-hero p {
+    color: #2E2E2E !important;
+    font-weight: 700;
+}
+
+/* Icono: círculo rayado con anillo verde */
 .welcome-icon-wrap {
-    background: linear-gradient(135deg, #2A4A2A, #0D0D0D);
+    background: #000000;
     border-radius: 50%;
+    border: 4px solid #FFFFFF;
     box-shadow:
-        0 12px 28px rgba(79, 152, 60, 0.40),
-        0 4px 8px rgba(0, 0, 0, 0.60),
-        0 0 0 3px rgba(79, 152, 60, 0.20),
-        0 0 0 5px rgba(120, 97, 211, 0.10);
-    animation: icon-pulse 4s ease-in-out infinite;
+        0 0 0 3px #000000,
+        0 0 0 7px #4ADE4A,
+        0 12px 28px rgba(74, 222, 74, 0.50);
+    animation: icon-pulse 3.5s ease-in-out infinite;
 }
-
+.welcome-icon-wrap [data-lucide] {
+    color: #4ADE4A;
+}
 @keyframes icon-pulse {
     0%, 100% {
         box-shadow:
-            0 12px 28px rgba(79, 152, 60, 0.40),
-            0 4px 8px rgba(0, 0, 0, 0.60),
-            0 0 0 3px rgba(79, 152, 60, 0.20),
-            0 0 0 5px rgba(120, 97, 211, 0.10);
+            0 0 0 3px #000000,
+            0 0 0 7px #4ADE4A,
+            0 12px 28px rgba(74, 222, 74, 0.50);
     }
     50% {
         box-shadow:
-            0 12px 28px rgba(79, 152, 60, 0.60),
-            0 4px 8px rgba(0, 0, 0, 0.60),
-            0 0 0 3px rgba(79, 152, 60, 0.35),
-            0 0 0 6px rgba(120, 97, 211, 0.20),
-            0 0 40px rgba(79, 152, 60, 0.30);
+            0 0 0 3px #000000,
+            0 0 0 7px #8FFF8F,
+            0 12px 28px rgba(74, 222, 74, 0.85),
+            0 0 40px rgba(74, 222, 74, 0.50);
     }
 }
 
 /* ================================================================
-   2. HEADER — Marquesina de teatro
+   2. HEADER — Marquesina con rayas verticales
    ================================================================ */
 .app-header {
     position: relative;
-    background: linear-gradient(180deg, #141414 0%, #0D0D0D 100%);
-    border-bottom: 2px solid rgba(79, 152, 60, 0.30);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.50);
+    background: #000000;
+    border-bottom: 4px solid #4ADE4A;
+    padding-top: 4px;
 }
 
+/* Franja de rayas blanco y negro arriba del header */
+.app-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background-image: var(--theme-stripes-v);
+    background-size: 12px 12px;
+    background-repeat: repeat-x;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* Línea verde tóxica brillando debajo */
 .app-header::after {
     content: '';
     position: absolute;
-    bottom: -2px;
-    left: 10%;
-    right: 10%;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #4F983C, transparent);
-    opacity: 0.70;
+    bottom: -4px;
+    left: 5%;
+    right: 5%;
+    height: 4px;
+    background: #4ADE4A;
+    box-shadow:
+        0 0 12px rgba(74, 222, 74, 0.85),
+        0 0 24px rgba(74, 222, 74, 0.50);
     pointer-events: none;
     z-index: 1;
-    box-shadow: 0 0 10px rgba(79, 152, 60, 0.50);
 }
 
 /* ================================================================
-   3. SIDEBAR — Oscura con rayas sutiles
+   3. SIDEBAR — Oscura con franjas rayadas laterales
    ================================================================ */
 .sidebar {
     position: relative;
-    background: linear-gradient(180deg, #141414 0%, #0D0D0D 100%);
-    border-right: 1px solid rgba(79, 152, 60, 0.15);
+    background: #0A0A0A;
+    border-right: 3px solid #4ADE4A;
     overflow: hidden;
 }
 
+/* Franja rayada vertical pegada al borde derecho */
 .sidebar::before {
     content: '';
     position: absolute;
-    inset: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 8px;
+    background-image: var(--theme-stripes-v);
+    background-size: 8px 8px;
+    background-repeat: repeat-y;
     pointer-events: none;
-    z-index: 0;
-    opacity: 0.06;
-    background-image: var(--theme-stripes);
-    background-size: 60px 60px;
-    background-repeat: repeat;
+    z-index: 1;
 }
 
 .sidebar-comunidad,
@@ -237,112 +371,131 @@
 .sidebar-nav,
 .sidebar-mobile-header {
     position: relative;
-    z-index: 1;
+    z-index: 2;
 }
 
 .nav-item.active::before {
-    background: linear-gradient(180deg, #8FD67E, #4F983C);
+    background: linear-gradient(180deg, #8FFF8F, #4ADE4A);
     width: 3px;
-    box-shadow: 0 0 10px rgba(79, 152, 60, 0.55);
+    box-shadow: 0 0 10px rgba(74, 222, 74, 0.70);
     border-radius: 0 3px 3px 0;
 }
 
 .nav-item.active {
-    background: rgba(79, 152, 60, 0.08);
+    background: rgba(74, 222, 74, 0.08);
 }
 
-/* FIX drawer móvil */
 @media (max-width: 768px) {
     .sidebar { position: fixed; }
 }
 
 /* ================================================================
-   4. ACCESOS RÁPIDOS — Carteles de obra con estrella al hover
+   4. ACCESOS RÁPIDOS — Carteles rayados con hover tóxico
    ================================================================ */
 .acceso-item {
     position: relative;
-    background: linear-gradient(180deg, #1A1A1A 0%, #141414 100%);
-    border: 1px solid rgba(79, 152, 60, 0.20);
-    border-radius: 4px;
+    background: #FFFFFF;
+    border: 3px solid #000000;
+    border-radius: 2px;
     box-shadow:
-        inset 0 1px 0 rgba(79, 152, 60, 0.05),
-        0 2px 6px rgba(0, 0, 0, 0.50);
-    overflow: visible;
+        5px 5px 0 #000000,
+        0 2px 6px rgba(0, 0, 0, 0.55);
+    overflow: hidden;
     transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Estrella de marquesina al hover */
+/* Rayas verticales dentro del acceso */
+.acceso-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        90deg,
+        transparent 0,
+        transparent 14px,
+        rgba(0, 0, 0, 0.06) 14px,
+        rgba(0, 0, 0, 0.06) 16px
+    );
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Gota de verde tóxico en la esquina superior derecha */
 .acceso-item::after {
     content: '';
     position: absolute;
-    top: -10px;
-    right: -10px;
-    width: 24px;
-    height: 24px;
-    background: var(--theme-star) center/contain no-repeat;
+    top: 0;
+    right: 12px;
+    width: 14px;
+    height: 22px;
+    background: var(--theme-drip) center top / contain no-repeat;
     opacity: 0;
-    transform: translateY(6px) scale(0.5) rotate(-30deg);
-    transition:
-        opacity 0.28s,
-        transform 0.40s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform: translateY(-6px);
+    transition: all 0.30s cubic-bezier(0.34, 1.56, 0.64, 1);
     pointer-events: none;
     z-index: 3;
-    filter: drop-shadow(0 0 6px rgba(245, 197, 24, 0.85));
+    filter: drop-shadow(0 2px 4px rgba(74, 222, 74, 0.70));
 }
 
 .acceso-item:hover::after {
     opacity: 1;
-    transform: translateY(0) scale(1) rotate(0deg);
+    transform: translateY(0);
 }
 
 .acceso-item:hover {
-    transform: translateY(-3px);
-    border-color: var(--violet-300);
+    transform: translate(-2px, -2px);
     box-shadow:
-        inset 0 1px 0 rgba(79, 152, 60, 0.10),
-        0 10px 22px rgba(79, 152, 60, 0.25),
-        0 0 0 1px rgba(79, 152, 60, 0.30),
-        0 4px 10px rgba(0, 0, 0, 0.60);
+        7px 7px 0 #4ADE4A,
+        0 4px 12px rgba(74, 222, 74, 0.35);
+    border-color: #000000;
 }
 
 .acceso-icon-wrap {
-    background: rgba(79, 152, 60, 0.08);
-    border: 1px solid rgba(79, 152, 60, 0.25);
-    color: var(--violet-300);
+    background: #000000;
+    border: 2px solid #000000;
+    color: #4ADE4A;
     border-radius: 50%;
+    position: relative;
+    z-index: 1;
     transition: all 0.22s;
 }
 
 .acceso-item:hover .acceso-icon-wrap {
-    background: var(--accent-gradient);
-    color: #0D0D0D;
-    border-color: var(--violet-400);
+    background: #4ADE4A;
+    color: #000000;
     box-shadow:
-        0 0 0 3px rgba(79, 152, 60, 0.20),
-        0 6px 14px rgba(79, 152, 60, 0.45);
+        0 0 0 3px #000000,
+        0 0 16px rgba(74, 222, 74, 0.60);
+}
+
+.acceso-nombre {
+    color: #000000 !important;
+    font-weight: 800;
+    position: relative;
+    z-index: 1;
 }
 
 /* ================================================================
-   5. WIDGETS — Mismo tratamiento
+   5. WIDGETS — Mismo tratamiento de cartel
    ================================================================ */
 .widget-item {
-    border: 1px solid rgba(79, 152, 60, 0.22);
-    border-radius: 4px;
+    border: 3px solid #000000;
+    border-radius: 2px;
     box-shadow:
-        inset 0 1px 0 rgba(79, 152, 60, 0.05),
-        0 4px 10px rgba(0, 0, 0, 0.55);
+        5px 5px 0 #000000,
+        0 4px 10px rgba(0, 0, 0, 0.60);
     transition: all 0.22s;
 }
 
 .widget-item:hover {
-    border-color: var(--violet-300);
     box-shadow:
-        inset 0 1px 0 rgba(79, 152, 60, 0.10),
-        0 10px 22px rgba(79, 152, 60, 0.22);
+        7px 7px 0 #4ADE4A,
+        0 8px 20px rgba(74, 222, 74, 0.30);
+    transform: translate(-2px, -2px);
 }
 
 /* ================================================================
-   6. PESTAÑAS — Foco de escenario
+   6. PESTAÑAS — Foco tóxico arriba
    ================================================================ */
 .tab-item.active::before {
     content: '';
@@ -350,33 +503,35 @@
     top: 0;
     left: 14px;
     right: 14px;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #4F983C, transparent);
+    height: 3px;
+    background: #4ADE4A;
     border-radius: 2px 2px 0 0;
-    box-shadow: 0 0 8px rgba(79, 152, 60, 0.55);
+    box-shadow:
+        0 0 10px rgba(74, 222, 74, 0.75),
+        0 0 20px rgba(74, 222, 74, 0.40);
     pointer-events: none;
 }
 
 .tab-item.active [data-lucide] {
-    color: var(--violet-300);
+    color: #4ADE4A;
 }
 
 /* ================================================================
-   7. MODALES — Borde de marquesina
+   7. MODALES — Marco rayado con gota verde
    ================================================================ */
 .config-card,
 .modal-todas-card {
     position: relative;
     overflow: hidden;
-    border: 1px solid rgba(79, 152, 60, 0.30);
-    border-radius: 4px;
+    border: 3px solid #000000;
+    border-radius: 2px;
+    background: #FFFFFF;
     box-shadow:
-        inset 0 0 0 1px rgba(79, 152, 60, 0.10),
-        inset 0 0 60px rgba(0, 0, 0, 0.35),
-        0 24px 48px rgba(0, 0, 0, 0.80),
-        0 0 60px rgba(79, 152, 60, 0.12);
+        8px 8px 0 #4ADE4A,
+        0 24px 48px rgba(0, 0, 0, 0.85);
 }
 
+/* Barra rayada superior */
 .config-card::before,
 .modal-todas-card::before {
     content: '';
@@ -384,38 +539,74 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #4F983C, #8FD67E, #4F983C, transparent);
+    height: 8px;
+    background-image: var(--theme-stripes-v);
+    background-size: 16px 16px;
+    background-repeat: repeat-x;
     pointer-events: none;
     z-index: 3;
-    box-shadow: 0 0 10px rgba(79, 152, 60, 0.55);
+}
+
+/* Sombra verde sutil */
+.config-card::after,
+.modal-todas-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #4ADE4A;
+    box-shadow: 0 0 12px rgba(74, 222, 74, 0.60);
+    pointer-events: none;
+    z-index: 3;
 }
 
 .config-header,
 .modal-todas-header {
-    background: linear-gradient(180deg, #1A1A1A 0%, #141414 100%);
-    border-bottom-color: rgba(79, 152, 60, 0.22);
+    background: #FFFFFF;
+    border-bottom: 2px solid #000000;
+}
+
+/* Textos del modal en negro sobre blanco */
+.config-header h2,
+.modal-todas-header h2 {
+    color: #000000 !important;
+}
+
+.config-subtitle,
+.modal-subtitle {
+    color: #4A4A4A !important;
 }
 
 /* ================================================================
-   8. BOTÓN PRIMARIO — Verde neón con borde duro
+   8. BOTÓN PRIMARIO — Cartel rayado
    ================================================================ */
 .btn-primario {
-    background: linear-gradient(135deg, #4F983C, #3A7A2A);
-    border: 1px solid rgba(143, 214, 126, 0.35);
-    color: #0D0D0D;
-    font-weight: 800;
+    background: #000000;
+    border: 3px solid #000000;
+    color: #4ADE4A;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     box-shadow:
-        0 4px 12px rgba(79, 152, 60, 0.35),
-        inset 0 1px 0 rgba(143, 214, 126, 0.25);
+        4px 4px 0 #4ADE4A;
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-primario:hover {
-    background: linear-gradient(135deg, #6BBF5A, #4F983C);
+    background: #4ADE4A;
+    color: #000000;
+    transform: translate(-1px, -1px);
     box-shadow:
-        0 8px 22px rgba(79, 152, 60, 0.55),
-        0 0 0 3px rgba(79, 152, 60, 0.20),
-        inset 0 1px 0 rgba(143, 214, 126, 0.35);
+        5px 5px 0 #000000,
+        0 0 20px rgba(74, 222, 74, 0.55);
+}
+
+.btn-primario:active {
+    transform: translate(2px, 2px);
+    box-shadow:
+        2px 2px 0 #000000;
 }
 
 /* ================================================================
@@ -424,63 +615,65 @@
 .config-field input,
 .config-field select,
 .config-select {
-    background: rgba(13, 13, 13, 0.60);
-    border: 1px solid rgba(79, 152, 60, 0.22);
-    color: var(--text);
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.50);
+    background: #FFFFFF;
+    border: 2px solid #000000;
+    border-radius: 2px;
+    color: #000000;
+    font-weight: 700;
 }
 
 .config-field input:focus,
 .config-field select:focus,
 .config-select:focus {
-    border-color: var(--violet-300);
+    border-color: #4ADE4A;
     box-shadow:
-        inset 0 1px 3px rgba(0, 0, 0, 0.50),
-        0 0 0 3px rgba(79, 152, 60, 0.20);
+        4px 4px 0 #4ADE4A,
+        0 0 0 1px #000000;
 }
 
 /* ================================================================
    10. AVATAR Y NOTIFICACIONES
    ================================================================ */
 .avatar-config {
-    background: linear-gradient(135deg, #4F983C, #1F3A1F);
-    border: 2px solid rgba(79, 152, 60, 0.45);
+    background: #000000;
+    border: 3px solid #4ADE4A;
     box-shadow:
-        var(--shadow-sm),
-        0 0 0 1px rgba(13, 13, 13, 0.9),
-        0 0 0 3px rgba(79, 152, 60, 0.18);
+        0 0 0 2px #000000,
+        0 0 12px rgba(74, 222, 74, 0.50);
 }
 
 .avatar-config:hover {
     transform: translateY(-1px) scale(1.05);
     box-shadow:
-        0 6px 16px rgba(79, 152, 60, 0.50),
-        0 0 0 1px var(--violet-400),
-        0 0 0 4px rgba(79, 152, 60, 0.18);
+        0 0 0 2px #000000,
+        0 0 20px rgba(74, 222, 74, 0.80);
 }
 
 .noti-btn.tiene-no-leidas {
-    background: rgba(79, 152, 60, 0.12);
-    color: var(--violet-300);
+    background: rgba(74, 222, 74, 0.15);
+    color: #4ADE4A;
+    border: 2px solid #4ADE4A;
 }
 
 .search-bar:focus-within {
-    border-color: var(--violet-300);
-    box-shadow: var(--shadow-glow);
+    border-color: #4ADE4A;
+    box-shadow: 0 0 0 3px rgba(74, 222, 74, 0.30);
 }
 
 .search-bar:focus-within .search-icon {
-    color: var(--violet-300);
+    color: #4ADE4A;
 }
 
 /* ================================================================
    11. prefers-reduced-motion
    ================================================================ */
 @media (prefers-reduced-motion: reduce) {
-    .welcome-placeholder,
-    .welcome-icon-wrap,
-    .acceso-item::after {
+    .welcome-placeholder::before,
+    .welcome-placeholder::after,
+    .welcome-icon-wrap {
         animation: none !important;
+    }
+    .acceso-item::after {
         transition: none !important;
     }
 }
