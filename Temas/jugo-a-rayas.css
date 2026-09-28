@@ -1,408 +1,528 @@
 /* ================================================
    Tema: Jugo a Rayas
-   Rayas blanco y negro usadas como ACENTO delgado
-   (no como fondo completo). Verde radiactivo en
-   detalles. Fondo claro, limpio, legible.
-   Sigue el patrón de consentido.css / steampunk.css:
-   el fondo base es una superficie sólida, el patrón
-   decorativo va solo en franjas específicas.
+   Verde neón, morado, rayas blanco y negro.
+   Humo de escenario y estrellas de marquesina.
+   Estructura basada en pop-owner.css (que sí
+   funciona): se toca el layout pero con cuidado
+   en cada propiedad crítica.
    ================================================ */
 
 :root {
-    --violet-50:  #E8FBE8;
-    --violet-100: #C8EAC8;
-    --violet-200: #A5DFA5;
-    --violet-300: #7CCB7C;
-    --violet-400: #4CAF50;
-    --violet-500: #2E7D32;
-    --violet-600: #1B5E20;
-    --violet-700: #0D3D0D;
+    /* Acento verde tóxico */
+    --violet-50:  #0F2A1A;
+    --violet-100: #143824;
+    --violet-200: #1B4D30;
+    --violet-300: #2E7D32;
+    --violet-400: #22C55E;
+    --violet-500: #39FF14;   /* verde radiactivo */
+    --violet-600: #2AE80F;
+    --violet-700: #1FB808;
 
-    --white:   #FFFFFF;
-    --bg:      #F0F0F0;
-    --bg-alt:  #E8E8E8;
-    --gray-50:  #FAFAFA;
-    --gray-100: #F0F0F0;
-    --gray-200: #E0E0E0;
-    --gray-300: #C8C8C8;
-    --gray-400: #9A9A9A;
-    --gray-500: #6E6E6E;
-    --gray-600: #4E4E4E;
-    --gray-700: #333333;
-    --gray-800: #1F1F1F;
-    --gray-900: #0D0D0D;
+    /* Superficies oscuras de escenario */
+    --white:   #141414;
+    --bg:      #0A0A0A;
+    --bg-alt:  #0F0F0F;
+    --gray-50:  #0F0F0F;
+    --gray-100: #1A1A1A;
+    --gray-200: #262626;
+    --gray-300: #3A3A3A;
+    --gray-400: #6B6B6B;
+    --gray-500: #A1A1A1;
+    --gray-600: #D4D4D4;
+    --gray-700: #E5E5E5;
+    --gray-800: #F0F0F0;
+    --gray-900: #FFFFFF;
 
-    --border:  #D0D0D0;
-    --text:    #1F1F1F;
-    --text-2:  #4E4E4E;
-    --text-3:  #6E6E6E;
+    --border:  #262626;
+    --text:    #FFFFFF;
+    --text-2:  #A1A1A1;
+    --text-3:  #6B6B6B;
 
-    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.10);
-    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.14);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.18);
-    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.22);
-    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.28);
-    --shadow-glow: 0 0 0 4px rgba(46, 125, 50, 0.20);
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.60);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.70);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.60);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.75);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.85);
+    --shadow-glow: 0 0 0 3px rgba(57, 255, 20, 0.20);
 
     --accent-gradient: linear-gradient(135deg, #2E7D32, #0D3D0D);
-    --accent-gradient-hover: linear-gradient(135deg, #4CAF50, #1B5E20);
-    --accent-shadow: rgba(46, 125, 50, 0.35);
-    --accent-shadow-hover: rgba(46, 125, 50, 0.55);
-    --accent-text-gradient: linear-gradient(135deg, #1F1F1F, #2E7D32);
+    --accent-gradient-hover: linear-gradient(135deg, #39FF14, #1FB808);
+    --accent-shadow: rgba(57, 255, 20, 0.35);
+    --accent-shadow-hover: rgba(57, 255, 20, 0.55);
+    --accent-text-gradient: linear-gradient(135deg, #FFFFFF, #39FF14);
 
-    /* Verde radiactivo del "jugo" */
-    --juice-green: #39FF14;
-    --juice-glow:  rgba(57, 255, 20, 0.45);
-    --juice-black: #0D0D0D;
+    /* Tokens propios del tema */
+    --juice-green:  #39FF14;
+    --juice-purple: #9B5DE5;
+    --juice-black:  #0D0D0D;
+    --juice-purple-glow: rgba(155, 93, 229, 0.45);
 
-    /* Radios: esquinas duras, look gótico */
-    --r-sm: 4px;
-    --r-md: 6px;
-    --r-lg: 8px;
-    --r-xl: 12px;
+    --r-sm: 6px;
+    --r-md: 10px;
+    --r-lg: 14px;
+    --r-xl: 18px;
+
+    /* ============================================================
+       PATRÓN DE RAYAS BLANCO Y NEGRO (data URI SVG)
+       ============================================================ */
+    --theme-stripes: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%23FFFFFF'/%3E%3Crect x='0' y='0' width='20' height='40' fill='%230D0D0D'/%3E%3C/svg%3E");
+
+    /* ============================================================
+       RAYAS DIAGONALES (para el fondo del welcome)
+       ============================================================ */
+    --theme-stripes-diag: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Crect width='28' height='28' fill='%230A0A0A'/%3E%3Cpath d='M0,28 L28,0' stroke='%231A1A1A' stroke-width='8'/%3E%3C/svg%3E");
+
+    /* ============================================================
+       HUMO DE ESCENARIO — manchas difusas
+       ============================================================ */
+    --theme-smoke: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Cg fill='%23FFFFFF' fill-opacity='0.04'%3E%3Cellipse cx='80' cy='90' rx='90' ry='60'/%3E%3Cellipse cx='320' cy='150' rx='110' ry='70'/%3E%3Cellipse cx='150' cy='280' rx='120' ry='80'/%3E%3Cellipse cx='350' cy='350' rx='90' ry='60'/%3E%3C/g%3E%3Cg fill='%239B5DE5' fill-opacity='0.08'%3E%3Cellipse cx='200' cy='200' rx='140' ry='90'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* ============================================================
+       ESTRELLA DE MARQUESINA
+       ============================================================ */
+    --theme-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M20 3 L23 17 L37 20 L23 23 L20 37 L17 23 L3 20 L17 17 Z' fill='%23F5E050'/%3E%3Cpath d='M20 8 L22 18 L32 20 L22 22 L20 32 L18 22 L8 20 L18 18 Z' fill='%23FFFFFF' fill-opacity='0.7'/%3E%3C/svg%3E");
+
+    /* ============================================================
+       PUERTA BLANCA (homenaje al inframundo)
+       ============================================================ */
+    --theme-door: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 120'%3E%3Crect x='4' y='4' width='72' height='112' rx='2' fill='%23FFFFFF' stroke='%230D0D0D' stroke-width='3'/%3E%3Crect x='8' y='8' width='64' height='104' fill='none' stroke='%230D0D0D' stroke-width='1.5' stroke-dasharray='4 3'/%3E%3Crect x='52' y='52' width='12' height='12' rx='6' fill='%23F5E050' stroke='%230D0D0D' stroke-width='1.5'/%3E%3C/svg%3E");
+
+    /* ============================================================
+       SANDWORM minimalista
+       ============================================================ */
+    --theme-worm: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80'%3E%3Cpath d='M10,60 Q10,20 40,15 Q70,10 90,30 Q110,50 115,70' fill='none' stroke='%230D0D0D' stroke-width='18' stroke-linecap='round'/%3E%3Cpath d='M10,60 Q10,20 40,15 Q70,10 90,30 Q110,50 115,70' fill='none' stroke='%23FFFFFF' stroke-width='10' stroke-linecap='round' stroke-dasharray='8 8'/%3E%3Ccircle cx='28' cy='22' r='5' fill='%23DC2626'/%3E%3Ccircle cx='40' cy='18' r='5' fill='%23DC2626'/%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   WELCOME — fondo claro con patrón MUY sutil (mismo enfoque
-   que consentido.css: dots/diagonales al 0.03-0.04 de opacidad,
-   grid chico, así no se ve como un tablero)
+   1. WELCOME — escenario oscuro con rayas sutiles, humo
+   y puertas flotantes
    ================================================================ */
 .welcome-placeholder {
-    background-color: var(--bg);
+    position: relative;
+    background:
+        radial-gradient(ellipse at top, rgba(57, 255, 20, 0.08) 0%, transparent 55%),
+        radial-gradient(ellipse at bottom, rgba(155, 93, 229, 0.06) 0%, transparent 55%),
+        var(--bg);
+}
+
+/* Capa de puertas + humo + estrellas */
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
     background-image:
-        repeating-linear-gradient(
-            -45deg,
-            rgba(13, 13, 13, 0.035) 0px,
-            rgba(13, 13, 13, 0.035) 1px,
-            transparent 1px,
-            transparent 16px
-        );
+        var(--theme-door),
+        var(--theme-star),
+        var(--theme-star),
+        var(--theme-star),
+        var(--theme-star),
+        var(--theme-smoke);
+    background-size:
+        60px 90px,
+        24px 24px, 18px 18px, 28px 28px, 20px 20px,
+        600px 600px;
+    background-position:
+        6% 18%,
+        10% 8%, 88% 14%, 82% 78%, 14% 82%,
+        50% 50%;
+    background-repeat: no-repeat;
+    opacity: 0.85;
+    animation: juice-doors-float 14s ease-in-out infinite;
+}
+
+@keyframes juice-doors-float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
+}
+
+/* Segunda capa: más puertas y sandworm en las esquinas */
+.welcome-placeholder::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.6;
+    background-image:
+        var(--theme-door),
+        var(--theme-worm),
+        var(--theme-worm);
+    background-size: 52px 78px, 130px 90px, 110px 75px;
+    background-position:
+        90% 30%,
+        82% 85%,
+        22% 42%;
+    background-repeat: no-repeat;
+    animation: juice-worm-crawl 20s linear infinite;
+}
+
+@keyframes juice-worm-crawl {
+    0%   { background-position: 90% 30%, 82% 85%, 22% 42%; }
+    50%  { background-position: 90% 30%, 78% 80%, 26% 46%; }
+    100% { background-position: 90% 30%, 82% 85%, 22% 42%; }
 }
 
 .welcome-glow {
-    position: absolute;
-    top: -100px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: min(720px, 100%);
-    height: 720px;
     background: radial-gradient(
         circle,
-        rgba(57, 255, 20, 0.10) 0%,
-        transparent 65%
+        rgba(57, 255, 20, 0.20) 0%,
+        rgba(155, 93, 229, 0.10) 40%,
+        transparent 68%
     );
-    pointer-events: none;
-    z-index: 0;
 }
 
 .welcome-hero,
 .welcome-section {
     position: relative;
-    z-index: 1;
+    z-index: 2;
 }
 
 /* ================================================================
-   HERO — tarjeta blanca con banda de rayas arriba.
-   Sigue el patrón de consentido.css que pone la guirnalda solo
-   arriba y deja el resto del hero limpio.
+   2. HERO — cartel de marquesina con marco de rayas
+   CRÍTICO: sobreescribo background del h1 Y text-fill-color
+   para que el texto NO quede transparente.
    ================================================================ */
 .welcome-hero {
     position: relative;
-    background: var(--white);
-    border: 2px solid var(--juice-black);
-    border-radius: var(--r-md);
-    padding: 44px 32px 32px;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-    max-width: 680px;
+    padding: 36px 32px 32px;
+    background: linear-gradient(
+        180deg,
+        rgba(20, 20, 20, 0.94) 0%,
+        rgba(10, 10, 10, 0.98) 100%
+    );
+    border: 2px solid var(--juice-green);
+    border-radius: 4px;
+    box-shadow:
+        inset 0 0 0 1px rgba(57, 255, 20, 0.15),
+        inset 0 0 0 3px rgba(10, 10, 10, 1),
+        inset 0 0 0 4px rgba(155, 93, 229, 0.20),
+        0 20px 50px rgba(0, 0, 0, 0.85),
+        0 0 60px rgba(57, 255, 20, 0.15);
+    max-width: 640px;
     margin-left: auto;
     margin-right: auto;
     overflow: hidden;
 }
 
-/* Banda de rayas — solo arriba, 10px de alto */
+/* Marco punteado interno */
 .welcome-hero::before {
+    content: '';
+    position: absolute;
+    inset: 12px;
+    border: 1px dashed rgba(57, 255, 20, 0.30);
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Banda de rayas arriba */
+.welcome-hero::after {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 10px;
-    background: repeating-linear-gradient(
-        90deg,
-        #0D0D0D 0px, #0D0D0D 10px,
-        #FFFFFF 10px, #FFFFFF 20px
-    );
+    height: 8px;
+    background: var(--theme-stripes);
+    background-size: 16px 8px;
     pointer-events: none;
+    z-index: 1;
 }
 
-.welcome-icon-wrap {
-    background: var(--juice-black);
-    border: 3px solid var(--white);
-    border-radius: 50%;
-    width: 84px;
-    height: 84px;
-    box-shadow:
-        0 8px 20px rgba(0, 0, 0, 0.25),
-        0 0 0 2px var(--juice-black),
-        0 0 0 5px var(--juice-green),
-        0 0 24px var(--juice-glow);
-    animation: juice-pulse 3s ease-in-out infinite;
-    margin: 0 auto 4px;
+.welcome-hero > * {
+    position: relative;
+    z-index: 2;
 }
 
-@keyframes juice-pulse {
-    0%, 100% {
-        box-shadow:
-            0 8px 20px rgba(0, 0, 0, 0.25),
-            0 0 0 2px var(--juice-black),
-            0 0 0 5px var(--juice-green),
-            0 0 24px var(--juice-glow);
-    }
-    50% {
-        box-shadow:
-            0 8px 20px rgba(0, 0, 0, 0.25),
-            0 0 0 2px var(--juice-black),
-            0 0 0 5px var(--juice-green),
-            0 0 36px var(--juice-green);
-    }
-}
-
+/* h1: nuevo gradiente completo + forzar text-fill-color */
 .welcome-hero h1 {
-    color: var(--juice-black);
+    background: linear-gradient(135deg, #FFFFFF 0%, #39FF14 50%, #9B5DE5 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(57, 255, 20, 0.35);
     letter-spacing: -0.02em;
 }
 
+.welcome-hero p {
+    color: var(--text-2);
+}
+
+/* Icono: cubo negro girando con anillo verde y morado */
+.welcome-icon-wrap {
+    background:
+        radial-gradient(circle, #0A0A0A 30%, #1A1A1A 32%, #0A0A0A 34%),
+        linear-gradient(135deg, #1B4D30, #0D3D0D);
+    border-radius: 50%;
+    box-shadow:
+        0 12px 28px rgba(57, 255, 20, 0.40),
+        0 4px 8px rgba(0, 0, 0, 0.60),
+        0 0 0 4px rgba(10, 10, 10, 1),
+        0 0 0 5px rgba(57, 255, 20, 0.45),
+        0 0 0 7px rgba(155, 93, 229, 0.25),
+        0 0 40px rgba(57, 255, 20, 0.35);
+    animation: juice-vinyl-spin 18s linear infinite;
+}
+.welcome-icon-wrap::after {
+    display: none;
+}
+@keyframes juice-vinyl-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
 /* ================================================================
-   SECCIONES — tarjetas blancas sólidas (no translúcidas),
-   con una línea verde abajo. Igual a como hace consentido.css.
+   3. SECCIONES — páginas del programa con línea verde abajo
    ================================================================ */
 .welcome-section {
     position: relative;
-    background: var(--white);
-    border: 1.5px solid var(--border);
-    border-radius: var(--r-md);
-    padding: 22px 24px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-    overflow: hidden;
+    background: rgba(20, 20, 20, 0.72);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(57, 255, 20, 0.20);
+    border-radius: 4px;
+    padding: 18px 20px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
 }
 
 .welcome-section::after {
     content: '';
     position: absolute;
     bottom: 0;
-    left: 24px;
-    right: 24px;
+    left: 20px;
+    right: 20px;
     height: 2px;
     background: var(--juice-green);
-    border-radius: 2px;
-    opacity: 0.5;
+    box-shadow: 0 0 10px rgba(57, 255, 20, 0.55);
+    opacity: 0.7;
     pointer-events: none;
 }
 
 .welcome-section-header h2 {
-    color: var(--juice-black);
-}
-
-.welcome-section-header h2 [data-lucide] {
-    color: var(--violet-500);
-}
-
-/* ================================================================
-   ACCESOS RÁPIDOS — tarjeta blanca + banda rayada delgada arriba.
-   Nota importante: NO toco el ::before/::after originales con la
-   misma especificidad que style.css. Uso background-image en el
-   propio .acceso-item, así no rompo el hover overlay de style.css.
-   ================================================================ */
-.acceso-item {
-    position: relative;
-    background-color: var(--white);
-    background-image: repeating-linear-gradient(
-        90deg,
-        #0D0D0D 0px, #0D0D0D 6px,
-        #FFFFFF 6px, #FFFFFF 12px
-    );
-    background-size: 100% 4px;
-    background-position: top left;
-    background-repeat: no-repeat;
-    border: 1.5px solid var(--juice-black);
-    border-radius: var(--r-md);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-    padding-top: 22px; /* espacio para la banda rayada */
-    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.acceso-item:hover {
-    transform: translateY(-3px);
-    border-color: var(--juice-black);
-    box-shadow:
-        0 10px 22px rgba(0, 0, 0, 0.14),
-        0 0 0 2px var(--juice-green),
-        0 0 20px var(--juice-glow);
-}
-
-.acceso-icon-wrap {
-    background: var(--gray-100);
-    color: var(--juice-black);
-    border: 1.5px solid var(--juice-black);
-}
-
-.acceso-item:hover .acceso-icon-wrap {
-    background: var(--juice-black);
     color: var(--juice-green);
-    border-color: var(--juice-black);
-    box-shadow: 0 0 14px var(--juice-glow);
 }
 
 /* ================================================================
-   WIDGETS — mismo tratamiento, sin pseudo-elementos nuevos
-   ================================================================ */
-.widget-item {
-    position: relative;
-    background-color: var(--white);
-    background-image: repeating-linear-gradient(
-        90deg,
-        #0D0D0D 0px, #0D0D0D 6px,
-        #FFFFFF 6px, #FFFFFF 12px
-    );
-    background-size: 100% 4px;
-    background-position: top left;
-    background-repeat: no-repeat;
-    border: 1.5px solid var(--juice-black);
-    border-radius: var(--r-md);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.widget-item:hover {
-    border-color: var(--juice-black);
-    box-shadow:
-        0 12px 26px rgba(0, 0, 0, 0.16),
-        0 0 0 2px var(--juice-green);
-}
-
-/* ================================================================
-   SIDEBAR — limpio, solo un detalle verde en el activo
+   4. SIDEBAR — cuero negro limpio con acento verde
    ================================================================ */
 .sidebar {
-    background: var(--bg-alt);
-    border-right: 1px solid var(--border);
+    position: relative;
+    background: linear-gradient(180deg, #0F0F0F 0%, #0A0A0A 100%);
+    border-right: 1px solid rgba(57, 255, 20, 0.20);
+}
+
+.sidebar-comunidad,
+.sidebar-label,
+.sidebar-nav,
+.sidebar-mobile-header {
+    position: relative;
+    z-index: 1;
 }
 
 .sidebar-comunidad {
-    background: var(--white);
-    border: 1.5px solid var(--border);
-    border-radius: var(--r-sm);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    background: linear-gradient(135deg, #1A1A1A 0%, #0F0F0F 100%);
+    border-color: rgba(57, 255, 20, 0.20);
 }
 .sidebar-comunidad:hover {
-    border-color: var(--juice-black);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    border-color: rgba(57, 255, 20, 0.55);
+    box-shadow: 0 4px 12px rgba(57, 255, 20, 0.20);
 }
-
 .sidebar-comunidad-icono {
-    background: var(--gray-100);
-    color: var(--juice-black);
-}
-.sidebar-comunidad:hover .sidebar-comunidad-icono {
-    background: var(--juice-black);
+    background: rgba(57, 255, 20, 0.12);
     color: var(--juice-green);
 }
 
+.nav-item {
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
 .nav-item.active {
-    background: var(--white);
-    color: var(--violet-700);
+    background: linear-gradient(135deg, rgba(57, 255, 20, 0.14) 0%, rgba(46, 125, 50, 0.08) 100%);
+    color: #FFFFFF;
     box-shadow:
-        var(--shadow-xs),
-        inset 0 0 0 1px var(--violet-200),
-        0 0 0 2px var(--juice-green);
+        inset 0 0 0 1px rgba(57, 255, 20, 0.45),
+        0 4px 12px rgba(57, 255, 20, 0.15);
+}
+.nav-item.active::before {
+    background: linear-gradient(180deg, #39FF14, #9B5DE5);
+    width: 3px;
+    height: 22px;
+    box-shadow: 0 0 10px rgba(57, 255, 20, 0.65);
+}
+.nav-item.active .nav-icon {
+    color: var(--juice-green);
 }
 
-.nav-item.active::before {
-    background: var(--juice-black);
-    width: 3px;
-    height: 18px;
-    box-shadow: 0 0 8px var(--juice-glow);
+@media (max-width: 768px) {
+    .sidebar { position: fixed; }
 }
 
 /* ================================================================
-   HEADER — blanco con banda de rayas delgada al borde inferior
-   (igual que consentido.css que pone la franja de la bandera)
+   5. ACCESOS RÁPIDOS — cards oscuras con destellos al hover
    ================================================================ */
-.app-header {
+.acceso-item {
     position: relative;
-    background: var(--white);
-    border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg, #141414 0%, #0F0F0F 100%);
+    border: 1px solid rgba(57, 255, 20, 0.20);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        0 2px 6px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.app-header::after {
+/* Banda de rayas arriba con SVG (usando background en vez de ::before
+   porque style.css ya usa ::before para el overlay de hover) */
+.acceso-item {
+    background-image:
+        var(--theme-stripes),
+        linear-gradient(135deg, #141414 0%, #0F0F0F 100%);
+    background-size: 16px 6px, auto;
+    background-position: top left, center;
+    background-repeat: repeat-x, no-repeat;
+}
+
+/* Overlay de hover: reemplaza el de style.css (accent-gradient)
+   por un glow verde tóxico */
+.acceso-item::before {
+    background: radial-gradient(
+        circle at 50% 50%,
+        rgba(57, 255, 20, 0.20) 0%,
+        rgba(155, 93, 229, 0.10) 40%,
+        transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.25s;
+}
+.acceso-item:hover::before {
+    opacity: 1;
+}
+
+/* Estrellita de marquesina en la esquina */
+.acceso-item::after {
     content: '';
     position: absolute;
-    bottom: -4px;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: repeating-linear-gradient(
-        90deg,
-        #0D0D0D 0px, #0D0D0D 6px,
-        #FFFFFF 6px, #FFFFFF 12px
-    );
+    top: 12px;
+    right: 10px;
+    width: 14px;
+    height: 14px;
+    background: var(--theme-star) center/contain no-repeat;
+    opacity: 0;
+    transform: scale(0.4) rotate(-45deg);
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
     pointer-events: none;
-    z-index: 1;
-    opacity: 0.7;
+    z-index: 3;
+    filter: drop-shadow(0 0 6px rgba(245, 224, 80, 0.85));
+}
+.acceso-item:hover::after {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
 }
 
-.logo-mark {
-    background: var(--juice-black);
-    border: 2px solid var(--white);
+.acceso-item:hover {
+    transform: translateY(-4px) rotate(-0.5deg);
+    border-color: var(--juice-green);
     box-shadow:
-        0 2px 8px rgba(0, 0, 0, 0.20),
-        0 0 0 2px var(--juice-black),
-        0 0 10px var(--juice-glow);
+        0 14px 30px rgba(57, 255, 20, 0.28),
+        0 6px 12px rgba(0, 0, 0, 0.6),
+        inset 0 0 0 1px rgba(57, 255, 20, 0.20);
 }
 
-.logo-text {
-    background: linear-gradient(135deg, var(--juice-black), var(--violet-600));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+.acceso-icon-wrap {
+    background: rgba(57, 255, 20, 0.10);
+    color: var(--juice-green);
+    border: 1px solid rgba(57, 255, 20, 0.30);
+    transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.acceso-item:hover .acceso-icon-wrap {
+    background: linear-gradient(135deg, #39FF14 0%, #1FB808 100%);
+    color: #0D0D0D;
+    border-color: var(--juice-green);
+    transform: scale(1.10);
+    box-shadow:
+        0 8px 18px rgba(57, 255, 20, 0.50),
+        0 0 0 3px rgba(155, 93, 229, 0.25);
+}
+
+.acceso-nombre {
+    color: var(--text);
 }
 
 /* ================================================================
-   PESTAÑAS
+   6. WIDGETS — misma vibra
    ================================================================ */
-.tab-item.active {
-    background: var(--white);
-    color: var(--juice-black);
-    border-color: var(--border);
+.widget-item {
+    position: relative;
+    border: 1px solid rgba(57, 255, 20, 0.20);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        0 4px 12px rgba(0, 0, 0, 0.5);
+    transition: all 0.22s;
+    overflow: hidden;
+}
+.widget-item {
+    background-image:
+        var(--theme-stripes),
+        linear-gradient(135deg, #141414 0%, #0F0F0F 100%);
+    background-size: 16px 6px, auto;
+    background-position: top left, center;
+    background-repeat: repeat-x, no-repeat;
+}
+.widget-item:hover {
+    transform: translateY(-2px);
+    border-color: var(--juice-green);
+    box-shadow:
+        0 14px 30px rgba(57, 255, 20, 0.25),
+        0 6px 12px rgba(0, 0, 0, 0.6);
 }
 
+/* ================================================================
+   7. PESTAÑAS — pestaña activa con línea verde + morado
+   ================================================================ */
+.tab-item.active {
+    background: linear-gradient(180deg, #141414 0%, #0A0A0A 100%);
+    color: #FFFFFF;
+    border-color: rgba(57, 255, 20, 0.35);
+    box-shadow:
+        0 -1px 0 rgba(57, 255, 20, 0.35) inset,
+        0 -1px 0 rgba(155, 93, 229, 0.25);
+    position: relative;
+}
 .tab-item.active::before {
     content: '';
     position: absolute;
     top: 0;
-    left: 12px;
-    right: 12px;
+    left: 10px;
+    right: 10px;
     height: 2px;
-    background: var(--juice-black);
+    background: linear-gradient(90deg, transparent, #39FF14, #9B5DE5, #39FF14, transparent);
     border-radius: 2px 2px 0 0;
+    box-shadow:
+        0 0 10px rgba(57, 255, 20, 0.55),
+        0 0 20px rgba(155, 93, 229, 0.30);
     pointer-events: none;
 }
-
 .tab-item.active [data-lucide] {
     color: var(--juice-green);
-    filter: drop-shadow(0 0 4px var(--juice-glow));
 }
 
 /* ================================================================
-   MODALES — tarjeta blanca con banda de rayas arriba
+   8. MODALES — marco de rayas + borde verde
    ================================================================ */
 .config-card,
 .modal-todas-card {
     position: relative;
     overflow: hidden;
-    background: var(--white);
-    border: 2px solid var(--juice-black);
-    border-radius: var(--r-lg);
-    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.25);
+    border-radius: 4px;
+    border: 1px solid rgba(57, 255, 20, 0.35);
+    box-shadow:
+        inset 0 0 0 3px #0A0A0A,
+        inset 0 0 0 4px rgba(57, 255, 20, 0.35),
+        inset 0 0 0 5px #0A0A0A,
+        inset 0 0 0 6px rgba(155, 93, 229, 0.20),
+        0 24px 48px rgba(0, 0, 0, 0.85),
+        0 0 60px rgba(57, 255, 20, 0.15);
 }
 
 .config-card::before,
@@ -412,125 +532,173 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 10px;
-    background: repeating-linear-gradient(
-        90deg,
-        #0D0D0D 0px, #0D0D0D 10px,
-        #FFFFFF 10px, #FFFFFF 20px
-    );
+    height: 8px;
+    background: var(--theme-stripes);
+    background-size: 16px 8px;
     pointer-events: none;
     z-index: 5;
 }
 
+.config-card::after,
+.modal-todas-card::after {
+    content: '';
+    position: absolute;
+    bottom: 14px;
+    right: 14px;
+    width: 20px;
+    height: 20px;
+    background: var(--theme-star) center/contain no-repeat;
+    opacity: 0.55;
+    pointer-events: none;
+    z-index: 4;
+    filter: drop-shadow(0 0 6px rgba(245, 224, 80, 0.7));
+}
+
 .config-header,
 .modal-todas-header {
-    background: var(--gray-50);
-    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #1A1A1A 0%, #0F0F0F 100%);
+    border-bottom-color: rgba(57, 255, 20, 0.20);
     position: relative;
-    z-index: 5;
     padding-top: 14px;
 }
 
 /* ================================================================
-   BOTÓN PRIMARIO — verde con borde negro
+   9. BOTÓN PRIMARIO — verde tóxico con borde
    ================================================================ */
 .btn-primario {
-    background: var(--accent-gradient-hover);
-    border: 2px solid var(--juice-black);
-    color: var(--white);
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #2E7D32 0%, #0D3D0D 100%);
+    border: 1px solid rgba(57, 255, 20, 0.45);
+    color: #FFFFFF;
     font-weight: 800;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    box-shadow:
+        0 4px 14px rgba(57, 255, 20, 0.30),
+        inset 0 1px 0 rgba(255, 255, 255, 0.10);
 }
-
 .btn-primario:hover {
     transform: translateY(-1px);
+    background: linear-gradient(135deg, #39FF14 0%, #1FB808 100%);
+    color: #0D0D0D;
     box-shadow:
-        0 8px 20px rgba(0, 0, 0, 0.22),
-        0 0 0 3px var(--juice-green);
+        0 8px 22px rgba(57, 255, 20, 0.55),
+        0 0 0 3px rgba(155, 93, 229, 0.25);
 }
 
 /* ================================================================
-   BOTÓN SECUNDARIO
-   ================================================================ */
-.btn-secundario {
-    border: 2px solid var(--juice-black);
-    background: var(--white);
-    color: var(--juice-black);
-    font-weight: 700;
-}
-
-.btn-secundario:hover {
-    background: var(--gray-100);
-    border-color: var(--violet-600);
-    color: var(--violet-700);
-}
-
-/* ================================================================
-   INPUTS
+   10. INPUTS
    ================================================================ */
 .config-field input,
 .config-field select,
 .config-select {
-    background: var(--white);
-    border: 1.5px solid var(--juice-black);
-    color: var(--juice-black);
-    font-weight: 600;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(57, 255, 20, 0.25);
+    color: var(--text);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
 }
-
 .config-field input:focus,
 .config-field select:focus,
 .config-select:focus {
-    border-color: var(--violet-600);
-    box-shadow: 0 0 0 3px var(--juice-glow);
+    border-color: rgba(57, 255, 20, 0.65);
+    box-shadow:
+        inset 0 1px 3px rgba(0, 0, 0, 0.5),
+        0 0 0 3px rgba(57, 255, 20, 0.20);
 }
 
 /* ================================================================
-   AVATAR Y NOTIFICACIONES
+   11. NOTIFICACIONES Y AVATAR
    ================================================================ */
-.avatar-config {
-    background: var(--juice-black);
-    border: 2px solid var(--white);
-    box-shadow:
-        var(--shadow-sm),
-        0 0 0 1px var(--border),
-        0 0 0 3px var(--juice-green),
-        0 0 12px var(--juice-glow);
+.noti-btn.tiene-no-leidas {
+    background: rgba(57, 255, 20, 0.12);
+    color: var(--juice-green);
+}
+.noti-btn.tiene-no-leidas:hover {
+    background: rgba(57, 255, 20, 0.20);
+    color: #FFFFFF;
 }
 
+.avatar-config {
+    background: linear-gradient(135deg, #39FF14, #1FB808);
+    border: 2px solid #0D0D0D;
+    box-shadow:
+        var(--shadow-sm),
+        0 0 0 1px #0D0D0D,
+        0 0 0 3px rgba(155, 93, 229, 0.45);
+}
 .avatar-config:hover {
     transform: translateY(-1px) scale(1.05);
     box-shadow:
-        0 4px 12px rgba(0, 0, 0, 0.25),
-        0 0 0 1px var(--juice-black),
-        0 0 0 3px var(--juice-green),
-        0 0 22px var(--juice-green);
-}
-
-.noti-btn.tiene-no-leidas {
-    background: var(--violet-50);
-    color: var(--violet-600);
-    border: 1.5px solid var(--juice-black);
-}
-
-.noti-btn.tiene-no-leidas:hover {
-    background: var(--violet-100);
-    color: var(--violet-700);
+        0 6px 16px rgba(57, 255, 20, 0.55),
+        0 0 0 1px #39FF14,
+        0 0 0 4px rgba(155, 93, 229, 0.35);
 }
 
 .search-bar:focus-within {
-    border-color: var(--juice-black);
-    box-shadow: 0 0 0 3px var(--juice-glow);
+    border-color: var(--juice-green);
+    box-shadow: 0 0 0 4px rgba(57, 255, 20, 0.20);
 }
-
 .search-bar:focus-within .search-icon {
-    color: var(--juice-black);
+    color: var(--juice-green);
 }
 
 /* ================================================================
-   prefers-reduced-motion
+   12. LOGO — con estrella de marquesina
+   ================================================================ */
+.logo-mark {
+    background: linear-gradient(135deg, #0D0D0D 0%, #1A1A1A 100%);
+    position: relative;
+    overflow: visible;
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.40),
+        0 0 0 1px #0D0D0D,
+        0 0 12px rgba(57, 255, 20, 0.35);
+}
+.logo-mark::after {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 14px;
+    height: 14px;
+    background: var(--theme-star) center/contain no-repeat;
+    animation: juice-sparkle 2.8s ease-in-out infinite;
+    pointer-events: none;
+    filter: drop-shadow(0 0 6px rgba(245, 224, 80, 0.95));
+}
+@keyframes juice-sparkle {
+    0%, 100% { opacity: 0.45; transform: scale(0.9) rotate(0deg); }
+    50%      { opacity: 1;    transform: scale(1.20) rotate(45deg); }
+}
+
+/* ================================================================
+   13. HEADER — banda de rayas arriba del borde
+   ================================================================ */
+.app-header {
+    position: relative;
+    border-bottom: 3px solid #0D0D0D;
+}
+.app-header::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: var(--theme-stripes);
+    background-size: 16px 6px;
+    pointer-events: none;
+    z-index: 1;
+    box-shadow: 0 0 12px rgba(57, 255, 20, 0.35);
+}
+
+/* ================================================================
+   14. prefers-reduced-motion
    ================================================================ */
 @media (prefers-reduced-motion: reduce) {
-    .welcome-icon-wrap {
+    .logo-mark::after,
+    .welcome-icon-wrap,
+    .welcome-placeholder::before,
+    .welcome-placeholder::after {
         animation: none !important;
     }
 }
