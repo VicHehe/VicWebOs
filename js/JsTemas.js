@@ -768,23 +768,82 @@ const TEMAS_DISPONIBLES = [
     //  MUSICALES — El arte de la escena
     //  Referencias a obras de teatro musical, sin nombres propios.
     // ============================================================
+        // ============================================================
+    //  CINE — Géneros cinematográficos
+    //  Cada tema evoca la gramática visual de un género de cine,
+    //  sin nombres de películas ni franquicias específicas.
+    // ============================================================
     {
-    id: 'jugo-a-rayas',
-    nombre: 'Jugo a Rayas',
-    icono: 'ghost',
-    descripcion: 'Estética de comedia oscura. Fondo claro con bandas de rayas blanco y negro, detalles verdes radiactivos y decoración gótica sutil.',
-    categoria: 'Musicales',
-    ruta: 'Temas/jugo-a-rayas.css',
-    espacio: 4,
-    monedas: 45,
-    colores: {
-        '--violet-100': '#C8EAC8',
-        '--violet-300': '#7CCB7C',
-        '--violet-500': '#2E7D32',
-        '--bg':         '#F4F4F4',
-        '--bg-alt':     '#EAEAEA',
-        '--white':      '#FFFFFF'
+        id: 'cine-romance-escolar',
+        nombre: 'Cine Romance Escolar',
+        icono: 'graduation-cap',
+        descripcion: 'Comedia romántica de secundaria. Cuaderno rayado, corazón y luz cálida de tarde noventera.',
+        categoria: 'Cine',
+        ruta: 'Temas/cine-romance-escolar.css',
+        espacio: 4,
+        monedas: 30,
+        colores: {
+            '--violet-100': '#FFE4DE',
+            '--violet-300': '#E8A0A0',
+            '--violet-500': '#C25E5E',
+            '--bg':         '#FFF8F2',
+            '--bg-alt':     '#FCEFE4',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
+        id: 'cine-ciencia-ficcion',
+        nombre: 'Cine de Ciencia Ficción',
+        icono: 'rocket',
+        descripcion: 'Sci-fi clásico. Grid HUD, estrellas titilando, líneas de datos y azul eléctrico de nave nodriza.',
+        categoria: 'Cine',
+        ruta: 'Temas/cine-ciencia-ficcion.css',
+        espacio: 4,
+        monedas: 40,
+        colores: {
+            '--violet-100': '#0F1E36',
+            '--violet-300': '#2E5A8C',
+            '--violet-500': '#6EC8F0',
+            '--bg':         '#060D1A',
+            '--bg-alt':     '#0A1526',
+            '--white':      '#0F1A30'
+        }
+    },
+    {
+        id: 'cine-terror',
+        nombre: 'Cine de Terror',
+        icono: 'skull',
+        descripcion: 'Terror clásico. Negro carbón, rojo sangre, niebla arrastrándose y luz titilante de proyector viejo.',
+        categoria: 'Cine',
+        ruta: 'Temas/cine-terror.css',
+        espacio: 4,
+        monedas: 40,
+        colores: {
+            '--violet-100': '#2A0A0A',
+            '--violet-300': '#7A1010',
+            '--violet-500': '#DC2626',
+            '--bg':         '#050505',
+            '--bg-alt':     '#0A0A0A',
+            '--white':      '#0A0A0A'
+        }
+    },
+    {
+        id: 'cine-retro-jazz',
+        nombre: 'Cine Retro Jazz',
+        icono: 'music-4',
+        descripcion: 'Club de jazz noir + salón de apuestas de los 50. Dorado ámbar, humo subiendo, cartas y luz cálida de pantalla.',
+        categoria: 'Cine',
+        ruta: 'Temas/cine-retro-jazz.css',
+        espacio: 4,
+        monedas: 45,
+        colores: {
+            '--violet-100': '#3E2818',
+            '--violet-300': '#A87A3C',
+            '--violet-500': '#E8B54B',
+            '--bg':         '#0F0A05',
+            '--bg-alt':     '#1A1208',
+            '--white':      '#1A1208'
+        }
     }
-}
 ];
 
