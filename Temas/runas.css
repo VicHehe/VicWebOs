@@ -1,0 +1,513 @@
+/* ================================================
+   Tema: Runas
+   Mitología nórdica. Piedras con runas grabadas
+   que laten con luz azul fría, escarcha en las
+   esquinas y niebla subiendo desde el suelo.
+   Gélido, ancestral, místico.
+   ================================================ */
+
+:root {
+    /* Acento azul hielo */
+    --violet-50:  #0F1A22;
+    --violet-100: #16252F;
+    --violet-200: #20323D;
+    --violet-300: #4A8DB0;
+    --violet-400: #5EA9CC;
+    --violet-500: #7DD3FC;
+    --violet-600: #38BDF8;
+    --violet-700: #0EA5E9;
+
+    /* Slate oscuro con tinte azul-verdoso */
+    --white:   #162027;
+    --bg:      #0C1418;
+    --bg-alt:  #101A20;
+    --gray-50:  #101A20;
+    --gray-100: #18242C;
+    --gray-200: #253740;
+    --gray-300: #3A4F5C;
+    --gray-400: #5C7480;
+    --gray-500: #8A9EAB;
+    --gray-600: #B0C2CE;
+    --gray-700: #D0DCE4;
+    --gray-800: #E5EDF2;
+    --gray-900: #F5F9FC;
+
+    --border:  #253740;
+    --text:    #F5F9FC;
+    --text-2:  #B0C2CE;
+    --text-3:  #8A9EAB;
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.45);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.55);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.55);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.65);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.75);
+    --shadow-glow: 0 0 0 4px rgba(125, 211, 252, 0.18);
+
+    --accent-gradient: linear-gradient(135deg, #7DD3FC, #0EA5E9);
+    --accent-gradient-hover: linear-gradient(135deg, #BAE6FD, #38BDF8);
+    --accent-shadow: rgba(125, 211, 252, 0.35);
+    --accent-shadow-hover: rgba(125, 211, 252, 0.55);
+    --accent-text-gradient: linear-gradient(135deg, #F5F9FC, #7DD3FC);
+
+    /* Radios mínimos: piedra tallada, no card moderna */
+    --r-sm: 3px;
+    --r-md: 5px;
+    --r-lg: 7px;
+    --r-xl: 10px;
+
+    /* Runa ᚠ aislada — sello del tema */
+    --theme-runa: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 30'%3E%3Cpath d='M7,3 L7,27 M7,10 L14,4 M7,18 L14,12' stroke='%237DD3FC' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+
+    /* Grupo de 3 runas (ᚠ ᚦ ᛗ) — fondo repetido sutil */
+    --theme-runas-grupo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cg stroke='%237DD3FC' stroke-width='1.4' fill='none' stroke-linecap='round' stroke-linejoin='round' opacity='0.55'%3E%3Cpath d='M10,5 L10,30 M10,13 L17,8 M10,21 L17,16'/%3E%3Cpath d='M30,5 L30,28 M30,12 L38,20 L30,28'/%3E%3Cpath d='M45,5 L57,25 M57,5 L45,25'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* Escarcha — cluster de agujas de hielo */
+    --theme-frost: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg stroke='%237DD3FC' stroke-width='1' fill='none' stroke-linecap='round' opacity='0.7'%3E%3Cline x1='4' y1='4' x2='20' y2='4'/%3E%3Cline x1='4' y1='4' x2='4' y2='20'/%3E%3Cline x1='4' y1='4' x2='16' y2='16'/%3E%3Cline x1='10' y1='4' x2='10' y2='10'/%3E%3Cline x1='4' y1='10' x2='10' y2='10'/%3E%3Cline x1='16' y1='4' x2='16' y2='7'/%3E%3Cline x1='4' y1='16' x2='7' y2='16'/%3E%3Cline x1='14' y1='4' x2='16' y2='6'/%3E%3Cline x1='4' y1='14' x2='6' y2='16'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* Niebla baja — capa de vapor frío */
+    --theme-mist: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 40' preserveAspectRatio='none'%3E%3Cpath d='M0,22 Q25,10 50,22 T100,22 T150,22 T200,22 L200,40 L0,40 Z' fill='%237DD3FC' fill-opacity='0.14'/%3E%3Cpath d='M0,28 Q30,18 60,28 T120,28 T180,28 T200,28 L200,40 L0,40 Z' fill='%237DD3FC' fill-opacity='0.10'/%3E%3C/svg%3E");
+}
+
+/* ================================================================
+   1. WELCOME — piedras con runas + niebla que sube
+   ================================================================ */
+.welcome-placeholder {
+    position: relative;
+    background:
+        radial-gradient(ellipse at top, rgba(125, 211, 252, 0.06) 0%, transparent 55%),
+        radial-gradient(ellipse at bottom, rgba(14, 165, 233, 0.08) 0%, transparent 50%),
+        var(--bg);
+}
+
+/* Runas grabadas en el fondo */
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.22;
+    background-image: var(--theme-runas-grupo);
+    background-size: 280px 280px;
+    background-position: center;
+    background-repeat: repeat;
+}
+
+/* Niebla que sube desde el fondo */
+.welcome-placeholder::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 160px;
+    background: var(--theme-mist) repeat-x bottom;
+    background-size: 400px 60px;
+    pointer-events: none;
+    z-index: 0;
+    animation: runas-mist-drift 32s linear infinite;
+}
+@keyframes runas-mist-drift {
+    from { background-position: 0 bottom; }
+    to   { background-position: -400px bottom; }
+}
+
+.welcome-glow {
+    background: radial-gradient(
+        circle,
+        rgba(125, 211, 252, 0.12) 0%,
+        rgba(14, 165, 233, 0.06) 35%,
+        transparent 68%
+    );
+}
+
+.welcome-hero,
+.welcome-section {
+    position: relative;
+    z-index: 2;
+}
+
+/* Hero tipo "altar de piedra" */
+.welcome-hero {
+    position: relative;
+    padding: 36px 28px 32px;
+    background: linear-gradient(
+        180deg,
+        rgba(22, 32, 39, 0.90) 0%,
+        rgba(16, 26, 32, 0.96) 100%
+    );
+    border: 1px solid rgba(125, 211, 252, 0.22);
+    border-radius: 4px;
+    box-shadow:
+        inset 0 0 0 1px rgba(125, 211, 252, 0.08),
+        inset 0 0 40px rgba(0, 0, 0, 0.55),
+        0 12px 32px rgba(0, 0, 0, 0.55);
+    max-width: 660px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Escarcha en las 4 esquinas */
+.welcome-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+        var(--theme-frost),
+        var(--theme-frost),
+        var(--theme-frost),
+        var(--theme-frost);
+    background-size: 34px 34px;
+    background-position:
+        6px 6px,
+        calc(100% - 6px) 6px,
+        6px calc(100% - 6px),
+        calc(100% - 6px) calc(100% - 6px);
+    background-repeat: no-repeat;
+}
+
+.welcome-hero > * {
+    position: relative;
+    z-index: 1;
+}
+
+.welcome-hero h1 {
+    letter-spacing: 0.01em;
+    text-shadow: 0 0 20px rgba(125, 211, 252, 0.30);
+}
+
+/* Icono con glow frío pulsante */
+.welcome-icon-wrap {
+    background: linear-gradient(135deg, #4A8DB0, #0F1A22);
+    border-radius: 50%;
+    box-shadow:
+        0 12px 28px rgba(125, 211, 252, 0.35),
+        0 4px 8px rgba(0, 0, 0, 0.50),
+        0 0 0 3px rgba(125, 211, 252, 0.15),
+        0 0 0 5px rgba(125, 211, 252, 0.06);
+    animation: runas-pulse 4s ease-in-out infinite;
+}
+@keyframes runas-pulse {
+    0%, 100% {
+        box-shadow:
+            0 12px 28px rgba(125, 211, 252, 0.35),
+            0 4px 8px rgba(0, 0, 0, 0.50),
+            0 0 0 3px rgba(125, 211, 252, 0.15),
+            0 0 0 5px rgba(125, 211, 252, 0.06);
+    }
+    50% {
+        box-shadow:
+            0 12px 28px rgba(125, 211, 252, 0.60),
+            0 4px 8px rgba(0, 0, 0, 0.50),
+            0 0 0 3px rgba(125, 211, 252, 0.30),
+            0 0 0 6px rgba(125, 211, 252, 0.12),
+            0 0 40px rgba(125, 211, 252, 0.35);
+    }
+}
+
+/* ================================================================
+   2. HEADER — línea de runa iluminada
+   ================================================================ */
+.app-header {
+    position: relative;
+    background: linear-gradient(180deg, #101A20 0%, #0C1418 100%);
+    border-bottom: 1px solid rgba(125, 211, 252, 0.20);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+.app-header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 15%;
+    right: 15%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #7DD3FC, transparent);
+    opacity: 0.60;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* ================================================================
+   3. SIDEBAR — runas verticales grabadas
+   ================================================================ */
+.sidebar {
+    position: relative;
+    background: linear-gradient(180deg, #101A20 0%, #0C1418 100%);
+    border-right: 1px solid rgba(125, 211, 252, 0.15);
+    overflow: hidden;
+}
+.sidebar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.08;
+    background-image: var(--theme-runa);
+    background-size: 42px 62px;
+    background-position: center 20px;
+    background-repeat: repeat-y;
+}
+.sidebar-comunidad,
+.sidebar-label,
+.sidebar-nav,
+.sidebar-mobile-header {
+    position: relative;
+    z-index: 1;
+}
+
+.nav-item.active::before {
+    background: linear-gradient(180deg, #7DD3FC, #0EA5E9);
+    width: 3px;
+    box-shadow: 0 0 10px rgba(125, 211, 252, 0.55);
+    border-radius: 0 3px 3px 0;
+}
+.nav-item.active {
+    background: rgba(125, 211, 252, 0.06);
+}
+
+/* FIX drawer móvil */
+@media (max-width: 768px) {
+    .sidebar { position: fixed; }
+}
+
+/* ================================================================
+   4. ACCESOS RÁPIDOS — piedra tallada con runa al hover
+   ================================================================ */
+.acceso-item {
+    position: relative;
+    background: linear-gradient(180deg, #18242C 0%, #101A20 100%);
+    border: 1px solid rgba(125, 211, 252, 0.18);
+    border-radius: 4px;
+    box-shadow:
+        inset 0 1px 0 rgba(125, 211, 252, 0.05),
+        0 2px 6px rgba(0, 0, 0, 0.45);
+    overflow: visible;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Runa que aparece al hover */
+.acceso-item::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 26px;
+    height: 34px;
+    background: var(--theme-runa) center/contain no-repeat;
+    opacity: 0;
+    transform: translateY(6px) scale(0.7);
+    transition:
+        opacity 0.28s,
+        transform 0.40s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+    z-index: 3;
+    filter: drop-shadow(0 0 6px rgba(125, 211, 252, 0.75));
+}
+.acceso-item:hover::after {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.acceso-item:hover {
+    transform: translateY(-3px);
+    border-color: var(--violet-500);
+    box-shadow:
+        inset 0 1px 0 rgba(125, 211, 252, 0.10),
+        0 10px 22px rgba(125, 211, 252, 0.22),
+        0 0 0 1px rgba(125, 211, 252, 0.25),
+        0 4px 10px rgba(0, 0, 0, 0.55);
+}
+
+.acceso-icon-wrap {
+    background: rgba(125, 211, 252, 0.08);
+    border: 1px solid rgba(125, 211, 252, 0.22);
+    color: var(--violet-500);
+    border-radius: 50%;
+    transition: all 0.22s;
+}
+.acceso-item:hover .acceso-icon-wrap {
+    background: var(--accent-gradient);
+    color: #0C1418;
+    border-color: var(--violet-400);
+    box-shadow:
+        0 0 0 3px rgba(125, 211, 252, 0.20),
+        0 6px 14px rgba(125, 211, 252, 0.40);
+}
+
+/* ================================================================
+   5. WIDGETS — mismo tratamiento de piedra
+   ================================================================ */
+.widget-item {
+    border: 1px solid rgba(125, 211, 252, 0.20);
+    border-radius: 4px;
+    box-shadow:
+        inset 0 1px 0 rgba(125, 211, 252, 0.05),
+        0 4px 10px rgba(0, 0, 0, 0.50);
+    transition: all 0.22s;
+}
+.widget-item:hover {
+    border-color: var(--violet-500);
+    box-shadow:
+        inset 0 1px 0 rgba(125, 211, 252, 0.10),
+        0 10px 22px rgba(125, 211, 252, 0.20);
+}
+
+/* ================================================================
+   6. PESTAÑAS — marca de runa arriba
+   ================================================================ */
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 14px;
+    right: 14px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #7DD3FC, transparent);
+    border-radius: 2px 2px 0 0;
+    box-shadow: 0 0 8px rgba(125, 211, 252, 0.55);
+    pointer-events: none;
+}
+.tab-item.active [data-lucide] {
+    color: var(--violet-500);
+}
+
+/* ================================================================
+   7. MODALES — borde tallado con runa central
+   ================================================================ */
+.config-card,
+.modal-todas-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(125, 211, 252, 0.28);
+    border-radius: 4px;
+    box-shadow:
+        inset 0 0 0 1px rgba(125, 211, 252, 0.10),
+        inset 0 0 60px rgba(0, 0, 0, 0.35),
+        0 24px 48px rgba(0, 0, 0, 0.75),
+        0 0 60px rgba(125, 211, 252, 0.10);
+}
+
+/* Línea superior de hielo */
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #7DD3FC, #BAE6FD, #7DD3FC, transparent);
+    pointer-events: none;
+    z-index: 3;
+    box-shadow: 0 0 10px rgba(125, 211, 252, 0.55);
+}
+
+/* Runa en la esquina inferior derecha */
+.config-card::after,
+.modal-todas-card::after {
+    content: '';
+    position: absolute;
+    bottom: 14px;
+    right: 14px;
+    width: 22px;
+    height: 32px;
+    background: var(--theme-runa) center/contain no-repeat;
+    opacity: 0.30;
+    pointer-events: none;
+    z-index: 4;
+    filter: drop-shadow(0 0 5px rgba(125, 211, 252, 0.65));
+}
+
+.config-header,
+.modal-todas-header {
+    background: linear-gradient(180deg, #18242C 0%, #101A20 100%);
+    border-bottom-color: rgba(125, 211, 252, 0.20);
+}
+
+/* ================================================================
+   8. BOTÓN PRIMARIO — piedra con brillo frío
+   ================================================================ */
+.btn-primario {
+    background: linear-gradient(135deg, #0EA5E9, #0369A1);
+    border: 1px solid rgba(125, 211, 252, 0.35);
+    color: #F5F9FC;
+    box-shadow:
+        0 4px 12px rgba(125, 211, 252, 0.32),
+        inset 0 1px 0 rgba(186, 230, 253, 0.20);
+}
+.btn-primario:hover {
+    background: linear-gradient(135deg, #38BDF8, #0EA5E9);
+    box-shadow:
+        0 8px 22px rgba(125, 211, 252, 0.50),
+        0 0 0 3px rgba(125, 211, 252, 0.15),
+        inset 0 1px 0 rgba(186, 230, 253, 0.25);
+}
+
+/* ================================================================
+   9. INPUTS
+   ================================================================ */
+.config-field input,
+.config-field select,
+.config-select {
+    background: rgba(12, 20, 24, 0.55);
+    border: 1px solid rgba(125, 211, 252, 0.20);
+    color: var(--text);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+.config-field input:focus,
+.config-field select:focus,
+.config-select:focus {
+    border-color: var(--violet-500);
+    box-shadow:
+        inset 0 1px 3px rgba(0, 0, 0, 0.45),
+        0 0 0 3px rgba(125, 211, 252, 0.20);
+}
+
+/* ================================================================
+   10. AVATAR Y NOTIFICACIONES
+   ================================================================ */
+.avatar-config {
+    background: linear-gradient(135deg, #4A8DB0, #0F1A22);
+    border: 2px solid rgba(125, 211, 252, 0.45);
+    box-shadow:
+        var(--shadow-sm),
+        0 0 0 1px rgba(12, 20, 24, 0.9),
+        0 0 0 3px rgba(125, 211, 252, 0.15);
+}
+.avatar-config:hover {
+    transform: translateY(-1px) scale(1.05);
+    box-shadow:
+        0 6px 16px rgba(125, 211, 252, 0.50),
+        0 0 0 1px var(--violet-400),
+        0 0 0 4px rgba(125, 211, 252, 0.15);
+}
+
+.noti-btn.tiene-no-leidas {
+    background: rgba(125, 211, 252, 0.12);
+    color: var(--violet-500);
+}
+
+.search-bar:focus-within {
+    border-color: var(--violet-500);
+    box-shadow: var(--shadow-glow);
+}
+.search-bar:focus-within .search-icon {
+    color: var(--violet-500);
+}
+
+/* ================================================================
+   11. prefers-reduced-motion
+   ================================================================ */
+@media (prefers-reduced-motion: reduce) {
+    .welcome-placeholder::after,
+    .welcome-icon-wrap,
+    .acceso-item::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}
