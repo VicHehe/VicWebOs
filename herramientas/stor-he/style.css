@@ -52,7 +52,7 @@ html, body {
 .sh-header {
     background: var(--white, #FFFFFF);
     border-bottom: 1px solid var(--border, #E8E8EE);
-    padding: 24px 28px 0;
+    padding: 16px 28px 0;             /* ← era 24px arriba */
     position: sticky;
     top: 0;
     z-index: 10;
@@ -64,7 +64,7 @@ html, body {
     align-items: center;
     justify-content: space-between;
     gap: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 12px;              /* ← era 20px */
     flex-wrap: wrap;
 }
 
@@ -75,10 +75,10 @@ html, body {
 }
 
 .sh-logo-mark {
-    width: 48px;
-    height: 48px;
+    width: 44px;                       /* ← era 48px */
+    height: 44px;                      /* ← era 48px */
     background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
-    border-radius: 14px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -87,13 +87,13 @@ html, body {
     flex-shrink: 0;
 }
 .sh-logo-mark [data-lucide] {
-    width: 24px;
-    height: 24px;
+    width: 22px;                       /* ← era 24px */
+    height: 22px;                      /* ← era 24px */
     stroke-width: 2.5;
 }
 
 .sh-logo-text h1 {
-    font-size: 22px;
+    font-size: 20px;                   /* ← era 22px */
     font-weight: 800;
     letter-spacing: -0.03em;
     background: var(--accent-text-gradient, linear-gradient(135deg, #18181B, #7C3AED));
@@ -103,10 +103,10 @@ html, body {
     margin: 0;
 }
 .sh-logo-text p {
-    font-size: 13px;
+    font-size: 12.5px;                 /* ← era 13px */
     color: var(--gray-500, #71717A);
     font-weight: 500;
-    margin-top: 2px;
+    margin-top: 1px;                   /* ← era 2px */
 }
 
 /* ========== TABS ========== */
@@ -119,7 +119,7 @@ html, body {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 16px 14px;
+    padding: 7px 16px 10px;            /* ← era 10px 16px 14px */
     background: none;
     border: none;
     border-bottom: 2px solid transparent;
@@ -146,7 +146,7 @@ html, body {
     font-weight: 800;
     color: var(--gray-600, #52525B);
     background: var(--gray-100, #F4F4F7);
-    padding: 2px 7px;
+    padding: 1px 7px;                  /* ← era 2px 7px */
     border-radius: var(--r-full, 999px);
     min-width: 22px;
     text-align: center;
@@ -169,7 +169,7 @@ html, body {
 }
 
 /* ========== CONTENT ========== */
-.sh-content { padding: 24px 28px; }
+.sh-content { padding: 16px 28px; }    /* ← era 24px arriba/abajo */
 
 .sh-panel { display: none; }
 .sh-panel.active { display: block; animation: shPanelIn 0.22s ease; }
@@ -179,7 +179,7 @@ html, body {
 }
 
 /* ========== SECCIONES ========== */
-.sh-categoria { margin-bottom: 28px; }
+.sh-categoria { margin-bottom: 18px; } /* ← era 28px */
 .sh-categoria:last-child { margin-bottom: 0; }
 
 .sh-categoria-titulo {
@@ -188,7 +188,7 @@ html, body {
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: var(--gray-500, #71717A);
-    margin-bottom: 12px;
+    margin-bottom: 8px;                /* ← era 12px */
     display: flex;
     align-items: center;
     gap: 8px;
@@ -206,10 +206,10 @@ html, body {
     background: var(--white, #FFFFFF);
     border: 1.5px solid var(--border, #E8E8EE);
     border-radius: 14px;
-    padding: 14px;
+    padding: 12px 14px;                /* ← era 14px (4 lados) */
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;                          /* ← era 10px */
     transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
@@ -263,7 +263,7 @@ html, body {
 .sh-card-desc {
     font-size: 11.5px;
     color: var(--gray-500, #71717A);
-    line-height: 1.45;
+    line-height: 1.4;                  /* ← era 1.45 */
 }
 
 .sh-badge {
@@ -271,7 +271,7 @@ html, body {
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    padding: 2px 7px;
+    padding: 1px 7px;                  /* ← era 2px 7px */
     border-radius: var(--r-full, 999px);
     line-height: 1.3;
     display: inline-block;
@@ -296,7 +296,7 @@ html, body {
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    padding-top: 2px;
+    padding-top: 0;                    /* ← era 2px */
 }
 
 .sh-acciones { display: flex; gap: 6px; margin-left: auto; }
@@ -307,7 +307,7 @@ html, body {
     align-items: center;
     justify-content: center;
     gap: 6px;
-    padding: 7px 12px;
+    padding: 6px 12px;                 /* ← era 7px 12px */
     border: none;
     border-radius: 10px;
     font-family: inherit;
@@ -347,8 +347,8 @@ html, body {
 .sh-btn-icono {
     background: var(--gray-100, #F4F4F7);
     color: var(--gray-600, #52525B);
-    width: 30px;
-    height: 30px;
+    width: 28px;                       /* ← era 30px */
+    height: 28px;                      /* ← era 30px */
     padding: 0;
     border-radius: 10px;
 }
@@ -369,7 +369,7 @@ html, body {
     display: flex;
     flex-direction: column;
     border: 1px solid var(--border, #E8E8EE);
-    margin-bottom: 2px;
+    margin-bottom: 0;                  /* ← era 2px */
     position: relative;
 }
 .sh-tema-preview-header {
@@ -402,19 +402,19 @@ html, body {
 /* ========== EMPTY ========== */
 .sh-empty {
     text-align: center;
-    padding: 60px 20px;
+    padding: 40px 20px;                /* ← era 60px arriba/abajo */
     color: var(--gray-500, #71717A);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 8px;                          /* ← era 10px */
 }
 .sh-empty [data-lucide] {
     width: 40px;
     height: 40px;
     color: var(--violet-300, #C4B5FD);
     stroke-width: 1.5;
-    margin-bottom: 4px;
+    margin-bottom: 2px;                /* ← era 4px */
 }
 .sh-empty h3 { font-size: 16px; font-weight: 800; color: var(--gray-900, #18181B); }
 .sh-empty p  { font-size: 13px; max-width: 360px; line-height: 1.5; }
@@ -436,7 +436,7 @@ html, body {
     transform: translateX(-50%) translateY(100px);
     background: var(--gray-900, #18181B);
     color: white;
-    padding: 11px 20px;
+    padding: 10px 20px;                /* ← era 11px 20px */
     border-radius: var(--r-full, 999px);
     font-size: 13px;
     font-weight: 700;
@@ -463,7 +463,7 @@ html, body {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 8px 14px;
+    padding: 6px 14px;                 /* ← era 8px 14px */
     background: var(--gray-50, #FAFAFB);
     border: 1px solid var(--border, #E8E8EE);
     border-radius: var(--r-md, 12px);
@@ -474,7 +474,7 @@ html, body {
     background: var(--violet-50, #F5F3FF);
 }
 .sh-recurso [data-lucide] { width: 18px; height: 18px; color: var(--violet-500, #8B5CF6); }
-.sh-recurso-info { display: flex; flex-direction: column; gap: 1px; }
+.sh-recurso-info { display: flex; flex-direction: column; gap: 0; }
 .sh-recurso-label {
     font-size: 9.5px;
     font-weight: 800;
@@ -494,14 +494,14 @@ html, body {
 /* ================================================
    COSTES
    ================================================ */
-.sh-costes { display: flex; gap: 5px; margin-top: 4px; flex-wrap: wrap; }
+.sh-costes { display: flex; gap: 5px; margin-top: 3px; flex-wrap: wrap; } /* ← era 4px */
 .sh-coste {
     display: inline-flex;
     align-items: center;
     gap: 4px;
     font-size: 10.5px;
     font-weight: 700;
-    padding: 2px 7px;
+    padding: 1px 7px;                  /* ← era 2px 7px */
     border-radius: var(--r-full, 999px);
 }
 .sh-coste [data-lucide] { width: 10px; height: 10px; }
@@ -512,12 +512,12 @@ html, body {
 /* ================================================
    AMPLIACIÓN
    ================================================ */
-.sh-ampliacion { margin-bottom: 20px; }
+.sh-ampliacion { margin-bottom: 12px; } /* ← era 20px */
 .sh-ampliacion-card {
     display: flex;
     align-items: center;
     gap: 14px;
-    padding: 14px 16px;
+    padding: 10px 16px;                /* ← era 14px 16px */
     background: var(--violet-50, #F5F3FF);
     border: 1.5px solid var(--violet-200, #DDD6FE);
     border-radius: 14px;
@@ -539,7 +539,7 @@ html, body {
     font-size: 13.5px;
     font-weight: 800;
     color: var(--gray-900, #18181B);
-    margin-bottom: 2px;
+    margin-bottom: 1px;                /* ← era 2px */
     letter-spacing: -0.01em;
 }
 .sh-ampliacion-desc {
@@ -557,11 +557,11 @@ html, body {
     display: flex;
     align-items: center;
     gap: 14px;
-    padding: 16px 18px;
+    padding: 12px 18px;                /* ← era 16px 18px */
     background: linear-gradient(135deg, #FEF3C7, #FDE68A);
     border: 1.5px solid #FCD34D;
     border-radius: 14px;
-    margin-bottom: 24px;
+    margin-bottom: 16px;               /* ← era 24px */
 }
 .sh-promo-header-icono {
     width: 44px;
@@ -580,7 +580,7 @@ html, body {
     font-size: 19px;
     font-weight: 800;
     color: #78350F;
-    margin: 0 0 2px;
+    margin: 0 0 1px;                   /* ← era 2px */
     letter-spacing: -0.02em;
 }
 .sh-promo-header-texto p {
@@ -590,7 +590,7 @@ html, body {
     margin: 0;
 }
 
-.sh-promo-seccion { margin-bottom: 32px; }
+.sh-promo-seccion { margin-bottom: 20px; } /* ← era 32px */
 .sh-promo-seccion:last-child { margin-bottom: 0; }
 
 .sh-promo-seccion-header {
@@ -598,7 +598,7 @@ html, body {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    margin-bottom: 14px;
+    margin-bottom: 10px;               /* ← era 14px */
     flex-wrap: wrap;
 }
 .sh-promo-seccion-header h3 {
@@ -628,7 +628,7 @@ html, body {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 5px 12px;
+    padding: 4px 12px;                 /* ← era 5px 12px */
     background: #FEF3C7;
     border: 1px solid #FCD34D;
     border-radius: var(--r-full, 999px);
@@ -649,7 +649,7 @@ html, body {
     background: var(--gray-100, #F4F4F7);
     border-radius: var(--r-full, 999px);
     overflow: hidden;
-    margin-bottom: 16px;
+    margin-bottom: 10px;               /* ← era 16px */
 }
 .sh-oferta-progress-fill {
     height: 100%;
@@ -662,17 +662,16 @@ html, body {
 /* ---------- Grids de promo ---------- */
 .sh-promo-grid {
     display: grid;
-    gap: 12px;
+    gap: 10px;                         /* ← era 12px */
 }
 .sh-promo-grid-paquetes {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 }
 .sh-promo-grid-ofertas {
-    /* 3 cards centradas */
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 14px;
+    gap: 12px;                         /* ← era 14px */
 }
 .sh-promo-grid-ofertas > .sh-oferta-card {
     flex: 1 1 240px;
@@ -684,10 +683,10 @@ html, body {
     background: var(--white, #FFFFFF);
     border: 1.5px solid var(--border, #E8E8EE);
     border-radius: 14px;
-    padding: 16px;
+    padding: 12px 16px;                /* ← era 16px (4 lados) */
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 9px;                          /* ← era 12px */
     transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .sh-pack-card:hover {
@@ -717,7 +716,7 @@ html, body {
     font-size: 14.5px;
     font-weight: 800;
     color: var(--gray-900, #18181B);
-    margin: 0 0 2px;
+    margin: 0 0 1px;                   /* ← era 2px */
     letter-spacing: -0.01em;
     display: flex;
     align-items: center;
@@ -739,15 +738,15 @@ html, body {
     color: #065F46;
     background: #ECFDF5;
     border: 1px solid #A7F3D0;
-    padding: 2px 7px;
+    padding: 1px 7px;                  /* ← era 2px 7px */
     border-radius: var(--r-full, 999px);
 }
 
 .sh-pack-items {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    padding: 10px 12px;
+    gap: 4px;                          /* ← era 6px */
+    padding: 8px 12px;                 /* ← era 10px 12px */
     background: var(--gray-50, #FAFAFB);
     border-radius: 10px;
 }
@@ -784,7 +783,7 @@ html, body {
     justify-content: space-between;
     gap: 10px;
     flex-wrap: wrap;
-    padding-top: 4px;
+    padding-top: 3px;                  /* ← era 4px */
     border-top: 1px solid var(--border, #E8E8EE);
 }
 .sh-pack-costos {
@@ -799,12 +798,12 @@ html, body {
     background: var(--white, #FFFFFF);
     border: 1.5px solid var(--border, #E8E8EE);
     border-radius: 14px;
-    padding: 16px;
+    padding: 12px 16px;                /* ← era 16px (4 lados) */
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 8px;
+    gap: 6px;                          /* ← era 8px */
     transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .sh-oferta-card:hover {
@@ -826,7 +825,7 @@ html, body {
     color: white;
     font-size: 12px;
     font-weight: 900;
-    padding: 4px 10px;
+    padding: 3px 10px;                 /* ← era 4px 10px */
     border-radius: var(--r-full, 999px);
     box-shadow: 0 4px 10px rgba(239, 68, 68, 0.35);
     letter-spacing: -0.02em;
@@ -845,7 +844,7 @@ html, body {
     letter-spacing: 0.08em;
     color: var(--gray-500, #71717A);
     background: var(--gray-100, #F4F4F7);
-    padding: 3px 9px;
+    padding: 2px 9px;                  /* ← era 3px 9px */
     border-radius: var(--r-full, 999px);
 }
 .sh-oferta-tipo [data-lucide] { width: 11px; height: 11px; }
@@ -859,7 +858,7 @@ html, body {
     align-items: center;
     justify-content: center;
     color: var(--violet-600, #7C3AED);
-    margin: 4px 0;
+    margin: 2px 0;                     /* ← era 4px */
 }
 .sh-oferta-icono [data-lucide] { width: 26px; height: 26px; }
 
@@ -875,14 +874,14 @@ html, body {
     color: var(--gray-500, #71717A);
     margin: 0;
     line-height: 1.4;
-    min-height: 32px;
+    min-height: 26px;                  /* ← era 32px */
 }
 
 .sh-oferta-precio {
     display: flex;
     align-items: baseline;
     gap: 8px;
-    margin: 4px 0;
+    margin: 2px 0;                     /* ← era 4px */
 }
 .sh-oferta-precio-original {
     font-size: 13px;
@@ -916,14 +915,14 @@ html, body {
 }
 .sh-oferta-espacio [data-lucide] { width: 12px; height: 12px; }
 
-.sh-oferta-card .sh-btn-full { margin-top: 4px; }
+.sh-oferta-card .sh-btn-full { margin-top: 2px; } /* ← era 4px */
 
 /* ================================================
    RESPONSIVE
    ================================================ */
 @media (max-width: 900px) {
-    .sh-header { padding: 20px 22px 0; }
-    .sh-content { padding: 20px 22px; }
+    .sh-header { padding: 14px 22px 0; }
+    .sh-content { padding: 14px 22px; }
     .sh-grid {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         gap: 10px;
@@ -934,17 +933,17 @@ html, body {
 }
 
 @media (max-width: 640px) {
-    .sh-header { padding: 16px 16px 0; }
-    .sh-header-top { gap: 12px; margin-bottom: 14px; }
+    .sh-header { padding: 12px 16px 0; }       /* ← era 16px */
+    .sh-header-top { gap: 12px; margin-bottom: 10px; } /* ← era 14px */
 
     .sh-logo { gap: 10px; flex: 1; min-width: 0; }
-    .sh-logo-mark { width: 40px; height: 40px; border-radius: 12px; }
-    .sh-logo-mark [data-lucide] { width: 20px; height: 20px; }
-    .sh-logo-text h1 { font-size: 18px; }
+    .sh-logo-mark { width: 38px; height: 38px; border-radius: 11px; } /* ← era 40x40 */
+    .sh-logo-mark [data-lucide] { width: 19px; height: 19px; }        /* ← era 20 */
+    .sh-logo-text h1 { font-size: 17px; }                             /* ← era 18 */
     .sh-logo-text p { display: none; }
 
     .sh-recursos { gap: 6px; flex-shrink: 0; }
-    .sh-recurso { padding: 6px 10px; gap: 8px; border-radius: 10px; }
+    .sh-recurso { padding: 5px 10px; gap: 8px; border-radius: 10px; } /* ← era 6px 10px */
     .sh-recurso [data-lucide] { width: 15px; height: 15px; }
     .sh-recurso-label { font-size: 9px; }
     .sh-recurso-valor { font-size: 13px; }
@@ -952,21 +951,21 @@ html, body {
     .sh-tabs { gap: 0; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
     .sh-tabs::-webkit-scrollbar { display: none; }
     .sh-tab {
-        padding: 10px 12px 12px;
+        padding: 8px 12px 9px;             /* ← era 10px 12px 12px */
         font-size: 12.5px;
         flex-shrink: 0;
-        min-height: 44px;
+        min-height: 40px;                  /* ← era 44px */
         gap: 6px;
     }
     .sh-tab span:not(.sh-tab-count) { display: inline; }
     .sh-tab [data-lucide] { width: 14px; height: 14px; }
     .sh-tab-count { font-size: 10px; padding: 1px 6px; min-width: 20px; }
 
-    .sh-content { padding: 14px; }
+    .sh-content { padding: 12px 14px; }    /* ← era 14px arriba/abajo */
 
     .sh-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 
-    .sh-card { padding: 10px; gap: 8px; border-radius: 12px; }
+    .sh-card { padding: 9px 10px; gap: 7px; border-radius: 12px; } /* ← era 10px */
     .sh-card:hover { transform: none; box-shadow: none; }
     .sh-card-header { gap: 8px; }
     .sh-card-icono { width: 34px; height: 34px; border-radius: 9px; }
@@ -977,54 +976,54 @@ html, body {
     .sh-card-footer { gap: 6px; flex-wrap: wrap; }
     .sh-acciones { margin-left: auto; }
 
-    .sh-btn { padding: 8px 10px; font-size: 11.5px; min-height: 36px; border-radius: 9px; }
+    .sh-btn { padding: 7px 10px; font-size: 11.5px; min-height: 34px; border-radius: 9px; } /* ← era 8px, 36px */
     .sh-btn [data-lucide] { width: 13px; height: 13px; }
-    .sh-btn-icono { width: 36px; height: 36px; padding: 0; }
+    .sh-btn-icono { width: 34px; height: 34px; padding: 0; }        /* ← era 36px */
 
-    .sh-badge { font-size: 8.5px; padding: 2px 6px; }
+    .sh-badge { font-size: 8.5px; padding: 1px 6px; }               /* ← era 2px 6px */
     .sh-badge-instalada [data-lucide] { width: 8px; height: 8px; }
 
     .sh-tema-preview { aspect-ratio: 16 / 7; border-radius: 8px; }
 
-    .sh-categoria { margin-bottom: 18px; }
-    .sh-categoria-titulo { font-size: 10px; margin-bottom: 8px; }
+    .sh-categoria { margin-bottom: 14px; }                          /* ← era 18px */
+    .sh-categoria-titulo { font-size: 10px; margin-bottom: 7px; }   /* ← era 8px */
 
-    .sh-ampliacion { margin-bottom: 14px; }
+    .sh-ampliacion { margin-bottom: 10px; }                         /* ← era 14px */
     .sh-ampliacion-card {
         flex-direction: column;
         align-items: flex-start;
-        gap: 10px;
-        padding: 12px;
+        gap: 8px;                          /* ← era 10px */
+        padding: 10px 12px;                /* ← era 12px */
         border-radius: 12px;
     }
     .sh-ampliacion-icono { width: 36px; height: 36px; border-radius: 10px; }
     .sh-ampliacion-icono [data-lucide] { width: 18px; height: 18px; }
     .sh-ampliacion-titulo { font-size: 13px; }
     .sh-ampliacion-desc { font-size: 11.5px; }
-    .sh-ampliacion .sh-btn { width: 100%; min-height: 40px; }
+    .sh-ampliacion .sh-btn { width: 100%; min-height: 38px; }       /* ← era 40px */
 
-    .sh-costes { gap: 4px; margin-top: 4px; }
-    .sh-coste { font-size: 10px; padding: 2px 6px; }
+    .sh-costes { gap: 4px; margin-top: 3px; }
+    .sh-coste { font-size: 10px; padding: 1px 6px; }                /* ← era 2px 6px */
 
-    .sh-empty { padding: 48px 16px; }
+    .sh-empty { padding: 32px 16px; }                               /* ← era 48px */
     .sh-empty [data-lucide] { width: 36px; height: 36px; }
     .sh-empty h3 { font-size: 15px; }
     .sh-empty p { font-size: 12.5px; }
 
     /* PromoZione en móvil */
     .sh-promo-header {
-        padding: 14px;
-        gap: 12px;
+        padding: 12px 14px;                /* ← era 14px */
+        gap: 10px;                          /* ← era 12px */
         flex-direction: column;
         align-items: flex-start;
     }
-    .sh-promo-header-icono { width: 40px; height: 40px; }
-    .sh-promo-header-icono [data-lucide] { width: 20px; height: 20px; }
-    .sh-promo-header-texto h2 { font-size: 17px; }
-    .sh-promo-header-texto p  { font-size: 12px; }
+    .sh-promo-header-icono { width: 38px; height: 38px; }           /* ← era 40px */
+    .sh-promo-header-icono [data-lucide] { width: 19px; height: 19px; } /* ← era 20 */
+    .sh-promo-header-texto h2 { font-size: 16px; }                  /* ← era 17px */
+    .sh-promo-header-texto p  { font-size: 11.5px; }                /* ← era 12px */
 
-    .sh-promo-seccion { margin-bottom: 24px; }
-    .sh-promo-seccion-header { gap: 8px; }
+    .sh-promo-seccion { margin-bottom: 18px; }                      /* ← era 24px */
+    .sh-promo-seccion-header { gap: 8px; margin-bottom: 8px; }      /* ← añadido 8px */
     .sh-promo-seccion-header h3 { font-size: 12px; }
     .sh-promo-seccion-sub { display: none; }
 
@@ -1038,13 +1037,13 @@ html, body {
         max-width: none;
     }
 
-    .sh-pack-card { padding: 14px; gap: 10px; }
+    .sh-pack-card { padding: 10px 14px; gap: 8px; }                 /* ← era 14px, 10px */
     .sh-pack-icono { width: 38px; height: 38px; }
     .sh-pack-icono [data-lucide] { width: 18px; height: 18px; }
     .sh-pack-titulo h4 { font-size: 13.5px; }
     .sh-pack-titulo p { font-size: 11.5px; }
 
-    .sh-oferta-card { padding: 16px 14px; }
+    .sh-oferta-card { padding: 12px 14px; }                         /* ← era 16px 14px */
     .sh-oferta-icono { width: 48px; height: 48px; }
     .sh-oferta-icono [data-lucide] { width: 24px; height: 24px; }
     .sh-oferta-nombre { font-size: 14px; }
@@ -1052,60 +1051,60 @@ html, body {
 }
 
 @media (max-width: 400px) {
-    .sh-header { padding: 14px 14px 0; }
-    .sh-header-top { gap: 8px; margin-bottom: 12px; }
+    .sh-header { padding: 10px 14px 0; }       /* ← era 14px */
+    .sh-header-top { gap: 8px; margin-bottom: 8px; } /* ← era 12px */
 
     .sh-logo { gap: 8px; }
-    .sh-logo-mark { width: 36px; height: 36px; border-radius: 10px; }
-    .sh-logo-mark [data-lucide] { width: 18px; height: 18px; }
-    .sh-logo-text h1 { font-size: 17px; }
+    .sh-logo-mark { width: 34px; height: 34px; border-radius: 10px; } /* ← era 36px */
+    .sh-logo-mark [data-lucide] { width: 17px; height: 17px; }        /* ← era 18 */
+    .sh-logo-text h1 { font-size: 16px; }                             /* ← era 17 */
 
     .sh-recursos { gap: 5px; }
-    .sh-recurso { padding: 5px 8px; gap: 6px; border-radius: 9px; }
+    .sh-recurso { padding: 4px 8px; gap: 6px; border-radius: 9px; }   /* ← era 5px 8px */
     .sh-recurso [data-lucide] { width: 13px; height: 13px; }
     .sh-recurso-label { display: none; }
     .sh-recurso-valor { font-size: 12px; }
 
-    .sh-tab { padding: 9px 10px 11px; font-size: 12px; gap: 5px; }
+    .sh-tab { padding: 7px 10px 8px; font-size: 12px; gap: 5px; }     /* ← era 9px 10px 11px */
     .sh-tab [data-lucide] { width: 13px; height: 13px; }
     .sh-tab-count { font-size: 9.5px; padding: 1px 5px; min-width: 18px; }
 
-    .sh-content { padding: 12px; }
+    .sh-content { padding: 10px 12px; }                                /* ← era 12px */
 
     .sh-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
 
-    .sh-card { padding: 9px; gap: 7px; border-radius: 11px; }
+    .sh-card { padding: 8px 9px; gap: 6px; border-radius: 11px; }     /* ← era 9px, 7px */
     .sh-card-header { gap: 7px; }
     .sh-card-icono { width: 30px; height: 30px; border-radius: 8px; }
     .sh-card-icono [data-lucide] { width: 15px; height: 15px; }
     .sh-card-nombre { font-size: 11.5px; }
     .sh-card-desc { font-size: 10.5px; line-height: 1.3; }
 
-    .sh-btn { font-size: 11px; padding: 7px 9px; min-height: 34px; }
-    .sh-btn-icono { width: 34px; height: 34px; }
+    .sh-btn { font-size: 11px; padding: 6px 9px; min-height: 32px; }  /* ← era 7px, 34px */
+    .sh-btn-icono { width: 32px; height: 32px; }                      /* ← era 34px */
     .sh-btn [data-lucide] { width: 12px; height: 12px; }
 
     .sh-tema-preview { aspect-ratio: 16 / 6.5; }
 
-    .sh-ampliacion-card { padding: 10px; gap: 8px; }
+    .sh-ampliacion-card { padding: 8px 10px; gap: 7px; }              /* ← era 10px, 8px */
     .sh-ampliacion-icono { width: 32px; height: 32px; }
     .sh-ampliacion-icono [data-lucide] { width: 16px; height: 16px; }
     .sh-ampliacion-titulo { font-size: 12.5px; }
     .sh-ampliacion-desc { font-size: 11px; }
 
-    .sh-toast { bottom: 14px; padding: 10px 18px; font-size: 12.5px; max-width: calc(100% - 28px); }
+    .sh-toast { bottom: 14px; padding: 9px 18px; font-size: 12.5px; max-width: calc(100% - 28px); }
 
     /* PromoZione en móvil chico */
-    .sh-promo-header { padding: 12px; }
-    .sh-promo-header-icono { width: 36px; height: 36px; border-radius: 10px; }
-    .sh-promo-header-icono [data-lucide] { width: 18px; height: 18px; }
-    .sh-promo-header-texto h2 { font-size: 15.5px; }
+    .sh-promo-header { padding: 10px 12px; }                          /* ← era 12px */
+    .sh-promo-header-icono { width: 34px; height: 34px; border-radius: 10px; } /* ← era 36px */
+    .sh-promo-header-icono [data-lucide] { width: 17px; height: 17px; }        /* ← era 18 */
+    .sh-promo-header-texto h2 { font-size: 15px; }                    /* ← era 15.5 */
     .sh-promo-header-texto p { font-size: 11px; }
 
-    .sh-oferta-badge { font-size: 11px; padding: 3px 8px; }
+    .sh-oferta-badge { font-size: 11px; padding: 2px 8px; }           /* ← era 3px 8px */
     .sh-oferta-icono { width: 42px; height: 42px; }
     .sh-oferta-icono [data-lucide] { width: 20px; height: 20px; }
     .sh-oferta-nombre { font-size: 13px; }
     .sh-oferta-precio-final { font-size: 16px; }
-    .sh-oferta-timer { font-size: 11px; padding: 4px 10px; }
+    .sh-oferta-timer { font-size: 11px; padding: 3px 10px; }          /* ← era 4px 10px */
 }
