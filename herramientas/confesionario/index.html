@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>El Confesionario</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="cf-app">
+        <div class="cf-container">
+
+            <header class="cf-header">
+                <div class="cf-logo">
+                    <div class="cf-logo-mark"><i data-lucide="drama"></i></div>
+                    <div class="cf-logo-text">
+                        <h1>El Confesionario</h1>
+                        <p id="cfUserBadge">—</p>
+                    </div>
+                </div>
+                <div class="cf-header-actions">
+                    <button class="cf-btn-icon" id="cfBtnMias" title="Ver solo mis confesiones">
+                        <i data-lucide="user-circle"></i>
+                    </button>
+                    <button class="cf-btn-nueva" id="cfBtnNueva">
+                        <i data-lucide="feather"></i>
+                        <span>Confesar</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="cf-aviso">
+                <i data-lucide="eye-off"></i>
+                <span>Todo acá es <strong>100% anónimo</strong>. Tu nombre nunca se muestra: ni al autor, ni a nadie.</span>
+            </div>
+
+            <div class="cf-filtros" id="cfFiltros">
+                <button class="cf-chip active" data-cat="todas">
+                    <i data-lucide="layout-grid"></i><span>Todas</span>
+                </button>
+                <button class="cf-chip" data-cat="amor">
+                    <i data-lucide="heart"></i><span>Amor</span>
+                </button>
+                <button class="cf-chip" data-cat="trabajo">
+                    <i data-lucide="briefcase"></i><span>Trabajo</span>
+                </button>
+                <button class="cf-chip" data-cat="familia">
+                    <i data-lucide="home"></i><span>Familia</span>
+                </button>
+                <button class="cf-chip" data-cat="secretos">
+                    <i data-lucide="lock"></i><span>Secretos</span>
+                </button>
+                <button class="cf-chip" data-cat="random">
+                    <i data-lucide="shuffle"></i><span>Random</span>
+                </button>
+            </div>
+
+            <main class="cf-main">
+                <div class="cf-feed" id="cfFeed"></div>
+
+                <div class="cf-empty" id="cfEmpty" hidden>
+                    <div class="cf-empty-icon"><i data-lucide="drama"></i></div>
+                    <h3 id="cfEmptyTitulo">Nadie se animó todavía</h3>
+                    <p id="cfEmptyDesc">Sé el primero en soltar algo al aire. Nadie sabrá que fuiste vos.</p>
+                    <button class="cf-empty-btn" id="cfEmptyBtn">
+                        <i data-lucide="feather"></i>
+                        Confesar algo
+                    </button>
+                </div>
+            </main>
+
+        </div>
+
+        <button class="cf-fab" id="cfFab" title="Nueva confesión">
+            <i data-lucide="plus"></i>
+        </button>
+    </div>
+
+    <!-- MODAL: NUEVA CONFESIÓN -->
+    <div class="cf-modal" id="cfModalNueva" hidden>
+        <div class="cf-modal-card">
+            <div class="cf-modal-header">
+                <h2><i data-lucide="feather"></i><span>Nueva confesión</span></h2>
+                <button class="cf-modal-cerrar" id="cfNuevaCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="cf-modal-body">
+                <div class="cf-field">
+                    <label>Categoría</label>
+                    <div class="cf-cat-picker" id="cfCatPicker">
+                        <button class="cf-cat-opcion" data-cat="amor">
+                            <i data-lucide="heart"></i><span>Amor</span>
+                        </button>
+                        <button class="cf-cat-opcion" data-cat="trabajo">
+                            <i data-lucide="briefcase"></i><span>Trabajo</span>
+                        </button>
+                        <button class="cf-cat-opcion" data-cat="familia">
+                            <i data-lucide="home"></i><span>Familia</span>
+                        </button>
+                        <button class="cf-cat-opcion" data-cat="secretos">
+                            <i data-lucide="lock"></i><span>Secretos</span>
+                        </button>
+                        <button class="cf-cat-opcion" data-cat="random">
+                            <i data-lucide="shuffle"></i><span>Random</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="cf-field">
+                    <div class="cf-field-header">
+                        <label>Tu confesión</label>
+                        <span class="cf-field-hint" id="cfNuevaContador">0 / 500</span>
+                    </div>
+                    <textarea id="cfNuevaTexto" maxlength="500" rows="5"
+                              placeholder="Lo que no te animás a decir con tu nombre..."></textarea>
+                </div>
+
+                <div id="cfNuevaMensaje" class="cf-modal-mensaje"></div>
+            </div>
+            <div class="cf-modal-actions">
+                <button class="cf-btn-sec" id="cfNuevaCancelar">Cancelar</button>
+                <button class="cf-btn-pri" id="cfNuevaPublicar">
+                    <i data-lucide="send"></i>
+                    <span>Publicar anónimamente</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: VER CONFESIÓN -->
+    <div class="cf-modal" id="cfModalVer" hidden>
+        <div class="cf-modal-card cf-modal-card-grande">
+            <div class="cf-modal-header">
+                <h2><i data-lucide="message-square"></i><span>Confesión</span></h2>
+                <button class="cf-modal-cerrar" id="cfVerCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="cf-ver-body" id="cfVerBody"></div>
+        </div>
+    </div>
+
+    <div class="cf-toast" id="cfToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
