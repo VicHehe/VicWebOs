@@ -5,11 +5,8 @@
 //   · Créditos   → dentro del juego (construir, mejorar, expandir)
 //   · Monedas OS → fuera (acelerar, 3° constructor)
 //
-//  CAMBIOS v2:
-//   · Comercial produce POR MINUTO (antes /h). Aporte [1,3,8].
-//   · procesarTiempo acumula fracciones (ya no redondea).
-//   · Expansión de grilla: 4x4 → 5x5 → 6x6 → 7x7 → 8x8.
-//   · OS multiplier 3 → 8 (techo 8 OS/h en endgame).
+//  CAMBIOS v3:
+//   · Fix: comprarConstructor3() exige tener el 2° primero.
 // ============================================================
 
 (function () {
@@ -22,7 +19,6 @@
     const GRILLA_SIZE_INICIAL = 4;
     const GRILLA_SIZE_MAX = 8;
 
-    // Costo de expandir de NxN → (N+1)x(N+1), en créditos
     const COSTOS_EXPANSION = {
         4: 5000,
         5: 20000,
@@ -30,10 +26,6 @@
         7: 200000
     };
 
-    // ------------------------------------------------------------
-    //  Definiciones de edificios
-    //  aporte comercial = CRÉDITOS POR MINUTO (se multiplica por felicidad/100)
-    // ------------------------------------------------------------
     const TIPOS = {
         residencial: {
             id: 'residencial',
@@ -42,7 +34,7 @@
             descripcion: 'Aumenta la población. Requiere industria cerca.',
             costos: [50, 150, 400],
             tiemposMs: [30000, 300000, 1800000],
-            aporte: [3, 8, 15]                 // población por nivel
+            aporte: [3, 8, 15]
         },
         comercial: {
             id: 'comercial',
@@ -51,7 +43,7 @@
             descripcion: 'Genera créditos por minuto. Sube la felicidad.',
             costos: [100, 250, 600],
             tiemposMs: [60000, 600000, 2400000],
-            aporte: [1, 3, 8]                  // CRÉDITOS POR MINUTO por nivel
+            aporte: [1, 3, 8]
         },
         industrial: {
             id: 'industrial',
@@ -60,18 +52,15 @@
             descripcion: 'Da empleos. Baja la felicidad si hay muchos.',
             costos: [75, 200, 500],
             tiemposMs: [45000, 450000, 2100000],
-            aporte: [2, 6, 12]                 // empleos por nivel
+            aporte: [2, 6, 12]
         }
     };
 
-    const COSTO_CONSTRUCTOR_2 = 2000;         // en créditos
-    const COSTO_CONSTRUCTOR_3 = 25;           // en Monedas OS
+    const COSTO_CONSTRUCTOR_2 = 2000;
+    const COSTO_CONSTRUCTOR_3 = 25;
     const MAX_CONSTRUCTORES = 3;
-    const OS_MULTIPLICADOR = 8;               // techo práctico 8 OS/h en endgame
+    const OS_MULTIPLICADOR = 8;
 
-    // ------------------------------------------------------------
-    //  Estado interno
-    // ------------------------------------------------------------
     let estado = null;
     let usuario = null;
     let inicializado = false;
@@ -118,9 +107,6 @@
         };
     }
 
-    // ------------------------------------------------------------
-    //  Carga / guardado
-    // ------------------------------------------------------------
     async function cargar() {
         const bd = BD();
         const ruta = rutaArchivo();
@@ -130,14 +116,12 @@
             if (data && typeof data === 'object' && Array.isArray(data.celdas)) {
                 estado = data;
 
-                // grillaSize: inferir si no existe
                 if (typeof estado.grillaSize !== 'number') {
                     let maxCol = 0;
                     estado.celdas.forEach(c => { if (c.col > maxCol) maxCol = c.col; });
                     estado.grillaSize = Math.max(GRILLA_SIZE_INICIAL, maxCol + 1);
                 }
 
-                // Asegurar que celdas coincidan con el size
                 const size = estado.grillaSize;
                 if (estado.celdas.length !== size * size) {
                     const mapa = {};
@@ -153,7 +137,6 @@
                     estado.celdas = nuevas;
                 }
 
-                // Sanity de campos numéricos
                 if (typeof estado.creditos !== 'number') estado.creditos = 200;
                 if (typeof estado.bancoOS !== 'number') estado.bancoOS = 0;
                 if (typeof estado.constructoresComprados !== 'number') estado.constructoresComprados = 1;
@@ -183,9 +166,6 @@
         }
     }
 
-    // ------------------------------------------------------------
-    //  Fórmulas
-    // ------------------------------------------------------------
     function calcularStats() {
         let capPoblacion = 0;
         let sumaComercial = 0;
@@ -212,10 +192,8 @@
             }
         });
 
-        // Población = min(capacidad, empleos × 1.5)
         const poblacion = Math.floor(Math.min(capPoblacion, empleos * 1.5));
 
-        // Felicidad
         let felicidad = 60;
         felicidad += nComerciales * 4;
         felicidad -= nIndustriales * 5;
@@ -223,11 +201,9 @@
         if (nIndustriales > nComerciales + nResidenciales) felicidad -= 15;
         felicidad = Math.max(20, Math.min(100, felicidad));
 
-        // Créditos por minuto
         const factorFelicidad = felicidad / 100;
         const creditosMinuto = sumaComercial * factorFelicidad;
 
-        // Monedas OS por hora
         const scorePob     = Math.min(poblacion / 30, 1) * 0.4;
         const scoreFel     = (felicidad / 100) * 0.35;
         const totalEdif    = nResidenciales + nComerciales + nIndustriales;
@@ -252,9 +228,6 @@
         };
     }
 
-    // ------------------------------------------------------------
-    //  Producción acumulada (NO redondea, acumula fracciones)
-    // ------------------------------------------------------------
     function procesarTiempo() {
         if (!estado) return { creditosGanados: 0, osGanadas: 0, segundosTranscurridos: 0 };
 
@@ -284,9 +257,6 @@
         };
     }
 
-    // ------------------------------------------------------------
-    //  Timers
-    // ------------------------------------------------------------
     function procesarTimers() {
         if (!estado) return [];
         const ahora = Date.now();
@@ -301,9 +271,6 @@
         return terminadas;
     }
 
-    // ------------------------------------------------------------
-    //  Constructores
-    // ------------------------------------------------------------
     function constructoresOcupados() {
         if (!estado) return 0;
         return estado.celdas.filter(c => c.finConstruccion).length;
@@ -313,9 +280,6 @@
         return estado.constructoresComprados - constructoresOcupados();
     }
 
-    // ------------------------------------------------------------
-    //  Acciones
-    // ------------------------------------------------------------
     function puedeConstruir(celdaIdx, tipo) {
         if (!estado) return { ok: false, motivo: 'Sin estado' };
         const c = estado.celdas[celdaIdx];
@@ -401,9 +365,6 @@
         return { ok: true, cantidad };
     }
 
-    // ------------------------------------------------------------
-    //  Expansión de grilla
-    // ------------------------------------------------------------
     function puedeExpandir() {
         if (!estado) return { ok: false, motivo: 'Sin estado' };
         const size = getGrillaSize();
@@ -424,7 +385,6 @@
         const sizeViejo = check.sizeActual;
         const sizeNuevo = check.sizeNuevo;
 
-        // Preservar celdas existentes por su (col, fila)
         const mapa = {};
         estado.celdas.forEach(c => { mapa[`${c.col}_${c.fila}`] = c; });
 
@@ -444,9 +404,6 @@
         return { ok: true, sizeNuevo, sizeViejo, costo: check.costo };
     }
 
-    // ------------------------------------------------------------
-    //  Constructores: compras
-    // ------------------------------------------------------------
     async function comprarConstructor2() {
         if (estado.constructoresComprados >= 2) throw new Error('Ya lo tenés');
         if (Math.floor(estado.creditos) < COSTO_CONSTRUCTOR_2) {
@@ -460,6 +417,9 @@
 
     async function comprarConstructor3() {
         if (estado.constructoresComprados >= 3) throw new Error('Ya lo tenés');
+        if (estado.constructoresComprados < 2) {
+            throw new Error('Primero necesitás el Segundo constructor (se compra con créditos)');
+        }
         const api = API();
         if (!api || typeof api.gastoBoleta !== 'function') throw new Error('Sin conexión con el SO');
         await api.gastoBoleta('users', APP_ID, 'Tercer constructor', COSTO_CONSTRUCTOR_3);
@@ -468,9 +428,6 @@
         return { ok: true };
     }
 
-    // ------------------------------------------------------------
-    //  Init
-    // ------------------------------------------------------------
     async function init(usuarioDatos) {
         if (inicializado) return;
         inicializado = true;
@@ -478,9 +435,6 @@
         await cargar();
     }
 
-    // ------------------------------------------------------------
-    //  API pública
-    // ------------------------------------------------------------
     window.MiniCity = {
         VERSION,
         GRILLA_SIZE_INICIAL,
