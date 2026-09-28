@@ -39,9 +39,9 @@
                 <i data-lucide="smile"></i>
                 <span id="mcFelicidad">50</span>
             </div>
-            <div class="mc-hud-item mc-hud-prod" title="Producción por hora">
+            <div class="mc-hud-item mc-hud-prod" title="Producción por minuto">
                 <i data-lucide="trending-up"></i>
-                <span id="mcProdHora">0/h</span>
+                <span id="mcProdHora">0/min</span>
             </div>
             <div class="mc-hud-item mc-hud-banco" title="Monedas OS acumuladas">
                 <i data-lucide="landmark"></i>
@@ -61,6 +61,10 @@
             <button class="mc-btn-banco" id="mcBtnBanco" disabled>
                 <i data-lucide="hand-coins"></i>
                 <span id="mcBtnBancoTexto">Reclamar 0 OS</span>
+            </button>
+            <button class="mc-btn-cambio" id="mcBtnCambio" title="Cambiar Monedas OS por créditos del juego">
+                <i data-lucide="arrow-left-right"></i>
+                <span>Cambiar OS → Créditos</span>
             </button>
         </div>
 
@@ -99,7 +103,7 @@
     </div>
 
     <!-- ============================================================
-         MODAL: Tienda global (constructores)
+         MODAL: Tienda global (constructores + expansión)
          ============================================================ -->
     <div class="mc-modal" id="mcModalTienda" hidden>
         <div class="mc-modal-card">
@@ -111,6 +115,54 @@
                 <button class="mc-modal-cerrar" data-mc-cerrar="tienda"><i data-lucide="x"></i></button>
             </div>
             <div class="mc-tienda" id="mcTiendaCuerpo"></div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL: Cambio OS → Créditos (parche inline)
+         ============================================================ -->
+    <div class="mc-modal" id="mcModalCambio" hidden>
+        <div class="mc-modal-card">
+            <div class="mc-modal-header">
+                <div>
+                    <h3>Cambiar Monedas OS</h3>
+                    <p class="mc-modal-sub" id="mcCambioTasaLabel">1 Moneda OS = 10 créditos</p>
+                </div>
+                <button class="mc-modal-cerrar" data-mc-cerrar="cambio"><i data-lucide="x"></i></button>
+            </div>
+            <div class="mc-cambio-cuerpo">
+                <p class="mc-cambio-desc">Convertí tus Monedas OS en créditos del juego para acelerar tu ciudad. Los créditos solo sirven dentro de MiniCity.</p>
+
+                <div class="mc-cambio-tus">
+                    <i data-lucide="landmark"></i>
+                    <span>Tus Monedas OS:</span>
+                    <strong id="mcCambioTusOS">0</strong>
+                </div>
+
+                <div class="mc-cambio-cantidad">
+                    <label>Cantidad a cambiar</label>
+                    <div class="mc-cambio-opciones" id="mcCambioOpciones"></div>
+                    <div class="mc-cambio-input">
+                        <i data-lucide="landmark"></i>
+                        <input type="number" id="mcCambioInput" min="1" step="1" value="1" inputmode="numeric">
+                        <span>OS</span>
+                    </div>
+                </div>
+
+                <div class="mc-cambio-resultado">
+                    <span>Vas a recibir</span>
+                    <strong><span id="mcCambioResultado">10</span> créditos</strong>
+                </div>
+
+                <div id="mcCambioMensaje" class="mc-cambio-mensaje"></div>
+            </div>
+            <div class="mc-modal-actions-cambio">
+                <button class="mc-btn-sec" id="mcCambioCancelar">Cancelar</button>
+                <button class="mc-btn-primario" id="mcCambioConfirmar">
+                    <i data-lucide="arrow-left-right"></i>
+                    <span>Cambiar</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -134,6 +186,155 @@
 
     <script src="ciudad.js"></script>
     <script src="script.js"></script>
+
+    <!-- ============================================================
+         PARCHE: Cambio OS → Créditos
+         Vive inline para no tocar ciudad.js ni script.js
+         ============================================================ -->
+    <script>
+    (function () {
+        const TASA = 10; // 1 OS = 10 créditos
+
+        function getEstado() {
+            return window.MiniCity?.getEstado?.() || null;
+        }
+        function getMonedasOS() {
+            try {
+                const api = window.parent?.__vicwebos;
+                return api?.obtenerMonedas?.() ?? 0;
+            } catch (e) { return 0; }
+        }
+        function getApi() {
+            return window.parent?.__vicwebos || null;
+        }
+
+        function abrir() {
+            const overlay = document.getElementById('mcModalCambio');
+            if (!overlay) return;
+            overlay.hidden = false;
+            renderTodo();
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function cerrar() {
+            const overlay = document.getElementById('mcModalCambio');
+            if (overlay) overlay.hidden = true;
+        }
+
+        function renderTodo() {
+            const tusOS = getMonedasOS();
+            const input = document.getElementById('mcCambioInput');
+            const tusEl = document.getElementById('mcCambioTusOS');
+            if (tusEl) tusEl.textContent = tusOS;
+
+            const optsEl = document.getElementById('mcCambioOpciones');
+            if (optsEl) {
+                optsEl.innerHTML = '';
+                const cantidades = [1, 5, 10, 25].filter(n => n <= tusOS);
+                if (tusOS > 25) cantidades.push(tusOS);
+                if (cantidades.length === 0) {
+                    const aviso = document.createElement('span');
+                    aviso.className = 'mc-cambio-sin-os';
+                    aviso.textContent = 'No tenés Monedas OS';
+                    optsEl.appendChild(aviso);
+                } else {
+                    cantidades.forEach(n => {
+                        const b = document.createElement('button');
+                        b.className = 'mc-cambio-op';
+                        b.textContent = (n === tusOS && n > 25) ? 'Todo' : n;
+                        b.addEventListener('click', () => {
+                            input.value = n;
+                            actualizarResultado();
+                        });
+                        optsEl.appendChild(b);
+                    });
+                }
+            }
+            actualizarResultado();
+        }
+
+        function actualizarResultado() {
+            const input = document.getElementById('mcCambioInput');
+            const res = document.getElementById('mcCambioResultado');
+            const msg = document.getElementById('mcCambioMensaje');
+            if (!input || !res) return;
+            let n = parseInt(input.value, 10);
+            if (isNaN(n) || n < 0) n = 0;
+            if (msg) { msg.textContent = ''; msg.className = 'mc-cambio-mensaje'; }
+            res.textContent = (n * TASA).toLocaleString('es-CL');
+        }
+
+        async function confirmar() {
+            const api = getApi();
+            if (!api) return;
+            const estado = getEstado();
+            if (!estado) return;
+
+            const input = document.getElementById('mcCambioInput');
+            const msg = document.getElementById('mcCambioMensaje');
+            const btn = document.getElementById('mcCambioConfirmar');
+
+            let n = parseInt(input.value, 10);
+            if (isNaN(n) || n < 1) {
+                if (msg) { msg.textContent = '❌ Ingresá al menos 1 moneda'; msg.className = 'mc-cambio-mensaje error'; }
+                return;
+            }
+            const tusOS = getMonedasOS();
+            if (n > tusOS) {
+                if (msg) { msg.textContent = `❌ Solo tenés ${tusOS} monedas OS`; msg.className = 'mc-cambio-mensaje error'; }
+                return;
+            }
+
+            const creditos = n * TASA;
+            if (btn) btn.disabled = true;
+            try {
+                await api.gastoBoleta('landmark', 'minicity', `Cambio OS → Créditos (${n} OS)`, n);
+                estado.creditos += creditos;
+                await window.MiniCity.guardar();
+
+                // Forzar refresco de UI si existe el hook
+                if (typeof window.__mcActualizarUI === 'function') window.__mcActualizarUI();
+
+                cerrar();
+
+                const t = document.getElementById('mcToast');
+                if (t) {
+                    t.textContent = `+${creditos.toLocaleString('es-CL')} créditos (gastaste ${n} OS)`;
+                    t.className = 'mc-toast show success';
+                    setTimeout(() => t.classList.remove('show'), 2600);
+                }
+            } catch (e) {
+                if (msg) {
+                    msg.textContent = '❌ ' + (e.message || 'No se pudo cambiar');
+                    msg.className = 'mc-cambio-mensaje error';
+                }
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnAbrir = document.getElementById('mcBtnCambio');
+            const btnCancel = document.getElementById('mcCambioCancelar');
+            const btnConf = document.getElementById('mcCambioConfirmar');
+            const overlay = document.getElementById('mcModalCambio');
+            const input = document.getElementById('mcCambioInput');
+            const cerrarBtn = overlay?.querySelector('[data-mc-cerrar="cambio"]');
+
+            btnAbrir?.addEventListener('click', abrir);
+            btnCancel?.addEventListener('click', cerrar);
+            cerrarBtn?.addEventListener('click', cerrar);
+            btnConf?.addEventListener('click', confirmar);
+            input?.addEventListener('input', actualizarResultado);
+            overlay?.addEventListener('click', (e) => { if (e.target === overlay) cerrar(); });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && overlay && !overlay.hidden) cerrar();
+            });
+        });
+    })();
+    </script>
+
     <script>lucide.createIcons();</script>
 </body>
 </html>
