@@ -386,6 +386,17 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 0
     },
         {
+        id: 'confesionario',
+        nombre: 'El Confesionario',
+        icono: 'drama',
+        ruta: 'herramientas/confesionario/index.html',
+        descripcion: 'Publicá confesiones 100% anónimas. Reaccioná y comentá sin que nadie sepa quién sos.',
+        categoria: 'Social',
+        esBase: false,
+        espacio: 4,
+        monedas: 45
+    },
+        {
         id: 'encuestas',
         nombre: 'Encuestas',
         icono: 'vote',
