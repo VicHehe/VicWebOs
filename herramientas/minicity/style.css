@@ -1,6 +1,12 @@
 /* ================================================================
    MiniCity — Estilos
    Prefijo mc-. Hereda variables del tema del padre.
+   ------------------------------------------------------------
+   CAMBIOS v3:
+    · .mc-opciones ahora es flex:1 + min-height:0 para que
+      el modal scrollee internamente en vez de cortarse.
+    · .mc-edif-cuerpo tiene el mismo tratamiento.
+    · .mc-tienda también.
    ================================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -87,7 +93,6 @@ body {
     text-overflow: ellipsis;
 }
 
-/* Constructores (slots) */
 .mc-constructores {
     display: flex;
     gap: 6px;
@@ -129,7 +134,6 @@ body {
 }
 .mc-constructor-slot [data-lucide] { width: 16px; height: 16px; stroke-width: 2.25; }
 
-/* Botón fijo de tienda en el header */
 .mc-constructor-slot.mc-constructor-tienda {
     background: var(--violet-100, #EDE9FE);
     border-color: var(--violet-400, #A78BFA);
@@ -233,7 +237,7 @@ body {
 .mc-canvas-hint.oculto { opacity: 0; }
 
 /* ================================================================
-   FOOTER (banco + cambio OS)
+   FOOTER
    ================================================================ */
 .mc-footer {
     flex-shrink: 0;
@@ -273,7 +277,6 @@ body {
 }
 .mc-btn-banco [data-lucide] { width: 16px; height: 16px; }
 
-/* Botón cambio OS → Créditos */
 .mc-btn-cambio {
     flex: 1;
     display: inline-flex;
@@ -380,12 +383,17 @@ body {
 
 /* ================================================================
    OPCIONES DE CONSTRUCCIÓN
+   — CAMBIO: flex:1 + min-height:0 para que scrollee internamente
    ================================================================ */
 .mc-opciones {
     display: flex;
     flex-direction: column;
     gap: 8px;
     overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    -webkit-overflow-scrolling: touch;
+    padding-right: 2px;
 }
 .mc-opcion {
     display: flex;
@@ -400,6 +408,7 @@ body {
     font-family: inherit;
     text-align: left;
     min-width: 0;
+    flex-shrink: 0;
 }
 .mc-opcion:hover:not(.bloqueada) {
     border-color: var(--violet-400, #A78BFA);
@@ -459,12 +468,17 @@ body {
 
 /* ================================================================
    CUERPO DE EDIFICIO EXISTENTE
+   — CAMBIO: flex:1 + min-height:0 para scrollear bien
    ================================================================ */
 .mc-edif-cuerpo {
     display: flex;
     flex-direction: column;
     gap: 12px;
     overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    -webkit-overflow-scrolling: touch;
+    padding-right: 2px;
 }
 .mc-edif-stats {
     display: grid;
@@ -606,13 +620,18 @@ body {
 .mc-btn-acc [data-lucide] { width: 15px; height: 15px; }
 
 /* ================================================================
-   TIENDA (constructores + expansión)
+   TIENDA
+   — CAMBIO: flex:1 + min-height:0
    ================================================================ */
 .mc-tienda {
     display: flex;
     flex-direction: column;
     gap: 8px;
     overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    -webkit-overflow-scrolling: touch;
+    padding-right: 2px;
 }
 .mc-tienda-item {
     display: flex;
@@ -623,10 +642,16 @@ body {
     border: 1.5px solid var(--border, #E8E8EE);
     border-radius: 12px;
     transition: all 0.15s;
+    flex-shrink: 0;
 }
 .mc-tienda-item.comprado {
     background: var(--gray-50, #FAFAFB);
     opacity: 0.75;
+}
+.mc-tienda-item.mc-tienda-item-bloqueado {
+    background: var(--gray-50, #FAFAFB);
+    border-style: dashed;
+    opacity: 0.85;
 }
 .mc-tienda-icono {
     width: 44px;
@@ -687,8 +712,23 @@ body {
 .mc-tienda-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .mc-tienda-btn [data-lucide] { width: 13px; height: 13px; }
 
+.mc-tienda-tag-bloqueado {
+    font-size: 10.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--gray-500, #71717A);
+    background: var(--gray-100, #F4F4F7);
+    border: 1px solid var(--border, #E8E8EE);
+    padding: 4px 10px;
+    border-radius: 999px;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
 /* ================================================================
    MODAL DE CAMBIO OS → CRÉDITOS
+   — CAMBIO: el cuerpo scrollea internamente
    ================================================================ */
 .mc-cambio-cuerpo {
     display: flex;
@@ -696,6 +736,9 @@ body {
     gap: 14px;
     padding: 2px 0 8px;
     overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    -webkit-overflow-scrolling: touch;
 }
 .mc-cambio-desc {
     font-size: 12.5px;
