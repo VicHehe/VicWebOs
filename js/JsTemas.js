@@ -772,7 +772,7 @@ const TEMAS_DISPONIBLES = [
     id: 'jugo-a-rayas',
     nombre: 'Jugo a Rayas',
     icono: 'ghost',
-    descripcion: 'El caos de Beetlejuice en tu pantalla. Rayas blanco y negro, puertas del Netherworld flotando, serpientes de arena y un jugo tóxico verde que gotea. Referencias a las pelis y al musical.',
+    descripcion: 'Estética de comedia oscura y fantasía gótica. Rayas blanco y negro, puertas blancas flotando, serpientes del desierto arrastrándose y un líquido verde radiactivo que gotea por todos lados.',
     categoria: 'Musicales',
     ruta: 'Temas/jugo-a-rayas.css',
     espacio: 4,
