@@ -1,0 +1,346 @@
+/* ================================================
+   Tema: Jugo a Rayas
+   Musicales. Inspirado en el caos visual del musical:
+   verde y morado neón, rayas blanco y negro, humo
+   teatral y destellos de escenario.
+   ================================================ */
+
+:root {
+    /* Acento: Verde bilis de Beetlejuice */
+    --violet-50:  #E6F5E6;
+    --violet-100: #C8EAC8;
+    --violet-200: #A8DBA8;
+    --violet-300: #7CCB7C;
+    --violet-400: #4CAF50;
+    --violet-500: #2E7D32; /* Verde principal */
+    --violet-600: #1B5E20;
+    --violet-700: #0F3D12;
+
+    /* Superficies y neutros góticos */
+    --white:   #FFFFFF;
+    --bg:      #F0F0F0;
+    --bg-alt:  #E8E8E8;
+    --gray-50:  #FAFAFA;
+    --gray-100: #F0F0F0;
+    --gray-200: #D8D8D8;
+    --gray-300: #BDBDBD;
+    --gray-400: #9E9E9E;
+    --gray-500: #757575;
+    --gray-600: #616161;
+    --gray-700: #424242;
+    --gray-800: #212121;
+    --gray-900: #000000;
+
+    --border:  #D8D8D8;
+    --text:    #000000;
+    --text-2:  #424242;
+    --text-3:  #757575;
+
+    /* Sombras dramáticas */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.08);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.10);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.15);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.18);
+    --shadow-glow: 0 0 0 4px rgba(46, 125, 50, 0.15);
+
+    /* Acentos */
+    --accent-gradient: linear-gradient(135deg, #2E7D32, #000000);
+    --accent-gradient-hover: linear-gradient(135deg, #4CAF50, #212121);
+    --accent-shadow: rgba(46, 125, 50, 0.28);
+    --accent-shadow-hover: rgba(46, 125, 50, 0.38);
+    --accent-text-gradient: linear-gradient(135deg, #000000, #2E7D32);
+
+    /* ----- Símbolos y patrones ----- */
+    /* Rayas blancas y negras icónicas */
+    --theme-stripes: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%23FFFFFF'/%3E%3Cpath d='M0 5 L40 5 M0 15 L40 15 M0 25 L40 25 M0 35 L40 35' stroke='%23000000' stroke-width='4'/%3E%3C/svg%3E");
+
+    /* Humo/gas teatral */
+    --theme-smoke: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 100' preserveAspectRatio='none'%3E%3Cpath d='M0,100 C30,70 70,90 100,60 C130,30 170,50 200,20 L200,100 L0,100 Z' fill='%232E7D32' fill-opacity='0.12'/%3E%3Cpath d='M0,100 C40,80 80,95 120,70 C160,45 190,65 200,40 L200,100 L0,100 Z' fill='%23000000' fill-opacity='0.08'/%3E%3C/svg%3E");
+
+    /* Estrella de neón (guiño al letrero) */
+    --theme-neon-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50,5 L61,35 L95,35 L68,55 L79,85 L50,65 L21,85 L32,55 L5,35 L39,35 Z' fill='%23F5C518'/%3E%3C/svg%3E");
+}
+
+/* ================================================================
+   1. WELCOME — Escenario con humo y rayas
+   ================================================================ */
+.welcome-placeholder {
+    position: relative;
+    background:
+        var(--theme-smoke) bottom left / 1200px 150px repeat-x,
+        radial-gradient(ellipse at top, rgba(46, 125, 50, 0.08) 0%, transparent 55%),
+        var(--bg);
+    overflow: hidden;
+    animation: smoke-drift 30s linear infinite;
+}
+
+@keyframes smoke-drift {
+    from { background-position: 0% bottom, center top, center; }
+    to   { background-position: -1200px bottom, center top, center; }
+}
+
+/* Rayas sutiles en las esquinas */
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.06;
+    background-image: var(--theme-stripes);
+    background-size: 80px 80px;
+}
+
+.welcome-glow {
+    background: radial-gradient(
+        circle,
+        rgba(46, 125, 50, 0.15) 0%,
+        rgba(245, 197, 24, 0.05) 40%,
+        transparent 68%
+    );
+}
+
+.welcome-hero {
+    position: relative;
+    z-index: 2;
+    padding: 36px 28px 32px;
+    background: var(--white);
+    border: 3px solid var(--gray-900);
+    border-radius: 4px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+    max-width: 680px;
+    margin-left: auto;
+    margin-right: auto;
+    overflow: hidden;
+}
+
+/* Rayas diagonales de fondo en el hero */
+.welcome-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 12px,
+        rgba(46, 125, 50, 0.04) 12px,
+        rgba(46, 125, 50, 0.04) 24px
+    );
+    pointer-events: none;
+    z-index: 0;
+}
+
+.welcome-hero > * { position: relative; z-index: 1; }
+
+.welcome-hero h1 {
+    letter-spacing: -0.01em;
+    color: #2E7D32;
+    text-shadow: 0 1px 0 #FFFFFF;
+}
+
+/* Icono principal con anillo rayado */
+.welcome-icon-wrap {
+    background: var(--gray-900);
+    border-radius: 50%;
+    position: relative;
+    box-shadow: 0 0 0 4px var(--white), 0 0 0 7px #2E7D32;
+    animation: pulse-green 3s ease-in-out infinite;
+}
+
+@keyframes pulse-green {
+    0%, 100% { box-shadow: 0 0 0 4px var(--white), 0 0 0 7px #2E7D32, 0 0 15px rgba(46, 125, 50, 0.4); }
+    50% { box-shadow: 0 0 0 4px var(--white), 0 0 0 7px #4CAF50, 0 0 25px rgba(46, 125, 50, 0.7); }
+}
+
+/* ================================================================
+   2. HEADER — La marquesina del teatro
+   ================================================================ */
+.app-header {
+    position: relative;
+    background: var(--gray-900);
+    border-bottom: 4px solid #2E7D32;
+}
+
+/* Luces de marquesina */
+.app-header::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 0; right: 0;
+    height: 2px;
+    background: radial-gradient(circle, #F5C518 1px, transparent 1.5px);
+    background-size: 20px 2px;
+    opacity: 0.7;
+}
+
+/* Logo con brillo de neón */
+.logo-mark {
+    background: #2E7D32;
+    box-shadow: 0 0 10px #2E7D32, 0 0 20px rgba(46, 125, 50, 0.6);
+    animation: neon-pulse 2.5s ease-in-out infinite;
+}
+@keyframes neon-pulse {
+    0%, 100% { box-shadow: 0 0 10px #2E7D32, 0 0 20px rgba(46, 125, 50, 0.6); }
+    50% { box-shadow: 0 0 15px #4CAF50, 0 0 30px rgba(76, 175, 80, 0.8); }
+}
+
+/* ================================================================
+   3. SIDEBAR — Telón de fondo
+   ================================================================ */
+.sidebar {
+    background: linear-gradient(180deg, #E8E8E8 0%, #F0F0F0 100%);
+    border-right: 3px solid var(--gray-900);
+}
+.sidebar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.04;
+    background-image: var(--theme-stripes);
+    background-size: 60px 60px;
+}
+
+.nav-item.active {
+    background: var(--white);
+    border: 2px solid #2E7D32;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(46, 125, 50, 0.2);
+}
+
+/* ================================================================
+   4. ACCESOS RÁPIDOS — Carteles de obra
+   ================================================================ */
+.acceso-item {
+    position: relative;
+    background: var(--white);
+    border: 2px solid var(--gray-900);
+    border-radius: 4px;
+    box-shadow: 4px 4px 0 var(--gray-400);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+.acceso-item:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 #2E7D32;
+    border-color: #2E7D32;
+}
+.acceso-icon-wrap {
+    background: var(--gray-100);
+    border: 1px solid var(--gray-300);
+}
+.acceso-item:hover .acceso-icon-wrap {
+    background: #2E7D32;
+    color: white;
+}
+
+/* Estrella de neón al hover */
+.acceso-item::after {
+    content: '';
+    position: absolute;
+    top: -8px; right: -8px;
+    width: 24px; height: 24px;
+    background: var(--theme-neon-star) center/contain no-repeat;
+    opacity: 0;
+    transform: scale(0.5) rotate(-30deg);
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+    filter: drop-shadow(0 0 5px #F5C518);
+}
+.acceso-item:hover::after {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+}
+
+/* ================================================================
+   5. PESTAÑAS — Focos de escenario
+   ================================================================ */
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 12px; right: 12px;
+    height: 3px;
+    background: #2E7D32;
+    box-shadow: 0 0 8px #2E7D32;
+    border-radius: 3px 3px 0 0;
+}
+
+/* ================================================================
+   6. MODALES — Guion de obra
+   ================================================================ */
+.config-card, .modal-todas-card {
+    border: 3px solid var(--gray-900);
+    border-radius: 4px;
+    box-shadow: 8px 8px 0 var(--gray-400);
+}
+.config-card::before, .modal-todas-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: #2E7D32;
+}
+
+/* ================================================================
+   7. BOTONES
+   ================================================================ */
+.btn-primario {
+    background: #2E7D32;
+    color: white;
+    border: 2px solid var(--gray-900);
+    border-radius: 4px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 3px 3px 0 var(--gray-900);
+    transition: all 0.15s;
+}
+.btn-primario:hover {
+    background: #4CAF50;
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 var(--gray-900);
+}
+.btn-primario:active {
+    transform: translate(1px, 1px);
+    box-shadow: 2px 2px 0 var(--gray-900);
+}
+
+/* ================================================================
+   8. INPUTS
+   ================================================================ */
+.config-field input, .config-field select, .config-select {
+    border: 2px solid var(--gray-900);
+    border-radius: 4px;
+    background: var(--white);
+}
+.config-field input:focus, .config-field select:focus {
+    border-color: #2E7D32;
+    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2);
+}
+
+/* ================================================================
+   9. AVATAR
+   ================================================================ */
+.avatar-config {
+    background: #2E7D32;
+    border: 2px solid var(--gray-900);
+}
+.avatar-config:hover {
+    box-shadow: 0 0 12px rgba(46, 125, 50, 0.6);
+    border-color: #F5C518;
+}
+
+/* ================================================================
+   10. PREFERS-REDUCED-MOTION
+   ================================================================ */
+@media (prefers-reduced-motion: reduce) {
+    .welcome-placeholder,
+    .welcome-icon-wrap,
+    .logo-mark {
+        animation: none !important;
+    }
+    .acceso-item, .btn-primario {
+        transition: none !important;
+    }
+}
