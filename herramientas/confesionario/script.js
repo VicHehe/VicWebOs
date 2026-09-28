@@ -718,4 +718,62 @@ async function inicializar() {
     // Filtros
     document.querySelectorAll('#cfFiltros .cf-chip').forEach(chip => {
         chip.addEventListener('click', () => {
-           
+            document.querySelectorAll('#cfFiltros .cf-chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            filtroCategoria = chip.dataset.cat;
+            soloMias = false;
+            document.getElementById('cfBtnMias').classList.remove('activo');
+            renderFeed();
+        });
+    });
+
+    // Toggle "Mías"
+    document.getElementById('cfBtnMias').addEventListener('click', () => {
+        soloMias = !soloMias;
+        document.getElementById('cfBtnMias').classList.toggle('activo', soloMias);
+        renderFeed();
+    });
+
+    // Nueva confesión
+    document.getElementById('cfBtnNueva').addEventListener('click', abrirModalNueva);
+    document.getElementById('cfFab').addEventListener('click', abrirModalNueva);
+    document.getElementById('cfEmptyBtn').addEventListener('click', abrirModalNueva);
+
+    document.getElementById('cfNuevaCerrar').addEventListener('click', cerrarModalNueva);
+    document.getElementById('cfNuevaCancelar').addEventListener('click', cerrarModalNueva);
+    document.getElementById('cfNuevaPublicar').addEventListener('click', publicarConfesion);
+
+    document.getElementById('cfNuevaTexto').addEventListener('input', (e) => {
+        const len = e.target.value.length;
+        document.getElementById('cfNuevaContador').textContent = `${len} / ${MAX_TEXTO}`;
+    });
+
+    document.querySelectorAll('#cfCatPicker .cf-cat-opcion').forEach(b => {
+        b.addEventListener('click', () => {
+            catNueva = b.dataset.cat;
+            actualizarCatPicker();
+        });
+    });
+
+    // Modal ver: cerrar
+    document.getElementById('cfVerCerrar').addEventListener('click', cerrarModalVer);
+
+    // Click fuera para cerrar modales
+    document.getElementById('cfModalNueva').addEventListener('click', (e) => {
+        if (e.target.id === 'cfModalNueva') cerrarModalNueva();
+    });
+    document.getElementById('cfModalVer').addEventListener('click', (e) => {
+        if (e.target.id === 'cfModalVer') cerrarModalVer();
+    });
+
+    // Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        if (!document.getElementById('cfModalVer').hidden) { cerrarModalVer(); return; }
+        if (!document.getElementById('cfModalNueva').hidden) { cerrarModalNueva(); return; }
+    });
+
+    if (window.lucide) window.lucide.createIcons();
+}
+
+document.addEventListener('DOMContentLoaded', inicializar);
