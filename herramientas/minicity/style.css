@@ -1,12 +1,5 @@
 /* ================================================================
-   MiniCity — Estilos
-   Prefijo mc-. Hereda variables del tema del padre.
-   ------------------------------------------------------------
-   CAMBIOS v3:
-    · .mc-opciones ahora es flex:1 + min-height:0 para que
-      el modal scrollee internamente en vez de cortarse.
-    · .mc-edif-cuerpo tiene el mismo tratamiento.
-    · .mc-tienda también.
+   MiniCity — Estilos v4
    ================================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -177,10 +170,7 @@ body {
     color: var(--violet-500, #8B5CF6);
     flex-shrink: 0;
 }
-.mc-hud-item span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+.mc-hud-item span { overflow: hidden; text-overflow: ellipsis; }
 .mc-hud-prod [data-lucide] { color: #10B981; }
 .mc-hud-banco {
     background: linear-gradient(135deg, #FEF3C7, #FDE68A);
@@ -239,11 +229,7 @@ body {
 /* ================================================================
    FOOTER
    ================================================================ */
-.mc-footer {
-    flex-shrink: 0;
-    display: flex;
-    gap: 8px;
-}
+.mc-footer { flex-shrink: 0; display: flex; gap: 8px; }
 .mc-footer .mc-btn-banco { flex: 1.6; }
 
 .mc-btn-banco {
@@ -383,7 +369,6 @@ body {
 
 /* ================================================================
    OPCIONES DE CONSTRUCCIÓN
-   — CAMBIO: flex:1 + min-height:0 para que scrollee internamente
    ================================================================ */
 .mc-opciones {
     display: flex;
@@ -429,9 +414,6 @@ body {
     color: white;
     flex-shrink: 0;
 }
-.mc-opcion-icono.residencial { background: linear-gradient(135deg, #10B981, #065F46); }
-.mc-opcion-icono.comercial   { background: linear-gradient(135deg, #3B82F6, #1E40AF); }
-.mc-opcion-icono.industrial  { background: linear-gradient(135deg, #F59E0B, #B45309); }
 .mc-opcion-icono [data-lucide] { width: 20px; height: 20px; stroke-width: 2.25; }
 .mc-opcion-info {
     flex: 1;
@@ -468,7 +450,6 @@ body {
 
 /* ================================================================
    CUERPO DE EDIFICIO EXISTENTE
-   — CAMBIO: flex:1 + min-height:0 para scrollear bien
    ================================================================ */
 .mc-edif-cuerpo {
     display: flex;
@@ -484,6 +465,9 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 8px;
+}
+.mc-edif-stats[data-cols="1"] {
+    grid-template-columns: 1fr;
 }
 .mc-edif-stat {
     padding: 10px 12px;
@@ -621,7 +605,6 @@ body {
 
 /* ================================================================
    TIENDA
-   — CAMBIO: flex:1 + min-height:0
    ================================================================ */
 .mc-tienda {
     display: flex;
@@ -668,10 +651,7 @@ body {
     background: linear-gradient(135deg, #EC4899, #9D174D);
 }
 .mc-tienda-icono [data-lucide] { width: 22px; height: 22px; stroke-width: 2.25; }
-.mc-tienda-info {
-    flex: 1;
-    min-width: 0;
-}
+.mc-tienda-info { flex: 1; min-width: 0; }
 .mc-tienda-nombre {
     font-size: 14px;
     font-weight: 800;
@@ -728,7 +708,6 @@ body {
 
 /* ================================================================
    MODAL DE CAMBIO OS → CRÉDITOS
-   — CAMBIO: el cuerpo scrollea internamente
    ================================================================ */
 .mc-cambio-cuerpo {
     display: flex;
@@ -783,11 +762,7 @@ body {
     letter-spacing: 0.06em;
     color: var(--gray-500, #71717A);
 }
-.mc-cambio-opciones {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-}
+.mc-cambio-opciones { display: flex; gap: 6px; flex-wrap: wrap; }
 .mc-cambio-op {
     flex: 1;
     min-width: 52px;
