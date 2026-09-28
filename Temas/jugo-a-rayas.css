@@ -1,12 +1,12 @@
 /* ================================================
    Tema: Jugo a Rayas
    Musicales. Inspirado en la estética del musical:
-   verde neón tóxico, morado profundo, rayas blanco
-   y negro, ángulos torcidos y humo de escenario.
+   verde tóxico, morado profundo, rayas blanco y
+   negro, humo de escenario y luces de neón.
    ================================================ */
 
 :root {
-    /* Acento: Verde neón tóxico del musical */
+    /* Acento: Verde tóxico de Beetlejuice */
     --violet-50:  #1A2E1A;
     --violet-100: #1F3A1F;
     --violet-200: #2A4A2A;
@@ -64,7 +64,7 @@
     /* Rayas blanco y negro */
     --theme-stripes: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%230D0D0D'/%3E%3Cpath d='M0 6 L40 6 M0 16 L40 16 M0 26 L40 26 M0 36 L40 36' stroke='%23FFFFFF' stroke-width='3' stroke-opacity='0.15'/%3E%3C/svg%3E");
 
-    /* Humo de escenario */
+    /* Humo de escenario (fijo al viewport para no cortarse) */
     --theme-smoke: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,80 C200,50 400,95 600,70 C800,45 1000,90 1200,65 L1200,120 L0,120 Z' fill='%234F983C' fill-opacity='0.10'/%3E%3Cpath d='M0,95 C250,70 500,105 750,85 C1000,65 1100,95 1200,85 L1200,120 L0,120 Z' fill='%237861D3' fill-opacity='0.08'/%3E%3C/svg%3E");
 
     /* Estrella de marquesina */
@@ -72,23 +72,42 @@
 }
 
 /* ================================================================
-   1. WELCOME — Escenario oscuro con humo y rayas sutiles
+   1. WELCOME — Escenario oscuro con humo fijo
    ================================================================ */
 .welcome-placeholder {
     position: relative;
-    background:
-        var(--theme-smoke) bottom left / 1200px 120px repeat-x,
-        var(--theme-stripes) 0 0 / 80px 80px repeat,
+    background-image:
+        var(--theme-smoke),
+        var(--theme-stripes),
         radial-gradient(ellipse at top, rgba(79, 152, 60, 0.08) 0%, transparent 55%),
-        radial-gradient(ellipse at bottom, rgba(120, 97, 211, 0.06) 0%, transparent 50%),
-        var(--bg);
-    background-attachment: scroll;
+        radial-gradient(ellipse at bottom, rgba(120, 97, 211, 0.06) 0%, transparent 50%);
+    background-size:
+        1200px 120px,
+        80px 80px,
+        100% 100%,
+        100% 100%;
+    background-position:
+        0% bottom,
+        0 0,
+        center top,
+        center bottom;
+    background-repeat:
+        repeat-x,
+        repeat,
+        no-repeat,
+        no-repeat;
+    background-attachment:
+        fixed,       /* Humo fijo al viewport: nunca se corta */
+        fixed,
+        scroll,
+        scroll;
+    background-color: var(--bg);
     animation: smoke-drift 35s linear infinite;
 }
 
 @keyframes smoke-drift {
-    from { background-position: 0% bottom, 0 0, center top, center bottom, center; }
-    to   { background-position: -1200px bottom, 0 0, center top, center bottom, center; }
+    from { background-position: 0% bottom, 0 0, center top, center bottom; }
+    to   { background-position: -1200px bottom, 0 0, center top, center bottom; }
 }
 
 .welcome-glow {
