@@ -326,6 +326,17 @@ const RUTAS_HERRAMIENTAS = [
     monedas: 10
 },
     {
+    id: 'blackjack',
+    nombre: 'Blackjack',
+    icono: 'spade',
+    ruta: 'herramientas/blackjack/index.html',
+    descripcion: 'El clásico 21 contra el crupier. Apuestas monedas OS reales.',
+    categoria: 'Juegos',
+    esBase: false,
+    espacio: 2,
+    monedas: 20
+},
+    {
         id: 'metrorun',
         nombre: 'The MetroRun',
         icono: 'train-front',
