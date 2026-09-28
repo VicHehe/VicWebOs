@@ -1,224 +1,243 @@
 /* ================================================
-   Tema: Romance Escolar
-   Cine. Atardecer en el patio, cuadernos, cartas
-   dobladas, primer amor adolescente. Cálido, naive.
+   Tema: Cine Romance Escolar
+   Comedia romántica de secundaria. Cuaderno
+   rayado de fondo, corazón, luz cálida de tarde.
    ================================================ */
 
 :root {
-    --violet-50:  #FFF5F0;
-    --violet-100: #FFE8DC;
-    --violet-200: #FFD4C0;
-    --violet-300: #FFB6A0;
-    --violet-400: #FF9780;
-    --violet-500: #E86A4A;
-    --violet-600: #C5502F;
-    --violet-700: #A03820;
+    --violet-50:  #FFF5F3;
+    --violet-100: #FFE4DE;
+    --violet-200: #FFC8BE;
+    --violet-300: #E8A0A0;
+    --violet-400: #D48383;
+    --violet-500: #C25E5E;
+    --violet-600: #A04545;
+    --violet-700: #7A3232;
 
     --white:   #FFFFFF;
-    --bg:      #FFF9F5;
-    --bg-alt:  #FFF1E8;
-    --gray-50:  #FAF6F2;
-    --gray-100: #F5EDE5;
-    --gray-200: #E8DCD0;
-    --gray-300: #D4C4B4;
-    --gray-400: #9E8C7C;
-    --gray-500: #6E5E50;
-    --gray-600: #4E4038;
-    --gray-700: #362C26;
-    --gray-800: #1F1814;
-    --gray-900: #0F0C0A;
+    --bg:      #FFF8F2;
+    --bg-alt:  #FCEFE4;
+    --gray-50:  #FFF8F2;
+    --gray-100: #FCEEE0;
+    --gray-200: #F0DCC8;
+    --gray-300: #D4B8A0;
+    --gray-400: #A88B75;
+    --gray-500: #7A5F4D;
+    --gray-600: #5A4232;
+    --gray-700: #3E2C20;
+    --gray-800: #251812;
+    --gray-900: #140C08;
 
-    --border:  #E8DCD0;
-    --text:    #1F1814;
-    --text-2:  #4E4038;
-    --text-3:  #6E5E50;
+    --border:  #F0DCC8;
+    --text:    #3E2C20;
+    --text-2:  #5A4232;
+    --text-3:  #7A5F4D;
 
-    --shadow-xs: 0 1px 2px rgba(80, 40, 20, 0.05);
-    --shadow-sm: 0 1px 3px rgba(80, 40, 20, 0.08);
-    --shadow-md: 0 4px 12px rgba(80, 40, 20, 0.10);
-    --shadow-lg: 0 12px 32px rgba(80, 40, 20, 0.12);
-    --shadow-xl: 0 24px 48px rgba(80, 40, 20, 0.15);
-    --shadow-glow: 0 0 0 4px rgba(232, 106, 74, 0.15);
+    --shadow-xs: 0 1px 2px rgba(122, 50, 50, 0.05);
+    --shadow-sm: 0 1px 3px rgba(122, 50, 50, 0.07);
+    --shadow-md: 0 4px 12px rgba(122, 50, 50, 0.09);
+    --shadow-lg: 0 12px 32px rgba(122, 50, 50, 0.11);
+    --shadow-xl: 0 24px 48px rgba(122, 50, 50, 0.14);
+    --shadow-glow: 0 0 0 4px rgba(194, 94, 94, 0.15);
 
-    --accent-gradient: linear-gradient(135deg, #E86A4A, #A03820);
-    --accent-gradient-hover: linear-gradient(135deg, #FF9780, #C5502F);
-    --accent-shadow: rgba(232, 106, 74, 0.30);
-    --accent-shadow-hover: rgba(232, 106, 74, 0.45);
-    --accent-text-gradient: linear-gradient(135deg, #1F1814, #C5502F);
+    --accent-gradient: linear-gradient(135deg, #C25E5E, #7A3232);
+    --accent-gradient-hover: linear-gradient(135deg, #D48383, #A04545);
+    --accent-shadow: rgba(194, 94, 94, 0.28);
+    --accent-shadow-hover: rgba(194, 94, 94, 0.42);
+    --accent-text-gradient: linear-gradient(135deg, #3E2C20, #A04545);
+
+    /* Hoja rayada de cuaderno (seamless horizontal) */
+    --theme-notebook: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Crect width='100' height='100' fill='%23FFF8F2'/%3E%3Cpath d='M0 20 L100 20 M0 40 L100 40 M0 60 L100 60 M0 80 L100 80' stroke='%23D4B8A0' stroke-width='0.5' stroke-opacity='0.4'/%3E%3Cpath d='M12 0 L12 100' stroke='%23C25E5E' stroke-width='0.8' stroke-opacity='0.25'/%3E%3C/svg%3E");
+
+    /* Corazón pequeño */
+    --theme-heart: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10 17 C5 13 2 10 2 7 C2 5 3.5 3.5 5.5 3.5 C7 3.5 8.5 4.5 10 6 C11.5 4.5 13 3.5 14.5 3.5 C16.5 3.5 18 5 18 7 C18 10 15 13 10 17 Z' fill='%23C25E5E'/%3E%3C/svg%3E");
 }
 
+/* ============ WELCOME ============ */
 .welcome-placeholder {
     position: relative;
     background:
-        radial-gradient(ellipse at top, rgba(255, 182, 160, 0.20) 0%, transparent 55%),
-        linear-gradient(180deg, #FFF5E8 0%, #FFE8DC 60%, #FFD4C0 100%);
+        var(--theme-notebook) 0 0 / 100% 100px repeat,
+        var(--bg);
 }
 
-/* Cuaderno: renglones horizontales sutiles */
-.welcome-placeholder::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.20;
-    background-image: repeating-linear-gradient(
-        180deg,
-        transparent 0,
-        transparent 26px,
-        rgba(232, 106, 74, 0.35) 26px,
-        rgba(232, 106, 74, 0.35) 27px
-    );
+.welcome-glow {
+    background: radial-gradient(circle, rgba(194, 94, 94, 0.10) 0%, transparent 68%);
 }
 
 .welcome-hero,
-.welcome-section { position: relative; z-index: 2; }
-
-.welcome-glow {
-    background: radial-gradient(
-        circle,
-        rgba(255, 151, 128, 0.28) 0%,
-        rgba(255, 182, 160, 0.12) 40%,
-        transparent 68%
-    );
+.welcome-section {
+    position: relative;
+    z-index: 2;
 }
 
-.welcome-hero h1 {
-    color: #A03820 !important;
-    letter-spacing: -0.02em;
+.welcome-hero {
+    padding: 34px 28px 30px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid var(--violet-200);
+    border-radius: 16px;
+    box-shadow:
+        0 12px 28px rgba(122, 50, 50, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+}
+
+/* Corazón en la esquina superior derecha */
+.welcome-hero::after {
+    content: '';
+    position: absolute;
+    top: -12px;
+    right: 24px;
+    width: 28px;
+    height: 28px;
+    background: var(--theme-heart) center/contain no-repeat;
+    opacity: 0.75;
+    pointer-events: none;
+    filter: drop-shadow(0 2px 4px rgba(194, 94, 94, 0.30));
 }
 
 .welcome-icon-wrap {
-    background: var(--accent-gradient);
-    border-radius: 50%;
+    background: linear-gradient(135deg, #E8A0A0, #7A3232);
     box-shadow:
-        0 12px 28px rgba(232, 106, 74, 0.40),
-        0 4px 8px rgba(80, 40, 20, 0.15),
-        0 0 0 6px rgba(255, 255, 255, 0.9),
-        0 0 0 8px rgba(232, 106, 74, 0.15);
+        0 12px 28px rgba(194, 94, 94, 0.35),
+        0 4px 8px rgba(122, 50, 50, 0.20),
+        0 0 0 4px rgba(255, 255, 255, 0.9);
 }
 
+.welcome-hero h1 {
+    color: #7A3232;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+/* ============ HEADER ============ */
 .app-header {
-    background: linear-gradient(180deg, #FFFFFF 0%, #FFF9F5 100%);
-    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #FFFFFF 0%, #FFF8F2 100%);
+    border-bottom: 1px solid var(--violet-200);
+    box-shadow: 0 1px 3px rgba(122, 50, 50, 0.05);
 }
 
+/* ============ SIDEBAR ============ */
 .sidebar {
-    background: linear-gradient(180deg, #FFF1E8 0%, #FFE8DC 100%);
-    border-right: 1px solid var(--border);
+    background: linear-gradient(180deg, #FCEFE4 0%, #FCE5D6 100%);
+    border-right: 1px solid var(--violet-200);
 }
+
 .nav-item.active::before {
-    background: var(--accent-gradient);
+    background: linear-gradient(180deg, #E8A0A0, #7A3232);
     width: 3px;
     border-radius: 0 3px 3px 0;
 }
-.nav-item.active { background: rgba(232, 106, 74, 0.08); }
 
-@media (max-width: 768px) { .sidebar { position: fixed; } }
+@media (max-width: 768px) {
+    .sidebar { position: fixed; }
+}
 
+/* ============ ACCESOS ============ */
 .acceso-item {
     background: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(232, 106, 74, 0.22);
-    border-radius: 12px;
-    box-shadow: 0 2px 6px rgba(80, 40, 20, 0.06);
+    border-color: var(--violet-200);
+    border-radius: 14px;
+    box-shadow: 0 2px 6px rgba(122, 50, 50, 0.06);
     transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .acceso-item:hover {
-    border-color: var(--violet-500);
-    box-shadow: 0 10px 22px rgba(232, 106, 74, 0.22);
+    border-color: var(--violet-400);
+    box-shadow: 0 12px 24px rgba(194, 94, 94, 0.22);
     transform: translateY(-3px);
 }
 .acceso-icon-wrap {
-    background: rgba(232, 106, 74, 0.10);
-    color: var(--violet-600);
+    background: linear-gradient(135deg, #FFE4DE, #FFC8BE);
+    color: var(--violet-500);
     border-radius: 50%;
-    transition: all 0.22s;
 }
 .acceso-item:hover .acceso-icon-wrap {
     background: var(--accent-gradient);
     color: white;
-    box-shadow: 0 6px 14px rgba(232, 106, 74, 0.35);
 }
 
+/* ============ WIDGETS ============ */
 .widget-item {
-    border: 1px solid rgba(232, 106, 74, 0.20);
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(80, 40, 20, 0.08);
+    border-color: var(--violet-200);
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(122, 50, 50, 0.08);
+    transition: all 0.22s;
 }
 .widget-item:hover {
-    border-color: var(--violet-500);
-    box-shadow: 0 10px 22px rgba(232, 106, 74, 0.20);
+    border-color: var(--violet-400);
+    box-shadow: 0 10px 22px rgba(194, 94, 94, 0.18);
 }
 
+/* ============ PESTAÑAS ============ */
 .tab-item.active::before {
     content: '';
     position: absolute;
-    top: 0; left: 14px; right: 14px;
+    top: 0;
+    left: 12px;
+    right: 12px;
     height: 2px;
-    background: var(--accent-gradient);
+    background: linear-gradient(90deg, transparent, var(--violet-400), transparent);
     border-radius: 2px 2px 0 0;
+    pointer-events: none;
 }
-.tab-item.active [data-lucide] { color: var(--violet-600); }
 
-.config-card, .modal-todas-card {
+/* ============ MODALES ============ */
+.config-card,
+.modal-todas-card {
     position: relative;
     overflow: hidden;
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    box-shadow: 0 24px 48px rgba(80, 40, 20, 0.15);
+    border-radius: 18px;
 }
-.config-card::before, .modal-todas-card::before {
+.config-card::before,
+.modal-todas-card::before {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0;
+    top: 0;
+    left: 0;
+    right: 0;
     height: 3px;
-    background: var(--accent-gradient);
-}
-.config-header, .modal-todas-header {
-    background: var(--bg-alt);
-    border-bottom-color: var(--border);
+    background: linear-gradient(90deg, #FFC8BE, #C25E5E, #FFC8BE);
+    pointer-events: none;
+    z-index: 2;
 }
 
+/* ============ BOTÓN ============ */
 .btn-primario {
-    background: var(--accent-gradient-hover);
-    color: white;
-    box-shadow: 0 4px 12px rgba(232, 106, 74, 0.30);
+    box-shadow:
+        0 4px 12px var(--accent-shadow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.20);
 }
 .btn-primario:hover {
     box-shadow:
-        0 8px 22px rgba(232, 106, 74, 0.45),
-        0 0 0 3px rgba(232, 106, 74, 0.15);
+        0 8px 20px var(--accent-shadow-hover),
+        0 0 0 3px rgba(232, 160, 160, 0.30);
 }
 
-.config-field input, .config-field select, .config-select {
-    background: white;
-    border: 1px solid var(--border);
-    color: var(--text);
-}
-.config-field input:focus, .config-field select:focus {
-    border-color: var(--violet-500);
-    box-shadow: var(--shadow-glow);
-}
-
+/* ============ AVATAR ============ */
 .avatar-config {
-    background: var(--accent-gradient);
-    border: 2px solid white;
-    box-shadow: var(--shadow-sm), 0 0 0 1px var(--border);
+    background: linear-gradient(135deg, #D48383, #7A3232);
+    border: 2px solid var(--white);
+    box-shadow:
+        var(--shadow-sm),
+        0 0 0 1px var(--violet-200),
+        0 0 0 3px rgba(194, 94, 94, 0.15);
 }
 .avatar-config:hover {
-    box-shadow: 0 6px 16px rgba(232, 106, 74, 0.40);
+    box-shadow:
+        0 6px 16px rgba(194, 94, 94, 0.45),
+        0 0 0 1px var(--violet-400);
 }
 
 .noti-btn.tiene-no-leidas {
-    background: rgba(232, 106, 74, 0.10);
+    background: var(--violet-50);
     color: var(--violet-600);
 }
 
-.search-bar:focus-within {
-    border-color: var(--violet-500);
-    box-shadow: var(--shadow-glow);
-}
-
+/* ============ REDUCED MOTION ============ */
 @media (prefers-reduced-motion: reduce) {
-    .acceso-item, .welcome-icon-wrap { transition: none !important; animation: none !important; }
+    .acceso-item, .widget-item {
+        transition: none !important;
+    }
 }
