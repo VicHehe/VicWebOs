@@ -1,7 +1,13 @@
 // ============================================================
 //  script.js — UI de MiniCity
 //  ------------------------------------------------------------
-//  Render isométrico en canvas, input, modales, HUD, loop.
+//  Render isométrico, input, modales, HUD, loop.
+//  CAMBIOS v2:
+//   · Usa getGrillaSize() en vez de GRILLA_COLS.
+//   · Botón fijo de tienda en el header.
+//   · HUD muestra "/min" para créditos.
+//   · Hint contextual cuando hay edificios pero 0 comerciales.
+//   · Soporte de expansión desde la tienda.
 // ============================================================
 
 'use strict';
@@ -9,24 +15,19 @@
 const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const APP_ID = 'minicity';
 
-// ---- Dimensiones isométricas ----
-const TILE_W = 78;   // ancho visual de una celda
-const TILE_H = 39;   // alto visual de una celda (ratio 2:1)
+const TILE_W = 78;
+const TILE_H = 39;
 
-// ---- Estado de render ----
 let canvas, ctx;
 let wrapEl;
 let dpr = 1;
 let anchoCSS = 0, altoCSS = 0;
-let originX = 0, originY = 0;      // punto de proyección del centro de la celda (0,0)
+let originX = 0, originY = 0;
 
-// ---- Estado de UI ----
 let celdaSeleccionada = null;
-let ultimoResumenTiempo = null;
 let rafId = null;
 let ultimoTick = 0;
 
-// ---- Colores (se leen del tema) ----
 const colores = {
     cesped:      '#E8E8EE',
     cespedAlt:   '#DDDDE5',
@@ -40,7 +41,6 @@ const colores = {
     indBase:     '#F59E0B',
     indOscuro:   '#B45309',
     humo:        'rgba(120,120,140,0.55)',
-    sombra:      'rgba(0,0,0,0.14)',
     texto:       '#18181B'
 };
 
@@ -70,7 +70,7 @@ function aplicarTemaDelPadre() {
             const val = sp.getPropertyValue(v).trim();
             if (val) document.documentElement.style.setProperty(v, val);
         });
-    } catch (e) { /* silencioso */ }
+    } catch (e) {}
 }
 
 function leerColoresDelTema() {
@@ -80,13 +80,11 @@ function leerColoresDelTema() {
             return v || fallback;
         } catch (e) { return fallback; }
     };
-    colores.cesped     = cs('--bg-alt', '#F5F5F8');
-    colores.cespedAlt  = cs('--gray-100', '#F4F4F7');
-    colores.borde      = cs('--gray-300', '#D4D4DD');
-    colores.selBorde   = cs('--violet-500', '#8B5CF6');
-    colores.texto      = cs('--gray-900', '#18181B');
-    // Los colores semánticos de los edificios son fijos (verde/azul/naranja)
-    // para que se lean independiente del tema.
+    colores.cesped    = cs('--bg-alt', '#F5F5F8');
+    colores.cespedAlt = cs('--gray-100', '#F4F4F7');
+    colores.borde     = cs('--gray-300', '#D4D4DD');
+    colores.selBorde  = cs('--violet-500', '#8B5CF6');
+    colores.texto     = cs('--gray-900', '#18181B');
 }
 
 window.addEventListener('message', (e) => {
@@ -110,7 +108,7 @@ function toast(texto, tipo = 'info') {
 }
 
 // ============================================================
-//  Canvas: dimensiones
+//  Canvas
 // ============================================================
 function ajustarCanvas() {
     if (!canvas || !wrapEl) return;
@@ -128,36 +126,23 @@ function ajustarCanvas() {
 }
 
 function calcularOrigen() {
-    // El centro visual de la grilla. Queremos que quede centrada y un poco
-    // arriba del centro para dejar espacio a los edificios altos.
-    const cols = window.MiniCity.GRILLA_COLS;
-    const filas = window.MiniCity.GRILLA_FILAS;
-    const anchoIsometrico  = (cols + filas) * TILE_W / 2;
-    const altoIsometrico   = (cols + filas) * TILE_H / 2;
-
-    // El punto (col=0, fila=0) tiene su esquina superior en el tope del rombo.
-    // Calculamos su centro en pantalla.
-    const cx = anchoCSS / 2;
-    const cy = (altoCSS - altoIsometrico) / 2 + 30;   // un poco arriba del centro
-    // Centro de la celda (0,0) = esquina del rombo + (TILE_W/2, TILE_H/2)
-    // esquinaX = cx - anchoIsometrico/2
-    // esquinaY = cy
-    originX = cx - anchoIsometrico / 2 + TILE_W / 2;
-    originY = cy + TILE_H / 2;
+    const N = window.MiniCity.getGrillaSize();
+    // El "centro visual" del rombo grande está en (originX, originY + (N-1)*TILE_H/2)
+    // Lo centramos en el canvas con un pequeño offset hacia arriba
+    originX = anchoCSS / 2;
+    originY = altoCSS / 2 - (N - 1) * TILE_H / 2 - 10;
 }
 
 // ============================================================
 //  Proyección isométrica
 // ============================================================
 function proyCentroCelda(col, fila) {
-    // Centro de la celda (col, fila) en pantalla
     const x = originX + (col - fila) * (TILE_W / 2);
     const y = originY + (col + fila) * (TILE_H / 2);
     return { x, y };
 }
 
 function screenToCell(px, py) {
-    // Invertir la proyección para saber en qué celda cayó el tap.
     const rx = px - originX;
     const ry = py - originY;
     const hw = TILE_W / 2;
@@ -178,12 +163,9 @@ function dibujar() {
     if (!estado) return;
 
     ctx.clearRect(0, 0, anchoCSS, altoCSS);
-
-    // Fondo
     ctx.fillStyle = colores.cesped;
     ctx.fillRect(0, 0, anchoCSS, altoCSS);
 
-    // Ordenar celdas por (col + fila) para que las de atrás se pinten primero.
     const ordenadas = estado.celdas.slice().sort((a, b) => {
         const da = a.col + a.fila;
         const db = b.col + b.fila;
@@ -191,14 +173,11 @@ function dibujar() {
         return a.col - b.col;
     });
 
-    // 1) Dibujar los suelos (rombos) de TODAS las celdas primero
     ordenadas.forEach(celda => {
         dibujarSuelo(celda, celdaSeleccionada === celda);
     });
-
-    // 2) Dibujar los edificios encima, en el mismo orden
     ordenadas.forEach(celda => {
-        if (celda.tipo && celda.nivel > 0 || (celda.tipo && celda.finConstruccion)) {
+        if ((celda.tipo && celda.nivel > 0) || (celda.tipo && celda.finConstruccion)) {
             dibujarEdificio(celda);
         }
     });
@@ -209,25 +188,21 @@ function dibujarSuelo(celda, seleccionada) {
     const hw = TILE_W / 2;
     const hh = TILE_H / 2;
 
-    // Rombo
     ctx.beginPath();
-    ctx.moveTo(x,         y - hh);
-    ctx.lineTo(x + hw,    y);
-    ctx.lineTo(x,         y + hh);
-    ctx.lineTo(x - hw,    y);
+    ctx.moveTo(x,      y - hh);
+    ctx.lineTo(x + hw, y);
+    ctx.lineTo(x,      y + hh);
+    ctx.lineTo(x - hw, y);
     ctx.closePath();
 
-    // Relleno
     const esPar = (celda.col + celda.fila) % 2 === 0;
     ctx.fillStyle = esPar ? colores.cesped : colores.cespedAlt;
     ctx.fill();
 
-    // Borde
     ctx.strokeStyle = seleccionada ? colores.selBorde : colores.borde;
     ctx.lineWidth = seleccionada ? 2.5 : 1;
     ctx.stroke();
 
-    // Relleno de selección
     if (seleccionada) {
         ctx.fillStyle = colores.selRelleno;
         ctx.fill();
@@ -238,72 +213,57 @@ function dibujarEdificio(celda) {
     const { x, y } = proyCentroCelda(celda.col, celda.fila);
     const tipo = celda.tipo;
     const nivelMostrado = celda.finConstruccion
-        ? Math.max(1, celda.nivel)      // mientras construye, muestra el nivel destino
+        ? Math.max(1, celda.nivel)
         : celda.nivel;
     const nivel = Math.max(1, Math.min(3, nivelMostrado));
 
-    // Colores según tipo
     let base, oscuro;
     if (tipo === 'residencial') { base = colores.resBase; oscuro = colores.resOscuro; }
     else if (tipo === 'comercial') { base = colores.comBase; oscuro = colores.comOscuro; }
     else { base = colores.indBase; oscuro = colores.indOscuro; }
 
-    // Alturas por nivel
-    const alturas = { 1: 22, 2: 34, 3: 48 };
+    const alturas    = { 1: 22, 2: 34, 3: 48 };
     const alturasCom = { 1: 26, 2: 40, 3: 56 };
     const alturasInd = { 1: 18, 2: 26, 3: 36 };
     let altura = alturas[nivel];
     if (tipo === 'comercial') altura = alturasCom[nivel];
     if (tipo === 'industrial') altura = alturasInd[nivel];
 
-    // Ancho del cuerpo (más chico que el rombo para que "respire")
-    const cuerpoW = TILE_W * 0.55;   // ancho horizontal
-    const cuerpoH = TILE_H * 0.55;   // profundidad (mitad inferior visible)
-
-    // Base (parte de atrás del cubo)
-    // Punto de referencia: parte trasera del rombo = (x, y - hh * 0.5)
+    const cuerpoW = TILE_W * 0.55;
+    const cuerpoH = TILE_H * 0.55;
     const hw = cuerpoW / 2;
     const hh = cuerpoH / 2;
 
-    // Sombra en el suelo
+    // Sombra
     ctx.save();
     ctx.globalAlpha = 0.35;
     ctx.fillStyle = '#000';
     ctx.beginPath();
-    ctx.moveTo(x,          y + 4 - hh);
-    ctx.lineTo(x + hw,     y + 4);
-    ctx.lineTo(x,          y + 4 + hh);
-    ctx.lineTo(x - hw,     y + 4);
+    ctx.moveTo(x,      y + 4 - hh);
+    ctx.lineTo(x + hw, y + 4);
+    ctx.lineTo(x,      y + 4 + hh);
+    ctx.lineTo(x - hw, y + 4);
     ctx.closePath();
     ctx.fill();
     ctx.restore();
 
-    // Si está en construcción, semitransparente y con andamio
     const enConstruccion = !!celda.finConstruccion;
-    const alphaBase = enConstruccion ? 0.55 : 1;
-    ctx.globalAlpha = alphaBase;
+    ctx.globalAlpha = enConstruccion ? 0.55 : 1;
 
-    // Caras del cubo:
-    //  · Pared izquierda (más oscura)
-    //  · Pared derecha (base)
-    //  · Techo (más claro)
-    const topX = x;
-    const topY = y - altura;   // tope del techo
-
-    // Pared izquierda (visible, lado izquierdo)
+    // Pared izquierda
     ctx.beginPath();
-    ctx.moveTo(x - hw, y);            // esquina izquierda del rombo base
-    ctx.lineTo(x,      y + hh);       // esquina frontal (abajo)
+    ctx.moveTo(x - hw, y);
+    ctx.lineTo(x,      y + hh);
     ctx.lineTo(x,      y + hh - altura);
     ctx.lineTo(x - hw, y - altura);
     ctx.closePath();
     ctx.fillStyle = oscuro;
     ctx.fill();
 
-    // Pared derecha (visible, lado derecho)
+    // Pared derecha
     ctx.beginPath();
-    ctx.moveTo(x,      y + hh);       // esquina frontal
-    ctx.lineTo(x + hw, y);            // esquina derecha
+    ctx.moveTo(x,      y + hh);
+    ctx.lineTo(x + hw, y);
     ctx.lineTo(x + hw, y - altura);
     ctx.lineTo(x,      y + hh - altura);
     ctx.closePath();
@@ -320,39 +280,32 @@ function dibujarEdificio(celda) {
     ctx.fillStyle = aclarar(base, 0.15);
     ctx.fill();
 
-    // Detalles por tipo
+    // Detalles
     if (tipo === 'residencial') {
-        // Puerta (en la pared derecha)
         const puertaW = 6;
         const puertaH = Math.max(8, altura * 0.4);
         ctx.fillStyle = 'rgba(0,0,0,0.35)';
         ctx.fillRect(x + 4, y + hh - altura / 2 - puertaH / 2 - 2, puertaW, puertaH);
         if (nivel >= 2) {
-            // Ventana en pared izquierda
             ctx.fillStyle = 'rgba(255,255,255,0.55)';
             ctx.fillRect(x - hw + 4, y - altura + 6, 6, 6);
         }
     } else if (tipo === 'comercial') {
-        // Ventanal ancho
         ctx.fillStyle = 'rgba(255,255,255,0.6)';
         const vW = hw * 0.7;
         const vH = Math.max(6, altura * 0.35);
         ctx.fillRect(x + 3, y + hh - altura / 2 - vH / 2 - 2, vW, vH);
         if (nivel >= 2) {
-            // Segundo ventanal arriba
             ctx.fillRect(x + 3, y + hh - altura / 2 - vH / 2 - 2 - vH - 4, vW, vH);
         }
         if (nivel >= 3) {
-            // Tercero
             ctx.fillRect(x + 3, y + hh - altura / 2 - vH / 2 - 2 - (vH + 4) * 2, vW, vH);
         }
     } else if (tipo === 'industrial') {
-        // Chimenea
         const chimW = 5;
         const chimAlto = Math.max(10, altura * 0.7);
         ctx.fillStyle = 'rgba(0,0,0,0.4)';
         ctx.fillRect(x - 6, y - altura - chimAlto + 4, chimW, chimAlto + 4);
-        // Humo (si no está en construcción)
         if (!enConstruccion) {
             ctx.fillStyle = colores.humo;
             const t = (performance.now() / 700) % 1;
@@ -364,7 +317,6 @@ function dibujarEdificio(celda) {
         }
     }
 
-    // Andamio si está en construcción
     if (enConstruccion) {
         ctx.globalAlpha = 0.9;
         ctx.strokeStyle = 'rgba(120, 60, 200, 0.6)';
@@ -384,7 +336,6 @@ function dibujarEdificio(celda) {
     ctx.globalAlpha = 1;
 }
 
-// Aclarar u oscurecer hex
 function aclarar(hex, factor) {
     const h = hex.replace('#', '');
     const r = parseInt(h.substr(0, 2), 16);
@@ -405,8 +356,9 @@ function bindInput() {
         const px = clientX - rect.left;
         const py = clientY - rect.top;
         const celda = screenToCell(px, py);
-        if (celda.col < 0 || celda.col >= window.MiniCity.GRILLA_COLS) return;
-        if (celda.fila < 0 || celda.fila >= window.MiniCity.GRILLA_FILAS) return;
+        const N = window.MiniCity.getGrillaSize();
+        if (celda.col < 0 || celda.col >= N) return;
+        if (celda.fila < 0 || celda.fila >= N) return;
         abrirCelda(celda.col, celda.fila);
     };
 
@@ -415,10 +367,8 @@ function bindInput() {
         manejar(e.clientX, e.clientY);
     });
 
-    let touchManejado = false;
     canvas.addEventListener('touchstart', (e) => {
         if (e.touches.length > 0) {
-            touchManejado = true;
             const t = e.touches[0];
             manejar(t.clientX, t.clientY);
         }
@@ -431,7 +381,8 @@ function bindInput() {
 function abrirCelda(col, fila) {
     const estado = window.MiniCity.getEstado();
     if (!estado) return;
-    const idx = fila * window.MiniCity.GRILLA_COLS + col;
+    const N = window.MiniCity.getGrillaSize();
+    const idx = fila * N + col;
     const celda = estado.celdas[idx];
     if (!celda) return;
 
@@ -481,7 +432,11 @@ function abrirModalConstruir(celda, idx) {
                     celdaSeleccionada = null;
                     dibujar();
                     actualizarUI();
-                    toast(`Construyendo ${def.nombre}…`, 'info');
+                    if (tipoId === 'comercial') {
+                        toast(`Comercial en camino · producirá créditos`, 'info');
+                    } else {
+                        toast(`Construyendo ${def.nombre}…`, 'info');
+                    }
                 } catch (e) {
                     toast(e.message || 'No se pudo construir', 'error');
                 }
@@ -524,7 +479,6 @@ function abrirModalEdificio(celda, idx) {
 
     let html = '';
 
-    // Nivel visual
     html += `
         <div class="mc-edif-nivel">
             <i data-lucide="star"></i>
@@ -537,19 +491,19 @@ function abrirModalEdificio(celda, idx) {
         </div>
     `;
 
-    // Stats
     const aporte = nivelActual > 0 ? def.aporte[nivelActual - 1] : 0;
     let statLabel = 'Aporta';
     let statValor = aporte;
+    let statUnidad = '';
     if (celda.tipo === 'residencial') statLabel = 'Población';
-    if (celda.tipo === 'comercial')   statLabel = 'Créditos base';
+    if (celda.tipo === 'comercial')   { statLabel = 'Créditos'; statUnidad = '/min'; }
     if (celda.tipo === 'industrial')  statLabel = 'Empleos';
 
     html += `
         <div class="mc-edif-stats">
             <div class="mc-edif-stat">
                 <span class="mc-edif-stat-label">${statLabel}</span>
-                <span class="mc-edif-stat-valor">+${statValor}</span>
+                <span class="mc-edif-stat-valor">+${statValor}${statUnidad}</span>
             </div>
             <div class="mc-edif-stat">
                 <span class="mc-edif-stat-label">Tipo</span>
@@ -558,7 +512,6 @@ function abrirModalEdificio(celda, idx) {
         </div>
     `;
 
-    // Timer o acciones
     if (enConstruccion) {
         html += `
             <div class="mc-edif-timer">
@@ -612,7 +565,6 @@ function abrirModalEdificio(celda, idx) {
 
     cuerpo.innerHTML = html;
 
-    // Bind de acciones
     if (enConstruccion) {
         actualizarTimerEdificio(idx);
         const btnAc = document.getElementById('mcBtnAcelerar');
@@ -681,7 +633,7 @@ function cerrarModales() {
 }
 
 // ============================================================
-//  Tienda (constructores)
+//  Tienda
 // ============================================================
 function abrirTienda() {
     const estado = window.MiniCity.getEstado();
@@ -689,7 +641,41 @@ function abrirTienda() {
     const cont = document.getElementById('mcTiendaCuerpo');
     cont.innerHTML = '';
 
-    // Constructor 2
+    // --- Expansión de terreno ---
+    const puedeExp = window.MiniCity.puedeExpandir();
+    const sizeActual = window.MiniCity.getGrillaSize();
+    const sizeMax = window.MiniCity.GRILLA_SIZE_MAX;
+
+    if (sizeActual >= sizeMax) {
+        const item = document.createElement('div');
+        item.className = 'mc-tienda-item comprado';
+        item.innerHTML = `
+            <div class="mc-tienda-icono"><i data-lucide="layout-grid"></i></div>
+            <div class="mc-tienda-info">
+                <span class="mc-tienda-nombre">Terreno máximo alcanzado</span>
+                <span class="mc-tienda-desc">Tu grilla es de ${sizeActual}×${sizeActual}. No hay más expansiones.</span>
+            </div>
+        `;
+        cont.appendChild(item);
+    } else {
+        const nuevo = sizeActual + 1;
+        const costo = window.MiniCity.COSTOS_EXPANSION[sizeActual];
+        const item = document.createElement('div');
+        item.className = 'mc-tienda-item';
+        item.innerHTML = `
+            <div class="mc-tienda-icono"><i data-lucide="layout-grid"></i></div>
+            <div class="mc-tienda-info">
+                <span class="mc-tienda-nombre">Expandir terreno ${sizeActual}×${sizeActual} → ${nuevo}×${nuevo}</span>
+                <span class="mc-tienda-desc">Suma ${nuevo * nuevo - sizeActual * sizeActual} celdas nuevas.</span>
+            </div>
+            <button class="mc-tienda-btn" id="mcBtnExpandir" ${puedeExp.ok ? '' : 'disabled'}>
+                <i data-lucide="coins"></i>${costo}
+            </button>
+        `;
+        cont.appendChild(item);
+    }
+
+    // --- Constructor 2 ---
     if (estado.constructoresComprados >= 2) {
         const item = document.createElement('div');
         item.className = 'mc-tienda-item comprado';
@@ -697,7 +683,7 @@ function abrirTienda() {
             <div class="mc-tienda-icono"><i data-lucide="hard-hat"></i></div>
             <div class="mc-tienda-info">
                 <span class="mc-tienda-nombre">Segundo constructor</span>
-                <span class="mc-tienda-desc">Ya lo tenés. Podés construir 2 cosas a la vez.</span>
+                <span class="mc-tienda-desc">Ya lo tenés.</span>
             </div>
         `;
         cont.appendChild(item);
@@ -717,7 +703,7 @@ function abrirTienda() {
         cont.appendChild(item);
     }
 
-    // Constructor 3
+    // --- Constructor 3 ---
     if (estado.constructoresComprados >= 3) {
         const item = document.createElement('div');
         item.className = 'mc-tienda-item comprado';
@@ -725,7 +711,7 @@ function abrirTienda() {
             <div class="mc-tienda-icono os"><i data-lucide="crown"></i></div>
             <div class="mc-tienda-info">
                 <span class="mc-tienda-nombre">Tercer constructor</span>
-                <span class="mc-tienda-desc">Ya lo tenés. Podés construir 3 cosas a la vez.</span>
+                <span class="mc-tienda-desc">Ya lo tenés.</span>
             </div>
         `;
         cont.appendChild(item);
@@ -748,37 +734,39 @@ function abrirTienda() {
     document.getElementById('mcModalTienda').hidden = false;
     if (window.lucide) window.lucide.createIcons();
 
-    const btn2 = document.getElementById('mcBtnCons2');
-    if (btn2) {
-        btn2.addEventListener('click', async () => {
-            try {
-                btn2.disabled = true;
-                await window.MiniCity.comprarConstructor2();
-                toast('¡Segundo constructor desbloqueado!', 'success');
-                abrirTienda();
-                actualizarUI();
-            } catch (e) {
-                toast(e.message || 'No se pudo comprar', 'error');
-                btn2.disabled = false;
-            }
-        });
-    }
+    document.getElementById('mcBtnExpandir')?.addEventListener('click', () => {
+        try {
+            const res = window.MiniCity.expandirGrilla();
+            toast(`¡Terreno ampliado a ${res.sizeNuevo}×${res.sizeNuevo}!`, 'success');
+            ajustarCanvas();
+            cerrarModales();
+            actualizarUI();
+        } catch (e) {
+            toast(e.message || 'No se pudo expandir', 'error');
+        }
+    });
 
-    const btn3 = document.getElementById('mcBtnCons3');
-    if (btn3) {
-        btn3.addEventListener('click', async () => {
-            try {
-                btn3.disabled = true;
-                await window.MiniCity.comprarConstructor3();
-                toast('¡Tercer constructor desbloqueado!', 'success');
-                abrirTienda();
-                actualizarUI();
-            } catch (e) {
-                toast(e.message || 'No se pudo comprar', 'error');
-                btn3.disabled = false;
-            }
-        });
-    }
+    document.getElementById('mcBtnCons2')?.addEventListener('click', async () => {
+        try {
+            await window.MiniCity.comprarConstructor2();
+            toast('¡Segundo constructor desbloqueado!', 'success');
+            abrirTienda();
+            actualizarUI();
+        } catch (e) {
+            toast(e.message || 'No se pudo comprar', 'error');
+        }
+    });
+
+    document.getElementById('mcBtnCons3')?.addEventListener('click', async () => {
+        try {
+            await window.MiniCity.comprarConstructor3();
+            toast('¡Tercer constructor desbloqueado!', 'success');
+            abrirTienda();
+            actualizarUI();
+        } catch (e) {
+            toast(e.message || 'No se pudo comprar', 'error');
+        }
+    });
 }
 
 // ============================================================
@@ -811,8 +799,14 @@ function actualizarUI() {
     set('mcCreditos', Math.floor(estado.creditos).toLocaleString('es-CL'));
     set('mcPoblacion', stats.poblacion);
     set('mcFelicidad', stats.felicidad);
-    set('mcProdHora', stats.creditosHora.toFixed(1) + '/h');
+    set('mcProdHora', stats.creditosMinuto.toFixed(1) + '/min');
     set('mcBanco', Math.floor(estado.bancoOS));
+
+    // Color del HUD de producción si está en 0
+    const prodEl = document.getElementById('mcProdHora');
+    if (prodEl) {
+        prodEl.style.color = stats.creditosMinuto > 0 ? '' : 'var(--gray-400, #A1A1AD)';
+    }
 
     // Botón banco
     const btnBanco = document.getElementById('mcBtnBanco');
@@ -832,6 +826,15 @@ function actualizarUI() {
     const cont = document.getElementById('mcConstructores');
     if (cont) {
         cont.innerHTML = '';
+
+        // Botón fijo de tienda (siempre visible)
+        const shopBtn = document.createElement('div');
+        shopBtn.className = 'mc-constructor-slot mc-constructor-tienda';
+        shopBtn.title = 'Abrir tienda';
+        shopBtn.innerHTML = '<i data-lucide="shopping-bag"></i>';
+        shopBtn.addEventListener('click', abrirTienda);
+        cont.appendChild(shopBtn);
+
         const total = window.MiniCity.MAX_CONSTRUCTORES;
         const comprados = estado.constructoresComprados;
         const ocupados = window.MiniCity.constructoresOcupados();
@@ -850,11 +853,20 @@ function actualizarUI() {
         }
     }
 
-    // Hint canvas
+    // Hint contextual del canvas
     const hint = document.getElementById('mcCanvasHint');
     if (hint) {
         const tieneAlgo = estado.celdas.some(c => c.tipo);
-        hint.classList.toggle('oculto', tieneAlgo);
+        const tieneComercial = estado.celdas.some(c => c.tipo === 'comercial');
+        if (!tieneAlgo) {
+            hint.classList.remove('oculto');
+            hint.innerHTML = '<i data-lucide="hand-pointer"></i><span>Tocá una celda vacía para construir</span>';
+        } else if (!tieneComercial) {
+            hint.classList.remove('oculto');
+            hint.innerHTML = '<i data-lucide="store"></i><span>Poné un Comercial para producir créditos</span>';
+        } else {
+            hint.classList.add('oculto');
+        }
     }
 
     if (window.lucide) window.lucide.createIcons();
@@ -866,10 +878,7 @@ function actualizarUI() {
 function loop() {
     const ahora = performance.now();
     if (!ultimoTick) ultimoTick = ahora;
-    const deltaMs = Math.min(ahora - ultimoTick, 250);
-    ultimoTick = ahora;
 
-    // Procesar timers cada 250ms aprox
     if (!window.__mcUltimoProcTimers || ahora - window.__mcUltimoProcTimers > 250) {
         window.__mcUltimoProcTimers = ahora;
         const terminadas = window.MiniCity.procesarTimers();
@@ -883,7 +892,6 @@ function loop() {
         }
     }
 
-    // Procesar producción cada 5 segundos (para no petar el disco)
     if (!window.__mcUltimoProcProd || ahora - window.__mcUltimoProcProd > 5000) {
         window.__mcUltimoProcProd = ahora;
         const resultado = window.MiniCity.procesarTiempo();
@@ -892,38 +900,36 @@ function loop() {
         }
     }
 
-    // Timer visible dentro del modal de edificio
     if (celdaSeleccionada && celdaSeleccionada.finConstruccion) {
         const estado = window.MiniCity.getEstado();
-        const idx = celdaSeleccionada.fila * window.MiniCity.GRILLA_COLS + celdaSeleccionada.col;
+        const N = window.MiniCity.getGrillaSize();
+        const idx = celdaSeleccionada.fila * N + celdaSeleccionada.col;
         const c = estado.celdas[idx];
         if (c && c.finConstruccion) actualizarTimerEdificio(idx);
     }
 
-    // Redibujar cada frame (para humo animado y andamios)
     dibujar();
-
     rafId = requestAnimationFrame(loop);
 }
 
 // ============================================================
-//  Bienvenida / resumen de ausencia
+//  Bienvenida / resumen
 // ============================================================
 function mostrarBienvenida(resumen) {
     const overlay = document.getElementById('mcOverlayBienvenida');
     const resumenEl = document.getElementById('mcOverlayResumen');
     if (!overlay) return;
 
-    if (resumen && (resumen.creditosGanados > 0 || resumen.osGanadas > 0)) {
+    if (resumen && (resumen.creditosGanados > 0.5 || resumen.osGanadas > 0.5)) {
         const partes = [];
-        if (resumen.creditosGanados > 0) {
+        if (resumen.creditosGanados >= 0.5) {
             partes.push(`
                 <div class="mc-overlay-resumen-fila">
                     <span>Créditos</span>
-                    <strong>+${resumen.creditosGanados.toLocaleString('es-CL')}</strong>
+                    <strong>+${Math.floor(resumen.creditosGanados).toLocaleString('es-CL')}</strong>
                 </div>`);
         }
-        if (resumen.osGanadas >= 1) {
+        if (resumen.osGanadas >= 0.5) {
             partes.push(`
                 <div class="mc-overlay-resumen-fila">
                     <span>Monedas OS</span>
@@ -940,6 +946,8 @@ function mostrarBienvenida(resumen) {
         if (partes.length > 0) {
             resumenEl.innerHTML = `<div class="mc-overlay-resumen-titulo">Mientras no estabas</div>${partes.join('')}`;
             resumenEl.hidden = false;
+        } else {
+            resumenEl.hidden = true;
         }
     } else {
         resumenEl.hidden = true;
@@ -950,7 +958,7 @@ function mostrarBienvenida(resumen) {
 }
 
 // ============================================================
-//  Bind botones globales
+//  Bind botones
 // ============================================================
 function bindBotones() {
     document.getElementById('mcBtnBienvenida')?.addEventListener('click', () => {
@@ -975,7 +983,6 @@ function bindBotones() {
         });
     });
 
-    // Cerrar modal al tocar el fondo oscuro
     ['mcModalConstruir', 'mcModalEdificio', 'mcModalTienda'].forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
@@ -997,57 +1004,39 @@ async function inicializar() {
     leerColoresDelTema();
 
     const api = API();
-    if (!api) {
-        alert('MiniCity necesita estar dentro de VicWebOs.');
-        return;
-    }
+    if (!api) { alert('MiniCity necesita estar dentro de VicWebOs.'); return; }
 
     const usuario = api.obtenerCuenta?.();
-    if (!usuario) {
-        alert('Necesitás iniciar sesión.');
-        return;
-    }
+    if (!usuario) { alert('Necesitás iniciar sesión.'); return; }
 
-    // Badge usuario
     const badge = document.getElementById('mcUserBadge');
     if (badge) badge.textContent = `@${usuario.codigo} · ${usuario.nombre}`;
 
-    // Init del core
     await window.MiniCity.init(usuario);
 
-    // Canvas
     canvas = document.getElementById('mcCanvas');
     wrapEl = document.querySelector('.mc-canvas-wrap');
     ctx = canvas.getContext('2d');
 
-    // Calcular tamaño y proyección
-    window.addEventListener('resize', () => {
-        ajustarCanvas();
-    });
+    window.addEventListener('resize', ajustarCanvas);
 
-    // Procesar tiempo transcurrido y mostrar resumen
     const resumen = window.MiniCity.procesarTiempo();
     window.MiniCity.guardar();
-
-    // Procesar timers que hayan terminado mientras estaba fuera
     window.MiniCity.procesarTimers();
 
-    // UI
     ajustarCanvas();
     actualizarUI();
     bindInput();
     bindBotones();
 
-    // Bienvenida si es primera vez (sin celdas)
     const estado = window.MiniCity.getEstado();
     const tieneAlgo = estado.celdas.some(c => c.tipo);
     if (!tieneAlgo) {
         mostrarBienvenida(null);
-    } else if (resumen.creditosGanados > 0 || resumen.osGanadas >= 1) {
+    } else if (resumen.creditosGanados >= 0.5 || resumen.osGanadas >= 0.5) {
         mostrarBienvenida(resumen);
     }
 
-    // Arrancar loop
     ultimoTick = 0;
     if (rafId) cancelAnimationFrame(rafId);
     rafId = requestAnimationFrame(loop);
