@@ -59,8 +59,8 @@
     /* Runa ᚠ — sello individual */
     --theme-runa: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 30'%3E%3Cpath d='M7,3 L7,27 M7,10 L14,4 M7,18 L14,12' stroke='%237DD3FC' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 
-    /* Runas grandes — UNA por tile de 240x240, llenando el tile completo */
-    --theme-runas-fondo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'%3E%3Cg stroke='%237DD3FC' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round' opacity='0.65'%3E%3Cpath d='M50,40 L50,200 M50,90 L105,45 M50,140 L105,95'/%3E%3Cpath d='M130,60 L130,190 M130,100 L180,150 L130,190'/%3E%3Cpath d='M60,215 L110,215 M85,215 L85,235'/%3E%3C/g%3E%3C/svg%3E");
+    /* Runas grandes — tile de 240x240, runas centradas, sin cortes */
+    --theme-runas-fondo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'%3E%3Cg stroke='%237DD3FC' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round' opacity='0.65'%3E%3Cpath d='M45,30 L45,150 M45,75 L95,40 M45,120 L95,85'/%3E%3Cpath d='M140,40 L140,170 M140,85 L185,130 L140,170'/%3E%3Cpath d='M40,195 L90,195 M65,195 L65,225'/%3E%3Cpath d='M150,200 L150,235 M150,210 L185,230 L150,235'/%3E%3C/g%3E%3C/svg%3E");
 
     /* Escarcha — cluster de agujas de hielo */
     --theme-frost: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg stroke='%237DD3FC' stroke-width='1' fill='none' stroke-linecap='round' opacity='0.7'%3E%3Cline x1='4' y1='4' x2='20' y2='4'/%3E%3Cline x1='4' y1='4' x2='4' y2='20'/%3E%3Cline x1='4' y1='4' x2='16' y2='16'/%3E%3Cline x1='10' y1='4' x2='10' y2='10'/%3E%3Cline x1='4' y1='10' x2='10' y2='10'/%3E%3Cline x1='16' y1='4' x2='16' y2='7'/%3E%3Cline x1='4' y1='16' x2='7' y2='16'/%3E%3C/g%3E%3C/svg%3E");
@@ -70,35 +70,41 @@
 }
 
 /* ================================================================
-   1. WELCOME — piedras con runas + niebla que sube
+   1. WELCOME — runas fijas al viewport + niebla que sube
    ================================================================ */
 .welcome-placeholder {
     position: relative;
-    background:
-        var(--theme-mist) bottom left / 1200px 100px repeat-x,
+    background-image:
+        var(--theme-mist),
+        var(--theme-runas-fondo),
         radial-gradient(ellipse at top, rgba(125, 211, 252, 0.06) 0%, transparent 55%),
-        radial-gradient(ellipse at bottom, rgba(14, 165, 233, 0.08) 0%, transparent 50%),
-        var(--bg);
-    background-attachment: scroll;
+        radial-gradient(ellipse at bottom, rgba(14, 165, 233, 0.08) 0%, transparent 50%);
+    background-size:
+        1200px 100px,
+        240px 240px,
+        100% 100%,
+        100% 100%;
+    background-position:
+        0% bottom,
+        0 0,
+        center top,
+        center bottom;
+    background-repeat:
+        repeat-x,
+        repeat,
+        no-repeat,
+        no-repeat;
+    background-attachment:
+        scroll,
+        fixed,       /* ← runas FIJAS al viewport: nunca se cortan al scrollear */
+        scroll,
+        scroll;
+    background-color: var(--bg);
     animation: runas-mist-drift 32s linear infinite;
 }
 @keyframes runas-mist-drift {
-    from { background-position: 0% bottom, center top, center bottom, center; }
-    to   { background-position: -1200px bottom, center top, center bottom, center; }
-}
-
-/* Runas grabadas — tile grande, sin costuras */
-.welcome-placeholder::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.18;
-    background-image: var(--theme-runas-fondo);
-    background-size: 240px 240px;
-    background-position: 0 0;
-    background-repeat: repeat;
+    from { background-position: 0% bottom, 0 0, center top, center bottom; }
+    to   { background-position: -1200px bottom, 0 0, center top, center bottom; }
 }
 
 .welcome-glow {
