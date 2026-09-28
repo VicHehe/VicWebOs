@@ -29,9 +29,8 @@
 //    Retro        → referencias a décadas pasadas
 //    Festivos     → celebraciones patrias y culturales
 //    Atmósferas   → moods, ambientes, sensaciones cozy
-//    Naturaleza   → orgánico, botánico, mineral
 //    Fantasía     → narrativa, aventura, retro-futurista
-//    Cultura Pop  → juegos, música, redes, streaming
+//    Cultura Pop  → juegos, música, redes, streaming, magia pop
 //
 //  REGLA DE ORO: cada salto de precio se tiene que VER en la pantalla.
 // ============================================================
@@ -467,24 +466,6 @@ const TEMAS_DISPONIBLES = [
     //  un momento del día, o una sensación táctil/visual.
     // ============================================================
     {
-        id: 'dreams',
-        nombre: 'Dreams and Hopes',
-        icono: 'sparkles',
-        descripcion: 'Fondo negro profundo con bordes arcoíris. Para soñadores.',
-        categoria: 'Atmósferas',
-        ruta: 'Temas/dreams.css',
-        espacio: 4,
-        monedas: 30,
-        colores: {
-            '--violet-100': '#2E1A44',
-            '--violet-300': '#7C4DE8',
-            '--violet-500': '#C084FC',
-            '--bg':         '#050510',
-            '--bg-alt':     '#0F0F1E',
-            '--white':      '#0A0A15'
-        }
-    },
-    {
         id: 'acuarela',
         nombre: 'Acuarela',
         icono: 'brush',
@@ -521,53 +502,11 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
-        id: 'break-of-dawn',
-        nombre: 'Break of Dawn',
-        icono: 'sunrise',
-        descripcion: 'Amanecer sobre el mar. Cielo degradado y oleaje animado al fondo.',
-        categoria: 'Atmósferas',
-        ruta: 'Temas/break-of-dawn.css',
-        espacio: 4,
-        monedas: 40,
-        colores: {
-            '--violet-100': '#FFE0D1',
-            '--violet-300': '#FFA07A',
-            '--violet-500': '#FF7043',
-            '--bg':         '#FFF8F2',
-            '--bg-alt':     '#FFEFE5',
-            '--white':      '#FFFDFB'
-        }
-    },
-
-    // ============================================================
-    //  NATURALEZA — Orgánico, botánico, mineral
-    //  Formas naturales, flora y gemas. Decoración suave
-    //  y patrones que evocan el mundo físico.
-    // ============================================================
-    {
-        id: 'cuarzo-rosado',
-        nombre: 'Cuarzo Rosado',
-        icono: 'gem',
-        descripcion: 'Magia, diamantes y tonos pastel. Inspirado en el poder de las gemas.',
-        categoria: 'Naturaleza',
-        ruta: 'Temas/cuarzo-rosado.css',
-        espacio: 4,
-        monedas: 30,
-        colores: {
-            '--violet-100': '#FCE7F3',
-            '--violet-300': '#F9A8D4',
-            '--violet-500': '#EC4899',
-            '--bg':         '#FFF9FB',
-            '--bg-alt':     '#FEF0F5',
-            '--white':      '#FFFFFF'
-        }
-    },
-    {
         id: 'floral',
         nombre: 'Floral',
         icono: 'flower',
         descripcion: 'Colores vivos, pétalos y verdes frescos. Para los que florecen.',
-        categoria: 'Naturaleza',
+        categoria: 'Atmósferas',
         ruta: 'Temas/floral.css',
         espacio: 4,
         monedas: 35,
@@ -623,10 +562,64 @@ const TEMAS_DISPONIBLES = [
     },
 
     // ============================================================
-    //  CULTURA POP — Juegos, música, redes, streaming
+    //  CULTURA POP — Juegos, música, redes, streaming, magia pop
     //  Referencias a la cultura contemporánea: entretenimiento,
-    //  plataformas digitales y vida online.
+    //  plataformas digitales, íconos pop y estéticas virales.
     // ============================================================
+    {
+        id: 'dreams',
+        nombre: 'Dreams and Hopes',
+        icono: 'sparkles',
+        descripcion: 'Fondo negro profundo con bordes arcoíris. Para soñadores.',
+        categoria: 'Cultura Pop',
+        ruta: 'Temas/dreams.css',
+        espacio: 4,
+        monedas: 30,
+        colores: {
+            '--violet-100': '#2E1A44',
+            '--violet-300': '#7C4DE8',
+            '--violet-500': '#C084FC',
+            '--bg':         '#050510',
+            '--bg-alt':     '#0F0F1E',
+            '--white':      '#0A0A15'
+        }
+    },
+    {
+        id: 'cuarzo-rosado',
+        nombre: 'Cuarzo Rosado',
+        icono: 'gem',
+        descripcion: 'Magia, diamantes y tonos pastel. Inspirado en el poder de las gemas.',
+        categoria: 'Cultura Pop',
+        ruta: 'Temas/cuarzo-rosado.css',
+        espacio: 4,
+        monedas: 30,
+        colores: {
+            '--violet-100': '#FCE7F3',
+            '--violet-300': '#F9A8D4',
+            '--violet-500': '#EC4899',
+            '--bg':         '#FFF9FB',
+            '--bg-alt':     '#FEF0F5',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
+        id: 'break-of-dawn',
+        nombre: 'Break of Dawn',
+        icono: 'sunrise',
+        descripcion: 'Amanecer sobre el mar. Cielo degradado y oleaje animado al fondo.',
+        categoria: 'Cultura Pop',
+        ruta: 'Temas/break-of-dawn.css',
+        espacio: 4,
+        monedas: 40,
+        colores: {
+            '--violet-100': '#FFE0D1',
+            '--violet-300': '#FFA07A',
+            '--violet-500': '#FF7043',
+            '--bg':         '#FFF8F2',
+            '--bg-alt':     '#FFEFE5',
+            '--white':      '#FFFDFB'
+        }
+    },
     {
         id: 'charla',
         nombre: 'Charla',
