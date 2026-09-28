@@ -1,87 +1,207 @@
 /* ================================================
    Tema: Jugo a Rayas
-   Musicales. Inspirado en el caos visual del musical:
-   verde y morado neón, rayas blanco y negro, humo
-   teatral y destellos de escenario.
+   Musicales. Inspirado en la estética del musical:
+   verde neón tóxico, morado profundo, rayas blanco
+   y negro, ángulos torcidos y humo de escenario.
    ================================================ */
 
 :root {
-    /* Acento: Verde bilis de Beetlejuice */
-    --violet-50:  #E6F5E6;
-    --violet-100: #C8EAC8;
-    --violet-200: #A8DBA8;
-    --violet-300: #7CCB7C;
-    --violet-400: #4CAF50;
-    --violet-500: #2E7D32; /* Verde principal */
-    --violet-600: #1B5E20;
-    --violet-700: #0F3D12;
+    /* Acento: Verde neón tóxico del musical */
+    --violet-50:  #1A2E1A;
+    --violet-100: #1F3A1F;
+    --violet-200: #2A4A2A;
+    --violet-300: #4F983C;
+    --violet-400: #6BBF5A;
+    --violet-500: #8FD67E;
+    --violet-600: #4F983C;
+    --violet-700: #3A7A2A;
 
-    /* Superficies y neutros góticos */
-    --white:   #FFFFFF;
-    --bg:      #F0F0F0;
-    --bg-alt:  #E8E8E8;
-    --gray-50:  #FAFAFA;
-    --gray-100: #F0F0F0;
-    --gray-200: #D8D8D8;
-    --gray-300: #BDBDBD;
-    --gray-400: #9E9E9E;
-    --gray-500: #757575;
-    --gray-600: #616161;
-    --gray-700: #424242;
-    --gray-800: #212121;
-    --gray-900: #000000;
+    /* Superficies oscuras teatrales */
+    --white:   #1A1A1A;
+    --bg:      #0D0D0D;
+    --bg-alt:  #141414;
+    --gray-50:  #141414;
+    --gray-100: #1A1A1A;
+    --gray-200: #262626;
+    --gray-300: #3A3A3A;
+    --gray-400: #5A5A5A;
+    --gray-500: #8A8A8A;
+    --gray-600: #B0B0B0;
+    --gray-700: #D0D0D0;
+    --gray-800: #E5E5E5;
+    --gray-900: #F5F5F5;
 
-    --border:  #D8D8D8;
-    --text:    #000000;
-    --text-2:  #424242;
-    --text-3:  #757575;
+    --border:  #2A2A2A;
+    --text:    #F5F5F5;
+    --text-2:  #B0B0B0;
+    --text-3:  #8A8A8A;
 
-    /* Sombras dramáticas */
-    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.08);
-    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.10);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
-    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.15);
-    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.18);
-    --shadow-glow: 0 0 0 4px rgba(46, 125, 50, 0.15);
+    /* Sombras teatrales */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.6);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.7);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.8);
+    --shadow-glow: 0 0 0 4px rgba(79, 152, 60, 0.25);
 
     /* Acentos */
-    --accent-gradient: linear-gradient(135deg, #2E7D32, #000000);
-    --accent-gradient-hover: linear-gradient(135deg, #4CAF50, #212121);
-    --accent-shadow: rgba(46, 125, 50, 0.28);
-    --accent-shadow-hover: rgba(46, 125, 50, 0.38);
-    --accent-text-gradient: linear-gradient(135deg, #000000, #2E7D32);
+    --accent-gradient: linear-gradient(135deg, #4F983C, #2A4A2A);
+    --accent-gradient-hover: linear-gradient(135deg, #6BBF5A, #3A7A2A);
+    --accent-shadow: rgba(79, 152, 60, 0.35);
+    --accent-shadow-hover: rgba(79, 152, 60, 0.55);
+    --accent-text-gradient: linear-gradient(135deg, #F5F5F5, #8FD67E);
 
-    /* ----- Símbolos y patrones ----- */
-    /* Rayas blancas y negras icónicas */
-    --theme-stripes: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%23FFFFFF'/%3E%3Cpath d='M0 5 L40 5 M0 15 L40 15 M0 25 L40 25 M0 35 L40 35' stroke='%23000000' stroke-width='4'/%3E%3C/svg%3E");
+    /* Morado profundo del musical */
+    --teatro-morado: #7861D3;
+    --teatro-morado-claro: #9B7FE8;
 
-    /* Humo/gas teatral */
-    --theme-smoke: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 100' preserveAspectRatio='none'%3E%3Cpath d='M0,100 C30,70 70,90 100,60 C130,30 170,50 200,20 L200,100 L0,100 Z' fill='%232E7D32' fill-opacity='0.12'/%3E%3Cpath d='M0,100 C40,80 80,95 120,70 C160,45 190,65 200,40 L200,100 L0,100 Z' fill='%23000000' fill-opacity='0.08'/%3E%3C/svg%3E");
+    /* Radios: esquinas ligeramente irregulares */
+    --r-sm: 3px;
+    --r-md: 5px;
+    --r-lg: 8px;
+    --r-xl: 12px;
 
-    /* Estrella de neón (guiño al letrero) */
-    --theme-neon-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50,5 L61,35 L95,35 L68,55 L79,85 L50,65 L21,85 L32,55 L5,35 L39,35 Z' fill='%23F5C518'/%3E%3C/svg%3E");
+    /* Rayas blanco y negro */
+    --theme-stripes: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%230D0D0D'/%3E%3Cpath d='M0 6 L40 6 M0 16 L40 16 M0 26 L40 26 M0 36 L40 36' stroke='%23FFFFFF' stroke-width='3' stroke-opacity='0.15'/%3E%3C/svg%3E");
+
+    /* Humo de escenario */
+    --theme-smoke: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,80 C200,50 400,95 600,70 C800,45 1000,90 1200,65 L1200,120 L0,120 Z' fill='%234F983C' fill-opacity='0.10'/%3E%3Cpath d='M0,95 C250,70 500,105 750,85 C1000,65 1100,95 1200,85 L1200,120 L0,120 Z' fill='%237861D3' fill-opacity='0.08'/%3E%3C/svg%3E");
+
+    /* Estrella de marquesina */
+    --theme-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50,5 L61,35 L95,35 L68,55 L79,85 L50,65 L21,85 L32,55 L5,35 L39,35 Z' fill='%23F5C518'/%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   1. WELCOME — Escenario con humo y rayas
+   1. WELCOME — Escenario oscuro con humo y rayas sutiles
    ================================================================ */
 .welcome-placeholder {
     position: relative;
     background:
-        var(--theme-smoke) bottom left / 1200px 150px repeat-x,
-        radial-gradient(ellipse at top, rgba(46, 125, 50, 0.08) 0%, transparent 55%),
+        var(--theme-smoke) bottom left / 1200px 120px repeat-x,
+        var(--theme-stripes) 0 0 / 80px 80px repeat,
+        radial-gradient(ellipse at top, rgba(79, 152, 60, 0.08) 0%, transparent 55%),
+        radial-gradient(ellipse at bottom, rgba(120, 97, 211, 0.06) 0%, transparent 50%),
         var(--bg);
-    overflow: hidden;
-    animation: smoke-drift 30s linear infinite;
+    background-attachment: scroll;
+    animation: smoke-drift 35s linear infinite;
 }
 
 @keyframes smoke-drift {
-    from { background-position: 0% bottom, center top, center; }
-    to   { background-position: -1200px bottom, center top, center; }
+    from { background-position: 0% bottom, 0 0, center top, center bottom, center; }
+    to   { background-position: -1200px bottom, 0 0, center top, center bottom, center; }
 }
 
-/* Rayas sutiles en las esquinas */
-.welcome-placeholder::before {
+.welcome-glow {
+    background: radial-gradient(
+        circle,
+        rgba(79, 152, 60, 0.15) 0%,
+        rgba(120, 97, 211, 0.08) 35%,
+        transparent 68%
+    );
+}
+
+.welcome-hero,
+.welcome-section {
+    position: relative;
+    z-index: 2;
+}
+
+/* Hero: marco teatral con borde verde neón */
+.welcome-hero {
+    position: relative;
+    padding: 36px 28px 32px;
+    background: linear-gradient(
+        180deg,
+        rgba(26, 26, 26, 0.92) 0%,
+        rgba(13, 13, 13, 0.96) 100%
+    );
+    border: 2px solid rgba(79, 152, 60, 0.35);
+    border-radius: 4px;
+    box-shadow:
+        inset 0 0 0 1px rgba(79, 152, 60, 0.10),
+        inset 0 0 60px rgba(0, 0, 0, 0.50),
+        0 12px 32px rgba(0, 0, 0, 0.60),
+        0 0 60px rgba(79, 152, 60, 0.10);
+    max-width: 660px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.welcome-hero > * {
+    position: relative;
+    z-index: 1;
+}
+
+.welcome-hero h1 {
+    letter-spacing: 0.005em;
+    text-shadow: 0 0 20px rgba(79, 152, 60, 0.40);
+}
+
+/* Icono: círculo oscuro con anillo verde neón */
+.welcome-icon-wrap {
+    background: linear-gradient(135deg, #2A4A2A, #0D0D0D);
+    border-radius: 50%;
+    box-shadow:
+        0 12px 28px rgba(79, 152, 60, 0.40),
+        0 4px 8px rgba(0, 0, 0, 0.60),
+        0 0 0 3px rgba(79, 152, 60, 0.20),
+        0 0 0 5px rgba(120, 97, 211, 0.10);
+    animation: icon-pulse 4s ease-in-out infinite;
+}
+
+@keyframes icon-pulse {
+    0%, 100% {
+        box-shadow:
+            0 12px 28px rgba(79, 152, 60, 0.40),
+            0 4px 8px rgba(0, 0, 0, 0.60),
+            0 0 0 3px rgba(79, 152, 60, 0.20),
+            0 0 0 5px rgba(120, 97, 211, 0.10);
+    }
+    50% {
+        box-shadow:
+            0 12px 28px rgba(79, 152, 60, 0.60),
+            0 4px 8px rgba(0, 0, 0, 0.60),
+            0 0 0 3px rgba(79, 152, 60, 0.35),
+            0 0 0 6px rgba(120, 97, 211, 0.20),
+            0 0 40px rgba(79, 152, 60, 0.30);
+    }
+}
+
+/* ================================================================
+   2. HEADER — Marquesina de teatro
+   ================================================================ */
+.app-header {
+    position: relative;
+    background: linear-gradient(180deg, #141414 0%, #0D0D0D 100%);
+    border-bottom: 2px solid rgba(79, 152, 60, 0.30);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.50);
+}
+
+.app-header::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #4F983C, transparent);
+    opacity: 0.70;
+    pointer-events: none;
+    z-index: 1;
+    box-shadow: 0 0 10px rgba(79, 152, 60, 0.50);
+}
+
+/* ================================================================
+   3. SIDEBAR — Oscura con rayas sutiles
+   ================================================================ */
+.sidebar {
+    position: relative;
+    background: linear-gradient(180deg, #141414 0%, #0D0D0D 100%);
+    border-right: 1px solid rgba(79, 152, 60, 0.15);
+    overflow: hidden;
+}
+
+.sidebar::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -89,258 +209,259 @@
     z-index: 0;
     opacity: 0.06;
     background-image: var(--theme-stripes);
-    background-size: 80px 80px;
-}
-
-.welcome-glow {
-    background: radial-gradient(
-        circle,
-        rgba(46, 125, 50, 0.15) 0%,
-        rgba(245, 197, 24, 0.05) 40%,
-        transparent 68%
-    );
-}
-
-.welcome-hero {
-    position: relative;
-    z-index: 2;
-    padding: 36px 28px 32px;
-    background: var(--white);
-    border: 3px solid var(--gray-900);
-    border-radius: 4px;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-    max-width: 680px;
-    margin-left: auto;
-    margin-right: auto;
-    overflow: hidden;
-}
-
-/* Rayas diagonales de fondo en el hero */
-.welcome-hero::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-        -45deg,
-        transparent,
-        transparent 12px,
-        rgba(46, 125, 50, 0.04) 12px,
-        rgba(46, 125, 50, 0.04) 24px
-    );
-    pointer-events: none;
-    z-index: 0;
-}
-
-.welcome-hero > * { position: relative; z-index: 1; }
-
-.welcome-hero h1 {
-    letter-spacing: -0.01em;
-    color: #2E7D32;
-    text-shadow: 0 1px 0 #FFFFFF;
-}
-
-/* Icono principal con anillo rayado */
-.welcome-icon-wrap {
-    background: var(--gray-900);
-    border-radius: 50%;
-    position: relative;
-    box-shadow: 0 0 0 4px var(--white), 0 0 0 7px #2E7D32;
-    animation: pulse-green 3s ease-in-out infinite;
-}
-
-@keyframes pulse-green {
-    0%, 100% { box-shadow: 0 0 0 4px var(--white), 0 0 0 7px #2E7D32, 0 0 15px rgba(46, 125, 50, 0.4); }
-    50% { box-shadow: 0 0 0 4px var(--white), 0 0 0 7px #4CAF50, 0 0 25px rgba(46, 125, 50, 0.7); }
-}
-
-/* ================================================================
-   2. HEADER — La marquesina del teatro
-   ================================================================ */
-.app-header {
-    position: relative;
-    background: var(--gray-900);
-    border-bottom: 4px solid #2E7D32;
-}
-
-/* Luces de marquesina */
-.app-header::after {
-    content: '';
-    position: absolute;
-    bottom: -4px; left: 0; right: 0;
-    height: 2px;
-    background: radial-gradient(circle, #F5C518 1px, transparent 1.5px);
-    background-size: 20px 2px;
-    opacity: 0.7;
-}
-
-/* Logo con brillo de neón */
-.logo-mark {
-    background: #2E7D32;
-    box-shadow: 0 0 10px #2E7D32, 0 0 20px rgba(46, 125, 50, 0.6);
-    animation: neon-pulse 2.5s ease-in-out infinite;
-}
-@keyframes neon-pulse {
-    0%, 100% { box-shadow: 0 0 10px #2E7D32, 0 0 20px rgba(46, 125, 50, 0.6); }
-    50% { box-shadow: 0 0 15px #4CAF50, 0 0 30px rgba(76, 175, 80, 0.8); }
-}
-
-/* ================================================================
-   3. SIDEBAR — Telón de fondo
-   ================================================================ */
-.sidebar {
-    background: linear-gradient(180deg, #E8E8E8 0%, #F0F0F0 100%);
-    border-right: 3px solid var(--gray-900);
-}
-.sidebar::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.04;
-    background-image: var(--theme-stripes);
     background-size: 60px 60px;
+    background-repeat: repeat;
+}
+
+.sidebar-comunidad,
+.sidebar-label,
+.sidebar-nav,
+.sidebar-mobile-header {
+    position: relative;
+    z-index: 1;
+}
+
+.nav-item.active::before {
+    background: linear-gradient(180deg, #8FD67E, #4F983C);
+    width: 3px;
+    box-shadow: 0 0 10px rgba(79, 152, 60, 0.55);
+    border-radius: 0 3px 3px 0;
 }
 
 .nav-item.active {
-    background: var(--white);
-    border: 2px solid #2E7D32;
-    border-radius: 4px;
-    box-shadow: 0 0 10px rgba(46, 125, 50, 0.2);
+    background: rgba(79, 152, 60, 0.08);
+}
+
+/* FIX drawer móvil */
+@media (max-width: 768px) {
+    .sidebar { position: fixed; }
 }
 
 /* ================================================================
-   4. ACCESOS RÁPIDOS — Carteles de obra
+   4. ACCESOS RÁPIDOS — Carteles de obra con estrella al hover
    ================================================================ */
 .acceso-item {
     position: relative;
-    background: var(--white);
-    border: 2px solid var(--gray-900);
+    background: linear-gradient(180deg, #1A1A1A 0%, #141414 100%);
+    border: 1px solid rgba(79, 152, 60, 0.20);
     border-radius: 4px;
-    box-shadow: 4px 4px 0 var(--gray-400);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden;
-}
-.acceso-item:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0 #2E7D32;
-    border-color: #2E7D32;
-}
-.acceso-icon-wrap {
-    background: var(--gray-100);
-    border: 1px solid var(--gray-300);
-}
-.acceso-item:hover .acceso-icon-wrap {
-    background: #2E7D32;
-    color: white;
+    box-shadow:
+        inset 0 1px 0 rgba(79, 152, 60, 0.05),
+        0 2px 6px rgba(0, 0, 0, 0.50);
+    overflow: visible;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Estrella de neón al hover */
+/* Estrella de marquesina al hover */
 .acceso-item::after {
     content: '';
     position: absolute;
-    top: -8px; right: -8px;
-    width: 24px; height: 24px;
-    background: var(--theme-neon-star) center/contain no-repeat;
+    top: -10px;
+    right: -10px;
+    width: 24px;
+    height: 24px;
+    background: var(--theme-star) center/contain no-repeat;
     opacity: 0;
-    transform: scale(0.5) rotate(-30deg);
-    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform: translateY(6px) scale(0.5) rotate(-30deg);
+    transition:
+        opacity 0.28s,
+        transform 0.40s cubic-bezier(0.34, 1.56, 0.64, 1);
     pointer-events: none;
-    filter: drop-shadow(0 0 5px #F5C518);
+    z-index: 3;
+    filter: drop-shadow(0 0 6px rgba(245, 197, 24, 0.85));
 }
+
 .acceso-item:hover::after {
     opacity: 1;
-    transform: scale(1) rotate(0);
+    transform: translateY(0) scale(1) rotate(0deg);
+}
+
+.acceso-item:hover {
+    transform: translateY(-3px);
+    border-color: var(--violet-300);
+    box-shadow:
+        inset 0 1px 0 rgba(79, 152, 60, 0.10),
+        0 10px 22px rgba(79, 152, 60, 0.25),
+        0 0 0 1px rgba(79, 152, 60, 0.30),
+        0 4px 10px rgba(0, 0, 0, 0.60);
+}
+
+.acceso-icon-wrap {
+    background: rgba(79, 152, 60, 0.08);
+    border: 1px solid rgba(79, 152, 60, 0.25);
+    color: var(--violet-300);
+    border-radius: 50%;
+    transition: all 0.22s;
+}
+
+.acceso-item:hover .acceso-icon-wrap {
+    background: var(--accent-gradient);
+    color: #0D0D0D;
+    border-color: var(--violet-400);
+    box-shadow:
+        0 0 0 3px rgba(79, 152, 60, 0.20),
+        0 6px 14px rgba(79, 152, 60, 0.45);
 }
 
 /* ================================================================
-   5. PESTAÑAS — Focos de escenario
+   5. WIDGETS — Mismo tratamiento
+   ================================================================ */
+.widget-item {
+    border: 1px solid rgba(79, 152, 60, 0.22);
+    border-radius: 4px;
+    box-shadow:
+        inset 0 1px 0 rgba(79, 152, 60, 0.05),
+        0 4px 10px rgba(0, 0, 0, 0.55);
+    transition: all 0.22s;
+}
+
+.widget-item:hover {
+    border-color: var(--violet-300);
+    box-shadow:
+        inset 0 1px 0 rgba(79, 152, 60, 0.10),
+        0 10px 22px rgba(79, 152, 60, 0.22);
+}
+
+/* ================================================================
+   6. PESTAÑAS — Foco de escenario
    ================================================================ */
 .tab-item.active::before {
     content: '';
     position: absolute;
-    top: 0; left: 12px; right: 12px;
-    height: 3px;
-    background: #2E7D32;
-    box-shadow: 0 0 8px #2E7D32;
-    border-radius: 3px 3px 0 0;
+    top: 0;
+    left: 14px;
+    right: 14px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #4F983C, transparent);
+    border-radius: 2px 2px 0 0;
+    box-shadow: 0 0 8px rgba(79, 152, 60, 0.55);
+    pointer-events: none;
+}
+
+.tab-item.active [data-lucide] {
+    color: var(--violet-300);
 }
 
 /* ================================================================
-   6. MODALES — Guion de obra
+   7. MODALES — Borde de marquesina
    ================================================================ */
-.config-card, .modal-todas-card {
-    border: 3px solid var(--gray-900);
+.config-card,
+.modal-todas-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(79, 152, 60, 0.30);
     border-radius: 4px;
-    box-shadow: 8px 8px 0 var(--gray-400);
+    box-shadow:
+        inset 0 0 0 1px rgba(79, 152, 60, 0.10),
+        inset 0 0 60px rgba(0, 0, 0, 0.35),
+        0 24px 48px rgba(0, 0, 0, 0.80),
+        0 0 60px rgba(79, 152, 60, 0.12);
 }
-.config-card::before, .modal-todas-card::before {
+
+.config-card::before,
+.modal-todas-card::before {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 4px;
-    background: #2E7D32;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #4F983C, #8FD67E, #4F983C, transparent);
+    pointer-events: none;
+    z-index: 3;
+    box-shadow: 0 0 10px rgba(79, 152, 60, 0.55);
+}
+
+.config-header,
+.modal-todas-header {
+    background: linear-gradient(180deg, #1A1A1A 0%, #141414 100%);
+    border-bottom-color: rgba(79, 152, 60, 0.22);
 }
 
 /* ================================================================
-   7. BOTONES
+   8. BOTÓN PRIMARIO — Verde neón con borde duro
    ================================================================ */
 .btn-primario {
-    background: #2E7D32;
-    color: white;
-    border: 2px solid var(--gray-900);
-    border-radius: 4px;
+    background: linear-gradient(135deg, #4F983C, #3A7A2A);
+    border: 1px solid rgba(143, 214, 126, 0.35);
+    color: #0D0D0D;
     font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    box-shadow: 3px 3px 0 var(--gray-900);
-    transition: all 0.15s;
+    box-shadow:
+        0 4px 12px rgba(79, 152, 60, 0.35),
+        inset 0 1px 0 rgba(143, 214, 126, 0.25);
 }
+
 .btn-primario:hover {
-    background: #4CAF50;
-    transform: translate(-1px, -1px);
-    box-shadow: 4px 4px 0 var(--gray-900);
-}
-.btn-primario:active {
-    transform: translate(1px, 1px);
-    box-shadow: 2px 2px 0 var(--gray-900);
+    background: linear-gradient(135deg, #6BBF5A, #4F983C);
+    box-shadow:
+        0 8px 22px rgba(79, 152, 60, 0.55),
+        0 0 0 3px rgba(79, 152, 60, 0.20),
+        inset 0 1px 0 rgba(143, 214, 126, 0.35);
 }
 
 /* ================================================================
-   8. INPUTS
+   9. INPUTS
    ================================================================ */
-.config-field input, .config-field select, .config-select {
-    border: 2px solid var(--gray-900);
-    border-radius: 4px;
-    background: var(--white);
+.config-field input,
+.config-field select,
+.config-select {
+    background: rgba(13, 13, 13, 0.60);
+    border: 1px solid rgba(79, 152, 60, 0.22);
+    color: var(--text);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.50);
 }
-.config-field input:focus, .config-field select:focus {
-    border-color: #2E7D32;
-    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2);
+
+.config-field input:focus,
+.config-field select:focus,
+.config-select:focus {
+    border-color: var(--violet-300);
+    box-shadow:
+        inset 0 1px 3px rgba(0, 0, 0, 0.50),
+        0 0 0 3px rgba(79, 152, 60, 0.20);
 }
 
 /* ================================================================
-   9. AVATAR
+   10. AVATAR Y NOTIFICACIONES
    ================================================================ */
 .avatar-config {
-    background: #2E7D32;
-    border: 2px solid var(--gray-900);
+    background: linear-gradient(135deg, #4F983C, #1F3A1F);
+    border: 2px solid rgba(79, 152, 60, 0.45);
+    box-shadow:
+        var(--shadow-sm),
+        0 0 0 1px rgba(13, 13, 13, 0.9),
+        0 0 0 3px rgba(79, 152, 60, 0.18);
 }
+
 .avatar-config:hover {
-    box-shadow: 0 0 12px rgba(46, 125, 50, 0.6);
-    border-color: #F5C518;
+    transform: translateY(-1px) scale(1.05);
+    box-shadow:
+        0 6px 16px rgba(79, 152, 60, 0.50),
+        0 0 0 1px var(--violet-400),
+        0 0 0 4px rgba(79, 152, 60, 0.18);
+}
+
+.noti-btn.tiene-no-leidas {
+    background: rgba(79, 152, 60, 0.12);
+    color: var(--violet-300);
+}
+
+.search-bar:focus-within {
+    border-color: var(--violet-300);
+    box-shadow: var(--shadow-glow);
+}
+
+.search-bar:focus-within .search-icon {
+    color: var(--violet-300);
 }
 
 /* ================================================================
-   10. PREFERS-REDUCED-MOTION
+   11. prefers-reduced-motion
    ================================================================ */
 @media (prefers-reduced-motion: reduce) {
     .welcome-placeholder,
     .welcome-icon-wrap,
-    .logo-mark {
+    .acceso-item::after {
         animation: none !important;
-    }
-    .acceso-item, .btn-primario {
         transition: none !important;
     }
 }
