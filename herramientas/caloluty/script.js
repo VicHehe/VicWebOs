@@ -1,5 +1,10 @@
 // ============================================================
 //  Caloluty — Motor del juego
+//  ------------------------------------------------------------
+//  Input:
+//   · Desktop  → mover el mouse apunta · click dispara
+//   · Móvil    → un dedo apunta · DOBLE TAP dispara ·
+//                botón inferior derecho como atajo
 // ============================================================
 
 'use strict';
@@ -7,6 +12,14 @@
 const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const APP_ID = 'caloluty';
 const ARCHIVO_BASE = 'app/caloluty/';
+
+// Ventana de detección de doble tap en móvil
+const DOBLE_TAP_MS   = 320;   // tiempo máximo entre taps
+const DOBLE_TAP_DIST = 80;    // distancia máxima entre taps (px)
+
+// Anti-rebote del botón de disparo (por si touchstart y click
+// llegan a dispararse ambos en el mismo gesto)
+const REBOTE_BOTON_MS = 200;
 
 // ---------- ESTADO ----------
 let estado = {
@@ -35,6 +48,10 @@ let armaActual = null;
 let cadenciaTimerMs = 0;
 let crosshair = { x: 0, y: 0 };
 let tocaDispositivo = false;
+
+// Referencias al DOM reutilizables
+let wrapEl = null;
+let fireBtnEl = null;
 
 let rafId = null;
 let ultimoFrameMs = 0;
@@ -295,23 +312,44 @@ function generarPlanSpawns() {
 
 // ============================================================
 //  Input
+//  ------------------------------------------------------------
+//  Desktop:
+//    mousemove → apunta · click → dispara
+//  Móvil:
+//    touchstart/touchmove → apunta
+//    DOBLE TAP en el canvas → dispara
+//    botón flotante (abajo derecha) → dispara al instante
 // ============================================================
 function bindInputs() {
     tocaDispositivo = matchMedia('(pointer: coarse)').matches;
 
-    const wrap = document.querySelector('.cl-canvas-wrap');
-    const fireBtn = document.getElementById('clFireBtn');
+    wrapEl    = document.querySelector('.cl-canvas-wrap');
+    fireBtnEl = document.getElementById('clFireBtn');
 
-    if (!tocaDispositivo && fireBtn) {
-        fireBtn.style.display = 'none';
+    if (!tocaDispositivo && fireBtnEl) {
+        fireBtnEl.style.display = 'none';
     }
 
-    wrap.addEventListener('mousemove', (e) => {
+    // ---- Detección de doble tap ----
+    let ultimoTapMs = 0;
+    let ultimoTapX  = 0;
+    let ultimoTapY  = 0;
+
+    const esToqueSobreBoton = (e) =>
+        !!(e.target && e.target.closest && e.target.closest('.cl-fire-btn'));
+
+    // ---- Mouse (desktop) ----
+    wrapEl.addEventListener('mousemove', (e) => {
         if (tocaDispositivo) return;
         actualizarCrosshair(e.clientX, e.clientY);
     });
 
-    wrap.addEventListener('touchstart', (e) => {
+    // ---- Touch start: mover crosshair ----
+    wrapEl.addEventListener('touchstart', (e) => {
+        // No bloquear si el toque cae sobre el botón de disparo,
+        // así el click/touchstart del botón funciona bien.
+        if (esToqueSobreBoton(e)) return;
+
         e.preventDefault();
         if (e.touches.length > 0) {
             const t = e.touches[0];
@@ -319,7 +357,10 @@ function bindInputs() {
         }
     }, { passive: false });
 
-    wrap.addEventListener('touchmove', (e) => {
+    // ---- Touch move: seguir moviendo crosshair ----
+    wrapEl.addEventListener('touchmove', (e) => {
+        if (esToqueSobreBoton(e)) return;
+
         e.preventDefault();
         if (e.touches.length > 0) {
             const t = e.touches[0];
@@ -327,31 +368,80 @@ function bindInputs() {
         }
     }, { passive: false });
 
-    wrap.addEventListener('click', (e) => {
+    // ---- Touch end: detectar doble tap ----
+    wrapEl.addEventListener('touchend', (e) => {
+        if (esToqueSobreBoton(e)) return;
+
+        e.preventDefault();
+        if (fase !== 'playing') return;
+        if (!e.changedTouches || e.changedTouches.length === 0) return;
+
+        const t      = e.changedTouches[0];
+        const ahora  = Date.now();
+        const dt     = ahora - ultimoTapMs;
+        const dx     = t.clientX - ultimoTapX;
+        const dy     = t.clientY - ultimoTapY;
+        const dist   = Math.sqrt(dx * dx + dy * dy);
+
+        if (ultimoTapMs > 0 && dt < DOBLE_TAP_MS && dist < DOBLE_TAP_DIST) {
+            // ¡Doble tap! → disparar
+            disparar();
+            ultimoTapMs = 0;      // reset para no encadenar un triple
+        } else {
+            // Primer tap: solo registramos posición y tiempo
+            ultimoTapMs = ahora;
+            ultimoTapX  = t.clientX;
+            ultimoTapY  = t.clientY;
+        }
+    }, { passive: false });
+
+    // ---- Click (desktop) ----
+    wrapEl.addEventListener('click', (e) => {
         if (tocaDispositivo) return;
         if (fase !== 'playing') return;
-        if (e.target.closest('.cl-fire-btn')) return;
+        if (esToqueSobreBoton(e)) return;
         actualizarCrosshair(e.clientX, e.clientY);
         disparar();
     });
 
-    if (fireBtn) {
-        fireBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
+    // ---- Botón de disparo (móvil) ----
+    // Usamos touchstart para respuesta INMEDIATA (sin la latencia
+    // del click sintético en Android). Guardamos anti-rebote por
+    // si el navegador también dispara el click de todas formas.
+    if (fireBtnEl) {
+        let ultimoDisparoBtnMs = 0;
+        const dispararDesdeBoton = (e) => {
+            if (e) {
+                e.stopPropagation();
+                if (e.cancelable) e.preventDefault();
+            }
+            const ahora = Date.now();
+            if (ahora - ultimoDisparoBtnMs < REBOTE_BOTON_MS) return;
+            ultimoDisparoBtnMs = ahora;
             disparar();
+        };
+
+        fireBtnEl.addEventListener('touchstart', dispararDesdeBoton, { passive: false });
+        fireBtnEl.addEventListener('click', dispararDesdeBoton);
+        // Soporte para teclado/accesibilidad en desktop por si acaso
+        fireBtnEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                dispararDesdeBoton(null);
+            }
         });
     }
 }
 
 function actualizarCrosshair(clientX, clientY) {
-    const wrap = document.querySelector('.cl-canvas-wrap');
-    const rect = wrap.getBoundingClientRect();
+    if (!wrapEl) return;
+    const rect = wrapEl.getBoundingClientRect();
     crosshair.x = clientX - rect.left;
     crosshair.y = clientY - rect.top;
     const el = document.getElementById('clCrosshair');
     if (el) {
         el.style.left = crosshair.x + 'px';
-        el.style.top = crosshair.y + 'px';
+        el.style.top  = crosshair.y + 'px';
     }
 }
 
@@ -544,6 +634,18 @@ function actualizarHUD() {
 }
 
 // ============================================================
+//  Hint de doble tap (solo la primera partida en táctil)
+// ============================================================
+function mostrarHintDobleTapSiCorresponde() {
+    if (!tocaDispositivo) return;
+    try {
+        if (localStorage.getItem('caloluty_hint_dobleTap') === '1') return;
+        localStorage.setItem('caloluty_hint_dobleTap', '1');
+    } catch (e) { /* modo privado o storage bloqueado */ }
+    toast('💡 Doble tap para disparar', 'info');
+}
+
+// ============================================================
 //  Inicio / fin
 // ============================================================
 function iniciarPartida() {
@@ -567,8 +669,7 @@ function iniciarPartida() {
     const contenedor = document.getElementById('clCanvas');
     window.CL_Escena.init(contenedor);
 
-    const wrap = document.querySelector('.cl-canvas-wrap');
-    const rect = wrap.getBoundingClientRect();
+    const rect = wrapEl.getBoundingClientRect();
     crosshair.x = rect.width / 2;
     crosshair.y = rect.height / 2;
     const elCh = document.getElementById('clCrosshair');
@@ -591,6 +692,9 @@ function iniciarPartida() {
     actualizarHUD();
     actualizarArmaHud();
     actualizarCooldownUI();
+
+    // Aviso de doble tap (solo móvil, solo la primera vez)
+    mostrarHintDobleTapSiCorresponde();
 
     ultimoFrameMs = 0;
     if (rafId) cancelAnimationFrame(rafId);
@@ -670,7 +774,7 @@ function mostrarFin(monedasOtorgadas) {
         icono.className = 'cl-screen-icono bajo';
         icono.innerHTML = '<i data-lucide="x"></i>';
         titulo.textContent = 'Necesitás práctica';
-        sub.textContent = 'Probá de nuevo.';
+        subtitulo.textContent = 'Probá de nuevo.';
     }
 
     document.getElementById('clScreenFin').hidden = false;
