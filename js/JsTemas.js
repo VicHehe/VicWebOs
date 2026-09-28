@@ -520,10 +520,28 @@ const TEMAS_DISPONIBLES = [
         }
     },
 
-        // ============================================================
+    // ============================================================
     //  FANTASÍA — Narrativa, aventura, retro-futurista
     //  Cuentan una historia con su estética.
     // ============================================================
+    {
+        id: 'libro',
+        nombre: 'Libro de Historia',
+        icono: 'book-open',
+        descripcion: 'Cuero, papel envejecido y lomo de encuadernación. Para los que atesoran el pasado.',
+        categoria: 'Fantasía',
+        ruta: 'Temas/libro.css',
+        espacio: 4,
+        monedas: 35,
+        colores: {
+            '--violet-100': '#3E2C1C',
+            '--violet-300': '#8B6B4A',
+            '--violet-500': '#C49A6C',
+            '--bg':         '#1A120A',
+            '--bg-alt':     '#2A1F16',
+            '--white':      '#2A1F16'
+        }
+    },
     {
         id: 'runas',
         nombre: 'Runas',
@@ -532,7 +550,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Fantasía',
         ruta: 'Temas/runas.css',
         espacio: 4,
-        monedas: 35,
+        monedas: 40,
         colores: {
             '--violet-100': '#16252F',
             '--violet-300': '#4A8DB0',
@@ -550,7 +568,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Fantasía',
         ruta: 'Temas/mil-y-una-noches.css',
         espacio: 4,
-        monedas: 40,
+        monedas: 45,
         colores: {
             '--violet-100': '#243258',
             '--violet-300': '#C9A961',
@@ -561,24 +579,6 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
-        id: 'libro',
-        nombre: 'Libro de Historia',
-        icono: 'book-open',
-        descripcion: 'Cuero, papel envejecido y lomo de encuadernación. Para los que atesoran el pasado.',
-        categoria: 'Fantasía',
-        ruta: 'Temas/libro.css',
-        espacio: 4,
-        monedas: 45,
-        colores: {
-            '--violet-100': '#3E2C1C',
-            '--violet-300': '#8B6B4A',
-            '--violet-500': '#C49A6C',
-            '--bg':         '#1A120A',
-            '--bg-alt':     '#2A1F16',
-            '--white':      '#2A1F16'
-        }
-    },
-    {
         id: 'steampunk',
         nombre: 'Steampunk',
         icono: 'cog',
@@ -586,7 +586,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Fantasía',
         ruta: 'Temas/steampunk.css',
         espacio: 4,
-        monedas: 45,
+        monedas: 50,
         colores: {
             '--violet-100': '#EBE0CC',
             '--violet-300': '#C9A961',
