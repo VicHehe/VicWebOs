@@ -314,17 +314,6 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 4,
         monedas: 0
     },
-    {
-    id: 'minicity',
-    nombre: 'MiniCity',
-    icono: 'building',
-    ruta: 'herramientas/minicity/index.html',
-    descripcion: 'Construí tu ciudad, producí créditos y convertilos en Monedas OS reales.',
-    categoria: 'Juegos',
-    esBase: false,
-    espacio: 8,
-    monedas: 5
-},
         {
     id: 'caloluty',
     nombre: 'Caloluty',
@@ -347,6 +336,17 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 6,
         monedas: 35
     },
+        {
+    id: 'minicity',
+    nombre: 'MiniCity',
+    icono: 'building',
+    ruta: 'herramientas/minicity/index.html',
+    descripcion: 'Construí tu ciudad, producí créditos y convertilos en Monedas OS reales.',
+    categoria: 'Juegos',
+    esBase: false,
+    espacio: 10,
+    monedas: 40
+},
 
 
     // ============================================================
