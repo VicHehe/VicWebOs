@@ -519,6 +519,24 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFFFF'
         }
     },
+        {
+        id: 'tormenta',
+        nombre: 'Tormenta',
+        icono: 'cloud-lightning',
+        descripcion: 'Tormenta eléctrica sobre el mar. Rayos reales iluminan todo el sistema, lluvia en diagonal y cielo de acero frío.',
+        categoria: 'Atmósferas',
+        ruta: 'Temas/tormenta.css',
+        espacio: 4,
+        monedas: 50,
+        colores: {
+            '--violet-100': '#131A2A',
+            '--violet-300': '#5A7A9E',
+            '--violet-500': '#94B0D0',
+            '--bg':         '#070A12',
+            '--bg-alt':     '#0C1120',
+            '--white':      '#121828'
+        }
+    },
 
     // ============================================================
     //  FANTASÍA — Narrativa, aventura, retro-futurista
