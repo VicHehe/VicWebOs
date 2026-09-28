@@ -315,17 +315,17 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 0
     },
     {
-        id: 'metrorun',
-        nombre: 'The MetroRun',
-        icono: 'train-front',
-        ruta: 'herramientas/metrorun/index.html',
-        descripcion: 'Runner de 3 líneas, vista aérea. Esquivá vagones y recolectá monedas reales.',
-        categoria: 'Juegos',
-        esBase: false,
-        espacio: 6,
-        monedas: 35
-    },
-    {
+    id: 'minicity',
+    nombre: 'MiniCity',
+    icono: 'building',
+    ruta: 'herramientas/minicity/index.html',
+    descripcion: 'Construí tu ciudad, producí créditos y convertilos en Monedas OS reales.',
+    categoria: 'Juegos',
+    esBase: false,
+    espacio: 8,
+    monedas: 5
+},
+        {
     id: 'caloluty',
     nombre: 'Caloluty',
     icono: 'crosshair',
@@ -336,6 +336,18 @@ const RUTAS_HERRAMIENTAS = [
     espacio: 6,
     monedas: 10
 },
+    {
+        id: 'metrorun',
+        nombre: 'The MetroRun',
+        icono: 'train-front',
+        ruta: 'herramientas/metrorun/index.html',
+        descripcion: 'Runner de 3 líneas, vista aérea. Esquivá vagones y recolectá monedas reales.',
+        categoria: 'Juegos',
+        esBase: false,
+        espacio: 6,
+        monedas: 35
+    },
+
 
     // ============================================================
     //  SOCIAL
