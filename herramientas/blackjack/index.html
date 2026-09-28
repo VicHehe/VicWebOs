@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Blackjack</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="bj-app">
+
+        <header class="bj-header">
+            <div class="bj-logo">
+                <div class="bj-logo-mark"><i data-lucide="spade"></i></div>
+                <div class="bj-logo-text">
+                    <h1>Blackjack</h1>
+                    <p id="bjUserBadge">—</p>
+                </div>
+            </div>
+
+            <div class="bj-caja" title="Tus monedas OS">
+                <i data-lucide="coins"></i>
+                <span id="bjSaldo">0</span>
+            </div>
+        </header>
+
+        <!-- ============================================================
+             PANTALLA: CONFIGURACIÓN
+             ============================================================ -->
+        <div id="bjConfigScreen" class="bj-screen active">
+            <div class="bj-config-card">
+                <div class="bj-config-hero">
+                    <div class="bj-config-icono"><i data-lucide="spade"></i></div>
+                    <h2>¿Jugamos una mano?</h2>
+                    <p>Llegá a 21 sin pasarte. Blackjack natural paga 3:2. Victoria normal 1:1.</p>
+                </div>
+
+                <div class="bj-apuesta-wrap">
+                    <label class="bj-apuesta-label">
+                        <i data-lucide="coins"></i>
+                        Apuesta
+                    </label>
+
+                    <div class="bj-apuesta-controls">
+                        <button class="bj-btn-apuesta" id="bjBtnMitad" title="Mitad">½</button>
+                        <input type="number" id="bjApuestaInput" min="20" max="64" step="1" value="20" inputmode="numeric">
+                        <button class="bj-btn-apuesta" id="bjBtnDoble" title="Doble">2×</button>
+                        <button class="bj-btn-apuesta" id="bjBtnMax" title="Máximo">MAX</button>
+                    </div>
+
+                    <div class="bj-apuesta-info">
+                        Mínimo <strong>20</strong> · Máximo <strong>64</strong> · Tenés <span id="bjSaldoDisponible">0</span>
+                    </div>
+                </div>
+
+                <button class="bj-btn-primario" id="bjBtnIniciar">
+                    <i data-lucide="play"></i>
+                    <span>Empezar partida</span>
+                </button>
+
+                <div id="bjConfigMsg" class="bj-msg"></div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+             PANTALLA: JUEGO
+             ============================================================ -->
+        <div id="bjGameScreen" class="bj-screen" hidden>
+
+            <div class="bj-game-header">
+                <button class="bj-btn-salir" id="bjBtnSalir">
+                    <i data-lucide="x"></i>
+                    <span>Salir</span>
+                </button>
+                <div class="bj-game-info">
+                    <i data-lucide="coins"></i>
+                    <span id="bjApuestaMostrada">0</span>
+                </div>
+                <div class="bj-game-info" id="bjInfoEstado">
+                    <i data-lucide="target"></i>
+                    <span>En juego</span>
+                </div>
+            </div>
+
+            <div class="bj-mano">
+                <div class="bj-mano-label">Crupier</div>
+                <div class="bj-mano-cartas" id="bjDealerCards"></div>
+                <div class="bj-mano-total">
+                    Total: <strong id="bjDealerTotal">?</strong>
+                </div>
+            </div>
+
+            <div class="bj-mano bj-mano-jugador">
+                <div class="bj-mano-label">Tú</div>
+                <div class="bj-mano-cartas" id="bjPlayerCards"></div>
+                <div class="bj-mano-total">
+                    Total: <strong id="bjPlayerTotal">0</strong>
+                </div>
+            </div>
+
+            <div class="bj-acciones">
+                <button class="bj-btn-primario" id="bjBtnHit">
+                    <i data-lucide="plus"></i>
+                    <span>Pedir</span>
+                </button>
+                <button class="bj-btn-sec" id="bjBtnStand">
+                    <i data-lucide="hand"></i>
+                    <span>Plantarse</span>
+                </button>
+                <button class="bj-btn-sec" id="bjBtnDouble">
+                    <i data-lucide="chevrons-up"></i>
+                    <span>Doblar</span>
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ============================================================
+         MODAL: Resultado de la ronda
+         ============================================================ -->
+    <div class="bj-modal" id="bjModalResultado" hidden>
+        <div class="bj-modal-card">
+            <div class="bj-modal-icono" id="bjResultadoIcono">
+                <i data-lucide="sparkles"></i>
+            </div>
+            <h2 id="bjResultadoTitulo">—</h2>
+            <p id="bjResultadoMsg">—</p>
+
+            <div class="bj-resultado-monto" id="bjResultadoMonto"></div>
+
+            <div class="bj-modal-acciones">
+                <button class="bj-btn-sec" id="bjBtnMenu">
+                    <i data-lucide="home"></i>
+                    <span>Menú</span>
+                </button>
+                <button class="bj-btn-primario" id="bjBtnNuevaRonda">
+                    <i data-lucide="rotate-ccw"></i>
+                    <span>Nueva ronda</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="bj-toast" id="bjToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
