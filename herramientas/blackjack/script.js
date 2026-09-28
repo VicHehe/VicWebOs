@@ -11,6 +11,9 @@
 //   - gastoBoleta al apostar.
 //   - canjear al ganar / devolver en empate.
 //   - obtenerMonedas para mostrar el saldo actual.
+//
+//  Visibilidad de pantallas: manejada por style.display inline
+//  para no depender del CSS (robusto ante temas raros).
 // ============================================================
 
 'use strict';
@@ -90,6 +93,31 @@ function toast(texto, tipo = 'info') {
     el.className = 'bj-toast show ' + tipo;
     clearTimeout(_toastTimer);
     _toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+// ============================================================
+//  VISIBILIDAD DE PANTALLAS (a prueba de CSS)
+// ============================================================
+function mostrarConfig() {
+    if (DOM.configScreen) {
+        DOM.configScreen.hidden = false;
+        DOM.configScreen.style.display = 'flex';
+    }
+    if (DOM.gameScreen) {
+        DOM.gameScreen.hidden = true;
+        DOM.gameScreen.style.display = 'none';
+    }
+}
+
+function mostrarJuego() {
+    if (DOM.configScreen) {
+        DOM.configScreen.hidden = true;
+        DOM.configScreen.style.display = 'none';
+    }
+    if (DOM.gameScreen) {
+        DOM.gameScreen.hidden = false;
+        DOM.gameScreen.style.display = 'flex';
+    }
 }
 
 // ============================================================
@@ -186,8 +214,8 @@ function renderizarJuego() {
 
 function actualizarSaldoUI() {
     const saldo = leerSaldoOS();
-    DOM.saldo.textContent = saldo;
-    DOM.saldoDisponible.textContent = saldo;
+    if (DOM.saldo) DOM.saldo.textContent = saldo;
+    if (DOM.saldoDisponible) DOM.saldoDisponible.textContent = saldo;
 }
 
 // ============================================================
@@ -224,7 +252,6 @@ async function iniciarPartida() {
         return;
     }
 
-    // Cobrar la apuesta ANTES de empezar
     DOM.btnIniciar.disabled = true;
     try {
         await api.gastoBoleta('spade', APP_ID, `Apuesta Blackjack (${apuesta})`, apuesta);
@@ -240,7 +267,6 @@ async function iniciarPartida() {
     puedeActuar = true;
     esperando = false;
 
-    // Barajar y repartir
     baraja = [];
     for (let i = 0; i < 6; i++) baraja = baraja.concat(crearBaraja());
     barajar(baraja);
@@ -252,12 +278,10 @@ async function iniciarPartida() {
     manoJugador.push(robarCarta());
     manoCrupier.push(robarCarta());
 
-    // Cambiar pantalla
-    DOM.configScreen.classList.remove('active');
-    DOM.configScreen.hidden = true;
-    DOM.gameScreen.classList.remove('hidden');
-    DOM.gameScreen.classList.add('active');
+    // Cambiar pantalla (a prueba de CSS)
+    mostrarJuego();
     DOM.modalResultado.hidden = true;
+    DOM.modalResultado.style.display = 'none';
 
     DOM.apuestaMostrada.textContent = apuestaActual;
     setEstado('En juego', 'target');
@@ -265,7 +289,6 @@ async function iniciarPartida() {
     actualizarSaldoUI();
     renderizarJuego();
 
-    // Blackjack inmediato
     if (esBlackjack(manoJugador) || esBlackjack(manoCrupier)) {
         setTimeout(() => terminarRonda(), 500);
     }
@@ -308,7 +331,6 @@ async function accionDouble() {
 
     DOM.btnDouble.disabled = true;
     try {
-        // Cobrar la segunda mitad
         await api.gastoBoleta('chevrons-up', APP_ID, `Doblar apuesta Blackjack`, apuestaActual);
         apuestaActual *= 2;
         DOM.apuestaMostrada.textContent = apuestaActual;
@@ -345,6 +367,7 @@ function turnoCrupier() {
 
 function setEstado(texto, icono) {
     const el = DOM.infoEstado;
+    if (!el) return;
     el.innerHTML = `<i data-lucide="${icono}"></i><span>${texto}</span>`;
     if (window.lucide) window.lucide.createIcons();
 }
@@ -412,7 +435,6 @@ async function terminarRonda() {
         resultado === 'perdiste' ? 'x' : 'equal'
     );
 
-    // Pagar si corresponde
     const api = API();
     if (api && typeof api.canjear === 'function' && pago > 0) {
         try {
@@ -429,7 +451,6 @@ async function terminarRonda() {
         }
     }
 
-    // Mostrar modal después de un momento
     setTimeout(() => {
         mostrarModalResultado(resultado, mensaje, ganancia, pago);
         esperando = false;
@@ -484,28 +505,32 @@ function mostrarModalResultado(resultado, mensaje, ganancia, pago) {
         montoEl.textContent = '';
     }
 
+    // Mostrar modal a prueba de CSS
     DOM.modalResultado.hidden = false;
+    DOM.modalResultado.style.display = 'flex';
     if (window.lucide) window.lucide.createIcons();
+}
+
+function ocultarModal() {
+    if (!DOM.modalResultado) return;
+    DOM.modalResultado.hidden = true;
+    DOM.modalResultado.style.display = 'none';
 }
 
 // ============================================================
 //  NAVEGACIÓN
 // ============================================================
 function volverMenu() {
-    DOM.gameScreen.classList.remove('active');
-    DOM.gameScreen.hidden = true;
-    DOM.modalResultado.hidden = true;
-    DOM.configScreen.classList.remove('hidden');
-    DOM.configScreen.classList.add('active');
+    mostrarConfig();
+    ocultarModal();
+
     DOM.configMsg.textContent = '';
     DOM.configMsg.className = 'bj-msg';
 
-    // Reset botones
     DOM.btnHit.disabled = true;
     DOM.btnStand.disabled = true;
     DOM.btnDouble.disabled = true;
 
-    // Reset apuesta al mínimo si el saldo bajó
     const saldo = leerSaldoOS();
     let val = parseInt(DOM.apuestaInput.value, 10) || APUESTA_MIN;
     if (val > APUESTA_MAX) val = APUESTA_MAX;
@@ -516,7 +541,7 @@ function volverMenu() {
 }
 
 function nuevaRonda() {
-    DOM.modalResultado.hidden = true;
+    ocultarModal();
     manoJugador = [];
     manoCrupier = [];
     juegoTerminado = false;
@@ -540,7 +565,7 @@ function normalizarApuesta(valor) {
     const techo = Math.min(APUESTA_MAX, saldo);
     if (v < APUESTA_MIN) v = APUESTA_MIN;
     if (v > techo) v = techo;
-    if (v < APUESTA_MIN) v = APUESTA_MIN; // por si el saldo es < al mínimo
+    if (v < APUESTA_MIN) v = APUESTA_MIN;
     return v;
 }
 
@@ -590,6 +615,7 @@ function cachearDOM() {
 
 function bindEventos() {
     DOM.btnIniciar.addEventListener('click', iniciarPartida);
+
     DOM.btnSalir.addEventListener('click', () => {
         if (juegoTerminado || !puedeActuar) {
             volverMenu();
@@ -599,6 +625,7 @@ function bindEventos() {
             volverMenu();
         }
     });
+
     DOM.btnNuevaRonda.addEventListener('click', nuevaRonda);
     DOM.btnMenu.addEventListener('click', volverMenu);
 
@@ -625,7 +652,6 @@ function bindEventos() {
         setApuesta(DOM.apuestaInput.value);
     });
 
-    // Atajos de teclado (desktop)
     document.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT') return;
         if (e.key === 'h' || e.key === 'H') accionHit();
@@ -655,7 +681,7 @@ function inicializar() {
 
     DOM.userBadge.textContent = `@${usuarioActual.codigo} · ${usuarioActual.nombre}`;
 
-    // Estado inicial de botones de juego
+    // Estado inicial de botones
     DOM.btnHit.disabled = true;
     DOM.btnStand.disabled = true;
     DOM.btnDouble.disabled = true;
@@ -664,11 +690,14 @@ function inicializar() {
     actualizarSaldoUI();
     setApuesta(APUESTA_MIN);
 
+    // Forzar visibilidad de la pantalla de configuración
+    mostrarConfig();
+    ocultarModal();
+
     bindEventos();
 
-    // Releer saldo cada 5 segundos por si cambia desde otra app
     setInterval(() => {
-        if (DOM.configScreen.classList.contains('active')) {
+        if (DOM.configScreen.style.display !== 'none') {
             actualizarSaldoUI();
         }
     }, 5000);
