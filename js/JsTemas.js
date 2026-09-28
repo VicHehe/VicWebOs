@@ -764,11 +764,8 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#13131E'
         }
     },
-        // ============================================================
-    //  MUSICALES — El arte de la escena
-    //  Referencias a obras de teatro musical, sin nombres propios.
+
     // ============================================================
-        // ============================================================
     //  CINE — Géneros cinematográficos
     //  Cada tema evoca la gramática visual de un género de cine,
     //  sin nombres de películas ni franquicias específicas.
