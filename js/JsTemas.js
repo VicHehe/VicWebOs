@@ -772,7 +772,7 @@ const TEMAS_DISPONIBLES = [
     id: 'jugo-a-rayas',
     nombre: 'Jugo a Rayas',
     icono: 'ghost',
-    descripcion: 'Estética de comedia oscura y fantasía gótica. Rayas blanco y negro, puertas blancas flotando, serpientes del desierto arrastrándose y un líquido verde radiactivo que gotea por todos lados.',
+    descripcion: 'Estética de comedia oscura. Fondo claro con bandas de rayas blanco y negro, detalles verdes radiactivos y decoración gótica sutil.',
     categoria: 'Musicales',
     ruta: 'Temas/jugo-a-rayas.css',
     espacio: 4,
@@ -781,8 +781,8 @@ const TEMAS_DISPONIBLES = [
         '--violet-100': '#C8EAC8',
         '--violet-300': '#7CCB7C',
         '--violet-500': '#2E7D32',
-        '--bg':         '#F0F0F0',
-        '--bg-alt':     '#E8E8E8',
+        '--bg':         '#F4F4F4',
+        '--bg-alt':     '#EAEAEA',
         '--white':      '#FFFFFF'
     }
 }
