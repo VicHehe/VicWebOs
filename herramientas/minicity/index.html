@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>MiniCity</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="mc-app">
+
+        <header class="mc-header">
+            <div class="mc-logo">
+                <div class="mc-logo-mark"><i data-lucide="building"></i></div>
+                <div class="mc-logo-text">
+                    <h1>MiniCity</h1>
+                    <p id="mcUserBadge">—</p>
+                </div>
+            </div>
+
+            <div class="mc-constructores" id="mcConstructores" title="Constructores"></div>
+        </header>
+
+        <div class="mc-hud">
+            <div class="mc-hud-item" title="Créditos (dinero del juego)">
+                <i data-lucide="coins"></i>
+                <span id="mcCreditos">0</span>
+            </div>
+            <div class="mc-hud-item" title="Población">
+                <i data-lucide="users"></i>
+                <span id="mcPoblacion">0</span>
+            </div>
+            <div class="mc-hud-item" title="Felicidad">
+                <i data-lucide="smile"></i>
+                <span id="mcFelicidad">50</span>
+            </div>
+            <div class="mc-hud-item mc-hud-prod" title="Producción por hora">
+                <i data-lucide="trending-up"></i>
+                <span id="mcProdHora">0/h</span>
+            </div>
+            <div class="mc-hud-item mc-hud-banco" title="Monedas OS acumuladas">
+                <i data-lucide="landmark"></i>
+                <span id="mcBanco">0</span>
+            </div>
+        </div>
+
+        <div class="mc-canvas-wrap">
+            <canvas id="mcCanvas"></canvas>
+            <div class="mc-canvas-hint" id="mcCanvasHint">
+                <i data-lucide="hand-pointer"></i>
+                <span>Tocá una celda vacía para construir</span>
+            </div>
+        </div>
+
+        <div class="mc-footer">
+            <button class="mc-btn-banco" id="mcBtnBanco" disabled>
+                <i data-lucide="hand-coins"></i>
+                <span id="mcBtnBancoTexto">Reclamar 0 OS</span>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- ============================================================
+         MODAL: Elegir tipo de edificio (celda vacía)
+         ============================================================ -->
+    <div class="mc-modal" id="mcModalConstruir" hidden>
+        <div class="mc-modal-card">
+            <div class="mc-modal-header">
+                <div>
+                    <h3>¿Qué construimos?</h3>
+                    <p class="mc-modal-sub" id="mcModalCoord">—</p>
+                </div>
+                <button class="mc-modal-cerrar" data-mc-cerrar="construir"><i data-lucide="x"></i></button>
+            </div>
+            <div class="mc-opciones" id="mcOpcionesConstruir"></div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL: Edificio existente (ver / mejorar / acelerar)
+         ============================================================ -->
+    <div class="mc-modal" id="mcModalEdificio" hidden>
+        <div class="mc-modal-card">
+            <div class="mc-modal-header">
+                <div>
+                    <h3 id="mcEdifTitulo">—</h3>
+                    <p class="mc-modal-sub" id="mcEdifSub">—</p>
+                </div>
+                <button class="mc-modal-cerrar" data-mc-cerrar="edificio"><i data-lucide="x"></i></button>
+            </div>
+            <div class="mc-edif-cuerpo" id="mcEdifCuerpo"></div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL: Tienda global (constructores)
+         ============================================================ -->
+    <div class="mc-modal" id="mcModalTienda" hidden>
+        <div class="mc-modal-card">
+            <div class="mc-modal-header">
+                <div>
+                    <h3>Tienda</h3>
+                    <p class="mc-modal-sub">Mejoras permanentes</p>
+                </div>
+                <button class="mc-modal-cerrar" data-mc-cerrar="tienda"><i data-lucide="x"></i></button>
+            </div>
+            <div class="mc-tienda" id="mcTiendaCuerpo"></div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         OVERLAY: Bienvenida / resumen de ausencia
+         ============================================================ -->
+    <div class="mc-overlay" id="mcOverlayBienvenida" hidden>
+        <div class="mc-overlay-card">
+            <div class="mc-overlay-icono"><i data-lucide="building"></i></div>
+            <h2>Bienvenide a tu ciudad</h2>
+            <p>Tocá una celda vacía para colocar tu primer edificio. Cada edificio tarda un tiempo en construirse, y mientras tanto ocupa un <strong>constructor</strong>.</p>
+            <div class="mc-overlay-resumen" id="mcOverlayResumen" hidden></div>
+            <button class="mc-btn-primario" id="mcBtnBienvenida">
+                <i data-lucide="play"></i>
+                <span>Empezar</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="mc-toast" id="mcToast"></div>
+
+    <script src="ciudad.js"></script>
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
