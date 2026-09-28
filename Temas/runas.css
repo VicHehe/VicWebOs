@@ -56,17 +56,17 @@
     --r-lg: 7px;
     --r-xl: 10px;
 
-    /* Runa ᚠ aislada — sello del tema */
+    /* Runa ᚠ — sello individual */
     --theme-runa: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 30'%3E%3Cpath d='M7,3 L7,27 M7,10 L14,4 M7,18 L14,12' stroke='%237DD3FC' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 
-    /* Grupo de 3 runas (ᚠ ᚦ ᛗ) — fondo repetido sutil */
-    --theme-runas-grupo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cg stroke='%237DD3FC' stroke-width='1.4' fill='none' stroke-linecap='round' stroke-linejoin='round' opacity='0.55'%3E%3Cpath d='M10,5 L10,30 M10,13 L17,8 M10,21 L17,16'/%3E%3Cpath d='M30,5 L30,28 M30,12 L38,20 L30,28'/%3E%3Cpath d='M45,5 L57,25 M57,5 L45,25'/%3E%3C/g%3E%3C/svg%3E");
+    /* Runas grandes — UNA por tile de 240x240, llenando el tile completo */
+    --theme-runas-fondo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'%3E%3Cg stroke='%237DD3FC' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round' opacity='0.65'%3E%3Cpath d='M50,40 L50,200 M50,90 L105,45 M50,140 L105,95'/%3E%3Cpath d='M130,60 L130,190 M130,100 L180,150 L130,190'/%3E%3Cpath d='M60,215 L110,215 M85,215 L85,235'/%3E%3C/g%3E%3C/svg%3E");
 
     /* Escarcha — cluster de agujas de hielo */
-    --theme-frost: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg stroke='%237DD3FC' stroke-width='1' fill='none' stroke-linecap='round' opacity='0.7'%3E%3Cline x1='4' y1='4' x2='20' y2='4'/%3E%3Cline x1='4' y1='4' x2='4' y2='20'/%3E%3Cline x1='4' y1='4' x2='16' y2='16'/%3E%3Cline x1='10' y1='4' x2='10' y2='10'/%3E%3Cline x1='4' y1='10' x2='10' y2='10'/%3E%3Cline x1='16' y1='4' x2='16' y2='7'/%3E%3Cline x1='4' y1='16' x2='7' y2='16'/%3E%3Cline x1='14' y1='4' x2='16' y2='6'/%3E%3Cline x1='4' y1='14' x2='6' y2='16'/%3E%3C/g%3E%3C/svg%3E");
+    --theme-frost: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg stroke='%237DD3FC' stroke-width='1' fill='none' stroke-linecap='round' opacity='0.7'%3E%3Cline x1='4' y1='4' x2='20' y2='4'/%3E%3Cline x1='4' y1='4' x2='4' y2='20'/%3E%3Cline x1='4' y1='4' x2='16' y2='16'/%3E%3Cline x1='10' y1='4' x2='10' y2='10'/%3E%3Cline x1='4' y1='10' x2='10' y2='10'/%3E%3Cline x1='16' y1='4' x2='16' y2='7'/%3E%3Cline x1='4' y1='16' x2='7' y2='16'/%3E%3C/g%3E%3C/svg%3E");
 
-    /* Niebla baja — capa de vapor frío */
-    --theme-mist: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 40' preserveAspectRatio='none'%3E%3Cpath d='M0,22 Q25,10 50,22 T100,22 T150,22 T200,22 L200,40 L0,40 Z' fill='%237DD3FC' fill-opacity='0.14'/%3E%3Cpath d='M0,28 Q30,18 60,28 T120,28 T180,28 T200,28 L200,40 L0,40 Z' fill='%237DD3FC' fill-opacity='0.10'/%3E%3C/svg%3E");
+    /* Niebla baja — 1200px wide, seamless, 3 capas */
+    --theme-mist: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 100' preserveAspectRatio='none'%3E%3Cpath d='M0,45 C150,20 350,75 600,45 C850,20 1050,75 1200,45 L1200,100 L0,100 Z' fill='%237DD3FC' fill-opacity='0.10'/%3E%3Cpath d='M0,60 C200,35 400,80 600,60 C800,35 1000,80 1200,60 L1200,100 L0,100 Z' fill='%237DD3FC' fill-opacity='0.14'/%3E%3Cpath d='M0,78 C180,58 380,88 600,78 C820,58 1020,88 1200,78 L1200,100 L0,100 Z' fill='%234A8DB0' fill-opacity='0.20'/%3E%3C/svg%3E");
 }
 
 /* ================================================================
@@ -75,42 +75,30 @@
 .welcome-placeholder {
     position: relative;
     background:
+        var(--theme-mist) bottom left / 1200px 100px repeat-x,
         radial-gradient(ellipse at top, rgba(125, 211, 252, 0.06) 0%, transparent 55%),
         radial-gradient(ellipse at bottom, rgba(14, 165, 233, 0.08) 0%, transparent 50%),
         var(--bg);
+    background-attachment: scroll;
+    animation: runas-mist-drift 32s linear infinite;
+}
+@keyframes runas-mist-drift {
+    from { background-position: 0% bottom, center top, center bottom, center; }
+    to   { background-position: -1200px bottom, center top, center bottom, center; }
 }
 
-/* Runas grabadas en el fondo */
+/* Runas grabadas — tile grande, sin costuras */
 .welcome-placeholder::before {
     content: '';
     position: absolute;
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.22;
-    background-image: var(--theme-runas-grupo);
-    background-size: 280px 280px;
-    background-position: center;
+    opacity: 0.18;
+    background-image: var(--theme-runas-fondo);
+    background-size: 240px 240px;
+    background-position: 0 0;
     background-repeat: repeat;
-}
-
-/* Niebla que sube desde el fondo */
-.welcome-placeholder::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 160px;
-    background: var(--theme-mist) repeat-x bottom;
-    background-size: 400px 60px;
-    pointer-events: none;
-    z-index: 0;
-    animation: runas-mist-drift 32s linear infinite;
-}
-@keyframes runas-mist-drift {
-    from { background-position: 0 bottom; }
-    to   { background-position: -400px bottom; }
 }
 
 .welcome-glow {
@@ -504,7 +492,7 @@
    11. prefers-reduced-motion
    ================================================================ */
 @media (prefers-reduced-motion: reduce) {
-    .welcome-placeholder::after,
+    .welcome-placeholder,
     .welcome-icon-wrap,
     .acceso-item::after {
         animation: none !important;
