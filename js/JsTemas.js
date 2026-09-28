@@ -22,6 +22,17 @@
 //    Cada categoría ordenada por PRECIO de MENOR a MAYOR.
 //    Dentro del mismo precio, orden por afinidad temática.
 //
+//  CATEGORÍAS:
+//    Básicos      → recolor simple en light mode
+//    Oscuros      → dark mode simple, sin decoración
+//    Formales     → trabajo, elegantes, OS-like
+//    Retro        → referencias a décadas pasadas
+//    Festivos     → celebraciones patrias y culturales
+//    Atmósferas   → moods, ambientes, sensaciones cozy
+//    Naturaleza   → orgánico, botánico, mineral
+//    Fantasía     → narrativa, aventura, retro-futurista
+//    Cultura Pop  → juegos, música, redes, streaming
+//
 //  REGLA DE ORO: cada salto de precio se tiene que VER en la pantalla.
 // ============================================================
 
@@ -409,16 +420,16 @@ const TEMAS_DISPONIBLES = [
     },
 
     // ============================================================
-    //  ESPECIALES — Flagships atmosféricos
-    //  Efectos visuales, texturas, animaciones. Lo premium.
-    //  Ordenados por precio ascendente.
+    //  FESTIVOS — Celebraciones patrias y culturales
+    //  Referencias a fiestas nacionales, con decoración viva
+    //  y precios fijos por la fecha que celebran.
     // ============================================================
     {
         id: 'mucho-besame',
         nombre: 'Mucho Besame',
         icono: 'sun',
         descripcion: 'México en todo su esplendor. Papel picado, cempasúchil, talavera y sombrero. Para gritar ¡Viva México!',
-        categoria: 'Especiales',
+        categoria: 'Festivos',
         ruta: 'Temas/mucho-besame.css',
         espacio: 4,
         monedas: 16,   // 🔒 precio fijo por el 15 de septiembre
@@ -436,7 +447,7 @@ const TEMAS_DISPONIBLES = [
         nombre: 'Consentido',
         icono: 'heart',
         descripcion: 'Chile en todo su esplendor. Bandera, manta de huaso, copihues y guirnaldas de fonda.',
-        categoria: 'Especiales',
+        categoria: 'Festivos',
         ruta: 'Temas/consentido.css',
         espacio: 4,
         monedas: 18,   // 🔒 precio fijo por el 18 de septiembre
@@ -449,12 +460,18 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFFFF'
         }
     },
+
+    // ============================================================
+    //  ATMÓSFERAS — Moods, ambientes, sensaciones cozy
+    //  No representan un objeto: evocan un estado de ánimo,
+    //  un momento del día, o una sensación táctil/visual.
+    // ============================================================
     {
         id: 'dreams',
         nombre: 'Dreams and Hopes',
         icono: 'sparkles',
         descripcion: 'Fondo negro profundo con bordes arcoíris. Para soñadores.',
-        categoria: 'Especiales',
+        categoria: 'Atmósferas',
         ruta: 'Temas/dreams.css',
         espacio: 4,
         monedas: 30,
@@ -468,29 +485,11 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
-        id: 'cuarzo-rosado',
-        nombre: 'Cuarzo Rosado',
-        icono: 'gem',
-        descripcion: 'Magia, diamantes y tonos pastel. Inspirado en el poder de las gemas.',
-        categoria: 'Especiales',
-        ruta: 'Temas/cuarzo-rosado.css',
-        espacio: 4,
-        monedas: 30,
-        colores: {
-            '--violet-100': '#FCE7F3',
-            '--violet-300': '#F9A8D4',
-            '--violet-500': '#EC4899',
-            '--bg':         '#FFF9FB',
-            '--bg-alt':     '#FEF0F5',
-            '--white':      '#FFFFFF'
-        }
-    },
-    {
         id: 'acuarela',
         nombre: 'Acuarela',
         icono: 'brush',
         descripcion: 'Papel blanco con manchas de acuarela que respiran y gotas cayendo lentamente. Rosa, celeste, amarillo y verde agua diluidos.',
-        categoria: 'Especiales',
+        categoria: 'Atmósferas',
         ruta: 'Temas/acuarela.css',
         espacio: 4,
         monedas: 30,
@@ -504,29 +503,11 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
-        id: 'floral',
-        nombre: 'Floral',
-        icono: 'flower',
-        descripcion: 'Colores vivos, pétalos y verdes frescos. Para los que florecen.',
-        categoria: 'Especiales',
-        ruta: 'Temas/floral.css',
-        espacio: 4,
-        monedas: 35,
-        colores: {
-            '--violet-100': '#DCFCE7',
-            '--violet-300': '#F9A8D4',
-            '--violet-500': '#EC4899',
-            '--bg':         '#F7FDF9',
-            '--bg-alt':     '#F0F9F2',
-            '--white':      '#FFFFFF'
-        }
-    },
-    {
         id: 'cafe-latte',
         nombre: 'Café Latte',
         icono: 'coffee',
         descripcion: 'Cafetería cozy. Granos de café tenues por todo el fondo y vapor subiendo desde el header.',
-        categoria: 'Especiales',
+        categoria: 'Atmósferas',
         ruta: 'Temas/cafe-latte.css',
         espacio: 4,
         monedas: 35,
@@ -544,7 +525,7 @@ const TEMAS_DISPONIBLES = [
         nombre: 'Break of Dawn',
         icono: 'sunrise',
         descripcion: 'Amanecer sobre el mar. Cielo degradado y oleaje animado al fondo.',
-        categoria: 'Especiales',
+        categoria: 'Atmósferas',
         ruta: 'Temas/break-of-dawn.css',
         espacio: 4,
         monedas: 40,
@@ -557,30 +538,59 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFDFB'
         }
     },
+
+    // ============================================================
+    //  NATURALEZA — Orgánico, botánico, mineral
+    //  Formas naturales, flora y gemas. Decoración suave
+    //  y patrones que evocan el mundo físico.
+    // ============================================================
     {
-        id: 'charla',
-        nombre: 'Charla',
-        icono: 'message-circle',
-        descripcion: 'Verde mensajería y beige cálido. Los accesos rápidos se vuelven burbujas y aparecen dobles checks al pasar el mouse. En WhatTheHay brilla como en casa.',
-        categoria: 'Especiales',
-        ruta: 'Temas/charla.css',
+        id: 'cuarzo-rosado',
+        nombre: 'Cuarzo Rosado',
+        icono: 'gem',
+        descripcion: 'Magia, diamantes y tonos pastel. Inspirado en el poder de las gemas.',
+        categoria: 'Naturaleza',
+        ruta: 'Temas/cuarzo-rosado.css',
         espacio: 4,
-        monedas: 45,
+        monedas: 30,
         colores: {
-            '--violet-100': '#D1FAE5',
-            '--violet-300': '#6EE7B7',
-            '--violet-500': '#10B981',
-            '--bg':         '#EFE9E0',
-            '--bg-alt':     '#F7F3ED',
+            '--violet-100': '#FCE7F3',
+            '--violet-300': '#F9A8D4',
+            '--violet-500': '#EC4899',
+            '--bg':         '#FFF9FB',
+            '--bg-alt':     '#FEF0F5',
             '--white':      '#FFFFFF'
         }
     },
+    {
+        id: 'floral',
+        nombre: 'Floral',
+        icono: 'flower',
+        descripcion: 'Colores vivos, pétalos y verdes frescos. Para los que florecen.',
+        categoria: 'Naturaleza',
+        ruta: 'Temas/floral.css',
+        espacio: 4,
+        monedas: 35,
+        colores: {
+            '--violet-100': '#DCFCE7',
+            '--violet-300': '#F9A8D4',
+            '--violet-500': '#EC4899',
+            '--bg':         '#F7FDF9',
+            '--bg-alt':     '#F0F9F2',
+            '--white':      '#FFFFFF'
+        }
+    },
+
+    // ============================================================
+    //  FANTASÍA — Narrativa, aventura, retro-futurista
+    //  Cuentan una historia con su estética.
+    // ============================================================
     {
         id: 'libro',
         nombre: 'Libro de Historia',
         icono: 'book-open',
         descripcion: 'Cuero, papel envejecido y lomo de encuadernación. Para los que atesoran el pasado.',
-        categoria: 'Especiales',
+        categoria: 'Fantasía',
         ruta: 'Temas/libro.css',
         espacio: 4,
         monedas: 45,
@@ -594,11 +604,53 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
+        id: 'steampunk',
+        nombre: 'Steampunk',
+        icono: 'cog',
+        descripcion: 'Taller victoriano con vida. Engranajes que giran, vapor subiendo, péndulo oscilando y reloj de bolsillo meciéndose.',
+        categoria: 'Fantasía',
+        ruta: 'Temas/steampunk.css',
+        espacio: 4,
+        monedas: 45,
+        colores: {
+            '--violet-100': '#EBE0CC',
+            '--violet-300': '#C9A961',
+            '--violet-500': '#9C5F28',
+            '--bg':         '#F0E8D8',
+            '--bg-alt':     '#E5D8BE',
+            '--white':      '#FFFFFF'
+        }
+    },
+
+    // ============================================================
+    //  CULTURA POP — Juegos, música, redes, streaming
+    //  Referencias a la cultura contemporánea: entretenimiento,
+    //  plataformas digitales y vida online.
+    // ============================================================
+    {
+        id: 'charla',
+        nombre: 'Charla',
+        icono: 'message-circle',
+        descripcion: 'Verde mensajería y beige cálido. Los accesos rápidos se vuelven burbujas y aparecen dobles checks al pasar el mouse. En WhatTheHay brilla como en casa.',
+        categoria: 'Cultura Pop',
+        ruta: 'Temas/charla.css',
+        espacio: 4,
+        monedas: 45,
+        colores: {
+            '--violet-100': '#D1FAE5',
+            '--violet-300': '#6EE7B7',
+            '--violet-500': '#10B981',
+            '--bg':         '#EFE9E0',
+            '--bg-alt':     '#F7F3ED',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
         id: 'friend',
         nombre: '¿¡Friend!?',
         icono: 'star',
         descripcion: 'Fondo oscuro con luces amarillas y rosas que titilan, y bordes neón brillantes.',
-        categoria: 'Especiales',
+        categoria: 'Cultura Pop',
         ruta: 'Temas/friend.css',
         espacio: 4,
         monedas: 45,
@@ -611,12 +663,12 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#0F0820'
         }
     },
-        {
+    {
         id: 'wuu',
         nombre: 'Wuu',
-        icono: 'monitor', /* Usamos monitor para no repetir gamepad-2 de Chiptune */
+        icono: 'monitor',
         descripcion: 'Estética limpia de consola de salón. Blancos puros, grises suaves y un celeste brillante con efectos de cristal.',
-        categoria: 'Especiales',
+        categoria: 'Cultura Pop',
         ruta: 'Temas/wuu.css',
         espacio: 4,
         monedas: 45,
@@ -630,29 +682,11 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
-        id: 'steampunk',
-        nombre: 'Steampunk',
-        icono: 'cog',
-        descripcion: 'Taller victoriano con vida. Engranajes que giran, vapor subiendo, péndulo oscilando y reloj de bolsillo meciéndose.',
-        categoria: 'Especiales',
-        ruta: 'Temas/steampunk.css',
-        espacio: 4,
-        monedas: 45,
-        colores: {
-            '--violet-100': '#EBE0CC',
-            '--violet-300': '#C9A961',
-            '--violet-500': '#9C5F28',
-            '--bg':         '#F0E8D8',
-            '--bg-alt':     '#E5D8BE',
-            '--white':      '#FFFFFF'
-        }
-    },
-    {
         id: 'pop-owner',
         nombre: 'Pop Owner',
         icono: 'music-2',
         descripcion: 'Luces de escenario, rojo profundo y destellos dorados que recorren las cards. Para cuando querés que todo brille.',
-        categoria: 'Especiales',
+        categoria: 'Cultura Pop',
         ruta: 'Temas/pop-owner.css',
         espacio: 4,
         monedas: 50,
@@ -670,7 +704,7 @@ const TEMAS_DISPONIBLES = [
         nombre: 'Stream',
         icono: 'signal',
         descripcion: 'Fondo oscuro con acento morado o verde que cambia con el tiempo. Referencia suave a las plataformas de streaming.',
-        categoria: 'Especiales',
+        categoria: 'Cultura Pop',
         ruta: 'Temas/stream.css',
         espacio: 4,
         monedas: 50,
