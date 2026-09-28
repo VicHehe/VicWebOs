@@ -828,18 +828,18 @@ const TEMAS_DISPONIBLES = [
     id: 'cine-retro-jazz',
     nombre: 'Cine Retro Jazz',
     icono: 'music-4',
-    descripcion: 'Club de jazz noir + salón de apuestas de los 50. Humo enroscándose, neón azul y ámbar, vinilo girando, spotlight barriendo, cartas flotando y marco art déco.',
+    descripcion: 'Un trompetista solo, bajo un spotlight, en un club cerrado a las 3am. Humo de cigarrillo subiendo, ámbar cálido sobre azul medianoche.',
     categoria: 'Cine',
     ruta: 'Temas/cine-retro-jazz.css',
     espacio: 4,
     monedas: 45,
     colores: {
-        '--violet-100': '#3E2818',
-        '--violet-300': '#A87A3C',
-        '--violet-500': '#E8B54B',
-        '--bg':         '#0F0A05',
-        '--bg-alt':     '#1A1208',
-        '--white':      '#1A1208'
+        '--violet-100': '#3A2A18',
+        '--violet-300': '#8A6A38',
+        '--violet-500': '#D4A24C',
+        '--bg':         '#0A0E1A',
+        '--bg-alt':     '#0E1524',
+        '--white':      '#141C2E'
     }
 },
 ];
