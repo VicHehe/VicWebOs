@@ -763,5 +763,28 @@ const TEMAS_DISPONIBLES = [
             '--bg-alt':     '#0E0E16',
             '--white':      '#13131E'
         }
-    }
+    },
+        // ============================================================
+    //  MUSICALES — El arte de la escena
+    //  Referencias a obras de teatro musical, sin nombres propios.
+    // ============================================================
+    {
+        id: 'jugo-a-rayas',
+        nombre: 'Jugo a Rayas',
+        icono: 'ghost',
+        descripcion: 'El caos de Broadway en tu pantalla. Verde neón, morado, rayas blanco y negro, humo de escenario y estrellas de marquesina.',
+        categoria: 'Musicales',
+        ruta: 'Temas/jugo-a-rayas.css',
+        espacio: 4,
+        monedas: 45,
+        colores: {
+            '--violet-100': '#C8EAC8',
+            '--violet-300': '#7CCB7C',
+            '--violet-500': '#2E7D32',
+            '--bg':         '#F0F0F0',
+            '--bg-alt':     '#E8E8E8',
+            '--white':      '#FFFFFF'
+        }
+    },
 ];
+
