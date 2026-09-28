@@ -1,15 +1,11 @@
 // ============================================================
 //  Blackjack — adaptado a VicWebOs
 //  ------------------------------------------------------------
-//  - Apuesta mínima 20, máxima 64.
-//  - Blackjack natural paga 3:2 (1.5x).
-//  - Victoria normal paga 1:1.
-//  - Empate devuelve la apuesta.
-//  - Doblar: solo con las 2 primeras cartas.
-//
-//  FIX v3: ID de ronda para matar timers zombie.
-//  Cada nueva ronda incrementa _rondaID. Los setTimeout viejos
-//  chequean ese ID al dispararse y mueren si ya no es el actual.
+//  FIX v4: retornos correctos.
+//   - Victoria normal: apuesta × 2 (recupera + gana)
+//   - Blackjack natural: apuesta × 2.5 (3:2 sobre la apuesta,
+//     más la apuesta de vuelta)
+//   - Empate: apuesta × 1 (solo devolución)
 // ============================================================
 
 'use strict';
@@ -19,8 +15,11 @@ const APP_ID = 'blackjack';
 
 const APUESTA_MIN = 20;
 const APUESTA_MAX = 64;
-const PAGO_BLACKJACK = 1.5;
-const PAGO_NORMAL = 1.0;
+
+// Retorno TOTAL sobre la apuesta (apuesta devuelta + ganancia)
+const RETORNO_VICTORIA = 2.0;    // 1:1 → recupera + gana igual
+const RETORNO_BLACKJACK = 2.5;   // 3:2 → recupera + gana 1.5x
+const RETORNO_EMPATE = 1.0;      // solo devolución
 
 let usuarioActual = null;
 
@@ -34,7 +33,7 @@ let puedeActuar = false;
 let esperando = false;
 let procesando = false;
 
-// ---- ID de ronda: la clave del fix ----
+// ---- ID de ronda ----
 let _rondaID = 0;
 
 // ---- DOM ----
@@ -226,14 +225,10 @@ function actualizarSaldoUI() {
 
 // ============================================================
 //  TIMERS CON ID DE RONDA
-//  ------------------------------------------------------------
-//  Helper que programa un callback pero lo mata silenciosamente
-//  si la ronda cambió. Es la clave para que los timers de la
-//  ronda anterior no pisen la nueva.
 // ============================================================
 function setRondaTimeout(fn, ms, rondaID) {
     setTimeout(() => {
-        if (rondaID !== _rondaID) return;   // ronda vieja, ignorar
+        if (rondaID !== _rondaID) return;
         fn();
     }, ms);
 }
@@ -254,7 +249,6 @@ async function iniciarPartida() {
     if (procesando) return;
     procesando = true;
 
-    // Nueva ronda: ID nuevo invalida cualquier timer de la anterior
     _rondaID++;
     const miID = _rondaID;
 
@@ -294,8 +288,6 @@ async function iniciarPartida() {
     }
     DOM.btnIniciar.disabled = false;
 
-    // Si mientras esperábamos el gasto, el usuario lanzó otra ronda,
-    // esta ya no es válida: abortamos silenciosamente.
     if (miID !== _rondaID) {
         procesando = false;
         return;
@@ -328,7 +320,6 @@ async function iniciarPartida() {
 
     procesando = false;
 
-    // Chequeo de blackjack natural
     if (esBlackjack(manoJugador) || esBlackjack(manoCrupier)) {
         setRondaTimeout(() => terminarRonda(miID), 500, miID);
     }
@@ -409,7 +400,7 @@ async function accionDouble() {
 }
 
 function turnoCrupier(miID) {
-    if (miID !== _rondaID) return;   // ronda vieja
+    if (miID !== _rondaID) return;
     while (calcularMano(manoCrupier) < 17) {
         manoCrupier.push(robarCarta());
     }
@@ -429,7 +420,7 @@ function setEstado(texto, icono) {
 //  TERMINAR RONDA
 // ============================================================
 async function terminarRonda(miID) {
-    if (miID !== _rondaID) return;   // ronda vieja, no hacer nada
+    if (miID !== _rondaID) return;
     if (esperando) return;
     esperando = true;
     juegoTerminado = true;
@@ -441,43 +432,43 @@ async function terminarRonda(miID) {
     const jugadorBJ = esBlackjack(manoJugador);
     const crupierBJ = esBlackjack(manoCrupier);
 
-    let resultado, mensaje, ganancia, pago;
+    let resultado, mensaje, retorno, gananciaNeta;
 
     if (totalJugador > 21) {
         resultado = 'perdiste';
         mensaje = 'Te pasaste de 21.';
-        ganancia = -apuestaActual;
-        pago = 0;
+        retorno = 0;
+        gananciaNeta = -apuestaActual;
     } else if (crupierBJ && !jugadorBJ) {
         resultado = 'perdiste';
         mensaje = 'El crupier tiene Blackjack.';
-        ganancia = -apuestaActual;
-        pago = 0;
+        retorno = 0;
+        gananciaNeta = -apuestaActual;
     } else if (jugadorBJ && !crupierBJ) {
         resultado = 'blackjack';
-        mensaje = '¡Blackjack natural! Pagás 3:2.';
-        pago = Math.floor(apuestaActual * PAGO_BLACKJACK);
-        ganancia = pago;
+        mensaje = '¡Blackjack natural! Se paga 3:2.';
+        retorno = Math.floor(apuestaActual * RETORNO_BLACKJACK);
+        gananciaNeta = retorno - apuestaActual;
     } else if (totalCrupier > 21) {
         resultado = 'ganaste';
         mensaje = 'El crupier se pasó.';
-        pago = Math.floor(apuestaActual * PAGO_NORMAL);
-        ganancia = pago;
+        retorno = Math.floor(apuestaActual * RETORNO_VICTORIA);
+        gananciaNeta = retorno - apuestaActual;
     } else if (totalJugador > totalCrupier) {
         resultado = 'ganaste';
         mensaje = 'Ganaste la ronda.';
-        pago = Math.floor(apuestaActual * PAGO_NORMAL);
-        ganancia = pago;
+        retorno = Math.floor(apuestaActual * RETORNO_VICTORIA);
+        gananciaNeta = retorno - apuestaActual;
     } else if (totalJugador < totalCrupier) {
         resultado = 'perdiste';
         mensaje = 'El crupier ganó.';
-        ganancia = -apuestaActual;
-        pago = 0;
+        retorno = 0;
+        gananciaNeta = -apuestaActual;
     } else {
         resultado = 'empate';
         mensaje = 'Empate. Se devuelve tu apuesta.';
-        pago = apuestaActual;
-        ganancia = 0;
+        retorno = Math.floor(apuestaActual * RETORNO_EMPATE);
+        gananciaNeta = 0;
     }
 
     setEstado(
@@ -490,14 +481,14 @@ async function terminarRonda(miID) {
     );
 
     const api = API();
-    if (api && typeof api.canjear === 'function' && pago > 0) {
+    if (api && typeof api.canjear === 'function' && retorno > 0) {
         try {
             const fuenteTxt = resultado === 'empate'
                 ? `Devolución apuesta Blackjack`
                 : resultado === 'blackjack'
-                    ? `Blackjack natural (3:2)`
-                    : `Victoria Blackjack`;
-            await api.canjear('spade', APP_ID, fuenteTxt, pago);
+                    ? `Blackjack natural (3:2) — apuesta ${apuestaActual}, retorno ${retorno}`
+                    : `Victoria Blackjack — apuesta ${apuestaActual}, retorno ${retorno}`;
+            await api.canjear('spade', APP_ID, fuenteTxt, retorno);
             actualizarSaldoUI();
         } catch (e) {
             console.warn('[Blackjack] No se pudo pagar:', e);
@@ -505,14 +496,13 @@ async function terminarRonda(miID) {
         }
     }
 
-    // Si cambió la ronda mientras pagábamos, no mostrar el modal viejo
     if (miID !== _rondaID) {
         esperando = false;
         return;
     }
 
     setRondaTimeout(() => {
-        mostrarModalResultado(resultado, mensaje, ganancia, pago);
+        mostrarModalResultado(resultado, mensaje, gananciaNeta, retorno);
         esperando = false;
     }, 900, miID);
 }
@@ -520,7 +510,7 @@ async function terminarRonda(miID) {
 // ============================================================
 //  MODAL RESULTADO
 // ============================================================
-function mostrarModalResultado(resultado, mensaje, ganancia, pago) {
+function mostrarModalResultado(resultado, mensaje, gananciaNeta, retorno) {
     let titulo = '';
     let icono = '';
 
@@ -542,7 +532,7 @@ function mostrarModalResultado(resultado, mensaje, ganancia, pago) {
     const montoEl = DOM.resultadoMonto;
     montoEl.className = 'bj-resultado-monto ' + resultado;
     if (resultado === 'ganaste' || resultado === 'blackjack') {
-        montoEl.textContent = `+${pago} monedas`;
+        montoEl.textContent = `+${gananciaNeta} monedas netas`;
     } else if (resultado === 'perdiste') {
         montoEl.textContent = `−${apuestaActual} monedas`;
     } else if (resultado === 'empate') {
@@ -560,7 +550,6 @@ function mostrarModalResultado(resultado, mensaje, ganancia, pago) {
 //  NAVEGACIÓN
 // ============================================================
 function volverMenu() {
-    // Invalidar cualquier timer pendiente
     _rondaID++;
     esperando = false;
     procesando = false;
