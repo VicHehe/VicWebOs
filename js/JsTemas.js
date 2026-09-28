@@ -520,10 +520,46 @@ const TEMAS_DISPONIBLES = [
         }
     },
 
-    // ============================================================
+        // ============================================================
     //  FANTASÍA — Narrativa, aventura, retro-futurista
     //  Cuentan una historia con su estética.
     // ============================================================
+    {
+        id: 'runas',
+        nombre: 'Runas',
+        icono: 'shield',
+        descripcion: 'Mitología nórdica. Piedras con runas grabadas que laten con luz azul fría, escarcha en las esquinas y niebla subiendo desde el suelo.',
+        categoria: 'Fantasía',
+        ruta: 'Temas/runas.css',
+        espacio: 4,
+        monedas: 35,
+        colores: {
+            '--violet-100': '#16252F',
+            '--violet-300': '#4A8DB0',
+            '--violet-500': '#7DD3FC',
+            '--bg':         '#0C1418',
+            '--bg-alt':     '#101A20',
+            '--white':      '#162027'
+        }
+    },
+    {
+        id: 'mil-y-una-noches',
+        nombre: 'Mil y Una Noches',
+        icono: 'moon-star',
+        descripcion: 'Desierto nocturno de Bagdad. Dunas animadas, media luna que respira, geometría islámica de 8 puntas y arena dorada sobre azul noche.',
+        categoria: 'Fantasía',
+        ruta: 'Temas/mil-y-una-noches.css',
+        espacio: 4,
+        monedas: 40,
+        colores: {
+            '--violet-100': '#243258',
+            '--violet-300': '#C9A961',
+            '--violet-500': '#E8B54B',
+            '--bg':         '#0A1428',
+            '--bg-alt':     '#101A38',
+            '--white':      '#141E3A'
+        }
+    },
     {
         id: 'libro',
         nombre: 'Libro de Historia',
