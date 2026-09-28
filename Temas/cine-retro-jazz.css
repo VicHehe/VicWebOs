@@ -1,106 +1,111 @@
 /* ================================================
    Tema: Cine Retro Jazz
-   Club de jazz noir + salón de apuestas de los 50.
-   Humo que se enrosca, neón azul y ámbar, vinilo
-   girando, spotlight barriendo, cartas flotando,
-   cortinas de terciopelo y patrón art déco.
-   Flagship.
+   Un trompetista solo, bajo un spotlight, en un
+   club cerrado a las 3am.
+   
+   Solo 4 elementos:
+     1. Un spotlight cálido que barre lento
+     2. Humo de cigarrillo en 3 columnas curvas
+     3. Paleta: azul medianoche + ámbar cálido
+     4. Una silueta de trompeta en el hero
    ================================================ */
 
-@property --jazz-spotlight-x {
+/* ------------------------------------------------------------
+   Custom property animable para la posición del spotlight
+   ------------------------------------------------------------ */
+@property --spotlight-x {
     syntax: '<percentage>';
     inherits: true;
-    initial-value: 50%;
+    initial-value: 25%;
 }
 
 :root {
-    /* Acento: Dorado cálido de la época */
-    --violet-50:  #2A1A0F;
-    --violet-100: #3E2818;
-    --violet-200: #5A3A20;
-    --violet-300: #A87A3C;
-    --violet-400: #C99852;
-    --violet-500: #E8B54B;
-    --violet-600: #D19A2E;
-    --violet-700: #A87A1F;
+    /* Acento: ámbar cálido de bombilla incandescente */
+    --violet-50:  #2A1E10;
+    --violet-100: #3A2A18;
+    --violet-200: #4E3A20;
+    --violet-300: #8A6A38;
+    --violet-400: #B89052;
+    --violet-500: #D4A24C;
+    --violet-600: #B8883A;
+    --violet-700: #8A6428;
 
-    /* Superficies: Nogal oscuro y terciopelo */
-    --white:   #1A1208;
-    --bg:      #0F0A05;
-    --bg-alt:  #1A1208;
-    --gray-50:  #1A1208;
-    --gray-100: #241810;
-    --gray-200: #35241A;
-    --gray-300: #4A3428;
-    --gray-400: #6E5040;
-    --gray-500: #9A7A65;
-    --gray-600: #C0A088;
-    --gray-700: #DCC8B0;
-    --gray-800: #EEE0D0;
-    --gray-900: #FAF0E2;
+    /* Azul medianoche (club cerrado) */
+    --white:   #141C2E;
+    --bg:      #0A0E1A;
+    --bg-alt:  #0E1524;
+    --gray-50:  #0E1524;
+    --gray-100: #141C2E;
+    --gray-200: #1E2842;
+    --gray-300: #2E3A58;
+    --gray-400: #4A5878;
+    --gray-500: #7A88A8;
+    --gray-600: #A8B4CC;
+    --gray-700: #C8D2E4;
+    --gray-800: #E0E8F4;
+    --gray-900: #F0F4FC;
 
-    --border:  #35241A;
-    --text:    #FAF0E2;
-    --text-2:  #C0A088;
-    --text-3:  #9A7A65;
+    --border:  #1E2842;
+    --text:    #F5EDE0;
+    --text-2:  #C8D2E4;
+    --text-3:  #7A88A8;
 
     --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.50);
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.60);
     --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.60);
     --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.70);
     --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.80);
-    --shadow-glow: 0 0 0 4px rgba(232, 181, 75, 0.20);
+    --shadow-glow: 0 0 0 4px rgba(212, 162, 76, 0.20);
 
-    --accent-gradient: linear-gradient(135deg, #E8B54B, #A87A1F);
-    --accent-gradient-hover: linear-gradient(135deg, #F5C518, #C99852);
-    --accent-shadow: rgba(232, 181, 75, 0.38);
-    --accent-shadow-hover: rgba(232, 181, 75, 0.60);
-    --accent-text-gradient: linear-gradient(135deg, #FAF0E2, #E8B54B);
-
-    /* Neón azul del club */
-    --jazz-neon: #6EC8F0;
-    --jazz-neon-glow: rgba(110, 200, 240, 0.55);
+    --accent-gradient: linear-gradient(135deg, #D4A24C, #8A6428);
+    --accent-gradient-hover: linear-gradient(135deg, #E8B54B, #B8883A);
+    --accent-shadow: rgba(212, 162, 76, 0.38);
+    --accent-shadow-hover: rgba(212, 162, 76, 0.60);
+    --accent-text-gradient: linear-gradient(135deg, #F5EDE0, #D4A24C);
 
     /* ------------------------------------------------------------
-       HUMO DE CIGARRILLO — espiral larga y delgada
+       HUMO DE CIGARRILLO — una curva en S que sube
        ------------------------------------------------------------ */
-    --theme-smoke: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 120'%3E%3Cpath d='M20,118 Q10,105 20,92 Q30,79 20,66 Q10,53 20,40 Q30,27 20,14 Q15,8 20,2' stroke='%23E8B54B' stroke-width='2.2' fill='none' stroke-linecap='round' opacity='0.50'/%3E%3Cpath d='M14,115 Q6,104 14,93 Q22,82 14,71 Q6,60 14,49' stroke='%23C99852' stroke-width='1.4' fill='none' stroke-linecap='round' opacity='0.30'/%3E%3C/svg%3E");
+    --theme-smoke: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 200' preserveAspectRatio='none'%3E%3Cpath d='M20,200 C10,180 30,160 20,140 C10,120 30,100 20,80 C10,60 30,40 20,20 C15,10 20,5 20,0' stroke='%23D4A24C' stroke-width='2.5' fill='none' stroke-linecap='round' opacity='0.45'/%3E%3Cpath d='M26,200 C18,178 34,158 26,138 C18,118 34,98 26,78 C18,58 34,38 26,18' stroke='%23B89052' stroke-width='1.4' fill='none' stroke-linecap='round' opacity='0.25'/%3E%3C/svg%3E");
 
     /* ------------------------------------------------------------
-       BORDE ART DÉCO — esquina con líneas escalonadas
+       TROMPETA — silueta en perfil, apuntando a la derecha
        ------------------------------------------------------------ */
-    --theme-deco-corner: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cg fill='none' stroke='%23E8B54B' stroke-width='1.2' stroke-opacity='0.55'%3E%3Cpath d='M0 0 L30 0 M0 0 L0 30'/%3E%3Cpath d='M4 4 L26 4 M4 4 L4 26'/%3E%3Cpath d='M8 8 L20 8 M8 8 L8 20'/%3E%3Cpath d='M12 12 L14 12 M12 12 L12 14'/%3E%3Ccircle cx='30' cy='30' r='2' fill='%23E8B54B' fill-opacity='0.6' stroke='none'/%3E%3C/g%3E%3C/svg%3E");
-
-    /* ------------------------------------------------------------
-       CARTA DE NAIPE — As de corazones
-       ------------------------------------------------------------ */
-    --theme-card: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 32'%3E%3Crect x='0.5' y='0.5' width='23' height='31' rx='2' fill='%23FAF0E2' stroke='%23A87A1F' stroke-width='0.8'/%3E%3Cpath d='M12 24 C7 20 4 17 4 14 C4 12 5.5 10.5 7.5 10.5 C9 10.5 10.5 11.5 12 13 C13.5 11.5 15 10.5 16.5 10.5 C18.5 10.5 20 12 20 14 C20 17 17 20 12 24 Z' fill='%23A04545'/%3E%3C/svg%3E");
-
-    /* ------------------------------------------------------------
-       VINILO — disco con surcos y etiqueta central
-       ------------------------------------------------------------ */
-    --theme-vinyl: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%230A0A0A'/%3E%3Ccircle cx='50' cy='50' r='42' fill='none' stroke='%231F1F1F' stroke-width='0.4'/%3E%3Ccircle cx='50' cy='50' r='36' fill='none' stroke='%231F1F1F' stroke-width='0.4'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%231F1F1F' stroke-width='0.4'/%3E%3Ccircle cx='50' cy='50' r='24' fill='none' stroke='%231F1F1F' stroke-width='0.4'/%3E%3Ccircle cx='50' cy='50' r='18' fill='none' stroke='%231F1F1F' stroke-width='0.4'/%3E%3Ccircle cx='50' cy='50' r='14' fill='%23A87A1F'/%3E%3Ccircle cx='50' cy='50' r='3' fill='%230A0A0A'/%3E%3C/svg%3E");
-
-    /* ------------------------------------------------------------
-       TECLA DE PIANO — tecla blanca y negra
-       ------------------------------------------------------------ */
-    --theme-key: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 20'%3E%3Crect x='0' y='0' width='30' height='20' fill='%23FAF0E2' stroke='%234A3428' stroke-width='0.8'/%3E%3Crect x='6' y='0' width='18' height='12' fill='%230A0A0A' stroke='%234A3428' stroke-width='0.8'/%3E%3C/svg%3E");
+    --theme-trumpet: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E%3Cg fill='%23D4A24C'%3E%3Crect x='12' y='22' width='58' height='6' rx='1'/%3E%3Crect x='6' y='23' width='8' height='4' rx='1' opacity='0.7'/%3E%3Crect x='30' y='14' width='3' height='10' rx='1'/%3E%3Crect x='40' y='12' width='3' height='12' rx='1'/%3E%3Crect x='50' y='14' width='3' height='10' rx='1'/%3E%3Ccircle cx='31.5' cy='13' r='2'/%3E%3Ccircle cx='41.5' cy='11' r='2'/%3E%3Ccircle cx='51.5' cy='13' r='2'/%3E%3Cpath d='M70,15 C80,13 88,9 93,4 C95,7 94,12 92,17 C90,22 90,30 92,35 C94,40 95,45 93,48 C88,43 80,39 70,37 Z'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   1. WELCOME — Club de jazz: humo, spotlight, vinilo, cartas
+   1. WELCOME — Spotlight + humo. Nada más.
    ================================================================ */
 .welcome-placeholder {
     position: relative;
-    background:
-        radial-gradient(ellipse at 50% 0%, rgba(232, 181, 75, 0.12) 0%, transparent 50%),
-        radial-gradient(ellipse at 50% 100%, rgba(110, 200, 240, 0.06) 0%, transparent 45%),
-        var(--bg);
+    background: var(--bg);
     overflow-x: hidden;
 }
 
-/* Humo subiendo en 5 columnas con movimiento curvo */
+/* EL SPOTLIGHT — la estrella del tema. Barre lento. */
 .welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background: radial-gradient(
+        ellipse 45% 85% at var(--spotlight-x) -15%,
+        rgba(212, 162, 76, 0.22) 0%,
+        rgba(212, 162, 76, 0.10) 25%,
+        rgba(212, 162, 76, 0.03) 50%,
+        transparent 75%
+    );
+    animation: jazz-spotlight 22s ease-in-out infinite alternate;
+}
+@keyframes jazz-spotlight {
+    0%   { --spotlight-x: 20%; }
+    100% { --spotlight-x: 80%; }
+}
+
+/* HUMO — 3 columnas curvas subiendo desde el fondo */
+.welcome-placeholder::after {
     content: '';
     position: absolute;
     inset: 0;
@@ -109,53 +114,29 @@
     background-image:
         var(--theme-smoke),
         var(--theme-smoke),
-        var(--theme-smoke),
-        var(--theme-smoke),
         var(--theme-smoke);
-    background-size: 40px 120px;
+    background-size: 44px 200px;
     background-position:
-        10% 110%,
-        28% 105%,
-        48% 108%,
-        68% 105%,
-        88% 110%;
+        22% 105%,
+        50% 108%,
+        78% 105%;
     background-repeat: no-repeat;
-    opacity: 0.70;
-    animation: jazz-smoke-rise 12s ease-in-out infinite;
+    opacity: 0.85;
+    animation: jazz-smoke-rise 14s ease-in-out infinite;
 }
 @keyframes jazz-smoke-rise {
-    0%, 100% { transform: translateY(0)    translateX(0);    opacity: 0.55; }
-    25%      { transform: translateY(-30px) translateX(-6px); opacity: 0.80; }
-    50%      { transform: translateY(-60px) translateX(4px);  opacity: 0.65; }
-    75%      { transform: translateY(-40px) translateX(-4px); opacity: 0.85; }
+    0%, 100% { transform: translateY(0)     translateX(0);    opacity: 0.70; }
+    25%      { transform: translateY(-20px) translateX(-4px); opacity: 0.90; }
+    50%      { transform: translateY(-40px) translateX(3px);  opacity: 0.75; }
+    75%      { transform: translateY(-25px) translateX(-3px); opacity: 0.95; }
 }
 
-/* Spotlight barriendo la pantalla lentamente */
-.welcome-placeholder::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 1;
-    background: radial-gradient(
-        ellipse 50% 40% at var(--jazz-spotlight-x) 30%,
-        rgba(232, 181, 75, 0.10) 0%,
-        rgba(232, 181, 75, 0.04) 30%,
-        transparent 70%
-    );
-    animation: jazz-spotlight 20s ease-in-out infinite alternate;
-}
-@keyframes jazz-spotlight {
-    0%   { --jazz-spotlight-x: 15%; }
-    100% { --jazz-spotlight-x: 85%; }
-}
-
+/* Glow muy sutil (hereda del shell) */
 .welcome-glow {
     background: radial-gradient(
         circle at 50% 40%,
-        rgba(232, 181, 75, 0.16) 0%,
-        rgba(110, 200, 240, 0.06) 40%,
-        transparent 68%
+        rgba(212, 162, 76, 0.08) 0%,
+        transparent 65%
     );
 }
 
@@ -165,78 +146,45 @@
     z-index: 2;
 }
 
-/* Hero: cartel de club con marco art déco */
+/* ------------------------------------------------------------
+   HERO — la mesa del trompetista bajo el spotlight
+   ------------------------------------------------------------ */
 .welcome-hero {
     position: relative;
     padding: 38px 32px 34px;
-    background: linear-gradient(180deg, rgba(26, 18, 8, 0.94) 0%, rgba(15, 10, 5, 0.98) 100%);
-    border: 2px solid rgba(232, 181, 75, 0.32);
+    background: linear-gradient(180deg, rgba(20, 28, 46, 0.94) 0%, rgba(10, 14, 26, 0.98) 100%);
+    border: 1px solid rgba(212, 162, 76, 0.28);
     border-radius: 4px;
     box-shadow:
-        inset 0 0 0 1px rgba(232, 181, 75, 0.10),
+        inset 0 0 0 1px rgba(212, 162, 76, 0.08),
         inset 0 0 80px rgba(0, 0, 0, 0.50),
         0 12px 32px rgba(0, 0, 0, 0.70),
-        0 0 60px rgba(232, 181, 75, 0.12);
+        0 0 60px rgba(212, 162, 76, 0.10);
     max-width: 660px;
     margin-left: auto;
     margin-right: auto;
+    overflow: visible;
 }
 
-/* Esquinas art déco */
-.welcome-hero::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-    z-index: 0;
-    background-image:
-        var(--theme-deco-corner),
-        var(--theme-deco-corner),
-        var(--theme-deco-corner),
-        var(--theme-deco-corner);
-    background-size: 60px 60px;
-    background-position:
-        8px 8px,
-        calc(100% - 8px) 8px,
-        8px calc(100% - 8px),
-        calc(100% - 8px) calc(100% - 8px);
-    background-repeat: no-repeat;
-}
-
-/* Vinilo flotando en la esquina superior derecha */
+/* TROMPETA — única decoración */
 .welcome-hero::after {
     content: '';
     position: absolute;
-    top: -30px;
-    right: 24px;
-    width: 56px;
-    height: 56px;
-    background: var(--theme-vinyl) center/contain no-repeat;
+    top: -22px;
+    right: 22px;
+    width: 76px;
+    height: 38px;
+    background: var(--theme-trumpet) center/contain no-repeat;
     pointer-events: none;
     z-index: 3;
-    filter: drop-shadow(0 6px 12px rgba(232, 181, 75, 0.45));
-    animation: jazz-vinyl-spin 12s linear infinite;
+    opacity: 0.85;
+    transform: rotate(-12deg);
+    filter: drop-shadow(0 4px 10px rgba(212, 162, 76, 0.55));
+    animation: jazz-trumpet-float 6s ease-in-out infinite;
 }
-@keyframes jazz-vinyl-spin {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
-}
-
-/* Carta flotando en la esquina inferior izquierda */
-.welcome-section::before {
-    content: '';
-    position: absolute;
-    bottom: -16px;
-    left: 18px;
-    width: 22px;
-    height: 30px;
-    background: var(--theme-card) center/contain no-repeat;
-    opacity: 0.55;
-    pointer-events: none;
-    z-index: 3;
-    transform: rotate(-14deg);
-    filter: drop-shadow(0 3px 6px rgba(232, 181, 75, 0.45));
+@keyframes jazz-trumpet-float {
+    0%, 100% { transform: rotate(-12deg) translateY(0); }
+    50%      { transform: rotate(-10deg) translateY(-4px); }
 }
 
 .welcome-hero > * {
@@ -245,141 +193,78 @@
 }
 
 .welcome-hero h1 {
-    text-shadow:
-        0 0 24px rgba(232, 181, 75, 0.40),
-        0 0 40px rgba(110, 200, 240, 0.15);
+    color: #F5EDE0;
     letter-spacing: 0.005em;
+    text-shadow: 0 0 24px rgba(212, 162, 76, 0.35);
 }
 
 .welcome-icon-wrap {
-    background: linear-gradient(135deg, #C99852, #5A3A20);
+    background: linear-gradient(135deg, #B89052, #4E3A20);
     border-radius: 50%;
     box-shadow:
-        0 12px 28px rgba(232, 181, 75, 0.40),
+        0 12px 28px rgba(212, 162, 76, 0.45),
         0 4px 8px rgba(0, 0, 0, 0.60),
-        0 0 0 3px rgba(232, 181, 75, 0.20),
-        0 0 0 6px rgba(110, 200, 240, 0.10);
+        0 0 0 3px rgba(212, 162, 76, 0.20),
+        0 0 0 6px rgba(212, 162, 76, 0.06);
     animation: jazz-glow-pulse 4s ease-in-out infinite;
 }
 @keyframes jazz-glow-pulse {
     0%, 100% {
         box-shadow:
-            0 12px 28px rgba(232, 181, 75, 0.40),
+            0 12px 28px rgba(212, 162, 76, 0.45),
             0 4px 8px rgba(0, 0, 0, 0.60),
-            0 0 0 3px rgba(232, 181, 75, 0.20),
-            0 0 0 6px rgba(110, 200, 240, 0.10);
+            0 0 0 3px rgba(212, 162, 76, 0.20),
+            0 0 0 6px rgba(212, 162, 76, 0.06);
     }
     50% {
         box-shadow:
-            0 12px 28px rgba(232, 181, 75, 0.70),
+            0 12px 28px rgba(212, 162, 76, 0.70),
             0 4px 8px rgba(0, 0, 0, 0.60),
-            0 0 0 3px rgba(232, 181, 75, 0.40),
-            0 0 0 7px rgba(110, 200, 240, 0.18),
-            0 0 40px rgba(232, 181, 75, 0.45);
+            0 0 0 3px rgba(212, 162, 76, 0.40),
+            0 0 0 7px rgba(212, 162, 76, 0.12),
+            0 0 44px rgba(212, 162, 76, 0.40);
     }
 }
 
 /* ================================================================
-   2. HEADER — Barra del club con neón
+   2. HEADER — Línea ámbar cálida abajo
    ================================================================ */
 .app-header {
     position: relative;
-    background: linear-gradient(180deg, #1A1208 0%, #0F0A05 100%);
-    border-bottom: 1px solid rgba(232, 181, 75, 0.28);
+    background: linear-gradient(180deg, #0E1524 0%, #0A0E1A 100%);
+    border-bottom: 1px solid rgba(212, 162, 76, 0.22);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.50);
 }
-
-/* Línea de neón azul brillando */
 .app-header::after {
     content: '';
     position: absolute;
     bottom: -1px;
-    left: 12%;
-    right: 12%;
+    left: 20%;
+    right: 20%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, #6EC8F0, #E8B54B, #6EC8F0, transparent);
-    opacity: 0.80;
+    background: linear-gradient(90deg, transparent, #D4A24C, transparent);
+    opacity: 0.65;
     pointer-events: none;
     z-index: 1;
-    box-shadow:
-        0 0 10px rgba(110, 200, 240, 0.60),
-        0 0 20px rgba(232, 181, 75, 0.30);
-}
-
-/* Logo con pulso de neón */
-.logo-mark {
-    position: relative;
-    background: linear-gradient(135deg, #E8B54B, #5A3A20);
-    box-shadow:
-        0 4px 12px rgba(232, 181, 75, 0.45),
-        inset 0 0 0 1px rgba(232, 181, 75, 0.25);
-    animation: jazz-neon-pulse 3s ease-in-out infinite;
-}
-@keyframes jazz-neon-pulse {
-    0%, 100% { box-shadow: 0 4px 12px rgba(232, 181, 75, 0.45), inset 0 0 0 1px rgba(232, 181, 75, 0.25); }
-    50%      { box-shadow: 0 4px 20px rgba(232, 181, 75, 0.75), inset 0 0 0 1px rgba(232, 181, 75, 0.45), 0 0 30px rgba(232, 181, 75, 0.30); }
+    box-shadow: 0 0 10px rgba(212, 162, 76, 0.55);
 }
 
 /* ================================================================
-   3. SIDEBAR — Barra con cortina de terciopelo y humo
+   3. SIDEBAR — Oscura con línea ámbar
    ================================================================ */
 .sidebar {
-    position: relative;
-    background: linear-gradient(180deg, #1A1208 0%, #0F0A05 100%);
-    border-right: 1px solid rgba(232, 181, 75, 0.20);
-    overflow: hidden;
-}
-
-/* Humo en el sidebar */
-.sidebar::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.20;
-    background-image: var(--theme-smoke);
-    background-size: 50px 150px;
-    background-position: 50% 100%;
-    background-repeat: no-repeat;
-    animation: jazz-sidebar-smoke 10s ease-in-out infinite;
-}
-@keyframes jazz-sidebar-smoke {
-    0%, 100% { opacity: 0.15; transform: translateY(0); }
-    50%      { opacity: 0.30; transform: translateY(-10px); }
-}
-
-/* Cortina de terciopelo a la derecha */
-.sidebar::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    width: 3px;
-    background: linear-gradient(180deg, #7A1010, #3E0F0F, #7A1010);
-    opacity: 0.60;
-    pointer-events: none;
-    z-index: 2;
-    box-shadow: 0 0 8px rgba(122, 16, 16, 0.50);
-}
-
-.sidebar-comunidad,
-.sidebar-label,
-.sidebar-nav,
-.sidebar-mobile-header {
-    position: relative;
-    z-index: 3;
+    background: linear-gradient(180deg, #0E1524 0%, #0A0E1A 100%);
+    border-right: 1px solid rgba(212, 162, 76, 0.16);
 }
 
 .nav-item.active::before {
-    background: linear-gradient(180deg, #F5C518, #A87A1F);
+    background: linear-gradient(180deg, #E8B54B, #8A6428);
     width: 3px;
     border-radius: 0 3px 3px 0;
-    box-shadow: 0 0 12px rgba(232, 181, 75, 0.70);
+    box-shadow: 0 0 10px rgba(212, 162, 76, 0.65);
 }
 .nav-item.active {
-    background: rgba(232, 181, 75, 0.08);
+    background: rgba(212, 162, 76, 0.08);
 }
 .nav-item.active .nav-icon {
     color: var(--violet-500);
@@ -390,82 +275,56 @@
 }
 
 /* ================================================================
-   4. ACCESOS RÁPIDOS — Carteles con carta flotante y deco
+   4. ACCESOS RÁPIDOS — Superficies oscuras con acento ámbar
    ================================================================ */
 .acceso-item {
-    position: relative;
-    background: linear-gradient(180deg, #241810 0%, #1A1208 100%);
-    border-color: rgba(232, 181, 75, 0.26);
+    background: linear-gradient(180deg, #141C2E 0%, #0E1524 100%);
+    border-color: rgba(212, 162, 76, 0.22);
     border-radius: 6px;
     box-shadow:
-        inset 0 1px 0 rgba(232, 181, 75, 0.06),
+        inset 0 1px 0 rgba(212, 162, 76, 0.05),
         0 2px 6px rgba(0, 0, 0, 0.50);
     transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: visible;
 }
-
-/* Carta que asoma y gira al hover */
-.acceso-item::after {
-    content: '';
-    position: absolute;
-    top: -14px;
-    right: -12px;
-    width: 26px;
-    height: 34px;
-    background: var(--theme-card) center/contain no-repeat;
-    opacity: 0;
-    transform: translateY(8px) rotate(-30deg) scale(0.5);
-    transition: all 0.40s cubic-bezier(0.34, 1.56, 0.64, 1);
-    pointer-events: none;
-    z-index: 3;
-    filter: drop-shadow(0 4px 8px rgba(232, 181, 75, 0.55));
-}
-.acceso-item:hover::after {
-    opacity: 1;
-    transform: translateY(0) rotate(-10deg) scale(1);
-}
-
 .acceso-item:hover {
     border-color: var(--violet-500);
     transform: translateY(-3px);
     box-shadow:
-        0 10px 22px rgba(232, 181, 75, 0.28),
-        0 0 0 1px rgba(232, 181, 75, 0.32),
-        0 0 30px rgba(110, 200, 240, 0.12);
+        0 10px 22px rgba(212, 162, 76, 0.28),
+        0 0 0 1px rgba(212, 162, 76, 0.30),
+        0 0 24px rgba(212, 162, 76, 0.15);
 }
 .acceso-icon-wrap {
-    background: rgba(232, 181, 75, 0.10);
-    border: 1px solid rgba(232, 181, 75, 0.28);
+    background: rgba(212, 162, 76, 0.10);
+    border: 1px solid rgba(212, 162, 76, 0.28);
     color: var(--violet-500);
     border-radius: 50%;
     transition: all 0.22s;
 }
 .acceso-item:hover .acceso-icon-wrap {
     background: var(--accent-gradient);
-    color: #0F0A05;
-    box-shadow:
-        0 0 0 3px rgba(232, 181, 75, 0.22),
-        0 0 20px rgba(110, 200, 240, 0.20);
+    color: #0A0E1A;
+    box-shadow: 0 0 0 3px rgba(212, 162, 76, 0.22);
 }
 
 /* ================================================================
-   5. WIDGETS — Mismo tratamiento con tecla de piano
+   5. WIDGETS
    ================================================================ */
 .widget-item {
-    border-color: rgba(232, 181, 75, 0.24);
+    border-color: rgba(212, 162, 76, 0.22);
     border-radius: 6px;
     box-shadow:
-        inset 0 1px 0 rgba(232, 181, 75, 0.06),
+        inset 0 1px 0 rgba(212, 162, 76, 0.05),
         0 4px 10px rgba(0, 0, 0, 0.55);
     transition: all 0.22s;
 }
 .widget-item:hover {
     border-color: var(--violet-500);
-    box-shadow: 0 10px 22px rgba(232, 181, 75, 0.24);
+    box-shadow: 0 10px 22px rgba(212, 162, 76, 0.22);
 }
 
 /* ================================================================
-   6. PESTAÑAS — Neón dorado arriba
+   6. PESTAÑAS — Línea ámbar arriba
    ================================================================ */
 .tab-item.active::before {
     content: '';
@@ -474,11 +333,9 @@
     left: 14px;
     right: 14px;
     height: 2px;
-    background: linear-gradient(90deg, transparent, #E8B54B, #F5C518, #E8B54B, transparent);
+    background: linear-gradient(90deg, transparent, #D4A24C, transparent);
     border-radius: 2px 2px 0 0;
-    box-shadow:
-        0 0 10px rgba(232, 181, 75, 0.70),
-        0 0 20px rgba(232, 181, 75, 0.35);
+    box-shadow: 0 0 10px rgba(212, 162, 76, 0.65);
     pointer-events: none;
 }
 .tab-item.active [data-lucide] {
@@ -486,79 +343,52 @@
 }
 
 /* ================================================================
-   7. MODALES — Marco art déco con cartas y vinilo
+   7. MODALES — Mismo tratamiento que el hero
    ================================================================ */
 .config-card,
 .modal-todas-card {
     position: relative;
     overflow: hidden;
-    border: 2px solid rgba(232, 181, 75, 0.38);
+    border: 1px solid rgba(212, 162, 76, 0.32);
     border-radius: 6px;
     box-shadow:
-        inset 0 0 0 1px rgba(232, 181, 75, 0.12),
+        inset 0 0 0 1px rgba(212, 162, 76, 0.10),
         inset 0 0 80px rgba(0, 0, 0, 0.40),
         0 24px 48px rgba(0, 0, 0, 0.85),
-        0 0 80px rgba(232, 181, 75, 0.14);
+        0 0 60px rgba(212, 162, 76, 0.10);
 }
-
-/* Esquinas art déco en el modal */
 .config-card::before,
 .modal-todas-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 4;
-    background-image:
-        var(--theme-deco-corner),
-        var(--theme-deco-corner),
-        var(--theme-deco-corner),
-        var(--theme-deco-corner);
-    background-size: 50px 50px;
-    background-position:
-        6px 6px,
-        calc(100% - 6px) 6px,
-        6px calc(100% - 6px),
-        calc(100% - 6px) calc(100% - 6px);
-    background-repeat: no-repeat;
-    opacity: 0.55;
-}
-
-/* Línea superior dorada */
-.config-card::after,
-.modal-todas-card::after {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, #E8B54B, #F5C518, #E8B54B, transparent);
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #D4A24C, #E8B54B, #D4A24C, transparent);
     pointer-events: none;
     z-index: 3;
-    box-shadow: 0 0 12px rgba(232, 181, 75, 0.70);
+    box-shadow: 0 0 12px rgba(212, 162, 76, 0.60);
 }
-
 .config-header,
 .modal-todas-header {
-    background: linear-gradient(180deg, #241810 0%, #1A1208 100%);
-    border-bottom-color: rgba(232, 181, 75, 0.22);
+    background: linear-gradient(180deg, #141C2E 0%, #0E1524 100%);
+    border-bottom-color: rgba(212, 162, 76, 0.20);
 }
 
 /* ================================================================
-   8. BOTÓN PRIMARIO — Oro macizo con shimmer
+   8. BOTÓN PRIMARIO — Ámbar con shimmer
    ================================================================ */
 .btn-primario {
     position: relative;
     overflow: hidden;
-    background: linear-gradient(135deg, #D19A2E, #A87A1F);
-    border: 1px solid rgba(245, 197, 24, 0.40);
-    color: #0F0A05;
+    background: linear-gradient(135deg, #B8883A, #8A6428);
+    border: 1px solid rgba(232, 181, 75, 0.38);
+    color: #F5EDE0;
     font-weight: 800;
     box-shadow:
-        0 4px 12px rgba(232, 181, 75, 0.35),
-        inset 0 1px 0 rgba(245, 197, 24, 0.30);
-    transition: all 0.22s;
+        0 4px 12px rgba(212, 162, 76, 0.35),
+        inset 0 1px 0 rgba(245, 237, 224, 0.15);
 }
 .btn-primario::after {
     content: '';
@@ -567,7 +397,7 @@
     left: -100%;
     width: 60%;
     height: 100%;
-    background: linear-gradient(120deg, transparent, rgba(245, 197, 24, 0.45), transparent);
+    background: linear-gradient(120deg, transparent, rgba(245, 237, 224, 0.28), transparent);
     pointer-events: none;
     transition: left 0.55s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -575,11 +405,10 @@
     left: 130%;
 }
 .btn-primario:hover {
-    background: linear-gradient(135deg, #F5C518, #C99852);
+    background: linear-gradient(135deg, #D4A24C, #B8883A);
     box-shadow:
-        0 8px 22px rgba(232, 181, 75, 0.55),
-        0 0 0 3px rgba(232, 181, 75, 0.20),
-        0 0 30px rgba(110, 200, 240, 0.15);
+        0 8px 22px rgba(212, 162, 76, 0.55),
+        0 0 0 3px rgba(212, 162, 76, 0.20);
 }
 
 /* ================================================================
@@ -588,8 +417,8 @@
 .config-field input,
 .config-field select,
 .config-select {
-    background: rgba(15, 10, 5, 0.60);
-    border: 1px solid rgba(232, 181, 75, 0.22);
+    background: rgba(10, 14, 26, 0.60);
+    border: 1px solid rgba(212, 162, 76, 0.20);
     color: var(--text);
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.55);
 }
@@ -599,34 +428,30 @@
     border-color: var(--violet-500);
     box-shadow:
         inset 0 1px 3px rgba(0, 0, 0, 0.55),
-        0 0 0 3px rgba(232, 181, 75, 0.22),
-        0 0 20px rgba(110, 200, 240, 0.12);
+        0 0 0 3px rgba(212, 162, 76, 0.22);
 }
 
 /* ================================================================
    10. AVATAR Y NOTIFICACIONES
    ================================================================ */
 .avatar-config {
-    background: linear-gradient(135deg, #C99852, #A87A1F);
-    border: 2px solid rgba(245, 197, 24, 0.55);
+    background: linear-gradient(135deg, #B89052, #4E3A20);
+    border: 2px solid rgba(232, 181, 75, 0.50);
     box-shadow:
         var(--shadow-sm),
-        0 0 0 1px rgba(15, 10, 5, 0.9),
-        0 0 0 3px rgba(232, 181, 75, 0.20);
+        0 0 0 1px rgba(10, 14, 26, 0.9),
+        0 0 0 3px rgba(212, 162, 76, 0.18);
 }
 .avatar-config:hover {
     box-shadow:
-        0 6px 16px rgba(232, 181, 75, 0.55),
+        0 6px 16px rgba(212, 162, 76, 0.55),
         0 0 0 1px var(--violet-400),
-        0 0 0 4px rgba(232, 181, 75, 0.22),
-        0 0 24px rgba(110, 200, 240, 0.15);
+        0 0 0 4px rgba(212, 162, 76, 0.20);
 }
-
 .noti-btn.tiene-no-leidas {
-    background: rgba(232, 181, 75, 0.14);
+    background: rgba(212, 162, 76, 0.14);
     color: var(--violet-500);
 }
-
 .search-bar:focus-within {
     border-color: var(--violet-500);
     box-shadow: var(--shadow-glow);
@@ -642,13 +467,7 @@
     .welcome-placeholder::before,
     .welcome-placeholder::after,
     .welcome-hero::after,
-    .welcome-icon-wrap,
-    .logo-mark,
-    .acceso-item::after {
-        animation: none !important;
-        transition: none !important;
-    }
-    .sidebar::before {
+    .welcome-icon-wrap {
         animation: none !important;
     }
 }
