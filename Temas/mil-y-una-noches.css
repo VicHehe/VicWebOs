@@ -65,8 +65,8 @@
     /* Estrella islámica de 8 puntas (dos cuadrados superpuestos) */
     --theme-star8: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%23E8B54B' stroke-width='1' stroke-opacity='0.55'%3E%3Crect x='10' y='10' width='20' height='20'/%3E%3Crect x='10' y='10' width='20' height='20' transform='rotate(45 20 20)'/%3E%3Ccircle cx='20' cy='20' r='2' fill='%23E8B54B' fill-opacity='0.7'/%3E%3C/g%3E%3C/svg%3E");
 
-    /* Duna — capa que se repite en el pie */
-    --theme-dune: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 80' preserveAspectRatio='none'%3E%3Cpath d='M0,40 Q100,10 200,40 T400,40 L400,80 L0,80 Z' fill='%23C9A961' fill-opacity='0.55'/%3E%3Cpath d='M0,55 Q120,30 240,55 T400,55 L400,80 L0,80 Z' fill='%23A87A1F' fill-opacity='0.75'/%3E%3Cpath d='M0,68 Q150,50 300,68 T400,68 L400,80 L0,80 Z' fill='%230A1428' fill-opacity='0.85'/%3E%3C/svg%3E");
+    /* Duna — 1200px wide, seamless, 3 capas */
+    --theme-dune: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,40 C300,10 600,70 900,40 C1050,25 1150,45 1200,40 L1200,120 L0,120 Z' fill='%23C9A961' fill-opacity='0.55'/%3E%3Cpath d='M0,70 C250,40 500,90 750,70 C950,55 1100,80 1200,70 L1200,120 L0,120 Z' fill='%23A87A1F' fill-opacity='0.75'/%3E%3Cpath d='M0,95 C350,75 700,105 1050,95 C1120,92 1170,96 1200,95 L1200,120 L0,120 Z' fill='%230A1428' fill-opacity='0.85'/%3E%3C/svg%3E");
 
     /* Polvo de arena — puntos dorados dispersos */
     --theme-sand: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='%23E8B54B'%3E%3Ccircle cx='20' cy='30' r='0.8' fill-opacity='0.7'/%3E%3Ccircle cx='60' cy='15' r='0.6' fill-opacity='0.5'/%3E%3Ccircle cx='120' cy='28' r='0.9' fill-opacity='0.75'/%3E%3Ccircle cx='170' cy='20' r='0.7' fill-opacity='0.6'/%3E%3Ccircle cx='40' cy='80' r='0.7' fill-opacity='0.65'/%3E%3Ccircle cx='95' cy='70' r='0.9' fill-opacity='0.8'/%3E%3Ccircle cx='155' cy='88' r='0.6' fill-opacity='0.5'/%3E%3Ccircle cx='18' cy='140' r='0.8' fill-opacity='0.7'/%3E%3Ccircle cx='75' cy='130' r='0.7' fill-opacity='0.6'/%3E%3Ccircle cx='135' cy='148' r='0.9' fill-opacity='0.75'/%3E%3Ccircle cx='185' cy='135' r='0.6' fill-opacity='0.5'/%3E%3Ccircle cx='50' cy='185' r='0.8' fill-opacity='0.7'/%3E%3Ccircle cx='110' cy='178' r='0.6' fill-opacity='0.55'/%3E%3Ccircle cx='165' cy='188' r='0.7' fill-opacity='0.65'/%3E%3C/g%3E%3Cg fill='%234DD0E1'%3E%3Ccircle cx='85' cy='45' r='0.7' fill-opacity='0.6'/%3E%3Ccircle cx='145' cy='110' r='0.6' fill-opacity='0.5'/%3E%3Ccircle cx='30' cy='105' r='0.7' fill-opacity='0.55'/%3E%3C/g%3E%3C/svg%3E");
@@ -78,55 +78,35 @@
 .welcome-placeholder {
     position: relative;
     background:
+        var(--theme-dune) bottom left / 1200px 120px repeat-x,
+        var(--theme-sand) 0 0 / 200px 200px repeat,
         radial-gradient(ellipse at top, rgba(232, 181, 75, 0.08) 0%, transparent 50%),
         radial-gradient(ellipse at 20% 15%, rgba(77, 208, 225, 0.06) 0%, transparent 40%),
         radial-gradient(ellipse at 80% 20%, rgba(232, 181, 75, 0.06) 0%, transparent 40%),
         var(--bg);
+    background-attachment: scroll;
+    animation: noche-dune-drift 40s linear infinite;
+}
+@keyframes noche-dune-drift {
+    from { background-position: 0% bottom, 0 0, center top, 20% 15%, 80% 20%, center; }
+    to   { background-position: -1200px bottom, 0 0, center top, 20% 15%, 80% 20%, center; }
 }
 
-/* Polvo de arena + estrellas islámicas dispersas */
+/* Estrellas islámicas grandes — 3 posiciones ancladas, sin loop */
 .welcome-placeholder::before {
     content: '';
     position: absolute;
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.75;
+    opacity: 0.85;
     background-image:
         var(--theme-star8),
         var(--theme-star8),
-        var(--theme-star8),
-        var(--theme-sand);
-    background-size:
-        90px 90px,
-        60px 60px,
-        45px 45px,
-        200px 200px;
-    background-position:
-        8% 12%,
-        88% 22%,
-        18% 68%,
-        0 0;
-    background-repeat: no-repeat, no-repeat, no-repeat, repeat;
-}
-
-/* Dunas al pie */
-.welcome-placeholder::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 120px;
-    background: var(--theme-dune) repeat-x bottom;
-    background-size: 400px 80px;
-    pointer-events: none;
-    z-index: 0;
-    animation: noche-dune-drift 40s linear infinite;
-}
-@keyframes noche-dune-drift {
-    from { background-position: 0 bottom; }
-    to   { background-position: -400px bottom; }
+        var(--theme-star8);
+    background-size: 90px 90px, 60px 60px, 45px 45px;
+    background-position: 8% 12%, 88% 22%, 18% 68%;
+    background-repeat: no-repeat, no-repeat, no-repeat;
 }
 
 .welcome-glow {
@@ -247,7 +227,7 @@
 }
 
 /* ================================================================
-   2. HEADER — línea dorada + luna mini en la esquina
+   2. HEADER — línea dorada
    ================================================================ */
 .app-header {
     position: relative;
@@ -545,7 +525,7 @@
    11. prefers-reduced-motion
    ================================================================ */
 @media (prefers-reduced-motion: reduce) {
-    .welcome-placeholder::after,
+    .welcome-placeholder,
     .welcome-hero::after,
     .welcome-icon-wrap {
         animation: none !important;
