@@ -1,18 +1,22 @@
 /* ================================================
    Tema: Cine Retro Jazz
-   Un trompetista solo, bajo un spotlight, en un
-   club cerrado a las 3am.
-   
-   Solo 4 elementos:
-     1. Un spotlight cálido que barre lento
-     2. Humo de cigarrillo en 3 columnas curvas
-     3. Paleta: azul medianoche + ámbar cálido
-     4. Una silueta de trompeta en el hero
+   Un club de jazz a las 3am. Solo quedan dos mesas
+   ocupadas. El trompetista toca solo bajo el
+   spotlight. Hay copas a medio tomar, un piano
+   cerrado en la esquina, cortinas de terciopelo
+   en la entrada. Afuera llueve.
+
+   Cada elemento del shell es parte de la escena:
+     · Header      → cartel de neón titilando
+     · Sidebar     → cortina de terciopelo rojo
+     · Welcome     → escenario con spotlight barriendo
+     · Accesos     → mesas con copas a medio tomar
+     · Widgets     → sillas de bar de cuero
+     · Modales     → barra de bar con botellas
+     · Pestañas    → notas musicales
+     · Botones     → sellos de cera
    ================================================ */
 
-/* ------------------------------------------------------------
-   Custom property animable para la posición del spotlight
-   ------------------------------------------------------------ */
 @property --spotlight-x {
     syntax: '<percentage>';
     inherits: true;
@@ -20,7 +24,7 @@
 }
 
 :root {
-    /* Acento: ámbar cálido de bombilla incandescente */
+    /* Ámbar cálido (bombilla incandescente) */
     --violet-50:  #2A1E10;
     --violet-100: #3A2A18;
     --violet-200: #4E3A20;
@@ -30,7 +34,7 @@
     --violet-600: #B8883A;
     --violet-700: #8A6428;
 
-    /* Azul medianoche (club cerrado) */
+    /* Superficies: cuero nogal + terciopelo */
     --white:   #141C2E;
     --bg:      #0A0E1A;
     --bg-alt:  #0E1524;
@@ -63,19 +67,134 @@
     --accent-shadow-hover: rgba(212, 162, 76, 0.60);
     --accent-text-gradient: linear-gradient(135deg, #F5EDE0, #D4A24C);
 
+    /* Terciopelo y neón */
+    --jazz-velvet: #6B1A1A;
+    --jazz-velvet-dark: #3A0A0A;
+    --jazz-neon: #F5C518;
+    --jazz-neon-glow: rgba(245, 197, 24, 0.55);
+
     /* ------------------------------------------------------------
-       HUMO DE CIGARRILLO — una curva en S que sube
+       HUMO DE CIGARRILLO — curva en S
        ------------------------------------------------------------ */
     --theme-smoke: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 200' preserveAspectRatio='none'%3E%3Cpath d='M20,200 C10,180 30,160 20,140 C10,120 30,100 20,80 C10,60 30,40 20,20 C15,10 20,5 20,0' stroke='%23D4A24C' stroke-width='2.5' fill='none' stroke-linecap='round' opacity='0.45'/%3E%3Cpath d='M26,200 C18,178 34,158 26,138 C18,118 34,98 26,78 C18,58 34,38 26,18' stroke='%23B89052' stroke-width='1.4' fill='none' stroke-linecap='round' opacity='0.25'/%3E%3C/svg%3E");
 
     /* ------------------------------------------------------------
-       TROMPETA — silueta en perfil, apuntando a la derecha
+       TROMPETA — silueta en perfil
        ------------------------------------------------------------ */
     --theme-trumpet: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E%3Cg fill='%23D4A24C'%3E%3Crect x='12' y='22' width='58' height='6' rx='1'/%3E%3Crect x='6' y='23' width='8' height='4' rx='1' opacity='0.7'/%3E%3Crect x='30' y='14' width='3' height='10' rx='1'/%3E%3Crect x='40' y='12' width='3' height='12' rx='1'/%3E%3Crect x='50' y='14' width='3' height='10' rx='1'/%3E%3Ccircle cx='31.5' cy='13' r='2'/%3E%3Ccircle cx='41.5' cy='11' r='2'/%3E%3Ccircle cx='51.5' cy='13' r='2'/%3E%3Cpath d='M70,15 C80,13 88,9 93,4 C95,7 94,12 92,17 C90,22 90,30 92,35 C94,40 95,45 93,48 C88,43 80,39 70,37 Z'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* ------------------------------------------------------------
+       NOTA MUSICAL — corchea
+       ------------------------------------------------------------ */
+    --theme-note: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 30'%3E%3Cpath d='M14,2 L14,22 M14,2 L20,4 L20,7 L14,5' stroke='%23F5C518' stroke-width='1.4' fill='none' stroke-linejoin='round'/%3E%3Cellipse cx='9' cy='24' rx='5' ry='3.5' fill='%23F5C518' transform='rotate(-15 9 24)'/%3E%3C/svg%3E");
+
+    /* ------------------------------------------------------------
+       COPA — copa de martini vista de perfil con líquido
+       ------------------------------------------------------------ */
+    --theme-copa: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 50'%3E%3Cpath d='M8,8 L32,8 L22,26 L18,26 Z' fill='none' stroke='%23D4A24C' stroke-width='1.6' stroke-linejoin='round' opacity='0.75'/%3E%3Cpath d='M10,10 L30,10 L22,22 L18,22 Z' fill='%23D4A24C' fill-opacity='0.35'/%3E%3Cline x1='20' y1='26' x2='20' y2='42' stroke='%23D4A24C' stroke-width='1.6' opacity='0.75'/%3E%3Cpath d='M12,42 L28,42' stroke='%23D4A24C' stroke-width='1.6' stroke-linecap='round' opacity='0.75'/%3E%3Ccircle cx='27' cy='6' r='2' fill='%23A04545'/%3E%3C/svg%3E");
+
+    /* ------------------------------------------------------------
+       CORTINA DE TERCIOPELO — franja vertical con pliegues
+       ------------------------------------------------------------ */
+    --theme-curtain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 200' preserveAspectRatio='none'%3E%3Crect width='40' height='200' fill='%233A0A0A'/%3E%3Cpath d='M0,0 Q5,100 0,200 L10,200 Q15,100 10,0 Z M10,0 Q15,100 10,200 L20,200 Q25,100 20,0 Z M20,0 Q25,100 20,200 L30,200 Q35,100 30,0 Z M30,0 Q35,100 30,200 L40,200 L40,0 Z' fill='%236B1A1A'/%3E%3C/svg%3E");
+
+    /* ------------------------------------------------------------
+       TECLA DE PIANO — vista cenital
+       ------------------------------------------------------------ */
+    --theme-key: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Crect x='0' y='0' width='40' height='20' fill='%23F5EDE0' stroke='%23241F18' stroke-width='0.8'/%3E%3Crect x='8' y='0' width='4' height='12' fill='%230A0A0A'/%3E%3Crect x='20' y='0' width='4' height='12' fill='%230A0A0A'/%3E%3Crect x='32' y='0' width='4' height='12' fill='%230A0A0A'/%3E%3C/svg%3E");
+
+    /* ------------------------------------------------------------
+       BOTELLA — silueta alta de whisky
+       ------------------------------------------------------------ */
+    --theme-bottle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 60'%3E%3Cpath d='M8,2 L8,10 L5,14 L5,56 L15,56 L15,14 L12,10 L12,2 Z' fill='%232A4A2A' stroke='%23D4A24C' stroke-width='0.8'/%3E%3Crect x='5' y='30' width='10' height='12' fill='%23D4A24C' opacity='0.4'/%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   1. WELCOME — Spotlight + humo. Nada más.
+   1. HEADER — cartel de neón titilando
+   ================================================================ */
+.app-header {
+    position: relative;
+    background: linear-gradient(180deg, #0E1524 0%, #0A0E1A 100%);
+    border-bottom: 1px solid rgba(245, 197, 24, 0.25);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.50);
+}
+
+/* Línea de neón ámbar titilando suave */
+.app-header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #F5C518, transparent);
+    opacity: 0.8;
+    pointer-events: none;
+    z-index: 1;
+    box-shadow: 0 0 12px rgba(245, 197, 24, 0.65);
+    animation: jazz-neon-flicker 8s ease-in-out infinite;
+}
+@keyframes jazz-neon-flicker {
+    0%, 100%      { opacity: 0.85; }
+    42%, 44%      { opacity: 0.35; }
+    43%           { opacity: 0.90; }
+    78%, 80%      { opacity: 0.55; }
+    79%           { opacity: 0.95; }
+}
+
+/* ================================================================
+   2. SIDEBAR — cortina de terciopelo a la derecha
+   ================================================================ */
+.sidebar {
+    position: relative;
+    background: linear-gradient(180deg, #0E1524 0%, #0A0E1A 100%);
+    border-right: 1px solid rgba(212, 162, 76, 0.16);
+    overflow: hidden;
+}
+
+/* Cortina vertical en el borde derecho */
+.sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 22px;
+    background: var(--theme-curtain) repeat-y right / 22px 100px;
+    opacity: 0.55;
+    pointer-events: none;
+    z-index: 1;
+    box-shadow: -4px 0 12px rgba(107, 26, 26, 0.35);
+}
+
+.sidebar-comunidad,
+.sidebar-label,
+.sidebar-nav,
+.sidebar-mobile-header {
+    position: relative;
+    z-index: 2;
+    padding-right: 20px;
+}
+
+.nav-item.active::before {
+    background: linear-gradient(180deg, #E8B54B, #8A6428);
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    box-shadow: 0 0 10px rgba(212, 162, 76, 0.65);
+}
+.nav-item.active {
+    background: rgba(212, 162, 76, 0.08);
+}
+.nav-item.active .nav-icon {
+    color: var(--violet-500);
+}
+
+@media (max-width: 768px) {
+    .sidebar { position: fixed; }
+}
+
+/* ================================================================
+   3. WELCOME — el escenario
    ================================================================ */
 .welcome-placeholder {
     position: relative;
@@ -83,7 +202,7 @@
     overflow-x: hidden;
 }
 
-/* EL SPOTLIGHT — la estrella del tema. Barre lento. */
+/* SPOTLIGHT — barre lentamente el escenario */
 .welcome-placeholder::before {
     content: '';
     position: absolute;
@@ -92,7 +211,7 @@
     z-index: 0;
     background: radial-gradient(
         ellipse 45% 85% at var(--spotlight-x) -15%,
-        rgba(212, 162, 76, 0.22) 0%,
+        rgba(212, 162, 76, 0.24) 0%,
         rgba(212, 162, 76, 0.10) 25%,
         rgba(212, 162, 76, 0.03) 50%,
         transparent 75%
@@ -104,7 +223,7 @@
     100% { --spotlight-x: 80%; }
 }
 
-/* HUMO — 3 columnas curvas subiendo desde el fondo */
+/* HUMO — 3 columnas curvas + NOTAS MUSICALES flotando */
 .welcome-placeholder::after {
     content: '';
     position: absolute;
@@ -114,12 +233,27 @@
     background-image:
         var(--theme-smoke),
         var(--theme-smoke),
-        var(--theme-smoke);
-    background-size: 44px 200px;
+        var(--theme-smoke),
+        var(--theme-note),
+        var(--theme-note),
+        var(--theme-note),
+        var(--theme-note);
+    background-size:
+        44px 200px,
+        44px 200px,
+        44px 200px,
+        18px 28px,
+        16px 24px,
+        14px 22px,
+        20px 30px;
     background-position:
         22% 105%,
         50% 108%,
-        78% 105%;
+        78% 105%,
+        62% 40%,
+        70% 60%,
+        55% 70%,
+        66% 22%;
     background-repeat: no-repeat;
     opacity: 0.85;
     animation: jazz-smoke-rise 14s ease-in-out infinite;
@@ -131,7 +265,6 @@
     75%      { transform: translateY(-25px) translateX(-3px); opacity: 0.95; }
 }
 
-/* Glow muy sutil (hereda del shell) */
 .welcome-glow {
     background: radial-gradient(
         circle at 50% 40%,
@@ -147,11 +280,11 @@
 }
 
 /* ------------------------------------------------------------
-   HERO — la mesa del trompetista bajo el spotlight
+   HERO — la mesa del trompetista
    ------------------------------------------------------------ */
 .welcome-hero {
     position: relative;
-    padding: 38px 32px 34px;
+    padding: 40px 34px 36px;
     background: linear-gradient(180deg, rgba(20, 28, 46, 0.94) 0%, rgba(10, 14, 26, 0.98) 100%);
     border: 1px solid rgba(212, 162, 76, 0.28);
     border-radius: 4px;
@@ -166,25 +299,45 @@
     overflow: visible;
 }
 
-/* TROMPETA — única decoración */
+/* TROMPETA flotando arriba a la derecha */
 .welcome-hero::after {
     content: '';
     position: absolute;
-    top: -22px;
+    top: -26px;
     right: 22px;
-    width: 76px;
-    height: 38px;
+    width: 84px;
+    height: 42px;
     background: var(--theme-trumpet) center/contain no-repeat;
     pointer-events: none;
     z-index: 3;
-    opacity: 0.85;
+    opacity: 0.92;
     transform: rotate(-12deg);
-    filter: drop-shadow(0 4px 10px rgba(212, 162, 76, 0.55));
+    filter: drop-shadow(0 4px 12px rgba(212, 162, 76, 0.65));
     animation: jazz-trumpet-float 6s ease-in-out infinite;
 }
 @keyframes jazz-trumpet-float {
     0%, 100% { transform: rotate(-12deg) translateY(0); }
-    50%      { transform: rotate(-10deg) translateY(-4px); }
+    50%      { transform: rotate(-10deg) translateY(-5px); }
+}
+
+/* COPA a medio tomar sobre la mesa — esquina inferior izquierda */
+.welcome-hero::before {
+    content: '';
+    position: absolute;
+    bottom: 12px;
+    left: 18px;
+    width: 32px;
+    height: 42px;
+    background: var(--theme-copa) center/contain no-repeat;
+    pointer-events: none;
+    z-index: 3;
+    opacity: 0.85;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.65));
+    animation: jazz-copa-sway 7s ease-in-out infinite;
+}
+@keyframes jazz-copa-sway {
+    0%, 100% { transform: rotate(-2deg); }
+    50%      { transform: rotate(2deg); }
 }
 
 .welcome-hero > * {
@@ -226,58 +379,39 @@
     }
 }
 
-/* ================================================================
-   2. HEADER — Línea ámbar cálida abajo
-   ================================================================ */
-.app-header {
+/* ------------------------------------------------------------
+   SECCIÓN del welcome — como una mesa del club
+   ------------------------------------------------------------ */
+.welcome-section {
     position: relative;
-    background: linear-gradient(180deg, #0E1524 0%, #0A0E1A 100%);
-    border-bottom: 1px solid rgba(212, 162, 76, 0.22);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.50);
+    background: rgba(14, 21, 36, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(212, 162, 76, 0.18);
+    border-radius: 6px;
+    padding: 20px 22px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
 }
-.app-header::after {
+
+/* Borde superior tipo "barra de bar" */
+.welcome-section::before {
     content: '';
     position: absolute;
-    bottom: -1px;
-    left: 20%;
-    right: 20%;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #D4A24C, transparent);
-    opacity: 0.65;
+    top: -6px;
+    left: 20px;
+    right: 20px;
+    height: 4px;
+    background: linear-gradient(180deg, #B89052, #4E3A20);
+    border-radius: 3px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
     pointer-events: none;
-    z-index: 1;
-    box-shadow: 0 0 10px rgba(212, 162, 76, 0.55);
 }
 
 /* ================================================================
-   3. SIDEBAR — Oscura con línea ámbar
-   ================================================================ */
-.sidebar {
-    background: linear-gradient(180deg, #0E1524 0%, #0A0E1A 100%);
-    border-right: 1px solid rgba(212, 162, 76, 0.16);
-}
-
-.nav-item.active::before {
-    background: linear-gradient(180deg, #E8B54B, #8A6428);
-    width: 3px;
-    border-radius: 0 3px 3px 0;
-    box-shadow: 0 0 10px rgba(212, 162, 76, 0.65);
-}
-.nav-item.active {
-    background: rgba(212, 162, 76, 0.08);
-}
-.nav-item.active .nav-icon {
-    color: var(--violet-500);
-}
-
-@media (max-width: 768px) {
-    .sidebar { position: fixed; }
-}
-
-/* ================================================================
-   4. ACCESOS RÁPIDOS — Superficies oscuras con acento ámbar
+   4. ACCESOS RÁPIDOS — mesas con copas
    ================================================================ */
 .acceso-item {
+    position: relative;
     background: linear-gradient(180deg, #141C2E 0%, #0E1524 100%);
     border-color: rgba(212, 162, 76, 0.22);
     border-radius: 6px;
@@ -285,13 +419,38 @@
         inset 0 1px 0 rgba(212, 162, 76, 0.05),
         0 2px 6px rgba(0, 0, 0, 0.50);
     transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: visible;
 }
+
+/* COPA pequeña que aparece al hover — como si alguien pidiera algo */
+.acceso-item::after {
+    content: '';
+    position: absolute;
+    top: -14px;
+    right: -8px;
+    width: 22px;
+    height: 30px;
+    background: var(--theme-copa) center/contain no-repeat;
+    opacity: 0;
+    transform: translateY(6px) scale(0.5);
+    transition:
+        opacity 0.28s,
+        transform 0.40s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+    z-index: 3;
+    filter: drop-shadow(0 4px 8px rgba(212, 162, 76, 0.65));
+}
+.acceso-item:hover::after {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
 .acceso-item:hover {
     border-color: var(--violet-500);
     transform: translateY(-3px);
     box-shadow:
         0 10px 22px rgba(212, 162, 76, 0.28),
-        0 0 0 1px rgba(212, 162, 76, 0.30),
+        0 0 0 1px rgba(212, 162, 76, 0.32),
         0 0 24px rgba(212, 162, 76, 0.15);
 }
 .acceso-icon-wrap {
@@ -308,9 +467,10 @@
 }
 
 /* ================================================================
-   5. WIDGETS
+   5. WIDGETS — mismo tratamiento, con teclas de piano al borde
    ================================================================ */
 .widget-item {
+    position: relative;
     border-color: rgba(212, 162, 76, 0.22);
     border-radius: 6px;
     box-shadow:
@@ -324,7 +484,7 @@
 }
 
 /* ================================================================
-   6. PESTAÑAS — Línea ámbar arriba
+   6. PESTAÑAS — nota musical arriba
    ================================================================ */
 .tab-item.active::before {
     content: '';
@@ -343,7 +503,7 @@
 }
 
 /* ================================================================
-   7. MODALES — Mismo tratamiento que el hero
+   7. MODALES — barra de bar
    ================================================================ */
 .config-card,
 .modal-todas-card {
@@ -370,6 +530,23 @@
     z-index: 3;
     box-shadow: 0 0 12px rgba(212, 162, 76, 0.60);
 }
+
+/* BOTELLA en la esquina inferior derecha del modal */
+.config-card::after,
+.modal-todas-card::after {
+    content: '';
+    position: absolute;
+    bottom: 14px;
+    right: 14px;
+    width: 16px;
+    height: 48px;
+    background: var(--theme-bottle) center/contain no-repeat;
+    opacity: 0.35;
+    pointer-events: none;
+    z-index: 4;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.65));
+}
+
 .config-header,
 .modal-todas-header {
     background: linear-gradient(180deg, #141C2E 0%, #0E1524 100%);
@@ -377,7 +554,7 @@
 }
 
 /* ================================================================
-   8. BOTÓN PRIMARIO — Ámbar con shimmer
+   8. BOTÓN PRIMARIO — ámbar con shimmer
    ================================================================ */
 .btn-primario {
     position: relative;
@@ -397,7 +574,7 @@
     left: -100%;
     width: 60%;
     height: 100%;
-    background: linear-gradient(120deg, transparent, rgba(245, 237, 224, 0.28), transparent);
+    background: linear-gradient(120deg, transparent, rgba(245, 237, 224, 0.30), transparent);
     pointer-events: none;
     transition: left 0.55s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -467,7 +644,12 @@
     .welcome-placeholder::before,
     .welcome-placeholder::after,
     .welcome-hero::after,
-    .welcome-icon-wrap {
+    .welcome-hero::before,
+    .welcome-icon-wrap,
+    .app-header::after {
         animation: none !important;
+    }
+    .acceso-item::after {
+        transition: none !important;
     }
 }
