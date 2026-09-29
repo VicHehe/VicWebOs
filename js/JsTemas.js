@@ -188,6 +188,86 @@ const TEMAS_DISPONIBLES = [
     },
 
     // ============================================================
+    //  SIMPLES — Recolors con alma, sin decoración compleja.
+    //  Paletas con temperatura propia (neutros tintados + un
+    //  acento protagonista). Pensados para quien quiere
+    //  personalidad sin efectos visuales ni animaciones.
+    //  Precio: 10-20. Espacio: 2 (solo :root).
+    // ============================================================
+    {
+        id: 'terracota',
+        nombre: 'Terracota',
+        icono: 'flame',
+        descripcion: 'Barro cocido y atardecer mediterráneo. Neutros cálidos con tinte rojizo y acento terracota.',
+        categoria: 'Simples',
+        ruta: 'Temas/terracota.css',
+        espacio: 2,
+        monedas: 10,
+        colores: {
+            '--violet-100': '#F9E8DE',
+            '--violet-300': '#E0B098',
+            '--violet-500': '#C56A3C',
+            '--bg':         '#FDF9F5',
+            '--bg-alt':     '#F7EFE7',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
+        id: 'salvia',
+        nombre: 'Salvia',
+        icono: 'leaf',
+        descripcion: 'Verde eucalipto y calma natural. Fondos verde-crema, acento salvia desaturado.',
+        categoria: 'Simples',
+        ruta: 'Temas/salvia.css',
+        espacio: 2,
+        monedas: 10,
+        colores: {
+            '--violet-100': '#E2EDE0',
+            '--violet-300': '#A8C8A0',
+            '--violet-500': '#5A9680',
+            '--bg':         '#F7FAF6',
+            '--bg-alt':     '#EEF4EC',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
+        id: 'rosa-polvorienta',
+        nombre: 'Rosa Polvorienta',
+        icono: 'heart-handshake',
+        descripcion: 'Rosa antiguo y nostalgia elegante. Neutros rosados apagados, sin cursilería.',
+        categoria: 'Simples',
+        ruta: 'Temas/rosa-polvorienta.css',
+        espacio: 2,
+        monedas: 15,
+        colores: {
+            '--violet-100': '#F7EBEE',
+            '--violet-300': '#DDB8C2',
+            '--violet-500': '#B87D8E',
+            '--bg':         '#FDFAFA',
+            '--bg-alt':     '#F8F0F1',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
+        id: 'mostaza',
+        nombre: 'Mostaza',
+        icono: 'wheat',
+        descripcion: 'Mostaza vintage y cuaderno de campo. Neutros amarillos cálidos y apagados.',
+        categoria: 'Simples',
+        ruta: 'Temas/mostaza.css',
+        espacio: 2,
+        monedas: 20,
+        colores: {
+            '--violet-100': '#F7F0D8',
+            '--violet-300': '#DCCA80',
+            '--violet-500': '#B08A20',
+            '--bg':         '#FDFBF5',
+            '--bg-alt':     '#F8F2E0',
+            '--white':      '#FFFFFF'
+        }
+    },
+    
+    // ============================================================
     //  OSCUROS — Dark mode simple, sin decoración
     //  Base oscura, distintos acentos. Sin efectos visuales.
     // ============================================================
