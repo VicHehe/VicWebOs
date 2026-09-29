@@ -1,0 +1,645 @@
+/* ================================================
+   Tema: CubicWorld
+   Un mundo de cubos. Césped arriba, tierra abajo.
+   Cubos 3D reales como decoración en el welcome,
+   y en los accesos rápidos los bloques se comportan
+   como cajones: al pasar el mouse se deslizan hacia
+   vos con perspectiva real.
+   ================================================ */
+
+:root {
+    /* Acento: verde césped Minecraft */
+    --violet-50:  #E8F5E0;
+    --violet-100: #C8E6B8;
+    --violet-200: #A0D080;
+    --violet-300: #7CB850;
+    --violet-400: #5A9E30;
+    --violet-500: #4A8A20;
+    --violet-600: #3A7018;
+    --violet-700: #2A5810;
+
+    /* Superficies: cielo y tierra */
+    --white:   #F5F0E0;
+    --bg:      #C8DFF0;
+    --bg-alt:  #B8D0E8;
+    --gray-50:  #E8F0F8;
+    --gray-100: #D8E4F0;
+    --gray-200: #C0D0E0;
+    --gray-300: #A0B0C0;
+    --gray-400: #8090A0;
+    --gray-500: #607080;
+    --gray-600: #485868;
+    --gray-700: #384858;
+    --gray-800: #283848;
+    --gray-900: #182838;
+
+    --border:  #A0B0C0;
+    --text:    #283848;
+    --text-2:  #485868;
+    --text-3:  #607080;
+
+    /* Sombras duras: cada bloque proyecta su sombra */
+    --shadow-xs: 2px 2px 0 rgba(40, 30, 20, 0.25);
+    --shadow-sm: 3px 3px 0 rgba(40, 30, 20, 0.30);
+    --shadow-md: 5px 5px 0 rgba(40, 30, 20, 0.35);
+    --shadow-lg: 8px 8px 0 rgba(40, 30, 20, 0.40);
+    --shadow-xl: 12px 12px 0 rgba(40, 30, 20, 0.45);
+    --shadow-glow: 0 0 0 4px rgba(74, 138, 32, 0.25);
+
+    /* Acento: verde césped sobre tierra */
+    --accent-gradient: linear-gradient(180deg, #5A9E30 0%, #4A8A20 50%, #3A7018 100%);
+    --accent-gradient-hover: linear-gradient(180deg, #7CB850 0%, #5A9E30 50%, #4A8A20 100%);
+    --accent-shadow: rgba(74, 138, 32, 0.40);
+    --accent-shadow-hover: rgba(74, 138, 32, 0.60);
+    --accent-text-gradient: linear-gradient(135deg, #283848, #4A8A20);
+
+    /* Colores del mundo cúbico */
+    --grass-top:   #7CB850;
+    --grass-mid:   #5A9E30;
+    --grass-dark:  #4A8A20;
+    --dirt-light:  #8B6B4A;
+    --dirt-mid:    #6B4F35;
+    --dirt-dark:   #4A3520;
+    --stone-light: #A0A0A0;
+    --stone-mid:   #808080;
+    --stone-dark:  #606060;
+    --sky-light:   #C8DFF0;
+    --sky-mid:     #A8C8E8;
+    --sky-dark:    #88B0D8;
+
+    /* Radios: esquinas de bloque, mínimas */
+    --r-sm: 2px;
+    --r-md: 3px;
+    --r-lg: 4px;
+    --r-xl: 6px;
+
+    /* ============================================================
+       TEXTURA DE CÉSPED — gradiente duro pixelado
+       ============================================================ */
+    --theme-grass: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%235A9E30'/%3E%3Cg fill='%237CB850'%3E%3Crect x='0' y='0' width='2' height='2'/%3E%3Crect x='4' y='0' width='2' height='2'/%3E%3Crect x='8' y='0' width='2' height='2'/%3E%3Crect x='12' y='0' width='2' height='2'/%3E%3Crect x='2' y='2' width='2' height='2'/%3E%3Crect x='6' y='2' width='2' height='2'/%3E%3Crect x='10' y='2' width='2' height='2'/%3E%3Crect x='14' y='2' width='2' height='2'/%3E%3Crect x='0' y='4' width='2' height='2'/%3E%3Crect x='4' y='4' width='2' height='2'/%3E%3Crect x='8' y='4' width='2' height='2'/%3E%3Crect x='12' y='4' width='2' height='2'/%3E%3Crect x='2' y='6' width='2' height='2'/%3E%3Crect x='6' y='6' width='2' height='2'/%3E%3Crect x='10' y='6' width='2' height='2'/%3E%3Crect x='14' y='6' width='2' height='2'/%3E%3C/g%3E%3Cg fill='%234A8A20'%3E%3Crect x='3' y='3' width='1' height='1'/%3E%3Crect x='7' y='3' width='1' height='1'/%3E%3Crect x='11' y='3' width='1' height='1'/%3E%3Crect x='15' y='3' width='1' height='1'/%3E%3Crect x='1' y='5' width='1' height='1'/%3E%3Crect x='5' y='5' width='1' height='1'/%3E%3Crect x='9' y='5' width='1' height='1'/%3E%3Crect x='13' y='5' width='1' height='1'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* ============================================================
+       TEXTURA DE TIERRA
+       ============================================================ */
+    --theme-dirt: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%236B4F35'/%3E%3Cg fill='%238B6B4A'%3E%3Crect x='1' y='1' width='2' height='2'/%3E%3Crect x='5' y='0' width='2' height='2'/%3E%3Crect x='9' y='1' width='2' height='2'/%3E%3Crect x='13' y='0' width='2' height='2'/%3E%3Crect x='3' y='4' width='2' height='2'/%3E%3Crect x='7' y='3' width='2' height='2'/%3E%3Crect x='11' y='5' width='2' height='2'/%3E%3Crect x='15' y='4' width='1' height='2'/%3E%3Crect x='0' y='8' width='2' height='2'/%3E%3Crect x='4' y='7' width='2' height='2'/%3E%3Crect x='8' y='8' width='2' height='2'/%3E%3Crect x='12' y='7' width='2' height='2'/%3E%3Crect x='2' y='11' width='2' height='2'/%3E%3Crect x='6' y='10' width='2' height='2'/%3E%3Crect x='10' y='12' width='2' height='2'/%3E%3Crect x='14' y='11' width='2' height='2'/%3E%3C/g%3E%3Cg fill='%234A3520'%3E%3Crect x='0' y='3' width='1' height='1'/%3E%3Crect x='4' y='2' width='1' height='1'/%3E%3Crect x='8' y='5' width='1' height='1'/%3E%3Crect x='12' y='3' width='1' height='1'/%3E%3Crect x='2' y='6' width='1' height='1'/%3E%3Crect x='6' y='8' width='1' height='1'/%3E%3Crect x='10' y='6' width='1' height='1'/%3E%3Crect x='14' y='8' width='1' height='1'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ================================================================
+   1. WELCOME — mundo cúbico con cielo y cubos flotando
+   ================================================================ */
+.welcome-placeholder {
+    position: relative;
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.30) 0%, transparent 40%),
+        linear-gradient(180deg,
+            #C8DFF0 0%,
+            #C8DFF0 60%,
+            #B8D0E8 70%,
+            #A8C8E8 80%,
+            #88B0D8 100%);
+    overflow: hidden;
+    perspective: 1200px;
+}
+
+/* Cubos decorativos flotando en el cielo (3 cubos, tamaños diferentes) */
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    top: 10%;
+    left: 8%;
+    width: 60px;
+    height: 60px;
+    background: var(--theme-grass) 0 0 / 8px 8px repeat,
+                var(--theme-dirt) 0 0 / 8px 8px repeat;
+    background-blend-mode: normal;
+    clip-path: polygon(
+        0 30%, 30% 0, 100% 0, 100% 70%, 70% 100%, 0 100%
+    );
+    box-shadow:
+        inset -8px -8px 0 rgba(0, 0, 0, 0.15),
+        inset 8px 8px 0 rgba(255, 255, 255, 0.15);
+    animation: cubic-float 8s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.7;
+}
+@keyframes cubic-float {
+    0%, 100% { transform: translateY(0) rotate(-6deg); }
+    50%      { transform: translateY(-12px) rotate(-6deg); }
+}
+
+.welcome-placeholder::after {
+    content: '';
+    position: absolute;
+    top: 22%;
+    right: 12%;
+    width: 40px;
+    height: 40px;
+    background: var(--theme-grass) 0 0 / 6px 6px repeat,
+                var(--theme-dirt) 0 0 / 6px 6px repeat;
+    clip-path: polygon(
+        0 30%, 30% 0, 100% 0, 100% 70%, 70% 100%, 0 100%
+    );
+    box-shadow:
+        inset -6px -6px 0 rgba(0, 0, 0, 0.15),
+        inset 6px 6px 0 rgba(255, 255, 255, 0.15);
+    animation: cubic-float 6s ease-in-out infinite 1.5s;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.6;
+}
+
+.welcome-glow {
+    background: radial-gradient(
+        circle at 50% 30%,
+        rgba(255, 255, 255, 0.20) 0%,
+        rgba(74, 138, 32, 0.08) 40%,
+        transparent 65%
+    );
+}
+
+.welcome-hero,
+.welcome-section {
+    position: relative;
+    z-index: 2;
+}
+
+/* Hero: bloque de tierra con césped arriba */
+.welcome-hero {
+    position: relative;
+    padding: 34px 28px 30px;
+    background:
+        var(--theme-grass) 0 0 / 12px 12px repeat,
+        var(--theme-dirt) 0 0 / 16px 16px repeat,
+        linear-gradient(180deg, #5A9E30 0%, #5A9E30 12%, #6B4F35 12%, #6B4F35 100%);
+    border: 3px solid #3A7018;
+    border-radius: 4px;
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.25),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.25),
+        8px 8px 0 rgba(40, 30, 20, 0.30),
+        12px 12px 0 rgba(40, 30, 20, 0.20);
+    max-width: 660px;
+    margin-left: auto;
+    margin-right: auto;
+    transform-style: preserve-3d;
+}
+
+/* Capa de césped superior del hero */
+.welcome-hero::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    height: 16px;
+    background: var(--theme-grass) 0 0 / 8px 8px repeat;
+    border-radius: 4px 4px 0 0;
+    box-shadow:
+        inset 0 2px 0 rgba(255, 255, 255, 0.30),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.20);
+    pointer-events: none;
+    z-index: 3;
+}
+
+.welcome-hero > * {
+    position: relative;
+    z-index: 1;
+}
+
+.welcome-hero h1 {
+    letter-spacing: 0.01em;
+    color: #FFFFFF;
+    text-shadow:
+        2px 2px 0 rgba(0, 0, 0, 0.40),
+        0 0 20px rgba(124, 184, 80, 0.40);
+}
+
+.welcome-icon-wrap {
+    background: linear-gradient(135deg, #7CB850, #3A7018);
+    border: 3px solid #2A5810;
+    border-radius: 4px;
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.30),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.25),
+        6px 6px 0 rgba(40, 30, 20, 0.35);
+}
+
+/* ================================================================
+   2. HEADER — banda de piedra
+   ================================================================ */
+.app-header {
+    position: relative;
+    background:
+        linear-gradient(180deg, #A0A0A0 0%, #808080 100%);
+    border-bottom: 4px solid #606060;
+    box-shadow:
+        inset 0 2px 0 rgba(255, 255, 255, 0.20),
+        0 4px 0 rgba(40, 30, 20, 0.30);
+}
+.app-header::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: repeating-linear-gradient(90deg,
+        #606060 0,
+        #606060 8px,
+        #505050 8px,
+        #505050 16px);
+    opacity: 0.80;
+    pointer-events: none;
+}
+
+/* ================================================================
+   3. SIDEBAR — pared de tierra
+   ================================================================ */
+.sidebar {
+    position: relative;
+    background:
+        var(--theme-dirt) 0 0 / 20px 20px repeat,
+        linear-gradient(180deg, #6B4F35 0%, #4A3520 100%);
+    border-right: 4px solid #3A2818;
+    overflow: hidden;
+    box-shadow:
+        inset -2px 0 0 rgba(255, 255, 255, 0.10),
+        inset 2px 0 0 rgba(0, 0, 0, 0.15);
+}
+.sidebar-comunidad,
+.sidebar-label,
+.sidebar-nav,
+.sidebar-mobile-header {
+    position: relative;
+    z-index: 1;
+}
+
+.nav-item.active::before {
+    background: linear-gradient(180deg, #7CB850, #4A8A20);
+    width: 5px;
+    box-shadow:
+        2px 0 0 rgba(0, 0, 0, 0.30),
+        0 0 10px rgba(124, 184, 80, 0.55);
+    border-radius: 0;
+}
+.nav-item.active {
+    background: rgba(124, 184, 80, 0.15);
+    border-radius: 0;
+}
+.nav-item.active .nav-icon { color: #A0D080; }
+
+@media (max-width: 768px) {
+    .sidebar { position: fixed; }
+}
+
+/* ================================================================
+   4. ACCESOS RÁPIDOS — CUBOS CAJÓN
+   El cubo está "guardado" en la pared. Al hover,
+   se desliza hacia el usuario (translateZ + translateY).
+   ================================================================ */
+.acceso-item {
+    position: relative;
+    background:
+        var(--theme-grass) 0 0 / 10px 10px repeat,
+        var(--theme-dirt) 0 0 / 14px 14px repeat,
+        linear-gradient(180deg, #5A9E30 0%, #5A9E30 20%, #6B4F35 20%, #6B4F35 100%);
+    border: 3px solid #3A7018;
+    border-radius: 3px;
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.20),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.25),
+        4px 4px 0 rgba(40, 30, 20, 0.30);
+    overflow: visible;
+    transform-style: preserve-3d;
+    will-change: transform;
+    transition:
+        transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* EFECTO CAJÓN: el cubo se desliza hacia el usuario */
+.acceso-item:hover {
+    transform:
+        perspective(800px)
+        translateZ(20px)
+        translateY(8px)
+        rotateX(-4deg);
+    border-color: #7CB850;
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.30),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.25),
+        6px 6px 0 rgba(40, 30, 20, 0.35),
+        10px 10px 0 rgba(40, 30, 20, 0.25),
+        0 0 20px rgba(124, 184, 80, 0.30);
+}
+
+/* Capa de césped del cubo (siempre arriba) */
+.acceso-item::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    height: 12px;
+    background: var(--theme-grass) 0 0 / 6px 6px repeat;
+    border-radius: 3px 3px 0 0;
+    box-shadow:
+        inset 0 2px 0 rgba(255, 255, 255, 0.25),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.20);
+    pointer-events: none;
+    z-index: 3;
+    transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.acceso-item:hover::before {
+    transform: translateY(-2px);
+}
+
+/* Cara lateral derecha (simula profundidad del cajón) */
+.acceso-item::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -8px;
+    bottom: 0;
+    width: 8px;
+    background: linear-gradient(90deg, #4A3520 0%, #3A2818 100%);
+    border-radius: 0 2px 2px 0;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.32s cubic-bezier(0.34, 1.56, 0.64, 1),
+                right 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.acceso-item:hover::after {
+    opacity: 1;
+    right: -12px;
+}
+
+.acceso-icon-wrap {
+    background: linear-gradient(135deg, #7CB850, #4A8A20);
+    color: #FFFFFF;
+    border: 2px solid #3A7018;
+    border-radius: 3px;
+    box-shadow:
+        inset 1px 1px 0 rgba(255, 255, 255, 0.25),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.20),
+        2px 2px 0 rgba(40, 30, 20, 0.30);
+    transition: all 0.22s;
+}
+.acceso-item:hover .acceso-icon-wrap {
+    background: linear-gradient(135deg, #A0D080, #5A9E30);
+    border-color: #7CB850;
+    box-shadow:
+        inset 1px 1px 0 rgba(255, 255, 255, 0.35),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.20),
+        3px 3px 0 rgba(40, 30, 20, 0.35),
+        0 0 12px rgba(124, 184, 80, 0.50);
+}
+
+/* ================================================================
+   5. WIDGETS — bloques que se elevan
+   ================================================================ */
+.widget-item {
+    position: relative;
+    background:
+        var(--theme-dirt) 0 0 / 18px 18px repeat,
+        linear-gradient(180deg, #6B4F35 0%, #4A3520 100%);
+    border: 3px solid #3A2818;
+    border-radius: 3px;
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.10),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.25),
+        4px 4px 0 rgba(40, 30, 20, 0.30);
+    transform-style: preserve-3d;
+    will-change: transform;
+    transition: all 0.30s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.widget-item::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    height: 14px;
+    background: var(--theme-grass) 0 0 / 7px 7px repeat;
+    border-radius: 3px 3px 0 0;
+    box-shadow:
+        inset 0 2px 0 rgba(255, 255, 255, 0.20),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.20);
+    pointer-events: none;
+    z-index: 3;
+}
+.widget-item:hover {
+    transform:
+        perspective(1000px)
+        translateZ(12px)
+        translateY(6px)
+        rotateX(-2deg);
+    border-color: #7CB850;
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.15),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.25),
+        6px 6px 0 rgba(40, 30, 20, 0.35),
+        10px 10px 0 rgba(40, 30, 20, 0.25);
+}
+
+/* ================================================================
+   6. PESTAÑAS — pestaña activa con bloque
+   ================================================================ */
+.tab-item.active {
+    background: linear-gradient(180deg, #5A9E30 0%, #4A8A20 100%);
+    border-color: #3A7018;
+    box-shadow:
+        inset 0 2px 0 rgba(255, 255, 255, 0.20),
+        0 -3px 0 #7CB850 inset,
+        0 -1px 0 #2A5810;
+    position: relative;
+}
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 8px;
+    right: 8px;
+    height: 3px;
+    background: var(--theme-grass) 0 0 / 6px 6px repeat;
+    pointer-events: none;
+}
+.tab-item.active [data-lucide] { color: #FFFFFF; }
+
+/* ================================================================
+   7. MODALES — cofre de piedra y tierra
+   ================================================================ */
+.config-card,
+.modal-todas-card {
+    position: relative;
+    overflow: hidden;
+    border: 4px solid #808080;
+    background:
+        var(--theme-dirt) 0 0 / 20px 20px repeat,
+        linear-gradient(180deg, #6B4F35 0%, #4A3520 100%);
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.10),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.25),
+        8px 8px 0 rgba(40, 30, 20, 0.35),
+        12px 12px 0 rgba(40, 30, 20, 0.25),
+        16px 16px 0 rgba(40, 30, 20, 0.15);
+    border-radius: 4px;
+}
+
+/* Borde superior de césped en el modal */
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    height: 18px;
+    background: var(--theme-grass) 0 0 / 9px 9px repeat;
+    border-radius: 4px 4px 0 0;
+    box-shadow:
+        inset 0 3px 0 rgba(255, 255, 255, 0.20),
+        inset 0 -3px 0 rgba(0, 0, 0, 0.20);
+    pointer-events: none;
+    z-index: 3;
+}
+
+/* Bloque decorativo en la esquina inferior derecha del modal */
+.config-card::after,
+.modal-todas-card::after {
+    content: '';
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    width: 24px;
+    height: 24px;
+    background: var(--theme-grass) 0 0 / 5px 5px repeat,
+                var(--theme-dirt) 0 0 / 5px 5px repeat;
+    clip-path: polygon(
+        0 30%, 30% 0, 100% 0, 100% 70%, 70% 100%, 0 100%
+    );
+    box-shadow:
+        inset -4px -4px 0 rgba(0, 0, 0, 0.15),
+        inset 4px 4px 0 rgba(255, 255, 255, 0.15);
+    opacity: 0.55;
+    pointer-events: none;
+    z-index: 4;
+}
+
+.config-header,
+.modal-todas-header {
+    background: linear-gradient(180deg, #808080 0%, #606060 100%);
+    border-bottom: 3px solid #505050;
+    position: relative;
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* ================================================================
+   8. BOTÓN PRIMARIO — bloque de césped con PRESS
+   ================================================================ */
+.btn-primario {
+    background: linear-gradient(180deg,
+        #7CB850 0%,
+        #5A9E30 45%,
+        #3A7018 55%,
+        #2A5810 100%);
+    border: 3px solid #2A5810;
+    border-radius: 3px;
+    color: #FFFFFF;
+    font-weight: 800;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.30);
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.30),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.30),
+        4px 4px 0 rgba(40, 30, 20, 0.40),
+        6px 6px 0 rgba(40, 30, 20, 0.25);
+    transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-primario:hover {
+    background: linear-gradient(180deg,
+        #A0D080 0%,
+        #7CB850 45%,
+        #5A9E30 55%,
+        #3A7018 100%);
+    transform: translate(-2px, -2px);
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.40),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.30),
+        6px 6px 0 rgba(40, 30, 20, 0.40),
+        9px 9px 0 rgba(40, 30, 20, 0.30);
+}
+.btn-primario:active {
+    transform: translate(2px, 2px);
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.25),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.35),
+        2px 2px 0 rgba(40, 30, 20, 0.40),
+        3px 3px 0 rgba(40, 30, 20, 0.25);
+}
+
+/* ================================================================
+   9. AVATAR — bloque de piedra
+   ================================================================ */
+.avatar-config {
+    background: linear-gradient(135deg, #A0A0A0, #606060);
+    border: 3px solid #505050;
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.25),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.25),
+        3px 3px 0 rgba(40, 30, 20, 0.35);
+}
+.avatar-config:hover {
+    transform: translate(-1px, -1px) scale(1.05);
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.30),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.25),
+        5px 5px 0 rgba(40, 30, 20, 0.40),
+        8px 8px 0 rgba(40, 30, 20, 0.30);
+}
+
+.noti-btn.tiene-no-leidas {
+    background: rgba(124, 184, 80, 0.20);
+    color: #4A8A20;
+}
+.search-bar:focus-within {
+    border-color: #5A9E30;
+    box-shadow:
+        0 0 0 3px rgba(124, 184, 80, 0.25),
+        inset 2px 2px 0 rgba(0, 0, 0, 0.10);
+}
+.search-bar:focus-within .search-icon { color: #4A8A20; }
+
+/* ================================================================
+   10. NOTIFICACIONES — badge de bloque
+   ================================================================ */
+.noti-badge {
+    background: #5A9E30;
+    color: #FFFFFF;
+    border: 2px solid #2A5810;
+    box-shadow: 2px 2px 0 rgba(40, 30, 20, 0.40);
+}
+
+/* ================================================================
+   11. prefers-reduced-motion
+   ================================================================ */
+@media (prefers-reduced-motion: reduce) {
+    .welcome-placeholder::before,
+    .welcome-placeholder::after,
+    .acceso-item,
+    .widget-item,
+    .btn-primario,
+    .avatar-config {
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+    }
+    .acceso-item:hover,
+    .widget-item:hover {
+        transform: none !important;
+    }
+    .acceso-item:hover::after {
+        opacity: 0 !important;
+    }
+}
