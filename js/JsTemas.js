@@ -995,6 +995,24 @@ const TEMAS_DISPONIBLES = [
             '--bg-alt':     '#EDE4D3',
             '--white':      '#FDFAF3'
         }
+    },
+    {
+    id: 'dados',
+    nombre: 'Dados',
+    icono: 'dice-5',
+    descripcion: 'Mesa de casino nocturna. Dados 3D flotan en el lobby, y las cards se hunden contra el fieltro como si las presionaras.',
+    categoria: '3D',
+    ruta: 'Temas/dados.css',
+    espacio: 4,
+    monedas: 50,
+    colores: {
+        '--violet-100': '#E8D5C0',
+        '--violet-300': '#B83232',
+        '--violet-500': '#8B1A1A',
+        '--bg':         '#1A1410',
+        '--bg-alt':     '#231A14',
+        '--white':      '#F5F0E8'
     }
+}
 ];
 
