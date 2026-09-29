@@ -970,6 +970,24 @@ const TEMAS_DISPONIBLES = [
             '--bg-alt':     '#EDE4D3',
             '--white':      '#FDFAF3'
         }
+    },
+        {
+        id: 'cubicworld',
+        nombre: 'CubicWorld',
+        icono: 'box',
+        descripcion: 'Un mundo de cubos. Césped arriba, tierra abajo. Los bloques de los accesos se deslizan hacia vos como cajones al pasar el mouse.',
+        categoria: '3D',
+        ruta: 'Temas/cubicworld.css',
+        espacio: 4,
+        monedas: 50,
+        colores: {
+            '--violet-100': '#C8E6B8',
+            '--violet-300': '#7CB850',
+            '--violet-500': '#4A8A20',
+            '--bg':         '#C8DFF0',
+            '--bg-alt':     '#B8D0E8',
+            '--white':      '#F5F0E0'
+        }
     }
 ];
 
