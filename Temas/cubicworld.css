@@ -1,10 +1,8 @@
 /* ================================================
    Tema: CubicWorld
-   Bloques de tierra con franja de césped arriba.
-   Sin skew ni triángulos raros. La sensación 3D
-   viene de las sombras apiladas (offset sin blur).
-   Los paneles (sidebar, header, modales) son de
-   madera. Los bloques viven en el contenido.
+   Un mundo de cubos. Bloques de tierra con franja
+   de césped arriba. Cubos decorativos flotando en
+   el cielo del lobby. Paneles de madera.
    ================================================ */
 
 :root {
@@ -17,7 +15,7 @@
     --violet-600: #3A6418;
     --violet-700: #2A4E10;
 
-    --white:   #3A2A1A;
+    --white:   #3E2A1C;
     --bg:      #A8C8E0;
     --bg-alt:  #8FB0CC;
     --gray-50:  #F5EDD8;
@@ -50,104 +48,112 @@
     --accent-shadow-hover: rgba(94, 142, 48, 0.65);
     --accent-text-gradient: linear-gradient(135deg, #2A1E12, #5E8E30);
 
-    --grass-top:    #A0D070;
-    --grass-light:  #8FC858;
-    --grass-mid:    #6EA838;
-    --grass-dark:   #4A7A22;
-    --grass-shadow: #2A4E10;
-    --dirt-front:   #8B6A45;
-    --dirt-mid:     #6A4E30;
-    --dirt-side:    #4A3520;
-    --dirt-shadow:  #2A1E12;
-    --wood-light:   #5A4030;
-    --wood-mid:     #3E2A1C;
-    --wood-dark:    #281A10;
+    --grass-top:   #A0D070;
+    --grass-mid:   #7CB850;
+    --grass-dark:  #4A7A22;
+    --dirt-light:  #8B6A45;
+    --dirt-mid:    #6A4E30;
+    --dirt-dark:   #4A3520;
+    --dirt-shadow: #2A1E12;
 
     --r-sm: 2px;
     --r-md: 3px;
     --r-lg: 4px;
     --r-xl: 6px;
 
-    /* Texturas pixeladas */
-    --theme-grass: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%236EA838'/%3E%3Cg fill='%238FC858'%3E%3Crect x='0' y='0' width='2' height='2'/%3E%3Crect x='4' y='2' width='2' height='2'/%3E%3Crect x='8' y='0' width='2' height='2'/%3E%3Crect x='12' y='2' width='2' height='2'/%3E%3Crect x='2' y='4' width='2' height='2'/%3E%3Crect x='6' y='6' width='2' height='2'/%3E%3Crect x='10' y='4' width='2' height='2'/%3E%3Crect x='14' y='6' width='2' height='2'/%3E%3Crect x='0' y='8' width='2' height='2'/%3E%3Crect x='4' y='10' width='2' height='2'/%3E%3Crect x='8' y='8' width='2' height='2'/%3E%3Crect x='12' y='10' width='2' height='2'/%3E%3Crect x='2' y='12' width='2' height='2'/%3E%3Crect x='6' y='14' width='2' height='2'/%3E%3Crect x='10' y='12' width='2' height='2'/%3E%3Crect x='14' y='14' width='2' height='2'/%3E%3C/g%3E%3Cg fill='%234A7A22'%3E%3Crect x='2' y='2' width='2' height='2'/%3E%3Crect x='6' y='0' width='2' height='2'/%3E%3Crect x='10' y='2' width='2' height='2'/%3E%3Crect x='14' y='0' width='2' height='2'/%3E%3Crect x='0' y='4' width='2' height='2'/%3E%3Crect x='4' y='6' width='2' height='2'/%3E%3Crect x='8' y='4' width='2' height='2'/%3E%3Crect x='12' y='6' width='2' height='2'/%3E%3Crect x='2' y='8' width='2' height='2'/%3E%3Crect x='6' y='10' width='2' height='2'/%3E%3Crect x='10' y='8' width='2' height='2'/%3E%3Crect x='14' y='10' width='2' height='2'/%3E%3Crect x='0' y='12' width='2' height='2'/%3E%3Crect x='4' y='14' width='2' height='2'/%3E%3Crect x='8' y='12' width='2' height='2'/%3E%3Crect x='12' y='14' width='2' height='2'/%3E%3C/g%3E%3C/svg%3E");
+    --theme-grass: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%236EA838'/%3E%3Cg fill='%238FC858'%3E%3Crect x='0' y='0' width='2' height='2'/%3E%3Crect x='4' y='2' width='2' height='2'/%3E%3Crect x='8' y='0' width='2' height='2'/%3E%3Crect x='12' y='2' width='2' height='2'/%3E%3Crect x='2' y='4' width='2' height='2'/%3E%3Crect x='6' y='6' width='2' height='2'/%3E%3Crect x='10' y='4' width='2' height='2'/%3E%3Crect x='14' y='6' width='2' height='2'/%3E%3Crect x='0' y='8' width='2' height='2'/%3E%3Crect x='4' y='10' width='2' height='2'/%3E%3Crect x='8' y='8' width='2' height='2'/%3E%3Crect x='12' y='10' width='2' height='2'/%3E%3Crect x='2' y='12' width='2' height='2'/%3E%3Crect x='6' y='14' width='2' height='2'/%3E%3Crect x='10' y='12' width='2' height='2'/%3E%3Crect x='14' y='14' width='2' height='2'/%3E%3C/g%3E%3Cg fill='%234A7A22'%3E%3Crect x='2' y='2' width='2' height='2'/%3E%3Crect x='6' y='0' width='2' height='2'/%3E%3Crect x='10' y='2' width='2' height='2'/%3E%3Crect x='14' y='0' width='2' height='2'/%3E%3Crect x='0' y='4' width='2' height='2'/%3E%3Crect x='4' y='6' width='2' height='2'/%3E%3Crect x='8' y='4' width='2' height='2'/%3E%3Crect x='12' y='6' width='2' height='2'/%3E%3C/g%3E%3C/svg%3E");
 
-    --theme-dirt-front: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%236A4E30'/%3E%3Cg fill='%238B6A45'%3E%3Crect x='1' y='1' width='2' height='2'/%3E%3Crect x='5' y='0' width='2' height='2'/%3E%3Crect x='9' y='1' width='2' height='2'/%3E%3Crect x='13' y='0' width='2' height='2'/%3E%3Crect x='3' y='4' width='2' height='2'/%3E%3Crect x='7' y='3' width='2' height='2'/%3E%3Crect x='11' y='5' width='2' height='2'/%3E%3Crect x='0' y='8' width='2' height='2'/%3E%3Crect x='4' y='7' width='2' height='2'/%3E%3Crect x='8' y='8' width='2' height='2'/%3E%3Crect x='12' y='7' width='2' height='2'/%3E%3Crect x='2' y='11' width='2' height='2'/%3E%3Crect x='6' y='10' width='2' height='2'/%3E%3Crect x='10' y='12' width='2' height='2'/%3E%3Crect x='14' y='11' width='2' height='2'/%3E%3C/g%3E%3Cg fill='%234A3520'%3E%3Crect x='0' y='3' width='1' height='1'/%3E%3Crect x='4' y='2' width='1' height='1'/%3E%3Crect x='8' y='5' width='1' height='1'/%3E%3Crect x='12' y='3' width='1' height='1'/%3E%3Crect x='2' y='6' width='1' height='1'/%3E%3Crect x='6' y='8' width='1' height='1'/%3E%3Crect x='10' y='6' width='1' height='1'/%3E%3Crect x='14' y='8' width='1' height='1'/%3E%3C/g%3E%3C/svg%3E");
+    --theme-dirt: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%236A4E30'/%3E%3Cg fill='%238B6A45'%3E%3Crect x='1' y='1' width='2' height='2'/%3E%3Crect x='5' y='0' width='2' height='2'/%3E%3Crect x='9' y='1' width='2' height='2'/%3E%3Crect x='13' y='0' width='2' height='2'/%3E%3Crect x='3' y='4' width='2' height='2'/%3E%3Crect x='7' y='3' width='2' height='2'/%3E%3Crect x='11' y='5' width='2' height='2'/%3E%3Crect x='0' y='8' width='2' height='2'/%3E%3Crect x='4' y='7' width='2' height='2'/%3E%3Crect x='8' y='8' width='2' height='2'/%3E%3Crect x='12' y='7' width='2' height='2'/%3E%3Crect x='2' y='11' width='2' height='2'/%3E%3Crect x='6' y='10' width='2' height='2'/%3E%3Crect x='10' y='12' width='2' height='2'/%3E%3Crect x='14' y='11' width='2' height='2'/%3E%3C/g%3E%3C/svg%3E");
 
     --theme-plank: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Crect width='40' height='20' fill='%233E2A1C'/%3E%3Cpath d='M0,0 L40,0 M0,10 L40,10 M0,20 L40,20' stroke='%23281A10' stroke-width='1'/%3E%3Cpath d='M0,4 Q20,3 40,5' stroke='%235A4030' stroke-width='0.5' fill='none' stroke-opacity='0.6'/%3E%3Cpath d='M0,14 Q20,15 40,13' stroke='%235A4030' stroke-width='0.5' fill='none' stroke-opacity='0.6'/%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   1. WELCOME — cielo con cubos decorativos
+   1. WELCOME — cielo con cubos flotando
+   ⚠️ NO toco overflow: el base ya trae overflow-y: auto.
    ================================================================ */
 .welcome-placeholder {
     position: relative;
     background:
         radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.40) 0%, transparent 45%),
         linear-gradient(180deg, #A8C8E0 0%, #B8D0E4 70%, #C8D8E8 100%);
-    overflow: hidden;
 }
 
-/* Cubo decorativo #1 — izquierda */
+/* Cubo #1 — izquierda, más grande */
 .welcome-placeholder::before {
     content: '';
     position: absolute;
-    top: 14%;
-    left: 7%;
-    width: 56px;
-    height: 56px;
-    background:
-        var(--theme-dirt-front) 0 0 / 8px 8px repeat,
-        linear-gradient(180deg, #8B6A45 0%, #6A4E30 100%);
-    border: 2px solid #2A1E12;
-    border-top: 12px solid #7CB850;
-    box-shadow:
-        inset 0 2px 0 #A0D070,
-        inset 0 -3px 0 #3A6418,
-        5px 5px 0 #2A1E12,
-        5px 5px 0 2px rgba(20, 12, 4, 0.20);
+    top: 80px;
+    left: 6%;
+    width: 72px;
+    height: 84px;
+    background: linear-gradient(
+        180deg,
+        #A0D070 0%,
+        #7CB850 22%,
+        #8B6A45 22%,
+        #6A4E30 100%
+    );
+    clip-path: polygon(
+        0% 22%,
+        20% 0%,
+        80% 0%,
+        100% 22%,
+        100% 100%,
+        0% 100%
+    );
+    filter:
+        drop-shadow(-5px 5px 0 rgba(20, 12, 4, 0.25))
+        drop-shadow(2px 2px 0 rgba(20, 12, 4, 0.15));
     animation: cubic-float-a 9s ease-in-out infinite;
     pointer-events: none;
     z-index: 1;
-    transform: rotate(-6deg);
 }
 @keyframes cubic-float-a {
-    0%, 100% { transform: translate(0, 0) rotate(-6deg); }
-    50%      { transform: translate(0, -12px) rotate(-4deg); }
+    0%, 100% { transform: translate(0, 0); }
+    50%      { transform: translate(0, -10px); }
 }
 
-/* Cubo decorativo #2 — derecha */
+/* Cubo #2 — derecha, más chico */
 .welcome-placeholder::after {
     content: '';
     position: absolute;
-    top: 20%;
-    right: 9%;
-    width: 44px;
-    height: 44px;
-    background:
-        var(--theme-dirt-front) 0 0 / 6px 6px repeat,
-        linear-gradient(180deg, #8B6A45 0%, #6A4E30 100%);
-    border: 2px solid #2A1E12;
-    border-top: 10px solid #7CB850;
-    box-shadow:
-        inset 0 2px 0 #A0D070,
-        inset 0 -3px 0 #3A6418,
-        4px 4px 0 #2A1E12,
-        4px 4px 0 2px rgba(20, 12, 4, 0.20);
+    top: 130px;
+    right: 8%;
+    width: 52px;
+    height: 60px;
+    background: linear-gradient(
+        180deg,
+        #A0D070 0%,
+        #7CB850 22%,
+        #8B6A45 22%,
+        #6A4E30 100%
+    );
+    clip-path: polygon(
+        0% 22%,
+        20% 0%,
+        80% 0%,
+        100% 22%,
+        100% 100%,
+        0% 100%
+    );
+    filter:
+        drop-shadow(-4px 4px 0 rgba(20, 12, 4, 0.25))
+        drop-shadow(2px 2px 0 rgba(20, 12, 4, 0.15));
     animation: cubic-float-b 7s ease-in-out infinite 1.5s;
     pointer-events: none;
     z-index: 1;
-    transform: rotate(8deg);
 }
 @keyframes cubic-float-b {
-    0%, 100% { transform: translate(0, 0) rotate(8deg); }
-    50%      { transform: translate(-5px, -8px) rotate(5deg); }
+    0%, 100% { transform: translate(0, 0); }
+    50%      { transform: translate(-4px, -8px); }
 }
 
 .welcome-glow {
     background: radial-gradient(
         circle at 50% 30%,
-        rgba(255, 255, 255, 0.20) 0%,
-        rgba(94, 142, 48, 0.08) 40%,
+        rgba(255, 255, 255, 0.25) 0%,
+        rgba(94, 142, 48, 0.06) 40%,
         transparent 65%
     );
 }
@@ -159,27 +165,28 @@
 }
 
 /* ================================================================
-   2. HERO — bloque de tierra con franja de césped
+   2. HERO — bloque de tierra con banda de césped arriba
    ================================================================ */
 .welcome-hero {
     position: relative;
     padding: 44px 32px 32px;
     background:
-        var(--theme-dirt-front) 0 0 / 14px 14px repeat,
-        linear-gradient(180deg, #7A5A38 0%, #5A4028 100%);
+        var(--theme-dirt) 0 0 / 14px 14px repeat,
+        linear-gradient(180deg, #8B6A45 0%, #5A4028 100%);
     border: 3px solid #2A1E12;
     border-radius: 4px;
     box-shadow:
+        inset 0 -4px 0 rgba(0, 0, 0, 0.30),
+        inset 2px 0 0 rgba(255, 255, 255, 0.10),
         0 4px 0 #4A3520,
         0 8px 0 #2A1E12,
-        0 14px 0 rgba(20, 12, 4, 0.35),
-        inset 0 -3px 0 rgba(0, 0, 0, 0.30);
+        0 12px 0 rgba(20, 12, 4, 0.30);
     max-width: 680px;
     margin-left: auto;
     margin-right: auto;
 }
 
-/* Franja de césped arriba del hero */
+/* Banda de césped del hero */
 .welcome-hero::before {
     content: '';
     position: absolute;
@@ -191,7 +198,7 @@
         var(--theme-grass) 0 0 / 10px 10px repeat,
         linear-gradient(180deg, #A0D070 0%, #7CB850 100%);
     box-shadow:
-        inset 0 3px 0 #A0D070,
+        inset 0 3px 0 rgba(255, 255, 255, 0.30),
         inset 0 -4px 0 #3A6418;
     pointer-events: none;
     z-index: 3;
@@ -215,7 +222,6 @@
     text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.50);
 }
 
-/* Icono: bloque de césped */
 .welcome-icon-wrap {
     background: linear-gradient(180deg, #A0D070 0%, #4A7A22 100%);
     border: 3px solid #2A4E10;
@@ -252,7 +258,7 @@
 }
 
 /* ================================================================
-   4. SIDEBAR — pared de madera + SCROLLBAR FUNCIONAL
+   4. SIDEBAR — pared de madera
    ================================================================ */
 .sidebar {
     position: relative;
@@ -260,53 +266,15 @@
         var(--theme-plank) 0 0 / 40px 20px repeat,
         linear-gradient(180deg, #3E2A1C 0%, #281A10 100%);
     border-right: 4px solid #18120A;
-    display: flex;
-    flex-direction: column;
     overflow: hidden;
-    min-height: 0;   /* ← fix flexbox */
+    box-shadow: inset -3px 0 0 rgba(20, 12, 4, 0.50);
 }
-
 .sidebar-comunidad,
 .sidebar-label,
 .sidebar-nav,
 .sidebar-mobile-header {
     position: relative;
     z-index: 1;
-    flex-shrink: 0;   /* ← los fijos no se estiran */
-}
-
-/* El nav ES el que scrollea */
-.sidebar-nav {
-    flex: 1 1 auto;
-    min-height: 0;     /* ← CRÍTICO: permite que flexbox permita scroll */
-    overflow-y: scroll;
-    overflow-x: hidden;
-}
-
-/* Scrollbar garantizada — propiedades separadas, sin trucos */
-.sidebar-nav::-webkit-scrollbar {
-    width: 12px;
-    height: 12px;
-}
-.sidebar-nav::-webkit-scrollbar-track {
-    background: #1A120A;
-}
-.sidebar-nav::-webkit-scrollbar-thumb {
-    background: #8FC858;
-    border: 2px solid #1A120A;
-    border-radius: 0;
-}
-.sidebar-nav::-webkit-scrollbar-thumb:hover {
-    background: #A0D070;
-}
-.sidebar-nav::-webkit-scrollbar-corner {
-    background: #1A120A;
-}
-
-/* Firefox */
-.sidebar-nav {
-    scrollbar-width: thin;
-    scrollbar-color: #8FC858 #1A120A;
 }
 
 .sidebar-label {
@@ -359,26 +327,24 @@
 }
 
 @media (max-width: 768px) {
-    .sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        bottom: 0;
-    }
+    .sidebar { position: fixed; }
 }
 
 /* ================================================================
-   5. ACCESOS RÁPIDOS — bloques de tierra con césped
+   5. ACCESOS RÁPIDOS — bloques con banda de césped
    ================================================================ */
 .acceso-item {
     position: relative;
     padding: 32px 16px 18px;
     background:
-        var(--theme-dirt-front) 0 0 / 10px 10px repeat,
+        var(--theme-dirt) 0 0 / 10px 10px repeat,
         linear-gradient(180deg, #8B6A45 0%, #6A4E30 100%);
     border: 3px solid #2A1E12;
     border-radius: 3px;
     box-shadow:
+        inset 2px 0 0 rgba(255, 255, 255, 0.08),
+        inset -2px 0 0 rgba(0, 0, 0, 0.20),
+        inset 0 -4px 0 rgba(0, 0, 0, 0.25),
         0 4px 0 #4A3520,
         0 8px 0 #2A1E12,
         0 12px 0 rgba(20, 12, 4, 0.30);
@@ -387,7 +353,6 @@
                 box-shadow 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Franja de césped arriba */
 .acceso-item::before {
     content: '';
     position: absolute;
@@ -399,19 +364,24 @@
         var(--theme-grass) 0 0 / 8px 8px repeat,
         linear-gradient(180deg, #A0D070 0%, #7CB850 100%);
     box-shadow:
-        inset 0 3px 0 #A0D070,
+        inset 0 3px 0 rgba(255, 255, 255, 0.25),
         inset 0 -4px 0 #3A6418;
     pointer-events: none;
+    z-index: 1;
 }
 
-/* Efecto bloque levitando al hover */
+/* Hover: el bloque se levanta */
 .acceso-item:hover {
-    transform: translate(-3px, -3px);
+    transform: translateY(-4px);
     box-shadow:
+        inset 2px 0 0 rgba(255, 255, 255, 0.10),
+        inset -2px 0 0 rgba(0, 0, 0, 0.20),
+        inset 0 -4px 0 rgba(0, 0, 0, 0.25),
         0 4px 0 #4A3520,
         0 8px 0 #2A1E12,
-        0 14px 0 rgba(20, 12, 4, 0.30),
-        6px 6px 0 rgba(20, 12, 4, 0.25);
+        0 16px 0 rgba(20, 12, 4, 0.30),
+        0 20px 0 rgba(20, 12, 4, 0.15),
+        0 0 24px rgba(143, 200, 88, 0.25);
 }
 
 .acceso-icon-wrap {
@@ -424,6 +394,8 @@
         inset -2px -2px 0 rgba(0, 0, 0, 0.25),
         3px 3px 0 rgba(20, 12, 4, 0.40);
     transition: all 0.22s;
+    position: relative;
+    z-index: 2;
 }
 .acceso-item:hover .acceso-icon-wrap {
     background: linear-gradient(135deg, #C8E6A0, #5E8E30);
@@ -437,23 +409,29 @@
 .acceso-nombre {
     color: #F5EDD8;
     text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.60);
+    position: relative;
+    z-index: 2;
 }
 
 /* ================================================================
-   6. WIDGETS — bloques más grandes
+   6. WIDGETS — bloques grandes
    ================================================================ */
 .widget-item {
     position: relative;
     background:
-        var(--theme-dirt-front) 0 0 / 12px 12px repeat,
+        var(--theme-dirt) 0 0 / 12px 12px repeat,
         linear-gradient(180deg, #8B6A45 0%, #6A4E30 100%);
     border: 3px solid #2A1E12;
     border-radius: 3px;
     box-shadow:
+        inset 2px 0 0 rgba(255, 255, 255, 0.08),
+        inset -2px 0 0 rgba(0, 0, 0, 0.20),
+        inset 0 -4px 0 rgba(0, 0, 0, 0.25),
         0 4px 0 #4A3520,
         0 8px 0 #2A1E12,
         0 12px 0 rgba(20, 12, 4, 0.30);
     transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    overflow: hidden;
 }
 .widget-item::before {
     content: '';
@@ -466,22 +444,25 @@
         var(--theme-grass) 0 0 / 10px 10px repeat,
         linear-gradient(180deg, #A0D070 0%, #7CB850 100%);
     box-shadow:
-        inset 0 3px 0 #A0D070,
+        inset 0 3px 0 rgba(255, 255, 255, 0.25),
         inset 0 -4px 0 #3A6418;
     pointer-events: none;
-    z-index: 1;
+    z-index: 2;
 }
 .widget-item:hover {
-    transform: translate(-2px, -2px);
+    transform: translateY(-3px);
     box-shadow:
+        inset 2px 0 0 rgba(255, 255, 255, 0.10),
+        inset -2px 0 0 rgba(0, 0, 0, 0.20),
+        inset 0 -4px 0 rgba(0, 0, 0, 0.25),
         0 4px 0 #4A3520,
         0 8px 0 #2A1E12,
-        0 14px 0 rgba(20, 12, 4, 0.30),
-        5px 5px 0 rgba(20, 12, 4, 0.25);
+        0 16px 0 rgba(20, 12, 4, 0.30),
+        0 20px 0 rgba(20, 12, 4, 0.15);
 }
 .widget-item > * {
     position: relative;
-    z-index: 2;
+    z-index: 3;
 }
 
 /* ================================================================
@@ -528,7 +509,7 @@
         var(--theme-grass) 0 0 / 8px 8px repeat,
         linear-gradient(180deg, #A0D070 0%, #7CB850 100%);
     box-shadow:
-        inset 0 3px 0 #A0D070,
+        inset 0 3px 0 rgba(255, 255, 255, 0.25),
         inset 0 -4px 0 #3A6418;
     pointer-events: none;
     z-index: 3;
@@ -537,7 +518,7 @@
 .modal-todas-header {
     background: linear-gradient(180deg, #5A4030 0%, #3E2A1C 100%);
     border-bottom: 3px solid #2A1E12;
-    padding-top: 22px;   /* espacio para la franja de césped */
+    padding-top: 22px;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
 }
 .config-header h2,
