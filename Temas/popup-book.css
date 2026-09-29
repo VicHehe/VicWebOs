@@ -1,13 +1,14 @@
 /* ================================================
    Tema: Pop-up Book
-   Libro infantil desplegable. Papel crema, tinta
-   sepia y lomo de cuero rojo. Las cards se
-   levantan de la página con rotateX, como pop-ups
-   de papel al abrir el libro.
+   El lobby ES un libro abierto sobre la mesa.
+   Lomo visible a la izquierda, páginas con
+   esquinas levantadas, iluminación desde arriba.
+   Las cards son pop-ups REALES: al hover rotan
+   desde la base hasta pararse perpendicular a
+   la página. Su sombra sigue el movimiento.
    ================================================ */
 
 :root {
-    /* Acento: cuero rojo del lomo */
     --violet-50:  #FDF6EC;
     --violet-100: #F5E8D0;
     --violet-200: #E8D4B0;
@@ -49,64 +50,109 @@
     --accent-shadow-hover: rgba(139, 50, 34, 0.45);
     --accent-text-gradient: linear-gradient(135deg, #2E261C, #8B3222);
 
-    --book-cream:  #FFFCF5;
-    --book-paper:  #FAF2E0;
-    --book-ink:    #2E261C;
-    --book-leather:#6E2517;
-    --book-gold:   #B8860B;
+    /* Papel y cuero */
+    --paper-base:   #FFFCF5;
+    --paper-shadow: #E8D4B0;
+    --paper-fold:   #DCC9A8;
+    --paper-edge:   #B8A180;
+    --book-spine:   #6E2517;
+    --book-gold:    #B8860B;
+    --book-ink:     #2E261C;
 
     --r-sm: 2px;
     --r-md: 3px;
     --r-lg: 4px;
     --r-xl: 6px;
 
-    /* Textura de papel — fibras sutiles */
-    --theme-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='7'/%3E%3CfeDiffuseLighting in='noise' lighting-color='%23FAF2E0' surfaceScale='1.4'%3E%3CfeDistantLight azimuth='120' elevation='60'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23p)' opacity='0.30'/%3E%3C/svg%3E");
+    --theme-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='7'/%3E%3CfeDiffuseLighting in='noise' lighting-color='%23FAF2E0' surfaceScale='1.4'%3E%3CfeDistantLight azimuth='120' elevation='60'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23p)' opacity='0.28'/%3E%3C/svg%3E");
 
-    /* Rayas del cuaderno infantil */
-    --theme-lines: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0 20 L100 20 M0 40 L100 40 M0 60 L100 60 M0 80 L100 80' stroke='%23DCC9A8' stroke-width='0.4' stroke-opacity='0.55'/%3E%3C/svg%3E");
-
-    /* Lomo del libro — cuero con vetas y oro */
-    --theme-spine: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 400'%3E%3Crect width='30' height='400' fill='%236E2517'/%3E%3Cpath d='M0 30 L30 30 M0 60 L30 60 M0 90 L30 90' stroke='%23B8860B' stroke-width='1' stroke-opacity='0.55'/%3E%3Cpath d='M8 60 L8 340' stroke='%234E1A10' stroke-width='0.5' stroke-opacity='0.6'/%3E%3Cpath d='M22 60 L22 340' stroke='%234E1A10' stroke-width='0.5' stroke-opacity='0.6'/%3E%3Cpath d='M15 380 L15 390' stroke='%23B8860B' stroke-width='1.5' stroke-opacity='0.7'/%3E%3C/svg%3E");
+    --theme-lines: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 32' preserveAspectRatio='none'%3E%3Cpath d='M0 32 L100 32' stroke='%23DCC9A8' stroke-width='0.5' stroke-opacity='0.6'/%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   1. WELCOME — libro abierto sobre la mesa
+   1. WELCOME — libro abierto sobre mesa de madera
    ================================================================ */
 .welcome-placeholder {
     position: relative;
     background:
-        /* Sombra del libro */
-        radial-gradient(ellipse 70% 30% at 50% 100%, rgba(60, 30, 10, 0.30) 0%, transparent 70%),
+        /* Luz cenital desde arriba */
+        radial-gradient(ellipse 60% 25% at 50% 0%, rgba(255, 245, 220, 0.30) 0%, transparent 65%),
+        /* Sombra del libro en la mesa */
+        radial-gradient(ellipse 80% 12% at 50% 100%, rgba(30, 15, 5, 0.40) 0%, transparent 70%),
         /* Mesa de madera */
-        linear-gradient(180deg, #8B6B45 0%, #5A4028 100%);
+        linear-gradient(180deg, #8B6B45 0%, #6A4E30 40%, #4A3520 100%);
+    background-attachment: fixed;
 }
 
-/* Lomo del libro — visible a la izquierda */
+/* HOJA DE PAPEL a la derecha — mitad del libro abierto */
 .welcome-placeholder::before {
     content: '';
     position: absolute;
-    top: 30px;
-    bottom: 40px;
-    left: 20px;
-    width: 32px;
-    background: var(--theme-spine) center/30px 100% no-repeat;
+    top: 24px;
+    right: 24px;
+    bottom: 24px;
+    left: calc(50% + 4px);
+    background:
+        var(--theme-paper) 0 0 / 180px 180px repeat,
+        var(--theme-lines) 0 0 / 100% 32px repeat,
+        linear-gradient(180deg, #FFFCF5 0%, #FAF2E0 100%);
     box-shadow:
-        inset 2px 0 0 rgba(0, 0, 0, 0.30),
-        inset -2px 0 0 rgba(255, 255, 255, 0.10),
-        4px 0 8px rgba(0, 0, 0, 0.35);
-    z-index: 2;
+        inset 2px 0 0 rgba(255, 255, 255, 0.90),
+        inset -4px -4px 12px rgba(60, 30, 10, 0.08),
+        0 2px 4px rgba(60, 30, 10, 0.12),
+        0 12px 24px rgba(60, 30, 10, 0.15),
+        0 24px 48px rgba(60, 30, 10, 0.10);
+    border-radius: 0 4px 4px 0;
+    clip-path: polygon(
+        0 0,
+        calc(100% - 12px) 0,
+        100% 12px,
+        100% calc(100% - 12px),
+        calc(100% - 12px) 100%,
+        0 100%
+    );
     pointer-events: none;
-    border-radius: 3px 0 0 3px;
+    z-index: 1;
+}
+
+/* LOMO DEL LIBRO — franja vertical central con cuero y dorado */
+.welcome-placeholder::after {
+    content: '';
+    position: absolute;
+    top: 16px;
+    bottom: 16px;
+    left: 50%;
+    width: 8px;
+    transform: translateX(-50%);
+    background: linear-gradient(
+        90deg,
+        #4E1A10 0%,
+        #6E2517 15%,
+        #8B3222 50%,
+        #6E2517 85%,
+        #4E1A10 100%
+    );
+    box-shadow:
+        inset 1px 0 0 rgba(184, 134, 11, 0.40),
+        inset -1px 0 0 rgba(184, 134, 11, 0.40),
+        inset 3px 0 8px rgba(0, 0, 0, 0.30),
+        inset -3px 0 8px rgba(0, 0, 0, 0.30);
+    pointer-events: none;
+    z-index: 2;
+    border-radius: 2px;
 }
 
 .welcome-glow {
+    position: absolute;
+    inset: 0;
     background: radial-gradient(
-        circle at 50% 30%,
-        rgba(255, 240, 200, 0.18) 0%,
+        circle at 50% 20%,
+        rgba(255, 245, 220, 0.20) 0%,
         rgba(184, 134, 11, 0.06) 40%,
         transparent 68%
     );
+    pointer-events: none;
+    z-index: 0;
 }
 
 .welcome-hero,
@@ -116,7 +162,7 @@
 }
 
 /* ================================================================
-   2. HERO — página del libro con esquinas levantadas
+   2. HERO — página izquierda con esquina levantada
    ================================================================ */
 .welcome-hero {
     position: relative;
@@ -128,7 +174,7 @@
     border: 1px solid #B8A180;
     border-radius: 3px;
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.60),
+        inset 0 1px 0 rgba(255, 255, 255, 0.70),
         inset 0 -2px 6px rgba(60, 30, 10, 0.06),
         0 1px 2px rgba(60, 30, 10, 0.10),
         0 4px 10px rgba(60, 30, 10, 0.14),
@@ -137,54 +183,39 @@
     max-width: 680px;
     margin-left: auto;
     margin-right: auto;
+    clip-path: polygon(
+        0 0,
+        calc(100% - 36px) 0,
+        100% 36px,
+        100% 100%,
+        0 100%
+    );
 }
 
-/* Esquina superior derecha levantada (efecto página) */
+/* Rincón doblado superior derecho */
 .welcome-hero::before {
     content: '';
     position: absolute;
-    top: -1px;
-    right: -1px;
-    width: 42px;
-    height: 42px;
+    top: 0;
+    right: 0;
+    width: 36px;
+    height: 36px;
     background: linear-gradient(225deg,
         #E8D4B0 0%,
         #E8D4B0 48%,
         #DCC9A8 52%,
         #C8B090 100%);
-    box-shadow:
-        inset 0 0 0 1px rgba(160, 130, 90, 0.50),
-        -2px 2px 6px rgba(60, 30, 10, 0.20);
     clip-path: polygon(100% 0, 100% 100%, 0 0);
-    pointer-events: none;
-    z-index: 3;
-    border-radius: 0 3px 0 0;
-}
-
-/* Esquina inferior izquierda levantada */
-.welcome-hero::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: -1px;
-    width: 36px;
-    height: 36px;
-    background: linear-gradient(45deg,
-        #E8D4B0 0%,
-        #E8D4B0 48%,
-        #DCC9A8 52%,
-        #C8B090 100%);
     box-shadow:
-        inset 0 0 0 1px rgba(160, 130, 90, 0.50),
-        2px -2px 6px rgba(60, 30, 10, 0.20);
-    clip-path: polygon(0 100%, 100% 100%, 0 0);
+        inset 0 0 0 1px rgba(160, 130, 90, 0.55),
+        -3px 3px 8px rgba(60, 30, 10, 0.18);
     pointer-events: none;
     z-index: 3;
 }
 
 .welcome-hero h1 {
     color: var(--book-ink);
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.80);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.85);
     font-weight: 800;
     letter-spacing: -0.005em;
 }
@@ -206,7 +237,10 @@
 .welcome-icon-wrap [data-lucide] { color: #FFFCF5; }
 
 /* ================================================================
-   3. ACCESOS RÁPIDOS — pop-ups que se levantan con rotateX
+   3. ACCESOS RÁPIDOS — POP-UPS REALES
+   La card rota desde su base y se para perpendicular
+   a la página. La sombra debajo crece y se aleja.
+   Un "tab" superior se levanta primero (delay).
    ================================================================ */
 .acceso-item {
     position: relative;
@@ -215,73 +249,81 @@
         linear-gradient(180deg, #FFFCF5 0%, #FAF2E0 100%);
     border: 1px solid #B8A180;
     border-radius: 3px;
+    /* Sombra base plana (papel en reposo) */
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.60),
-        inset 0 -1px 3px rgba(60, 30, 10, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.70),
+        inset 0 -1px 3px rgba(60, 30, 10, 0.06),
         0 2px 4px rgba(60, 30, 10, 0.10),
-        0 4px 10px rgba(60, 30, 10, 0.08);
+        0 6px 14px rgba(60, 30, 10, 0.08);
+    /* EJE DE ROTACIÓN: base de la card */
     transform-origin: 50% 100%;
     transform-style: preserve-3d;
     will-change: transform;
     transition:
-        transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
-        box-shadow 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
     overflow: visible;
 }
 
-/* Sombra de la página levantada — debajo */
+/* SOMBRA PROYECTADA — debajo de la card, sigue su rotación */
 .acceso-item::before {
     content: '';
     position: absolute;
-    left: 6px;
-    right: 6px;
-    bottom: -8px;
-    height: 14px;
+    left: 8px;
+    right: 8px;
+    bottom: -6px;
+    height: 12px;
     background: radial-gradient(ellipse at center, rgba(60, 30, 10, 0.28) 0%, transparent 70%);
     filter: blur(3px);
     z-index: -1;
-    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: all 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
     pointer-events: none;
+    transform-origin: center bottom;
 }
 
-/* Esquina inferior derecha levantada, decorativa */
+/* PESTAÑA SUPERIOR — el "pop-up" que sale primero */
 .acceso-item::after {
     content: '';
     position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 16px;
-    height: 16px;
-    background: linear-gradient(315deg,
-        #E8D4B0 0%,
-        #E8D4B0 48%,
-        #DCC9A8 52%,
-        #C8B090 100%);
-    clip-path: polygon(100% 100%, 100% 0, 0 100%);
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%) scaleY(0);
+    transform-origin: bottom center;
+    width: 60%;
+    height: 12px;
+    background: linear-gradient(180deg, #DCC9A8 0%, #B8A180 100%);
+    border-radius: 4px 4px 0 0;
     box-shadow:
-        inset 0 0 0 1px rgba(160, 130, 90, 0.50);
+        inset 0 1px 0 rgba(255, 255, 255, 0.60),
+        0 -1px 2px rgba(60, 30, 10, 0.20);
     pointer-events: none;
     z-index: 3;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Pop-up: la card se levanta de la página */
+/* HOVER: la card se PARA como pop-up de libro */
 .acceso-item:hover {
-    transform: perspective(900px) rotateX(-14deg) translateY(-8px) translateZ(8px);
+    transform: perspective(900px) rotateX(-42deg) translateY(-10px) translateZ(20px);
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.70),
-        inset 0 -1px 3px rgba(60, 30, 10, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.80),
+        inset 0 -2px 6px rgba(60, 30, 10, 0.10),
         0 2px 4px rgba(60, 30, 10, 0.10),
-        0 8px 16px rgba(60, 30, 10, 0.14),
-        0 16px 32px rgba(60, 30, 10, 0.10),
-        0 24px 48px rgba(60, 30, 10, 0.06);
+        0 12px 28px rgba(60, 30, 10, 0.20),
+        0 24px 48px rgba(60, 30, 10, 0.14),
+        0 36px 72px rgba(60, 30, 10, 0.08);
 }
 .acceso-item:hover::before {
-    bottom: -16px;
-    left: 14px;
-    right: 14px;
-    height: 20px;
+    bottom: -30px;
+    left: 24px;
+    right: 24px;
+    height: 28px;
     background: radial-gradient(ellipse at center, rgba(60, 30, 10, 0.35) 0%, transparent 70%);
-    filter: blur(6px);
+    filter: blur(8px);
+}
+/* La pestaña se levanta 0.15s antes que la card */
+.acceso-item:hover::after {
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0s;
+    transform: translateX(-50%) scaleY(1);
 }
 
 .acceso-icon-wrap {
@@ -293,25 +335,26 @@
         inset 0 1px 2px rgba(255, 255, 255, 0.70),
         inset 0 -1px 2px rgba(60, 30, 10, 0.06),
         0 2px 4px rgba(60, 30, 10, 0.10);
-    transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s;
     transform-style: preserve-3d;
 }
 .acceso-item:hover .acceso-icon-wrap {
     background: linear-gradient(135deg, #B8523A, #6E2517);
     color: #FFFCF5;
-    transform: translateZ(14px) scale(1.06);
+    transform: translateZ(22px) scale(1.10);
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.20),
-        0 4px 12px rgba(139, 50, 34, 0.40),
-        0 8px 20px rgba(139, 50, 34, 0.25);
+        0 6px 14px rgba(139, 50, 34, 0.45),
+        0 12px 28px rgba(139, 50, 34, 0.25);
 }
 
 .acceso-nombre {
     color: var(--book-ink);
-    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s;
+    transform-style: preserve-3d;
 }
 .acceso-item:hover .acceso-nombre {
-    transform: translateZ(6px);
+    transform: translateZ(14px);
 }
 
 /* ================================================================
@@ -325,44 +368,27 @@
     border: 1px solid #B8A180;
     border-radius: 3px;
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.60),
-        inset 0 -1px 3px rgba(60, 30, 10, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.70),
+        inset 0 -1px 3px rgba(60, 30, 10, 0.06),
         0 2px 4px rgba(60, 30, 10, 0.10),
         0 6px 14px rgba(60, 30, 10, 0.08);
     transform-origin: 50% 100%;
     transform-style: preserve-3d;
     will-change: transform;
-    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.widget-item::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 18px;
-    height: 18px;
-    background: linear-gradient(315deg,
-        #E8D4B0 0%,
-        #E8D4B0 48%,
-        #DCC9A8 52%,
-        #C8B090 100%);
-    clip-path: polygon(100% 100%, 100% 0, 0 100%);
-    box-shadow: inset 0 0 0 1px rgba(160, 130, 90, 0.50);
-    pointer-events: none;
-    z-index: 3;
+    transition: all 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .widget-item:hover {
-    transform: perspective(1100px) rotateX(-6deg) translateY(-4px);
+    transform: perspective(1100px) rotateX(-18deg) translateY(-6px) translateZ(12px);
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.70),
-        inset 0 -1px 3px rgba(60, 30, 10, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.80),
+        inset 0 -2px 6px rgba(60, 30, 10, 0.10),
         0 4px 8px rgba(60, 30, 10, 0.12),
-        0 12px 24px rgba(60, 30, 10, 0.14),
-        0 20px 40px rgba(60, 30, 10, 0.08);
+        0 16px 32px rgba(60, 30, 10, 0.16),
+        0 28px 56px rgba(60, 30, 10, 0.10);
 }
 
 /* ================================================================
-   5. HEADER — lomo de cuero en la parte superior
+   5. HEADER — lomo de cuero y dorado
    ================================================================ */
 .app-header {
     position: relative;
@@ -385,9 +411,9 @@
         #8B5A10 4px,
         #8B5A10 8px);
     opacity: 0.75;
+    pointer-events: none;
 }
 
-/* Texto del header en dorado */
 .app-header .logo-text { color: #F5E8D0; }
 .app-header .search-bar input::placeholder { color: #B8A180; }
 
@@ -460,7 +486,7 @@
 }
 
 /* ================================================================
-   7. PESTAÑAS — pestañas como marcadores de libro
+   7. PESTAÑAS
    ================================================================ */
 .tab-item.active {
     background: linear-gradient(180deg, #FFFCF5 0%, #F5E8D0 100%);
@@ -490,8 +516,6 @@
         0 16px 32px rgba(60, 30, 10, 0.15),
         0 32px 64px rgba(60, 30, 10, 0.10);
 }
-
-/* Lomo dorado arriba */
 .config-card::before,
 .modal-todas-card::before {
     content: '';
@@ -509,7 +533,6 @@
     box-shadow: 0 1px 3px rgba(60, 30, 10, 0.15);
     z-index: 3;
 }
-
 .config-header,
 .modal-todas-header {
     background: linear-gradient(180deg, #F5E8D0 0%, #E8D4B0 100%);
@@ -522,7 +545,7 @@
 .modal-subtitle { color: #8A7558; }
 
 /* ================================================================
-   9. BOTÓN PRIMARIO — sello de cuero
+   9. BOTÓN PRIMARIO
    ================================================================ */
 .btn-primario {
     background: linear-gradient(180deg, #B8523A 0%, #8B3222 45%, #6E2517 55%, #4E1A10 100%);
@@ -555,7 +578,7 @@
 }
 
 /* ================================================================
-   10. AVATAR — medallón de cuero con borde dorado
+   10. AVATAR Y NOTIFICACIONES
    ================================================================ */
 .avatar-config {
     background: linear-gradient(135deg, #B8523A, #4E1A10);
@@ -606,7 +629,11 @@
         transform: none !important;
     }
     .acceso-item:hover,
-    .widget-item:hover {
+    .widget-item:hover,
+    .acceso-item:hover::after {
         transform: none !important;
+    }
+    .acceso-item:hover::after {
+        transform: translateX(-50%) scaleY(0) !important;
     }
 }
