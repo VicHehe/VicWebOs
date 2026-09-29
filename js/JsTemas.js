@@ -777,7 +777,7 @@ const TEMAS_DISPONIBLES = [
         descripcion: 'Comedia romántica de secundaria. Cuaderno rayado, corazón y luz cálida de tarde noventera.',
         categoria: 'Cine',
         ruta: 'Temas/cine-romance-escolar.css',
-        espacio: 2,
+        espacio: 4,
         monedas: 25,
         colores: {
             '--violet-100': '#FFE4DE',
