@@ -924,6 +924,34 @@ const TEMAS_DISPONIBLES = [
             '--bg-alt':     '#0A0505',
             '--white':      '#0D0808'
         }
+    },
+        // ============================================================
+    //  3D — Efectos de perspectiva y profundidad real
+    //  Uso de transform-style: preserve-3d, perspective() y
+    //  rotateX/rotateY en hover. Flat shading (color plano, sin
+    //  texture mapping) + sombras duras apiladas + biseles.
+    //  Todos con espacio 4 (implican patrones + pseudo-elementos
+    //  + transforms animados).
+    //
+    //  Precio: 40-50. Progresión interna por intensidad del efecto.
+    // ============================================================
+    {
+        id: 'retro-3d-arcade',
+        nombre: 'Retro-3D Arcade',
+        icono: 'joystick',
+        descripcion: 'Flat-shaded polygons estilo Sega Model 1. Las cards se inclinan en 3D al pasar el mouse, con sombras duras y grid de perspectiva.',
+        categoria: '3D',
+        ruta: 'Temas/retro-3d-arcade.css',
+        espacio: 4,
+        monedas: 50,
+        colores: {
+            '--violet-100': '#101828',
+            '--violet-300': '#00D9FF',
+            '--violet-500': '#FF3DB0',
+            '--bg':         '#060810',
+            '--bg-alt':     '#0A0E1A',
+            '--white':      '#0C1020'
+        }
     }
 ];
 
