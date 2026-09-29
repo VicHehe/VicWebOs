@@ -1,0 +1,48 @@
+/* ================================================
+   Tema: Terracota
+   Barro cocido, cerámica artesanal, atardecer
+   mediterráneo. Neutros cálidos con tinte rojizo.
+   ================================================ */
+
+:root {
+    --violet-50:  #FDF5F0;
+    --violet-100: #F9E8DE;
+    --violet-200: #F0D2C0;
+    --violet-300: #E0B098;
+    --violet-400: #D08A68;
+    --violet-500: #C56A3C;
+    --violet-600: #A8552F;
+    --violet-700: #8A4224;
+
+    --white:   #FFFFFF;
+    --bg:      #FDF9F5;
+    --bg-alt:  #F7EFE7;
+    --gray-50:  #FAF5EF;
+    --gray-100: #F2E8DE;
+    --gray-200: #E5D5C5;
+    --gray-300: #C9B5A2;
+    --gray-400: #A08872;
+    --gray-500: #7A6450;
+    --gray-600: #5A4838;
+    --gray-700: #3E3024;
+    --gray-800: #2A2018;
+    --gray-900: #1A140E;
+
+    --border:  #E5D5C5;
+    --text:    #2A2018;
+    --text-2:  #5A4838;
+    --text-3:  #7A6450;
+
+    --shadow-xs: 0 1px 2px rgba(90, 50, 20, 0.05);
+    --shadow-sm: 0 1px 3px rgba(90, 50, 20, 0.07);
+    --shadow-md: 0 4px 12px rgba(90, 50, 20, 0.09);
+    --shadow-lg: 0 12px 32px rgba(90, 50, 20, 0.12);
+    --shadow-xl: 0 24px 48px rgba(90, 50, 20, 0.15);
+    --shadow-glow: 0 0 0 4px rgba(197, 106, 60, 0.15);
+
+    --accent-gradient: linear-gradient(135deg, #C56A3C, #8A4224);
+    --accent-gradient-hover: linear-gradient(135deg, #D08A68, #A8552F);
+    --accent-shadow: rgba(197, 106, 60, 0.28);
+    --accent-shadow-hover: rgba(197, 106, 60, 0.42);
+    --accent-text-gradient: linear-gradient(135deg, #2A2018, #A8552F);
+}
