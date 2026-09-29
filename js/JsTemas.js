@@ -952,6 +952,24 @@ const TEMAS_DISPONIBLES = [
             '--bg-alt':     '#0A0E1A',
             '--white':      '#0C1020'
         }
+    },
+        {
+        id: 'origami',
+        nombre: 'Origami',
+        icono: 'layers',
+        descripcion: 'Papel washi japonés con fibra real. Esquinas dobladas, capas apiladas y pliegues que se sienten físicos. Índigo, crema y bermellón.',
+        categoria: '3D',
+        ruta: 'Temas/origami.css',
+        espacio: 4,
+        monedas: 50,
+        colores: {
+            '--violet-100': '#E8DFD0',
+            '--violet-300': '#4A6B8A',
+            '--violet-500': '#2C3E50',
+            '--bg':         '#F5F0E8',
+            '--bg-alt':     '#EDE4D3',
+            '--white':      '#FDFAF3'
+        }
     }
 ];
 
