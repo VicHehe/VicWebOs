@@ -1,0 +1,156 @@
+/* ================================================
+   Tema: Cine de Terror
+   Sangre, sombras, grano de película vieja y un
+   parpadeo tenue que nunca está del todo quieto.
+   Homenaje al cine de horror clásico y slasher.
+   ================================================ */
+
+:root {
+    --violet-50:  #1A0405;
+    --violet-100: #2A0608;
+    --violet-200: #4A0A0C;
+    --violet-300: #B91C1C;
+    --violet-400: #DC2626;
+    --violet-500: #991B1B;
+    --violet-600: #7F1D1D;
+    --violet-700: #5C0A0A;
+
+    --white:   #0D0808;
+    --bg:      #050303;
+    --bg-alt:  #0A0505;
+    --gray-50:  #0A0505;
+    --gray-100: #141010;
+    --gray-200: #1E1818;
+    --gray-300: #2E2626;
+    --gray-400: #4A3E3E;
+    --gray-500: #6E5E5E;
+    --gray-600: #988888;
+    --gray-700: #B8A8A8;
+    --gray-800: #D8CCCC;
+    --gray-900: #F0E8E8;
+
+    --border:  #1E1818;
+    --text:    #F0E8E8;
+    --text-2:  #B8A8A8;
+    --text-3:  #6E5E5E;
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.70);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.75);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.75);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.85);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.90);
+    --shadow-glow: 0 0 0 4px rgba(153, 27, 27, 0.25);
+
+    --accent-gradient: linear-gradient(135deg, #991B1B, #4A0A0C);
+    --accent-gradient-hover: linear-gradient(135deg, #DC2626, #7F1D1D);
+    --accent-shadow: rgba(153, 27, 27, 0.45);
+    --accent-shadow-hover: rgba(153, 27, 27, 0.65);
+    --accent-text-gradient: linear-gradient(135deg, #F0E8E8, #DC2626);
+
+    /* Gota de sangre */
+    --theme-blood: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 40'%3E%3Cpath d='M10,2 C10,2 3,16 3,26 C3,32 6,36 10,36 C14,36 17,32 17,26 C17,16 10,2 10,2 Z' fill='%23991B1B'/%3E%3Cellipse cx='7' cy='24' rx='1.5' ry='2.5' fill='%23DC2626' opacity='0.65'/%3E%3C/svg%3E");
+
+    /* Grietas sutiles de pared vieja */
+    --theme-cracks: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg stroke='%23332A2A' stroke-width='0.8' fill='none' stroke-opacity='0.5'%3E%3Cpath d='M20,10 L25,40 L18,60 L26,90'/%3E%3Cpath d='M25,40 L40,55 L55,52'/%3E%3Cpath d='M170,30 L165,60 L172,80 L164,110'/%3E%3Cpath d='M165,60 L150,75'/%3E%3Cpath d='M40,150 L48,170 L42,190'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* Grano de película antigua */
+    --theme-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='%23E8DCC8' fill-opacity='0.5'%3E%3Ccircle cx='5' cy='12' r='0.5'/%3E%3Ccircle cx='22' cy='8' r='0.4'/%3E%3Ccircle cx='45' cy='18' r='0.6'/%3E%3Ccircle cx='68' cy='5' r='0.4'/%3E%3Ccircle cx='85' cy='15' r='0.5'/%3E%3Ccircle cx='12' cy='35' r='0.5'/%3E%3Ccircle cx='35' cy='42' r='0.4'/%3E%3Ccircle cx='58' cy='38' r='0.6'/%3E%3Ccircle cx='78' cy='48' r='0.5'/%3E%3Ccircle cx='8' cy='62' r='0.4'/%3E%3Ccircle cx='30' cy='68' r='0.5'/%3E%3Ccircle cx='52' cy='72' r='0.4'/%3E%3Ccircle cx='75' cy='65' r='0.6'/%3E%3Ccircle cx='92' cy='75' r='0.5'/%3E%3Ccircle cx='18' cy='88' r='0.5'/%3E%3Ccircle cx='42' cy='92' r='0.4'/%3E%3Ccircle cx='65' cy='85' r='0.5'/%3E%3Ccircle cx='88' cy='95' r='0.4'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* Línea de goteo para header */
+    --theme-drip: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 20' preserveAspectRatio='none'%3E%3Cpath d='M0,0 L200,0 L200,6 Q195,10 190,6 Q185,2 180,8 Q175,14 170,8 Q165,3 160,9 Q155,15 150,9 Q145,4 140,10 Q135,16 130,10 Q125,5 120,9 Q115,13 110,9 Q105,5 100,8 Q95,12 90,8 Q85,4 80,7 Q75,11 70,7 Q65,3 60,8 Q55,13 50,8 Q45,4 40,7 Q35,11 30,7 Q25,3 20,6 Q15,10 10,6 Q5,3 0,5 Z' fill='%23991B1B'/%3E%3C/svg%3E");
+}
+
+/* ============ WELCOME — casa embrujada ============ */
+.welcome-placeholder {
+    position: relative;
+    background:
+        var(--theme-grain) 0 0 / 100px 100px repeat,
+        radial-gradient(ellipse at top, rgba(153, 27, 27, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom, rgba(0, 0, 0, 0.60) 0%, transparent 70%),
+        var(--bg);
+}
+
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.55;
+    background-image:
+        var(--theme-cracks),
+        radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.65) 100%);
+    background-size: 400px 400px, 100% 100%;
+    background-position: 0 0, center;
+    background-repeat: no-repeat, no-repeat;
+}
+
+.welcome-glow {
+    background: radial-gradient(
+        circle at 50% 40%,
+        rgba(153, 27, 27, 0.18) 0%,
+        rgba(0, 0, 0, 0.30) 35%,
+        transparent 68%
+    );
+    animation: horror-flicker 6s steps(1) infinite;
+}
+@keyframes horror-flicker {
+    0%, 96%, 100% { opacity: 0.85; }
+    97%           { opacity: 0.30; }
+    97.5%         { opacity: 0.75; }
+    98%           { opacity: 0.20; }
+    98.5%         { opacity: 0.70; }
+    99%           { opacity: 0.35; }
+}
+
+.welcome-hero,
+.welcome-section {
+    position: relative;
+    z-index: 2;
+}
+
+.welcome-hero {
+    position: relative;
+    padding: 34px 28px 30px;
+    background: linear-gradient(
+        180deg,
+        rgba(13, 8, 8, 0.94) 0%,
+        rgba(5, 3, 3, 0.98) 100%
+    );
+    border: 2px solid #4A0A0C;
+    border-radius: 2px;
+    box-shadow:
+        inset 0 0 0 1px rgba(5, 3, 3, 0.9),
+        inset 0 0 0 3px rgba(153, 27, 27, 0.20),
+        inset 0 0 80px rgba(0, 0, 0, 0.75),
+        0 12px 32px rgba(0, 0, 0, 0.85),
+        0 0 60px rgba(153, 27, 27, 0.15);
+    max-width: 660px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.welcome-hero::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 1px solid rgba(153, 27, 27, 0.30);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.welcome-hero::after {
+    content: '';
+    position: absolute;
+    top: -18px;
+    right: 30px;
+    width: 14px;
+    height: 28px;
+    background: var(--theme-blood) center/contain no-repeat;
+    pointer-events: none;
+    z-index: 3;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.85));
+    animation: horror-drip 4s ease-in-out infinite;
+}
+@keyframes horror-drip {
+    0%, 100% { transform: translate
