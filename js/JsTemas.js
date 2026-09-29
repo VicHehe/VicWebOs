@@ -935,6 +935,31 @@ const TEMAS_DISPONIBLES = [
     //
     //  Precio: 40-50. Progresión interna por intensidad del efecto.
     // ============================================================
+        // ============================================================
+    //  PAISAJES — Dioramas visuales como fondo del lobby
+    //  La estrella es el lobby (ciudad, horizonte, ambiente).
+    //  El resto del shell es recolore simple para no competir
+    //  con la escena del fondo.
+    //  Precio: 45 (lobby flagship + shell minimalista).
+    // ============================================================
+    {
+        id: 'ambar-nocturno',
+        nombre: 'Ámbar Nocturno',
+        icono: 'radio-tower',
+        descripcion: 'Ciudad nocturna vista de frente: 3 capas de edificios con ventanas encendidas y autos voladores cruzando el cielo. Fuera del lobby, dark minimalista.',
+        categoria: 'Paisajes',
+        ruta: 'Temas/ambar-nocturno.css',
+        espacio: 4,
+        monedas: 45,
+        colores: {
+            '--violet-100': '#3D2C12',
+            '--violet-300': '#FFD89A',
+            '--violet-500': '#F0A94A',
+            '--bg':         '#0A0A10',
+            '--bg-alt':     '#101018',
+            '--white':      '#15141C'
+        }
+    },
     {
         id: 'retro-3d-arcade',
         nombre: 'Retro-3D Arcade',
@@ -970,7 +995,6 @@ const TEMAS_DISPONIBLES = [
             '--bg-alt':     '#EDE4D3',
             '--white':      '#FDFAF3'
         }
-    },
-
+    }
 ];
 
