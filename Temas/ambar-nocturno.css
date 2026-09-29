@@ -1,77 +1,73 @@
 /* ================================================
    Tema: Ámbar Nocturno
-   Base: negro cálido + ámbar dorado. Solo colores.
-   Lobby: ciudad 3D en 3 capas (lejos / medio / cerca)
-   con autos volando a distintas profundidades.
+   Base: solo colores (paleta original, negro + ámbar).
+   Lobby: ciudad 3D en 3 capas + autos voladores.
    ================================================ */
 
 :root {
-    --violet-50:  #1F1608;
-    --violet-100: #33240D;
-    --violet-200: #4D3612;
-    --violet-300: #8F5E18;
-    --violet-400: #C98524;
-    --violet-500: #F2A93C;
-    --violet-600: #FFC15E;
-    --violet-700: #FFD98F;
+    --violet-50:  #2A1F0E;
+    --violet-100: #3D2C12;
+    --violet-200: #5A4218;
+    --violet-300: #FFD89A;
+    --violet-400: #FFC270;
+    --violet-500: #F0A94A;
+    --violet-600: #D18A28;
+    --violet-700: #A86B1A;
 
-    --white:   #16130E;
-    --bg:      #0B0A08;
-    --bg-alt:  #15120D;
-    --gray-50:  #181510;
-    --gray-100: #201C15;
-    --gray-200: #2E281D;
-    --gray-300: #4A4232;
-    --gray-400: #7A6F5A;
-    --gray-500: #A0947C;
-    --gray-600: #C0B49C;
-    --gray-700: #D8CEB8;
-    --gray-800: #EBE4D2;
-    --gray-900: #FAF6EA;
+    --white:   #15141C;
+    --bg:      #0A0A10;
+    --bg-alt:  #101018;
+    --gray-50:  #101018;
+    --gray-100: #18171F;
+    --gray-200: #25232E;
+    --gray-300: #38353F;
+    --gray-400: #58535E;
+    --gray-500: #8A8492;
+    --gray-600: #B0A9B8;
+    --gray-700: #D0C9D8;
+    --gray-800: #E5E0EC;
+    --gray-900: #F5F0F8;
 
-    --border:  #2E281D;
-    --text:    #FAF6EA;
-    --text-2:  #C0B49C;
-    --text-3:  #A0947C;
+    --border:  #25232E;
+    --text:    #F5F0E8;
+    --text-2:  #B0A9B8;
+    --text-3:  #8A8492;
 
-    --shadow-glow: 0 0 0 4px rgba(242, 169, 60, 0.22);
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.50);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.60);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.60);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.70);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.80);
+    --shadow-glow: 0 0 0 4px rgba(240, 169, 74, 0.20);
 
-    --accent-gradient: linear-gradient(135deg, #F2A93C, #FFD98F);
-    --accent-gradient-hover: linear-gradient(135deg, #FFC15E, #FFD98F);
-    --accent-shadow: rgba(242, 169, 60, 0.35);
-    --accent-shadow-hover: rgba(242, 169, 60, 0.55);
-    --accent-text-gradient: linear-gradient(135deg, #FAF6EA, #FFC15E);
+    --accent-gradient: linear-gradient(135deg, #F0A94A, #A86B1A);
+    --accent-gradient-hover: linear-gradient(135deg, #FFC270, #D18A28);
+    --accent-shadow: rgba(240, 169, 74, 0.35);
+    --accent-shadow-hover: rgba(240, 169, 74, 0.55);
+    --accent-text-gradient: linear-gradient(135deg, #F5F0E8, #F0A94A);
 
-    /* ------------------------------------------------
-       CIUDAD: 18 edificios, 6 modelos. Cada uno tiene
-       3 caras: frente (ventanas ámbar), techo claro
-       (luz de luna) y lateral oscuro (sombra), más un
-       resplandor de calle en la base. El mismo tile se
-       reutiliza a 3 escalas para dar profundidad.
-       ------------------------------------------------ */
-    --theme-city: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 400'%3E%3Cdefs%3E%3ClinearGradient id='f' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%231E1530'/%3E%3Cstop offset='1' stop-color='%230C0712'/%3E%3C/linearGradient%3E%3ClinearGradient id='t' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23574A80'/%3E%3Cstop offset='1' stop-color='%23352A58'/%3E%3C/linearGradient%3E%3ClinearGradient id='s' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%230A0510'/%3E%3Cstop offset='1' stop-color='%23040207'/%3E%3C/linearGradient%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23F0A94A' stop-opacity='0'/%3E%3Cstop offset='1' stop-color='%23F0A94A' stop-opacity='.3'/%3E%3C/linearGradient%3E%3Cpattern id='w' width='14' height='18' patternUnits='userSpaceOnUse'%3E%3Crect x='4' y='5' width='6' height='8' fill='%23FFB84D'/%3E%3C/pattern%3E%3Cpattern id='k' width='42' height='54' patternUnits='userSpaceOnUse'%3E%3Cg fill='%23332417'%3E%3Crect x='18' y='5' width='6' height='8'/%3E%3Crect x='4' y='23' width='6' height='8'/%3E%3Crect x='32' y='41' width='6' height='8'/%3E%3Crect x='18' y='41' width='6' height='8'/%3E%3C/g%3E%3C/pattern%3E%3Cpattern id='v' width='14' height='36' patternUnits='userSpaceOnUse' patternTransform='skewY(-26.6)'%3E%3Crect x='4' y='5' width='6' height='8' fill='%23A8741F' opacity='.7'/%3E%3C/pattern%3E%3Cg id='A'%3E%3Cpath d='M0,-216h56v216h-56z' fill='url(%23f)'/%3E%3Cpath d='M0,-216h56v216h-56z' fill='url(%23w)'/%3E%3Cpath d='M0,-216h56v216h-56z' fill='url(%23k)'/%3E%3Crect y='-64' width='56' height='64' fill='url(%23g)'/%3E%3Cpath d='M0,-216h56l14,-7h-56z' fill='url(%23t)'/%3E%3Cpath d='M56,-216l14,-7v216l-14,7z' fill='url(%23s)'/%3E%3Cpath d='M56,-216l14,-7v216l-14,7z' fill='url(%23v)'/%3E%3Cpath d='M0,-216h56l14,-7' fill='none' stroke='%23FFC270' stroke-opacity='.4'/%3E%3C/g%3E%3Cg id='B'%3E%3Cpath d='M0,-306h70v306h-70z' fill='url(%23f)'/%3E%3Cpath d='M0,-306h70v306h-70z' fill='url(%23w)'/%3E%3Cpath d='M0,-306h70v306h-70z' fill='url(%23k)'/%3E%3Crect y='-64' width='70' height='64' fill='url(%23g)'/%3E%3Cpath d='M0,-306h70l14,-7h-70z' fill='url(%23t)'/%3E%3Cpath d='M70,-306l14,-7v306l-14,7z' fill='url(%23s)'/%3E%3Cpath d='M70,-306l14,-7v306l-14,7z' fill='url(%23v)'/%3E%3Cpath d='M0,-306h70l14,-7' fill='none' stroke='%23FFC270' stroke-opacity='.4'/%3E%3Cpath d='M50,-310v-42' stroke='%233A2E5E' stroke-width='1.5'/%3E%3Ccircle cx='50' cy='-352' r='7' fill='%23FF4A3A' opacity='.25'/%3E%3Ccircle cx='50' cy='-352' r='2' fill='%23FF4A3A'/%3E%3C/g%3E%3Cg id='C'%3E%3Cpath d='M0,-144h42v144h-42z' fill='url(%23f)'/%3E%3Cpath d='M0,-144h42v144h-42z' fill='url(%23w)'/%3E%3Cpath d='M0,-144h42v144h-42z' fill='url(%23k)'/%3E%3Crect y='-64' width='42' height='64' fill='url(%23g)'/%3E%3Cpath d='M0,-144h42l14,-7h-42z' fill='url(%23t)'/%3E%3Cpath d='M42,-144l14,-7v144l-14,7z' fill='url(%23s)'/%3E%3Cpath d='M42,-144l14,-7v144l-14,7z' fill='url(%23v)'/%3E%3Cpath d='M0,-144h42l14,-7' fill='none' stroke='%23FFC270' stroke-opacity='.4'/%3E%3C/g%3E%3Cg id='D'%3E%3Cpath d='M0,-252h84v252h-84z' fill='url(%23f)'/%3E%3Cpath d='M0,-252h84v252h-84z' fill='url(%23w)'/%3E%3Cpath d='M0,-252h84v252h-84z' fill='url(%23k)'/%3E%3Crect y='-64' width='84' height='64' fill='url(%23g)'/%3E%3Cpath d='M0,-252h84l14,-7h-84z' fill='url(%23t)'/%3E%3Cpath d='M84,-252l14,-7v252l-14,7z' fill='url(%23s)'/%3E%3Cpath d='M84,-252l14,-7v252l-14,7z' fill='url(%23v)'/%3E%3Cpath d='M0,-252h84l14,-7' fill='none' stroke='%23FFC270' stroke-opacity='.4'/%3E%3C/g%3E%3Cg id='E'%3E%3Cpath d='M0,-180h56v180h-56z' fill='url(%23f)'/%3E%3Cpath d='M0,-180h56v180h-56z' fill='url(%23w)'/%3E%3Cpath d='M0,-180h56v180h-56z' fill='url(%23k)'/%3E%3Crect y='-64' width='56' height='64' fill='url(%23g)'/%3E%3Cpath d='M0,-180h56l14,-7h-56z' fill='url(%23t)'/%3E%3Cpath d='M56,-180l14,-7v180l-14,7z' fill='url(%23s)'/%3E%3Cpath d='M56,-180l14,-7v180l-14,7z' fill='url(%23v)'/%3E%3Cpath d='M0,-180h56l14,-7' fill='none' stroke='%23FFC270' stroke-opacity='.4'/%3E%3C/g%3E%3Cg id='F'%3E%3Cpath d='M0,-270h56v270h-56z' fill='url(%23f)'/%3E%3Cpath d='M0,-270h56v270h-56z' fill='url(%23w)'/%3E%3Cpath d='M0,-270h56v270h-56z' fill='url(%23k)'/%3E%3Crect y='-64' width='56' height='64' fill='url(%23g)'/%3E%3Cpath d='M0,-270h56l14,-7h-56z' fill='url(%23t)'/%3E%3Cpath d='M56,-270l14,-7v270l-14,7z' fill='url(%23s)'/%3E%3Cpath d='M56,-270l14,-7v270l-14,7z' fill='url(%23v)'/%3E%3Cpath d='M0,-270h56l14,-7' fill='none' stroke='%23FFC270' stroke-opacity='.4'/%3E%3C/g%3E%3C/defs%3E%3Cuse href='%23A' x='0' y='400'/%3E%3Cuse href='%23C' x='80' y='400'/%3E%3Cuse href='%23B' x='146' y='400'/%3E%3Cuse href='%23E' x='240' y='400'/%3E%3Cuse href='%23D' x='320' y='400'/%3E%3Cuse href='%23F' x='440' y='400'/%3E%3Cuse href='%23E' x='520' y='400'/%3E%3Cuse href='%23B' x='610' y='400'/%3E%3Cuse href='%23C' x='706' y='400'/%3E%3Cuse href='%23D' x='780' y='400'/%3E%3Cuse href='%23A' x='900' y='400'/%3E%3Cuse href='%23C' x='990' y='400'/%3E%3Cuse href='%23E' x='1058' y='400'/%3E%3Cuse href='%23B' x='1150' y='400'/%3E%3Cuse href='%23D' x='1250' y='400'/%3E%3Cuse href='%23F' x='1362' y='400'/%3E%3Cuse href='%23E' x='1445' y='400'/%3E%3Cuse href='%23C' x='1525' y='400'/%3E%3C/svg%3E");
+    /* CIUDAD: 6 modelos de edificio, 3 caras cada uno (frente, techo, lateral) */
+    --theme-city: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 400' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='f' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23201830'/%3E%3Cstop offset='1' stop-color='%23100818'/%3E%3C/linearGradient%3E%3ClinearGradient id='t' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23423868'/%3E%3Cstop offset='1' stop-color='%23282048'/%3E%3C/linearGradient%3E%3ClinearGradient id='s' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%230C0612'/%3E%3Cstop offset='1' stop-color='%23060408'/%3E%3C/linearGradient%3E%3Cg id='A'%3E%3Crect x='0' y='-180' width='60' height='180' fill='url(%23f)'/%3E%3Cpolygon points='0,-180 60,-180 72,-192 12,-192' fill='url(%23t)'/%3E%3Cpolygon points='60,-180 72,-192 72,-12 60,0' fill='url(%23s)'/%3E%3Cpath fill='%23FFB84D' d='M8,-170h5v4h-5zM26,-170h5v4h-5zM44,-170h5v4h-5zM8,-150h5v4h-5zM26,-150h5v4h-5zM8,-130h5v4h-5zM44,-130h5v4h-5zM26,-110h5v4h-5zM44,-110h5v4h-5zM8,-90h5v4h-5zM26,-90h5v4h-5zM44,-90h5v4h-5zM8,-70h5v4h-5zM26,-70h5v4h-5zM8,-50h5v4h-5zM26,-50h5v4h-5zM44,-50h5v4h-5zM26,-30h5v4h-5zM44,-30h5v4h-5z'/%3E%3Cpath fill='%236A4F20' d='M44,-150h5v4h-5zM8,-110h5v4h-5zM44,-70h5v4h-5zM8,-30h5v4h-5z'/%3E%3C/g%3E%3Cg id='B'%3E%3Crect x='0' y='-240' width='70' height='240' fill='url(%23f)'/%3E%3Cpolygon points='0,-240 70,-240 84,-254 14,-254' fill='url(%23t)'/%3E%3Cpolygon points='70,-240 84,-254 84,-14 70,0' fill='url(%23s)'/%3E%3Cline x1='35' y1='-240' x2='35' y2='-290' stroke='%23201830' stroke-width='1.5'/%3E%3Ccircle cx='35' cy='-290' r='1.8' fill='%23FF4444'/%3E%3Cpath fill='%23FFB84D' d='M10,-228h5v4h-5zM28,-228h5v4h-5zM46,-228h5v4h-5zM10,-208h5v4h-5zM46,-208h5v4h-5zM28,-188h5v4h-5zM46,-188h5v4h-5zM10,-168h5v4h-5zM28,-168h5v4h-5zM10,-148h5v4h-5zM46,-148h5v4h-5zM28,-128h5v4h-5zM46,-128h5v4h-5zM10,-108h5v4h-5zM28,-108h5v4h-5zM46,-108h5v4h-5zM10,-88h5v4h-5zM28,-88h5v4h-5zM46,-68h5v4h-5zM10,-68h5v4h-5zM28,-48h5v4h-5zM46,-48h5v4h-5zM10,-28h5v4h-5z'/%3E%3Cpath fill='%236A4F20' d='M28,-208h5v4h-5zM10,-188h5v4h-5zM28,-148h5v4h-5zM10,-128h5v4h-5zM46,-88h5v4h-5zM28,-68h5v4h-5zM46,-28h5v4h-5z'/%3E%3C/g%3E%3Cg id='C'%3E%3Crect x='0' y='-140' width='50' height='140' fill='url(%23f)'/%3E%3Cpolygon points='0,-140 50,-140 60,-150 10,-150' fill='url(%23t)'/%3E%3Cpolygon points='50,-140 60,-150 60,-10 50,0' fill='url(%23s)'/%3E%3Cpath fill='%23FFB84D' d='M8,-130h4v4h-4zM22,-130h4v4h-4zM36,-130h4v4h-4zM8,-112h4v4h-4zM36,-112h4v4h-4zM22,-94h4v4h-4zM8,-76h4v4h-4zM22,-76h4v4h-4zM36,-76h4v4h-4zM8,-58h4v4h-4zM36,-58h4v4h-4zM22,-40h4v4h-4zM8,-22h4v4h-4zM22,-22h4v4h-4z'/%3E%3Cpath fill='%236A4F20' d='M22,-112h4v4h-4zM36,-94h4v4h-4zM8,-40h4v4h-4zM36,-22h4v4h-4z'/%3E%3C/g%3E%3Cg id='D'%3E%3Crect x='0' y='-200' width='80' height='200' fill='url(%23f)'/%3E%3Cpolygon points='0,-200 80,-200 95,-215 15,-215' fill='url(%23t)'/%3E%3Cpolygon points='80,-200 95,-215 95,-15 80,0' fill='url(%23s)'/%3E%3Cpath fill='%23FFB84D' d='M12,-188h6v4h-6zM32,-188h6v4h-6zM52,-188h6v4h-6zM12,-168h6v4h-6zM52,-168h6v4h-6zM32,-148h6v4h-6zM52,-148h6v4h-6zM12,-128h6v4h-6zM32,-128h6v4h-6zM12,-108h6v4h-6zM52,-108h6v4h-6zM32,-88h6v4h-6zM52,-88h6v4h-6zM12,-68h6v4h-6zM32,-68h6v4h-6zM52,-68h6v4h-6zM12,-48h6v4h-6zM32,-48h6v4h-6zM52,-28h6v4h-6zM12,-28h6v4h-6zM32,-28h6v4h-6z'/%3E%3Cpath fill='%236A4F20' d='M32,-168h6v4h-6zM12,-148h6v4h-6zM52,-128h6v4h-6zM32,-108h6v4h-6zM12,-88h6v4h-6zM52,-48h6v4h-6zM12,-28h6v4h-6z'/%3E%3C/g%3E%3Cg id='E'%3E%3Crect x='0' y='-160' width='55' height='160' fill='url(%23f)'/%3E%3Cpolygon points='0,-160 55,-160 66,-172 11,-172' fill='url(%23t)'/%3E%3Cpolygon points='55,-160 66,-172 66,-12 55,0' fill='url(%23s)'/%3E%3Cpath fill='%23FFB84D' d='M8,-148h5v4h-5zM24,-148h5v4h-5zM40,-148h5v4h-5zM8,-128h5v4h-5zM40,-128h5v4h-5zM24,-108h5v4h-5zM8,-88h5v4h-5zM24,-88h5v4h-5zM40,-88h5v4h-5zM8,-68h5v4h-5zM40,-68h5v4h-5zM24,-48h5v4h-5zM8,-28h5v4h-5zM24,-28h5v4h-5zM40,-28h5v4h-5z'/%3E%3Cpath fill='%236A4F20' d='M24,-128h5v4h-5zM8,-108h5v4h-5zM40,-108h5v4h-5zM24,-68h5v4h-5zM8,-48h5v4h-5zM40,-48h5v4h-5z'/%3E%3C/g%3E%3Cg id='F'%3E%3Crect x='0' y='-220' width='65' height='220' fill='url(%23f)'/%3E%3Crect x='10' y='-260' width='45' height='40' fill='url(%23f)'/%3E%3Cpolygon points='0,-220 65,-220 78,-233 13,-233' fill='url(%23t)'/%3E%3Cpolygon points='10,-260 55,-260 65,-270 20,-270' fill='url(%23t)'/%3E%3Cpolygon points='65,-220 78,-233 78,-13 65,0' fill='url(%23s)'/%3E%3Cpolygon points='55,-260 65,-270 65,-230 55,-220' fill='url(%23s)'/%3E%3Cpath fill='%23FFB84D' d='M10,-208h5v4h-5zM28,-208h5v4h-5zM46,-208h5v4h-5zM10,-188h5v4h-5zM46,-188h5v4h-5zM28,-168h5v4h-5zM46,-168h5v4h-5zM10,-148h5v4h-5zM28,-148h5v4h-5zM10,-128h5v4h-5zM46,-128h5v4h-5zM28,-108h5v4h-5zM46,-108h5v4h-5zM10,-88h5v4h-5zM28,-88h5v4h-5zM46,-88h5v4h-5zM10,-68h5v4h-5zM28,-68h5v4h-5zM46,-48h5v4h-5zM10,-48h5v4h-5zM28,-48h5v4h-5zM46,-28h5v4h-5zM16,-252h5v3h-5zM30,-252h5v3h-5zM44,-252h5v3h-5zM16,-242h5v3h-5zM44,-242h5v3h-5z'/%3E%3Cpath fill='%236A4F20' d='M28,-188h5v4h-5zM10,-168h5v4h-5zM28,-128h5v4h-5zM10,-108h5v4h-5zM28,-48h5v4h-5zM30,-242h5v3h-5z'/%3E%3C/g%3E%3C/defs%3E%3Cuse href='%23A' x='0' y='400'/%3E%3Cuse href='%23C' x='75' y='400'/%3E%3Cuse href='%23B' x='140' y='400'/%3E%3Cuse href='%23E' x='230' y='400'/%3E%3Cuse href='%23D' x='300' y='400'/%3E%3Cuse href='%23A' x='405' y='400'/%3E%3Cuse href='%23F' x='480' y='400'/%3E%3Cuse href='%23C' x='560' y='400'/%3E%3Cuse href='%23B' x='625' y='400'/%3E%3Cuse href='%23E' x='715' y='400'/%3E%3Cuse href='%23D' x='785' y='400'/%3E%3Cuse href='%23A' x='890' y='400'/%3E%3Cuse href='%23C' x='965' y='400'/%3E%3Cuse href='%23F' x='1030' y='400'/%3E%3Cuse href='%23E' x='1110' y='400'/%3E%3Cuse href='%23B' x='1180' y='400'/%3E%3Cuse href='%23D' x='1270' y='400'/%3E%3Cuse href='%23A' x='1375' y='400'/%3E%3Cuse href='%23C' x='1450' y='400'/%3E%3Cuse href='%23E' x='1515' y='400'/%3E%3C/svg%3E");
 
-    /* ------------------------------------------------
-       AUTOS — tile de 900x90 con estela luminosa.
-       -r: van hacia la derecha / -l: hacia la izquierda
-       ------------------------------------------------ */
+    /* AUTOS — nariz a la derecha (-r) o espejados hacia la izquierda (-l) */
     --theme-cars-r: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 900 90'%3E%3Cdefs%3E%3ClinearGradient id='r'%3E%3Cstop offset='0' stop-color='%23FF7A3A' stop-opacity='0'/%3E%3Cstop offset='1' stop-color='%23FFC270' stop-opacity='.85'/%3E%3C/linearGradient%3E%3Cg id='c'%3E%3Crect x='-30' y='8.7' width='32' height='.9' fill='url(%23r)'/%3E%3Cpath d='M2,8 L10,8 L14,3 L28,3 L35,8 L43,8 L43,10.5 L2,10.5 Z' fill='%230C0710' stroke='%23FFC270' stroke-width='.6'/%3E%3Cpath d='M15,3.8 L27,3.8 L32,7.6 L12,7.6 Z' fill='%23FFD89A' opacity='.6'/%3E%3Crect x='2' y='8' width='3' height='1.6' fill='%23FF4A3A'/%3E%3Crect x='10' y='10.8' width='24' height='1.1' fill='%23FFC270' opacity='.7'/%3E%3Ccircle cx='42' cy='9' r='1.3' fill='%23FFFFFF'/%3E%3Ccircle cx='42' cy='9' r='4.5' fill='%23FFC270' opacity='.3'/%3E%3C/g%3E%3C/defs%3E%3Cuse href='%23c' x='70' y='4'/%3E%3Cuse href='%23c' x='330' y='28'/%3E%3Cuse href='%23c' x='590' y='50'/%3E%3Cuse href='%23c' x='780' y='70'/%3E%3Cuse href='%23c' x='470' y='66'/%3E%3C/svg%3E");
 
     --theme-cars-l: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 900 90'%3E%3Cdefs%3E%3ClinearGradient id='r'%3E%3Cstop offset='0' stop-color='%23FF7A3A' stop-opacity='0'/%3E%3Cstop offset='1' stop-color='%23FFC270' stop-opacity='.85'/%3E%3C/linearGradient%3E%3Cg id='c'%3E%3Crect x='-30' y='8.7' width='32' height='.9' fill='url(%23r)'/%3E%3Cpath d='M2,8 L10,8 L14,3 L28,3 L35,8 L43,8 L43,10.5 L2,10.5 Z' fill='%230C0710' stroke='%23FFC270' stroke-width='.6'/%3E%3Cpath d='M15,3.8 L27,3.8 L32,7.6 L12,7.6 Z' fill='%23FFD89A' opacity='.6'/%3E%3Crect x='2' y='8' width='3' height='1.6' fill='%23FF4A3A'/%3E%3Crect x='10' y='10.8' width='24' height='1.1' fill='%23FFC270' opacity='.7'/%3E%3Ccircle cx='42' cy='9' r='1.3' fill='%23FFFFFF'/%3E%3Ccircle cx='42' cy='9' r='4.5' fill='%23FFC270' opacity='.3'/%3E%3C/g%3E%3C/defs%3E%3Cg transform='matrix(-1 0 0 1 900 0)'%3E%3Cuse href='%23c' x='120' y='10'/%3E%3Cuse href='%23c' x='400' y='34'/%3E%3Cuse href='%23c' x='690' y='56'/%3E%3Cuse href='%23c' x='260' y='72'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   LOBBY — cielo + 4 capas de profundidad
-   (cada capa = ciudad + su fila de autos, con velocidades y
-   brillos distintos para dar sensación de parallax)
+   LOBBY — TODAS las capas usan background-attachment: fixed, así
+   la ciudad queda anclada al borde inferior de la PANTALLA y no
+   del contenido (aunque hagas scroll, nunca flota ni se corta).
+   Cada capa cubre todo el lobby (inset: 0) y dibuja ciudad + autos.
    ================================================================ */
 .welcome-placeholder {
     position: relative;
     isolation: isolate;
     background:
         /* Luna */
-        radial-gradient(circle 120px at 16% 14%, rgba(255, 210, 140, 0.16), transparent),
-        radial-gradient(circle 24px at 16% 14%, rgba(255, 238, 195, 0.95) 0, rgba(255, 238, 195, 0.95) 21px, transparent 24px),
+        radial-gradient(circle 110px at 14% 12%, rgba(255, 210, 140, 0.14), transparent),
+        radial-gradient(circle 22px at 14% 12%, rgba(255, 238, 195, 0.95) 0, rgba(255, 238, 195, 0.95) 19px, transparent 22px),
         /* Estrellas */
         radial-gradient(1.5px 1.5px at 8% 6%,   rgba(255, 220, 160, 0.85), transparent),
         radial-gradient(1px 1px     at 26% 10%, rgba(255, 220, 160, 0.55), transparent),
@@ -81,11 +77,11 @@
         radial-gradient(1px 1px     at 90% 14%, rgba(255, 220, 160, 0.50), transparent),
         radial-gradient(1px 1px     at 34% 22%, rgba(255, 220, 160, 0.45), transparent),
         radial-gradient(1.5px 1.5px at 66% 24%, rgba(255, 220, 160, 0.55), transparent),
-        radial-gradient(1px 1px     at 94% 26%, rgba(255, 220, 160, 0.45), transparent),
-        /* Halo ámbar de la ciudad (se ve entre los edificios) */
-        radial-gradient(ellipse 80% 35% at 50% 100%, rgba(242, 169, 60, 0.30) 0%, transparent 70%),
+        /* Halo ámbar del horizonte */
+        radial-gradient(ellipse 80% 30% at 50% 100%, rgba(240, 169, 74, 0.22) 0%, transparent 70%),
         /* Cielo */
-        linear-gradient(180deg, #04050A 0%, #0A0910 35%, #14101A 65%, #2A180A 100%);
+        linear-gradient(180deg, #04050A 0%, #08080F 25%, #0E0D18 55%, #1A1626 100%);
+    background-attachment: fixed;
 }
 
 .welcome-glow {
@@ -96,84 +92,83 @@
     pointer-events: none;
 }
 
-/* CAPA 1 — lejana: chica, oscura, desenfocada, autos lentos → */
+/* CAPA 1 — lejana: chica, oscura, autos lentos → */
 .welcome-glow::before {
     content: '';
     position: absolute;
-    left: 0; right: 0; bottom: 0;
-    height: 220px;
+    inset: 0;
     z-index: 1;
     pointer-events: none;
     background-image: var(--theme-cars-r), var(--theme-city);
     background-size: 450px 45px, 880px 220px;
     background-repeat: repeat-x;
-    background-position: 0 25%, -640px 100%;
-    filter: brightness(0.5) blur(0.5px);
-    animation: ambar-far 110s linear infinite;
+    background-attachment: fixed;
+    background-position: 0 72%, -300px 100%;
+    filter: brightness(0.5);
+    animation: ambar-far 90s linear infinite;
 }
 @keyframes ambar-far {
-    from { background-position: 0 25%,     -640px 100%; }
-    to   { background-position: 450px 25%, -640px 100%; }
+    from { background-position: 0 72%,     -300px 100%; }
+    to   { background-position: 450px 72%, -300px 100%; }
 }
 
 /* CAPA 2 — media: autos en sentido contrario ← */
 .welcome-glow::after {
     content: '';
     position: absolute;
-    left: 0; right: 0; bottom: 0;
-    height: 300px;
+    inset: 0;
     z-index: 2;
     pointer-events: none;
     background-image: var(--theme-cars-l), var(--theme-city);
     background-size: 675px 67px, 1200px 300px;
     background-repeat: repeat-x;
-    background-position: 0 12%, -260px 100%;
+    background-attachment: fixed;
+    background-position: 0 62%, -520px 100%;
     filter: brightness(0.75);
-    animation: ambar-mid 70s linear infinite;
+    animation: ambar-mid 90s linear infinite;
 }
 @keyframes ambar-mid {
-    from { background-position: 0 12%,      -260px 100%; }
-    to   { background-position: -675px 12%, -260px 100%; }
+    from { background-position: 0 62%,       -520px 100%; }
+    to   { background-position: -1350px 62%, -520px 100%; }
 }
 
 /* CAPA 3 — cercana: edificios a tamaño completo, autos → */
 .welcome-placeholder::before {
     content: '';
     position: absolute;
-    left: 0; right: 0; bottom: 0;
-    height: 400px;
-    z-index: 1;
+    inset: 0;
+    z-index: 3;
     pointer-events: none;
     background-image: var(--theme-cars-r), var(--theme-city);
     background-size: 900px 90px, 1600px 400px;
     background-repeat: repeat-x;
-    background-position: 0 6%, 0 100%;
-    animation: ambar-near 45s linear infinite;
+    background-attachment: fixed;
+    background-position: 0 52%, 0 100%;
+    animation: ambar-near 90s linear infinite;
 }
 @keyframes ambar-near {
-    from { background-position: 0 6%,     0 100%; }
-    to   { background-position: 900px 6%, 0 100%; }
+    from { background-position: 0 52%,      0 100%; }
+    to   { background-position: 2700px 52%, 0 100%; }
 }
 
 /* CAPA 4 — primer plano: autos grandes, rápidos y desenfocados ← */
 .welcome-placeholder::after {
     content: '';
     position: absolute;
-    left: 0; right: 0;
-    bottom: 46%;
-    height: 135px;
-    z-index: 2;
+    inset: 0;
+    z-index: 4;
     pointer-events: none;
     background-image: var(--theme-cars-l);
     background-size: 1350px 135px;
     background-repeat: repeat-x;
-    background-position: 0 0;
-    filter: blur(1.4px) drop-shadow(0 0 6px rgba(242, 169, 60, 0.5));
-    animation: ambar-fg 28s linear infinite;
+    background-attachment: fixed;
+    background-position: 0 38%;
+    filter: blur(1.4px) drop-shadow(0 0 6px rgba(240, 169, 74, 0.5));
+    animation: ambar-fg 90s linear infinite;
 }
 @keyframes ambar-fg {
-    from { background-position: 0 0; }
-    to   { background-position: -1350px 0; }
+    from { background-position: 0 38%; }
+    to   { background-position: -5400px 38%; }
 }
 
 /* Contenido del lobby por encima de todo */
@@ -185,29 +180,23 @@
 
 /* Hero en cristal oscuro para que se lea sobre la ciudad */
 .welcome-hero {
-    background: rgba(11, 10, 8, 0.62);
+    background: rgba(8, 8, 14, 0.68);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(242, 169, 60, 0.25);
+    border: 1px solid rgba(240, 169, 74, 0.22);
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.05),
         0 12px 32px rgba(0, 0, 0, 0.60);
 }
 
-/* ================================================================
-   CONTRASTE — texto oscuro sobre fondos ámbar (el resto del tema
-   es solo variables)
-   ================================================================ */
+/* Texto oscuro sobre fondos ámbar */
 .btn-primario,
 .avatar-config,
 .noti-badge,
 .welcome-icon-wrap [data-lucide] {
-    color: #0B0A08;
+    color: #0A0A10;
 }
 
-/* ================================================================
-   ACCESIBILIDAD
-   ================================================================ */
 @media (prefers-reduced-motion: reduce) {
     .welcome-placeholder::before,
     .welcome-placeholder::after,
