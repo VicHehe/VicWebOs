@@ -1,0 +1,48 @@
+/* ================================================
+   Tema: Salvia
+   Verde eucalipto, spa, calma natural. Fondos
+   verde-crema, acento salvia desaturado.
+   ================================================ */
+
+:root {
+    --violet-50:  #F3F7F2;
+    --violet-100: #E2EDE0;
+    --violet-200: #C8DCC4;
+    --violet-300: #A8C8A0;
+    --violet-400: #86B07C;
+    --violet-500: #5A9680;
+    --violet-600: #47806A;
+    --violet-700: #386A56;
+
+    --white:   #FFFFFF;
+    --bg:      #F7FAF6;
+    --bg-alt:  #EEF4EC;
+    --gray-50:  #F4F8F2;
+    --gray-100: #E8F0E5;
+    --gray-200: #D8E4D4;
+    --gray-300: #B8CCB4;
+    --gray-400: #90A88C;
+    --gray-500: #6A8466;
+    --gray-600: #4E644A;
+    --gray-700: #364A32;
+    --gray-800: #22301E;
+    --gray-900: #141E10;
+
+    --border:  #D8E4D4;
+    --text:    #22301E;
+    --text-2:  #4E644A;
+    --text-3:  #6A8466;
+
+    --shadow-xs: 0 1px 2px rgba(30, 60, 30, 0.04);
+    --shadow-sm: 0 1px 3px rgba(30, 60, 30, 0.06);
+    --shadow-md: 0 4px 12px rgba(30, 60, 30, 0.08);
+    --shadow-lg: 0 12px 32px rgba(30, 60, 30, 0.10);
+    --shadow-xl: 0 24px 48px rgba(30, 60, 30, 0.12);
+    --shadow-glow: 0 0 0 4px rgba(90, 150, 128, 0.15);
+
+    --accent-gradient: linear-gradient(135deg, #5A9680, #386A56);
+    --accent-gradient-hover: linear-gradient(135deg, #86B07C, #47806A);
+    --accent-shadow: rgba(90, 150, 128, 0.28);
+    --accent-shadow-hover: rgba(90, 150, 128, 0.42);
+    --accent-text-gradient: linear-gradient(135deg, #141E10, #47806A);
+}
