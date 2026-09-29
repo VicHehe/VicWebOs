@@ -1,0 +1,48 @@
+/* ================================================
+   Tema: Rosa Polvorienta
+   Rosa antiguo, papel de carta, nostalgia
+   elegante. Neutros rosados apagados.
+   ================================================ */
+
+:root {
+    --violet-50:  #FCF7F8;
+    --violet-100: #F7EBEE;
+    --violet-200: #EDD6DC;
+    --violet-300: #DDB8C2;
+    --violet-400: #C998A8;
+    --violet-500: #B87D8E;
+    --violet-600: #9E6374;
+    --violet-700: #844C5E;
+
+    --white:   #FFFFFF;
+    --bg:      #FDFAFA;
+    --bg-alt:  #F8F0F1;
+    --gray-50:  #FAF5F6;
+    --gray-100: #F2E8EA;
+    --gray-200: #E5D6D9;
+    --gray-300: #C9B0B6;
+    --gray-400: #A88A92;
+    --gray-500: #846A72;
+    --gray-600: #624E54;
+    --gray-700: #443638;
+    --gray-800: #2C2224;
+    --gray-900: #1A1416;
+
+    --border:  #E5D6D9;
+    --text:    #2C2224;
+    --text-2:  #624E54;
+    --text-3:  #846A72;
+
+    --shadow-xs: 0 1px 2px rgba(80, 40, 50, 0.04);
+    --shadow-sm: 0 1px 3px rgba(80, 40, 50, 0.06);
+    --shadow-md: 0 4px 12px rgba(80, 40, 50, 0.08);
+    --shadow-lg: 0 12px 32px rgba(80, 40, 50, 0.10);
+    --shadow-xl: 0 24px 48px rgba(80, 40, 50, 0.12);
+    --shadow-glow: 0 0 0 4px rgba(184, 125, 142, 0.15);
+
+    --accent-gradient: linear-gradient(135deg, #B87D8E, #844C5E);
+    --accent-gradient-hover: linear-gradient(135deg, #C998A8, #9E6374);
+    --accent-shadow: rgba(184, 125, 142, 0.28);
+    --accent-shadow-hover: rgba(184, 125, 142, 0.42);
+    --accent-text-gradient: linear-gradient(135deg, #1A1416, #9E6374);
+}
