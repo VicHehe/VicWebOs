@@ -1,0 +1,48 @@
+/* ================================================
+   Tema: Mostaza
+   Mostaza vintage, cuaderno de campo, otoño.
+   Neutros amarillos cálidos y apagados.
+   ================================================ */
+
+:root {
+    --violet-50:  #FCFAF2;
+    --violet-100: #F7F0D8;
+    --violet-200: #EDE0B0;
+    --violet-300: #DCCA80;
+    --violet-400: #C9AE50;
+    --violet-500: #B08A20;
+    --violet-600: #8E6E18;
+    --violet-700: #6E5412;
+
+    --white:   #FFFFFF;
+    --bg:      #FDFBF5;
+    --bg-alt:  #F8F2E0;
+    --gray-50:  #FAF6E8;
+    --gray-100: #F0E8D0;
+    --gray-200: #E0D4B0;
+    --gray-300: #C4B488;
+    --gray-400: #9E8C60;
+    --gray-500: #786A44;
+    --gray-600: #584E30;
+    --gray-700: #3C3420;
+    --gray-800: #262010;
+    --gray-900: #161208;
+
+    --border:  #E0D4B0;
+    --text:    #262010;
+    --text-2:  #584E30;
+    --text-3:  #786A44;
+
+    --shadow-xs: 0 1px 2px rgba(80, 60, 10, 0.05);
+    --shadow-sm: 0 1px 3px rgba(80, 60, 10, 0.07);
+    --shadow-md: 0 4px 12px rgba(80, 60, 10, 0.09);
+    --shadow-lg: 0 12px 32px rgba(80, 60, 10, 0.12);
+    --shadow-xl: 0 24px 48px rgba(80, 60, 10, 0.15);
+    --shadow-glow: 0 0 0 4px rgba(176, 138, 32, 0.15);
+
+    --accent-gradient: linear-gradient(135deg, #B08A20, #6E5412);
+    --accent-gradient-hover: linear-gradient(135deg, #C9AE50, #8E6E18);
+    --accent-shadow: rgba(176, 138, 32, 0.28);
+    --accent-shadow-hover: rgba(176, 138, 32, 0.42);
+    --accent-text-gradient: linear-gradient(135deg, #161208, #8E6E18);
+}
