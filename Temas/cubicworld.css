@@ -1,159 +1,168 @@
 /* ================================================
    Tema: CubicWorld
-   Un mundo de cubos. Césped arriba, tierra abajo.
-   Cubos 3D reales como decoración en el welcome,
-   y en los accesos rápidos los bloques se comportan
-   como cajones: al pasar el mouse se deslizan hacia
-   vos con perspectiva real.
+   Un mundo de cubos. La identidad cúbica vive en
+   la decoración: franjas de césped, cubos flotando
+   en el cielo, y bloques que son íconos. El
+   contenido se lee sobre madera oscura tipo cofre,
+   no sobre el bloque completo.
    ================================================ */
 
 :root {
-    /* Acento: verde césped Minecraft */
-    --violet-50:  #E8F5E0;
-    --violet-100: #C8E6B8;
-    --violet-200: #A0D080;
-    --violet-300: #7CB850;
-    --violet-400: #5A9E30;
-    --violet-500: #4A8A20;
-    --violet-600: #3A7018;
-    --violet-700: #2A5810;
+    /* Acento: verde césped desaturado */
+    --violet-50:  #E8F0DC;
+    --violet-100: #C8DCA8;
+    --violet-200: #A0C070;
+    --violet-300: #7CA848;
+    --violet-400: #5E8E30;
+    --violet-500: #4A7A22;
+    --violet-600: #3A6418;
+    --violet-700: #2A4E10;
 
-    /* Superficies: cielo y tierra */
-    --white:   #F5F0E0;
-    --bg:      #C8DFF0;
-    --bg-alt:  #B8D0E8;
-    --gray-50:  #E8F0F8;
-    --gray-100: #D8E4F0;
-    --gray-200: #C0D0E0;
-    --gray-300: #A0B0C0;
-    --gray-400: #8090A0;
-    --gray-500: #607080;
-    --gray-600: #485868;
-    --gray-700: #384858;
-    --gray-800: #283848;
-    --gray-900: #182838;
+    /* Superficies: cielo + madera */
+    --white:   #3A2A1A;   /* el "white" ahora es madera oscura */
+    --bg:      #A8C8E0;   /* cielo */
+    --bg-alt:  #8FB0CC;   /* cielo un poco más oscuro */
+    --gray-50:  #F5EDD8;
+    --gray-100: #E8DCC0;
+    --gray-200: #C8B898;
+    --gray-300: #9A8A6A;
+    --gray-400: #6E5E48;
+    --gray-500: #4A3E30;
+    --gray-600: #352A1E;
+    --gray-700: #241C12;
+    --gray-800: #18120A;
+    --gray-900: #0E0A06;
 
-    --border:  #A0B0C0;
-    --text:    #283848;
-    --text-2:  #485868;
-    --text-3:  #607080;
+    --border:  #2A1E12;
+    --text:    #2A1E12;
+    --text-2:  #4A3E30;
+    --text-3:  #6E5E48;
+
+    /* Para texto sobre superficies oscuras */
+    --text-on-dark: #F5EDD8;
 
     /* Sombras duras: cada bloque proyecta su sombra */
-    --shadow-xs: 2px 2px 0 rgba(40, 30, 20, 0.25);
-    --shadow-sm: 3px 3px 0 rgba(40, 30, 20, 0.30);
-    --shadow-md: 5px 5px 0 rgba(40, 30, 20, 0.35);
-    --shadow-lg: 8px 8px 0 rgba(40, 30, 20, 0.40);
-    --shadow-xl: 12px 12px 0 rgba(40, 30, 20, 0.45);
-    --shadow-glow: 0 0 0 4px rgba(74, 138, 32, 0.25);
+    --shadow-xs: 2px 2px 0 rgba(20, 12, 4, 0.30);
+    --shadow-sm: 3px 3px 0 rgba(20, 12, 4, 0.35);
+    --shadow-md: 5px 5px 0 rgba(20, 12, 4, 0.40);
+    --shadow-lg: 8px 8px 0 rgba(20, 12, 4, 0.45);
+    --shadow-xl: 12px 12px 0 rgba(20, 12, 4, 0.50);
+    --shadow-glow: 0 0 0 4px rgba(122, 168, 72, 0.30);
 
-    /* Acento: verde césped sobre tierra */
-    --accent-gradient: linear-gradient(180deg, #5A9E30 0%, #4A8A20 50%, #3A7018 100%);
-    --accent-gradient-hover: linear-gradient(180deg, #7CB850 0%, #5A9E30 50%, #4A8A20 100%);
-    --accent-shadow: rgba(74, 138, 32, 0.40);
-    --accent-shadow-hover: rgba(74, 138, 32, 0.60);
-    --accent-text-gradient: linear-gradient(135deg, #283848, #4A8A20);
+    --accent-gradient: linear-gradient(180deg, #7CA848 0%, #5E8E30 50%, #4A7A22 100%);
+    --accent-gradient-hover: linear-gradient(180deg, #A0C070 0%, #7CA848 50%, #5E8E30 100%);
+    --accent-shadow: rgba(94, 142, 48, 0.45);
+    --accent-shadow-hover: rgba(94, 142, 48, 0.65);
+    --accent-text-gradient: linear-gradient(135deg, #2A1E12, #5E8E30);
 
-    /* Colores del mundo cúbico */
-    --grass-top:   #7CB850;
-    --grass-mid:   #5A9E30;
-    --grass-dark:  #4A8A20;
-    --dirt-light:  #8B6B4A;
-    --dirt-mid:    #6B4F35;
+    /* Colores del mundo */
+    --grass-top:   #8FC858;
+    --grass-mid:   #6EA838;
+    --grass-dark:  #4A7A22;
+    --grass-shadow:#3A6418;
+    --dirt-light:  #8B6A45;
+    --dirt-mid:    #6A4E30;
     --dirt-dark:   #4A3520;
-    --stone-light: #A0A0A0;
+    --wood-light:  #5A4030;
+    --wood-mid:    #3E2A1C;
+    --wood-dark:   #281A10;
+    --stone-light: #A8A8A8;
     --stone-mid:   #808080;
-    --stone-dark:  #606060;
-    --sky-light:   #C8DFF0;
-    --sky-mid:     #A8C8E8;
-    --sky-dark:    #88B0D8;
+    --stone-dark:  #5A5A5A;
 
-    /* Radios: esquinas de bloque, mínimas */
     --r-sm: 2px;
     --r-md: 3px;
     --r-lg: 4px;
     --r-xl: 6px;
 
     /* ============================================================
-       TEXTURA DE CÉSPED — gradiente duro pixelado
+       TEXTURA DE CÉSPED — píxeles de 2x2 sobre 16x16
        ============================================================ */
-    --theme-grass: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%235A9E30'/%3E%3Cg fill='%237CB850'%3E%3Crect x='0' y='0' width='2' height='2'/%3E%3Crect x='4' y='0' width='2' height='2'/%3E%3Crect x='8' y='0' width='2' height='2'/%3E%3Crect x='12' y='0' width='2' height='2'/%3E%3Crect x='2' y='2' width='2' height='2'/%3E%3Crect x='6' y='2' width='2' height='2'/%3E%3Crect x='10' y='2' width='2' height='2'/%3E%3Crect x='14' y='2' width='2' height='2'/%3E%3Crect x='0' y='4' width='2' height='2'/%3E%3Crect x='4' y='4' width='2' height='2'/%3E%3Crect x='8' y='4' width='2' height='2'/%3E%3Crect x='12' y='4' width='2' height='2'/%3E%3Crect x='2' y='6' width='2' height='2'/%3E%3Crect x='6' y='6' width='2' height='2'/%3E%3Crect x='10' y='6' width='2' height='2'/%3E%3Crect x='14' y='6' width='2' height='2'/%3E%3C/g%3E%3Cg fill='%234A8A20'%3E%3Crect x='3' y='3' width='1' height='1'/%3E%3Crect x='7' y='3' width='1' height='1'/%3E%3Crect x='11' y='3' width='1' height='1'/%3E%3Crect x='15' y='3' width='1' height='1'/%3E%3Crect x='1' y='5' width='1' height='1'/%3E%3Crect x='5' y='5' width='1' height='1'/%3E%3Crect x='9' y='5' width='1' height='1'/%3E%3Crect x='13' y='5' width='1' height='1'/%3E%3C/g%3E%3C/svg%3E");
+    --theme-grass: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%236EA838'/%3E%3Cg fill='%238FC858'%3E%3Crect x='0' y='0' width='2' height='2'/%3E%3Crect x='4' y='2' width='2' height='2'/%3E%3Crect x='8' y='0' width='2' height='2'/%3E%3Crect x='12' y='2' width='2' height='2'/%3E%3Crect x='2' y='4' width='2' height='2'/%3E%3Crect x='6' y='6' width='2' height='2'/%3E%3Crect x='10' y='4' width='2' height='2'/%3E%3Crect x='14' y='6' width='2' height='2'/%3E%3Crect x='0' y='8' width='2' height='2'/%3E%3Crect x='4' y='10' width='2' height='2'/%3E%3Crect x='8' y='8' width='2' height='2'/%3E%3Crect x='12' y='10' width='2' height='2'/%3E%3Crect x='2' y='12' width='2' height='2'/%3E%3Crect x='6' y='14' width='2' height='2'/%3E%3Crect x='10' y='12' width='2' height='2'/%3E%3Crect x='14' y='14' width='2' height='2'/%3E%3C/g%3E%3Cg fill='%234A7A22'%3E%3Crect x='2' y='2' width='2' height='2'/%3E%3Crect x='6' y='0' width='2' height='2'/%3E%3Crect x='10' y='2' width='2' height='2'/%3E%3Crect x='14' y='0' width='2' height='2'/%3E%3Crect x='0' y='4' width='2' height='2'/%3E%3Crect x='4' y='6' width='2' height='2'/%3E%3Crect x='8' y='4' width='2' height='2'/%3E%3Crect x='12' y='6' width='2' height='2'/%3E%3Crect x='2' y='8' width='2' height='2'/%3E%3Crect x='6' y='10' width='2' height='2'/%3E%3Crect x='10' y='8' width='2' height='2'/%3E%3Crect x='14' y='10' width='2' height='2'/%3E%3Crect x='0' y='12' width='2' height='2'/%3E%3Crect x='4' y='14' width='2' height='2'/%3E%3Crect x='8' y='12' width='2' height='2'/%3E%3Crect x='12' y='14' width='2' height='2'/%3E%3C/g%3E%3C/svg%3E");
 
     /* ============================================================
        TEXTURA DE TIERRA
        ============================================================ */
-    --theme-dirt: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%236B4F35'/%3E%3Cg fill='%238B6B4A'%3E%3Crect x='1' y='1' width='2' height='2'/%3E%3Crect x='5' y='0' width='2' height='2'/%3E%3Crect x='9' y='1' width='2' height='2'/%3E%3Crect x='13' y='0' width='2' height='2'/%3E%3Crect x='3' y='4' width='2' height='2'/%3E%3Crect x='7' y='3' width='2' height='2'/%3E%3Crect x='11' y='5' width='2' height='2'/%3E%3Crect x='15' y='4' width='1' height='2'/%3E%3Crect x='0' y='8' width='2' height='2'/%3E%3Crect x='4' y='7' width='2' height='2'/%3E%3Crect x='8' y='8' width='2' height='2'/%3E%3Crect x='12' y='7' width='2' height='2'/%3E%3Crect x='2' y='11' width='2' height='2'/%3E%3Crect x='6' y='10' width='2' height='2'/%3E%3Crect x='10' y='12' width='2' height='2'/%3E%3Crect x='14' y='11' width='2' height='2'/%3E%3C/g%3E%3Cg fill='%234A3520'%3E%3Crect x='0' y='3' width='1' height='1'/%3E%3Crect x='4' y='2' width='1' height='1'/%3E%3Crect x='8' y='5' width='1' height='1'/%3E%3Crect x='12' y='3' width='1' height='1'/%3E%3Crect x='2' y='6' width='1' height='1'/%3E%3Crect x='6' y='8' width='1' height='1'/%3E%3Crect x='10' y='6' width='1' height='1'/%3E%3Crect x='14' y='8' width='1' height='1'/%3E%3C/g%3E%3C/svg%3E");
+    --theme-dirt: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%236A4E30'/%3E%3Cg fill='%238B6A45'%3E%3Crect x='1' y='1' width='2' height='2'/%3E%3Crect x='5' y='0' width='2' height='2'/%3E%3Crect x='9' y='1' width='2' height='2'/%3E%3Crect x='13' y='0' width='2' height='2'/%3E%3Crect x='3' y='4' width='2' height='2'/%3E%3Crect x='7' y='3' width='2' height='2'/%3E%3Crect x='11' y='5' width='2' height='2'/%3E%3Crect x='0' y='8' width='2' height='2'/%3E%3Crect x='4' y='7' width='2' height='2'/%3E%3Crect x='8' y='8' width='2' height='2'/%3E%3Crect x='12' y='7' width='2' height='2'/%3E%3Crect x='2' y='11' width='2' height='2'/%3E%3Crect x='6' y='10' width='2' height='2'/%3E%3Crect x='10' y='12' width='2' height='2'/%3E%3Crect x='14' y='11' width='2' height='2'/%3E%3C/g%3E%3Cg fill='%234A3520'%3E%3Crect x='0' y='3' width='1' height='1'/%3E%3Crect x='4' y='2' width='1' height='1'/%3E%3Crect x='8' y='5' width='1' height='1'/%3E%3Crect x='12' y='3' width='1' height='1'/%3E%3Crect x='2' y='6' width='1' height='1'/%3E%3Crect x='6' y='8' width='1' height='1'/%3E%3Crect x='10' y='6' width='1' height='1'/%3E%3Crect x='14' y='8' width='1' height='1'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* ============================================================
+       MADERA — tablones horizontales con vetas
+       ============================================================ */
+    --theme-plank: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Crect width='40' height='20' fill='%233E2A1C'/%3E%3Cpath d='M0,0 L40,0 M0,10 L40,10 M0,20 L40,20' stroke='%23281A10' stroke-width='1'/%3E%3Cpath d='M0,4 Q20,3 40,5' stroke='%235A4030' stroke-width='0.5' fill='none' stroke-opacity='0.6'/%3E%3Cpath d='M0,14 Q20,15 40,13' stroke='%235A4030' stroke-width='0.5' fill='none' stroke-opacity='0.6'/%3E%3Cpath d='M18,2 L18,8 M28,12 L28,18' stroke='%23281A10' stroke-width='0.4' stroke-opacity='0.8'/%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   1. WELCOME — mundo cúbico con cielo y cubos flotando
+   1. WELCOME — cielo con cubos flotando
    ================================================================ */
 .welcome-placeholder {
     position: relative;
     background:
-        radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.30) 0%, transparent 40%),
+        radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.35) 0%, transparent 45%),
         linear-gradient(180deg,
-            #C8DFF0 0%,
-            #C8DFF0 60%,
-            #B8D0E8 70%,
-            #A8C8E8 80%,
-            #88B0D8 100%);
+            #A8C8E0 0%,
+            #A8C8E0 55%,
+            #B8D0E4 70%,
+            #C8D8E8 100%);
     overflow: hidden;
-    perspective: 1200px;
 }
 
-/* Cubos decorativos flotando en el cielo (3 cubos, tamaños diferentes) */
+/* Cubo flotante #1 — más grande, arriba a la izquierda */
 .welcome-placeholder::before {
     content: '';
     position: absolute;
-    top: 10%;
-    left: 8%;
-    width: 60px;
-    height: 60px;
-    background: var(--theme-grass) 0 0 / 8px 8px repeat,
-                var(--theme-dirt) 0 0 / 8px 8px repeat;
-    background-blend-mode: normal;
+    top: 12%;
+    left: 6%;
+    width: 72px;
+    height: 72px;
+    background: var(--theme-grass) 0 0 / 12px 12px repeat;
     clip-path: polygon(
-        0 30%, 30% 0, 100% 0, 100% 70%, 70% 100%, 0 100%
+        0 25%, 25% 0, 100% 0, 100% 75%, 75% 100%, 0 100%
     );
-    box-shadow:
-        inset -8px -8px 0 rgba(0, 0, 0, 0.15),
-        inset 8px 8px 0 rgba(255, 255, 255, 0.15);
-    animation: cubic-float 8s ease-in-out infinite;
+    filter:
+        drop-shadow(-6px 6px 0 rgba(20, 12, 4, 0.20))
+        drop-shadow(2px 2px 0 rgba(20, 12, 4, 0.15));
+    animation: cubic-float-a 9s ease-in-out infinite;
     pointer-events: none;
-    z-index: 0;
-    opacity: 0.7;
+    z-index: 1;
+    opacity: 0.85;
+    transform: rotate(-8deg);
 }
-@keyframes cubic-float {
-    0%, 100% { transform: translateY(0) rotate(-6deg); }
-    50%      { transform: translateY(-12px) rotate(-6deg); }
+@keyframes cubic-float-a {
+    0%, 100% { transform: translate(0, 0) rotate(-8deg); }
+    50%      { transform: translate(0, -14px) rotate(-5deg); }
 }
 
+/* Cubo flotante #2 — más chico, arriba a la derecha */
 .welcome-placeholder::after {
     content: '';
     position: absolute;
-    top: 22%;
-    right: 12%;
-    width: 40px;
-    height: 40px;
-    background: var(--theme-grass) 0 0 / 6px 6px repeat,
-                var(--theme-dirt) 0 0 / 6px 6px repeat;
+    top: 20%;
+    right: 10%;
+    width: 48px;
+    height: 48px;
+    background: var(--theme-grass) 0 0 / 8px 8px repeat;
     clip-path: polygon(
-        0 30%, 30% 0, 100% 0, 100% 70%, 70% 100%, 0 100%
+        0 25%, 25% 0, 100% 0, 100% 75%, 75% 100%, 0 100%
     );
-    box-shadow:
-        inset -6px -6px 0 rgba(0, 0, 0, 0.15),
-        inset 6px 6px 0 rgba(255, 255, 255, 0.15);
-    animation: cubic-float 6s ease-in-out infinite 1.5s;
+    filter:
+        drop-shadow(-4px 4px 0 rgba(20, 12, 4, 0.20))
+        drop-shadow(2px 2px 0 rgba(20, 12, 4, 0.15));
+    animation: cubic-float-b 7s ease-in-out infinite 1.5s;
     pointer-events: none;
-    z-index: 0;
-    opacity: 0.6;
+    z-index: 1;
+    opacity: 0.75;
+    transform: rotate(12deg);
+}
+@keyframes cubic-float-b {
+    0%, 100% { transform: translate(0, 0) rotate(12deg); }
+    50%      { transform: translate(-6px, -10px) rotate(8deg); }
 }
 
 .welcome-glow {
     background: radial-gradient(
         circle at 50% 30%,
         rgba(255, 255, 255, 0.20) 0%,
-        rgba(74, 138, 32, 0.08) 40%,
+        rgba(94, 142, 48, 0.08) 40%,
         transparent 65%
     );
 }
@@ -164,42 +173,59 @@
     z-index: 2;
 }
 
-/* Hero: bloque de tierra con césped arriba */
+/* ================================================================
+   2. HERO — placa de madera con franja de césped arriba
+   ================================================================ */
 .welcome-hero {
     position: relative;
-    padding: 34px 28px 30px;
+    padding: 44px 28px 30px;
     background:
-        var(--theme-grass) 0 0 / 12px 12px repeat,
-        var(--theme-dirt) 0 0 / 16px 16px repeat,
-        linear-gradient(180deg, #5A9E30 0%, #5A9E30 12%, #6B4F35 12%, #6B4F35 100%);
-    border: 3px solid #3A7018;
+        var(--theme-plank) 0 0 / 40px 20px repeat,
+        linear-gradient(180deg, #3E2A1C 0%, #281A10 100%);
+    border: 3px solid #18120A;
     border-radius: 4px;
     box-shadow:
-        inset 2px 2px 0 rgba(255, 255, 255, 0.25),
-        inset -2px -2px 0 rgba(0, 0, 0, 0.25),
-        8px 8px 0 rgba(40, 30, 20, 0.30),
-        12px 12px 0 rgba(40, 30, 20, 0.20);
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.40),
+        8px 8px 0 rgba(20, 12, 4, 0.45),
+        12px 12px 0 rgba(20, 12, 4, 0.30);
     max-width: 660px;
     margin-left: auto;
     margin-right: auto;
-    transform-style: preserve-3d;
 }
 
-/* Capa de césped superior del hero */
+/* Franja de césped arriba del hero */
 .welcome-hero::before {
     content: '';
     position: absolute;
-    top: -4px;
-    left: -4px;
-    right: -4px;
+    top: -3px;
+    left: -3px;
+    right: -3px;
     height: 16px;
-    background: var(--theme-grass) 0 0 / 8px 8px repeat;
+    background: var(--theme-grass) 0 0 / 10px 10px repeat;
     border-radius: 4px 4px 0 0;
     box-shadow:
-        inset 0 2px 0 rgba(255, 255, 255, 0.30),
-        inset 0 -2px 0 rgba(0, 0, 0, 0.20);
+        inset 0 2px 0 rgba(255, 255, 255, 0.25),
+        inset 0 -3px 0 rgba(58, 100, 24, 0.85);
     pointer-events: none;
     z-index: 3;
+}
+
+/* Bloque de tierra colgando en la esquina superior derecha */
+.welcome-hero::after {
+    content: '';
+    position: absolute;
+    top: -12px;
+    right: 24px;
+    width: 32px;
+    height: 32px;
+    background: var(--theme-grass) 0 0 / 6px 6px repeat;
+    clip-path: polygon(
+        0 25%, 25% 0, 100% 0, 100% 75%, 75% 100%, 0 100%
+    );
+    filter: drop-shadow(-3px 3px 0 rgba(20, 12, 4, 0.35));
+    pointer-events: none;
+    z-index: 4;
 }
 
 .welcome-hero > * {
@@ -209,33 +235,38 @@
 
 .welcome-hero h1 {
     letter-spacing: 0.01em;
-    color: #FFFFFF;
+    color: var(--text-on-dark);
     text-shadow:
-        2px 2px 0 rgba(0, 0, 0, 0.40),
-        0 0 20px rgba(124, 184, 80, 0.40);
+        2px 2px 0 rgba(0, 0, 0, 0.55),
+        0 0 20px rgba(143, 200, 88, 0.25);
+}
+
+.welcome-hero p {
+    color: #C8B898;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.50);
 }
 
 .welcome-icon-wrap {
-    background: linear-gradient(135deg, #7CB850, #3A7018);
-    border: 3px solid #2A5810;
+    background: linear-gradient(135deg, #8FC858, #4A7A22);
+    border: 3px solid #2A4E10;
     border-radius: 4px;
     box-shadow:
         inset 2px 2px 0 rgba(255, 255, 255, 0.30),
-        inset -2px -2px 0 rgba(0, 0, 0, 0.25),
-        6px 6px 0 rgba(40, 30, 20, 0.35);
+        inset -2px -2px 0 rgba(0, 0, 0, 0.30),
+        5px 5px 0 rgba(20, 12, 4, 0.40);
 }
+.welcome-icon-wrap [data-lucide] { color: #FFFFFF; }
 
 /* ================================================================
-   2. HEADER — banda de piedra
+   3. HEADER — placa de piedra con césped arriba
    ================================================================ */
 .app-header {
     position: relative;
-    background:
-        linear-gradient(180deg, #A0A0A0 0%, #808080 100%);
-    border-bottom: 4px solid #606060;
+    background: linear-gradient(180deg, #A8A8A8 0%, #6A6A6A 100%);
+    border-bottom: 4px solid #3E2A1C;
     box-shadow:
-        inset 0 2px 0 rgba(255, 255, 255, 0.20),
-        0 4px 0 rgba(40, 30, 20, 0.30);
+        inset 0 2px 0 rgba(255, 255, 255, 0.25),
+        0 4px 0 rgba(20, 12, 4, 0.40);
 }
 .app-header::after {
     content: '';
@@ -245,27 +276,25 @@
     right: 0;
     height: 4px;
     background: repeating-linear-gradient(90deg,
-        #606060 0,
-        #606060 8px,
-        #505050 8px,
-        #505050 16px);
-    opacity: 0.80;
+        #3E2A1C 0,
+        #3E2A1C 6px,
+        #281A10 6px,
+        #281A10 12px);
     pointer-events: none;
 }
 
 /* ================================================================
-   3. SIDEBAR — pared de tierra
+   4. SIDEBAR — pared de tierra con overlay oscuro para leer
    ================================================================ */
 .sidebar {
     position: relative;
     background:
+        linear-gradient(180deg, rgba(15, 10, 4, 0.55) 0%, rgba(15, 10, 4, 0.70) 100%),
         var(--theme-dirt) 0 0 / 20px 20px repeat,
-        linear-gradient(180deg, #6B4F35 0%, #4A3520 100%);
-    border-right: 4px solid #3A2818;
+        linear-gradient(180deg, #6A4E30 0%, #4A3520 100%);
+    border-right: 4px solid #281A10;
     overflow: hidden;
-    box-shadow:
-        inset -2px 0 0 rgba(255, 255, 255, 0.10),
-        inset 2px 0 0 rgba(0, 0, 0, 0.15);
+    box-shadow: inset -2px 0 0 rgba(0, 0, 0, 0.30);
 }
 .sidebar-comunidad,
 .sidebar-label,
@@ -275,41 +304,101 @@
     z-index: 1;
 }
 
-.nav-item.active::before {
-    background: linear-gradient(180deg, #7CB850, #4A8A20);
-    width: 5px;
-    box-shadow:
-        2px 0 0 rgba(0, 0, 0, 0.30),
-        0 0 10px rgba(124, 184, 80, 0.55);
-    border-radius: 0;
+/* Texto claro sobre la tierra */
+.sidebar-label {
+    color: #C8B898;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.60);
 }
+.sidebar-mobile-title { color: var(--text-on-dark); }
+
+.nav-item {
+    color: #E8DCC0;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.50);
+}
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.10);
+    color: #FFFFFF;
+}
+.nav-item .nav-icon { color: #C8B898; }
+.nav-item:hover .nav-icon { color: #8FC858; }
+
 .nav-item.active {
-    background: rgba(124, 184, 80, 0.15);
+    background: linear-gradient(180deg, #5E8E30 0%, #4A7A22 100%);
+    color: #FFFFFF;
+    border-radius: 3px;
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.20),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.20),
+        0 2px 0 rgba(20, 12, 4, 0.40);
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.35);
+}
+.nav-item.active::before {
+    background: #8FC858;
+    width: 3px;
+    box-shadow: 0 0 8px rgba(143, 200, 88, 0.70);
     border-radius: 0;
 }
-.nav-item.active .nav-icon { color: #A0D080; }
+.nav-item.active .nav-icon { color: #FFFFFF; }
+
+/* Chip de comunidad con fondo madera claro para contraste */
+.sidebar-comunidad {
+    background: linear-gradient(180deg, #F5EDD8 0%, #E8DCC0 100%);
+    border: 2px solid #281A10;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.60),
+        2px 2px 0 rgba(20, 12, 4, 0.35);
+}
+.sidebar-comunidad-label { color: #6E5E48; }
+.sidebar-comunidad-nombre { color: #2A1E12; }
+.sidebar-comunidad-icono {
+    background: linear-gradient(135deg, #8FC858, #4A7A22);
+    color: white;
+}
+
+/* SCROLLBAR visible en la sidebar */
+.sidebar-nav::-webkit-scrollbar {
+    width: 12px;
+}
+.sidebar-nav::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.30);
+    border-radius: 0;
+}
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: #8FC858;
+    border: 3px solid transparent;
+    background-clip: content-box;
+    border-radius: 0;
+}
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+    background: #A0D070;
+    background-clip: content-box;
+}
+.sidebar-nav {
+    scrollbar-color: #8FC858 rgba(0, 0, 0, 0.30);
+    scrollbar-width: thin;
+}
 
 @media (max-width: 768px) {
     .sidebar { position: fixed; }
 }
 
 /* ================================================================
-   4. ACCESOS RÁPIDOS — CUBOS CAJÓN
-   El cubo está "guardado" en la pared. Al hover,
-   se desliza hacia el usuario (translateZ + translateY).
+   5. ACCESOS RÁPIDOS — placas de madera con franja de césped
+   El bloque se desliza hacia vos como un cajón.
    ================================================================ */
 .acceso-item {
     position: relative;
+    padding-top: 22px;
     background:
-        var(--theme-grass) 0 0 / 10px 10px repeat,
-        var(--theme-dirt) 0 0 / 14px 14px repeat,
-        linear-gradient(180deg, #5A9E30 0%, #5A9E30 20%, #6B4F35 20%, #6B4F35 100%);
-    border: 3px solid #3A7018;
+        var(--theme-plank) 0 0 / 40px 20px repeat,
+        linear-gradient(180deg, #3E2A1C 0%, #281A10 100%);
+    border: 3px solid #18120A;
     border-radius: 3px;
     box-shadow:
-        inset 2px 2px 0 rgba(255, 255, 255, 0.20),
-        inset -2px -2px 0 rgba(0, 0, 0, 0.25),
-        4px 4px 0 rgba(40, 30, 20, 0.30);
+        inset 0 1px 0 rgba(255, 255, 255, 0.10),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.40),
+        4px 4px 0 rgba(20, 12, 4, 0.40),
+        6px 6px 0 rgba(20, 12, 4, 0.20);
     overflow: visible;
     transform-style: preserve-3d;
     will-change: transform;
@@ -318,52 +407,53 @@
         box-shadow 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* EFECTO CAJÓN: el cubo se desliza hacia el usuario */
-.acceso-item:hover {
-    transform:
-        perspective(800px)
-        translateZ(20px)
-        translateY(8px)
-        rotateX(-4deg);
-    border-color: #7CB850;
-    box-shadow:
-        inset 2px 2px 0 rgba(255, 255, 255, 0.30),
-        inset -2px -2px 0 rgba(0, 0, 0, 0.25),
-        6px 6px 0 rgba(40, 30, 20, 0.35),
-        10px 10px 0 rgba(40, 30, 20, 0.25),
-        0 0 20px rgba(124, 184, 80, 0.30);
-}
-
-/* Capa de césped del cubo (siempre arriba) */
+/* Franja de césped arriba del acceso */
 .acceso-item::before {
     content: '';
     position: absolute;
-    top: -4px;
-    left: -4px;
-    right: -4px;
-    height: 12px;
-    background: var(--theme-grass) 0 0 / 6px 6px repeat;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    height: 20px;
+    background: var(--theme-grass) 0 0 / 8px 8px repeat;
     border-radius: 3px 3px 0 0;
     box-shadow:
         inset 0 2px 0 rgba(255, 255, 255, 0.25),
-        inset 0 -2px 0 rgba(0, 0, 0, 0.20);
+        inset 0 -3px 0 rgba(58, 100, 24, 0.85);
     pointer-events: none;
     z-index: 3;
     transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+
+/* EFECTO CAJÓN: el bloque se desliza hacia el usuario */
+.acceso-item:hover {
+    transform:
+        perspective(700px)
+        translateZ(24px)
+        translateY(10px)
+        rotateX(-5deg);
+    border-color: #5E8E30;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.40),
+        6px 6px 0 rgba(20, 12, 4, 0.45),
+        10px 10px 0 rgba(20, 12, 4, 0.30),
+        14px 14px 0 rgba(20, 12, 4, 0.15),
+        0 0 24px rgba(143, 200, 88, 0.35);
+}
 .acceso-item:hover::before {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
 }
 
-/* Cara lateral derecha (simula profundidad del cajón) */
+/* Franja lateral derecha del cajón (aparece al hover) */
 .acceso-item::after {
     content: '';
     position: absolute;
     top: 0;
-    right: -8px;
+    right: -10px;
     bottom: 0;
-    width: 8px;
-    background: linear-gradient(90deg, #4A3520 0%, #3A2818 100%);
+    width: 10px;
+    background: linear-gradient(90deg, #281A10 0%, #18120A 100%);
     border-radius: 0 2px 2px 0;
     pointer-events: none;
     z-index: 2;
@@ -373,44 +463,51 @@
 }
 .acceso-item:hover::after {
     opacity: 1;
-    right: -12px;
+    right: -14px;
 }
 
 .acceso-icon-wrap {
-    background: linear-gradient(135deg, #7CB850, #4A8A20);
+    background: linear-gradient(135deg, #8FC858, #4A7A22);
     color: #FFFFFF;
-    border: 2px solid #3A7018;
+    border: 2px solid #2A4E10;
     border-radius: 3px;
     box-shadow:
-        inset 1px 1px 0 rgba(255, 255, 255, 0.25),
-        inset -1px -1px 0 rgba(0, 0, 0, 0.20),
-        2px 2px 0 rgba(40, 30, 20, 0.30);
+        inset 1px 1px 0 rgba(255, 255, 255, 0.30),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.25),
+        2px 2px 0 rgba(20, 12, 4, 0.40);
     transition: all 0.22s;
 }
 .acceso-item:hover .acceso-icon-wrap {
-    background: linear-gradient(135deg, #A0D080, #5A9E30);
-    border-color: #7CB850;
+    background: linear-gradient(135deg, #A0D070, #5E8E30);
+    border-color: #8FC858;
     box-shadow:
-        inset 1px 1px 0 rgba(255, 255, 255, 0.35),
-        inset -1px -1px 0 rgba(0, 0, 0, 0.20),
-        3px 3px 0 rgba(40, 30, 20, 0.35),
-        0 0 12px rgba(124, 184, 80, 0.50);
+        inset 1px 1px 0 rgba(255, 255, 255, 0.40),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.25),
+        3px 3px 0 rgba(20, 12, 4, 0.45),
+        0 0 14px rgba(143, 200, 88, 0.50);
+}
+
+/* Texto de accesos legible sobre madera */
+.acceso-nombre {
+    color: #F5EDD8;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.60);
 }
 
 /* ================================================================
-   5. WIDGETS — bloques que se elevan
+   6. WIDGETS — placas de madera más grandes
    ================================================================ */
 .widget-item {
     position: relative;
     background:
-        var(--theme-dirt) 0 0 / 18px 18px repeat,
-        linear-gradient(180deg, #6B4F35 0%, #4A3520 100%);
-    border: 3px solid #3A2818;
+        var(--theme-plank) 0 0 / 40px 20px repeat,
+        linear-gradient(180deg, #3E2A1C 0%, #281A10 100%);
+    border: 3px solid #18120A;
     border-radius: 3px;
     box-shadow:
-        inset 2px 2px 0 rgba(255, 255, 255, 0.10),
-        inset -2px -2px 0 rgba(0, 0, 0, 0.25),
-        4px 4px 0 rgba(40, 30, 20, 0.30);
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.40),
+        4px 4px 0 rgba(20, 12, 4, 0.40),
+        6px 6px 0 rgba(20, 12, 4, 0.20);
     transform-style: preserve-3d;
     will-change: transform;
     transition: all 0.30s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -418,50 +515,52 @@
 .widget-item::before {
     content: '';
     position: absolute;
-    top: -4px;
-    left: -4px;
-    right: -4px;
+    top: -3px;
+    left: -3px;
+    right: -3px;
     height: 14px;
-    background: var(--theme-grass) 0 0 / 7px 7px repeat;
+    background: var(--theme-grass) 0 0 / 8px 8px repeat;
     border-radius: 3px 3px 0 0;
     box-shadow:
         inset 0 2px 0 rgba(255, 255, 255, 0.20),
-        inset 0 -2px 0 rgba(0, 0, 0, 0.20);
+        inset 0 -3px 0 rgba(58, 100, 24, 0.85);
     pointer-events: none;
     z-index: 3;
 }
 .widget-item:hover {
     transform:
         perspective(1000px)
-        translateZ(12px)
+        translateZ(14px)
         translateY(6px)
-        rotateX(-2deg);
-    border-color: #7CB850;
+        rotateX(-3deg);
+    border-color: #5E8E30;
     box-shadow:
-        inset 2px 2px 0 rgba(255, 255, 255, 0.15),
-        inset -2px -2px 0 rgba(0, 0, 0, 0.25),
-        6px 6px 0 rgba(40, 30, 20, 0.35),
-        10px 10px 0 rgba(40, 30, 20, 0.25);
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.40),
+        6px 6px 0 rgba(20, 12, 4, 0.45),
+        10px 10px 0 rgba(20, 12, 4, 0.30),
+        14px 14px 0 rgba(20, 12, 4, 0.15);
 }
 
 /* ================================================================
-   6. PESTAÑAS — pestaña activa con bloque
+   7. PESTAÑAS
    ================================================================ */
 .tab-item.active {
-    background: linear-gradient(180deg, #5A9E30 0%, #4A8A20 100%);
-    border-color: #3A7018;
+    background: linear-gradient(180deg, #5E8E30 0%, #4A7A22 100%);
+    color: #FFFFFF;
+    border-color: #2A4E10;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.30);
     box-shadow:
         inset 0 2px 0 rgba(255, 255, 255, 0.20),
-        0 -3px 0 #7CB850 inset,
-        0 -1px 0 #2A5810;
+        inset 0 -1px 0 rgba(0, 0, 0, 0.30);
     position: relative;
 }
 .tab-item.active::before {
     content: '';
     position: absolute;
     top: 0;
-    left: 8px;
-    right: 8px;
+    left: 6px;
+    right: 6px;
     height: 3px;
     background: var(--theme-grass) 0 0 / 6px 6px repeat;
     pointer-events: none;
@@ -469,26 +568,24 @@
 .tab-item.active [data-lucide] { color: #FFFFFF; }
 
 /* ================================================================
-   7. MODALES — cofre de piedra y tierra
+   8. MODALES — cofre de madera con tapa de césped
    ================================================================ */
 .config-card,
 .modal-todas-card {
     position: relative;
     overflow: hidden;
-    border: 4px solid #808080;
+    border: 4px solid #18120A;
     background:
-        var(--theme-dirt) 0 0 / 20px 20px repeat,
-        linear-gradient(180deg, #6B4F35 0%, #4A3520 100%);
+        var(--theme-plank) 0 0 / 40px 20px repeat,
+        linear-gradient(180deg, #3E2A1C 0%, #281A10 100%);
     box-shadow:
-        inset 2px 2px 0 rgba(255, 255, 255, 0.10),
-        inset -2px -2px 0 rgba(0, 0, 0, 0.25),
-        8px 8px 0 rgba(40, 30, 20, 0.35),
-        12px 12px 0 rgba(40, 30, 20, 0.25),
-        16px 16px 0 rgba(40, 30, 20, 0.15);
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.40),
+        8px 8px 0 rgba(20, 12, 4, 0.50),
+        12px 12px 0 rgba(20, 12, 4, 0.35),
+        16px 16px 0 rgba(20, 12, 4, 0.20);
     border-radius: 4px;
 }
-
-/* Borde superior de césped en el modal */
 .config-card::before,
 .modal-todas-card::before {
     content: '';
@@ -496,133 +593,143 @@
     top: -4px;
     left: -4px;
     right: -4px;
-    height: 18px;
-    background: var(--theme-grass) 0 0 / 9px 9px repeat;
+    height: 20px;
+    background: var(--theme-grass) 0 0 / 10px 10px repeat;
     border-radius: 4px 4px 0 0;
     box-shadow:
-        inset 0 3px 0 rgba(255, 255, 255, 0.20),
-        inset 0 -3px 0 rgba(0, 0, 0, 0.20);
+        inset 0 3px 0 rgba(255, 255, 255, 0.25),
+        inset 0 -4px 0 rgba(58, 100, 24, 0.85);
     pointer-events: none;
     z-index: 3;
 }
-
-/* Bloque decorativo en la esquina inferior derecha del modal */
+/* Bloque decorativo colgando en la esquina */
 .config-card::after,
 .modal-todas-card::after {
     content: '';
     position: absolute;
     bottom: 12px;
     right: 12px;
-    width: 24px;
-    height: 24px;
-    background: var(--theme-grass) 0 0 / 5px 5px repeat,
-                var(--theme-dirt) 0 0 / 5px 5px repeat;
+    width: 26px;
+    height: 26px;
+    background: var(--theme-grass) 0 0 / 5px 5px repeat;
     clip-path: polygon(
-        0 30%, 30% 0, 100% 0, 100% 70%, 70% 100%, 0 100%
+        0 25%, 25% 0, 100% 0, 100% 75%, 75% 100%, 0 100%
     );
-    box-shadow:
-        inset -4px -4px 0 rgba(0, 0, 0, 0.15),
-        inset 4px 4px 0 rgba(255, 255, 255, 0.15);
-    opacity: 0.55;
+    filter: drop-shadow(-3px 3px 0 rgba(20, 12, 4, 0.30));
+    opacity: 0.75;
     pointer-events: none;
     z-index: 4;
 }
 
 .config-header,
 .modal-todas-header {
-    background: linear-gradient(180deg, #808080 0%, #606060 100%);
-    border-bottom: 3px solid #505050;
-    position: relative;
-    box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.15);
+    background: linear-gradient(180deg, #5A4030 0%, #3E2A1C 100%);
+    border-bottom: 3px solid #281A10;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+.config-header h2,
+.modal-todas-header h2 { color: var(--text-on-dark); }
+.config-subtitle,
+.modal-subtitle { color: #C8B898; }
+
+/* Contenido del modal: fondo claro para leer bien */
+.config-content,
+.modal-todas-body {
+    background: #F5EDD8;
+    color: #2A1E12;
 }
 
+/* Títulos dentro del contenido */
+.config-panel-header h3 { color: #2A1E12; }
+.config-panel-header p { color: #4A3E30; }
+
 /* ================================================================
-   8. BOTÓN PRIMARIO — bloque de césped con PRESS
+   9. BOTÓN PRIMARIO — bloque de césped con press físico
    ================================================================ */
 .btn-primario {
     background: linear-gradient(180deg,
-        #7CB850 0%,
-        #5A9E30 45%,
-        #3A7018 55%,
-        #2A5810 100%);
-    border: 3px solid #2A5810;
+        #8FC858 0%,
+        #6EA838 45%,
+        #4A7A22 55%,
+        #3A6418 100%);
+    border: 3px solid #2A4E10;
     border-radius: 3px;
     color: #FFFFFF;
     font-weight: 800;
-    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.30);
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.40);
     box-shadow:
-        inset 2px 2px 0 rgba(255, 255, 255, 0.30),
+        inset 2px 2px 0 rgba(255, 255, 255, 0.35),
         inset -2px -2px 0 rgba(0, 0, 0, 0.30),
-        4px 4px 0 rgba(40, 30, 20, 0.40),
-        6px 6px 0 rgba(40, 30, 20, 0.25);
+        4px 4px 0 rgba(20, 12, 4, 0.45),
+        6px 6px 0 rgba(20, 12, 4, 0.25);
     transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .btn-primario:hover {
     background: linear-gradient(180deg,
-        #A0D080 0%,
-        #7CB850 45%,
-        #5A9E30 55%,
-        #3A7018 100%);
+        #A0D070 0%,
+        #8FC858 45%,
+        #5E8E30 55%,
+        #4A7A22 100%);
     transform: translate(-2px, -2px);
     box-shadow:
-        inset 2px 2px 0 rgba(255, 255, 255, 0.40),
+        inset 2px 2px 0 rgba(255, 255, 255, 0.45),
         inset -2px -2px 0 rgba(0, 0, 0, 0.30),
-        6px 6px 0 rgba(40, 30, 20, 0.40),
-        9px 9px 0 rgba(40, 30, 20, 0.30);
+        6px 6px 0 rgba(20, 12, 4, 0.45),
+        9px 9px 0 rgba(20, 12, 4, 0.30);
 }
 .btn-primario:active {
     transform: translate(2px, 2px);
     box-shadow:
         inset 2px 2px 0 rgba(255, 255, 255, 0.25),
         inset -2px -2px 0 rgba(0, 0, 0, 0.35),
-        2px 2px 0 rgba(40, 30, 20, 0.40),
-        3px 3px 0 rgba(40, 30, 20, 0.25);
+        2px 2px 0 rgba(20, 12, 4, 0.40),
+        3px 3px 0 rgba(20, 12, 4, 0.25);
 }
 
 /* ================================================================
-   9. AVATAR — bloque de piedra
+   10. AVATAR — bloque de piedra
    ================================================================ */
 .avatar-config {
-    background: linear-gradient(135deg, #A0A0A0, #606060);
-    border: 3px solid #505050;
+    background: linear-gradient(135deg, #A8A8A8, #6A6A6A);
+    border: 3px solid #4A4A4A;
     box-shadow:
         inset 2px 2px 0 rgba(255, 255, 255, 0.25),
         inset -2px -2px 0 rgba(0, 0, 0, 0.25),
-        3px 3px 0 rgba(40, 30, 20, 0.35);
+        3px 3px 0 rgba(20, 12, 4, 0.40);
 }
 .avatar-config:hover {
     transform: translate(-1px, -1px) scale(1.05);
     box-shadow:
         inset 2px 2px 0 rgba(255, 255, 255, 0.30),
         inset -2px -2px 0 rgba(0, 0, 0, 0.25),
-        5px 5px 0 rgba(40, 30, 20, 0.40),
-        8px 8px 0 rgba(40, 30, 20, 0.30);
+        5px 5px 0 rgba(20, 12, 4, 0.45),
+        8px 8px 0 rgba(20, 12, 4, 0.30);
 }
 
 .noti-btn.tiene-no-leidas {
-    background: rgba(124, 184, 80, 0.20);
-    color: #4A8A20;
+    background: rgba(143, 200, 88, 0.25);
+    color: #2A4E10;
 }
 .search-bar:focus-within {
-    border-color: #5A9E30;
+    border-color: #6EA838;
     box-shadow:
-        0 0 0 3px rgba(124, 184, 80, 0.25),
-        inset 2px 2px 0 rgba(0, 0, 0, 0.10);
+        0 0 0 3px rgba(143, 200, 88, 0.35),
+        inset 1px 1px 0 rgba(0, 0, 0, 0.10);
 }
-.search-bar:focus-within .search-icon { color: #4A8A20; }
+.search-bar:focus-within .search-icon { color: #4A7A22; }
 
 /* ================================================================
-   10. NOTIFICACIONES — badge de bloque
+   11. NOTIFICACIONES
    ================================================================ */
 .noti-badge {
-    background: #5A9E30;
+    background: #4A7A22;
     color: #FFFFFF;
-    border: 2px solid #2A5810;
-    box-shadow: 2px 2px 0 rgba(40, 30, 20, 0.40);
+    border: 2px solid #2A4E10;
+    box-shadow: 2px 2px 0 rgba(20, 12, 4, 0.45);
 }
 
 /* ================================================================
-   11. prefers-reduced-motion
+   12. prefers-reduced-motion
    ================================================================ */
 @media (prefers-reduced-motion: reduce) {
     .welcome-placeholder::before,
