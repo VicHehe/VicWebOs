@@ -1,7 +1,7 @@
 /* ================================================
    Tema: Ámbar Nocturno
-   Base: solo colores (paleta original, negro + ámbar).
-   Lobby: ciudad 3D en 3 capas + autos voladores.
+   Base: dark minimalista con ámbar.
+   Lobby: ciudad 3D en 4 capas + autos voladores.
    ================================================ */
 
 :root {
@@ -46,42 +46,68 @@
     --accent-shadow-hover: rgba(240, 169, 74, 0.55);
     --accent-text-gradient: linear-gradient(135deg, #F5F0E8, #F0A94A);
 
-    /* CIUDAD: 6 modelos de edificio, 3 caras cada uno (frente, techo, lateral) */
-    --theme-city: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 400' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='f' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23201830'/%3E%3Cstop offset='1' stop-color='%23100818'/%3E%3C/linearGradient%3E%3ClinearGradient id='t' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23423868'/%3E%3Cstop offset='1' stop-color='%23282048'/%3E%3C/linearGradient%3E%3ClinearGradient id='s' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%230C0612'/%3E%3Cstop offset='1' stop-color='%23060408'/%3E%3C/linearGradient%3E%3Cg id='A'%3E%3Crect x='0' y='-180' width='60' height='180' fill='url(%23f)'/%3E%3Cpolygon points='0,-180 60,-180 72,-192 12,-192' fill='url(%23t)'/%3E%3Cpolygon points='60,-180 72,-192 72,-12 60,0' fill='url(%23s)'/%3E%3Cpath fill='%23FFB84D' d='M8,-170h5v4h-5zM26,-170h5v4h-5zM44,-170h5v4h-5zM8,-150h5v4h-5zM26,-150h5v4h-5zM8,-130h5v4h-5zM44,-130h5v4h-5zM26,-110h5v4h-5zM44,-110h5v4h-5zM8,-90h5v4h-5zM26,-90h5v4h-5zM44,-90h5v4h-5zM8,-70h5v4h-5zM26,-70h5v4h-5zM8,-50h5v4h-5zM26,-50h5v4h-5zM44,-50h5v4h-5zM26,-30h5v4h-5zM44,-30h5v4h-5z'/%3E%3Cpath fill='%236A4F20' d='M44,-150h5v4h-5zM8,-110h5v4h-5zM44,-70h5v4h-5zM8,-30h5v4h-5z'/%3E%3C/g%3E%3Cg id='B'%3E%3Crect x='0' y='-240' width='70' height='240' fill='url(%23f)'/%3E%3Cpolygon points='0,-240 70,-240 84,-254 14,-254' fill='url(%23t)'/%3E%3Cpolygon points='70,-240 84,-254 84,-14 70,0' fill='url(%23s)'/%3E%3Cline x1='35' y1='-240' x2='35' y2='-290' stroke='%23201830' stroke-width='1.5'/%3E%3Ccircle cx='35' cy='-290' r='1.8' fill='%23FF4444'/%3E%3Cpath fill='%23FFB84D' d='M10,-228h5v4h-5zM28,-228h5v4h-5zM46,-228h5v4h-5zM10,-208h5v4h-5zM46,-208h5v4h-5zM28,-188h5v4h-5zM46,-188h5v4h-5zM10,-168h5v4h-5zM28,-168h5v4h-5zM10,-148h5v4h-5zM46,-148h5v4h-5zM28,-128h5v4h-5zM46,-128h5v4h-5zM10,-108h5v4h-5zM28,-108h5v4h-5zM46,-108h5v4h-5zM10,-88h5v4h-5zM28,-88h5v4h-5zM46,-68h5v4h-5zM10,-68h5v4h-5zM28,-48h5v4h-5zM46,-48h5v4h-5zM10,-28h5v4h-5z'/%3E%3Cpath fill='%236A4F20' d='M28,-208h5v4h-5zM10,-188h5v4h-5zM28,-148h5v4h-5zM10,-128h5v4h-5zM46,-88h5v4h-5zM28,-68h5v4h-5zM46,-28h5v4h-5z'/%3E%3C/g%3E%3Cg id='C'%3E%3Crect x='0' y='-140' width='50' height='140' fill='url(%23f)'/%3E%3Cpolygon points='0,-140 50,-140 60,-150 10,-150' fill='url(%23t)'/%3E%3Cpolygon points='50,-140 60,-150 60,-10 50,0' fill='url(%23s)'/%3E%3Cpath fill='%23FFB84D' d='M8,-130h4v4h-4zM22,-130h4v4h-4zM36,-130h4v4h-4zM8,-112h4v4h-4zM36,-112h4v4h-4zM22,-94h4v4h-4zM8,-76h4v4h-4zM22,-76h4v4h-4zM36,-76h4v4h-4zM8,-58h4v4h-4zM36,-58h4v4h-4zM22,-40h4v4h-4zM8,-22h4v4h-4zM22,-22h4v4h-4z'/%3E%3Cpath fill='%236A4F20' d='M22,-112h4v4h-4zM36,-94h4v4h-4zM8,-40h4v4h-4zM36,-22h4v4h-4z'/%3E%3C/g%3E%3Cg id='D'%3E%3Crect x='0' y='-200' width='80' height='200' fill='url(%23f)'/%3E%3Cpolygon points='0,-200 80,-200 95,-215 15,-215' fill='url(%23t)'/%3E%3Cpolygon points='80,-200 95,-215 95,-15 80,0' fill='url(%23s)'/%3E%3Cpath fill='%23FFB84D' d='M12,-188h6v4h-6zM32,-188h6v4h-6zM52,-188h6v4h-6zM12,-168h6v4h-6zM52,-168h6v4h-6zM32,-148h6v4h-6zM52,-148h6v4h-6zM12,-128h6v4h-6zM32,-128h6v4h-6zM12,-108h6v4h-6zM52,-108h6v4h-6zM32,-88h6v4h-6zM52,-88h6v4h-6zM12,-68h6v4h-6zM32,-68h6v4h-6zM52,-68h6v4h-6zM12,-48h6v4h-6zM32,-48h6v4h-6zM52,-28h6v4h-6zM12,-28h6v4h-6zM32,-28h6v4h-6z'/%3E%3Cpath fill='%236A4F20' d='M32,-168h6v4h-6zM12,-148h6v4h-6zM52,-128h6v4h-6zM32,-108h6v4h-6zM12,-88h6v4h-6zM52,-48h6v4h-6zM12,-28h6v4h-6z'/%3E%3C/g%3E%3Cg id='E'%3E%3Crect x='0' y='-160' width='55' height='160' fill='url(%23f)'/%3E%3Cpolygon points='0,-160 55,-160 66,-172 11,-172' fill='url(%23t)'/%3E%3Cpolygon points='55,-160 66,-172 66,-12 55,0' fill='url(%23s)'/%3E%3Cpath fill='%23FFB84D' d='M8,-148h5v4h-5zM24,-148h5v4h-5zM40,-148h5v4h-5zM8,-128h5v4h-5zM40,-128h5v4h-5zM24,-108h5v4h-5zM8,-88h5v4h-5zM24,-88h5v4h-5zM40,-88h5v4h-5zM8,-68h5v4h-5zM40,-68h5v4h-5zM24,-48h5v4h-5zM8,-28h5v4h-5zM24,-28h5v4h-5zM40,-28h5v4h-5z'/%3E%3Cpath fill='%236A4F20' d='M24,-128h5v4h-5zM8,-108h5v4h-5zM40,-108h5v4h-5zM24,-68h5v4h-5zM8,-48h5v4h-5zM40,-48h5v4h-5z'/%3E%3C/g%3E%3Cg id='F'%3E%3Crect x='0' y='-220' width='65' height='220' fill='url(%23f)'/%3E%3Crect x='10' y='-260' width='45' height='40' fill='url(%23f)'/%3E%3Cpolygon points='0,-220 65,-220 78,-233 13,-233' fill='url(%23t)'/%3E%3Cpolygon points='10,-260 55,-260 65,-270 20,-270' fill='url(%23t)'/%3E%3Cpolygon points='65,-220 78,-233 78,-13 65,0' fill='url(%23s)'/%3E%3Cpolygon points='55,-260 65,-270 65,-230 55,-220' fill='url(%23s)'/%3E%3Cpath fill='%23FFB84D' d='M10,-208h5v4h-5zM28,-208h5v4h-5zM46,-208h5v4h-5zM10,-188h5v4h-5zM46,-188h5v4h-5zM28,-168h5v4h-5zM46,-168h5v4h-5zM10,-148h5v4h-5zM28,-148h5v4h-5zM10,-128h5v4h-5zM46,-128h5v4h-5zM28,-108h5v4h-5zM46,-108h5v4h-5zM10,-88h5v4h-5zM28,-88h5v4h-5zM46,-88h5v4h-5zM10,-68h5v4h-5zM28,-68h5v4h-5zM46,-48h5v4h-5zM10,-48h5v4h-5zM28,-48h5v4h-5zM46,-28h5v4h-5zM16,-252h5v3h-5zM30,-252h5v3h-5zM44,-252h5v3h-5zM16,-242h5v3h-5zM44,-242h5v3h-5z'/%3E%3Cpath fill='%236A4F20' d='M28,-188h5v4h-5zM10,-168h5v4h-5zM28,-128h5v4h-5zM10,-108h5v4h-5zM28,-48h5v4h-5zM30,-242h5v3h-5z'/%3E%3C/g%3E%3C/defs%3E%3Cuse href='%23A' x='0' y='400'/%3E%3Cuse href='%23C' x='75' y='400'/%3E%3Cuse href='%23B' x='140' y='400'/%3E%3Cuse href='%23E' x='230' y='400'/%3E%3Cuse href='%23D' x='300' y='400'/%3E%3Cuse href='%23A' x='405' y='400'/%3E%3Cuse href='%23F' x='480' y='400'/%3E%3Cuse href='%23C' x='560' y='400'/%3E%3Cuse href='%23B' x='625' y='400'/%3E%3Cuse href='%23E' x='715' y='400'/%3E%3Cuse href='%23D' x='785' y='400'/%3E%3Cuse href='%23A' x='890' y='400'/%3E%3Cuse href='%23C' x='965' y='400'/%3E%3Cuse href='%23F' x='1030' y='400'/%3E%3Cuse href='%23E' x='1110' y='400'/%3E%3Cuse href='%23B' x='1180' y='400'/%3E%3Cuse href='%23D' x='1270' y='400'/%3E%3Cuse href='%23A' x='1375' y='400'/%3E%3Cuse href='%23C' x='1450' y='400'/%3E%3Cuse href='%23E' x='1515' y='400'/%3E%3C/svg%3E");
+    /* ============================================================
+       CIUDAD — 8 modelos de edificio, 3 caras cada uno.
+       Más variedad: bajos, medios, altos, con antena, con cornisa.
+       ============================================================ */
+    --theme-city: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 400' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='f' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23201830'/%3E%3Cstop offset='1' stop-color='%23100818'/%3E%3C/linearGradient%3E%3ClinearGradient id='t' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23423868'/%3E%3Cstop offset='1' stop-color='%23282048'/%3E%3C/linearGradient%3E%3ClinearGradient id='s' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%230C0612'/%3E%3Cstop offset='1' stop-color='%23060408'/%3E%3C/linearGradient%3E%3Cg id='A'%3E%3Crect x='0' y='-180' width='60' height='180' fill='url(%23f)'/%3E%3Cpolygon points='0,-180 60,-180 72,-192 12,-192' fill='url(%23t)'/%3E%3Cpolygon points='60,-180 72,-192 72,-12 60,0' fill='url(%23s)'/%3E%3Cpath fill='%23FFB84D' d='M8,-170h5v4h-5zM26,-170h5v4h-5zM44,-170h5v4h-5zM8,-150h5v4h-5zM26,-150h5v4h-5zM8,-130h5v4h-5zM44,-130h5v4h-5zM26,-110h5v4h-5zM44,-110h5v4h-5zM8,-90h5v4h-5zM26,-90h5v4h-5zM44,-90h5v4h-5zM8,-70h5v4h-5zM26,-70h5v4h-5zM8,-50h5v4h-5zM26,-50h5v4h-5zM44,-50h5v4h-5zM26,-30h5v4h-5zM44,-30h5v4h-5z'/%3E%3Cpath fill='%236A4F20' d='M44,-150h5v4h-5zM8,-110h5v4h-5zM44,-70h5v4h-5zM8,-30h5v4h-5z'/%3E%3C/g%3E%3Cg id='B'%3E%3Crect x='0' y='-240' width='70' height='240' fill='url(%23f)'/%3E%3Cpolygon points='0,-240 70,-240 84,-254 14,-254' fill='url(%23t)'/%3E%3Cpolygon points='70,-240 84,-254 84,-14 70,0' fill='url(%23s)'/%3E%3Cline x1='35' y1='-240' x2='35' y2='-290' stroke='%23201830' stroke-width='1.5'/%3E%3Ccircle cx='35' cy='-290' r='1.8' fill='%23FF4444'/%3E%3Cpath fill='%23FFB84D' d='M10,-228h5v4h-5zM28,-228h5v4h-5zM46,-228h5v4h-5zM10,-208h5v4h-5zM46,-208h5v4h-5zM28,-188h5v4h-5zM46,-188h5v4h-5zM10,-168h5v4h-5zM28,-168h5v4h-5zM10,-148h5v4h-5zM46,-148h5v4h-5zM28,-128h5v4h-5zM46,-128h5v4h-5zM10,-108h5v4h-5zM28,-108h5v4h-5zM46,-108h5v4h-5zM10,-88h5v4h-5zM28,-88h5v4h-5zM46,-68h5v4h-5zM10,-68h5v4h-5zM28,-48h5v4h-5zM46,-48h5v4h-5zM10,-28h5v4h-5z'/%3E%3Cpath fill='%236A4F20' d='M28,-208h5v4h-5zM10,-188h5v4h-5zM28,-148h5v4h-5zM10,-128h5v4h-5zM46,-88h5v4h-5zM28,-68h5v4h-5zM46,-28h5v4h-5z'/%3E%3C/g%3E%3Cg id='C'%3E%3Crect x='0' y='-140' width='50' height='140' fill='url(%23f)'/%3E%3Cpolygon points='0,-140 50,-140 60,-150 10,-150' fill='url(%23t)'/%3E%3Cpolygon points='50,-140 60,-150 60,-10 50,0' fill='url(%23s)'/%3E%3Cpath fill='%23FFB84D' d='M8,-130h4v4h-4zM22,-130h4v4h-4zM36,-130h4v4h-4zM8,-112h4v4h-4zM36,-112h4v4h-4zM22,-94h4v4h-4zM8,-76h4v4h-4zM22,-76h4v4h-4zM36,-76h4v4h-4zM8,-58h4v4h-4zM36,-58h4v4h-4zM22,-40h4v4h-4zM8,-22h4v4h-4zM22,-22h4v4h-4z'/%3E%3Cpath fill='%236A4F20' d='M22,-112h4v4h-4zM36,-94h4v4h-4zM8,-40h4v4h-4zM36,-22h4v4h-4z'/%3E%3C/g%3E%3Cg id='D'%3E%3Crect x='0' y='-200' width='80' height='200' fill='url(%23f)'/%3E%3Cpolygon points='0,-200 80,-200 95,-215 15,-215' fill='url(%23t)'/%3E%3Cpolygon points='80,-200 95,-215 95,-15 80,0' fill='url(%23s)'/%3E%3Cpath fill='%23FFB84D' d='M12,-188h6v4h-6zM32,-188h6v4h-6zM52,-188h6v4h-6zM12,-168h6v4h-6zM52,-168h6v4h-6zM32,-148h6v4h-6zM52,-148h6v4h-6zM12,-128h6v4h-6zM32,-128h6v4h-6zM12,-108h6v4h-6zM52,-108h6v4h-6zM32,-88h6v4h-6zM52,-88h6v4h-6zM12,-68h6v4h-6zM32,-68h6v4h-6zM52,-68h6v4h-6zM12,-48h6v4h-6zM32,-48h6v4h-6zM52,-28h6v4h-6zM12,-28h6v4h-6zM32,-28h6v4h-6z'/%3E%3Cpath fill='%236A4F20' d='M32,-168h6v4h-6zM12,-148h6v4h-6zM52,-128h6v4h-6zM32,-108h6v4h-6zM12,-88h6v4h-6zM52,-48h6v4h-6zM12,-28h6v4h-6z'/%3E%3C/g%3E%3Cg id='E'%3E%3Crect x='0' y='-160' width='55' height='160' fill='url(%23f)'/%3E%3Cpolygon points='0,-160 55,-160 66,-172 11,-172' fill='url(%23t)'/%3E%3Cpolygon points='55,-160 66,-172 66,-12 55,0' fill='url(%23s)'/%3E%3Cpath fill='%23FFB84D' d='M8,-148h5v4h-5zM24,-148h5v4h-5zM40,-148h5v4h-5zM8,-128h5v4h-5zM40,-128h5v4h-5zM24,-108h5v4h-5zM8,-88h5v4h-5zM24,-88h5v4h-5zM40,-88h5v4h-5zM8,-68h5v4h-5zM40,-68h5v4h-5zM24,-48h5v4h-5zM8,-28h5v4h-5zM24,-28h5v4h-5zM40,-28h5v4h-5z'/%3E%3Cpath fill='%236A4F20' d='M24,-128h5v4h-5zM8,-108h5v4h-5zM40,-108h5v4h-5zM24,-68h5v4h-5zM8,-48h5v4h-5zM40,-48h5v4h-5z'/%3E%3C/g%3E%3Cg id='F'%3E%3Crect x='0' y='-220' width='65' height='220' fill='url(%23f)'/%3E%3Crect x='10' y='-260' width='45' height='40' fill='url(%23f)'/%3E%3Cpolygon points='0,-220 65,-220 78,-233 13,-233' fill='url(%23t)'/%3E%3Cpolygon points='10,-260 55,-260 65,-270 20,-270' fill='url(%23t)'/%3E%3Cpolygon points='65,-220 78,-233 78,-13 65,0' fill='url(%23s)'/%3E%3Cpolygon points='55,-260 65,-270 65,-230 55,-220' fill='url(%23s)'/%3E%3Cpath fill='%23FFB84D' d='M10,-208h5v4h-5zM28,-208h5v4h-5zM46,-208h5v4h-5zM10,-188h5v4h-5zM46,-188h5v4h-5zM28,-168h5v4h-5zM46,-168h5v4h-5zM10,-148h5v4h-5zM28,-148h5v4h-5zM10,-128h5v4h-5zM46,-128h5v4h-5zM28,-108h5v4h-5zM46,-108h5v4h-5zM10,-88h5v4h-5zM28,-88h5v4h-5zM46,-88h5v4h-5zM10,-68h5v4h-5zM28,-68h5v4h-5zM46,-48h5v4h-5zM10,-48h5v4h-5zM28,-48h5v4h-5zM46,-28h5v4h-5zM16,-252h5v3h-5zM30,-252h5v3h-5zM44,-252h5v3h-5zM16,-242h5v3h-5zM44,-242h5v3h-5z'/%3E%3Cpath fill='%236A4F20' d='M28,-188h5v4h-5zM10,-168h5v4h-5zM28,-128h5v4h-5zM10,-108h5v4h-5zM28,-48h5v4h-5zM30,-242h5v3h-5z'/%3E%3C/g%3E%3C!-- NUEVO: modelo G — edificio bajo ancho con cornisa --%3E%3Cg id='G'%3E%3Crect x='0' y='-100' width='100' height='100' fill='url(%23f)'/%3E%3Cpolygon points='0,-100 100,-100 115,-113 15,-113' fill='url(%23t)'/%3E%3Cpolygon points='100,-100 115,-113 115,-13 100,0' fill='url(%23s)'/%3E%3Crect x='-3' y='-107' width='106' height='7' fill='%234A3060'/%3E%3Cpath fill='%23FFB84D' d='M10,-90h5v4h-5zM28,-90h5v4h-5zM46,-90h5v4h-5zM64,-90h5v4h-5zM82,-90h5v4h-5zM10,-70h5v4h-5zM46,-70h5v4h-5zM82,-70h5v4h-5zM28,-50h5v4h-5zM64,-50h5v4h-5zM10,-30h5v4h-5zM46,-30h5v4h-5zM82,-30h5v4h-5z'/%3E%3Cpath fill='%236A4F20' d='M28,-70h5v4h-5zM64,-70h5v4h-5zM10,-50h5v4h-5zM46,-50h5v4h-5zM82,-50h5v4h-5z'/%3E%3C/g%3E%3C!-- NUEVO: modelo H — torre alta con pincho --%3E%3Cg id='H'%3E%3Crect x='0' y='-280' width='40' height='280' fill='url(%23f)'/%3E%3Cpolygon points='0,-280 40,-280 52,-295 12,-295' fill='url(%23t)'/%3E%3Cpolygon points='40,-280 52,-295 52,-15 40,0' fill='url(%23s)'/%3E%3Cpolygon points='10,-280 15,-330 25,-330 30,-280' fill='%23201830'/%3E%3Ccircle cx='20' cy='-333' r='2' fill='%23FF4444'/%3E%3Cpath fill='%23FFB84D' d='M6,-268h4v4h-4zM18,-268h4v4h-4zM30,-268h4v4h-4zM6,-248h4v4h-4zM30,-248h4v4h-4zM18,-228h4v4h-4zM6,-208h4v4h-4zM30,-208h4v4h-4zM18,-188h4v4h-4zM6,-168h4v4h-4zM30,-168h4v4h-4zM18,-148h4v4h-4zM6,-128h4v4h-4zM30,-128h4v4h-4zM18,-108h4v4h-4zM6,-88h4v4h-4zM30,-88h4v4h-4zM18,-68h4v4h-4zM6,-48h4v4h-4zM30,-48h4v4h-4zM18,-28h4v4h-4z'/%3E%3Cpath fill='%236A4F20' d='M18,-248h4v4h-4zM6,-228h4v4h-4zM30,-228h4v4h-4zM6,-188h4v4h-4zM30,-188h4v4h-4zM6,-148h4v4h-4zM30,-148h4v4h-4zM6,-108h4v4h-4zM30,-108h4v4h-4zM6,-68h4v4h-4zM30,-68h4v4h-4z'/%3E%3C/g%3E%3C/defs%3E%3Cuse href='%23A' x='0' y='400'/%3E%3Cuse href='%23C' x='75' y='400'/%3E%3Cuse href='%23B' x='140' y='400'/%3E%3Cuse href='%23E' x='230' y='400'/%3E%3Cuse href='%23G' x='300' y='400'/%3E%3Cuse href='%23D' x='420' y='400'/%3E%3Cuse href='%23A' x='525' y='400'/%3E%3Cuse href='%23H' x='600' y='400'/%3E%3Cuse href='%23C' x='680' y='400'/%3E%3Cuse href='%23E' x='745' y='400'/%3E%3Cuse href='%23B' x='815' y='400'/%3E%3Cuse href='%23G' x='900' y='400'/%3E%3Cuse href='%23F' x='1020' y='400'/%3E%3Cuse href='%23A' x='1100' y='400'/%3E%3Cuse href='%23D' x='1175' y='400'/%3E%3Cuse href='%23C' x='1275' y='400'/%3E%3Cuse href='%23H' x='1340' y='400'/%3E%3Cuse href='%23E' x='1420' y='400'/%3E%3Cuse href='%23G' x='1490' y='400'/%3E%3C/svg%3E");
 
-    /* AUTOS — nariz a la derecha (-r) o espejados hacia la izquierda (-l) */
-    --theme-cars-r: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 900 90'%3E%3Cdefs%3E%3ClinearGradient id='r'%3E%3Cstop offset='0' stop-color='%23FF7A3A' stop-opacity='0'/%3E%3Cstop offset='1' stop-color='%23FFC270' stop-opacity='.85'/%3E%3C/linearGradient%3E%3Cg id='c'%3E%3Crect x='-30' y='8.7' width='32' height='.9' fill='url(%23r)'/%3E%3Cpath d='M2,8 L10,8 L14,3 L28,3 L35,8 L43,8 L43,10.5 L2,10.5 Z' fill='%230C0710' stroke='%23FFC270' stroke-width='.6'/%3E%3Cpath d='M15,3.8 L27,3.8 L32,7.6 L12,7.6 Z' fill='%23FFD89A' opacity='.6'/%3E%3Crect x='2' y='8' width='3' height='1.6' fill='%23FF4A3A'/%3E%3Crect x='10' y='10.8' width='24' height='1.1' fill='%23FFC270' opacity='.7'/%3E%3Ccircle cx='42' cy='9' r='1.3' fill='%23FFFFFF'/%3E%3Ccircle cx='42' cy='9' r='4.5' fill='%23FFC270' opacity='.3'/%3E%3C/g%3E%3C/defs%3E%3Cuse href='%23c' x='70' y='4'/%3E%3Cuse href='%23c' x='330' y='28'/%3E%3Cuse href='%23c' x='590' y='50'/%3E%3Cuse href='%23c' x='780' y='70'/%3E%3Cuse href='%23c' x='470' y='66'/%3E%3C/svg%3E");
+    /* ============================================================
+       AUTOS — 2 direcciones, 3 modelos por SVG (variedad).
+       BUG FIX: en --theme-cars-l ahora los <use> van en x distintos
+       para que el espejo del grupo no los saque del viewport.
+       ============================================================ */
+    --theme-cars-r: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 900 100'%3E%3Cdefs%3E%3ClinearGradient id='trailR' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%23FFC270' stop-opacity='0'/%3E%3Cstop offset='1' stop-color='%23FFC270' stop-opacity='0.9'/%3E%3C/linearGradient%3E%3Cg id='carR'%3E%3Crect x='-32' y='9' width='34' height='1' fill='url(%23trailR)'/%3E%3Cpath d='M2,8 L10,8 L14,3 L28,3 L35,8 L43,8 L43,10.5 L2,10.5 Z' fill='%230C0710' stroke='%23FFC270' stroke-width='0.6'/%3E%3Cpath d='M15,3.8 L27,3.8 L32,7.6 L12,7.6 Z' fill='%23FFD89A' opacity='0.6'/%3E%3Crect x='2' y='8' width='3' height='1.6' fill='%23FF4A3A'/%3E%3Crect x='10' y='10.8' width='24' height='1.1' fill='%23FFC270' opacity='0.7'/%3E%3Ccircle cx='42' cy='9' r='1.3' fill='%23FFFFFF'/%3E%3Ccircle cx='42' cy='9' r='4.5' fill='%23FFC270' opacity='0.3'/%3E%3C/g%3E%3Cg id='carR2'%3E%3Crect x='-40' y='11' width='38' height='1' fill='url(%23trailR)'/%3E%3Cpath d='M2,10 L14,10 L18,4 L38,4 L45,10 L55,10 L55,13 L2,13 Z' fill='%230C0710' stroke='%23FFC270' stroke-width='0.7'/%3E%3Cpath d='M20,5 L36,5 L42,9.5 L18,9.5 Z' fill='%23FFD89A' opacity='0.55'/%3E%3Crect x='2' y='10' width='3' height='2' fill='%23FF4A3A'/%3E%3Crect x='12' y='13.5' width='34' height='1.3' fill='%23FFC270' opacity='0.7'/%3E%3Ccircle cx='53' cy='11' r='1.5' fill='%23FFFFFF'/%3E%3Ccircle cx='53' cy='11' r='5' fill='%23FFC270' opacity='0.3'/%3E%3C/g%3E%3Cg id='droneR'%3E%3Crect x='-18' y='5' width='20' height='0.7' fill='url(%23trailR)'/%3E%3Crect x='2' y='4' width='14' height='3' fill='%230C0710' stroke='%23FFC270' stroke-width='0.4'/%3E%3Ccircle cx='4' cy='5.5' r='1' fill='%23FF4A3A'/%3E%3Ccircle cx='15' cy='5.5' r='1' fill='%23FFFFFF'/%3E%3Ccircle cx='15' cy='5.5' r='3' fill='%23FFC270' opacity='0.35'/%3E%3C/g%3E%3C/defs%3E%3Cuse href='%23carR'  x='60'  y='6'/%3E%3Cuse href='%23carR2' x='200' y='32'/%3E%3Cuse href='%23droneR' x='340' y='60'/%3E%3Cuse href='%23carR'  x='470' y='16'/%3E%3Cuse href='%23carR2' x='620' y='50'/%3E%3Cuse href='%23droneR' x='770' y='76'/%3E%3Cuse href='%23carR'  x='820' y='40'/%3E%3C/svg%3E");
 
-    --theme-cars-l: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 900 90'%3E%3Cdefs%3E%3ClinearGradient id='r'%3E%3Cstop offset='0' stop-color='%23FF7A3A' stop-opacity='0'/%3E%3Cstop offset='1' stop-color='%23FFC270' stop-opacity='.85'/%3E%3C/linearGradient%3E%3Cg id='c'%3E%3Crect x='-30' y='8.7' width='32' height='.9' fill='url(%23r)'/%3E%3Cpath d='M2,8 L10,8 L14,3 L28,3 L35,8 L43,8 L43,10.5 L2,10.5 Z' fill='%230C0710' stroke='%23FFC270' stroke-width='.6'/%3E%3Cpath d='M15,3.8 L27,3.8 L32,7.6 L12,7.6 Z' fill='%23FFD89A' opacity='.6'/%3E%3Crect x='2' y='8' width='3' height='1.6' fill='%23FF4A3A'/%3E%3Crect x='10' y='10.8' width='24' height='1.1' fill='%23FFC270' opacity='.7'/%3E%3Ccircle cx='42' cy='9' r='1.3' fill='%23FFFFFF'/%3E%3Ccircle cx='42' cy='9' r='4.5' fill='%23FFC270' opacity='.3'/%3E%3C/g%3E%3C/defs%3E%3Cg transform='matrix(-1 0 0 1 900 0)'%3E%3Cuse href='%23c' x='120' y='10'/%3E%3Cuse href='%23c' x='400' y='34'/%3E%3Cuse href='%23c' x='690' y='56'/%3E%3Cuse href='%23c' x='260' y='72'/%3E%3C/g%3E%3C/svg%3E");
+    --theme-cars-l: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 900 100'%3E%3Cdefs%3E%3ClinearGradient id='trailL' x1='1' y1='0' x2='0' y2='0'%3E%3Cstop offset='0' stop-color='%23FFC270' stop-opacity='0'/%3E%3Cstop offset='1' stop-color='%23FFC270' stop-opacity='0.9'/%3E%3C/linearGradient%3E%3Cg id='carL'%3E%3Crect x='-2' y='9' width='34' height='1' fill='url(%23trailL)'/%3E%3Cpath d='M2,8 L10,8 L14,3 L28,3 L35,8 L43,8 L43,10.5 L2,10.5 Z' fill='%230C0710' stroke='%23FFC270' stroke-width='0.6'/%3E%3Cpath d='M15,3.8 L27,3.8 L32,7.6 L12,7.6 Z' fill='%23FFD89A' opacity='0.6'/%3E%3Crect x='2' y='8' width='3' height='1.6' fill='%23FF4A3A'/%3E%3Crect x='10' y='10.8' width='24' height='1.1' fill='%23FFC270' opacity='0.7'/%3E%3Ccircle cx='42' cy='9' r='1.3' fill='%23FFFFFF'/%3E%3Ccircle cx='42' cy='9' r='4.5' fill='%23FFC270' opacity='0.3'/%3E%3C/g%3E%3Cg id='carL2'%3E%3Crect x='-2' y='11' width='40' height='1' fill='url(%23trailL)'/%3E%3Cpath d='M2,10 L14,10 L18,4 L38,4 L45,10 L55,10 L55,13 L2,13 Z' fill='%230C0710' stroke='%23FFC270' stroke-width='0.7'/%3E%3Cpath d='M20,5 L36,5 L42,9.5 L18,9.5 Z' fill='%23FFD89A' opacity='0.55'/%3E%3Crect x='2' y='10' width='3' height='2' fill='%23FF4A3A'/%3E%3Crect x='12' y='13.5' width='34' height='1.3' fill='%23FFC270' opacity='0.7'/%3E%3Ccircle cx='53' cy='11' r='1.5' fill='%23FFFFFF'/%3E%3Ccircle cx='53' cy='11' r='5' fill='%23FFC270' opacity='0.3'/%3E%3C/g%3E%3Cg id='droneL'%3E%3Crect x='-2' y='5' width='20' height='0.7' fill='url(%23trailL)'/%3E%3Crect x='2' y='4' width='14' height='3' fill='%230C0710' stroke='%23FFC270' stroke-width='0.4'/%3E%3Ccircle cx='4' cy='5.5' r='1' fill='%23FF4A3A'/%3E%3Ccircle cx='15' cy='5.5' r='1' fill='%23FFFFFF'/%3E%3Ccircle cx='15' cy='5.5' r='3' fill='%23FFC270' opacity='0.35'/%3E%3C/g%3E%3C/defs%3E%3Cg transform='matrix(-1 0 0 1 900 0)'%3E%3Cuse href='%23carL'  x='40'  y='6'/%3E%3Cuse href='%23carL2' x='180' y='34'/%3E%3Cuse href='%23droneL' x='320' y='64'/%3E%3Cuse href='%23carL'  x='450' y='18'/%3E%3Cuse href='%23carL2' x='600' y='52'/%3E%3Cuse href='%23droneL' x='740' y='76'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   LOBBY — TODAS las capas usan background-attachment: fixed, así
-   la ciudad queda anclada al borde inferior de la PANTALLA y no
-   del contenido (aunque hagas scroll, nunca flota ni se corta).
-   Cada capa cubre todo el lobby (inset: 0) y dibuja ciudad + autos.
+   LOBBY
    ================================================================ */
 .welcome-placeholder {
     position: relative;
     isolation: isolate;
     background:
-        /* Luna */
-        radial-gradient(circle 110px at 14% 12%, rgba(255, 210, 140, 0.14), transparent),
-        radial-gradient(circle 22px at 14% 12%, rgba(255, 238, 195, 0.95) 0, rgba(255, 238, 195, 0.95) 19px, transparent 22px),
-        /* Estrellas */
-        radial-gradient(1.5px 1.5px at 8% 6%,   rgba(255, 220, 160, 0.85), transparent),
-        radial-gradient(1px 1px     at 26% 10%, rgba(255, 220, 160, 0.55), transparent),
-        radial-gradient(1.5px 1.5px at 44% 5%,  rgba(255, 220, 160, 0.75), transparent),
-        radial-gradient(1px 1px     at 58% 15%, rgba(255, 220, 160, 0.55), transparent),
-        radial-gradient(1.5px 1.5px at 72% 7%,  rgba(255, 220, 160, 0.80), transparent),
-        radial-gradient(1px 1px     at 90% 14%, rgba(255, 220, 160, 0.50), transparent),
-        radial-gradient(1px 1px     at 34% 22%, rgba(255, 220, 160, 0.45), transparent),
-        radial-gradient(1.5px 1.5px at 66% 24%, rgba(255, 220, 160, 0.55), transparent),
-        /* Halo ámbar del horizonte */
-        radial-gradient(ellipse 80% 30% at 50% 100%, rgba(240, 169, 74, 0.22) 0%, transparent 70%),
-        /* Cielo */
+        /* Luna — halo + disco con crateres sutiles */
+        radial-gradient(circle 140px at 14% 12%, rgba(255, 210, 140, 0.10), transparent),
+        radial-gradient(circle 24px at 14% 12%, #FFF0D0 0px, #FFF0D0 20px, transparent 24px),
+        radial-gradient(circle 5px at 12.5% 11%, rgba(180, 160, 130, 0.35), transparent),
+        radial-gradient(circle 4px at 15% 13.5%, rgba(180, 160, 130, 0.30), transparent),
+        radial-gradient(circle 3px at 14% 10.5%, rgba(180, 160, 130, 0.25), transparent),
+        /* Estrellas capa lejana (pequeñas, tenues) */
+        radial-gradient(1px 1px at 4% 4%,   rgba(255, 220, 160, 0.45), transparent),
+        radial-gradient(1px 1px at 30% 3%,  rgba(255, 220, 160, 0.40), transparent),
+        radial-gradient(1px 1px at 52% 6%,  rgba(255, 220, 160, 0.42), transparent),
+        radial-gradient(1px 1px at 78% 4%,  rgba(255, 220, 160, 0.40), transparent),
+        radial-gradient(1px 1px at 96% 8%,  rgba(255, 220, 160, 0.38), transparent),
+        /* Estrellas capa media */
+        radial-gradient(1.5px 1.5px at 12% 8%,  rgba(255, 220, 160, 0.75), transparent),
+        radial-gradient(1.5px 1.5px at 38% 12%, rgba(255, 220, 160, 0.70), transparent),
+        radial-gradient(1.5px 1.5px at 62% 9%,  rgba(255, 220, 160, 0.75), transparent),
+        radial-gradient(1.5px 1.5px at 84% 14%, rgba(255, 220, 160, 0.68), transparent),
+        radial-gradient(1.5px 1.5px at 22% 18%, rgba(255, 220, 160, 0.65), transparent),
+        radial-gradient(1.5px 1.5px at 70% 20%, rgba(255, 220, 160, 0.62), transparent),
+        /* Estrellas cercanas (brillan más) */
+        radial-gradient(2px 2px at 48% 10%, rgba(255, 240, 200, 0.95), transparent),
+        radial-gradient(2px 2px at 8% 14%,  rgba(255, 240, 200, 0.90), transparent),
+        radial-gradient(2px 2px at 88% 6%,  rgba(255, 240, 200, 0.92), transparent),
+        /* Contaminación lumínica del horizonte */
+        radial-gradient(ellipse 80% 32% at 50% 100%, rgba(240, 169, 74, 0.26) 0%, rgba(240, 169, 74, 0.10) 40%, transparent 75%),
+        /* Haze atmosférico sobre los edificios */
+        linear-gradient(180deg, transparent 40%, rgba(60, 40, 80, 0.12) 70%, transparent 100%),
+        /* Cielo base */
         linear-gradient(180deg, #04050A 0%, #08080F 25%, #0E0D18 55%, #1A1626 100%);
     background-attachment: fixed;
+}
+
+/* Parpadeo sutil en las estrellas (overlay muy transparente que cambia de opacidad) */
+.welcome-placeholder {
+    animation: ambar-stars-twinkle 8s ease-in-out infinite;
+}
+@keyframes ambar-stars-twinkle {
+    0%, 100% { filter: brightness(1); }
+    50%      { filter: brightness(1.06); }
 }
 
 .welcome-glow {
@@ -92,7 +118,7 @@
     pointer-events: none;
 }
 
-/* CAPA 1 — lejana: chica, oscura, autos lentos → */
+/* CAPA 1 — lejana: ciudad chica, autos lentos → */
 .welcome-glow::before {
     content: '';
     position: absolute;
@@ -100,19 +126,19 @@
     z-index: 1;
     pointer-events: none;
     background-image: var(--theme-cars-r), var(--theme-city);
-    background-size: 450px 45px, 880px 220px;
+    background-size: 450px 50px, 880px 220px;
     background-repeat: repeat-x;
     background-attachment: fixed;
     background-position: 0 72%, -300px 100%;
-    filter: brightness(0.5);
-    animation: ambar-far 90s linear infinite;
+    filter: brightness(0.5) contrast(1.05);
+    animation: ambar-far 120s linear infinite;
 }
 @keyframes ambar-far {
     from { background-position: 0 72%,     -300px 100%; }
     to   { background-position: 450px 72%, -300px 100%; }
 }
 
-/* CAPA 2 — media: autos en sentido contrario ← */
+/* CAPA 2 — media: autos ← */
 .welcome-glow::after {
     content: '';
     position: absolute;
@@ -120,16 +146,16 @@
     z-index: 2;
     pointer-events: none;
     background-image: var(--theme-cars-l), var(--theme-city);
-    background-size: 675px 67px, 1200px 300px;
+    background-size: 675px 75px, 1200px 300px;
     background-repeat: repeat-x;
     background-attachment: fixed;
     background-position: 0 62%, -520px 100%;
-    filter: brightness(0.75);
+    filter: brightness(0.75) contrast(1.05);
     animation: ambar-mid 90s linear infinite;
 }
 @keyframes ambar-mid {
-    from { background-position: 0 62%,       -520px 100%; }
-    to   { background-position: -1350px 62%, -520px 100%; }
+    from { background-position: 0 62%,        -520px 100%; }
+    to   { background-position: -1350px 62%,  -520px 100%; }
 }
 
 /* CAPA 3 — cercana: edificios a tamaño completo, autos → */
@@ -140,18 +166,18 @@
     z-index: 3;
     pointer-events: none;
     background-image: var(--theme-cars-r), var(--theme-city);
-    background-size: 900px 90px, 1600px 400px;
+    background-size: 900px 100px, 1600px 400px;
     background-repeat: repeat-x;
     background-attachment: fixed;
     background-position: 0 52%, 0 100%;
-    animation: ambar-near 90s linear infinite;
+    animation: ambar-near 75s linear infinite;
 }
 @keyframes ambar-near {
-    from { background-position: 0 52%,      0 100%; }
-    to   { background-position: 2700px 52%, 0 100%; }
+    from { background-position: 0 52%,       0 100%; }
+    to   { background-position: 2700px 52%,  0 100%; }
 }
 
-/* CAPA 4 — primer plano: autos grandes, rápidos y desenfocados ← */
+/* CAPA 4 — primer plano: autos grandes, desenfocados ← */
 .welcome-placeholder::after {
     content: '';
     position: absolute;
@@ -159,26 +185,28 @@
     z-index: 4;
     pointer-events: none;
     background-image: var(--theme-cars-l);
-    background-size: 1350px 135px;
+    background-size: 1350px 150px;
     background-repeat: repeat-x;
     background-attachment: fixed;
     background-position: 0 38%;
-    filter: blur(1.4px) drop-shadow(0 0 6px rgba(240, 169, 74, 0.5));
-    animation: ambar-fg 90s linear infinite;
+    filter: blur(1.6px) drop-shadow(0 0 8px rgba(240, 169, 74, 0.55));
+    opacity: 0.85;
+    animation: ambar-fg 55s linear infinite;
 }
 @keyframes ambar-fg {
     from { background-position: 0 38%; }
     to   { background-position: -5400px 38%; }
 }
 
-/* Contenido del lobby por encima de todo */
 .welcome-hero,
 .welcome-section {
     position: relative;
     z-index: 10;
 }
 
-/* Hero en cristal oscuro para que se lea sobre la ciudad */
+/* ================================================================
+   HERO — cristal oscuro
+   ================================================================ */
 .welcome-hero {
     background: rgba(8, 8, 14, 0.68);
     backdrop-filter: blur(10px);
@@ -189,19 +217,175 @@
         0 12px 32px rgba(0, 0, 0, 0.60);
 }
 
-/* Texto oscuro sobre fondos ámbar */
-.btn-primario,
-.avatar-config,
-.noti-badge,
-.welcome-icon-wrap [data-lucide] {
+/* ================================================================
+   SHELL — dark minimalista
+   ================================================================ */
+.app-header {
+    background: #101018;
+    border-bottom: 1px solid #25232E;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.50);
+}
+
+.sidebar {
+    background: #101018;
+    border-right: 1px solid #25232E;
+}
+
+.nav-item { color: #B0A9B8; }
+.nav-item:hover {
+    background: rgba(240, 169, 74, 0.06);
+    color: #F5F0E8;
+}
+.nav-item .nav-icon { color: #8A8492; }
+.nav-item:hover .nav-icon { color: #FFC270; }
+.nav-item.active {
+    background: rgba(240, 169, 74, 0.10);
+    color: #FFD89A;
+    box-shadow: inset 0 0 0 1px rgba(240, 169, 74, 0.30);
+}
+.nav-item.active::before {
+    background: #F0A94A;
+    box-shadow: 0 0 8px rgba(240, 169, 74, 0.55);
+}
+.nav-item.active .nav-icon { color: #F0A94A; }
+
+.sidebar-comunidad {
+    background: #15141C;
+    border-color: #25232E;
+}
+.sidebar-comunidad:hover { border-color: #F0A94A; }
+.sidebar-comunidad-icono {
+    background: rgba(240, 169, 74, 0.15);
+    color: #FFC270;
+}
+
+@media (max-width: 768px) {
+    .sidebar { position: fixed; }
+}
+
+.acceso-item {
+    background: #15141C;
+    border: 1px solid #25232E;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.40);
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.acceso-item:hover {
+    border-color: #F0A94A;
+    box-shadow:
+        0 8px 20px rgba(240, 169, 74, 0.18),
+        0 2px 6px rgba(0, 0, 0, 0.50);
+    transform: translateY(-2px);
+}
+.acceso-icon-wrap {
+    background: rgba(240, 169, 74, 0.10);
+    color: #FFC270;
+}
+.acceso-item:hover .acceso-icon-wrap {
+    background: var(--accent-gradient);
     color: #0A0A10;
 }
 
+.widget-item {
+    border: 1px solid #25232E;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.40);
+}
+.widget-item:hover {
+    border-color: #F0A94A;
+    box-shadow: 0 8px 20px rgba(240, 169, 74, 0.15);
+}
+
+.tab-item.active {
+    background: #15141C;
+    color: #FFD89A;
+    box-shadow: inset 0 -2px 0 #F0A94A;
+}
+.tab-item.active [data-lucide] { color: #F0A94A; }
+
+.config-card,
+.modal-todas-card {
+    background: #15141C;
+    border: 1px solid #25232E;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.80);
+}
+.config-header,
+.modal-todas-header {
+    background: #101018;
+    border-bottom-color: #25232E;
+}
+.config-header h2,
+.modal-todas-header h2 { color: #F5F0E8; }
+.config-subtitle,
+.modal-subtitle { color: #8A8492; }
+
+.btn-primario {
+    background: linear-gradient(135deg, #F0A94A, #D18A28);
+    color: #0A0A10;
+    font-weight: 800;
+    border: none;
+    box-shadow:
+        0 4px 12px rgba(240, 169, 74, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.20);
+}
+.btn-primario:hover {
+    background: linear-gradient(135deg, #FFC270, #F0A94A);
+    box-shadow:
+        0 8px 20px rgba(240, 169, 74, 0.55),
+        0 0 0 3px rgba(240, 169, 74, 0.15);
+}
+
+.avatar-config {
+    background: linear-gradient(135deg, #F0A94A, #A86B1A);
+    border: 2px solid #F0A94A;
+    box-shadow:
+        var(--shadow-sm),
+        0 0 0 1px #0A0A10,
+        0 0 0 3px rgba(240, 169, 74, 0.20);
+}
+.avatar-config:hover {
+    box-shadow:
+        0 6px 16px rgba(240, 169, 74, 0.55),
+        0 0 0 1px #FFC270,
+        0 0 0 4px rgba(240, 169, 74, 0.20);
+}
+
+.noti-btn.tiene-no-leidas {
+    background: rgba(240, 169, 74, 0.12);
+    color: #FFC270;
+}
+.noti-badge {
+    background: #F0A94A;
+    color: #0A0A10;
+    border: 2px solid #0A0A10;
+    font-weight: 800;
+}
+
+.search-bar:focus-within {
+    border-color: #F0A94A;
+    box-shadow: 0 0 0 3px rgba(240, 169, 74, 0.20);
+}
+.search-bar:focus-within .search-icon { color: #F0A94A; }
+
+/* ================================================================
+   REDUCED MOTION
+   ================================================================ */
 @media (prefers-reduced-motion: reduce) {
+    .welcome-placeholder,
     .welcome-placeholder::before,
     .welcome-placeholder::after,
     .welcome-glow::before,
     .welcome-glow::after {
         animation: none !important;
+    }
+    .acceso-item,
+    .widget-item,
+    .btn-primario,
+    .avatar-config {
+        transition: none !important;
+        transform: none !important;
+    }
+    .acceso-item:hover,
+    .widget-item:hover {
+        transform: none !important;
     }
 }
