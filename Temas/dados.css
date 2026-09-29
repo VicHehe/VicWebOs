@@ -1,135 +1,133 @@
 /* ================================================
    Tema: Dados
-   Mesa de casino: fieltro verde, dados marfil con
-   pips negros. Dados 3D REALES en el lobby (cubos
-   con 3 caras visibles) que ruedan y giran. Las
-   cards también son dados 3D que rotan al hover.
+   Mesa de casino: fieltro esmeralda profundo,
+   dados marfil con pips negros, acentos dorados.
+   Dados 3D con 3 caras visibles (top claro, frente
+   medio, lateral oscuro) + sombra proyectada.
+   Al hover, el dado gira mostrando su volumen.
    ================================================ */
 
 :root {
-    /* Acento: rojo de casino */
-    --violet-50:  #2A1518;
-    --violet-100: #3E1A1E;
-    --violet-200: #5C282E;
-    --violet-300: #C8383A;
-    --violet-400: #A82A2C;
-    --violet-500: #8B1A1A;
-    --violet-600: #6E1414;
-    --violet-700: #4E0E0E;
+    --violet-50:  #0F2818;
+    --violet-100: #16341F;
+    --violet-200: #1E4428;
+    --violet-300: #C9A227;
+    --violet-400: #B8931F;
+    --violet-500: #8B6B14;
+    --violet-600: #6E5410;
+    --violet-700: #4E3B0B;
 
-    /* Superficies: fieltro verde oscuro */
-    --white:   #1A2E1E;
-    --bg:      #12200E;
-    --bg-alt:  #1A2E1E;
-    --gray-50:  #1A2E1E;
-    --gray-100: #243B28;
-    --gray-200: #2E4A32;
-    --gray-300: #3E6042;
-    --gray-400: #5E7E62;
-    --gray-500: #8AA08E;
-    --gray-600: #B0C0B2;
-    --gray-700: #D0DAD2;
-    --gray-800: #E5EBE6;
-    --gray-900: #F5F8F5;
+    --white:   #1A3A24;
+    --bg:      #0F2818;
+    --bg-alt:  #16341F;
+    --gray-50:  #16341F;
+    --gray-100: #1E4428;
+    --gray-200: #2A5632;
+    --gray-300: #3E6E48;
+    --gray-400: #5E8A68;
+    --gray-500: #8AAA92;
+    --gray-600: #B8CABE;
+    --gray-700: #D8E2DC;
+    --gray-800: #E8F0EC;
+    --gray-900: #F5F8F6;
 
-    --border:  #2E4A32;
-    --text:    #F5F8F5;
-    --text-2:  #D0DAD2;
-    --text-3:  #B0C0B2;
+    --border:  #2A5632;
+    --text:    #F5F8F6;
+    --text-2:  #B8CABE;
+    --text-3:  #8AAA92;
 
     --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.50);
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.60);
     --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.60);
     --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.70);
     --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.80);
-    --shadow-glow: 0 0 0 4px rgba(200, 56, 58, 0.25);
+    --shadow-glow: 0 0 0 4px rgba(201, 162, 39, 0.25);
 
-    --accent-gradient: linear-gradient(135deg, #8B1A1A, #4E0E0E);
-    --accent-gradient-hover: linear-gradient(135deg, #C8383A, #6E1414);
-    --accent-shadow: rgba(139, 26, 26, 0.40);
-    --accent-shadow-hover: rgba(139, 26, 26, 0.60);
-    --accent-text-gradient: linear-gradient(135deg, #F5F8F5, #C8383A);
+    --accent-gradient: linear-gradient(135deg, #C9A227, #8B6B14);
+    --accent-gradient-hover: linear-gradient(135deg, #E0B838, #B8931F);
+    --accent-shadow: rgba(201, 162, 39, 0.40);
+    --accent-shadow-hover: rgba(201, 162, 39, 0.60);
+    --accent-text-gradient: linear-gradient(135deg, #F5F8F6, #C9A227);
 
-    /* Dado */
-    --die-front: #F5F0E0;
-    --die-top:   #FFFFFF;
-    --die-right: #C8BFA8;
-    --die-edge:  #8A7F6A;
-    --die-pip:   #1A1410;
-    --die-red:   #C8383A;
+    /* Dado — 3 caras con shading coherente (luz arriba-izq) */
+    --die-front-1: #FFFFFF;
+    --die-front-2: #F5EFE0;
+    --die-top-1:   #FFFFFF;
+    --die-top-2:   #FAF5E8;
+    --die-right-1: #D8CFB8;
+    --die-right-2: #B8AE96;
+    --die-edge:    #6B5E44;
+    --die-pip:     #0F1A0F;
+    --die-pip-red: #B83232;
 
-    /* Fieltro */
-    --felt-base:   #1A2E1E;
-    --felt-dark:   #0E1A10;
-    --felt-light:  #243B28;
+    /* Fieltro esmeralda */
+    --felt-base:  #0F2818;
+    --felt-dark:  #081810;
+    --felt-light: #16341F;
 
     --r-sm: 3px;
     --r-md: 6px;
     --r-lg: 10px;
     --r-xl: 16px;
 
-    --theme-felt: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Crect width='8' height='8' fill='%231A2E1E'/%3E%3Cg fill='%23243B28' fill-opacity='0.55'%3E%3Ccircle cx='2' cy='2' r='0.7'/%3E%3Ccircle cx='6' cy='6' r='0.7'/%3E%3Ccircle cx='4' cy='4' r='0.4'/%3E%3Ccircle cx='0' cy='6' r='0.4'/%3E%3Ccircle cx='7' cy='1' r='0.4'/%3E%3C/g%3E%3Cg fill='%232E4A32' fill-opacity='0.40'%3E%3Ccircle cx='3' cy='7' r='0.3'/%3E%3Ccircle cx='5' cy='1' r='0.3'/%3E%3C/g%3E%3C/svg%3E");
+    --theme-felt: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Crect width='6' height='6' fill='%230F2818'/%3E%3Cg fill='%2316341F' fill-opacity='0.60'%3E%3Ccircle cx='1' cy='1' r='0.5'/%3E%3Ccircle cx='4' cy='4' r='0.5'/%3E%3Ccircle cx='3' cy='1' r='0.3'/%3E%3Ccircle cx='1' cy='4' r='0.3'/%3E%3C/g%3E%3Cg fill='%231E4428' fill-opacity='0.40'%3E%3Ccircle cx='5' cy='2' r='0.3'/%3E%3Ccircle cx='2' cy='5' r='0.3'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   1. WELCOME — mesa de casino
+   1. WELCOME — mesa de casino con fieltro esmeralda
    ================================================================ */
 .welcome-placeholder {
     position: relative;
     background:
-        radial-gradient(ellipse 70% 35% at 50% 100%, rgba(200, 56, 58, 0.10) 0%, transparent 70%),
+        radial-gradient(ellipse 70% 35% at 50% 100%, rgba(201, 162, 39, 0.08) 0%, transparent 70%),
         radial-gradient(ellipse 50% 30% at 50% 0%, rgba(240, 220, 180, 0.06) 0%, transparent 60%),
-        var(--theme-felt) 0 0 / 8px 8px repeat,
-        linear-gradient(180deg, #1A2E1E 0%, #0E1A10 100%);
+        var(--theme-felt) 0 0 / 6px 6px repeat,
+        linear-gradient(180deg, #16341F 0%, #081810 100%);
     background-attachment: fixed;
-    perspective: 1200px;
-    perspective-origin: 50% 40%;
-    overflow-x: hidden;
-    overflow-y: auto;
 }
 
-/* DADO 3D GRANDE — 3 caras via box-shadow y fondo */
+/* DADO GRANDE — esquina derecha, con 3 caras */
 .welcome-placeholder::before {
     content: '';
     position: absolute;
     top: 12%;
     right: 8%;
-    width: 88px;
-    height: 88px;
+    width: 84px;
+    height: 84px;
+    /* Cara frontal: 6 pips, gradiente suave de luz */
     background:
-        /* Pips del 6 (frente) */
-        radial-gradient(circle 6px at 25% 25%, #1A1410 0, #1A1410 6px, transparent 7px),
-        radial-gradient(circle 6px at 75% 25%, #1A1410 0, #1A1410 6px, transparent 7px),
-        radial-gradient(circle 6px at 25% 50%, #1A1410 0, #1A1410 6px, transparent 7px),
-        radial-gradient(circle 6px at 75% 50%, #1A1410 0, #1A1410 6px, transparent 7px),
-        radial-gradient(circle 6px at 25% 75%, #1A1410 0, #1A1410 6px, transparent 7px),
-        radial-gradient(circle 6px at 75% 75%, #1A1410 0, #1A1410 6px, transparent 7px),
-        linear-gradient(180deg, #FFFFFF 0%, #F5F0E0 100%);
-    border: 2px solid #8A7F6A;
+        radial-gradient(circle 5px at 24% 24%, var(--die-pip) 0, var(--die-pip) 5px, transparent 6px),
+        radial-gradient(circle 5px at 76% 24%, var(--die-pip) 0, var(--die-pip) 5px, transparent 6px),
+        radial-gradient(circle 5px at 24% 50%, var(--die-pip) 0, var(--die-pip) 5px, transparent 6px),
+        radial-gradient(circle 5px at 76% 50%, var(--die-pip) 0, var(--die-pip) 5px, transparent 6px),
+        radial-gradient(circle 5px at 24% 76%, var(--die-pip) 0, var(--die-pip) 5px, transparent 6px),
+        radial-gradient(circle 5px at 76% 76%, var(--die-pip) 0, var(--die-pip) 5px, transparent 6px),
+        linear-gradient(180deg, var(--die-front-1) 0%, var(--die-front-2) 100%);
+    border: 2px solid var(--die-edge);
     border-radius: 10px;
-    /* Caras top y right via box-shadow */
+    /* box-shadow simulando top + right + sombra mesa */
     box-shadow:
-        inset 3px 3px 0 rgba(255, 255, 255, 0.70),
-        inset -3px -3px 0 rgba(138, 127, 106, 0.35),
-        /* Top face */
-        0 -20px 0 0 #FFFFFF,
-        0 -22px 0 0 #8A7F6A,
-        /* Right face */
-        20px 0 0 0 #C8BFA8,
-        22px 0 0 0 #8A7F6A,
-        /* Sombra de la mesa */
-        32px 32px 0 0 rgba(0, 0, 0, 0.25),
-        40px 40px 40px 0 rgba(0, 0, 0, 0.40);
+        inset 3px 3px 0 rgba(255, 255, 255, 0.75),
+        inset -3px -3px 0 rgba(107, 94, 68, 0.30),
+        /* Cara superior: más clara */
+        0 -18px 0 0 var(--die-top-1),
+        0 -20px 0 0 var(--die-edge),
+        /* Cara derecha: más oscura */
+        18px 0 0 0 var(--die-right-1),
+        20px 0 0 0 var(--die-edge),
+        /* Sombra en mesa */
+        26px 26px 0 0 rgba(0, 0, 0, 0.35),
+        34px 34px 40px 0 rgba(0, 0, 0, 0.55);
     z-index: 5;
     pointer-events: none;
-    animation: dado-tumble 8s ease-in-out infinite;
-    transform-style: preserve-3d;
+    animation: dado-tumble 9s ease-in-out infinite;
+    transform: rotate(-6deg);
 }
 @keyframes dado-tumble {
     0%, 100% { transform: translateY(0) rotate(-6deg); }
-    25%      { transform: translateY(-10px) rotate(4deg); }
-    50%      { transform: translateY(0) rotate(-2deg); }
-    75%      { transform: translateY(-8px) rotate(8deg); }
+    25%      { transform: translateY(-12px) rotate(3deg); }
+    50%      { transform: translateY(-4px) rotate(-3deg); }
+    75%      { transform: translateY(-14px) rotate(6deg); }
 }
 
 .welcome-glow {
@@ -137,101 +135,97 @@
     inset: 0;
     background: radial-gradient(
         circle at 50% 50%,
-        rgba(240, 220, 180, 0.10) 0%,
-        rgba(139, 26, 26, 0.04) 40%,
+        rgba(240, 220, 180, 0.08) 0%,
+        rgba(201, 162, 39, 0.03) 40%,
         transparent 68%
     );
     pointer-events: none;
     z-index: 0;
 }
 
-/* DADO MEDIANO — izquierda */
+/* DADO MEDIANO — izquierda, con 4 pips */
 .welcome-glow::before {
     content: '';
     position: absolute;
-    bottom: 20%;
-    left: 6%;
-    width: 60px;
-    height: 60px;
+    bottom: 22%;
+    left: 7%;
+    width: 56px;
+    height: 56px;
     background:
-        radial-gradient(circle 4px at 25% 25%, #C8383A 0, #C8383A 4px, transparent 5px),
-        radial-gradient(circle 4px at 75% 25%, #C8383A 0, #C8383A 4px, transparent 5px),
-        radial-gradient(circle 4px at 25% 75%, #C8383A 0, #C8383A 4px, transparent 5px),
-        radial-gradient(circle 4px at 75% 75%, #C8383A 0, #C8383A 4px, transparent 5px),
-        linear-gradient(180deg, #FFFFFF 0%, #F5F0E0 100%);
-    border: 2px solid #8A7F6A;
+        radial-gradient(circle 3.5px at 28% 28%, var(--die-pip-red) 0, var(--die-pip-red) 3.5px, transparent 4.5px),
+        radial-gradient(circle 3.5px at 72% 28%, var(--die-pip-red) 0, var(--die-pip-red) 3.5px, transparent 4.5px),
+        radial-gradient(circle 3.5px at 28% 72%, var(--die-pip-red) 0, var(--die-pip-red) 3.5px, transparent 4.5px),
+        radial-gradient(circle 3.5px at 72% 72%, var(--die-pip-red) 0, var(--die-pip-red) 3.5px, transparent 4.5px),
+        linear-gradient(180deg, var(--die-front-1) 0%, var(--die-front-2) 100%);
+    border: 2px solid var(--die-edge);
     border-radius: 8px;
     box-shadow:
-        inset 2px 2px 0 rgba(255, 255, 255, 0.70),
-        inset -2px -2px 0 rgba(138, 127, 106, 0.35),
-        0 -14px 0 0 #FFFFFF,
-        0 -16px 0 0 #8A7F6A,
-        14px 0 0 0 #C8BFA8,
-        16px 0 0 0 #8A7F6A,
-        24px 24px 0 0 rgba(0, 0, 0, 0.22),
-        32px 32px 32px 0 rgba(0, 0, 0, 0.35);
-    animation: dado-tumble-2 10s ease-in-out infinite 1s;
+        inset 2px 2px 0 rgba(255, 255, 255, 0.75),
+        inset -2px -2px 0 rgba(107, 94, 68, 0.30),
+        0 -12px 0 0 var(--die-top-1),
+        0 -14px 0 0 var(--die-edge),
+        12px 0 0 0 var(--die-right-1),
+        14px 0 0 0 var(--die-edge),
+        20px 20px 0 0 rgba(0, 0, 0, 0.32),
+        26px 26px 32px 0 rgba(0, 0, 0, 0.50);
+    animation: dado-tumble-2 11s ease-in-out infinite 1s;
+    transform: rotate(5deg);
     z-index: 5;
     pointer-events: none;
 }
 @keyframes dado-tumble-2 {
-    0%, 100% { transform: translateY(0) rotate(4deg); }
-    33%      { transform: translateY(-8px) rotate(-6deg); }
-    66%      { transform: translateY(-4px) rotate(10deg); }
+    0%, 100% { transform: translateY(0) rotate(5deg); }
+    33%      { transform: translateY(-10px) rotate(-4deg); }
+    66%      { transform: translateY(-3px) rotate(8deg); }
 }
 
-/* DADO PEQUEÑO — arriba izquierda */
+/* DADO PEQUEÑO — arriba izquierda, con 2 pips */
 .welcome-glow::after {
     content: '';
     position: absolute;
-    top: 22%;
-    left: 14%;
-    width: 40px;
-    height: 40px;
+    top: 26%;
+    left: 13%;
+    width: 38px;
+    height: 38px;
     background:
-        radial-gradient(circle 3px at 30% 30%, #1A1410 0, #1A1410 3px, transparent 4px),
-        radial-gradient(circle 3px at 70% 30%, #1A1410 0, #1A1410 3px, transparent 4px),
-        radial-gradient(circle 3px at 50% 50%, #1A1410 0, #1A1410 3px, transparent 4px),
-        radial-gradient(circle 3px at 30% 70%, #1A1410 0, #1A1410 3px, transparent 4px),
-        radial-gradient(circle 3px at 70% 70%, #1A1410 0, #1A1410 3px, transparent 4px),
-        linear-gradient(180deg, #FFFFFF 0%, #F5F0E0 100%);
-    border: 2px solid #8A7F6A;
+        radial-gradient(circle 2.5px at 30% 30%, var(--die-pip) 0, var(--die-pip) 2.5px, transparent 3.5px),
+        radial-gradient(circle 2.5px at 70% 70%, var(--die-pip) 0, var(--die-pip) 2.5px, transparent 3.5px),
+        linear-gradient(180deg, var(--die-front-1) 0%, var(--die-front-2) 100%);
+    border: 1.5px solid var(--die-edge);
     border-radius: 6px;
     box-shadow:
-        inset 2px 2px 0 rgba(255, 255, 255, 0.70),
-        inset -2px -2px 0 rgba(138, 127, 106, 0.35),
-        0 -10px 0 0 #FFFFFF,
-        0 -12px 0 0 #8A7F6A,
-        10px 0 0 0 #C8BFA8,
-        12px 0 0 0 #8A7F6A,
-        18px 18px 0 0 rgba(0, 0, 0, 0.20),
-        22px 22px 22px 0 rgba(0, 0, 0, 0.30);
-    animation: dado-tumble 7s ease-in-out infinite 2s;
+        inset 2px 2px 0 rgba(255, 255, 255, 0.75),
+        inset -2px -2px 0 rgba(107, 94, 68, 0.30),
+        0 -8px 0 0 var(--die-top-1),
+        0 -10px 0 0 var(--die-edge),
+        8px 0 0 0 var(--die-right-1),
+        10px 0 0 0 var(--die-edge),
+        14px 14px 0 0 rgba(0, 0, 0, 0.30),
+        18px 18px 22px 0 rgba(0, 0, 0, 0.45);
+    animation: dado-tumble 8s ease-in-out infinite 2s;
+    transform: rotate(-8deg);
     z-index: 5;
     pointer-events: none;
 }
 
 .welcome-hero,
-.welcome-section {
-    position: relative;
-    z-index: 10;
-}
+.welcome-section { position: relative; z-index: 10; }
 
 /* ================================================================
-   2. HERO — carta de casino en negro/madera
+   2. HERO — carta central con marco dorado
    ================================================================ */
 .welcome-hero {
     position: relative;
     padding: 40px 32px 36px;
-    background: linear-gradient(180deg, #2E2318 0%, #1A1410 100%);
-    border: 2px solid #8A7F6A;
-    border-radius: 8px;
+    background: linear-gradient(180deg, #1E4428 0%, #0F2818 100%);
+    border: 2px solid var(--die-edge);
+    border-radius: 12px;
     box-shadow:
-        inset 0 1px 0 rgba(245, 240, 224, 0.10),
-        inset 0 0 60px rgba(0, 0, 0, 0.50),
+        inset 0 1px 0 rgba(245, 248, 246, 0.08),
+        inset 0 0 60px rgba(0, 0, 0, 0.45),
         0 4px 8px rgba(0, 0, 0, 0.50),
         0 12px 32px rgba(0, 0, 0, 0.60),
-        0 0 40px rgba(200, 56, 58, 0.15);
+        0 0 48px rgba(201, 162, 39, 0.18);
     max-width: 660px;
     margin-left: auto;
     margin-right: auto;
@@ -240,183 +234,177 @@
     content: '';
     position: absolute;
     inset: 6px;
-    border: 1px solid rgba(240, 200, 140, 0.30);
-    border-radius: 4px;
+    border: 1px solid rgba(201, 162, 39, 0.35);
+    border-radius: 6px;
     pointer-events: none;
     z-index: 0;
 }
-.welcome-hero > * {
-    position: relative;
-    z-index: 1;
-}
+.welcome-hero > * { position: relative; z-index: 1; }
+
 .welcome-hero h1 {
-    color: #F5F0E0;
+    color: #F5EFE0;
     letter-spacing: 0.005em;
     text-shadow:
         0 1px 0 rgba(0, 0, 0, 0.80),
-        0 0 24px rgba(200, 56, 58, 0.35);
+        0 0 28px rgba(201, 162, 39, 0.35);
 }
-.welcome-hero p {
-    color: #D0DAD2;
-}
+.welcome-hero p { color: #B8CABE; }
+
 .welcome-icon-wrap {
-    background: linear-gradient(135deg, #C8383A, #4E0E0E);
+    background: linear-gradient(135deg, #C9A227, #6E5410);
     border-radius: 12px;
-    border: 2px solid #8A7F6A;
+    border: 2px solid var(--die-edge);
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.20),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25),
         0 4px 10px rgba(0, 0, 0, 0.50),
         0 8px 20px rgba(0, 0, 0, 0.35),
-        0 0 0 3px rgba(240, 200, 140, 0.15);
+        0 0 0 3px rgba(201, 162, 39, 0.20);
 }
-.welcome-icon-wrap [data-lucide] { color: #F5F0E0; }
+.welcome-icon-wrap [data-lucide] { color: #0F2818; }
 
 /* ================================================================
-   3. ACCESOS RÁPIDOS — DADOS 3D REALES
-   La card es un dado con cara frontal + top + right
-   visibles. Al hover, el dado gira mostrando volumen.
+   3. ACCESOS RÁPIDOS — dados 3D con caras visibles
    ================================================================ */
 .acceso-item {
     position: relative;
     padding: 28px 16px 22px;
-    background: linear-gradient(180deg, #FFFFFF 0%, #F5F0E0 100%);
-    border: 2px solid #8A7F6A;
+    background: linear-gradient(180deg, var(--die-front-1) 0%, var(--die-front-2) 100%);
+    border: 2px solid var(--die-edge);
     border-radius: 10px;
-    /* Sombra apilada para dar volumen */
+    /* Shading coherente: inset top claro + inset bottom oscuro + cara top + cara right + sombra */
     box-shadow:
-        inset 3px 3px 0 rgba(255, 255, 255, 0.75),
-        inset -3px -3px 0 rgba(138, 127, 106, 0.30),
-        5px 5px 0 #C8BFA8,
-        7px 7px 0 #8A7F6A,
-        12px 12px 0 rgba(0, 0, 0, 0.30),
-        18px 18px 24px rgba(0, 0, 0, 0.40);
+        inset 3px 3px 0 rgba(255, 255, 255, 0.80),
+        inset -3px -3px 0 rgba(107, 94, 68, 0.28),
+        5px 5px 0 var(--die-right-1),
+        7px 7px 0 var(--die-edge),
+        12px 12px 0 rgba(0, 0, 0, 0.32),
+        18px 18px 26px rgba(0, 0, 0, 0.50);
     overflow: visible;
     transform-style: preserve-3d;
     will-change: transform;
     transition:
-        transform 0.40s cubic-bezier(0.34, 1.56, 0.64, 1),
-        box-shadow 0.40s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* PIPS en la esquina superior derecha — 3 puntos diagonales */
+/* Pips esquina sup. der — 3 en diagonal */
 .acceso-item::before {
     content: '';
     position: absolute;
     top: 10px;
     right: 12px;
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     background:
-        radial-gradient(circle 3px at 20% 20%, #1A1410 0, #1A1410 3px, transparent 4px),
-        radial-gradient(circle 3px at 50% 50%, #C8383A 0, #C8383A 3px, transparent 4px),
-        radial-gradient(circle 3px at 80% 80%, #1A1410 0, #1A1410 3px, transparent 4px);
+        radial-gradient(circle 2.5px at 20% 20%, var(--die-pip) 0, var(--die-pip) 2.5px, transparent 3.5px),
+        radial-gradient(circle 2.5px at 50% 50%, var(--die-pip-red) 0, var(--die-pip-red) 2.5px, transparent 3.5px),
+        radial-gradient(circle 2.5px at 80% 80%, var(--die-pip) 0, var(--die-pip) 2.5px, transparent 3.5px);
     background-repeat: no-repeat;
-    opacity: 0.65;
+    opacity: 0.70;
     pointer-events: none;
     z-index: 3;
 }
-
-/* PIPS en la esquina inferior izquierda — 2 puntos */
+/* Pips esquina inf. izq — 2 puntos */
 .acceso-item::after {
     content: '';
     position: absolute;
     bottom: 10px;
     left: 12px;
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     background:
-        radial-gradient(circle 2.5px at 25% 25%, #1A1410 0, #1A1410 2.5px, transparent 3.5px),
-        radial-gradient(circle 2.5px at 75% 75%, #1A1410 0, #1A1410 2.5px, transparent 3.5px);
+        radial-gradient(circle 2px at 25% 25%, var(--die-pip) 0, var(--die-pip) 2px, transparent 3px),
+        radial-gradient(circle 2px at 75% 75%, var(--die-pip) 0, var(--die-pip) 2px, transparent 3px);
     background-repeat: no-repeat;
-    opacity: 0.55;
+    opacity: 0.60;
     pointer-events: none;
     z-index: 3;
 }
 
-/* HOVER: el dado gira */
+/* HOVER: el dado GIRA mostrando sus caras */
 .acceso-item:hover {
-    transform: perspective(800px) rotateX(-8deg) rotateY(10deg) translateY(-4px);
+    transform: perspective(750px) rotateX(-10deg) rotateY(14deg) translateY(-6px);
     box-shadow:
         inset 3px 3px 0 rgba(255, 255, 255, 0.85),
-        inset -3px -3px 0 rgba(138, 127, 106, 0.30),
-        7px 7px 0 #C8BFA8,
-        10px 10px 0 #8A7F6A,
-        16px 16px 0 rgba(0, 0, 0, 0.32),
-        26px 26px 36px rgba(0, 0, 0, 0.50),
-        0 0 30px rgba(200, 56, 58, 0.25);
+        inset -3px -3px 0 rgba(107, 94, 68, 0.28),
+        8px 8px 0 var(--die-right-1),
+        11px 11px 0 var(--die-edge),
+        18px 18px 0 rgba(0, 0, 0, 0.35),
+        30px 30px 40px rgba(0, 0, 0, 0.60),
+        0 0 32px rgba(201, 162, 39, 0.28);
 }
 
 .acceso-icon-wrap {
-    background: linear-gradient(135deg, #8B1A1A, #4E0E0E);
-    color: #F5F0E0;
-    border: 2px solid #6E1414;
+    background: linear-gradient(135deg, #C9A227, #6E5410);
+    color: #0F2818;
+    border: 2px solid var(--die-edge);
     border-radius: 8px;
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.20),
+        inset 0 1px 0 rgba(255, 255, 255, 0.30),
         3px 3px 0 rgba(0, 0, 0, 0.35);
-    transition: all 0.30s;
+    transition: all 0.35s;
 }
 .acceso-item:hover .acceso-icon-wrap {
-    background: linear-gradient(135deg, #C8383A, #8B1A1A);
-    border-color: #C8383A;
+    background: linear-gradient(135deg, #E0B838, #8B6B14);
+    border-color: #C9A227;
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.30),
+        inset 0 1px 0 rgba(255, 255, 255, 0.40),
         3px 3px 0 rgba(0, 0, 0, 0.40),
-        0 0 16px rgba(200, 56, 58, 0.60);
+        0 0 20px rgba(201, 162, 39, 0.65);
 }
 
 .acceso-nombre {
     color: #1A1410;
     font-weight: 800;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.60);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.70);
 }
 
 /* ================================================================
-   4. WIDGETS — dados grandes
+   4. WIDGETS
    ================================================================ */
 .widget-item {
     position: relative;
-    background: linear-gradient(180deg, #FFFFFF 0%, #F5F0E0 100%);
-    border: 2px solid #8A7F6A;
+    background: linear-gradient(180deg, var(--die-front-1) 0%, var(--die-front-2) 100%);
+    border: 2px solid var(--die-edge);
     border-radius: 10px;
     box-shadow:
-        inset 3px 3px 0 rgba(255, 255, 255, 0.75),
-        inset -3px -3px 0 rgba(138, 127, 106, 0.30),
-        5px 5px 0 #C8BFA8,
-        7px 7px 0 #8A7F6A,
-        12px 12px 0 rgba(0, 0, 0, 0.30),
-        18px 18px 24px rgba(0, 0, 0, 0.40);
+        inset 3px 3px 0 rgba(255, 255, 255, 0.80),
+        inset -3px -3px 0 rgba(107, 94, 68, 0.28),
+        5px 5px 0 var(--die-right-1),
+        7px 7px 0 var(--die-edge),
+        12px 12px 0 rgba(0, 0, 0, 0.32),
+        18px 18px 26px rgba(0, 0, 0, 0.50);
     overflow: visible;
     transform-style: preserve-3d;
-    transition: all 0.40s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .widget-item::before {
     content: '';
     position: absolute;
     top: 12px;
     left: 14px;
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     background:
-        radial-gradient(circle 3.5px at 20% 20%, #1A1410 0, #1A1410 3.5px, transparent 4.5px),
-        radial-gradient(circle 3.5px at 80% 20%, #1A1410 0, #1A1410 3.5px, transparent 4.5px),
-        radial-gradient(circle 3.5px at 50% 50%, #C8383A 0, #C8383A 3.5px, transparent 4.5px),
-        radial-gradient(circle 3.5px at 20% 80%, #1A1410 0, #1A1410 3.5px, transparent 4.5px),
-        radial-gradient(circle 3.5px at 80% 80%, #1A1410 0, #1A1410 3.5px, transparent 4.5px);
+        radial-gradient(circle 3px at 20% 20%, var(--die-pip) 0, var(--die-pip) 3px, transparent 4px),
+        radial-gradient(circle 3px at 80% 20%, var(--die-pip) 0, var(--die-pip) 3px, transparent 4px),
+        radial-gradient(circle 3px at 50% 50%, var(--die-pip-red) 0, var(--die-pip-red) 3px, transparent 4px),
+        radial-gradient(circle 3px at 20% 80%, var(--die-pip) 0, var(--die-pip) 3px, transparent 4px),
+        radial-gradient(circle 3px at 80% 80%, var(--die-pip) 0, var(--die-pip) 3px, transparent 4px);
     background-repeat: no-repeat;
-    opacity: 0.60;
+    opacity: 0.65;
     pointer-events: none;
     z-index: 3;
 }
 .widget-item:hover {
-    transform: perspective(1000px) rotateX(-4deg) rotateY(6deg) translateY(-2px);
+    transform: perspective(950px) rotateX(-5deg) rotateY(8deg) translateY(-3px);
     box-shadow:
         inset 3px 3px 0 rgba(255, 255, 255, 0.85),
-        inset -3px -3px 0 rgba(138, 127, 106, 0.30),
-        7px 7px 0 #C8BFA8,
-        10px 10px 0 #8A7F6A,
-        16px 16px 0 rgba(0, 0, 0, 0.32),
-        26px 26px 36px rgba(0, 0, 0, 0.50);
+        inset -3px -3px 0 rgba(107, 94, 68, 0.28),
+        8px 8px 0 var(--die-right-1),
+        11px 11px 0 var(--die-edge),
+        18px 18px 0 rgba(0, 0, 0, 0.35),
+        30px 30px 40px rgba(0, 0, 0, 0.60);
 }
 
 /* ================================================================
@@ -424,24 +412,20 @@
    ================================================================ */
 .app-header {
     position: relative;
-    background: linear-gradient(180deg, #231A14 0%, #1A1410 100%);
-    border-bottom: 3px solid #8B1A1A;
+    background: linear-gradient(180deg, #0F2818 0%, #081810 100%);
+    border-bottom: 3px solid #C9A227;
     box-shadow:
-        inset 0 1px 0 rgba(245, 240, 224, 0.05),
+        inset 0 1px 0 rgba(245, 248, 246, 0.05),
         0 1px 3px rgba(0, 0, 0, 0.60);
 }
 .app-header::after {
     content: '';
     position: absolute;
-    bottom: -3px;
-    left: 0;
-    right: 0;
+    bottom: -3px; left: 0; right: 0;
     height: 3px;
     background: repeating-linear-gradient(90deg,
-        #8B1A1A 0,
-        #8B1A1A 6px,
-        #6E1414 6px,
-        #6E1414 12px);
+        #C9A227 0, #C9A227 6px,
+        #8B6B14 6px, #8B6B14 12px);
     opacity: 0.75;
     pointer-events: none;
 }
@@ -450,65 +434,60 @@
    6. SIDEBAR
    ================================================================ */
 .sidebar {
-    background: linear-gradient(180deg, #1A2E1E 0%, #12200E 100%);
-    border-right: 2px solid #2E4A32;
+    background: linear-gradient(180deg, #16341F 0%, #0F2818 100%);
+    border-right: 2px solid #2A5632;
     overflow: hidden;
 }
 .sidebar-comunidad,
 .sidebar-label,
 .sidebar-nav,
-.sidebar-mobile-header {
-    position: relative;
-    z-index: 1;
-}
-.sidebar-label { color: #8AA08E; }
-.nav-item { color: #D0DAD2; }
+.sidebar-mobile-header { position: relative; z-index: 1; }
+.sidebar-label { color: #8AAA92; }
+.nav-item { color: #D8E2DC; }
 .nav-item:hover {
-    background: rgba(200, 56, 58, 0.10);
-    color: #F5F8F5;
+    background: rgba(201, 162, 39, 0.10);
+    color: #F5F8F6;
 }
-.nav-item .nav-icon { color: #5E7E62; }
-.nav-item:hover .nav-icon { color: #C8383A; }
+.nav-item .nav-icon { color: #5E8A68; }
+.nav-item:hover .nav-icon { color: #C9A227; }
 .nav-item.active {
-    background: linear-gradient(180deg, #8B1A1A 0%, #6E1414 100%);
-    color: #F5F8F5;
+    background: linear-gradient(180deg, #C9A227 0%, #8B6B14 100%);
+    color: #0F2818;
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.30),
         inset 0 -2px 0 rgba(0, 0, 0, 0.30),
         0 2px 4px rgba(0, 0, 0, 0.40);
 }
 .nav-item.active::before {
-    background: #F5F0E0;
-    box-shadow: 0 0 8px rgba(245, 240, 224, 0.40);
+    background: #0F2818;
+    box-shadow: 0 0 8px rgba(15, 40, 24, 0.50);
 }
-.nav-item.active .nav-icon { color: #F5F8F5; }
+.nav-item.active .nav-icon { color: #0F2818; }
 
 .sidebar-comunidad {
-    background: linear-gradient(180deg, #243B28, #1A2E1E);
-    border-color: #2E4A32;
+    background: linear-gradient(180deg, #1E4428, #16341F);
+    border-color: #2A5632;
 }
-.sidebar-comunidad:hover { border-color: #C8383A; }
+.sidebar-comunidad:hover { border-color: #C9A227; }
 .sidebar-comunidad-icono {
-    background: rgba(200, 56, 58, 0.20);
-    color: #C8383A;
+    background: rgba(201, 162, 39, 0.20);
+    color: #C9A227;
 }
-.sidebar-comunidad-nombre { color: #F5F8F5; }
+.sidebar-comunidad-nombre { color: #F5F8F6; }
 
-@media (max-width: 768px) {
-    .sidebar { position: fixed; }
-}
+@media (max-width: 768px) { .sidebar { position: fixed; } }
 
 /* ================================================================
    7. PESTAÑAS
    ================================================================ */
 .tab-item.active {
-    background: linear-gradient(180deg, #2E4A32 0%, #1A2E1E 100%);
-    color: #F5F8F5;
+    background: linear-gradient(180deg, #2A5632 0%, #16341F 100%);
+    color: #F5F8F6;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.08),
-        inset 0 -2px 0 #C8383A;
+        inset 0 -2px 0 #C9A227;
 }
-.tab-item.active [data-lucide] { color: #C8383A; }
+.tab-item.active [data-lucide] { color: #C9A227; }
 
 /* ================================================================
    8. MODALES
@@ -517,76 +496,71 @@
 .modal-todas-card {
     position: relative;
     overflow: hidden;
-    background: linear-gradient(180deg, #2E2318 0%, #1A1410 100%);
-    border: 2px solid #8A7F6A;
+    background: linear-gradient(180deg, #1E4428 0%, #0F2818 100%);
+    border: 2px solid var(--die-edge);
     border-radius: 10px;
     box-shadow:
-        inset 0 1px 0 rgba(245, 240, 224, 0.08),
+        inset 0 1px 0 rgba(245, 248, 246, 0.08),
         inset 0 0 60px rgba(0, 0, 0, 0.40),
         0 4px 8px rgba(0, 0, 0, 0.50),
         0 16px 32px rgba(0, 0, 0, 0.60),
-        0 0 40px rgba(200, 56, 58, 0.15);
+        0 0 48px rgba(201, 162, 39, 0.18);
 }
 .config-card::before,
 .modal-todas-card::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+    top: 0; left: 0; right: 0;
     height: 4px;
     background: linear-gradient(90deg,
         transparent,
-        #8B1A1A 20%,
-        #C8383A 50%,
-        #8B1A1A 80%,
+        #8B6B14 20%, #C9A227 50%, #8B6B14 80%,
         transparent);
     pointer-events: none;
     z-index: 3;
-    box-shadow: 0 0 12px rgba(200, 56, 58, 0.50);
+    box-shadow: 0 0 12px rgba(201, 162, 39, 0.50);
 }
+/* Mini dado esquina inferior derecha del modal */
 .config-card::after,
 .modal-todas-card::after {
     content: '';
     position: absolute;
     bottom: 14px;
     right: 14px;
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     background:
-        radial-gradient(circle 3px at 25% 25%, #1A1410 0, #1A1410 3px, transparent 4px),
-        radial-gradient(circle 3px at 75% 25%, #1A1410 0, #1A1410 3px, transparent 4px),
-        radial-gradient(circle 3px at 50% 50%, #C8383A 0, #C8383A 3px, transparent 4px),
-        radial-gradient(circle 3px at 25% 75%, #1A1410 0, #1A1410 3px, transparent 4px),
-        radial-gradient(circle 3px at 75% 75%, #1A1410 0, #1A1410 3px, transparent 4px),
-        linear-gradient(180deg, #FFFFFF 0%, #F5F0E0 100%);
+        radial-gradient(circle 2.5px at 25% 25%, var(--die-pip) 0, var(--die-pip) 2.5px, transparent 3.5px),
+        radial-gradient(circle 2.5px at 75% 25%, var(--die-pip) 0, var(--die-pip) 2.5px, transparent 3.5px),
+        radial-gradient(circle 2.5px at 50% 50%, var(--die-pip-red) 0, var(--die-pip-red) 2.5px, transparent 3.5px),
+        radial-gradient(circle 2.5px at 25% 75%, var(--die-pip) 0, var(--die-pip) 2.5px, transparent 3.5px),
+        radial-gradient(circle 2.5px at 75% 75%, var(--die-pip) 0, var(--die-pip) 2.5px, transparent 3.5px),
+        linear-gradient(180deg, var(--die-front-1) 0%, var(--die-front-2) 100%);
     background-repeat: no-repeat;
-    border: 1px solid #8A7F6A;
+    border: 1.5px solid var(--die-edge);
     border-radius: 6px;
     box-shadow:
-        inset 1px 1px 0 rgba(255, 255, 255, 0.50),
-        2px 2px 0 #8B1A1A,
-        4px 4px 6px rgba(0, 0, 0, 0.35);
-    opacity: 0.60;
+        inset 1px 1px 0 rgba(255, 255, 255, 0.60),
+        2px 2px 0 #8B6B14,
+        4px 4px 6px rgba(0, 0, 0, 0.40);
+    opacity: 0.65;
     pointer-events: none;
     z-index: 4;
 }
-
 .config-header,
 .modal-todas-header {
-    background: linear-gradient(180deg, #2E231A 0%, #231A14 100%);
-    border-bottom: 1px solid #3E3024;
+    background: linear-gradient(180deg, #1E4428 0%, #16341F 100%);
+    border-bottom: 1px solid #2A5632;
 }
 .config-header h2,
-.modal-todas-header h2 { color: #F5F8F5; }
+.modal-todas-header h2 { color: #F5F8F6; }
 .config-subtitle,
-.modal-subtitle { color: #8AA08E; }
+.modal-subtitle { color: #8AAA92; }
 
-/* Contenido del modal en crema para leer bien */
 .config-content,
 .modal-todas-body {
-    background: #1A1410;
-    color: #F5F8F5;
+    background: #0F2818;
+    color: #F5F8F6;
 }
 
 /* ================================================================
@@ -594,75 +568,74 @@
    ================================================================ */
 .btn-primario {
     position: relative;
-    background: linear-gradient(180deg, #C8383A 0%, #A82A2C 45%, #8B1A1A 55%, #6E1414 100%);
-    border: 2px solid #4E0E0E;
+    background: linear-gradient(180deg, #E0B838 0%, #C9A227 45%, #8B6B14 55%, #6E5410 100%);
+    border: 2px solid #4E3B0B;
     border-radius: 8px;
-    color: #F5F0E0;
+    color: #0F2818;
     font-weight: 800;
-    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.50);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.30);
     box-shadow:
-        inset 0 2px 0 rgba(255, 255, 255, 0.20),
-        inset 0 -3px 0 rgba(0, 0, 0, 0.30),
-        4px 4px 0 #2E0E0E,
+        inset 0 2px 0 rgba(255, 255, 255, 0.35),
+        inset 0 -3px 0 rgba(0, 0, 0, 0.25),
+        4px 4px 0 #2A1F08,
         6px 6px 0 rgba(0, 0, 0, 0.30),
         10px 10px 20px rgba(0, 0, 0, 0.45);
     transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .btn-primario:hover {
-    background: linear-gradient(180deg, #D84040 0%, #C8383A 45%, #A82A2C 55%, #8B1A1A 100%);
+    background: linear-gradient(180deg, #F0C848 0%, #E0B838 45%, #A87F1A 55%, #8B6B14 100%);
     transform: translate(2px, 2px);
     box-shadow:
-        inset 0 2px 0 rgba(255, 255, 255, 0.25),
-        inset 0 -3px 0 rgba(0, 0, 0, 0.30),
-        2px 2px 0 #2E0E0E,
+        inset 0 2px 0 rgba(255, 255, 255, 0.40),
+        inset 0 -3px 0 rgba(0, 0, 0, 0.25),
+        2px 2px 0 #2A1F08,
         3px 3px 0 rgba(0, 0, 0, 0.30),
-        5px 5px 10px rgba(0, 0, 0, 0.45);
+        5px 5px 10px rgba(0, 0, 0, 0.45),
+        0 0 24px rgba(201, 162, 39, 0.50);
 }
 .btn-primario:active {
     transform: translate(4px, 4px);
     box-shadow:
         inset 0 3px 6px rgba(0, 0, 0, 0.50),
-        0 0 0 #2E0E0E;
+        0 0 0 #2A1F08;
 }
 
 /* ================================================================
    10. AVATAR Y NOTIFICACIONES
    ================================================================ */
 .avatar-config {
-    background: linear-gradient(135deg, #C8383A, #4E0E0E);
-    border: 2px solid #F5F0E0;
+    background: linear-gradient(135deg, #C9A227, #6E5410);
+    border: 2px solid #F5EFE0;
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.20),
-        0 0 0 1px #1A1410,
-        0 0 0 3px rgba(200, 56, 58, 0.30),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25),
+        0 0 0 1px #0F2818,
+        0 0 0 3px rgba(201, 162, 39, 0.30),
         0 4px 8px rgba(0, 0, 0, 0.40);
 }
 .avatar-config:hover {
     transform: translateY(-1px) scale(1.05);
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.25),
-        0 0 0 1px #1A1410,
-        0 0 0 4px rgba(200, 56, 58, 0.45),
-        0 6px 16px rgba(200, 56, 58, 0.50);
+        inset 0 1px 0 rgba(255, 255, 255, 0.30),
+        0 0 0 1px #0F2818,
+        0 0 0 4px rgba(201, 162, 39, 0.45),
+        0 6px 16px rgba(201, 162, 39, 0.50);
 }
-
 .noti-btn.tiene-no-leidas {
-    background: rgba(200, 56, 58, 0.15);
-    color: #C8383A;
+    background: rgba(201, 162, 39, 0.15);
+    color: #C9A227;
 }
 .noti-badge {
-    background: #C8383A;
-    color: #F5F0E0;
-    border: 2px solid #1A1410;
+    background: #C9A227;
+    color: #0F2818;
+    border: 2px solid #0F2818;
     font-weight: 800;
     box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.40);
 }
-
 .search-bar:focus-within {
-    border-color: #C8383A;
-    box-shadow: 0 0 0 3px rgba(200, 56, 58, 0.20);
+    border-color: #C9A227;
+    box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.20);
 }
-.search-bar:focus-within .search-icon { color: #C8383A; }
+.search-bar:focus-within .search-icon { color: #C9A227; }
 
 /* ================================================================
    11. REDUCED MOTION
@@ -671,18 +644,13 @@
     .welcome-placeholder::before,
     .welcome-glow::before,
     .welcome-glow::after,
-    .acceso-item,
-    .widget-item,
-    .btn-primario,
-    .avatar-config {
+    .acceso-item, .widget-item, .btn-primario, .avatar-config {
         animation: none !important;
         transition: none !important;
         transform: none !important;
     }
-    .acceso-item:hover,
-    .widget-item:hover,
-    .btn-primario:hover,
-    .btn-primario:active {
+    .acceso-item:hover, .widget-item:hover,
+    .btn-primario:hover, .btn-primario:active {
         transform: none !important;
     }
 }
