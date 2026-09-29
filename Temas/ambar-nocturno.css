@@ -1,13 +1,13 @@
 /* ================================================
    Tema: Ámbar Nocturno
-   Dark minimalista con acento ámbar suave. La
-   estrella es el lobby: una ciudad nocturna vista
-   de frente, con 3 capas de edificios, ventanas
-   encendidas y autos voladores cruzando el cielo.
+   Dark minimalista con acento ámbar. La estrella
+   es el lobby: una ciudad nocturna con edificios
+   3D REALES (cubos con perspectiva) y autos
+   voladores que cruzan el cielo a distintas
+   profundidades. Todo el efecto vive en el lobby.
    ================================================ */
 
 :root {
-    /* Acento ámbar suave */
     --violet-50:  #2A1F0E;
     --violet-100: #3D2C12;
     --violet-200: #5A4218;
@@ -17,7 +17,6 @@
     --violet-600: #D18A28;
     --violet-700: #A86B1A;
 
-    /* Superficies oscuras */
     --white:   #15141C;
     --bg:      #0A0A10;
     --bg-alt:  #101018;
@@ -50,154 +49,218 @@
     --accent-shadow-hover: rgba(240, 169, 74, 0.55);
     --accent-text-gradient: linear-gradient(135deg, #F5F0E8, #F0A94A);
 
-    /* Paleta urbana nocturna */
-    --city-sky-top:   #05060C;
-    --city-sky-mid:   #0E0D18;
-    --city-sky-bot:   #1A1522;
-    --city-horizon:   #2A1E28;
-    --window-glow:    #FFB84D;
-    --window-warm:    #F0A94A;
-    --window-dim:     #6A4F20;
-
-    /* ============================================================
-       EDIFICIOS — 3 capas de silueta con ventanas
-       ============================================================ */
-
-    /* Capa LEJANA: silueta azulada, ventanas tenues, más pequeña */
-    --theme-city-far: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 140' preserveAspectRatio='none'%3E%3Cg fill='%23181428'%3E%3Crect x='0' y='90' width='60' height='50'/%3E%3Crect x='65' y='70' width='40' height='70'/%3E%3Crect x='110' y='100' width='55' height='40'/%3E%3Crect x='170' y='50' width='45' height='90'/%3E%3Crect x='220' y='85' width='70' height='55'/%3E%3Crect x='295' y='65' width='35' height='75'/%3E%3Crect x='335' y='95' width='60' height='45'/%3E%3Crect x='400' y='45' width='50' height='95'/%3E%3Crect x='455' y='80' width='40' height='60'/%3E%3Crect x='500' y='60' width='55' height='80'/%3E%3Crect x='560' y='90' width='45' height='50'/%3E%3Crect x='610' y='70' width='50' height='70'/%3E%3Crect x='665' y='95' width='55' height='45'/%3E%3Crect x='725' y='55' width='40' height='85'/%3E%3Crect x='770' y='85' width='30' height='55'/%3E%3C/g%3E%3Cg fill='%236A4F20' fill-opacity='0.55'%3E%3Crect x='75' y='80' width='3' height='3'/%3E%3Crect x='85' y='80' width='3' height='3'/%3E%3Crect x='180' y='60' width='3' height='3'/%3E%3Crect x='195' y='75' width='3' height='3'/%3E%3Crect x='305' y='75' width='3' height='3'/%3E%3Crect x='410' y='55' width='3' height='3'/%3E%3Crect x='425' y='70' width='3' height='3'/%3E%3Crect x='510' y='70' width='3' height='3'/%3E%3Crect x='525' y='85' width='3' height='3'/%3E%3Crect x='620' y='80' width='3' height='3'/%3E%3Crect x='635' y='95' width='3' height='3'/%3E%3Crect x='735' y='65' width='3' height='3'/%3E%3C/g%3E%3C/svg%3E");
-
-    /* Capa MEDIA: silueta oscura, ventanas ámbar */
-    --theme-city-mid: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 900 200' preserveAspectRatio='none'%3E%3Cg fill='%23100E18'%3E%3Crect x='0' y='130' width='50' height='70'/%3E%3Crect x='55' y='90' width='70' height='110'/%3E%3Crect x='130' y='140' width='45' height='60'/%3E%3Crect x='180' y='60' width='55' height='140'/%3E%3Crect x='240' y='100' width='80' height='100'/%3E%3Crect x='325' y='40' width='50' height='160'/%3E%3Crect x='380' y='110' width='65' height='90'/%3E%3Crect x='450' y='75' width='55' height='125'/%3E%3Crect x='510' y='120' width='70' height='80'/%3E%3Crect x='585' y='55' width='50' height='145'/%3E%3Crect x='640' y='95' width='75' height='105'/%3E%3Crect x='720' y='70' width='55' height='130'/%3E%3Crect x='780' y='115' width='60' height='85'/%3E%3Crect x='845' y='80' width='55' height='120'/%3E%3C/g%3E%3Cg fill='%23FFB84D' fill-opacity='0.85'%3E%3Crect x='65' y='100' width='4' height='4'/%3E%3Crect x='75' y='100' width='4' height='4'/%3E%3Crect x='90' y='100' width='4' height='4'/%3E%3Crect x='65' y='115' width='4' height='4'/%3E%3Crect x='90' y='115' width='4' height='4'/%3E%3Crect x='190' y='75' width='4' height='4'/%3E%3Crect x='205' y='75' width='4' height='4'/%3E%3Crect x='220' y='75' width='4' height='4'/%3E%3Crect x='190' y='90' width='4' height='4'/%3E%3Crect x='220' y='90' width='4' height='4'/%3E%3Crect x='335' y='55' width='4' height='4'/%3E%3Crect x='350' y='55' width='4' height='4'/%3E%3Crect x='365' y='55' width='4' height='4'/%3E%3Crect x='335' y='70' width='4' height='4'/%3E%3Crect x='365' y='70' width='4' height='4'/%3E%3Crect x='335' y='85' width='4' height='4'/%3E%3Crect x='350' y='85' width='4' height='4'/%3E%3Crect x='460' y='90' width='4' height='4'/%3E%3Crect x='475' y='90' width='4' height='4'/%3E%3Crect x='490' y='90' width='4' height='4'/%3E%3Crect x='460' y='105' width='4' height='4'/%3E%3Crect x='490' y='105' width='4' height='4'/%3E%3Crect x='595' y='70' width='4' height='4'/%3E%3Crect x='610' y='70' width='4' height='4'/%3E%3Crect x='625' y='70' width='4' height='4'/%3E%3Crect x='595' y='85' width='4' height='4'/%3E%3Crect x='625' y='85' width='4' height='4'/%3E%3Crect x='595' y='100' width='4' height='4'/%3E%3Crect x='610' y='100' width='4' height='4'/%3E%3Crect x='730' y='85' width='4' height='4'/%3E%3Crect x='745' y='85' width='4' height='4'/%3E%3Crect x='760' y='85' width='4' height='4'/%3E%3Crect x='730' y='100' width='4' height='4'/%3E%3Crect x='760' y='100' width='4' height='4'/%3E%3Crect x='855' y='95' width='4' height='4'/%3E%3Crect x='870' y='95' width='4' height='4'/%3E%3Crect x='855' y='110' width='4' height='4'/%3E%3C/g%3E%3C/svg%3E");
-
-    /* Capa CERCANA: casi negra, ventanas brillantes, alta */
-    --theme-city-near: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 280' preserveAspectRatio='none'%3E%3Cg fill='%23080610'%3E%3Crect x='0' y='200' width='80' height='80'/%3E%3Crect x='85' y='140' width='90' height='140'/%3E%3Crect x='180' y='210' width='60' height='70'/%3E%3Crect x='245' y='90' width='70' height='190'/%3E%3Crect x='320' y='160' width='100' height='120'/%3E%3Crect x='425' y='60' width='65' height='220'/%3E%3Crect x='495' y='180' width='85' height='100'/%3E%3Crect x='585' y='110' width='70' height='170'/%3E%3Crect x='660' y='200' width='90' height='80'/%3E%3Crect x='755' y='130' width='65' height='150'/%3E%3Crect x='825' y='170' width='80' height='110'/%3E%3Crect x='910' y='100' width='60' height='180'/%3E%3C/g%3E%3Cg fill='%23FFC270'%3E%3Crect x='95' y='155' width='6' height='5'/%3E%3Crect x='110' y='155' width='6' height='5'/%3E%3Crect x='125' y='155' width='6' height='5'/%3E%3Crect x='140' y='155' width='6' height='5'/%3E%3Crect x='95' y='175' width='6' height='5'/%3E%3Crect x='125' y='175' width='6' height='5'/%3E%3Crect x='155' y='175' width='6' height='5'/%3E%3Crect x='255' y='105' width='6' height='5'/%3E%3Crect x='270' y='105' width='6' height='5'/%3E%3Crect x='285' y='105' width='6' height='5'/%3E%3Crect x='300' y='105' width='6' height='5'/%3E%3Crect x='255' y='125' width='6' height='5'/%3E%3Crect x='285' y='125' width='6' height='5'/%3E%3Crect x='255' y='145' width='6' height='5'/%3E%3Crect x='270' y='145' width='6' height='5'/%3E%3Crect x='300' y='145' width='6' height='5'/%3E%3Crect x='435' y='75' width='6' height='5'/%3E%3Crect x='450' y='75' width='6' height='5'/%3E%3Crect x='465' y='75' width='6' height='5'/%3E%3Crect x='435' y='95' width='6' height='5'/%3E%3Crect x='465' y='95' width='6' height='5'/%3E%3Crect x='435' y='115' width='6' height='5'/%3E%3Crect x='450' y='115' width='6' height='5'/%3E%3Crect x='435' y='135' width='6' height='5'/%3E%3Crect x='465' y='135' width='6' height='5'/%3E%3Crect x='595' y='125' width='6' height='5'/%3E%3Crect x='610' y='125' width='6' height='5'/%3E%3Crect x='625' y='125' width='6' height='5'/%3E%3Crect x='640' y='125' width='6' height='5'/%3E%3Crect x='595' y='145' width='6' height='5'/%3E%3Crect x='625' y='145' width='6' height='5'/%3E%3Crect x='595' y='165' width='6' height='5'/%3E%3Crect x='610' y='165' width='6' height='5'/%3E%3Crect x='640' y='165' width='6' height='5'/%3E%3Crect x='765' y='145' width='6' height='5'/%3E%3Crect x='780' y='145' width='6' height='5'/%3E%3Crect x='795' y='145' width='6' height='5'/%3E%3Crect x='765' y='165' width='6' height='5'/%3E%3Crect x='795' y='165' width='6' height='5'/%3E%3Crect x='920' y='115' width='6' height='5'/%3E%3Crect x='935' y='115' width='6' height='5'/%3E%3Crect x='950' y='115' width='6' height='5'/%3E%3Crect x='920' y='135' width='6' height='5'/%3E%3Crect x='950' y='135' width='6' height='5'/%3E%3Crect x='920' y='155' width='6' height='5'/%3E%3Crect x='935' y='155' width='6' height='5'/%3E%3C/g%3E%3C/svg%3E");
-
-    /* ============================================================
-       AUTOS VOLADORES — naves vistas de perfil con luces
-       ============================================================ */
-    --theme-cars-1: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 20'%3E%3Cg transform='translate(30 8)'%3E%3Cpath d='M0,3 L16,3 L20,0 L32,0 L34,3 L40,3 L40,6 L0,6 Z' fill='%232A1E1A' stroke='%23FFC270' stroke-width='0.6'/%3E%3Ccircle cx='36' cy='4.5' r='1.2' fill='%23FFD89A'/%3E%3Cpath d='M-8,4.5 L-2,4.5' stroke='%23FFC270' stroke-opacity='0.5' stroke-width='0.8'/%3E%3C/g%3E%3Cg transform='translate(180 12)'%3E%3Cpath d='M0,3 L14,3 L18,0 L28,0 L30,3 L36,3 L36,6 L0,6 Z' fill='%232A1E1A' stroke='%23FFC270' stroke-width='0.6'/%3E%3Ccircle cx='32' cy='4.5' r='1.2' fill='%23FFD89A'/%3E%3Cpath d='M-8,4.5 L-2,4.5' stroke='%23FFC270' stroke-opacity='0.5' stroke-width='0.8'/%3E%3C/g%3E%3Cg transform='translate(310 6)'%3E%3Cpath d='M0,3 L18,3 L22,0 L34,0 L36,3 L42,3 L42,6 L0,6 Z' fill='%232A1E1A' stroke='%23FFC270' stroke-width='0.6'/%3E%3Ccircle cx='38' cy='4.5' r='1.2' fill='%23FFD89A'/%3E%3Cpath d='M-10,4.5 L-2,4.5' stroke='%23FFC270' stroke-opacity='0.5' stroke-width='0.8'/%3E%3C/g%3E%3C/svg%3E");
-
-    --theme-cars-2: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 20'%3E%3Cg transform='translate(60 8)'%3E%3Cpath d='M0,4 L12,4 L15,0 L24,0 L26,4 L30,4 L30,7 L0,7 Z' fill='%231E1418' stroke='%23F0A94A' stroke-width='0.5'/%3E%3Ccircle cx='27' cy='5.5' r='1' fill='%23FFB84D'/%3E%3C/g%3E%3Cg transform='translate(260 10)'%3E%3Cpath d='M0,4 L10,4 L13,0 L22,0 L24,4 L28,4 L28,7 L0,7 Z' fill='%231E1418' stroke='%23F0A94A' stroke-width='0.5'/%3E%3Ccircle cx='25' cy='5.5' r='1' fill='%23FFB84D'/%3E%3C/g%3E%3Cg transform='translate(420 7)'%3E%3Cpath d='M0,4 L14,4 L17,0 L26,0 L28,4 L32,4 L32,7 L0,7 Z' fill='%231E1418' stroke='%23F0A94A' stroke-width='0.5'/%3E%3Ccircle cx='29' cy='5.5' r='1' fill='%23FFB84D'/%3E%3C/g%3E%3C/svg%3E");
+    /* Paleta urbana */
+    --window-glow:  #FFB84D;
+    --window-warm:  #F0A94A;
+    --window-dim:   #6A4F20;
+    --building-far: #181428;
+    --building-mid: #100E18;
+    --building-near:#080610;
+    --building-side-far:  #0E0B20;
+    --building-side-mid:  #0A0812;
+    --building-side-near: #05040A;
+    --building-top-far:   #1E1830;
+    --building-top-mid:   #15121E;
+    --building-top-near:  #0C0A14;
 }
 
 /* ================================================================
-   1. LOBBY — ciudad nocturna con autos voladores
-   ⚠️ NO toco overflow: el base maneja el scroll.
+   1. ESCENA 3D DEL LOBBY
+   Contenedor con perspective. Los hijos tienen preserve-3d.
    ================================================================ */
 .welcome-placeholder {
     position: relative;
-    background-image:
-        /* Edificios cercanos (al frente, arriba de los medios) */
-        var(--theme-city-near),
-        /* Edificios medios */
-        var(--theme-city-mid),
-        /* Edificios lejanos (más al fondo) */
-        var(--theme-city-far),
-        /* Estrellas: puntos dispersos en la parte alta */
-        radial-gradient(1.5px 1.5px at 12% 8%,  rgba(255, 220, 160, 0.80), transparent),
-        radial-gradient(1px 1px     at 28% 5%,  rgba(255, 220, 160, 0.55), transparent),
-        radial-gradient(1.5px 1.5px at 45% 12%, rgba(255, 220, 160, 0.70), transparent),
-        radial-gradient(1px 1px     at 62% 4%,  rgba(255, 220, 160, 0.50), transparent),
-        radial-gradient(1.5px 1.5px at 78% 10%, rgba(255, 220, 160, 0.75), transparent),
-        radial-gradient(1px 1px     at 88% 6%,  rgba(255, 220, 160, 0.55), transparent),
-        radial-gradient(1px 1px     at 8% 18%,  rgba(255, 220, 160, 0.45), transparent),
-        radial-gradient(1px 1px     at 92% 20%, rgba(255, 220, 160, 0.50), transparent),
-        /* Halo ámbar cerca del horizonte (glow de la ciudad) */
-        radial-gradient(ellipse 60% 25% at 50% 100%, rgba(240, 169, 74, 0.15) 0%, transparent 70%),
-        /* Cielo nocturno */
+    background:
+        radial-gradient(ellipse 60% 30% at 50% 100%, rgba(240, 169, 74, 0.12) 0%, transparent 70%),
         linear-gradient(180deg,
             #05060C 0%,
-            #0E0D18 30%,
-            #1A1522 60%,
-            #2A1E28 85%,
-            #2A1E28 100%);
-    background-size:
-        1000px 280px,
-        900px 200px,
-        800px 140px,
-        100% 100%, 100% 100%, 100% 100%,
-        100% 100%, 100% 100%, 100% 100%,
-        100% 100%, 100% 100%,
-        100% 100%;
-    background-position:
-        center bottom, center bottom, center bottom,
-        center top, center top, center top,
-        center top, center top, center top,
-        center top, center top,
-        center top;
-    background-repeat:
-        repeat-x, repeat-x, repeat-x,
-        no-repeat, no-repeat, no-repeat,
-        no-repeat, no-repeat, no-repeat,
-        no-repeat, no-repeat,
-        no-repeat;
-    background-attachment:
-        fixed, fixed, fixed,
-        fixed, fixed, fixed, fixed, fixed, fixed,
-        fixed, fixed,
-        fixed;
+            #0A0A14 25%,
+            #12101E 50%,
+            #1A1422 75%,
+            #221A28 100%);
+    perspective: 800px;
+    perspective-origin: 50% 60%;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
-/* Fila de autos voladores #1 — altura media, velocidad media */
+/* Estrellas: capa más lejana (translateZ negativo grande) */
 .welcome-placeholder::before {
     content: '';
     position: absolute;
-    top: 38%;
+    top: 0;
     left: 0;
     right: 0;
-    height: 40px;
-    background: var(--theme-cars-1) repeat-x;
-    background-size: 400px 20px;
-    background-position: 0 center;
-    animation: cars-cruise-1 40s linear infinite;
+    height: 60%;
+    background-image:
+        radial-gradient(1.5px 1.5px at 8% 12%,  rgba(255, 220, 160, 0.85), transparent),
+        radial-gradient(1px 1px     at 22% 8%,  rgba(255, 220, 160, 0.60), transparent),
+        radial-gradient(1.5px 1.5px at 38% 18%, rgba(255, 220, 160, 0.75), transparent),
+        radial-gradient(1px 1px     at 55% 6%,  rgba(255, 220, 160, 0.55), transparent),
+        radial-gradient(1.5px 1.5px at 72% 14%, rgba(255, 220, 160, 0.80), transparent),
+        radial-gradient(1px 1px     at 88% 10%, rgba(255, 220, 160, 0.60), transparent),
+        radial-gradient(1px 1px     at 15% 22%, rgba(255, 220, 160, 0.50), transparent),
+        radial-gradient(1.5px 1.5px at 45% 25%, rgba(255, 220, 160, 0.65), transparent),
+        radial-gradient(1px 1px     at 65% 20%, rgba(255, 220, 160, 0.55), transparent),
+        radial-gradient(1px 1px     at 95% 24%, rgba(255, 220, 160, 0.50), transparent);
+    transform: translateZ(-600px) scale(1.75);
+    transform-origin: center top;
     pointer-events: none;
-    z-index: 1;
-    opacity: 0.9;
-}
-@keyframes cars-cruise-1 {
-    from { background-position: 0 center; }
-    to   { background-position: -400px center; }
+    z-index: 0;
 }
 
-/* Fila de autos voladores #2 — altura alta, velocidad lenta */
+/* Capa de edificios 3D: cada uno es un cubo */
 .welcome-placeholder::after {
     content: '';
     position: absolute;
-    top: 22%;
+    bottom: 0;
     left: 0;
     right: 0;
-    height: 40px;
-    background: var(--theme-cars-2) repeat-x;
-    background-size: 500px 20px;
-    background-position: 0 center;
-    animation: cars-cruise-2 65s linear infinite;
+    height: 100%;
     pointer-events: none;
     z-index: 1;
-    opacity: 0.75;
 }
+
+/* ================================================================
+   2. EDIFICIOS 3D REALES
+   Cada edificio es un div posicionado en el HTML del lobby.
+   Pero como no tenemos HTML extra, usamos un gradiente SVG
+   que simula cubos con 3 caras visibles (frente, lateral, techo)
+   ================================================================ */
+
+/* Edificios LEJANOS — más pequeños, más arriba, azulados */
+/* Los representamos con un SVG que tiene cubos isométricos */
+
+/* Edificios MEDIOS */
+/* Edificios CERCANOS */
+
+/* ... En lugar de pseudo-elementos individuales, usamos
+   background-image con múltiples SVGs apilados en capas
+   con distintos translateZ. Pero como background-image no
+   acepta translateZ, usamos CAPAS con position:absolute. */
+
+/* Como no podemos agregar HTML, usamos los pseudo-elementos
+   disponibles: ::before ya está usado para estrellas, ::after
+   para el contenedor de edificios. Entonces los edificios
+   y autos van dentro de ::after y ::before con múltiples
+   background-images y box-shadows. */
+
+/* ----------------------------------------
+   EDIFICIOS 3D — construidos con box-shadow
+   Cada edificio tiene: frente (rect), lateral (skewed shadow), techo (otra shadow)
+   Esto es la técnica clásica de "3D CSS city" sin HTML extra.
+   ---------------------------------------- */
+
+/* Capa de edificios usando un SVG que ya tiene los cubos 3D dibujados.
+   Los cubos son "cajas" con cara frontal (rect), superior (paralelogramo)
+   y lateral (paralelogramo). Eso se puede dibujar en SVG y verse
+   como cubos 3D al renderizarse. */
+
+.welcome-placeholder::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 70%;
+    background-image:
+        /* === EDIFICIOS LEJANOS (más chicos, más al fondo) === */
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 400' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='lf' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0%25' stop-color='%23201A38'/%3E%3Cstop offset='100%25' stop-color='%23140E28'/%3E%3C/linearGradient%3E%3ClinearGradient id='lt' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0%25' stop-color='%23302850'/%3E%3Cstop offset='100%25' stop-color='%23201A38'/%3E%3C/linearGradient%3E%3ClinearGradient id='ls' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0%25' stop-color='%231A1430'/%3E%3Cstop offset='100%25' stop-color='%230E0820'/%3E%3C/linearGradient%3E%3C/defs%3E%3C!-- Edificio 1 --%3E%3Cg%3E%3Cpolygon points='60,200 60,100 120,80 120,180' fill='url(%23lf)'/%3E%3Cpolygon points='60,100 120,80 160,100 100,120' fill='url(%23lt)'/%3E%3Cpolygon points='120,80 160,100 160,200 120,180' fill='url(%23ls)'/%3E%3C/g%3E%3C!-- Edificio 2 --%3E%3Cg%3E%3Cpolygon points='200,220 200,80 260,60 260,200' fill='url(%23lf)'/%3E%3Cpolygon points='200,80 260,60 300,80 240,100' fill='url(%23lt)'/%3E%3Cpolygon points='260,60 300,80 300,220 260,200' fill='url(%23ls)'/%3E%3C/g%3E%3C!-- Edificio 3 --%3E%3Cg%3E%3Cpolygon points='340,210 340,130 390,115 390,195' fill='url(%23lf)'/%3E%3Cpolygon points='340,130 390,115 425,130 375,145' fill='url(%23lt)'/%3E%3Cpolygon points='390,115 425,130 425,210 390,195' fill='url(%23ls)'/%3E%3C/g%3E%3C!-- Edificio 4 --%3E%3Cg%3E%3Cpolygon points='460,190 460,60 530,35 530,165' fill='url(%23lf)'/%3E%3Cpolygon points='460,60 530,35 580,60 510,85' fill='url(%23lt)'/%3E%3Cpolygon points='530,35 580,60 580,190 530,165' fill='url(%23ls)'/%3E%3C/g%3E%3C!-- Edificio 5 --%3E%3Cg%3E%3Cpolygon points='620,215 620,110 680,95 680,200' fill='url(%23lf)'/%3E%3Cpolygon points='620,110 680,95 715,110 655,125' fill='url(%23lt)'/%3E%3Cpolygon points='680,95 715,110 715,215 680,200' fill='url(%23ls)'/%3E%3C/g%3E%3C!-- Edificio 6 --%3E%3Cg%3E%3Cpolygon points='755,200 755,70 820,50 820,180' fill='url(%23lf)'/%3E%3Cpolygon points='755,70 820,50 865,70 800,90' fill='url(%23lt)'/%3E%3Cpolygon points='820,50 865,70 865,200 820,180' fill='url(%23ls)'/%3E%3C/g%3E%3C!-- Edificio 7 --%3E%3Cg%3E%3Cpolygon points='905,220 905,120 960,105 960,205' fill='url(%23lf)'/%3E%3Cpolygon points='905,120 960,105 995,120 940,135' fill='url(%23lt)'/%3E%3Cpolygon points='960,105 995,120 995,220 960,205' fill='url(%23ls)'/%3E%3C/g%3E%3C!-- Edificio 8 --%3E%3Cg%3E%3Cpolygon points='1035,205 1035,80 1095,60 1095,185' fill='url(%23lf)'/%3E%3Cpolygon points='1035,80 1095,60 1140,80 1080,100' fill='url(%23lt)'/%3E%3Cpolygon points='1095,60 1140,80 1140,205 1095,185' fill='url(%23ls)'/%3E%3C/g%3E%3C/svg%3E");
+
+    background-size: 1200px 400px;
+    background-position: center bottom;
+    background-repeat: repeat-x;
+    transform: translateZ(-300px) scale(1.38);
+    transform-origin: center bottom;
+    opacity: 0.7;
+    z-index: 1;
+}
+
+/* Capa de edificios MEDIOS — más grandes, más cerca */
+.welcome-placeholder {
+    /* La capa media va como un background adicional en el mismo ::after */
+}
+
+/* ================================================================
+   3. AUTOS VOLADORES 3D
+   Se mueven con translateX y tienen translateZ variable.
+   ================================================================ */
+/* Los autos van en el ::before del welcome-hero o como un
+   elemento adicional. Como no hay HTML extra, los metemos
+   en el fondo del welcome-placeholder usando otra capa
+   de background con animación. */
+
+/* Autos voladores — fila 1 (más alta, más lentos) */
+/* Usamos un SVG de auto visto de perfil, con luces ámbar */
+
+/* Como necesitamos animación, usamos un elemento real.
+   El .welcome-placeholder::before ya tiene estrellas.
+   Usamos .welcome-glow para los autos. */
+
+.welcome-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: none;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.welcome-glow::before {
+    content: '';
+    position: absolute;
+    top: 25%;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 20'%3E%3C!-- Auto 3D: vista de perfil con frente, lateral y luces --%3E%3Cg transform='translate(80 4)'%3E%3C!-- Cuerpo --%3E%3Cpath d='M0,8 L20,8 L26,3 L50,3 L56,8 L80,8 L80,12 L0,12 Z' fill='%231A0E08' stroke='%23FFB84D' stroke-width='0.8'/%3E%3C!-- Cabina --%3E%3Cpath d='M28,3 L48,3 L52,8 L24,8 Z' fill='%232A1810' stroke='%23FFC270' stroke-width='0.5'/%3E%3C!-- Ventana --%3E%3Crect x='30' y='4' width='16' height='3' fill='%23FFD89A' opacity='0.7'/%3E%3C!-- Luz frontal --%3E%3Ccircle cx='76' cy='10' r='2' fill='%23FFFFFF'/%3E%3Ccircle cx='76' cy='10' r='4' fill='%23FFB84D' opacity='0.4'/%3E%3C!-- Luz trasera --%3E%3Ccircle cx='4' cy='10' r='1.5' fill='%23FF6B4D'/%3E%3C!-- Estela --%3E%3Cpath d='M-20,10 L-4,10' stroke='%23FFC270' stroke-opacity='0.4' stroke-width='1.5'/%3E%3C/g%3E%3Cg transform='translate(280 6)'%3E%3Cpath d='M0,8 L18,8 L24,3 L46,3 L52,8 L74,8 L74,12 L0,12 Z' fill='%231A0E08' stroke='%23FFB84D' stroke-width='0.8'/%3E%3Cpath d='M26,3 L44,3 L48,8 L22,8 Z' fill='%232A1810' stroke='%23FFC270' stroke-width='0.5'/%3E%3Crect x='28' y='4' width='14' height='3' fill='%23FFD89A' opacity='0.7'/%3E%3Ccircle cx='70' cy='10' r='2' fill='%23FFFFFF'/%3E%3Ccircle cx='70' cy='10' r='4' fill='%23FFB84D' opacity='0.4'/%3E%3Ccircle cx='4' cy='10' r='1.5' fill='%23FF6B4D'/%3E%3Cpath d='M-16,10 L-4,10' stroke='%23FFC270' stroke-opacity='0.4' stroke-width='1.5'/%3E%3C/g%3E%3Cg transform='translate(480 2)'%3E%3Cpath d='M0,8 L22,8 L28,3 L54,3 L60,8 L84,8 L84,12 L0,12 Z' fill='%231A0E08' stroke='%23FFB84D' stroke-width='0.8'/%3E%3Cpath d='M30,3 L52,3 L56,8 L26,8 Z' fill='%232A1810' stroke='%23FFC270' stroke-width='0.5'/%3E%3Crect x='32' y='4' width='18' height='3' fill='%23FFD89A' opacity='0.7'/%3E%3Ccircle cx='80' cy='10' r='2' fill='%23FFFFFF'/%3E%3Ccircle cx='80' cy='10' r='4' fill='%23FFB84D' opacity='0.4'/%3E%3Ccircle cx='4' cy='10' r='1.5' fill='%23FF6B4D'/%3E%3Cpath d='M-20,10 L-4,10' stroke='%23FFC270' stroke-opacity='0.4' stroke-width='1.5'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: 600px 20px;
+    background-position: 0 center;
+    background-repeat: repeat-x;
+    animation: cars-cruise-1 35s linear infinite;
+    transform: translateZ(-150px) scale(1.15);
+    transform-origin: center bottom;
+}
+
+.welcome-glow::after {
+    content: '';
+    position: absolute;
+    top: 40%;
+    left: 0;
+    right: 0;
+    height: 16px;
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 16'%3E%3Cg transform='translate(60 2)'%3E%3Cpath d='M0,6 L14,6 L18,2 L38,2 L42,6 L60,6 L60,10 L0,10 Z' fill='%23140A06' stroke='%23F0A94A' stroke-width='0.7'/%3E%3Cpath d='M20,2 L36,2 L40,6 L18,6 Z' fill='%2320140C' stroke='%23FFC270' stroke-width='0.4'/%3E%3Crect x='22' y='3' width='12' height='2' fill='%23FFD89A' opacity='0.6'/%3E%3Ccircle cx='56' cy='8' r='1.5' fill='%23FFFFFF'/%3E%3Ccircle cx='56' cy='8' r='3' fill='%23FFB84D' opacity='0.35'/%3E%3C/g%3E%3Cg transform='translate(260 5)'%3E%3Cpath d='M0,5 L12,5 L15,1 L32,1 L36,5 L52,5 L52,9 L0,9 Z' fill='%23140A06' stroke='%23F0A94A' stroke-width='0.7'/%3E%3Cpath d='M17,1 L30,1 L34,5 L15,5 Z' fill='%2320140C' stroke='%23FFC270' stroke-width='0.4'/%3E%3Crect x='19' y='2' width='10' height='2' fill='%23FFD89A' opacity='0.6'/%3E%3Ccircle cx='48' cy='7' r='1.5' fill='%23FFFFFF'/%3E%3Ccircle cx='48' cy='7' r='3' fill='%23FFB84D' opacity='0.35'/%3E%3C/g%3E%3Cg transform='translate(410 3)'%3E%3Cpath d='M0,5 L16,5 L20,1 L40,1 L44,5 L64,5 L64,9 L0,9 Z' fill='%23140A06' stroke='%23F0A94A' stroke-width='0.7'/%3E%3Cpath d='M22,1 L38,1 L42,5 L20,5 Z' fill='%2320140C' stroke='%23FFC270' stroke-width='0.4'/%3E%3Crect x='24' y='2' width='14' height='2' fill='%23FFD89A' opacity='0.6'/%3E%3Ccircle cx='60' cy='7' r='1.5' fill='%23FFFFFF'/%3E%3Ccircle cx='60' cy='7' r='3' fill='%23FFB84D' opacity='0.35'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: 500px 16px;
+    background-position: 0 center;
+    background-repeat: repeat-x;
+    animation: cars-cruise-2 55s linear infinite;
+    transform: translateZ(-450px) scale(1.55);
+    transform-origin: center bottom;
+}
+
+@keyframes cars-cruise-1 {
+    from { background-position: 0 center; }
+    to   { background-position: -600px center; }
+}
+
 @keyframes cars-cruise-2 {
     from { background-position: 0 center; }
     to   { background-position: -500px center; }
 }
 
-.welcome-glow {
-    z-index: 0;
-    background: radial-gradient(
-        circle,
-        rgba(240, 169, 74, 0.08) 0%,
-        rgba(240, 169, 74, 0.03) 40%,
-        transparent 68%
-    );
-}
-
+/* Hero y secciones por encima de todo */
 .welcome-hero,
 .welcome-section {
     position: relative;
-    z-index: 2;
+    z-index: 10;
 }
 
 /* ================================================================
-   2. HERO — minimalista, sin decoración (la ciudad es el show)
+   4. HERO — minimalista (la ciudad es el show)
    ================================================================ */
 .welcome-hero {
     position: relative;
@@ -239,7 +302,7 @@
 .welcome-icon-wrap [data-lucide] { color: #0A0A10; }
 
 /* ================================================================
-   3. RESTO DEL SHELL — dark minimalista
+   5. RESTO DEL SHELL — dark minimalista (sin efectos extra)
    ================================================================ */
 .app-header {
     background: #101018;
@@ -288,7 +351,6 @@
     .sidebar { position: fixed; }
 }
 
-/* Accesos y widgets: caja oscura simple, sin 3D */
 .acceso-item {
     background: #15141C;
     border: 1px solid #25232E;
@@ -393,11 +455,11 @@
 .search-bar:focus-within .search-icon { color: #F0A94A; }
 
 /* ================================================================
-   4. PREFERS-REDUCED-MOTION
+   6. PREFERS-REDUCED-MOTION
    ================================================================ */
 @media (prefers-reduced-motion: reduce) {
-    .welcome-placeholder::before,
-    .welcome-placeholder::after {
+    .welcome-glow::before,
+    .welcome-glow::after {
         animation: none !important;
     }
     .acceso-item,
