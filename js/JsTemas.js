@@ -202,7 +202,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Simples',
         ruta: 'Temas/terracota.css',
         espacio: 2,
-        monedas: 10,
+        monedas: 5,
         colores: {
             '--violet-100': '#F9E8DE',
             '--violet-300': '#E0B098',
@@ -220,7 +220,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Simples',
         ruta: 'Temas/salvia.css',
         espacio: 2,
-        monedas: 10,
+        monedas: 5,
         colores: {
             '--violet-100': '#E2EDE0',
             '--violet-300': '#A8C8A0',
@@ -238,7 +238,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Simples',
         ruta: 'Temas/rosa-polvorienta.css',
         espacio: 2,
-        monedas: 15,
+        monedas: 5,
         colores: {
             '--violet-100': '#F7EBEE',
             '--violet-300': '#DDB8C2',
@@ -256,7 +256,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Simples',
         ruta: 'Temas/mostaza.css',
         espacio: 2,
-        monedas: 20,
+        monedas: 5,
         colores: {
             '--violet-100': '#F7F0D8',
             '--violet-300': '#DCCA80',
