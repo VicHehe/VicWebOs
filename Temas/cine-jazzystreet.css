@@ -1,0 +1,422 @@
+/* ================================================
+   Tema: Cine JazzyStreet
+   Club de jazz de los años 50. Noche lluviosa,
+   luz ámbar de farol, notas musicales flotando
+   y art déco por todos lados.
+   ================================================ */
+
+:root {
+    --violet-50:  #1A1410;
+    --violet-100: #2A2018;
+    --violet-200: #3E3020;
+    --violet-300: #C9A961;
+    --violet-400: #D9BC78;
+    --violet-500: #E8B54B;
+    --violet-600: #C99A32;
+    --violet-700: #A87A22;
+
+    --white:   #18120E;
+    --bg:      #0F0A08;
+    --bg-alt:  #1A120C;
+    --gray-50:  #1A120C;
+    --gray-100: #241810;
+    --gray-200: #342418;
+    --gray-300: #4A362A;
+    --gray-400: #6A5040;
+    --gray-500: #8E7660;
+    --gray-600: #B09A80;
+    --gray-700: #CBB89C;
+    --gray-800: #E0D2B8;
+    --gray-900: #F5EDDC;
+
+    --border:  #342418;
+    --text:    #F5EDDC;
+    --text-2:  #B09A80;
+    --text-3:  #8E7660;
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.50);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.60);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.60);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.70);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.80);
+    --shadow-glow: 0 0 0 4px rgba(232, 181, 75, 0.18);
+
+    --accent-gradient: linear-gradient(135deg, #E8B54B, #A87A22);
+    --accent-gradient-hover: linear-gradient(135deg, #F5C518, #C9A961);
+    --accent-shadow: rgba(232, 181, 75, 0.35);
+    --accent-shadow-hover: rgba(232, 181, 75, 0.55);
+    --accent-text-gradient: linear-gradient(135deg, #F5EDDC, #E8B54B);
+
+    --jazz-amber: #E8B54B;
+    --jazz-brass: #A87A22;
+
+    /* Nota musical (corchea doble) */
+    --theme-note: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 40'%3E%3Cpath d='M11,6 L11,28 M11,6 L25,3 L25,22' stroke='%23E8B54B' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3Cellipse cx='7' cy='30' rx='5' ry='4' fill='%23E8B54B'/%3E%3Cellipse cx='21' cy='24' rx='5' ry='4' fill='%23E8B54B'/%3E%3C/svg%3E");
+
+    /* Sol art déco — abanico de rayos */
+    --theme-sunburst: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg stroke='%23E8B54B' stroke-width='0.8' stroke-opacity='0.55' fill='none'%3E%3Cline x1='50' y1='50' x2='50' y2='5'/%3E%3Cline x1='50' y1='50' x2='80' y2='15'/%3E%3Cline x1='50' y1='50' x2='95' y2='50'/%3E%3Cline x1='50' y1='50' x2='80' y2='85'/%3E%3Cline x1='50' y1='50' x2='50' y2='95'/%3E%3Cline x1='50' y1='50' x2='20' y2='85'/%3E%3Cline x1='50' y1='50' x2='5' y2='50'/%3E%3Cline x1='50' y1='50' x2='20' y2='15'/%3E%3C/g%3E%3Ccircle cx='50' cy='50' r='14' fill='none' stroke='%23E8B54B' stroke-width='1' stroke-opacity='0.65'/%3E%3Ccircle cx='50' cy='50' r='4' fill='%23E8B54B' fill-opacity='0.75'/%3E%3C/svg%3E");
+
+    /* Lluvia fina diagonal */
+    --theme-rain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 60'%3E%3Cg stroke='%23A8C4D8' stroke-linecap='round' fill='none' stroke-opacity='0.35'%3E%3Cline x1='8' y1='6' x2='6' y2='18' stroke-width='1'/%3E%3Cline x1='22' y1='20' x2='20' y2='32' stroke-width='1.1'/%3E%3Cline x1='34' y1='10' x2='32' y2='22' stroke-width='0.9'/%3E%3Cline x1='14' y1='40' x2='12' y2='52' stroke-width='1'/%3E%3Cline x1='30' y1='46' x2='28' y2='58' stroke-width='1'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ============ WELCOME — club de jazz nocturno ============ */
+.welcome-placeholder {
+    position: relative;
+    background:
+        var(--theme-rain) 0 0 / 40px 60px repeat,
+        radial-gradient(ellipse at top, rgba(232, 181, 75, 0.10) 0%, transparent 55%),
+        radial-gradient(ellipse at bottom, rgba(106, 80, 64, 0.15) 0%, transparent 50%),
+        var(--bg);
+}
+
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.18;
+    background-image:
+        var(--theme-sunburst),
+        var(--theme-note),
+        var(--theme-note),
+        var(--theme-note);
+    background-size:
+        320px 320px,
+        36px 48px, 28px 38px, 24px 32px;
+    background-position:
+        50% 22%,
+        8% 30%, 92% 40%, 18% 78%;
+    background-repeat: no-repeat;
+}
+
+.welcome-glow {
+    background: radial-gradient(
+        circle at 50% 40%,
+        rgba(232, 181, 75, 0.22) 0%,
+        rgba(106, 80, 64, 0.10) 40%,
+        transparent 68%
+    );
+}
+
+.welcome-hero,
+.welcome-section {
+    position: relative;
+    z-index: 2;
+}
+
+.welcome-hero {
+    position: relative;
+    padding: 34px 28px 30px;
+    background: linear-gradient(
+        180deg,
+        rgba(26, 18, 12, 0.92) 0%,
+        rgba(15, 10, 8, 0.96) 100%
+    );
+    border: 2px solid var(--jazz-amber);
+    border-radius: 4px;
+    box-shadow:
+        inset 0 0 0 1px rgba(15, 10, 8, 0.9),
+        inset 0 0 0 3px rgba(232, 181, 75, 0.18),
+        inset 0 0 60px rgba(0, 0, 0, 0.55),
+        0 12px 32px rgba(0, 0, 0, 0.65),
+        0 0 50px rgba(232, 181, 75, 0.12);
+    max-width: 660px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.welcome-hero::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 1px solid rgba(232, 181, 75, 0.28);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.welcome-hero::after {
+    content: '';
+    position: absolute;
+    top: -46px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90px;
+    height: 90px;
+    background: var(--theme-sunburst) center/contain no-repeat;
+    pointer-events: none;
+    z-index: 3;
+    filter: drop-shadow(0 4px 10px rgba(232, 181, 75, 0.45));
+}
+
+.welcome-hero > * {
+    position: relative;
+    z-index: 1;
+}
+
+.welcome-hero h1 {
+    letter-spacing: 0.005em;
+    text-shadow: 0 0 24px rgba(232, 181, 75, 0.30);
+}
+
+.welcome-icon-wrap {
+    background: linear-gradient(135deg, #C99A32, #2A2018);
+    border-radius: 50%;
+    box-shadow:
+        0 12px 28px rgba(232, 181, 75, 0.40),
+        0 4px 8px rgba(0, 0, 0, 0.55),
+        0 0 0 3px rgba(232, 181, 75, 0.20),
+        0 0 0 5px rgba(232, 181, 75, 0.08);
+}
+
+/* ============ HEADER ============ */
+.app-header {
+    position: relative;
+    background: linear-gradient(180deg, #1A120C 0%, #0F0A08 100%);
+    border-bottom: 1px solid rgba(232, 181, 75, 0.28);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+.app-header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 20%;
+    right: 20%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #E8B54B, transparent);
+    opacity: 0.60;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* ============ SIDEBAR ============ */
+.sidebar {
+    position: relative;
+    background: linear-gradient(180deg, #1A120C 0%, #0F0A08 100%);
+    border-right: 1px solid rgba(232, 181, 75, 0.18);
+    overflow: hidden;
+}
+.sidebar::before {
+    content: '';
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 200px;
+    background: var(--theme-sunburst) center/contain no-repeat;
+    opacity: 0.10;
+    pointer-events: none;
+    z-index: 0;
+}
+.sidebar-comunidad,
+.sidebar-label,
+.sidebar-nav,
+.sidebar-mobile-header {
+    position: relative;
+    z-index: 1;
+}
+
+.nav-item.active::before {
+    background: linear-gradient(180deg, #E8B54B, #A87A22);
+    width: 3px;
+    box-shadow: 0 0 10px rgba(232, 181, 75, 0.55);
+    border-radius: 0 3px 3px 0;
+}
+.nav-item.active { background: rgba(232, 181, 75, 0.08); }
+.nav-item.active .nav-icon { color: var(--violet-500); }
+
+@media (max-width: 768px) {
+    .sidebar { position: fixed; }
+}
+
+/* ============ ACCESOS ============ */
+.acceso-item {
+    position: relative;
+    background: linear-gradient(180deg, #241810 0%, #1A120C 100%);
+    border: 1px solid rgba(232, 181, 75, 0.22);
+    border-radius: 6px;
+    box-shadow:
+        inset 0 1px 0 rgba(232, 181, 75, 0.06),
+        0 2px 6px rgba(0, 0, 0, 0.50);
+    overflow: visible;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.acceso-item::after {
+    content: '';
+    position: absolute;
+    top: -14px;
+    right: -10px;
+    width: 22px;
+    height: 30px;
+    background: var(--theme-note) center/contain no-repeat;
+    opacity: 0;
+    transform: translateY(8px) scale(0.5) rotate(-20deg);
+    transition:
+        opacity 0.28s,
+        transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+    z-index: 3;
+    filter: drop-shadow(0 0 8px rgba(232, 181, 75, 0.85));
+}
+.acceso-item:hover::after {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0deg);
+}
+.acceso-item:hover {
+    transform: translateY(-3px);
+    border-color: var(--violet-500);
+    box-shadow:
+        inset 0 1px 0 rgba(232, 181, 75, 0.12),
+        0 10px 22px rgba(232, 181, 75, 0.25),
+        0 0 0 1px rgba(232, 181, 75, 0.30),
+        0 4px 10px rgba(0, 0, 0, 0.55);
+}
+.acceso-icon-wrap {
+    background: rgba(232, 181, 75, 0.10);
+    border: 1px solid rgba(232, 181, 75, 0.28);
+    color: var(--violet-500);
+    border-radius: 50%;
+    transition: all 0.22s;
+}
+.acceso-item:hover .acceso-icon-wrap {
+    background: var(--accent-gradient);
+    color: #0F0A08;
+    border-color: var(--violet-400);
+    box-shadow:
+        0 0 0 3px rgba(232, 181, 75, 0.22),
+        0 6px 14px rgba(232, 181, 75, 0.45);
+}
+
+/* ============ WIDGETS ============ */
+.widget-item {
+    border: 1px solid rgba(232, 181, 75, 0.24);
+    border-radius: 6px;
+    box-shadow:
+        inset 0 1px 0 rgba(232, 181, 75, 0.06),
+        0 4px 10px rgba(0, 0, 0, 0.50);
+    transition: all 0.22s;
+}
+.widget-item:hover {
+    border-color: var(--violet-500);
+    box-shadow:
+        inset 0 1px 0 rgba(232, 181, 75, 0.12),
+        0 10px 22px rgba(232, 181, 75, 0.22);
+}
+
+/* ============ PESTAÑAS ============ */
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 14px;
+    right: 14px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #E8B54B, transparent);
+    border-radius: 2px 2px 0 0;
+    box-shadow: 0 0 8px rgba(232, 181, 75, 0.55);
+    pointer-events: none;
+}
+.tab-item.active [data-lucide] { color: var(--violet-500); }
+
+/* ============ MODALES ============ */
+.config-card,
+.modal-todas-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(232, 181, 75, 0.32);
+    border-radius: 6px;
+    box-shadow:
+        inset 0 0 0 1px rgba(232, 181, 75, 0.12),
+        inset 0 0 60px rgba(0, 0, 0, 0.35),
+        0 24px 48px rgba(0, 0, 0, 0.75),
+        0 0 60px rgba(232, 181, 75, 0.12);
+}
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg,
+        transparent,
+        #E8B54B 20%,
+        #F5C518 50%,
+        #E8B54B 80%,
+        transparent);
+    pointer-events: none;
+    z-index: 3;
+    box-shadow: 0 0 12px rgba(232, 181, 75, 0.60);
+}
+.config-card::after,
+.modal-todas-card::after {
+    content: '';
+    position: absolute;
+    bottom: 14px;
+    right: 14px;
+    width: 22px;
+    height: 30px;
+    background: var(--theme-note) center/contain no-repeat;
+    opacity: 0.35;
+    pointer-events: none;
+    z-index: 4;
+    filter: drop-shadow(0 0 6px rgba(232, 181, 75, 0.70));
+}
+.config-header,
+.modal-todas-header {
+    background: linear-gradient(180deg, #241810 0%, #1A120C 100%);
+    border-bottom-color: rgba(232, 181, 75, 0.22);
+}
+
+/* ============ BOTÓN ============ */
+.btn-primario {
+    background: linear-gradient(135deg, #C99A32, #A87A22);
+    border: 1px solid rgba(245, 197, 24, 0.40);
+    color: #0F0A08;
+    font-weight: 800;
+    box-shadow:
+        0 4px 12px rgba(232, 181, 75, 0.35),
+        inset 0 1px 0 rgba(245, 197, 24, 0.30);
+}
+.btn-primario:hover {
+    background: linear-gradient(135deg, #F5C518, #C9A961);
+    box-shadow:
+        0 8px 22px rgba(232, 181, 75, 0.55),
+        0 0 0 3px rgba(232, 181, 75, 0.18),
+        inset 0 1px 0 rgba(245, 197, 24, 0.40);
+}
+
+/* ============ AVATAR ============ */
+.avatar-config {
+    background: linear-gradient(135deg, #C9A961, #2A2018);
+    border: 2px solid rgba(232, 181, 75, 0.55);
+    box-shadow:
+        var(--shadow-sm),
+        0 0 0 1px rgba(15, 10, 8, 0.9),
+        0 0 0 3px rgba(232, 181, 75, 0.18);
+}
+.avatar-config:hover {
+    transform: translateY(-1px) scale(1.05);
+    box-shadow:
+        0 6px 16px rgba(232, 181, 75, 0.55),
+        0 0 0 1px var(--violet-400),
+        0 0 0 4px rgba(232, 181, 75, 0.18);
+}
+
+.noti-btn.tiene-no-leidas {
+    background: rgba(232, 181, 75, 0.12);
+    color: var(--violet-500);
+}
+.search-bar:focus-within {
+    border-color: var(--violet-500);
+    box-shadow: var(--shadow-glow);
+}
+.search-bar:focus-within .search-icon { color: var(--violet-500); }
+
+/* ============ REDUCED MOTION ============ */
+@media (prefers-reduced-motion: reduce) {
+    .acceso-item::after { transition: none !important; }
+}
