@@ -771,7 +771,7 @@ const TEMAS_DISPONIBLES = [
     //  sin nombres de películas ni franquicias específicas.
     //
     //  Progresión interna de la categoría:
-    //    Romance (25) → Jazz (25) → Sci-fi (35) → Terror (40)
+    //    Romance (25) → Sci-fi (25) → Jazz (35) → Terror (35)
     // ============================================================
     {
         id: 'cine-romance-escolar',
@@ -792,24 +792,6 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
-        id: 'cine-jazzystreet',
-        nombre: 'Cine JazzyStreet',
-        icono: 'music-4',
-        descripcion: 'Club de jazz de los años 50. Noche lluviosa, luz ámbar de farol, notas musicales y art déco.',
-        categoria: 'Cine',
-        ruta: 'Temas/cine-jazzystreet.css',
-        espacio: 4,
-        monedas: 25,
-        colores: {
-            '--violet-100': '#2A2018',
-            '--violet-300': '#C9A961',
-            '--violet-500': '#E8B54B',
-            '--bg':         '#0F0A08',
-            '--bg-alt':     '#1A120C',
-            '--white':      '#18120E'
-        }
-    },
-    {
         id: 'cine-ciencia-ficcion',
         nombre: 'Cine Ciencia Ficción',
         icono: 'rocket',
@@ -817,7 +799,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Cine',
         ruta: 'Temas/cine-ciencia-ficcion.css',
         espacio: 4,
-        monedas: 35,
+        monedas: 25,
         colores: {
             '--violet-100': '#0F1E38',
             '--violet-300': '#00D9FF',
@@ -828,6 +810,24 @@ const TEMAS_DISPONIBLES = [
         }
     },
     {
+        id: 'cine-jazzystreet',
+        nombre: 'Cine JazzyStreet',
+        icono: 'music-4',
+        descripcion: 'Bar speakeasy de los años 50. Cobre y ladrillo, luz cálida de farol, sol art déco y notas al pasar.',
+        categoria: 'Cine',
+        ruta: 'Temas/cine-jazzystreet.css',
+        espacio: 4,
+        monedas: 35,
+        colores: {
+            '--violet-100': '#2C1810',
+            '--violet-300': '#D97A54',
+            '--violet-500': '#C4562E',
+            '--bg':         '#100806',
+            '--bg-alt':     '#1A0D08',
+            '--white':      '#1A0F0A'
+        }
+    },
+    {
         id: 'cine-terror',
         nombre: 'Cine de Terror',
         icono: 'skull',
@@ -835,7 +835,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Cine',
         ruta: 'Temas/cine-terror.css',
         espacio: 4,
-        monedas: 40,
+        monedas: 35,
         colores: {
             '--violet-100': '#2A0608',
             '--violet-300': '#B91C1C',
