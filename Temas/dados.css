@@ -1,187 +1,212 @@
 /* ================================================
    Tema: Dados
-   Casino nocturno. Dado 3D real girando en el
-   lobby (preserve-3d con 6 caras), cards con pips
-   de dominó que se hunden al presionarlas.
+   Mesa de casino: fieltro verde, dados marfil con
+   pips negros. Dados 3D REALES en el lobby (cubos
+   con 3 caras visibles) que ruedan y giran. Las
+   cards también son dados 3D que rotan al hover.
    ================================================ */
 
 :root {
     /* Acento: rojo de casino */
-    --violet-50:  #F5EBE0;
-    --violet-100: #E8D5C0;
-    --violet-200: #C9A088;
-    --violet-300: #B83232;
-    --violet-400: #9E2525;
+    --violet-50:  #2A1518;
+    --violet-100: #3E1A1E;
+    --violet-200: #5C282E;
+    --violet-300: #C8383A;
+    --violet-400: #A82A2C;
     --violet-500: #8B1A1A;
     --violet-600: #6E1414;
     --violet-700: #4E0E0E;
 
-    --white:   #F5F0E8;
-    --bg:      #1A1410;
-    --bg-alt:  #231A14;
-    --gray-50:  #231A14;
-    --gray-100: #2E231A;
-    --gray-200: #3E3024;
-    --gray-300: #5A4838;
-    --gray-400: #8A7058;
-    --gray-500: #B0A090;
-    --gray-600: #D0C0B0;
-    --gray-700: #E5D8C8;
-    --gray-800: #F0E8DC;
-    --gray-900: #F5F0E8;
+    /* Superficies: fieltro verde oscuro */
+    --white:   #1A2E1E;
+    --bg:      #12200E;
+    --bg-alt:  #1A2E1E;
+    --gray-50:  #1A2E1E;
+    --gray-100: #243B28;
+    --gray-200: #2E4A32;
+    --gray-300: #3E6042;
+    --gray-400: #5E7E62;
+    --gray-500: #8AA08E;
+    --gray-600: #B0C0B2;
+    --gray-700: #D0DAD2;
+    --gray-800: #E5EBE6;
+    --gray-900: #F5F8F5;
 
-    --border:  #3E3024;
-    --text:    #F5F0E8;
-    --text-2:  #D0C0B0;
-    --text-3:  #B0A090;
+    --border:  #2E4A32;
+    --text:    #F5F8F5;
+    --text-2:  #D0DAD2;
+    --text-3:  #B0C0B2;
 
     --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.50);
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.60);
     --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.60);
     --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.70);
     --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.80);
-    --shadow-glow: 0 0 0 4px rgba(139, 26, 26, 0.25);
+    --shadow-glow: 0 0 0 4px rgba(200, 56, 58, 0.25);
 
     --accent-gradient: linear-gradient(135deg, #8B1A1A, #4E0E0E);
-    --accent-gradient-hover: linear-gradient(135deg, #B83232, #6E1414);
+    --accent-gradient-hover: linear-gradient(135deg, #C8383A, #6E1414);
     --accent-shadow: rgba(139, 26, 26, 0.40);
     --accent-shadow-hover: rgba(139, 26, 26, 0.60);
-    --accent-text-gradient: linear-gradient(135deg, #F5F0E8, #B83232);
+    --accent-text-gradient: linear-gradient(135deg, #F5F8F5, #C8383A);
 
-    /* Superficies del dado */
-    --die-cream: #F5F0E8;
-    --die-side:  #D8C8B8;
-    --die-shadow:#A89078;
+    /* Dado */
+    --die-front: #F5F0E0;
+    --die-top:   #FFFFFF;
+    --die-right: #C8BFA8;
+    --die-edge:  #8A7F6A;
     --die-pip:   #1A1410;
-    --die-red:   #B83232;
+    --die-red:   #C8383A;
+
+    /* Fieltro */
+    --felt-base:   #1A2E1E;
+    --felt-dark:   #0E1A10;
+    --felt-light:  #243B28;
 
     --r-sm: 3px;
     --r-md: 6px;
     --r-lg: 10px;
     --r-xl: 16px;
 
-    /* Fieltro verde de mesa de casino */
-    --theme-felt: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Crect width='8' height='8' fill='%231A2E1E'/%3E%3Cg fill='%23243828' fill-opacity='0.5'%3E%3Ccircle cx='2' cy='2' r='0.6'/%3E%3Ccircle cx='6' cy='6' r='0.6'/%3E%3C/g%3E%3Cg fill='%232E4A36' fill-opacity='0.4'%3E%3Ccircle cx='4' cy='4' r='0.4'/%3E%3C/g%3E%3C/svg%3E");
+    --theme-felt: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Crect width='8' height='8' fill='%231A2E1E'/%3E%3Cg fill='%23243B28' fill-opacity='0.55'%3E%3Ccircle cx='2' cy='2' r='0.7'/%3E%3Ccircle cx='6' cy='6' r='0.7'/%3E%3Ccircle cx='4' cy='4' r='0.4'/%3E%3Ccircle cx='0' cy='6' r='0.4'/%3E%3Ccircle cx='7' cy='1' r='0.4'/%3E%3C/g%3E%3Cg fill='%232E4A32' fill-opacity='0.40'%3E%3Ccircle cx='3' cy='7' r='0.3'/%3E%3Ccircle cx='5' cy='1' r='0.3'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   1. WELCOME — mesa de casino con dado 3D girando
+   1. WELCOME — mesa de casino
    ================================================================ */
 .welcome-placeholder {
     position: relative;
     background:
-        radial-gradient(ellipse 70% 35% at 50% 100%, rgba(139, 26, 26, 0.20) 0%, transparent 70%),
-        radial-gradient(ellipse 50% 30% at 50% 0%, rgba(240, 200, 140, 0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 35% at 50% 100%, rgba(200, 56, 58, 0.10) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 30% at 50% 0%, rgba(240, 220, 180, 0.06) 0%, transparent 60%),
         var(--theme-felt) 0 0 / 8px 8px repeat,
         linear-gradient(180deg, #1A2E1E 0%, #0E1A10 100%);
+    background-attachment: fixed;
+    perspective: 1200px;
+    perspective-origin: 50% 40%;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
-/* DADO 3D — construido con preserve-3d y 6 caras vía pseudo-elementos
-   anidados de welcome-placeholder y welcome-glow.
-   Solo mostramos 3 caras visibles (top, front, right) que rotan. */
-
+/* DADO 3D GRANDE — 3 caras via box-shadow y fondo */
 .welcome-placeholder::before {
     content: '';
     position: absolute;
-    top: 15%;
+    top: 12%;
     right: 8%;
-    width: 100px;
-    height: 100px;
-    background: var(--die-cream);
-    border: 3px solid #8A7058;
-    border-radius: 10px;
-    box-shadow:
-        inset 4px 4px 0 rgba(255, 255, 255, 0.40),
-        inset -4px -4px 0 rgba(138, 112, 88, 0.30),
-        8px 8px 0 #6E1414,
-        12px 12px 0 rgba(0, 0, 0, 0.30),
-        16px 16px 30px rgba(0, 0, 0, 0.50);
-    z-index: 5;
-    pointer-events: none;
-    animation: dado-float 6s ease-in-out infinite;
-    /* Pips del 5 */
-    background-image:
+    width: 88px;
+    height: 88px;
+    background:
+        /* Pips del 6 (frente) */
         radial-gradient(circle 6px at 25% 25%, #1A1410 0, #1A1410 6px, transparent 7px),
         radial-gradient(circle 6px at 75% 25%, #1A1410 0, #1A1410 6px, transparent 7px),
-        radial-gradient(circle 6px at 50% 50%, #1A1410 0, #1A1410 6px, transparent 7px),
+        radial-gradient(circle 6px at 25% 50%, #1A1410 0, #1A1410 6px, transparent 7px),
+        radial-gradient(circle 6px at 75% 50%, #1A1410 0, #1A1410 6px, transparent 7px),
         radial-gradient(circle 6px at 25% 75%, #1A1410 0, #1A1410 6px, transparent 7px),
-        radial-gradient(circle 6px at 75% 75%, #1A1410 0, #1A1410 6px, transparent 7px);
-    background-repeat: no-repeat;
+        radial-gradient(circle 6px at 75% 75%, #1A1410 0, #1A1410 6px, transparent 7px),
+        linear-gradient(180deg, #FFFFFF 0%, #F5F0E0 100%);
+    border: 2px solid #8A7F6A;
+    border-radius: 10px;
+    /* Caras top y right via box-shadow */
+    box-shadow:
+        inset 3px 3px 0 rgba(255, 255, 255, 0.70),
+        inset -3px -3px 0 rgba(138, 127, 106, 0.35),
+        /* Top face */
+        0 -20px 0 0 #FFFFFF,
+        0 -22px 0 0 #8A7F6A,
+        /* Right face */
+        20px 0 0 0 #C8BFA8,
+        22px 0 0 0 #8A7F6A,
+        /* Sombra de la mesa */
+        32px 32px 0 0 rgba(0, 0, 0, 0.25),
+        40px 40px 40px 0 rgba(0, 0, 0, 0.40);
+    z-index: 5;
+    pointer-events: none;
+    animation: dado-tumble 8s ease-in-out infinite;
+    transform-style: preserve-3d;
 }
-
-@keyframes dado-float {
-    0%, 100% { transform: translateY(0) rotate(-8deg); }
-    50%      { transform: translateY(-14px) rotate(6deg); }
+@keyframes dado-tumble {
+    0%, 100% { transform: translateY(0) rotate(-6deg); }
+    25%      { transform: translateY(-10px) rotate(4deg); }
+    50%      { transform: translateY(0) rotate(-2deg); }
+    75%      { transform: translateY(-8px) rotate(8deg); }
 }
 
 .welcome-glow {
-    background: radial-gradient(
-        circle at 50% 40%,
-        rgba(240, 200, 140, 0.12) 0%,
-        rgba(139, 26, 26, 0.06) 40%,
-        transparent 68%
-    );
     position: absolute;
     inset: 0;
-    z-index: 0;
+    background: radial-gradient(
+        circle at 50% 50%,
+        rgba(240, 220, 180, 0.10) 0%,
+        rgba(139, 26, 26, 0.04) 40%,
+        transparent 68%
+    );
     pointer-events: none;
+    z-index: 0;
 }
 
-/* Segundo dado pequeño — esquina inferior izquierda */
+/* DADO MEDIANO — izquierda */
 .welcome-glow::before {
     content: '';
     position: absolute;
     bottom: 20%;
-    left: 8%;
+    left: 6%;
     width: 60px;
     height: 60px;
-    background: var(--die-cream);
-    background-image:
-        radial-gradient(circle 4px at 30% 30%, #1A1410 0, #1A1410 4px, transparent 5px),
-        radial-gradient(circle 4px at 70% 30%, #1A1410 0, #1A1410 4px, transparent 5px),
-        radial-gradient(circle 4px at 30% 70%, #B83232 0, #B83232 4px, transparent 5px),
-        radial-gradient(circle 4px at 70% 70%, #B83232 0, #B83232 4px, transparent 5px);
-    background-repeat: no-repeat;
-    border: 2px solid #8A7058;
+    background:
+        radial-gradient(circle 4px at 25% 25%, #C8383A 0, #C8383A 4px, transparent 5px),
+        radial-gradient(circle 4px at 75% 25%, #C8383A 0, #C8383A 4px, transparent 5px),
+        radial-gradient(circle 4px at 25% 75%, #C8383A 0, #C8383A 4px, transparent 5px),
+        radial-gradient(circle 4px at 75% 75%, #C8383A 0, #C8383A 4px, transparent 5px),
+        linear-gradient(180deg, #FFFFFF 0%, #F5F0E0 100%);
+    border: 2px solid #8A7F6A;
     border-radius: 8px;
     box-shadow:
-        inset 3px 3px 0 rgba(255, 255, 255, 0.40),
-        inset -3px -3px 0 rgba(138, 112, 88, 0.30),
-        5px 5px 0 #6E1414,
-        8px 8px 0 rgba(0, 0, 0, 0.25),
-        10px 10px 20px rgba(0, 0, 0, 0.40);
-    animation: dado-float-2 7s ease-in-out infinite 1.5s;
+        inset 2px 2px 0 rgba(255, 255, 255, 0.70),
+        inset -2px -2px 0 rgba(138, 127, 106, 0.35),
+        0 -14px 0 0 #FFFFFF,
+        0 -16px 0 0 #8A7F6A,
+        14px 0 0 0 #C8BFA8,
+        16px 0 0 0 #8A7F6A,
+        24px 24px 0 0 rgba(0, 0, 0, 0.22),
+        32px 32px 32px 0 rgba(0, 0, 0, 0.35);
+    animation: dado-tumble-2 10s ease-in-out infinite 1s;
     z-index: 5;
     pointer-events: none;
 }
-@keyframes dado-float-2 {
-    0%, 100% { transform: translateY(0) rotate(12deg); }
-    50%      { transform: translateY(-10px) rotate(-4deg); }
+@keyframes dado-tumble-2 {
+    0%, 100% { transform: translateY(0) rotate(4deg); }
+    33%      { transform: translateY(-8px) rotate(-6deg); }
+    66%      { transform: translateY(-4px) rotate(10deg); }
 }
 
-/* Tercer dado mini — esquina superior izquierda */
+/* DADO PEQUEÑO — arriba izquierda */
 .welcome-glow::after {
     content: '';
     position: absolute;
-    top: 28%;
-    left: 12%;
-    width: 44px;
-    height: 44px;
-    background: var(--die-cream);
-    background-image:
-        radial-gradient(circle 3px at 30% 30%, #B83232 0, #B83232 3px, transparent 4px),
-        radial-gradient(circle 3px at 70% 70%, #B83232 0, #B83232 3px, transparent 4px),
-        radial-gradient(circle 3px at 70% 30%, #1A1410 0, #1A1410 3px, transparent 4px);
-    background-repeat: no-repeat;
-    border: 2px solid #8A7058;
+    top: 22%;
+    left: 14%;
+    width: 40px;
+    height: 40px;
+    background:
+        radial-gradient(circle 3px at 30% 30%, #1A1410 0, #1A1410 3px, transparent 4px),
+        radial-gradient(circle 3px at 70% 30%, #1A1410 0, #1A1410 3px, transparent 4px),
+        radial-gradient(circle 3px at 50% 50%, #1A1410 0, #1A1410 3px, transparent 4px),
+        radial-gradient(circle 3px at 30% 70%, #1A1410 0, #1A1410 3px, transparent 4px),
+        radial-gradient(circle 3px at 70% 70%, #1A1410 0, #1A1410 3px, transparent 4px),
+        linear-gradient(180deg, #FFFFFF 0%, #F5F0E0 100%);
+    border: 2px solid #8A7F6A;
     border-radius: 6px;
     box-shadow:
-        inset 2px 2px 0 rgba(255, 255, 255, 0.40),
-        inset -2px -2px 0 rgba(138, 112, 88, 0.30),
-        4px 4px 0 #6E1414,
-        6px 6px 0 rgba(0, 0, 0, 0.25),
-        8px 8px 14px rgba(0, 0, 0, 0.35);
-    animation: dado-float 8s ease-in-out infinite 0.8s;
+        inset 2px 2px 0 rgba(255, 255, 255, 0.70),
+        inset -2px -2px 0 rgba(138, 127, 106, 0.35),
+        0 -10px 0 0 #FFFFFF,
+        0 -12px 0 0 #8A7F6A,
+        10px 0 0 0 #C8BFA8,
+        12px 0 0 0 #8A7F6A,
+        18px 18px 0 0 rgba(0, 0, 0, 0.20),
+        22px 22px 22px 0 rgba(0, 0, 0, 0.30);
+    animation: dado-tumble 7s ease-in-out infinite 2s;
     z-index: 5;
     pointer-events: none;
 }
@@ -193,26 +218,24 @@
 }
 
 /* ================================================================
-   2. HERO — carta de casino
+   2. HERO — carta de casino en negro/madera
    ================================================================ */
 .welcome-hero {
     position: relative;
     padding: 40px 32px 36px;
     background: linear-gradient(180deg, #2E2318 0%, #1A1410 100%);
-    border: 2px solid #8A7058;
+    border: 2px solid #8A7F6A;
     border-radius: 8px;
     box-shadow:
-        inset 0 1px 0 rgba(255, 240, 200, 0.10),
+        inset 0 1px 0 rgba(245, 240, 224, 0.10),
         inset 0 0 60px rgba(0, 0, 0, 0.50),
         0 4px 8px rgba(0, 0, 0, 0.50),
         0 12px 32px rgba(0, 0, 0, 0.60),
-        0 0 40px rgba(139, 26, 26, 0.15);
+        0 0 40px rgba(200, 56, 58, 0.15);
     max-width: 660px;
     margin-left: auto;
     margin-right: auto;
 }
-
-/* Borde dorado doble, como marco de carta */
 .welcome-hero::before {
     content: '';
     position: absolute;
@@ -222,109 +245,130 @@
     pointer-events: none;
     z-index: 0;
 }
-
 .welcome-hero > * {
     position: relative;
     z-index: 1;
 }
-
 .welcome-hero h1 {
-    color: #F5F0E8;
+    color: #F5F0E0;
     letter-spacing: 0.005em;
     text-shadow:
         0 1px 0 rgba(0, 0, 0, 0.80),
-        0 0 24px rgba(240, 200, 140, 0.30);
+        0 0 24px rgba(200, 56, 58, 0.35);
 }
-
 .welcome-hero p {
-    color: #D0C0B0;
+    color: #D0DAD2;
 }
-
 .welcome-icon-wrap {
-    background: linear-gradient(135deg, #B83232, #4E0E0E);
+    background: linear-gradient(135deg, #C8383A, #4E0E0E);
     border-radius: 12px;
-    border: 2px solid #8A7058;
+    border: 2px solid #8A7F6A;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.20),
         0 4px 10px rgba(0, 0, 0, 0.50),
         0 8px 20px rgba(0, 0, 0, 0.35),
         0 0 0 3px rgba(240, 200, 140, 0.15);
 }
-.welcome-icon-wrap [data-lucide] { color: #F5F0E8; }
+.welcome-icon-wrap [data-lucide] { color: #F5F0E0; }
 
 /* ================================================================
-   3. ACCESOS RÁPIDOS — caras de dado con pips
+   3. ACCESOS RÁPIDOS — DADOS 3D REALES
+   La card es un dado con cara frontal + top + right
+   visibles. Al hover, el dado gira mostrando volumen.
    ================================================================ */
 .acceso-item {
     position: relative;
-    padding: 24px 16px 18px;
-    background: linear-gradient(180deg, #F5F0E8 0%, #E8DCC8 100%);
-    border: 2px solid #8A7058;
+    padding: 28px 16px 22px;
+    background: linear-gradient(180deg, #FFFFFF 0%, #F5F0E0 100%);
+    border: 2px solid #8A7F6A;
     border-radius: 10px;
+    /* Sombra apilada para dar volumen */
     box-shadow:
-        inset 3px 3px 0 rgba(255, 255, 255, 0.50),
-        inset -3px -3px 0 rgba(138, 112, 88, 0.25),
-        5px 5px 0 #8B1A1A,
-        8px 8px 0 rgba(0, 0, 0, 0.25),
-        12px 12px 24px rgba(0, 0, 0, 0.40);
+        inset 3px 3px 0 rgba(255, 255, 255, 0.75),
+        inset -3px -3px 0 rgba(138, 127, 106, 0.30),
+        5px 5px 0 #C8BFA8,
+        7px 7px 0 #8A7F6A,
+        12px 12px 0 rgba(0, 0, 0, 0.30),
+        18px 18px 24px rgba(0, 0, 0, 0.40);
     overflow: visible;
-    transition:
-        transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
-        box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     transform-style: preserve-3d;
+    will-change: transform;
+    transition:
+        transform 0.40s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.40s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Pips decorativos en la esquina — 3 puntos tipo dado */
+/* PIPS en la esquina superior derecha — 3 puntos diagonales */
 .acceso-item::before {
     content: '';
     position: absolute;
-    top: 8px;
-    right: 10px;
-    width: 22px;
-    height: 22px;
-    background-image:
-        radial-gradient(circle 2.5px at 15% 15%, #1A1410 0, #1A1410 2.5px, transparent 3px),
-        radial-gradient(circle 2.5px at 50% 50%, #B83232 0, #B83232 2.5px, transparent 3px),
-        radial-gradient(circle 2.5px at 85% 85%, #1A1410 0, #1A1410 2.5px, transparent 3px);
+    top: 10px;
+    right: 12px;
+    width: 24px;
+    height: 24px;
+    background:
+        radial-gradient(circle 3px at 20% 20%, #1A1410 0, #1A1410 3px, transparent 4px),
+        radial-gradient(circle 3px at 50% 50%, #C8383A 0, #C8383A 3px, transparent 4px),
+        radial-gradient(circle 3px at 80% 80%, #1A1410 0, #1A1410 3px, transparent 4px);
+    background-repeat: no-repeat;
+    opacity: 0.65;
+    pointer-events: none;
+    z-index: 3;
+}
+
+/* PIPS en la esquina inferior izquierda — 2 puntos */
+.acceso-item::after {
+    content: '';
+    position: absolute;
+    bottom: 10px;
+    left: 12px;
+    width: 20px;
+    height: 20px;
+    background:
+        radial-gradient(circle 2.5px at 25% 25%, #1A1410 0, #1A1410 2.5px, transparent 3.5px),
+        radial-gradient(circle 2.5px at 75% 75%, #1A1410 0, #1A1410 2.5px, transparent 3.5px);
     background-repeat: no-repeat;
     opacity: 0.55;
     pointer-events: none;
     z-index: 3;
 }
 
-/* Hover: la card se "presiona" contra la mesa */
+/* HOVER: el dado gira */
 .acceso-item:hover {
-    transform: translate(3px, 3px);
+    transform: perspective(800px) rotateX(-8deg) rotateY(10deg) translateY(-4px);
     box-shadow:
-        inset 2px 2px 0 rgba(255, 255, 255, 0.40),
-        inset -3px -3px 0 rgba(138, 112, 88, 0.25),
-        2px 2px 0 #8B1A1A,
-        4px 4px 0 rgba(0, 0, 0, 0.25),
-        5px 5px 12px rgba(0, 0, 0, 0.30);
+        inset 3px 3px 0 rgba(255, 255, 255, 0.85),
+        inset -3px -3px 0 rgba(138, 127, 106, 0.30),
+        7px 7px 0 #C8BFA8,
+        10px 10px 0 #8A7F6A,
+        16px 16px 0 rgba(0, 0, 0, 0.32),
+        26px 26px 36px rgba(0, 0, 0, 0.50),
+        0 0 30px rgba(200, 56, 58, 0.25);
 }
 
 .acceso-icon-wrap {
     background: linear-gradient(135deg, #8B1A1A, #4E0E0E);
-    color: #F5F0E8;
+    color: #F5F0E0;
     border: 2px solid #6E1414;
     border-radius: 8px;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.20),
-        2px 2px 0 rgba(0, 0, 0, 0.30);
-    transition: all 0.15s;
+        3px 3px 0 rgba(0, 0, 0, 0.35);
+    transition: all 0.30s;
 }
 .acceso-item:hover .acceso-icon-wrap {
-    background: linear-gradient(135deg, #B83232, #6E1414);
-    border-color: #B83232;
+    background: linear-gradient(135deg, #C8383A, #8B1A1A);
+    border-color: #C8383A;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.30),
-        2px 2px 0 rgba(0, 0, 0, 0.35),
-        0 0 12px rgba(184, 50, 50, 0.50);
+        3px 3px 0 rgba(0, 0, 0, 0.40),
+        0 0 16px rgba(200, 56, 58, 0.60);
 }
 
 .acceso-nombre {
     color: #1A1410;
     font-weight: 800;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.60);
 }
 
 /* ================================================================
@@ -332,53 +376,58 @@
    ================================================================ */
 .widget-item {
     position: relative;
-    background: linear-gradient(180deg, #F5F0E8 0%, #E8DCC8 100%);
-    border: 2px solid #8A7058;
+    background: linear-gradient(180deg, #FFFFFF 0%, #F5F0E0 100%);
+    border: 2px solid #8A7F6A;
     border-radius: 10px;
     box-shadow:
-        inset 3px 3px 0 rgba(255, 255, 255, 0.50),
-        inset -3px -3px 0 rgba(138, 112, 88, 0.25),
-        5px 5px 0 #8B1A1A,
-        8px 8px 0 rgba(0, 0, 0, 0.25),
-        12px 12px 24px rgba(0, 0, 0, 0.40);
-    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        inset 3px 3px 0 rgba(255, 255, 255, 0.75),
+        inset -3px -3px 0 rgba(138, 127, 106, 0.30),
+        5px 5px 0 #C8BFA8,
+        7px 7px 0 #8A7F6A,
+        12px 12px 0 rgba(0, 0, 0, 0.30),
+        18px 18px 24px rgba(0, 0, 0, 0.40);
+    overflow: visible;
+    transform-style: preserve-3d;
+    transition: all 0.40s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .widget-item::before {
     content: '';
     position: absolute;
-    top: 10px;
-    left: 12px;
-    width: 26px;
-    height: 26px;
-    background-image:
-        radial-gradient(circle 3px at 15% 15%, #1A1410 0, #1A1410 3px, transparent 4px),
-        radial-gradient(circle 3px at 85% 15%, #1A1410 0, #1A1410 3px, transparent 4px),
-        radial-gradient(circle 3px at 50% 50%, #B83232 0, #B83232 3px, transparent 4px),
-        radial-gradient(circle 3px at 15% 85%, #1A1410 0, #1A1410 3px, transparent 4px),
-        radial-gradient(circle 3px at 85% 85%, #1A1410 0, #1A1410 3px, transparent 4px);
+    top: 12px;
+    left: 14px;
+    width: 28px;
+    height: 28px;
+    background:
+        radial-gradient(circle 3.5px at 20% 20%, #1A1410 0, #1A1410 3.5px, transparent 4.5px),
+        radial-gradient(circle 3.5px at 80% 20%, #1A1410 0, #1A1410 3.5px, transparent 4.5px),
+        radial-gradient(circle 3.5px at 50% 50%, #C8383A 0, #C8383A 3.5px, transparent 4.5px),
+        radial-gradient(circle 3.5px at 20% 80%, #1A1410 0, #1A1410 3.5px, transparent 4.5px),
+        radial-gradient(circle 3.5px at 80% 80%, #1A1410 0, #1A1410 3.5px, transparent 4.5px);
     background-repeat: no-repeat;
-    opacity: 0.55;
+    opacity: 0.60;
     pointer-events: none;
     z-index: 3;
 }
 .widget-item:hover {
-    transform: translate(3px, 3px);
+    transform: perspective(1000px) rotateX(-4deg) rotateY(6deg) translateY(-2px);
     box-shadow:
-        inset 2px 2px 0 rgba(255, 255, 255, 0.40),
-        inset -3px -3px 0 rgba(138, 112, 88, 0.25),
-        2px 2px 0 #8B1A1A,
-        4px 4px 0 rgba(0, 0, 0, 0.25),
-        5px 5px 12px rgba(0, 0, 0, 0.30);
+        inset 3px 3px 0 rgba(255, 255, 255, 0.85),
+        inset -3px -3px 0 rgba(138, 127, 106, 0.30),
+        7px 7px 0 #C8BFA8,
+        10px 10px 0 #8A7F6A,
+        16px 16px 0 rgba(0, 0, 0, 0.32),
+        26px 26px 36px rgba(0, 0, 0, 0.50);
 }
 
 /* ================================================================
    5. HEADER
    ================================================================ */
 .app-header {
+    position: relative;
     background: linear-gradient(180deg, #231A14 0%, #1A1410 100%);
     border-bottom: 3px solid #8B1A1A;
     box-shadow:
-        inset 0 1px 0 rgba(255, 240, 200, 0.05),
+        inset 0 1px 0 rgba(245, 240, 224, 0.05),
         0 1px 3px rgba(0, 0, 0, 0.60);
 }
 .app-header::after {
@@ -394,14 +443,15 @@
         #6E1414 6px,
         #6E1414 12px);
     opacity: 0.75;
+    pointer-events: none;
 }
 
 /* ================================================================
    6. SIDEBAR
    ================================================================ */
 .sidebar {
-    background: linear-gradient(180deg, #231A14 0%, #1A1410 100%);
-    border-right: 2px solid #3E3024;
+    background: linear-gradient(180deg, #1A2E1E 0%, #12200E 100%);
+    border-right: 2px solid #2E4A32;
     overflow: hidden;
 }
 .sidebar-comunidad,
@@ -411,36 +461,38 @@
     position: relative;
     z-index: 1;
 }
-.nav-item { color: #D0C0B0; }
+.sidebar-label { color: #8AA08E; }
+.nav-item { color: #D0DAD2; }
 .nav-item:hover {
-    background: rgba(184, 50, 50, 0.10);
-    color: #F5F0E8;
+    background: rgba(200, 56, 58, 0.10);
+    color: #F5F8F5;
 }
-.nav-item .nav-icon { color: #8A7058; }
-.nav-item:hover .nav-icon { color: #B83232; }
+.nav-item .nav-icon { color: #5E7E62; }
+.nav-item:hover .nav-icon { color: #C8383A; }
 .nav-item.active {
     background: linear-gradient(180deg, #8B1A1A 0%, #6E1414 100%);
-    color: #F5F0E8;
+    color: #F5F8F5;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.15),
         inset 0 -2px 0 rgba(0, 0, 0, 0.30),
         0 2px 4px rgba(0, 0, 0, 0.40);
 }
 .nav-item.active::before {
-    background: #F5F0E8;
-    box-shadow: 0 0 8px rgba(245, 240, 232, 0.40);
+    background: #F5F0E0;
+    box-shadow: 0 0 8px rgba(245, 240, 224, 0.40);
 }
-.nav-item.active .nav-icon { color: #F5F0E8; }
+.nav-item.active .nav-icon { color: #F5F8F5; }
 
 .sidebar-comunidad {
-    background: linear-gradient(180deg, #2E231A, #231A14);
-    border-color: #3E3024;
+    background: linear-gradient(180deg, #243B28, #1A2E1E);
+    border-color: #2E4A32;
 }
-.sidebar-comunidad:hover { border-color: #8B1A1A; }
+.sidebar-comunidad:hover { border-color: #C8383A; }
 .sidebar-comunidad-icono {
-    background: rgba(184, 50, 50, 0.20);
-    color: #B83232;
+    background: rgba(200, 56, 58, 0.20);
+    color: #C8383A;
 }
+.sidebar-comunidad-nombre { color: #F5F8F5; }
 
 @media (max-width: 768px) {
     .sidebar { position: fixed; }
@@ -450,13 +502,13 @@
    7. PESTAÑAS
    ================================================================ */
 .tab-item.active {
-    background: linear-gradient(180deg, #2E231A 0%, #231A14 100%);
-    color: #F5F0E8;
+    background: linear-gradient(180deg, #2E4A32 0%, #1A2E1E 100%);
+    color: #F5F8F5;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.08),
-        inset 0 -2px 0 #8B1A1A;
+        inset 0 -2px 0 #C8383A;
 }
-.tab-item.active [data-lucide] { color: #B83232; }
+.tab-item.active [data-lucide] { color: #C8383A; }
 
 /* ================================================================
    8. MODALES
@@ -466,14 +518,14 @@
     position: relative;
     overflow: hidden;
     background: linear-gradient(180deg, #2E2318 0%, #1A1410 100%);
-    border: 2px solid #8A7058;
+    border: 2px solid #8A7F6A;
     border-radius: 10px;
     box-shadow:
-        inset 0 1px 0 rgba(255, 240, 200, 0.08),
+        inset 0 1px 0 rgba(245, 240, 224, 0.08),
         inset 0 0 60px rgba(0, 0, 0, 0.40),
         0 4px 8px rgba(0, 0, 0, 0.50),
         0 16px 32px rgba(0, 0, 0, 0.60),
-        0 0 40px rgba(139, 26, 26, 0.15);
+        0 0 40px rgba(200, 56, 58, 0.15);
 }
 .config-card::before,
 .modal-todas-card::before {
@@ -486,36 +538,36 @@
     background: linear-gradient(90deg,
         transparent,
         #8B1A1A 20%,
-        #B83232 50%,
+        #C8383A 50%,
         #8B1A1A 80%,
         transparent);
     pointer-events: none;
     z-index: 3;
-    box-shadow: 0 0 12px rgba(184, 50, 50, 0.50);
+    box-shadow: 0 0 12px rgba(200, 56, 58, 0.50);
 }
-/* Dado decorativo en la esquina del modal */
 .config-card::after,
 .modal-todas-card::after {
     content: '';
     position: absolute;
     bottom: 14px;
     right: 14px;
-    width: 28px;
-    height: 28px;
-    background: linear-gradient(180deg, #F5F0E8 0%, #E8DCC8 100%);
-    background-image:
-        radial-gradient(circle 2.5px at 25% 25%, #1A1410 0, #1A1410 2.5px, transparent 3px),
-        radial-gradient(circle 2.5px at 75% 25%, #1A1410 0, #1A1410 2.5px, transparent 3px),
-        radial-gradient(circle 2.5px at 50% 50%, #B83232 0, #B83232 2.5px, transparent 3px),
-        radial-gradient(circle 2.5px at 25% 75%, #1A1410 0, #1A1410 2.5px, transparent 3px),
-        radial-gradient(circle 2.5px at 75% 75%, #1A1410 0, #1A1410 2.5px, transparent 3px);
+    width: 32px;
+    height: 32px;
+    background:
+        radial-gradient(circle 3px at 25% 25%, #1A1410 0, #1A1410 3px, transparent 4px),
+        radial-gradient(circle 3px at 75% 25%, #1A1410 0, #1A1410 3px, transparent 4px),
+        radial-gradient(circle 3px at 50% 50%, #C8383A 0, #C8383A 3px, transparent 4px),
+        radial-gradient(circle 3px at 25% 75%, #1A1410 0, #1A1410 3px, transparent 4px),
+        radial-gradient(circle 3px at 75% 75%, #1A1410 0, #1A1410 3px, transparent 4px),
+        linear-gradient(180deg, #FFFFFF 0%, #F5F0E0 100%);
     background-repeat: no-repeat;
-    border: 1px solid #8A7058;
-    border-radius: 5px;
+    border: 1px solid #8A7F6A;
+    border-radius: 6px;
     box-shadow:
         inset 1px 1px 0 rgba(255, 255, 255, 0.50),
-        2px 2px 0 #8B1A1A;
-    opacity: 0.55;
+        2px 2px 0 #8B1A1A,
+        4px 4px 6px rgba(0, 0, 0, 0.35);
+    opacity: 0.60;
     pointer-events: none;
     z-index: 4;
 }
@@ -526,44 +578,45 @@
     border-bottom: 1px solid #3E3024;
 }
 .config-header h2,
-.modal-todas-header h2 { color: #F5F0E8; }
+.modal-todas-header h2 { color: #F5F8F5; }
 .config-subtitle,
-.modal-subtitle { color: #8A7058; }
+.modal-subtitle { color: #8AA08E; }
 
+/* Contenido del modal en crema para leer bien */
 .config-content,
 .modal-todas-body {
     background: #1A1410;
-    color: #F5F0E8;
+    color: #F5F8F5;
 }
 
 /* ================================================================
-   9. BOTÓN PRIMARIO — ficha de casino
+   9. BOTÓN PRIMARIO
    ================================================================ */
 .btn-primario {
     position: relative;
-    background: linear-gradient(180deg, #B83232 0%, #8B1A1A 45%, #6E1414 55%, #4E0E0E 100%);
+    background: linear-gradient(180deg, #C8383A 0%, #A82A2C 45%, #8B1A1A 55%, #6E1414 100%);
     border: 2px solid #4E0E0E;
     border-radius: 8px;
-    color: #F5F0E8;
+    color: #F5F0E0;
     font-weight: 800;
-    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.50);
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.50);
     box-shadow:
         inset 0 2px 0 rgba(255, 255, 255, 0.20),
         inset 0 -3px 0 rgba(0, 0, 0, 0.30),
         4px 4px 0 #2E0E0E,
         6px 6px 0 rgba(0, 0, 0, 0.30),
-        8px 8px 16px rgba(0, 0, 0, 0.40);
-    transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+        10px 10px 20px rgba(0, 0, 0, 0.45);
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .btn-primario:hover {
-    background: linear-gradient(180deg, #D84040 0%, #B83232 45%, #8B1A1A 55%, #6E1414 100%);
+    background: linear-gradient(180deg, #D84040 0%, #C8383A 45%, #A82A2C 55%, #8B1A1A 100%);
     transform: translate(2px, 2px);
     box-shadow:
         inset 0 2px 0 rgba(255, 255, 255, 0.25),
         inset 0 -3px 0 rgba(0, 0, 0, 0.30),
         2px 2px 0 #2E0E0E,
         3px 3px 0 rgba(0, 0, 0, 0.30),
-        4px 4px 8px rgba(0, 0, 0, 0.40);
+        5px 5px 10px rgba(0, 0, 0, 0.45);
 }
 .btn-primario:active {
     transform: translate(4px, 4px);
@@ -576,12 +629,12 @@
    10. AVATAR Y NOTIFICACIONES
    ================================================================ */
 .avatar-config {
-    background: linear-gradient(135deg, #B83232, #4E0E0E);
-    border: 2px solid #8A7058;
+    background: linear-gradient(135deg, #C8383A, #4E0E0E);
+    border: 2px solid #F5F0E0;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.20),
         0 0 0 1px #1A1410,
-        0 0 0 3px rgba(240, 200, 140, 0.15),
+        0 0 0 3px rgba(200, 56, 58, 0.30),
         0 4px 8px rgba(0, 0, 0, 0.40);
 }
 .avatar-config:hover {
@@ -589,27 +642,27 @@
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.25),
         0 0 0 1px #1A1410,
-        0 0 0 4px rgba(240, 200, 140, 0.25),
-        0 6px 16px rgba(184, 50, 50, 0.50);
+        0 0 0 4px rgba(200, 56, 58, 0.45),
+        0 6px 16px rgba(200, 56, 58, 0.50);
 }
 
 .noti-btn.tiene-no-leidas {
-    background: rgba(184, 50, 50, 0.15);
-    color: #B83232;
+    background: rgba(200, 56, 58, 0.15);
+    color: #C8383A;
 }
 .noti-badge {
-    background: #B83232;
-    color: #F5F0E8;
+    background: #C8383A;
+    color: #F5F0E0;
     border: 2px solid #1A1410;
     font-weight: 800;
     box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.40);
 }
 
 .search-bar:focus-within {
-    border-color: #B83232;
-    box-shadow: 0 0 0 3px rgba(184, 50, 50, 0.20);
+    border-color: #C8383A;
+    box-shadow: 0 0 0 3px rgba(200, 56, 58, 0.20);
 }
-.search-bar:focus-within .search-icon { color: #B83232; }
+.search-bar:focus-within .search-icon { color: #C8383A; }
 
 /* ================================================================
    11. REDUCED MOTION
