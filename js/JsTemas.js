@@ -943,6 +943,24 @@ const TEMAS_DISPONIBLES = [
     //  Precio: 45 (lobby flagship + shell minimalista).
     // ============================================================
     {
+    id: 'popup-book',
+    nombre: 'Pop-up Book',
+    icono: 'book-marked',
+    descripcion: 'Libro infantil desplegable. Las cards se levantan de la página como pop-ups de papel al pasar el mouse. Papel crema, tinta sepia y lomo de cuero rojo.',
+    categoria: '3D',
+    ruta: 'Temas/popup-book.css',
+    espacio: 4,
+    monedas: 45,
+    colores: {
+        '--violet-100': '#F5E8D0',
+        '--violet-300': '#B8523A',
+        '--violet-500': '#8B3222',
+        '--bg':         '#F0E4CE',
+        '--bg-alt':     '#E8D8BA',
+        '--white':      '#FFFCF5'
+    }
+},
+    {
         id: 'retro-3d-arcade',
         nombre: 'Retro-3D Arcade',
         icono: 'joystick',
