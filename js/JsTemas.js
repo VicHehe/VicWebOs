@@ -769,6 +769,9 @@ const TEMAS_DISPONIBLES = [
     //  CINE — Géneros cinematográficos
     //  Cada tema evoca la gramática visual de un género de cine,
     //  sin nombres de películas ni franquicias específicas.
+    //
+    //  Progresión interna de la categoría:
+    //    Romance (25) → Jazz (25) → Sci-fi (35) → Terror (40)
     // ============================================================
     {
         id: 'cine-romance-escolar',
@@ -786,6 +789,60 @@ const TEMAS_DISPONIBLES = [
             '--bg':         '#FFF8F2',
             '--bg-alt':     '#FCEFE4',
             '--white':      '#FFFFFF'
+        }
+    },
+    {
+        id: 'cine-jazzystreet',
+        nombre: 'Cine JazzyStreet',
+        icono: 'music-4',
+        descripcion: 'Club de jazz de los años 50. Noche lluviosa, luz ámbar de farol, notas musicales y art déco.',
+        categoria: 'Cine',
+        ruta: 'Temas/cine-jazzystreet.css',
+        espacio: 4,
+        monedas: 25,
+        colores: {
+            '--violet-100': '#2A2018',
+            '--violet-300': '#C9A961',
+            '--violet-500': '#E8B54B',
+            '--bg':         '#0F0A08',
+            '--bg-alt':     '#1A120C',
+            '--white':      '#18120E'
+        }
+    },
+    {
+        id: 'cine-ciencia-ficcion',
+        nombre: 'Cine Ciencia Ficción',
+        icono: 'rocket',
+        descripcion: 'Nave espacial, hologramas y grid de perspectiva cyberpunk. Sci-fi clásico y moderno.',
+        categoria: 'Cine',
+        ruta: 'Temas/cine-ciencia-ficcion.css',
+        espacio: 4,
+        monedas: 35,
+        colores: {
+            '--violet-100': '#0F1E38',
+            '--violet-300': '#00D9FF',
+            '--violet-500': '#00B8E0',
+            '--bg':         '#050810',
+            '--bg-alt':     '#0A1424',
+            '--white':      '#0C1828'
+        }
+    },
+    {
+        id: 'cine-terror',
+        nombre: 'Cine de Terror',
+        icono: 'skull',
+        descripcion: 'Sangre, sombras, grano de película vieja y un parpadeo que nunca está quieto.',
+        categoria: 'Cine',
+        ruta: 'Temas/cine-terror.css',
+        espacio: 4,
+        monedas: 40,
+        colores: {
+            '--violet-100': '#2A0608',
+            '--violet-300': '#B91C1C',
+            '--violet-500': '#991B1B',
+            '--bg':         '#050303',
+            '--bg-alt':     '#0A0505',
+            '--white':      '#0D0808'
         }
     }
 ];
