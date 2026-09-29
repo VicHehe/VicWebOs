@@ -942,24 +942,6 @@ const TEMAS_DISPONIBLES = [
     //  con la escena del fondo.
     //  Precio: 45 (lobby flagship + shell minimalista).
     // ============================================================
-        {
-        id: 'ambar-nocturno',
-        nombre: 'Ámbar Nocturno',
-        icono: 'radio-tower',
-        descripcion: 'Ciudad nocturna 3D con perspectiva real: edificios con caras visibles y autos voladores cruzando a distintas profundidades. Dark minimalista fuera del lobby.',
-        categoria: '3D',
-        ruta: 'Temas/ambar-nocturno.css',
-        espacio: 4,
-        monedas: 45,
-        colores: {
-            '--violet-100': '#3D2C12',
-            '--violet-300': '#FFD89A',
-            '--violet-500': '#F0A94A',
-            '--bg':         '#0A0A10',
-            '--bg-alt':     '#101018',
-            '--white':      '#15141C'
-        }
-    },
     {
         id: 'retro-3d-arcade',
         nombre: 'Retro-3D Arcade',
