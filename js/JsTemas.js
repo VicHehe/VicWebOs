@@ -8,7 +8,7 @@
 //
 //  ESCALA DE PRECIO (0 a 50):
 //    0   → oficiales gratuitos
-//    10  → recolor puro :root
+//    5  → recolor puro :root
 //    20  → chrome reescrito (header, sidebar, tabs, botones)
 //    25  → chrome + un detalle decorativo (nubes, franja)
 //    30  → efecto visual claro (pattern SVG, scanlines, glitch)
@@ -197,7 +197,7 @@ const TEMAS_DISPONIBLES = [
     {
         id: 'terracota',
         nombre: 'Terracota',
-        icono: 'flame',
+        icono: 'amphora',
         descripcion: 'Barro cocido y atardecer mediterráneo. Neutros cálidos con tinte rojizo y acento terracota.',
         categoria: 'Simples',
         ruta: 'Temas/terracota.css',
