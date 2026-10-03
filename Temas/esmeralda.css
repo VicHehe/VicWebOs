@@ -1,8 +1,10 @@
 /* ================================================
    Tema: Esmeralda
    Gema en bruto pulida. Tema DARK.
-   FIX v5: separar las texturas a ::before para
-   que el .welcome-placeholder tenga solo 2 capas.
+
+   FIX v6: se oculta .welcome-glow (redundante, se
+   cortaba por overflow:hidden del placeholder).
+   El brillo lo aporta el gradiente del propio fondo.
    ================================================ */
 
 :root {
@@ -52,38 +54,24 @@
     --r-lg: 5px;
     --r-xl: 8px;
 
-    /* Vetas tileables */
     --theme-veins: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 800'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M0,200 Q200,150 400,200 Q600,250 800,200' stroke='%2334D399' stroke-width='2' stroke-opacity='0.20'/%3E%3Cpath d='M0,400 Q200,350 400,400 Q600,450 800,400' stroke='%2310B981' stroke-width='1.5' stroke-opacity='0.25'/%3E%3Cpath d='M0,600 Q200,550 400,600 Q600,650 800,600' stroke='%2334D399' stroke-width='1.8' stroke-opacity='0.20'/%3E%3Cpath d='M200,0 Q150,200 200,400 Q250,600 200,800' stroke='%2310B981' stroke-width='1.5' stroke-opacity='0.22'/%3E%3Cpath d='M600,0 Q550,200 600,400 Q650,600 600,800' stroke='%2334D399' stroke-width='1.8' stroke-opacity='0.18'/%3E%3C/g%3E%3C/svg%3E");
 
     --theme-gem: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 260'%3E%3Cpath d='M110,15 L190,70 L190,180 L110,235 L30,180 L30,70 Z' fill='%231A6242'/%3E%3Cpath d='M110,15 L110,75 L30,70 Z' fill='%2334D399'/%3E%3Cpath d='M110,15 L110,75 L190,70 Z' fill='%234ADE80'/%3E%3Cpath d='M30,70 L110,75 L110,140 L30,180 Z' fill='%23145A36'/%3E%3Cpath d='M190,70 L110,75 L110,140 L190,180 Z' fill='%230A3D24'/%3E%3Cpath d='M30,180 L110,140 L110,235 Z' fill='%23082A1A'/%3E%3Cpath d='M190,180 L110,140 L110,235 Z' fill='%23041A10'/%3E%3Cpath d='M80,105 L100,98 L105,118 L85,125 Z' fill='%23A7F3D0' fill-opacity='0.70'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   1. WELCOME — 2 capas + textura en ::before
+   1. WELCOME
    ================================================================ */
 .welcome-placeholder {
     position: relative;
     background: linear-gradient(180deg, #041810 0%, #082A1A 50%, #041810 100%);
-    background-color: #041810;
-    overflow: hidden;
+    background-color: var(--bg);
 }
 
-/* Textura + luces en ::before (separadas del fondo del welcome) */
-.welcome-placeholder > .welcome-glow {
-    position: absolute;
-    top: -100px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: min(720px, 100%);
-    height: 620px;
-    background: radial-gradient(
-        circle,
-        rgba(52, 211, 153, 0.12) 0%,
-        rgba(16, 185, 129, 0.06) 45%,
-        transparent 70%
-    );
-    pointer-events: none;
-    z-index: 1;
+/* FIX: el welcome-glow del HTML se cortaba con overflow:hidden.
+   Se oculta — el brillo lo da el gradiente del fondo. */
+.welcome-glow {
+    display: none !important;
 }
 
 .welcome-placeholder::before {
@@ -194,7 +182,7 @@
 }
 
 /* ================================================================
-   3. SIDEBAR — 2 capas máx
+   3. SIDEBAR
    ================================================================ */
 .sidebar {
     position: relative;
