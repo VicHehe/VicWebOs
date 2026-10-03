@@ -201,7 +201,7 @@ const CONFIG_CUENTA_DEFAULT = {
     widgetsActivos: [],
     espacioMaximo: ESPACIO_INICIAL,
     monedas: MONEDAS_INICIALES,
-    accesosRapidos: ['stor-he', 'chequera']
+    accesosRapidos: ['stor-he', 'chequera', 'galeria', 'contactos']
 };
 
 function clonarConfigDefault() {
