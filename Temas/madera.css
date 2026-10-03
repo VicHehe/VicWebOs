@@ -1,90 +1,85 @@
 /* ================================================
    Tema: Madera
-   Nogal oscuro. Veta curva dibujada, nudos con
-   anillos concéntricos, grano procedural con
-   feDiffuseLighting (no feColorMatrix — ese
-   rompe el tileo) y capa de compositing propia
-   para evitar la costura lateral de Chrome.
+   Nogal cálido. Veta real, nudos con anillos
+   concéntricos y acabado satinado.
+   Tema LIGHT — superficie clara, texto oscuro.
 
-   FIXES v3:
-     #1 feColorMatrix → feDiffuseLighting
-     #2 stitchTiles='stitch' para seamless
-     #3 transform: translateZ(0) en welcome
-        para forzar layer propio y evitar el
-        bug de compositing con backdrop-filter
-        del sidebar.
+   FIX v4:
+     · --bg ahora es CREMA CLARO (#FAF3E5),
+       antes era #C99B67 (marrón saturado) → texto ilegible.
+     · La veta va como capa de textura sutil sobre el crema.
+     · --text: marrón casi negro (#221A10) sobre fondos claros.
    ================================================ */
 
 :root {
-    --violet-50:  #F0E4D0;
-    --violet-100: #E0CDA8;
-    --violet-200: #C69E68;
-    --violet-300: #96672F;
-    --violet-400: #7A4F1E;
-    --violet-500: #5C3A15;
-    --violet-600: #3E260A;
-    --violet-700: #2B1607;
+    /* Acento nogal */
+    --violet-50:  #FCF9F2;
+    --violet-100: #F0E4D0;
+    --violet-200: #DBC49C;
+    --violet-300: #B89268;
+    --violet-400: #966E40;
+    --violet-500: #7A5230;
+    --violet-600: #5E3E22;
+    --violet-700: #3E2814;
 
-    --white:   #FFFBF2;
-    --bg:      #C99B67;
-    --bg-alt:  #B8874A;
-    --gray-50:  #EFE2C8;
-    --gray-100: #E0CDA8;
-    --gray-200: #C69E68;
-    --gray-300: #A87C48;
-    --gray-400: #7A5528;
-    --gray-500: #543616;
-    --gray-600: #3A220A;
-    --gray-700: #26150A;
-    --gray-800: #1A0E06;
-    --gray-900: #0E0704;
+    /* Superficies CLARAS */
+    --white:   #FFFCF7;   /* blanco cálido, superficie de cards */
+    --bg:      #FAF3E5;   /* ← crema claro, NO #C99B67 */
+    --bg-alt:  #F2E5CC;   /* sidebar, un poco más cálido */
+    --gray-50:  #F5EDDD;
+    --gray-100: #EAD9BF;
+    --gray-200: #DBC49C;
+    --gray-300: #BFA478;
+    --gray-400: #967E58;
+    --gray-500: #6E5A3E;
+    --gray-600: #4E3E2A;
+    --gray-700: #362A1A;
+    --gray-800: #221A10;
+    --gray-900: #120E08;
 
-    --border:  #7A4F1E;
-    --text:    #1A0E06;
-    --text-2:  #3A220A;
-    --text-3:  #543616;
+    --border:  #DBC49C;
+    --text:    #221A10;   /* marrón muy oscuro */
+    --text-2:  #4E3E2A;
+    --text-3:  #6E5A3E;
 
-    --shadow-xs: 0 1px 2px rgba(30, 15, 5, 0.30);
-    --shadow-sm: 0 2px 4px rgba(30, 15, 5, 0.35);
-    --shadow-md: 0 6px 14px rgba(30, 15, 5, 0.40), 0 2px 4px rgba(30, 15, 5, 0.25);
-    --shadow-lg: 0 14px 34px rgba(30, 15, 5, 0.45), 0 4px 8px rgba(30, 15, 5, 0.25);
-    --shadow-xl: 0 24px 48px rgba(30, 15, 5, 0.55), 0 8px 16px rgba(30, 15, 5, 0.30);
-    --shadow-glow: 0 0 0 4px rgba(122, 79, 30, 0.25);
+    --shadow-xs: 0 1px 2px rgba(60, 35, 15, 0.08);
+    --shadow-sm: 0 2px 4px rgba(60, 35, 15, 0.10);
+    --shadow-md: 0 6px 14px rgba(60, 35, 15, 0.12);
+    --shadow-lg: 0 14px 34px rgba(60, 35, 15, 0.15);
+    --shadow-xl: 0 24px 48px rgba(60, 35, 15, 0.18);
+    --shadow-glow: 0 0 0 4px rgba(122, 82, 48, 0.15);
 
-    --accent-gradient: linear-gradient(135deg, #7A4F1E, #2B1607);
-    --accent-gradient-hover: linear-gradient(135deg, #96672F, #3E260A);
-    --accent-shadow: rgba(60, 35, 15, 0.45);
-    --accent-shadow-hover: rgba(60, 35, 15, 0.65);
-    --accent-text-gradient: linear-gradient(135deg, #2B1607, #96672F);
+    --accent-gradient: linear-gradient(135deg, #7A5230, #3E2814);
+    --accent-gradient-hover: linear-gradient(135deg, #966E40, #5E3E22);
+    --accent-shadow: rgba(122, 82, 48, 0.30);
+    --accent-shadow-hover: rgba(122, 82, 48, 0.48);
+    --accent-text-gradient: linear-gradient(135deg, #221A10, #7A5230);
 
     --r-sm: 3px;
     --r-md: 5px;
     --r-lg: 8px;
     --r-xl: 12px;
 
-    /* ------------------------------------------------------------
-       Grano procedural — feDiffuseLighting sobre feTurbulence.
-       Produce micro-relieve real, no una tinta plana.
-       ------------------------------------------------------------ */
-    --theme-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85 0.15' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeDiffuseLighting in='noise' lighting-color='%238C5A28' surfaceScale='1.2'%3E%3CfeDistantLight azimuth='120' elevation='65'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)' opacity='0.45'/%3E%3C/svg%3E");
+    /* Grano procedural (feDiffuseLighting, tileable) */
+    --theme-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85 0.15' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeDiffuseLighting in='noise' lighting-color='%23B89268' surfaceScale='1'%3E%3CfeDistantLight azimuth='120' elevation='65'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)' opacity='0.20'/%3E%3C/svg%3E");
 
-    --theme-grain-h: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M-5,15 Q40,8 80,18 T180,12 T295,20' stroke='%233E260A' stroke-width='1.4' stroke-opacity='0.35'/%3E%3Cpath d='M-5,28 Q50,22 90,32 T190,26 T295,34' stroke='%233E260A' stroke-width='0.9' stroke-opacity='0.28'/%3E%3Cpath d='M-5,42 Q45,36 85,46 T185,40 T295,48' stroke='%235C3A15' stroke-width='1.8' stroke-opacity='0.40'/%3E%3Cpath d='M-5,56 Q40,50 85,60 T185,54 T295,62' stroke='%233E260A' stroke-width='1' stroke-opacity='0.25'/%3E%3Cpath d='M-5,70 Q55,64 95,74 T195,68 T295,76' stroke='%235C3A15' stroke-width='1.6' stroke-opacity='0.35'/%3E%3Cpath d='M-5,86 Q45,80 85,90 T185,84 T295,92' stroke='%233E260A' stroke-width='0.8' stroke-opacity='0.22'/%3E%3Cpath d='M-5,100 Q50,94 90,104 T190,98 T295,106' stroke='%235C3A15' stroke-width='1.5' stroke-opacity='0.38'/%3E%3Cpath d='M-5,116 Q40,110 85,120 T185,114 T295,122' stroke='%233E260A' stroke-width='1' stroke-opacity='0.28'/%3E%3Cpath d='M-5,130 Q55,124 95,134 T195,128 T295,136' stroke='%235C3A15' stroke-width='1.4' stroke-opacity='0.35'/%3E%3Cpath d='M-5,146 Q45,140 85,150 T185,144 T295,152' stroke='%233E260A' stroke-width='0.9' stroke-opacity='0.24'/%3E%3Cpath d='M-5,160 Q50,154 90,164 T190,158 T295,166' stroke='%235C3A15' stroke-width='1.5' stroke-opacity='0.38'/%3E%3Cpath d='M-5,176 Q40,170 85,180 T185,174 T295,182' stroke='%233E260A' stroke-width='1' stroke-opacity='0.26'/%3E%3Cpath d='M-5,192 Q55,186 95,196 T195,190 T295,198' stroke='%235C3A15' stroke-width='1.3' stroke-opacity='0.35'/%3E%3C/g%3E%3C/svg%3E");
+    /* Veta horizontal (curvas largas) */
+    --theme-grain-h: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M-5,15 Q40,8 80,18 T180,12 T295,20' stroke='%235E3E22' stroke-width='1' stroke-opacity='0.20'/%3E%3Cpath d='M-5,42 Q45,36 85,46 T185,40 T295,48' stroke='%237A5230' stroke-width='1.3' stroke-opacity='0.22'/%3E%3Cpath d='M-5,70 Q55,64 95,74 T195,68 T295,76' stroke='%235E3E22' stroke-width='1.1' stroke-opacity='0.18'/%3E%3Cpath d='M-5,100 Q50,94 90,104 T190,98 T295,106' stroke='%237A5230' stroke-width='1.2' stroke-opacity='0.20'/%3E%3Cpath d='M-5,130 Q55,124 95,134 T195,128 T295,136' stroke='%235E3E22' stroke-width='1' stroke-opacity='0.18'/%3E%3Cpath d='M-5,160 Q50,154 90,164 T190,158 T295,166' stroke='%237A5230' stroke-width='1.2' stroke-opacity='0.22'/%3E%3Cpath d='M-5,192 Q55,186 95,196 T195,190 T295,198' stroke='%235E3E22' stroke-width='1' stroke-opacity='0.18'/%3E%3C/g%3E%3C/svg%3E");
 
-    --theme-grain-v: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 300'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M15,-5 Q8,40 18,80 T12,180 T20,295' stroke='%233E260A' stroke-width='1.4' stroke-opacity='0.35'/%3E%3Cpath d='M28,-5 Q22,50 32,90 T26,190 T34,295' stroke='%233E260A' stroke-width='0.9' stroke-opacity='0.28'/%3E%3Cpath d='M42,-5 Q36,45 46,85 T40,185 T48,295' stroke='%235C3A15' stroke-width='1.8' stroke-opacity='0.40'/%3E%3Cpath d='M56,-5 Q50,40 60,85 T54,185 T62,295' stroke='%233E260A' stroke-width='1' stroke-opacity='0.25'/%3E%3Cpath d='M70,-5 Q64,55 74,95 T68,195 T76,295' stroke='%235C3A15' stroke-width='1.6' stroke-opacity='0.35'/%3E%3Cpath d='M86,-5 Q80,45 90,85 T84,185 T92,295' stroke='%233E260A' stroke-width='0.8' stroke-opacity='0.22'/%3E%3Cpath d='M100,-5 Q94,50 104,90 T98,190 T106,295' stroke='%235C3A15' stroke-width='1.5' stroke-opacity='0.38'/%3E%3Cpath d='M116,-5 Q110,40 120,85 T114,185 T122,295' stroke='%233E260A' stroke-width='1' stroke-opacity='0.28'/%3E%3Cpath d='M130,-5 Q124,55 134,95 T128,195 T136,295' stroke='%235C3A15' stroke-width='1.4' stroke-opacity='0.35'/%3E%3Cpath d='M146,-5 Q140,45 150,85 T144,185 T152,295' stroke='%233E260A' stroke-width='0.9' stroke-opacity='0.24'/%3E%3Cpath d='M160,-5 Q154,50 164,90 T158,190 T166,295' stroke='%235C3A15' stroke-width='1.5' stroke-opacity='0.38'/%3E%3Cpath d='M176,-5 Q170,40 180,85 T174,185 T182,295' stroke='%233E260A' stroke-width='1' stroke-opacity='0.26'/%3E%3Cpath d='M192,-5 Q186,55 196,95 T190,195 T198,295' stroke='%235C3A15' stroke-width='1.3' stroke-opacity='0.35'/%3E%3C/g%3E%3C/svg%3E");
-
-    --theme-knot: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 80'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cellipse cx='50' cy='40' rx='38' ry='28' stroke='%235C3A15' stroke-width='1.5' stroke-opacity='0.65'/%3E%3Cellipse cx='50' cy='40' rx='30' ry='22' stroke='%233E260A' stroke-width='1.6' stroke-opacity='0.75'/%3E%3Cellipse cx='50' cy='40' rx='22' ry='16' stroke='%235C3A15' stroke-width='1.5' stroke-opacity='0.80'/%3E%3Cellipse cx='50' cy='40' rx='15' ry='11' stroke='%232B1607' stroke-width='1.6' stroke-opacity='0.85'/%3E%3Cellipse cx='50' cy='40' rx='9' ry='6.5' stroke='%232B1607' stroke-width='1.5' stroke-opacity='0.90'/%3E%3Cellipse cx='50' cy='40' rx='4.5' ry='3' fill='%231A0E06' fill-opacity='0.85'/%3E%3C/g%3E%3C/svg%3E");
+    /* Nudo — anillos concéntricos */
+    --theme-knot: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 80'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cellipse cx='50' cy='40' rx='38' ry='28' stroke='%237A5230' stroke-width='1.4' stroke-opacity='0.45'/%3E%3Cellipse cx='50' cy='40' rx='28' ry='21' stroke='%235E3E22' stroke-width='1.5' stroke-opacity='0.55'/%3E%3Cellipse cx='50' cy='40' rx='19' ry='14' stroke='%237A5230' stroke-width='1.4' stroke-opacity='0.60'/%3E%3Cellipse cx='50' cy='40' rx='11' ry='8' stroke='%233E2814' stroke-width='1.4' stroke-opacity='0.65'/%3E%3Cellipse cx='50' cy='40' rx='4' ry='3' fill='%233E2814' fill-opacity='0.70'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   1. WELCOME — tabla de nogal con FIX de compositing
+   1. WELCOME — crema claro con veta tenue
    ================================================================ */
 .welcome-placeholder {
     position: relative;
     background-image:
         var(--theme-grain),
         var(--theme-grain-h),
-        linear-gradient(180deg, rgba(255, 240, 200, 0.22) 0%, transparent 30%, rgba(30, 15, 5, 0.20) 100%),
-        linear-gradient(180deg, #C99B67 0%, #B8874A 45%, #96672F 100%);
+        linear-gradient(180deg, rgba(255, 240, 200, 0.30) 0%, transparent 40%, rgba(180, 140, 90, 0.06) 100%),
+        linear-gradient(180deg, #FAF3E5 0%, #F2E5CC 100%);
     background-size:
         200px 200px,
         300px 200px,
@@ -101,9 +96,6 @@
         no-repeat,
         no-repeat;
     background-color: var(--bg);
-    /* FIX: fuerza layer propio, aísla del backdrop-filter del sidebar */
-    transform: translateZ(0);
-    will-change: transform;
 }
 
 .welcome-placeholder::before {
@@ -114,7 +106,7 @@
     width: 130px;
     height: 104px;
     background: var(--theme-knot) center/contain no-repeat;
-    opacity: 0.90;
+    opacity: 0.70;
     pointer-events: none;
     z-index: 0;
     transform: rotate(-8deg);
@@ -128,7 +120,7 @@
     width: 80px;
     height: 64px;
     background: var(--theme-knot) center/contain no-repeat;
-    opacity: 0.85;
+    opacity: 0.60;
     pointer-events: none;
     z-index: 0;
     transform: rotate(15deg);
@@ -142,8 +134,8 @@
 
 .welcome-glow {
     background: radial-gradient(circle at 35% 30%,
-        rgba(255, 220, 160, 0.30) 0%,
-        rgba(122, 79, 30, 0.15) 45%,
+        rgba(255, 220, 160, 0.40) 0%,
+        rgba(122, 82, 48, 0.06) 45%,
         transparent 70%);
 }
 
@@ -152,19 +144,17 @@
     padding: 38px 32px 34px;
     background-image:
         var(--theme-grain),
-        var(--theme-grain-h),
-        linear-gradient(180deg, #E0B87A 0%, #B8874A 100%);
-    background-size: 200px 200px, 300px 200px, 100% 100%;
-    background-position: 0 0, 0 0, center;
-    background-repeat: repeat, repeat, no-repeat;
+        linear-gradient(180deg, #FFFCF7 0%, #F5E9D4 100%);
+    background-size: 200px 200px, 100% 100%;
+    background-position: 0 0, center;
+    background-repeat: repeat, no-repeat;
     border: 2px solid var(--violet-600);
     border-radius: 4px;
     box-shadow:
-        inset 0 1px 0 rgba(255, 240, 200, 0.60),
-        inset 0 -3px 8px rgba(30, 15, 5, 0.40),
-        inset 0 0 40px rgba(60, 35, 15, 0.20),
-        0 14px 34px rgba(30, 15, 5, 0.45),
-        0 4px 8px rgba(30, 15, 5, 0.25);
+        inset 0 1px 0 rgba(255, 255, 255, 0.85),
+        inset 0 -2px 6px rgba(94, 62, 34, 0.10),
+        0 12px 32px rgba(60, 35, 15, 0.15),
+        0 4px 8px rgba(60, 35, 15, 0.08);
     max-width: 660px;
     margin-left: auto;
     margin-right: auto;
@@ -174,82 +164,63 @@
     content: '';
     position: absolute;
     inset: 6px;
-    border: 1px solid rgba(62, 38, 10, 0.35);
+    border: 1px solid rgba(94, 62, 34, 0.25);
     border-radius: 2px;
     pointer-events: none;
     z-index: 3;
 }
 
-.welcome-hero::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 12px;
-    background: linear-gradient(180deg, transparent 0%, rgba(30, 15, 5, 0.25) 100%);
-    pointer-events: none;
-    z-index: 2;
-    border-radius: 0 0 4px 4px;
-}
-
 .welcome-hero > * { position: relative; z-index: 1; }
 
 .welcome-hero h1 {
-    letter-spacing: 0.005em;
-    color: #2B1607;
+    color: #3E2814;
     text-shadow:
-        0 1px 0 rgba(255, 240, 200, 0.50),
-        0 2px 4px rgba(30, 15, 5, 0.30);
+        0 1px 0 rgba(255, 252, 247, 0.85),
+        0 2px 4px rgba(60, 35, 15, 0.10);
 }
 
 .welcome-icon-wrap {
     background: radial-gradient(circle at 35% 30%,
-        #E0B87A 0%, #96672F 40%, #5C3A15 70%, #2B1607 100%);
+        #B89268 0%, #7A5230 40%, #5E3E22 70%, #3E2814 100%);
     border-radius: 12px;
     box-shadow:
         inset 0 3px 4px rgba(255, 220, 160, 0.40),
-        inset 0 -4px 8px rgba(30, 15, 5, 0.60),
-        0 8px 20px rgba(30, 15, 5, 0.45),
-        0 0 0 2px rgba(62, 38, 10, 0.85),
-        0 0 0 3px rgba(224, 184, 122, 0.35);
+        inset 0 -4px 8px rgba(30, 15, 5, 0.50),
+        0 8px 20px rgba(60, 35, 15, 0.30),
+        0 0 0 2px rgba(94, 62, 34, 0.85),
+        0 0 0 3px rgba(184, 146, 104, 0.45);
 }
 
 /* ================================================================
-   2. HEADER — listón de nogal
+   2. HEADER
    ================================================================ */
 .app-header {
     position: relative;
     background-image:
-        var(--theme-grain),
         var(--theme-grain-h),
-        linear-gradient(180deg, #C99B67 0%, #96672F 100%);
-    background-size: 200px 200px, 300px 200px, 100% 100%;
-    background-position: 0 0, 0 0, center;
-    background-repeat: repeat, repeat, no-repeat;
-    border-bottom: 3px solid var(--violet-600);
+        linear-gradient(180deg, #FAF3E5 0%, #F2E5CC 100%);
+    background-size: 300px 200px, 100% 100%;
+    background-position: 0 0, center;
+    background-repeat: repeat, no-repeat;
+    border-bottom: 2px solid var(--violet-600);
     box-shadow:
-        inset 0 -1px 0 rgba(30, 15, 5, 0.40),
-        0 2px 6px rgba(30, 15, 5, 0.35);
+        inset 0 -1px 0 rgba(94, 62, 34, 0.20),
+        0 2px 4px rgba(60, 35, 15, 0.10);
 }
 
 /* ================================================================
-   3. SIDEBAR — veta vertical + FIX compositing
+   3. SIDEBAR
    ================================================================ */
 .sidebar {
     position: relative;
     background-image:
         var(--theme-grain),
-        var(--theme-grain-v),
-        linear-gradient(90deg, #B8874A 0%, #96672F 100%);
-    background-size: 200px 200px, 200px 300px, 100% 100%;
-    background-position: 0 0, 0 0, center;
-    background-repeat: repeat, repeat, no-repeat;
-    border-right: 3px solid var(--violet-600);
+        linear-gradient(90deg, #F2E5CC 0%, #EAD9BF 100%);
+    background-size: 200px 200px, 100% 100%;
+    background-position: 0 0, center;
+    background-repeat: repeat, no-repeat;
+    border-right: 2px solid var(--violet-600);
     overflow: hidden;
-    box-shadow: inset -1px 0 0 rgba(30, 15, 5, 0.30);
-    transform: translateZ(0);
-    will-change: transform;
 }
 .sidebar-comunidad,
 .sidebar-label,
@@ -258,27 +229,32 @@
 
 .nav-item {
     border-radius: 3px;
+    color: var(--text-2);
     transition: all 0.20s cubic-bezier(0.4, 0, 0.2, 1);
-    color: #2B1607;
 }
-.nav-item:hover { background: rgba(255, 220, 160, 0.15); }
+.nav-item:hover {
+    background: rgba(122, 82, 48, 0.08);
+    color: var(--text);
+}
 .nav-item.active {
-    background: linear-gradient(180deg, #E0B87A 0%, #C99B67 100%);
-    border-radius: 3px;
+    background: linear-gradient(180deg, #FFFCF7 0%, #FAF3E5 100%);
+    color: var(--text);
     box-shadow:
-        inset 0 1px 0 rgba(255, 240, 200, 0.50),
-        inset 0 -1px 0 rgba(30, 15, 5, 0.20),
-        0 2px 6px rgba(30, 15, 5, 0.30);
-    color: #1A0E06;
+        inset 0 0 0 1px var(--violet-400),
+        inset 0 0 0 2px rgba(255, 255, 255, 0.60),
+        0 2px 4px rgba(60, 35, 15, 0.10);
 }
 .nav-item.active::before {
-    background: linear-gradient(180deg, #3E260A, #1A0E06);
+    background: linear-gradient(180deg, #7A5230, #3E2814);
     width: 3px;
     height: 22px;
     border-radius: 0 3px 3px 0;
-    box-shadow: 0 0 8px rgba(30, 15, 5, 0.60);
 }
-.nav-item.active .nav-icon { color: #2B1607; }
+.nav-item.active .nav-icon { color: var(--violet-500); }
+
+@media (max-width: 768px) {
+    .sidebar { position: fixed; }
+}
 
 /* ================================================================
    4. ACCESOS RÁPIDOS
@@ -287,65 +263,62 @@
     position: relative;
     background-image:
         var(--theme-grain),
-        var(--theme-grain-h),
-        linear-gradient(180deg, #D4A76B 0%, #A87C48 100%);
-    background-size: 200px 200px, 300px 200px, 100% 100%;
-    background-position: 0 0, 0 0, center;
-    background-repeat: repeat, repeat, no-repeat;
-    border: 1.5px solid var(--violet-600);
+        linear-gradient(180deg, #FFFCF7 0%, #F5E9D4 100%);
+    background-size: 200px 200px, 100% 100%;
+    background-position: 0 0, center;
+    background-repeat: repeat, no-repeat;
+    border: 1.5px solid var(--violet-500);
     border-radius: 5px;
     box-shadow:
-        inset 0 1px 0 rgba(255, 240, 200, 0.50),
-        inset 0 -2px 6px rgba(30, 15, 5, 0.30),
-        0 4px 10px rgba(30, 15, 5, 0.35);
+        inset 0 1px 0 rgba(255, 255, 255, 0.70),
+        inset 0 -2px 6px rgba(94, 62, 34, 0.08),
+        0 3px 8px rgba(60, 35, 15, 0.10);
     overflow: visible;
     transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .acceso-item:hover {
     transform: translateY(-3px);
-    border-color: var(--violet-500);
+    border-color: var(--violet-400);
     box-shadow:
-        inset 0 1px 0 rgba(255, 240, 200, 0.65),
-        inset 0 -2px 6px rgba(30, 15, 5, 0.35),
-        0 14px 30px rgba(30, 15, 5, 0.50),
-        0 4px 8px rgba(30, 15, 5, 0.25);
+        inset 0 1px 0 rgba(255, 255, 255, 0.85),
+        inset 0 -2px 6px rgba(94, 62, 34, 0.12),
+        0 12px 26px rgba(60, 35, 15, 0.18),
+        0 4px 8px rgba(60, 35, 15, 0.08);
 }
+
 .acceso-icon-wrap {
-    background: linear-gradient(180deg, #F0E4D0, #C69E68);
-    color: var(--violet-600);
-    border: 1px solid var(--violet-500);
+    background: linear-gradient(180deg, #F0E4D0, #DBC49C);
+    color: var(--violet-500);
+    border: 1px solid var(--violet-400);
     border-radius: 50%;
     box-shadow:
-        inset 0 2px 3px rgba(255, 240, 200, 0.70),
-        inset 0 -2px 4px rgba(30, 15, 5, 0.35);
+        inset 0 2px 3px rgba(255, 255, 255, 0.70),
+        inset 0 -2px 4px rgba(94, 62, 34, 0.12);
     transition: all 0.22s ease;
 }
 .acceso-item:hover .acceso-icon-wrap {
-    background: linear-gradient(180deg, #96672F, #2B1607);
-    color: #F0E4D0;
-    border-color: var(--violet-400);
+    background: linear-gradient(180deg, #7A5230, #3E2814);
+    color: #FAF3E5;
+    border-color: var(--violet-300);
     box-shadow:
-        0 0 0 3px rgba(224, 184, 122, 0.35),
-        0 4px 10px rgba(30, 15, 5, 0.50),
-        inset 0 2px 3px rgba(224, 184, 122, 0.30);
+        0 0 0 3px rgba(184, 146, 104, 0.30),
+        0 4px 10px rgba(60, 35, 15, 0.35);
 }
 
 /* ================================================================
    5. WIDGETS
    ================================================================ */
 .widget-item {
-    border: 1.5px solid var(--violet-600);
+    border: 1.5px solid var(--violet-500);
     border-radius: 5px;
     box-shadow:
-        inset 0 1px 0 rgba(255, 240, 200, 0.45),
-        0 4px 10px rgba(30, 15, 5, 0.35);
+        inset 0 1px 0 rgba(255, 255, 255, 0.60),
+        0 4px 10px rgba(60, 35, 15, 0.12);
     transition: all 0.22s;
 }
 .widget-item:hover {
-    border-color: var(--violet-500);
-    box-shadow:
-        inset 0 1px 0 rgba(255, 240, 200, 0.55),
-        0 12px 26px rgba(30, 15, 5, 0.45);
+    border-color: var(--violet-400);
+    box-shadow: 0 12px 26px rgba(60, 35, 15, 0.18);
 }
 
 /* ================================================================
@@ -354,16 +327,16 @@
 .tab-item.active {
     background-image:
         var(--theme-grain),
-        var(--theme-grain-h),
-        linear-gradient(180deg, #D4A76B 0%, #B8874A 100%);
-    background-size: 200px 200px, 300px 200px, 100% 100%;
-    background-position: 0 0, 0 0, center;
-    background-repeat: repeat, repeat, no-repeat;
+        linear-gradient(180deg, #FFFCF7 0%, #F5E9D4 100%);
+    background-size: 200px 200px, 100% 100%;
+    background-position: 0 0, center;
+    background-repeat: repeat, no-repeat;
     border-color: var(--violet-600);
     border-radius: 5px 5px 0 0;
+    color: var(--text);
     box-shadow:
         inset 0 -3px 0 var(--violet-500),
-        inset 0 1px 0 rgba(255, 240, 200, 0.50);
+        inset 0 1px 0 rgba(255, 255, 255, 0.60);
 }
 .tab-item.active [data-lucide] { color: var(--violet-600); }
 
@@ -376,35 +349,33 @@
     overflow: hidden;
     background-image:
         var(--theme-grain),
-        var(--theme-grain-h),
-        linear-gradient(180deg, #E0B87A 0%, #B8874A 100%);
-    background-size: 200px 200px, 300px 200px, 100% 100%;
-    background-position: 0 0, 0 0, center;
-    background-repeat: repeat, repeat, no-repeat;
+        linear-gradient(180deg, #FFFCF7 0%, #F5E9D4 100%);
+    background-size: 200px 200px, 100% 100%;
+    background-position: 0 0, center;
+    background-repeat: repeat, no-repeat;
     border: 2px solid var(--violet-600);
     border-radius: 6px;
     box-shadow:
-        inset 0 1px 0 rgba(255, 240, 200, 0.60),
-        inset 0 0 0 5px rgba(30, 15, 5, 0.20),
-        inset 0 0 40px rgba(60, 35, 15, 0.15),
-        0 24px 48px rgba(30, 15, 5, 0.55);
+        inset 0 1px 0 rgba(255, 255, 255, 0.75),
+        inset 0 0 0 5px rgba(94, 62, 34, 0.08),
+        0 24px 48px rgba(60, 35, 15, 0.25);
 }
 .config-card::before,
 .modal-todas-card::before {
     content: '';
     position: absolute;
     inset: 8px;
-    border: 1px solid rgba(62, 38, 10, 0.40);
+    border: 1px solid rgba(94, 62, 34, 0.30);
     border-radius: 3px;
     pointer-events: none;
     z-index: 3;
 }
 .config-header,
 .modal-todas-header {
-    background: linear-gradient(180deg, #A87C48 0%, #7A4F1E 100%);
-    border-bottom: 2px solid var(--violet-600);
+    background: linear-gradient(180deg, #F0E4D0 0%, #EAD9BF 100%);
+    border-bottom: 1.5px solid var(--violet-500);
     position: relative;
-    box-shadow: inset 0 1px 0 rgba(255, 240, 200, 0.40);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.60);
 }
 
 /* ================================================================
@@ -412,26 +383,26 @@
    ================================================================ */
 .btn-primario {
     background: linear-gradient(180deg,
-        #96672F 0%, #7A4F1E 45%, #5C3A15 55%, #2B1607 100%);
-    border: 1.5px solid #1A0E06;
-    color: #F0E4D0;
+        #966E40 0%, #7A5230 45%, #5E3E22 55%, #3E2814 100%);
+    border: 1.5px solid #3E2814;
+    color: #FAF3E5;
     font-weight: 700;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.40);
     box-shadow:
         inset 0 1px 0 rgba(255, 220, 160, 0.35),
-        inset 0 -2px 4px rgba(0, 0, 0, 0.40),
-        0 4px 12px rgba(30, 15, 5, 0.45);
+        inset 0 -2px 4px rgba(0, 0, 0, 0.35),
+        0 4px 12px rgba(60, 35, 15, 0.30);
     transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .btn-primario:hover {
     background: linear-gradient(180deg,
-        #C69E68 0%, #96672F 45%, #7A4F1E 55%, #3E260A 100%);
+        #B89268 0%, #966E40 45%, #7A5230 55%, #5E3E22 100%);
     transform: translateY(-1px);
     box-shadow:
         inset 0 1px 0 rgba(255, 240, 200, 0.50),
-        inset 0 -2px 4px rgba(0, 0, 0, 0.40),
-        0 8px 20px rgba(30, 15, 5, 0.55),
-        0 0 0 3px rgba(224, 184, 122, 0.30);
+        inset 0 -2px 4px rgba(0, 0, 0, 0.35),
+        0 8px 20px rgba(60, 35, 15, 0.40),
+        0 0 0 3px rgba(184, 146, 104, 0.30);
 }
 
 /* ================================================================
@@ -440,51 +411,49 @@
 .config-field input,
 .config-field select,
 .config-select {
-    background: rgba(255, 251, 242, 0.92);
-    border: 1.5px solid var(--violet-500);
+    background: #FFFCF7;
+    border: 1.5px solid var(--violet-400);
     color: var(--text);
-    box-shadow:
-        inset 0 2px 4px rgba(30, 15, 5, 0.20),
-        inset 0 0 0 1px rgba(255, 240, 200, 0.50);
+    box-shadow: inset 0 2px 4px rgba(94, 62, 34, 0.10);
 }
 .config-field input:focus,
 .config-field select:focus,
 .config-select:focus {
-    border-color: var(--violet-700);
+    border-color: var(--violet-600);
     box-shadow:
-        inset 0 2px 4px rgba(30, 15, 5, 0.20),
-        0 0 0 3px rgba(224, 184, 122, 0.35);
+        inset 0 2px 4px rgba(94, 62, 34, 0.10),
+        0 0 0 3px rgba(184, 146, 104, 0.30);
 }
 
 /* ================================================================
-   10. AVATAR
+   10. AVATAR Y NOTIFICACIONES
    ================================================================ */
 .avatar-config {
     background: radial-gradient(circle at 35% 30%,
-        #E0B87A 0%, #96672F 45%, #5C3A15 75%, #2B1607 100%);
-    border: 2px solid #F0E4D0;
+        #B89268 0%, #7A5230 45%, #5E3E22 75%, #3E2814 100%);
+    border: 2px solid #FAF3E5;
     box-shadow:
         inset 0 3px 4px rgba(255, 220, 160, 0.40),
-        inset 0 -3px 6px rgba(30, 15, 5, 0.60),
-        0 0 0 2px rgba(62, 38, 10, 0.85),
-        0 4px 12px rgba(30, 15, 5, 0.45);
+        inset 0 -3px 6px rgba(30, 15, 5, 0.50),
+        0 0 0 2px rgba(94, 62, 34, 0.80),
+        0 4px 12px rgba(60, 35, 15, 0.30);
 }
 .avatar-config:hover {
     transform: translateY(-1px) scale(1.05);
     box-shadow:
         inset 0 3px 4px rgba(255, 220, 160, 0.50),
-        inset 0 -3px 6px rgba(30, 15, 5, 0.60),
-        0 0 0 2px rgba(62, 38, 10, 0.95),
-        0 8px 20px rgba(30, 15, 5, 0.55);
+        inset 0 -3px 6px rgba(30, 15, 5, 0.50),
+        0 0 0 2px rgba(94, 62, 34, 0.90),
+        0 8px 20px rgba(60, 35, 15, 0.40);
 }
 
 .noti-btn.tiene-no-leidas {
-    background: rgba(92, 58, 21, 0.25);
+    background: rgba(122, 82, 48, 0.12);
     color: var(--violet-600);
 }
 .search-bar:focus-within {
     border-color: var(--violet-500);
-    box-shadow: 0 0 0 3px rgba(224, 184, 122, 0.35);
+    box-shadow: 0 0 0 3px rgba(184, 146, 104, 0.30);
 }
 .search-bar:focus-within .search-icon { color: var(--violet-500); }
 
