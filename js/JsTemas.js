@@ -1050,7 +1050,6 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#1F1535'
         }
     },
-        ,
     {
         id: 'madera',
         nombre: 'Madera',
