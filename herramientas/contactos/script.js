@@ -1,12 +1,10 @@
 // ============================================================
 //  Contactos — Directorio + regalos + estado + temas
 //  ------------------------------------------------------------
-//  · Cada tarjeta se tinta con el TEMA ACTIVO del usuario.
-//    Los colores se leen de TEMAS_DISPONIBLES[...].colores
-//    (ya están en memoria del shell — sin fetch, sin parse).
-//  · "Hace X" en el estado de cada persona.
-//  · Modal de perfil extendido al tocar una tarjeta.
-//  · Modal de historial de regalos (dados / recibidos).
+//  Cada tarjeta se tinta con el TEMA ACTIVO del usuario.
+//  Los colores se obtienen haciendo fetch del CSS de
+//  Temas/{id}.css y parseando el :root (funciona aunque
+//  JsTemas.js no exponga TEMAS_DISPONIBLES en window).
 // ============================================================
 
 'use strict';
@@ -35,12 +33,7 @@ let montoSeleccionado = null;
 let perfilAbierto = null;
 let histTab = 'dados';
 
-// ============================================================
-//  CACHE DE TEMAS
-//  ------------------------------------------------------------
-//  _temasCache: { 'violeta': { '--violet-500': '#...', ... } }
-//  Se llena a partir de TEMAS_DISPONIBLES[...].colores del padre.
-// ============================================================
+// Cache de temas: { 'violeta': { '--violet-500': '#...', ... } | null }
 const _temasCache = new Map();
 
 const API = () => {
@@ -182,29 +175,58 @@ async function cargarConfigs() {
 }
 
 // ============================================================
-//  TEMAS — obtener variables del catálogo del shell
+//  TEMAS — parsear CSS del tema y aplicar variables
 //  ------------------------------------------------------------
-//  SIN fetch, SIN parse. Los colores ya están en memoria.
+//  Rutas conocidas: Temas/{id}.css  (relativas al shell)
 // ============================================================
-function obtenerCatalogoTemas() {
-    try {
-        return window.parent.TEMAS_DISPONIBLES || [];
-    } catch (e) {
-        return [];
+function parsearRootVariables(css) {
+    const vars = {};
+    const re = /:root\s*\{([^}]*)\}/g;
+    let match;
+    while ((match = re.exec(css)) !== null) {
+        const body = match[1];
+        const varRe = /(--[\w-]+)\s*:\s*([^;]+);/g;
+        let m;
+        while ((m = varRe.exec(body)) !== null) {
+            vars[m[1]] = m[2].trim();
+        }
     }
+    return vars;
 }
 
-function obtenerVariablesTema(temaId) {
+async function obtenerVariablesTema(temaId) {
     if (!temaId) return null;
     if (_temasCache.has(temaId)) return _temasCache.get(temaId);
 
-    const catalogo = obtenerCatalogoTemas();
-    const tema = catalogo.find(t => t.id === temaId);
-    if (!tema) return null;
+    // Reservar el slot ANTES del fetch para evitar carreras
+    _temasCache.set(temaId, null);
 
-    const vars = tema.colores || {};
-    _temasCache.set(temaId, vars);
-    return vars;
+    try {
+        // Construir URL absoluta desde el shell (evita problemas de CORS)
+        let base = window.location.href;
+        try { base = window.parent.location.href; } catch (e) { /* fallback */ }
+
+        const url = new URL('Temas/' + temaId + '.css', base).href;
+
+        const res = await fetch(url, { cache: 'force-cache' });
+        if (!res.ok) {
+            console.warn('[Contactos] Tema no encontrado: ' + temaId + ' (' + res.status + ')');
+            return null;
+        }
+        const css = await res.text();
+        const vars = parsearRootVariables(css);
+
+        if (Object.keys(vars).length === 0) {
+            console.warn('[Contactos] Tema ' + temaId + ' sin variables :root');
+            return null;
+        }
+
+        _temasCache.set(temaId, vars);
+        return vars;
+    } catch (e) {
+        console.warn('[Contactos] Error cargando tema ' + temaId + ':', e);
+        return null;
+    }
 }
 
 function aplicarTemaATarjeta(el, vars) {
@@ -212,6 +234,17 @@ function aplicarTemaATarjeta(el, vars) {
     for (const [key, value] of Object.entries(vars)) {
         try { el.style.setProperty(key, value); } catch (e) { /* ignorar */ }
     }
+}
+
+// Precargar los temas que necesita la comunidad ANTES de renderizar
+async function precargarTemasDeUsuarios() {
+    const usados = new Set([TEMA_POR_DEFECTO]); // siempre violeta por si acaso
+    for (const u of usuarios) {
+        const cfg = configsGlobales[u.codigo];
+        const t = (cfg && cfg.temaActivo) ? cfg.temaActivo : TEMA_POR_DEFECTO;
+        usados.add(t);
+    }
+    await Promise.all([...usados].map(id => obtenerVariablesTema(id)));
 }
 
 // ============================================================
@@ -318,22 +351,23 @@ function render() {
     grid.innerHTML = ordenados.map(u => renderTarjeta(u)).join('');
     if (window.lucide) window.lucide.createIcons();
 
-    // ---------- Aplicar tema a cada tarjeta ----------
-    // Iteramos sobre las tarjetas ya renderizadas.
+    // Aplicar tema a cada tarjeta (ya está cacheado)
     grid.querySelectorAll('.ct-card').forEach(card => {
         const codigo = card.dataset.codigo;
         if (!codigo) return;
 
         const cfg = configsGlobales[codigo];
         const temaId = (cfg && cfg.temaActivo) ? cfg.temaActivo : TEMA_POR_DEFECTO;
-        const vars = obtenerVariablesTema(temaId);
+        const vars = _temasCache.get(temaId);
 
         if (vars) {
             aplicarTemaATarjeta(card, vars);
+        } else {
+            console.warn('[Contactos] Sin vars para @' + codigo + ' (tema: ' + temaId + ')');
         }
     });
 
-    // ---------- Cablear clicks ----------
+    // Cablear clicks
     grid.querySelectorAll('.ct-card').forEach(card => {
         const codigo = card.dataset.codigo;
 
@@ -455,7 +489,7 @@ function abrirPerfil(codigo) {
     card.removeAttribute('style');
     const cfg = configsGlobales[codigo];
     const temaId = (cfg && cfg.temaActivo) ? cfg.temaActivo : TEMA_POR_DEFECTO;
-    const vars = obtenerVariablesTema(temaId);
+    const vars = _temasCache.get(temaId);
     if (vars) aplicarTemaATarjeta(card, vars);
 
     document.getElementById('ctModalPerfil').hidden = false;
@@ -700,6 +734,9 @@ async function refrescar() {
         if (api) {
             try { monedasPropias = api.obtenerMonedas() || 0; } catch (e) { monedasPropias = 0; }
         }
+
+        // Precargar temas ANTES de renderizar
+        await precargarTemasDeUsuarios();
 
         renderMiBloque();
         render();
