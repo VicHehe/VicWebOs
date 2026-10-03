@@ -1,0 +1,236 @@
+/* ================================================
+   Widget: Generador de Nombres
+   Motor de sílabas por estilo. Sin persistencia.
+   ================================================ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: transparent;
+    color: var(--text, #18181B);
+    font-size: 13px;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+[data-lucide] { width: 16px; height: 16px; stroke-width: 2; flex-shrink: 0; }
+
+/* ========== WIDGET ========== */
+.ng-widget {
+    background: var(--white, #FFFFFF);
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: var(--r-lg, 16px);
+    padding: 10px 12px;
+    box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow: hidden;
+    transition: background 0.3s, color 0.3s, border-color 0.3s;
+}
+
+/* ========== HEADER ========== */
+.ng-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--gray-100, #F4F4F7);
+    flex-shrink: 0;
+    min-height: 20px;
+}
+
+.ng-titulo {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-500, #71717A);
+    line-height: 1;
+}
+.ng-titulo [data-lucide] {
+    color: var(--violet-500, #8B5CF6);
+    width: 13px;
+    height: 13px;
+}
+
+/* ========== CHIPS (filtros) ========== */
+.ng-chips {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3px;
+    flex-shrink: 0;
+}
+
+.ng-chips-genero {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.ng-chip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 4px;
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 7px;
+    background: var(--white, #FFFFFF);
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    color: var(--gray-600, #52525B);
+    cursor: pointer;
+    transition: all 0.15s;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    touch-action: manipulation;
+}
+.ng-chip:hover {
+    border-color: var(--violet-300, #C4B5FD);
+    color: var(--violet-700, #6D28D9);
+    background: var(--violet-50, #F5F3FF);
+}
+.ng-chip.active {
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 2px 8px var(--accent-shadow, rgba(139,92,246,0.24));
+}
+
+.ng-chip-sm {
+    font-size: 9.5px;
+    padding: 5px 4px;
+}
+
+/* ========== ZONA DEL NOMBRE ========== */
+.ng-zona {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 0;
+}
+
+.ng-nombre-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.ng-nombre {
+    font-size: clamp(24px, 10vw, 42px);
+    font-weight: 900;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+    text-align: center;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    max-width: 100%;
+    background: linear-gradient(135deg,
+        var(--gray-900, #18181B),
+        var(--violet-600, #7C3AED));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    transition: opacity 0.15s;
+}
+
+.ng-nombre.pop {
+    animation: ngPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes ngPop {
+    0%   { transform: scale(0.85); opacity: 0; }
+    55%  { transform: scale(1.06); opacity: 1; }
+    100% { transform: scale(1); }
+}
+
+.ng-copy {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: 7px;
+    background: var(--white, #FFFFFF);
+    color: var(--gray-500, #71717A);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    opacity: 0.6;
+    transition: all 0.15s;
+}
+.ng-copy:hover {
+    opacity: 1;
+    background: var(--violet-50, #F5F3FF);
+    border-color: var(--violet-300, #C4B5FD);
+    color: var(--violet-600, #7C3AED);
+}
+.ng-copy.ok {
+    background: #ECFDF5;
+    border-color: #A7F3D0;
+    color: #059669;
+    opacity: 1;
+}
+.ng-copy [data-lucide] { width: 13px; height: 13px; }
+
+/* ========== BOTÓN GENERAR ========== */
+.ng-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 9px 14px;
+    border: none;
+    border-radius: var(--r-md, 12px);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 800;
+    cursor: pointer;
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: white;
+    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
+    transition: all 0.15s;
+    flex-shrink: 0;
+    touch-action: manipulation;
+}
+.ng-btn [data-lucide] { width: 14px; height: 14px; }
+.ng-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px var(--accent-shadow-hover, rgba(139,92,246,0.38));
+}
+.ng-btn:active { transform: translateY(0); }
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 300px) {
+    .ng-widget { padding: 9px 10px; gap: 5px; }
+    .ng-titulo span { display: none; }
+    .ng-chip { font-size: 9px; padding: 5px 2px; }
+    .ng-chip-sm { font-size: 9px; }
+    .ng-btn { padding: 8px 12px; font-size: 12px; }
+    .ng-copy { width: 24px; height: 24px; }
+    .ng-copy [data-lucide] { width: 11px; height: 11px; }
+}
+
+@media (max-height: 200px) {
+    .ng-widget { padding: 8px 10px; gap: 4px; }
+    .ng-header { padding-bottom: 3px; min-height: 16px; }
+    .ng-chips-genero { display: none; }
+}
