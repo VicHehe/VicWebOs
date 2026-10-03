@@ -8,8 +8,8 @@
    CIUDAD DISTRIBUIDA EN LAS 4 ESQUINAS:
      ::before  → grande (arriba derecha)
      ::after   → espejado (abajo izquierda)
-     tower bg  → arriba izquierda (pequeño)
-     mid bg    → abajo derecha (pequeño)
+     bg tower  → arriba izquierda
+     bg cube   → abajo derecha (versión chica)
    ================================================ */
 
 :root {
@@ -84,14 +84,9 @@
     --theme-cube: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 180'%3E%3Cline x1='60' y1='20' x2='60' y2='2' stroke='%233D5A80' stroke-width='1.5'/%3E%3Ccircle cx='60' cy='2' r='2' fill='%23FB923C' opacity='0.9'/%3E%3Cline x1='56' y1='10' x2='64' y2='10' stroke='%233D5A80' stroke-width='1'/%3E%3Cpath d='M60,20 L100,40 L60,60 L20,40 Z' fill='%233D5A80'/%3E%3Cpath d='M20,40 L60,60 L60,160 L20,140 Z' fill='%232A4060'/%3E%3Cpath d='M60,60 L100,40 L100,140 L60,160 Z' fill='%231A2A44'/%3E%3Cpath d='M48,30 L60,36 L48,42 L36,36 Z' fill='%234A6B8A'/%3E%3Cpath d='M36,36 L48,42 L48,50 L36,44 Z' fill='%232A4060'/%3E%3Cpath d='M48,42 L60,36 L60,44 L48,50 Z' fill='%231A2A44'/%3E%3Cg fill='%23FB923C' fill-opacity='0.92'%3E%3Cpath d='M22,46 L34,52 L34,70 L22,64 Z'/%3E%3Cpath d='M42,56 L54,62 L54,80 L42,74 Z'/%3E%3Cpath d='M22,78 L34,84 L34,102 L22,96 Z'/%3E%3Cpath d='M22,110 L34,116 L34,134 L22,128 Z'/%3E%3Cpath d='M42,120 L54,126 L54,144 L42,138 Z'/%3E%3C/g%3E%3Cpath d='M42,88 L54,94 L54,112 L42,106 Z' fill='%23142238'/%3E%3Cg fill='%23FB923C' fill-opacity='0.92'%3E%3Cpath d='M62,64 L74,58 L74,76 L62,82 Z'/%3E%3Cpath d='M82,54 L94,48 L94,66 L82,72 Z'/%3E%3Cpath d='M62,96 L74,90 L74,108 L62,114 Z'/%3E%3Cpath d='M82,86 L94,80 L94,98 L82,104 Z'/%3E%3Cpath d='M62,128 L74,122 L74,140 L62,146 Z'/%3E%3C/g%3E%3Cpath d='M82,118 L94,112 L94,130 L82,136 Z' fill='%23142238'/%3E%3Cpath d='M36,124 L46,129 L46,146 L36,141 Z' fill='%230A1424'/%3E%3Cpath d='M74,129 L84,124 L84,141 L74,146 Z' fill='%230A1424'/%3E%3C/svg%3E");
 
     /* ------------------------------------------------------------
-       Torre delgada — 70×200 (aspect ratio)
+       Torre delgada y alta — 70×200
        ------------------------------------------------------------ */
     --theme-building-tower: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 70 200'%3E%3Cline x1='35' y1='4' x2='35' y2='26' stroke='%233D5A80' stroke-width='1.2'/%3E%3Ccircle cx='35' cy='4' r='1.8' fill='%23FB923C' opacity='0.9'/%3E%3Cpath d='M35,26 L60,40 L35,54 L10,40 Z' fill='%233D5A80'/%3E%3Cpath d='M10,40 L35,54 L35,190 L10,176 Z' fill='%232A4060'/%3E%3Cpath d='M35,54 L60,40 L60,176 L35,190 Z' fill='%231A2A44'/%3E%3Cg fill='%23FB923C' fill-opacity='0.9'%3E%3Cpath d='M14,50 L22,54 L22,66 L14,62 Z'/%3E%3Cpath d='M26,56 L34,60 L34,72 L26,68 Z'/%3E%3Cpath d='M14,74 L22,78 L22,90 L14,86 Z'/%3E%3Cpath d='M26,80 L34,84 L34,96 L26,92 Z'/%3E%3Cpath d='M14,98 L22,102 L22,114 L14,110 Z'/%3E%3Cpath d='M26,104 L34,108 L34,120 L26,116 Z'/%3E%3Cpath d='M14,122 L22,126 L22,138 L14,134 Z'/%3E%3Cpath d='M26,128 L34,132 L34,144 L26,140 Z'/%3E%3Cpath d='M14,146 L22,150 L22,162 L14,158 Z'/%3E%3C/g%3E%3Cpath d='M26,152 L34,156 L34,168 L26,164 Z' fill='%23142238'/%3E%3Cg fill='%23FB923C' fill-opacity='0.9'%3E%3Cpath d='M38,68 L46,64 L46,76 L38,80 Z'/%3E%3Cpath d='M50,62 L58,58 L58,70 L50,74 Z'/%3E%3Cpath d='M38,92 L46,88 L46,100 L38,104 Z'/%3E%3Cpath d='M50,86 L58,82 L58,94 L50,98 Z'/%3E%3Cpath d='M38,116 L46,112 L46,124 L38,128 Z'/%3E%3Cpath d='M50,110 L58,106 L58,118 L50,122 Z'/%3E%3Cpath d='M38,140 L46,136 L46,148 L38,152 Z'/%3E%3C/g%3E%3Cpath d='M50,134 L58,130 L58,142 L50,146 Z' fill='%23142238'/%3E%3C/svg%3E");
-
-    /* ------------------------------------------------------------
-       Edificio mediano — 150×140
-       ------------------------------------------------------------ */
-    --theme-building-mid: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 140'%3E%3Cpath d='M70,10 L95,22 L70,34 L45,22 Z' fill='%234A6B8A'/%3E%3Cpath d='M45,22 L70,34 L70,42 L45,30 Z' fill='%232A4060'/%3E%3Cpath d='M70,34 L95,22 L95,30 L70,42 Z' fill='%231A2A44'/%3E%3Cpath d='M75,30 L110,48 L75,66 L40,48 Z' fill='%233D5A80'/%3E%3Cpath d='M40,48 L75,66 L75,130 L40,112 Z' fill='%232A4060'/%3E%3Cpath d='M75,66 L110,48 L110,112 L75,130 Z' fill='%231A2A44'/%3E%3Cg fill='%23FB923C' fill-opacity='0.9'%3E%3Cpath d='M44,54 L56,60 L56,80 L44,74 Z'/%3E%3Cpath d='M58,62 L70,68 L70,88 L58,82 Z'/%3E%3Cpath d='M44,82 L56,88 L56,108 L44,102 Z'/%3E%3Cpath d='M58,90 L70,96 L70,116 L58,110 Z'/%3E%3C/g%3E%3Cpath d='M44,108 L56,114 L56,126 L44,120 Z' fill='%230A1424'/%3E%3Cg fill='%23FB923C' fill-opacity='0.9'%3E%3Cpath d='M80,72 L92,66 L92,86 L80,92 Z'/%3E%3Cpath d='M94,64 L106,58 L106,78 L94,84 Z'/%3E%3Cpath d='M80,100 L92,94 L92,114 L80,120 Z'/%3E%3C/g%3E%3Cpath d='M94,92 L106,86 L106,106 L94,112 Z' fill='%23142238'/%3E%3C/svg%3E");
 }
 
 /* ================================================================
@@ -100,21 +95,21 @@
 .welcome-placeholder {
     position: relative;
     background-image:
-        var(--theme-iso-grid),           /* grid de fondo */
-        var(--theme-building-tower),     /* torre — arriba izquierda */
-        var(--theme-building-mid),       /* mediano — abajo derecha */
+        var(--theme-iso-grid),           /* 1. grid de fondo */
+        var(--theme-building-tower),     /* 2. torre — arriba izq */
+        var(--theme-cube),               /* 3. cubo chico — abajo der */
         radial-gradient(ellipse at 50% 0%,   rgba(251, 146, 60, 0.10) 0%, transparent 55%),
         radial-gradient(ellipse at 50% 100%, rgba(52, 86, 117, 0.22) 0%, transparent 55%);
     background-size:
         40px 24px,                       /* grid */
         70px 200px,                      /* torre */
-        130px 121px,                     /* mediano */
+        90px 135px,                      /* cubo chico (aspecto 120:180 = 2:3) */
         100% 100%,
         100% 100%;
     background-position:
         0 0,                             /* grid */
-        top 20px left 20px,              /* torre — esquina superior izq */
-        bottom 20px right 20px,          /* mediano — esquina inferior der */
+        top 20px left 20px,              /* torre */
+        bottom 30px right 30px,          /* cubo chico */
         center top,
         center bottom;
     background-repeat:
@@ -133,7 +128,7 @@
         background-position:
             0 0,
             top 20px left 20px,
-            bottom 20px right 20px,
+            bottom 30px right 30px,
             center top,
             center bottom;
     }
@@ -141,7 +136,7 @@
         background-position:
             240px 144px,
             top 20px left 20px,
-            bottom 20px right 20px,
+            bottom 30px right 30px,
             center top,
             center bottom;
     }
