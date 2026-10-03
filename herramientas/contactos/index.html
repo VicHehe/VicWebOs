@@ -24,9 +24,14 @@
                     <p id="ctUserBadge">—</p>
                 </div>
             </div>
-            <button class="ct-btn-refresh" id="ctBtnRefresh" title="Actualizar">
-                <i data-lucide="refresh-cw"></i>
-            </button>
+            <div class="ct-header-actions">
+                <button class="ct-btn-header" id="ctBtnRegalos" title="Tus regalos">
+                    <i data-lucide="history"></i>
+                </button>
+                <button class="ct-btn-header" id="ctBtnRefresh" title="Actualizar">
+                    <i data-lucide="refresh-cw"></i>
+                </button>
+            </div>
         </header>
 
         <div class="ct-resumen">
@@ -40,7 +45,6 @@
             </div>
         </div>
 
-        <!-- MI BLOQUE: perfil propio + selector de estado -->
         <div class="ct-yo" id="ctYo">
             <div class="ct-yo-avatar" id="ctYoAvatar">
                 <i data-lucide="user"></i>
@@ -82,7 +86,6 @@
     <!-- MODAL REGALO -->
     <div class="ct-modal" id="ctModalRegalo" hidden>
         <div class="ct-modal-card">
-
             <div class="ct-modal-header">
                 <h2>
                     <i data-lucide="gift"></i>
@@ -92,13 +95,11 @@
                     <i data-lucide="x"></i>
                 </button>
             </div>
-
             <div class="ct-modal-body">
                 <p class="ct-modal-desc">
                     Elige cuántas monedas quieres regalar.
                     Solo puedes regalarle <strong>una vez al día</strong> a cada persona.
                 </p>
-
                 <div class="ct-montos">
                     <button class="ct-monto" data-monto="5">
                         <i data-lucide="coins"></i>
@@ -113,13 +114,11 @@
                         <span class="ct-monto-num">50</span>
                     </button>
                 </div>
-
                 <div class="ct-saldo-info">
                     <i data-lucide="wallet"></i>
                     <span>Tienes <strong id="ctMiSaldo">0</strong> monedas</span>
                 </div>
             </div>
-
             <div class="ct-modal-actions">
                 <button class="ct-btn-sec" id="ctRegaloCancelar">Cancelar</button>
                 <button class="ct-btn-pri" id="ctRegaloEnviar" disabled>
@@ -127,7 +126,98 @@
                     Enviar
                 </button>
             </div>
+        </div>
+    </div>
 
+    <!-- MODAL PERFIL EXTENDIDO -->
+    <div class="ct-modal" id="ctModalPerfil" hidden>
+        <div class="ct-modal-card ct-modal-perfil" id="ctPerfilCard">
+            <div class="ct-modal-header">
+                <h2>
+                    <i data-lucide="user-circle"></i>
+                    <span>Perfil</span>
+                </h2>
+                <button class="ct-modal-cerrar" id="ctPerfilCerrar" title="Cerrar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="ct-perfil-body">
+                <div class="ct-perfil-hero">
+                    <div class="ct-perfil-avatar" id="ctPerfilAvatar">
+                        <i data-lucide="user"></i>
+                    </div>
+                    <div class="ct-perfil-nombre" id="ctPerfilNombre">—</div>
+                    <div class="ct-perfil-codigo" id="ctPerfilCodigo">@—</div>
+                    <div class="ct-perfil-estado" id="ctPerfilEstado">
+                        <span class="ct-estado-dot-mini estado-sin"></span>
+                        <span id="ctPerfilEstadoTxt">Sin estado</span>
+                    </div>
+                </div>
+
+                <div class="ct-perfil-seccion">
+                    <div class="ct-perfil-seccion-titulo">
+                        <i data-lucide="calendar"></i>
+                        <span>En la comunidad desde</span>
+                    </div>
+                    <div class="ct-perfil-seccion-valor" id="ctPerfilCreado">—</div>
+                </div>
+
+                <div class="ct-perfil-stats">
+                    <div class="ct-perfil-stat">
+                        <div class="ct-perfil-stat-icono ct-stat-dado">
+                            <i data-lucide="gift"></i>
+                        </div>
+                        <div class="ct-perfil-stat-info">
+                            <span class="ct-perfil-stat-num" id="ctPerfilRegalosDados">0</span>
+                            <span class="ct-perfil-stat-label">Regalos dados</span>
+                        </div>
+                    </div>
+                    <div class="ct-perfil-stat">
+                        <div class="ct-perfil-stat-icono ct-stat-recibido">
+                            <i data-lucide="gift"></i>
+                        </div>
+                        <div class="ct-perfil-stat-info">
+                            <span class="ct-perfil-stat-num" id="ctPerfilRegalosRecibidos">0</span>
+                            <span class="ct-perfil-stat-label">Regalos recibidos</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="ct-btn-pri ct-btn-full" id="ctPerfilRegalar">
+                    <i data-lucide="gift"></i>
+                    <span id="ctPerfilRegalarTxt">Regalar monedas</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL HISTORIAL DE REGALOS -->
+    <div class="ct-modal" id="ctModalHistorial" hidden>
+        <div class="ct-modal-card">
+            <div class="ct-modal-header">
+                <h2>
+                    <i data-lucide="history"></i>
+                    <span>Tus regalos</span>
+                </h2>
+                <button class="ct-modal-cerrar" id="ctHistorialCerrar" title="Cerrar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="ct-modal-body">
+                <div class="ct-hist-tabs">
+                    <button class="ct-hist-tab active" data-tab="dados">
+                        <i data-lucide="arrow-up-circle"></i>
+                        <span>Dados</span>
+                    </button>
+                    <button class="ct-hist-tab" data-tab="recibidos">
+                        <i data-lucide="arrow-down-circle"></i>
+                        <span>Recibidos</span>
+                    </button>
+                </div>
+                <div class="ct-hist-lista" id="ctHistLista">
+                    <p class="ct-hist-vacio">Cargando...</p>
+                </div>
+            </div>
         </div>
     </div>
 
