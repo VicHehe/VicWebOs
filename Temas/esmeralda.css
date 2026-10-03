@@ -1,19 +1,11 @@
 /* ================================================
    Tema: Esmeralda
-   Gema en bruto pulida. Verde esmeralda profundo
-   con vetas internas y luz que atraviesa el mineral.
-   Tema DARK — superficies oscuras, texto claro.
-
-   FIX v4:
-     · --white ahora es OSCURO (superficie de cards).
-       Antes era claro y el texto era invisible.
-     · --bg casi negro con tinte verde.
-     · --text y --text-2/3 con contraste ALTO.
-     · Paleta: de #041810 a #F0F8F2 (correcto).
+   Gema en bruto pulida. Tema DARK.
+   FIX v5: separar las texturas a ::before para
+   que el .welcome-placeholder tenga solo 2 capas.
    ================================================ */
 
 :root {
-    /* Acento esmeralda */
     --violet-50:  #0F3A24;
     --violet-100: #14502E;
     --violet-200: #1E6B40;
@@ -23,10 +15,9 @@
     --violet-600: #059669;
     --violet-700: #047857;
 
-    /* Superficies DARK (corregidas) */
-    --white:   #0F2618;   /* ← ANTES: #D4F0E0 (mal). Card surface oscura */
-    --bg:      #041810;   /* casi negro verdoso */
-    --bg-alt:  #081A10;   /* sidebar un poco más clara */
+    --white:   #0F2618;
+    --bg:      #041810;
+    --bg-alt:  #081A10;
     --gray-50:  #081A10;
     --gray-100: #102A1C;
     --gray-200: #1F4530;
@@ -39,7 +30,7 @@
     --gray-900: #F0F8F2;
 
     --border:  #1F4530;
-    --text:    #F0F8F2;   /* claro, sobre dark */
+    --text:    #F0F8F2;
     --text-2:  #B8D4C4;
     --text-3:  #8FB5A0;
 
@@ -61,42 +52,54 @@
     --r-lg: 5px;
     --r-xl: 8px;
 
-    /* Vetas internas tileables (sin cortes al repetir) */
-    --theme-veins: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 800'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M0,200 Q200,150 400,200 Q600,250 800,200' stroke='%2334D399' stroke-width='2' stroke-opacity='0.20'/%3E%3Cpath d='M0,400 Q200,350 400,400 Q600,450 800,400' stroke='%2310B981' stroke-width='1.5' stroke-opacity='0.25'/%3E%3Cpath d='M0,600 Q200,550 400,600 Q600,650 800,600' stroke='%2334D399' stroke-width='1.8' stroke-opacity='0.20'/%3E%3Cpath d='M200,0 Q150,200 200,400 Q250,600 200,800' stroke='%2310B981' stroke-width='1.5' stroke-opacity='0.22'/%3E%3Cpath d='M600,0 Q550,200 600,400 Q650,600 600,800' stroke='%2334D399' stroke-width='1.8' stroke-opacity='0.18'/%3E%3C/g%3E%3Cg fill='%23041810' fill-opacity='0.75'%3E%3Ccircle cx='180' cy='140' r='2.2'/%3E%3Ccircle cx='380' cy='280' r='1.8'/%3E%3Ccircle cx='580' cy='420' r='2'/%3E%3Ccircle cx='280' cy='580' r='2.2'/%3E%3Ccircle cx='680' cy='680' r='1.6'/%3E%3Ccircle cx='80' cy='720' r='1.8'/%3E%3C/g%3E%3C/svg%3E");
+    /* Vetas tileables */
+    --theme-veins: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 800'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M0,200 Q200,150 400,200 Q600,250 800,200' stroke='%2334D399' stroke-width='2' stroke-opacity='0.20'/%3E%3Cpath d='M0,400 Q200,350 400,400 Q600,450 800,400' stroke='%2310B981' stroke-width='1.5' stroke-opacity='0.25'/%3E%3Cpath d='M0,600 Q200,550 400,600 Q600,650 800,600' stroke='%2334D399' stroke-width='1.8' stroke-opacity='0.20'/%3E%3Cpath d='M200,0 Q150,200 200,400 Q250,600 200,800' stroke='%2310B981' stroke-width='1.5' stroke-opacity='0.22'/%3E%3Cpath d='M600,0 Q550,200 600,400 Q650,600 600,800' stroke='%2334D399' stroke-width='1.8' stroke-opacity='0.18'/%3E%3C/g%3E%3C/svg%3E");
 
-    /* Gema facetada */
-    --theme-gem: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 260'%3E%3Cpath d='M110,15 L190,70 L190,180 L110,235 L30,180 L30,70 Z' fill='%231A6242'/%3E%3Cpath d='M110,15 L110,75 L30,70 Z' fill='%2334D399'/%3E%3Cpath d='M110,15 L110,75 L190,70 Z' fill='%234ADE80'/%3E%3Cpath d='M30,70 L110,75 L110,140 L30,180 Z' fill='%23145A36'/%3E%3Cpath d='M190,70 L110,75 L110,140 L190,180 Z' fill='%230A3D24'/%3E%3Cpath d='M30,180 L110,140 L110,235 Z' fill='%23082A1A'/%3E%3Cpath d='M190,180 L110,140 L110,235 Z' fill='%23041A10'/%3E%3Cpath d='M80,105 L100,98 L105,118 L85,125 Z' fill='%23A7F3D0' fill-opacity='0.70'/%3E%3Cpath d='M130,115 L148,108 L150,128 L132,135 Z' fill='%23041A10' fill-opacity='0.70'/%3E%3Cg stroke='%236EE7B7' stroke-width='0.9' fill='none' stroke-opacity='0.65'%3E%3Cpath d='M110,15 L30,70'/%3E%3Cpath d='M110,15 L190,70'/%3E%3Cpath d='M30,180 L110,235 L190,180'/%3E%3C/g%3E%3C/svg%3E");
+    --theme-gem: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 260'%3E%3Cpath d='M110,15 L190,70 L190,180 L110,235 L30,180 L30,70 Z' fill='%231A6242'/%3E%3Cpath d='M110,15 L110,75 L30,70 Z' fill='%2334D399'/%3E%3Cpath d='M110,15 L110,75 L190,70 Z' fill='%234ADE80'/%3E%3Cpath d='M30,70 L110,75 L110,140 L30,180 Z' fill='%23145A36'/%3E%3Cpath d='M190,70 L110,75 L110,140 L190,180 Z' fill='%230A3D24'/%3E%3Cpath d='M30,180 L110,140 L110,235 Z' fill='%23082A1A'/%3E%3Cpath d='M190,180 L110,140 L110,235 Z' fill='%23041A10'/%3E%3Cpath d='M80,105 L100,98 L105,118 L85,125 Z' fill='%23A7F3D0' fill-opacity='0.70'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   1. WELCOME
+   1. WELCOME — 2 capas + textura en ::before
    ================================================================ */
 .welcome-placeholder {
     position: relative;
-    background-image:
-        var(--theme-veins),
-        radial-gradient(ellipse 50% 40% at 30% 25%, rgba(52, 211, 153, 0.10) 0%, transparent 100%),
-        radial-gradient(ellipse 40% 30% at 70% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 100%),
-        linear-gradient(180deg, #041810 0%, #082A1A 50%, #041810 100%);
-    background-size:
-        800px 800px,
-        100% 100%,
-        100% 100%,
-        100% 100%;
-    background-position:
-        0 0,
-        center top,
-        center bottom,
-        center top;
-    background-repeat:
-        repeat,
-        no-repeat,
-        no-repeat,
-        no-repeat;
-    background-color: var(--bg);
+    background: linear-gradient(180deg, #041810 0%, #082A1A 50%, #041810 100%);
+    background-color: #041810;
+    overflow: hidden;
+}
+
+/* Textura + luces en ::before (separadas del fondo del welcome) */
+.welcome-placeholder > .welcome-glow {
+    position: absolute;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(720px, 100%);
+    height: 620px;
+    background: radial-gradient(
+        circle,
+        rgba(52, 211, 153, 0.12) 0%,
+        rgba(16, 185, 129, 0.06) 45%,
+        transparent 70%
+    );
+    pointer-events: none;
+    z-index: 1;
 }
 
 .welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image: var(--theme-veins);
+    background-size: 800px 800px;
+    background-position: 0 0;
+    background-repeat: repeat;
+    opacity: 0.90;
+}
+
+.welcome-placeholder::after {
     content: '';
     position: absolute;
     top: 30px;
@@ -111,54 +114,21 @@
         drop-shadow(6px 10px 0 rgba(0, 0, 0, 0.55));
 }
 
-.welcome-placeholder::after {
-    content: '';
-    position: absolute;
-    bottom: 40px;
-    left: 50px;
-    width: 100px;
-    height: 118px;
-    background: var(--theme-gem) center/contain no-repeat;
-    pointer-events: none;
-    z-index: 0;
-    transform: scaleX(-1) rotate(-8deg);
-    opacity: 0.85;
-    filter:
-        drop-shadow(0 0 20px rgba(52, 211, 153, 0.25))
-        drop-shadow(-4px 6px 0 rgba(0, 0, 0, 0.50));
-}
-
 .welcome-hero,
 .welcome-section {
     position: relative;
     z-index: 2;
 }
 
-.welcome-glow {
-    background: radial-gradient(
-        circle at 30% 30%,
-        rgba(52, 211, 153, 0.15) 0%,
-        rgba(16, 185, 129, 0.08) 45%,
-        transparent 70%
-    );
-}
-
 .welcome-hero {
     position: relative;
     padding: 40px 32px 36px;
-    background-image:
-        var(--theme-veins),
-        linear-gradient(180deg, #0F2618 0%, #08281A 100%);
-    background-size: 800px 800px, 100% 100%;
-    background-position: 0 0, center top;
-    background-repeat: repeat, no-repeat;
+    background: linear-gradient(180deg, #0F2618 0%, #08281A 100%);
     border: 1.5px solid rgba(52, 211, 153, 0.55);
     border-radius: 5px;
     box-shadow:
         inset 0 0 0 1px rgba(110, 231, 183, 0.15),
-        inset 0 0 60px rgba(16, 185, 129, 0.10),
-        0 20px 46px rgba(0, 0, 0, 0.70),
-        0 0 60px rgba(52, 211, 153, 0.12);
+        0 20px 46px rgba(0, 0, 0, 0.70);
     max-width: 660px;
     margin-left: auto;
     margin-right: auto;
@@ -178,13 +148,9 @@
     box-shadow: 0 0 12px rgba(52, 211, 153, 0.55);
 }
 
-.welcome-hero > * {
-    position: relative;
-    z-index: 1;
-}
+.welcome-hero > * { position: relative; z-index: 1; }
 
 .welcome-hero h1 {
-    letter-spacing: 0.01em;
     color: #F0F8F2;
     text-shadow:
         0 2px 4px rgba(0, 0, 0, 0.65),
@@ -193,10 +159,7 @@
 
 .welcome-icon-wrap {
     background: radial-gradient(circle at 32% 28%,
-        #6EE7B7 0%,
-        #10B981 35%,
-        #047857 70%,
-        #041810 100%);
+        #6EE7B7 0%, #10B981 35%, #047857 70%, #041810 100%);
     border-radius: 6px;
     box-shadow:
         inset 0 3px 4px rgba(167, 243, 208, 0.45),
@@ -231,40 +194,39 @@
 }
 
 /* ================================================================
-   3. SIDEBAR
+   3. SIDEBAR — 2 capas máx
    ================================================================ */
 .sidebar {
     position: relative;
-    background-image:
-        var(--theme-veins),
-        linear-gradient(90deg, #082A1A 0%, #041810 100%);
-    background-size: 800px 800px, 100% 100%;
-    background-position: 0 0, center;
-    background-repeat: repeat, no-repeat;
+    background: linear-gradient(90deg, #082A1A 0%, #041810 100%);
     border-right: 2px solid rgba(52, 211, 153, 0.35);
     overflow: hidden;
+}
+.sidebar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image: var(--theme-veins);
+    background-size: 800px 800px;
+    background-repeat: repeat;
+    opacity: 0.70;
 }
 .sidebar-comunidad,
 .sidebar-label,
 .sidebar-nav,
-.sidebar-mobile-header {
-    position: relative;
-    z-index: 1;
-}
+.sidebar-mobile-header { position: relative; z-index: 1; }
 
 .nav-item {
     border-radius: 3px;
     color: var(--text-2);
     transition: all 0.20s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.nav-item:hover {
-    background: rgba(52, 211, 153, 0.08);
-    color: var(--text);
-}
+.nav-item:hover { background: rgba(52, 211, 153, 0.08); color: var(--text); }
 .nav-item.active {
     background: linear-gradient(180deg, rgba(52, 211, 153, 0.16) 0%, rgba(16, 185, 129, 0.10) 100%);
     color: var(--text);
-    border-radius: 3px;
     box-shadow:
         inset 0 0 0 1px rgba(52, 211, 153, 0.35),
         0 2px 8px rgba(0, 0, 0, 0.55);
@@ -273,7 +235,6 @@
     background: linear-gradient(180deg, #6EE7B7, #059669);
     width: 3px;
     height: 22px;
-    border-radius: 0 2px 2px 0;
     box-shadow: 0 0 10px rgba(52, 211, 153, 0.60);
 }
 
@@ -286,17 +247,10 @@
    ================================================================ */
 .acceso-item {
     position: relative;
-    background-image:
-        var(--theme-veins),
-        linear-gradient(180deg, #0F2618 0%, #08281A 100%);
-    background-size: 800px 800px, 100% 100%;
-    background-position: 0 0, center top;
-    background-repeat: repeat, no-repeat;
+    background: linear-gradient(180deg, #0F2618 0%, #08281A 100%);
     border: 1.5px solid rgba(52, 211, 153, 0.30);
     border-radius: 4px;
-    box-shadow:
-        inset 0 0 0 1px rgba(110, 231, 183, 0.10),
-        0 4px 12px rgba(0, 0, 0, 0.60);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.60);
     overflow: visible;
     transition: all 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -304,11 +258,9 @@
     transform: translateY(-3px);
     border-color: #34D399;
     box-shadow:
-        inset 0 0 0 1px rgba(110, 231, 183, 0.25),
         0 14px 30px rgba(16, 185, 129, 0.25),
         0 6px 14px rgba(0, 0, 0, 0.55);
 }
-
 .acceso-icon-wrap {
     background: rgba(52, 211, 153, 0.10);
     color: #34D399;
@@ -320,9 +272,7 @@
     background: var(--accent-gradient);
     color: #041810;
     border-color: #6EE7B7;
-    box-shadow:
-        0 0 0 3px rgba(52, 211, 153, 0.25),
-        0 6px 14px rgba(16, 185, 129, 0.50);
+    box-shadow: 0 6px 14px rgba(16, 185, 129, 0.50);
 }
 
 /* ================================================================
@@ -360,19 +310,12 @@
 .modal-todas-card {
     position: relative;
     overflow: hidden;
-    background-image:
-        var(--theme-veins),
-        linear-gradient(180deg, #0F2618 0%, #041810 100%);
-    background-size: 800px 800px, 100% 100%;
-    background-position: 0 0, center top;
-    background-repeat: repeat, no-repeat;
+    background: linear-gradient(180deg, #0F2618 0%, #041810 100%);
     border: 1.5px solid rgba(52, 211, 153, 0.45);
     border-radius: 8px;
     box-shadow:
         inset 0 0 0 1px rgba(110, 231, 183, 0.15),
-        inset 0 0 60px rgba(16, 185, 129, 0.08),
-        0 24px 48px rgba(0, 0, 0, 0.80),
-        0 0 60px rgba(52, 211, 153, 0.12);
+        0 24px 48px rgba(0, 0, 0, 0.80);
 }
 .config-card::before,
 .modal-todas-card::before {
@@ -399,11 +342,7 @@
    8. BOTÓN PRIMARIO
    ================================================================ */
 .btn-primario {
-    background: linear-gradient(180deg,
-        #34D399 0%,
-        #10B981 45%,
-        #059669 55%,
-        #047857 100%);
+    background: linear-gradient(180deg, #34D399 0%, #10B981 45%, #059669 55%, #047857 100%);
     border: 1.5px solid rgba(110, 231, 183, 0.45);
     color: #041810;
     font-weight: 800;
@@ -415,11 +354,7 @@
     transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .btn-primario:hover {
-    background: linear-gradient(180deg,
-        #6EE7B7 0%,
-        #34D399 45%,
-        #10B981 55%,
-        #059669 100%);
+    background: linear-gradient(180deg, #6EE7B7 0%, #34D399 45%, #10B981 55%, #059669 100%);
     transform: translateY(-1px);
     box-shadow:
         inset 0 2px 0 rgba(255, 255, 255, 0.40),
@@ -449,14 +384,11 @@
 }
 
 /* ================================================================
-   10. AVATAR Y NOTIFICACIONES
+   10. AVATAR
    ================================================================ */
 .avatar-config {
     background: radial-gradient(circle at 32% 28%,
-        #6EE7B7 0%,
-        #10B981 40%,
-        #047857 70%,
-        #041810 100%);
+        #6EE7B7 0%, #10B981 40%, #047857 70%, #041810 100%);
     border: 2px solid rgba(52, 211, 153, 0.55);
     box-shadow:
         inset 0 3px 4px rgba(167, 243, 208, 0.45),
@@ -486,6 +418,5 @@
    ================================================================ */
 @media (max-width: 768px) {
     .sidebar { position: fixed; }
-    .welcome-placeholder::before,
     .welcome-placeholder::after { display: none; }
 }
