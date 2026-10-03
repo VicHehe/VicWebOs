@@ -24,6 +24,14 @@
                 </div>
             </div>
 
+            <div class="sh-search" id="shSearchWrap">
+                <i data-lucide="search" class="sh-search-icono"></i>
+                <input type="text" id="shSearch" placeholder="Buscar apps..." autocomplete="off" spellcheck="false">
+                <button type="button" class="sh-search-clear" id="shSearchClear" style="display:none;" aria-label="Limpiar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
             <div class="sh-recursos">
                 <div class="sh-recurso">
                     <i data-lucide="hard-drive"></i>
@@ -85,6 +93,59 @@
             <div id="promoContenido"></div>
         </section>
 
+    </div>
+
+    <!-- ===== BARRA FLOTANTE DEL CARRITO ===== -->
+    <div class="sh-cart-bar" id="shCartBar" style="display:none;">
+        <div class="sh-cart-bar-info">
+            <div class="sh-cart-bar-icono"><i data-lucide="shopping-cart"></i></div>
+            <div class="sh-cart-bar-texto">
+                <div class="sh-cart-bar-titulo">
+                    <strong id="shCartCount">0</strong> <span id="shCartCountLabel">items</span>
+                </div>
+                <div class="sh-cart-bar-detalle">
+                    <span id="shCartEspacio">0</span> esp · <span id="shCartMonedas">0</span> monedas
+                </div>
+            </div>
+        </div>
+        <button class="sh-btn sh-btn-instalar" id="shCartOpen">
+            <i data-lucide="shopping-bag"></i>
+            Ver carrito
+        </button>
+    </div>
+
+    <!-- ===== MODAL DEL CARRITO ===== -->
+    <div class="sh-cart-modal" id="shCartModal" style="display:none;">
+        <div class="sh-cart-modal-card">
+            <div class="sh-cart-modal-header">
+                <div>
+                    <h2><i data-lucide="shopping-cart"></i> Tu carrito</h2>
+                    <p class="sh-cart-modal-sub">Revisá antes de comprar</p>
+                </div>
+                <button class="sh-cart-close" id="shCartClose" aria-label="Cerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="sh-cart-modal-body" id="shCartLista"></div>
+            <div class="sh-cart-modal-footer">
+                <div class="sh-cart-totales">
+                    <div class="sh-cart-total-linea">
+                        <span>Espacio total</span>
+                        <strong id="shCartModalEspacio">0</strong>
+                    </div>
+                    <div class="sh-cart-total-linea">
+                        <span>Monedas total</span>
+                        <strong id="shCartModalMonedas">0</strong>
+                    </div>
+                </div>
+                <div class="sh-cart-acciones">
+                    <button class="sh-btn sh-btn-aplicar" id="shCartVaciar">
+                        <i data-lucide="trash-2"></i> Vaciar
+                    </button>
+                    <button class="sh-btn sh-btn-instalar" id="shCartComprar">
+                        <i data-lucide="shopping-bag"></i> Comprar todo
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- ===== MODAL DE AMPLIACIÓN DE ESPACIO ===== -->
