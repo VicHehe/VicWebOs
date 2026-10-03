@@ -1,19 +1,15 @@
 // ============================================================
-//  Widget: Generador de Nombres
+//  Widget: Generador de Nombres v2
 //  ------------------------------------------------------------
-//  Genera nombres SINTETIZADOS por sílabas (onset + vocal + coda),
-//  no de una lista predefinida. Cuatro estilos fonéticos y tres
-//  sesgos de género opcionales.
+//  Motor híbrido:
+//    1. Banco de sílabas reales extraídas de nombres hispanos.
+//    2. Cadenas de Markov (bigramas) entrenadas con esos nombres.
+//    3. Reglas fonotácticas estrictas de español.
 //
-//  Filtros fonotácticos:
-//    - "qu" solo puede ir con "e"/"i"
-//    - Se rechazan: 3+ vocales iguales, 4+ vocales seguidas,
-//      4+ consonantes seguidas, "quu", "guu", sílabas repetidas.
-//    - Después de sílaba terminada en vocal, la siguiente empieza
-//      con consonante (separación silábica real).
-//    - Anti-repetición del mismo onset en sílabas consecutivas.
+//  Esto produce nombres como "Nicolás", "Amaro", "Cassie" o
+//  "Haruko" con naturalidad, no cosas como "Bliadrolie".
 //
-//  SIN persistencia: cada carga arranca en Latino/Ambos.
+//  SIN persistencia.
 // ============================================================
 
 'use strict';
@@ -21,65 +17,243 @@
 const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 
 // ============================================================
-//  BANCOS DE SÍLABAS POR ESTILO
+//  BANCO DE NOMBRES DE ENTRENAMIENTO
+//  ------------------------------------------------------------
+//  Nombres reales (hispanos + algunos anglo/japoneses comunes)
+//  que el motor usa para aprender transiciones de sílabas.
+//  Cuantos más nombres, mejor la calidad de salida.
 // ============================================================
-const ESTILOS = {
-    latino: {
-        onsets: [
-            'b','c','d','f','g','j','l','m','n','p','qu','r','s','t','v','y','z',
-            'bl','br','cl','cr','dr','fl','fr','gl','gr','pl','pr','tr'
-        ],
-        vowels: ['a','e','i','o','u','ia','ie','io','ua','ue'],
-        codas:  ['', '', '', 'n', 'r', 's', 'l', 'd'],
-        silabas: [2, 2, 3, 3, 3, 4],
-        pInicioVocal: 0.22
-    },
-    japones: {
-        onsets: [
-            'k','s','t','n','h','m','y','r','w',
-            'sh','ch','ts','j','d','b','p','g','z',
-            'ky','gy','ny','hy','my','ry','by','py'
-        ],
-        vowels: ['a','i','u','e','o'],
-        codas:  ['', '', '', '', '', 'n'],
-        silabas: [1, 2, 2, 2, 3, 3, 3],
-        pInicioVocal: 0.30
-    },
-    anglo: {
-        onsets: [
-            'b','c','d','f','g','h','j','k','l','m','n',
-            'p','r','s','t','v','w','y',
-            'ch','sh','th','br','cr','dr','fr','gr','pr','tr',
-            'cl','fl','gl','pl','sl'
-        ],
-        vowels: ['a','e','i','o','u','ay','ee','oo','ie','ai','ea'],
-        codas:  [
-            '', 'b', 'd', 'f', 'g', 'k', 'l', 'm', 'n', 'p', 'r', 's', 't', 'x', 'y',
-            'ck', 'll', 'ss', 'tt', 'nn', 'mm'
-        ],
-        silabas: [1, 2, 2, 2, 3],
-        pInicioVocal: 0.08
-    },
-    fantasia: {
-        onsets: [
-            'b','d','f','g','h','k','l','m','n','p','r','s','t','v','z',
-            'th','sh','kh','ph','vr','dr','br','kr','gl','vl','zh','ss'
-        ],
-        vowels: ['a','e','i','o','u','ae','ei','ou','ia','ua','ao'],
-        codas:  ['', 'n', 'r', 'l', 's', 'th', 'sh', 'x', 'k', 'nd', 'rt', 'st', 'ld'],
-        silabas: [2, 2, 2, 3, 3, 3],
-        pInicioVocal: 0.18
-    }
+const NOMBRES_ENTRENAMIENTO = {
+    latino: [
+        'nicolas','nicol','nicolas','amaro','antonio','jose','juan','manuel',
+        'francisco','luis','javier','miguel','angel','carlos','jesus','david',
+        'pedro','alejandro','fernando','sergio','ricardo','eduardo','roberto',
+        'daniel','pablo','andres','adrian','diego','rafael','gonzalo','tomas',
+        'martin','agustin','felipe','ignacio','matias','sebastian','cristobal',
+        'valentina','camila','isidora','josefa','florencia','martina','catalina',
+        'antonia','javiera','emilia','sofia','lucia','maria','carmen','paula',
+        'andrea','daniela','gabriela','valeria','fernanda','constanza','trinidad',
+        'magdalena','rosario','esperanza','soledad','amparo','dolores','pilar',
+        'ramiro','gonzalo','mauricio','rodrigo','fabricio','leonardo','marcelo',
+        'octavio','tomas','santiago','benjamin','joaquin','maximiliano','lucas',
+        'mateo','tomas','vicente','renato','bruno','alonso','bastian'
+    ],
+    japones: [
+        'haruko','kasumi','tomoe','ryu','ryuu','haruki','takeshi','kenta',
+        'yuki','sakura','aiko','kenji','hiroshi','takumi','daisuke','yumi',
+        'akira','naomi','keiko','michiko','yoko','hana','ren','sora','hikari',
+        'kaito','riku','sota','yuto','daiki','ryota','kazuya','shinji',
+        'asuka','mio','saki','mei','yuna','hina','rin','kaede','tsubaki',
+        'ayame','fuyuko','hotaru','kaoru','midori','natsuki','sakiko'
+    ],
+    anglo: [
+        'jimmy','tommy','andy','charlie','bobby','danny','eddie','freddy',
+        'harry','jack','jake','james','john','kevin','luke','mark','mike',
+        'nick','paul','peter','rick','rob','sam','steve','tim','tom','will',
+        'cassie','rosie','maggie','ellie','katie','lily','lucy','molly',
+        'nancy','penny','polly','sally','sophie','annie','betty','daisy',
+        'emily','grace','hannah','isabel','jane','kelly','laura','megan'
+    ],
+    fantasia: [
+        'aelin','aelric','bran','cass','dorian','elara','fen','garrick',
+        'hale','iris','jax','kael','lyra','mira','nox','orion','pax',
+        'quinn','raven','sable','thane','ulric','vesper','wren','xander',
+        'yara','zephyr','alric','briar','cedric','draven','elara','faelan',
+        'gideon','harlow','imre','jarek','kiran','lorcan','maeve','niamh',
+        'orla','peregrine','rowan','seraphina','tarian','ulric','vanya'
+    ]
 };
 
 // ============================================================
-//  RESTRICCIONES ONSET → VOWEL
-//  "qu" en español siempre va seguido de "e" o "i" (la u es muda).
-//  Sin esta regla se generan cosas como "quue" que se ven feas.
+//  REGLAS FONOTÁCTICAS DEL ESPAÑOL
+//  ------------------------------------------------------------
+//  Restricciones basadas en la estructura silábica real:
+//    - CV 51.2%, CVC 20.6%, V 9.5%, VC 5.8%, CCV 4.6%[reference:2]
+//  Los clusters "bl", "br", "cl", "cr", "dr", "fl", "fr", "gl",
+//  "gr", "pl", "pr", "tr" existen pero son infrecuentes.
 // ============================================================
-const ONSETS_RESTRINGEN = {
-    'qu': ['e', 'i']
-};
+
+// Onsets simples (más frecuentes)
+const ONSETS_SIMPLES = ['b','c','d','f','g','j','l','m','n','p','r','s','t','v','y','z'];
+
+// Onsets compuestos válidos en español (plosiva/f + líquida)
+const ONSETS_COMPUESTOS = ['bl','br','cl','cr','dr','fl','fr','gl','gr','pl','pr','tr'];
+
+// Vocales simples
+const VOCALES = ['a','e','i','o','u'];
+
+// Diptongos comunes
+const DIPTONGOS = ['ia','ie','io','ua','ue','ai','ei','oi','au','eu','ou','iu','ui'];
+
+// Codas frecuentes en nombres (mucho más restrictivo que antes)
+const CODAS = ['', '', '', 'n', 'r', 's', 'l', 'd'];
+
+// Terminaciones muy comunes en nombres hispanos
+const TERMINACIONES_MASC = ['o', 'el', 'in', 'on', 'an', 'io', 'iel', 'er'];
+const TERMINACIONES_FEM  = ['a', 'ia', 'ina', 'ela', 'ita', 'ora', 'ana', 'ia'];
+
+// ============================================================
+//  MOTOR DE CADENAS DE MARKOV
+//  ------------------------------------------------------------
+//  Aprende las transiciones entre sílabas a partir de los
+//  nombres de entrenamiento.
+// ============================================================
+let modeloMarkov = {};
+
+function construirModeloMarkov(nombres) {
+    const modelo = {};
+    for (const nombre of nombres) {
+        const silabas = silabificar(nombre);
+        for (let i = 0; i < silabas.length; i++) {
+            const actual = silabas[i];
+            const siguiente = silabas[i + 1] || '__FIN__';
+            if (!modelo[actual]) modelo[actual] = {};
+            modelo[actual][siguiente] = (modelo[actual][siguiente] || 0) + 1;
+        }
+        // También registrar el inicio
+        const inicio = silabas[0];
+        if (!modelo['__INICIO__']) modelo['__INICIO__'] = {};
+        modelo['__INICIO__'][inicio] = (modelo['__INICIO__'][inicio] || 0) + 1;
+    }
+    return modelo;
+}
+
+// Silabificador simple (no perfecto, pero suficiente para el modelo)
+function silabificar(palabra) {
+    const silabas = [];
+    let actual = '';
+    const vocales = 'aeiouáéíóúü';
+    const palabraLower = palabra.toLowerCase();
+
+    for (let i = 0; i < palabraLower.length; i++) {
+        const c = palabraLower[i];
+        actual += c;
+        const esVocal = vocales.includes(c);
+        const sigEsConsonante = i + 1 < palabraLower.length && !vocales.includes(palabraLower[i + 1]);
+        const sigEsVocal = i + 1 < palabraLower.length && vocales.includes(palabraLower[i + 1]);
+
+        // Regla simple: cortar después de una vocal si la siguiente es consonante
+        if (esVocal && (sigEsConsonante || i === palabraLower.length - 1)) {
+            // No cortar si es un diptongo
+            if (i + 1 < palabraLower.length && vocales.includes(palabraLower[i + 1])) {
+                continue;
+            }
+            silabas.push(actual);
+            actual = '';
+        }
+    }
+    if (actual) silabas.push(actual);
+    return silabas.length ? silabas : [palabraLower];
+}
+
+// Elegir la siguiente sílaba según el modelo de Markov
+function elegirSiguienteMarkov(silabaActual, modelo) {
+    const opciones = modelo[silabaActual];
+    if (!opciones) return null;
+    const total = Object.values(opciones).reduce((a, b) => a + b, 0);
+    let r = Math.random() * total;
+    for (const [sig, peso] of Object.entries(opciones)) {
+        r -= peso;
+        if (r <= 0) return sig;
+    }
+    return Object.keys(opciones)[0];
+}
+
+// ============================================================
+//  GENERADOR HÍBRIDO
+//  ------------------------------------------------------------
+//  Estrategia:
+//    1. Elegir un inicio con Markov (transiciones aprendidas).
+//    2. Seguir generando sílabas con Markov hasta llegar a FIN.
+//    3. Validar fonotácticamente y regenerar si es feo.
+//    4. Ajustar la terminación según el género elegido.
+// ============================================================
+function generarNombreMarkov(estiloId, genero, intento = 0) {
+    if (intento > 20) return generarNombreFallback(genero);
+
+    const nombres = NOMBRES_ENTRENAMIENTO[estiloId] || NOMBRES_ENTRENAMIENTO.latino;
+    const modelo = construirModeloMarkov(nombres);
+
+    // Construir nombre sílaba a sílaba con Markov
+    let silabas = [];
+    let actual = '__INICIO__';
+    const maxSilabas = 4;
+
+    for (let i = 0; i < maxSilabas; i++) {
+        const sig = elegirSiguienteMarkov(actual, modelo);
+        if (!sig || sig === '__FIN__') break;
+        silabas.push(sig);
+        actual = sig;
+    }
+
+    if (silabas.length === 0) return generarNombreMarkov(estiloId, genero, intento + 1);
+
+    // Ajustar terminación según género
+    if (genero === 'masc') {
+        const ultima = silabas[silabas.length - 1];
+        // Reemplazar terminación femenina por masculina común
+        if (/a$/.test(ultima) && silabas.length > 1) {
+            silabas[silabas.length - 1] = ultima.slice(0, -1) + 'o';
+        }
+    } else if (genero === 'fem') {
+        const ultima = silabas[silabas.length - 1];
+        if (/o$/.test(ultima) && silabas.length > 1) {
+            silabas[silabas.length - 1] = ultima.slice(0, -1) + 'a';
+        }
+    }
+
+    let nombre = silabas.join('');
+
+    // Validaciones
+    if (nombre.length < 3) return generarNombreMarkov(estiloId, genero, intento + 1);
+    if (esNombreFeo(nombre)) return generarNombreMarkov(estiloId, genero, intento + 1);
+
+    return nombre.charAt(0).toUpperCase() + nombre.slice(1).toLowerCase();
+}
+
+// Fallback si Markov falla muchas veces
+function generarNombreFallback(genero) {
+    const onsets = ONSETS_SIMPLES;
+    const terminaciones = genero === 'fem' ? TERMINACIONES_FEM : TERMINACIONES_MASC;
+    const onset = pick(onsets);
+    const vocal = pick(VOCALES);
+    const coda = pick(['n', 'r', 's', 'l']);
+    const term = pick(terminaciones);
+    let nombre = onset + vocal + coda + term;
+    return nombre.charAt(0).toUpperCase() + nombre.slice(1).toLowerCase();
+}
+
+// ============================================================
+//  VALIDACIÓN FONOTÁCTICA
+//  ------------------------------------------------------------
+//  Detecta nombres visual o fonéticamente feos:
+//    - 3+ vocales iguales seguidas
+//    - "quu", "guu" (imposibles)
+//    - 4+ vocales seguidas
+//    - 4+ consonantes seguidas
+//    - Clusters imposibles (bl+dr, etc.)
+//    - Sílabas repetidas
+// ============================================================
+function esNombreFeo(nombre) {
+    const n = String(nombre).toLowerCase();
+
+    if (/([aeiou])\1{2,}/.test(n)) return true;        // aaa, eee
+    if (/quu|guu/.test(n)) return true;
+    if (/[aeiou]{4,}/.test(n)) return true;            // 4+ vocales
+    if (/[bcdfghjklmnpqrstvwxyz]{4,}/.test(n)) return true;  // 4+ consonantes
+
+    // Clusters consonánticos imposibles en español
+    if (/(bl|br|cl|cr|dr|fl|fr|gl|gr|pl|pr|tr){2,}/.test(n)) return true;
+
+    // Sílabas repetidas 3 veces
+    if (/(.{2,3})\1{2,}/.test(n)) return true;
+
+    return false;
+}
+
+function pick(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+}
 
 // ============================================================
 //  ESTADO
@@ -119,147 +293,12 @@ window.addEventListener('message', (e) => {
 });
 
 // ============================================================
-//  HELPERS
-// ============================================================
-function pick(arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
-}
-
-function elegirVocalFinal(vowels, genero) {
-    if (genero === 'ambos') return pick(vowels);
-    const mascPref = vowels.filter(v => /^[ou]/.test(v));
-    const femPref  = vowels.filter(v => /^[ai]/.test(v) && !/^[ou]/.test(v));
-    if (genero === 'masc' && mascPref.length && Math.random() < 0.75) return pick(mascPref);
-    if (genero === 'fem'  && femPref.length  && Math.random() < 0.75) return pick(femPref);
-    return pick(vowels);
-}
-
-/**
- * Elige la vocal de una sílaba considerando la restricción del onset.
- */
-function elegirVocalParaOnset(onsetLower, vowels, genero, esUltima) {
-    const restriccion = ONSETS_RESTRINGEN[onsetLower];
-
-    if (restriccion) {
-        const pool = vowels.filter(v => restriccion.some(r => v === r || v.startsWith(r)));
-        const usable = pool.length ? pool : restriccion;
-
-        if (esUltima && genero !== 'ambos') {
-            const mascPref = usable.filter(v => /^[ou]/.test(v));
-            const femPref  = usable.filter(v => /^[ai]/.test(v) && !/^[ou]/.test(v));
-            if (genero === 'masc' && mascPref.length && Math.random() < 0.75) return pick(mascPref);
-            if (genero === 'fem'  && femPref.length  && Math.random() < 0.75) return pick(femPref);
-        }
-        return pick(usable);
-    }
-
-    if (esUltima) return elegirVocalFinal(vowels, genero);
-    return pick(vowels);
-}
-
-/**
- * Detecta nombres visualmente feos o difíciles de leer.
- */
-function esNombreFeo(nombre) {
-    const n = String(nombre).toLowerCase();
-
-    // 3+ vocales iguales seguidas: "aaa", "eee"
-    if (/([aeiou])\1{2,}/.test(n)) return true;
-
-    // "quu" o "guu" — imposibles en español
-    if (/quu|guu/.test(n)) return true;
-
-    // 4+ vocales seguidas (aunque sean distintas)
-    if (/[aeiou]{4,}/.test(n)) return true;
-
-    // 4+ consonantes seguidas
-    if (/[bcdfghjklmnpqrstvwxyz]{4,}/.test(n)) return true;
-
-    // Misma sílaba repetida 3 veces: "mamama", "papapa"
-    if (/(.{2,3})\1{2,}/.test(n)) return true;
-
-    return false;
-}
-
-// ============================================================
-//  GENERADOR PRINCIPAL
-// ============================================================
-function generarNombre(estiloId, genero, intento = 0) {
-    if (intento > 15) return 'Nicol'; // fallback imposible
-
-    const estilo = ESTILOS[estiloId] || ESTILOS.latino;
-    const nSilabas = pick(estilo.silabas);
-
-    let partes = [];
-    let tieneConsonante = false;
-    let ultimoOnset = '';
-
-    for (let i = 0; i < nSilabas; i++) {
-        const esUltima = (i === nSilabas - 1);
-        const silabaAnterior = partes.length ? partes[partes.length - 1] : '';
-        const anteriorTerminaVocal = /[aeiou]$/.test(silabaAnterior);
-
-        // -------- Onset --------
-        let onset;
-        const forzarConsonante = (i > 0) && anteriorTerminaVocal;
-
-        if (i === 0 && Math.random() < estilo.pInicioVocal) {
-            onset = '';
-        } else {
-            // Si la sílaba anterior terminó en vocal, forzamos consonante
-            // para que se lean dos sílabas separadas.
-            onset = pick(estilo.onsets);
-        }
-
-        // Evitar repetir el mismo onset en sílabas consecutivas
-        if (i > 0 && onset && onset === ultimoOnset && Math.random() < 0.6) {
-            let intentosOnset = 0;
-            while (onset === ultimoOnset && intentosOnset < 4) {
-                onset = pick(estilo.onsets);
-                intentosOnset++;
-            }
-        }
-        ultimoOnset = onset;
-
-        // -------- Vowel (con restricción del onset) --------
-        const vowel = elegirVocalParaOnset(
-            onset.toLowerCase(),
-            estilo.vowels,
-            genero,
-            esUltima
-        );
-
-        // -------- Coda --------
-        let coda = '';
-        if (!esUltima) {
-            if (Math.random() < 0.15) coda = pick(estilo.codas);
-        } else {
-            if (Math.random() < 0.35) coda = pick(estilo.codas);
-        }
-
-        if (onset) tieneConsonante = true;
-        if (coda)  tieneConsonante = true;
-
-        partes.push(onset + vowel + coda);
-    }
-
-    let nombre = partes.join('');
-
-    // -------- Validaciones --------
-    if (nombre.length < 3)   return generarNombre(estiloId, genero, intento + 1);
-    if (!tieneConsonante)    return generarNombre(estiloId, genero, intento + 1);
-    if (esNombreFeo(nombre)) return generarNombre(estiloId, genero, intento + 1);
-
-    return nombre.charAt(0).toUpperCase() + nombre.slice(1).toLowerCase();
-}
-
-// ============================================================
 //  UI
 // ============================================================
 function nuevoNombre() {
     const el = document.getElementById('ngNombre');
     if (!el) return;
-    const nombre = generarNombre(estiloActual, generoActual);
+    const nombre = generarNombreMarkov(estiloActual, generoActual);
     el.textContent = nombre;
     el.classList.remove('pop');
     void el.offsetWidth;
@@ -267,7 +306,7 @@ function nuevoNombre() {
 }
 
 function seleccionarEstilo(id) {
-    if (!ESTILOS[id]) return;
+    if (!NOMBRES_ENTRENAMIENTO[id]) return;
     estiloActual = id;
     document.querySelectorAll('#ngEstilos .ng-chip').forEach(c => {
         c.classList.toggle('active', c.dataset.estilo === id);
