@@ -5,6 +5,14 @@
 //  no de una lista predefinida. Cuatro estilos fonéticos y tres
 //  sesgos de género opcionales.
 //
+//  Filtros fonotácticos:
+//    - "qu" solo puede ir con "e"/"i"
+//    - Se rechazan: 3+ vocales iguales, 4+ vocales seguidas,
+//      4+ consonantes seguidas, "quu", "guu", sílabas repetidas.
+//    - Después de sílaba terminada en vocal, la siguiente empieza
+//      con consonante (separación silábica real).
+//    - Anti-repetición del mismo onset en sílabas consecutivas.
+//
 //  SIN persistencia: cada carga arranca en Latino/Ambos.
 // ============================================================
 
@@ -14,12 +22,6 @@ const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 
 // ============================================================
 //  BANCOS DE SÍLABAS POR ESTILO
-//  ------------------------------------------------------------
-//  onsets   → consonantes / grupos iniciales
-//  vowels   → núcleos vocálicos (pueden ser dígrafos)
-//  codas    → terminaciones consonánticas (a veces vacío)
-//  silabas  → número de sílabas (con peso por repetición)
-//  pInicioVocal → probabilidad de empezar con vocal
 // ============================================================
 const ESTILOS = {
     latino: {
@@ -71,6 +73,15 @@ const ESTILOS = {
 };
 
 // ============================================================
+//  RESTRICCIONES ONSET → VOWEL
+//  "qu" en español siempre va seguido de "e" o "i" (la u es muda).
+//  Sin esta regla se generan cosas como "quue" que se ven feas.
+// ============================================================
+const ONSETS_RESTRINGEN = {
+    'qu': ['e', 'i']
+};
+
+// ============================================================
 //  ESTADO
 // ============================================================
 let estiloActual = 'latino';
@@ -114,78 +125,115 @@ function pick(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
-/**
- * Elige la vocal de la ÚLTIMA sílaba aplicando el sesgo de género.
- *  - masc  → prefiere -o / -u
- *  - fem   → prefiere -a / -i / -e
- *  - ambos → sin sesgo
- * La probabilidad de sesgo es 0.75; el resto del tiempo elige al azar
- * del pool completo, lo que mantiene variedad.
- */
 function elegirVocalFinal(vowels, genero) {
     if (genero === 'ambos') return pick(vowels);
-
     const mascPref = vowels.filter(v => /^[ou]/.test(v));
     const femPref  = vowels.filter(v => /^[ai]/.test(v) && !/^[ou]/.test(v));
-
-    if (genero === 'masc' && mascPref.length && Math.random() < 0.75) {
-        return pick(mascPref);
-    }
-    if (genero === 'fem' && femPref.length && Math.random() < 0.75) {
-        return pick(femPref);
-    }
+    if (genero === 'masc' && mascPref.length && Math.random() < 0.75) return pick(mascPref);
+    if (genero === 'fem'  && femPref.length  && Math.random() < 0.75) return pick(femPref);
     return pick(vowels);
 }
 
 /**
- * Cuenta las vocales consecutivas máximas. Sirve para rechazar
- * combinaciones como "aeaoo" que se ven feas.
+ * Elige la vocal de una sílaba considerando la restricción del onset.
  */
-function vocalesConsecutivas(s) {
-    const m = String(s).toLowerCase().match(/[aeiou]+/g) || [];
-    return m.reduce((max, grupo) => Math.max(max, grupo.length), 0);
+function elegirVocalParaOnset(onsetLower, vowels, genero, esUltima) {
+    const restriccion = ONSETS_RESTRINGEN[onsetLower];
+
+    if (restriccion) {
+        const pool = vowels.filter(v => restriccion.some(r => v === r || v.startsWith(r)));
+        const usable = pool.length ? pool : restriccion;
+
+        if (esUltima && genero !== 'ambos') {
+            const mascPref = usable.filter(v => /^[ou]/.test(v));
+            const femPref  = usable.filter(v => /^[ai]/.test(v) && !/^[ou]/.test(v));
+            if (genero === 'masc' && mascPref.length && Math.random() < 0.75) return pick(mascPref);
+            if (genero === 'fem'  && femPref.length  && Math.random() < 0.75) return pick(femPref);
+        }
+        return pick(usable);
+    }
+
+    if (esUltima) return elegirVocalFinal(vowels, genero);
+    return pick(vowels);
+}
+
+/**
+ * Detecta nombres visualmente feos o difíciles de leer.
+ */
+function esNombreFeo(nombre) {
+    const n = String(nombre).toLowerCase();
+
+    // 3+ vocales iguales seguidas: "aaa", "eee"
+    if (/([aeiou])\1{2,}/.test(n)) return true;
+
+    // "quu" o "guu" — imposibles en español
+    if (/quu|guu/.test(n)) return true;
+
+    // 4+ vocales seguidas (aunque sean distintas)
+    if (/[aeiou]{4,}/.test(n)) return true;
+
+    // 4+ consonantes seguidas
+    if (/[bcdfghjklmnpqrstvwxyz]{4,}/.test(n)) return true;
+
+    // Misma sílaba repetida 3 veces: "mamama", "papapa"
+    if (/(.{2,3})\1{2,}/.test(n)) return true;
+
+    return false;
 }
 
 // ============================================================
 //  GENERADOR PRINCIPAL
 // ============================================================
 function generarNombre(estiloId, genero, intento = 0) {
-    // Red de seguridad: 12 intentos máximos y fallback.
-    if (intento > 12) return 'Nicol';
+    if (intento > 15) return 'Nicol'; // fallback imposible
 
     const estilo = ESTILOS[estiloId] || ESTILOS.latino;
     const nSilabas = pick(estilo.silabas);
 
     let partes = [];
     let tieneConsonante = false;
+    let ultimoOnset = '';
 
     for (let i = 0; i < nSilabas; i++) {
         const esUltima = (i === nSilabas - 1);
+        const silabaAnterior = partes.length ? partes[partes.length - 1] : '';
+        const anteriorTerminaVocal = /[aeiou]$/.test(silabaAnterior);
 
         // -------- Onset --------
         let onset;
+        const forzarConsonante = (i > 0) && anteriorTerminaVocal;
+
         if (i === 0 && Math.random() < estilo.pInicioVocal) {
             onset = '';
         } else {
+            // Si la sílaba anterior terminó en vocal, forzamos consonante
+            // para que se lean dos sílabas separadas.
             onset = pick(estilo.onsets);
         }
 
-        // -------- Vowel --------
-        let vowel;
-        if (esUltima) {
-            vowel = elegirVocalFinal(estilo.vowels, genero);
-        } else {
-            vowel = pick(estilo.vowels);
+        // Evitar repetir el mismo onset en sílabas consecutivas
+        if (i > 0 && onset && onset === ultimoOnset && Math.random() < 0.6) {
+            let intentosOnset = 0;
+            while (onset === ultimoOnset && intentosOnset < 4) {
+                onset = pick(estilo.onsets);
+                intentosOnset++;
+            }
         }
+        ultimoOnset = onset;
+
+        // -------- Vowel (con restricción del onset) --------
+        const vowel = elegirVocalParaOnset(
+            onset.toLowerCase(),
+            estilo.vowels,
+            genero,
+            esUltima
+        );
 
         // -------- Coda --------
         let coda = '';
         if (!esUltima) {
-            // Sílabas intermedias: coda rara (15%)
             if (Math.random() < 0.15) coda = pick(estilo.codas);
         } else {
-            // Última sílaba: coda más probable (35%) — da variedad
-            // tipo "nicolas" vs "nicol"
             if (Math.random() < 0.35) coda = pick(estilo.codas);
         }
 
@@ -198,20 +246,10 @@ function generarNombre(estiloId, genero, intento = 0) {
     let nombre = partes.join('');
 
     // -------- Validaciones --------
-    // Demasiado corto (nombres de 1-2 letras no son útiles)
-    if (nombre.length < 3) {
-        return generarNombre(estiloId, genero, intento + 1);
-    }
-    // Sin consonantes → sonaría raro
-    if (!tieneConsonante) {
-        return generarNombre(estiloId, genero, intento + 1);
-    }
-    // 4+ vocales seguidas → feo visual
-    if (vocalesConsecutivas(nombre) > 3) {
-        return generarNombre(estiloId, genero, intento + 1);
-    }
+    if (nombre.length < 3)   return generarNombre(estiloId, genero, intento + 1);
+    if (!tieneConsonante)    return generarNombre(estiloId, genero, intento + 1);
+    if (esNombreFeo(nombre)) return generarNombre(estiloId, genero, intento + 1);
 
-    // Capitalizar: primera mayúscula, resto minúsculas
     return nombre.charAt(0).toUpperCase() + nombre.slice(1).toLowerCase();
 }
 
@@ -221,13 +259,10 @@ function generarNombre(estiloId, genero, intento = 0) {
 function nuevoNombre() {
     const el = document.getElementById('ngNombre');
     if (!el) return;
-
     const nombre = generarNombre(estiloActual, generoActual);
     el.textContent = nombre;
-
-    // Reiniciar la animación pop
     el.classList.remove('pop');
-    void el.offsetWidth;      // reflow para reiniciar la animación
+    void el.offsetWidth;
     el.classList.add('pop');
 }
 
@@ -250,13 +285,12 @@ function seleccionarGenero(id) {
 }
 
 // ============================================================
-//  COPIAR AL PORTAPAPELES
+//  COPIAR
 // ============================================================
 async function copiarNombre() {
     const el = document.getElementById('ngNombre');
     const btn = document.getElementById('ngCopyBtn');
     if (!el || !btn) return;
-
     const texto = el.textContent.trim();
     if (!texto || texto === '—') return;
 
@@ -269,7 +303,6 @@ async function copiarNombre() {
     } catch (e) { /* fallback */ }
 
     if (!exito) {
-        // Fallback silencioso con execCommand
         try {
             const ta = document.createElement('textarea');
             ta.value = texto;
@@ -300,25 +333,14 @@ async function copiarNombre() {
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
     aplicarTemaDelPadre();
-
-    // Chips de estilo
     document.querySelectorAll('#ngEstilos .ng-chip').forEach(btn => {
         btn.addEventListener('click', () => seleccionarEstilo(btn.dataset.estilo));
     });
-
-    // Chips de género
     document.querySelectorAll('#ngGeneros .ng-chip').forEach(btn => {
         btn.addEventListener('click', () => seleccionarGenero(btn.dataset.genero));
     });
-
-    // Botón generar
     document.getElementById('ngBtnGenerar')?.addEventListener('click', nuevoNombre);
-
-    // Botón copiar
     document.getElementById('ngCopyBtn')?.addEventListener('click', copiarNombre);
-
-    // Primer nombre
     nuevoNombre();
-
     if (window.lucide) window.lucide.createIcons();
 });
