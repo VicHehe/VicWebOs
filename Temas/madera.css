@@ -1,18 +1,10 @@
 /* ================================================
    Tema: Madera
-   Nogal cálido. Veta real, nudos con anillos
-   concéntricos y acabado satinado.
-   Tema LIGHT — superficie clara, texto oscuro.
-
-   FIX v4:
-     · --bg ahora es CREMA CLARO (#FAF3E5),
-       antes era #C99B67 (marrón saturado) → texto ilegible.
-     · La veta va como capa de textura sutil sobre el crema.
-     · --text: marrón casi negro (#221A10) sobre fondos claros.
+   Nogal cálido. Tema LIGHT.
+   FIX v5: texturas separadas a ::before.
    ================================================ */
 
 :root {
-    /* Acento nogal */
     --violet-50:  #FCF9F2;
     --violet-100: #F0E4D0;
     --violet-200: #DBC49C;
@@ -22,10 +14,9 @@
     --violet-600: #5E3E22;
     --violet-700: #3E2814;
 
-    /* Superficies CLARAS */
-    --white:   #FFFCF7;   /* blanco cálido, superficie de cards */
-    --bg:      #FAF3E5;   /* ← crema claro, NO #C99B67 */
-    --bg-alt:  #F2E5CC;   /* sidebar, un poco más cálido */
+    --white:   #FFFCF7;
+    --bg:      #FAF3E5;
+    --bg-alt:  #F2E5CC;
     --gray-50:  #F5EDDD;
     --gray-100: #EAD9BF;
     --gray-200: #DBC49C;
@@ -38,7 +29,7 @@
     --gray-900: #120E08;
 
     --border:  #DBC49C;
-    --text:    #221A10;   /* marrón muy oscuro */
+    --text:    #221A10;
     --text-2:  #4E3E2A;
     --text-3:  #6E5A3E;
 
@@ -60,45 +51,33 @@
     --r-lg: 8px;
     --r-xl: 12px;
 
-    /* Grano procedural (feDiffuseLighting, tileable) */
-    --theme-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85 0.15' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeDiffuseLighting in='noise' lighting-color='%23B89268' surfaceScale='1'%3E%3CfeDistantLight azimuth='120' elevation='65'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)' opacity='0.20'/%3E%3C/svg%3E");
-
-    /* Veta horizontal (curvas largas) */
     --theme-grain-h: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M-5,15 Q40,8 80,18 T180,12 T295,20' stroke='%235E3E22' stroke-width='1' stroke-opacity='0.20'/%3E%3Cpath d='M-5,42 Q45,36 85,46 T185,40 T295,48' stroke='%237A5230' stroke-width='1.3' stroke-opacity='0.22'/%3E%3Cpath d='M-5,70 Q55,64 95,74 T195,68 T295,76' stroke='%235E3E22' stroke-width='1.1' stroke-opacity='0.18'/%3E%3Cpath d='M-5,100 Q50,94 90,104 T190,98 T295,106' stroke='%237A5230' stroke-width='1.2' stroke-opacity='0.20'/%3E%3Cpath d='M-5,130 Q55,124 95,134 T195,128 T295,136' stroke='%235E3E22' stroke-width='1' stroke-opacity='0.18'/%3E%3Cpath d='M-5,160 Q50,154 90,164 T190,158 T295,166' stroke='%237A5230' stroke-width='1.2' stroke-opacity='0.22'/%3E%3Cpath d='M-5,192 Q55,186 95,196 T195,190 T295,198' stroke='%235E3E22' stroke-width='1' stroke-opacity='0.18'/%3E%3C/g%3E%3C/svg%3E");
 
-    /* Nudo — anillos concéntricos */
     --theme-knot: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 80'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cellipse cx='50' cy='40' rx='38' ry='28' stroke='%237A5230' stroke-width='1.4' stroke-opacity='0.45'/%3E%3Cellipse cx='50' cy='40' rx='28' ry='21' stroke='%235E3E22' stroke-width='1.5' stroke-opacity='0.55'/%3E%3Cellipse cx='50' cy='40' rx='19' ry='14' stroke='%237A5230' stroke-width='1.4' stroke-opacity='0.60'/%3E%3Cellipse cx='50' cy='40' rx='11' ry='8' stroke='%233E2814' stroke-width='1.4' stroke-opacity='0.65'/%3E%3Cellipse cx='50' cy='40' rx='4' ry='3' fill='%233E2814' fill-opacity='0.70'/%3E%3C/g%3E%3C/svg%3E");
 }
 
-/* ================================================================
-   1. WELCOME — crema claro con veta tenue
-   ================================================================ */
+/* WELCOME — 2 capas + textura en ::before */
 .welcome-placeholder {
     position: relative;
-    background-image:
-        var(--theme-grain),
-        var(--theme-grain-h),
-        linear-gradient(180deg, rgba(255, 240, 200, 0.30) 0%, transparent 40%, rgba(180, 140, 90, 0.06) 100%),
-        linear-gradient(180deg, #FAF3E5 0%, #F2E5CC 100%);
-    background-size:
-        200px 200px,
-        300px 200px,
-        100% 100%,
-        100% 100%;
-    background-position:
-        0 0,
-        0 0,
-        center top,
-        center top;
-    background-repeat:
-        repeat,
-        repeat,
-        no-repeat,
-        no-repeat;
+    background: linear-gradient(180deg, #FAF3E5 0%, #F2E5CC 100%);
     background-color: var(--bg);
+    overflow: hidden;
 }
 
 .welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image: var(--theme-grain-h);
+    background-size: 300px 200px;
+    background-position: 0 0;
+    background-repeat: repeat;
+    opacity: 0.55;
+}
+
+.welcome-placeholder::after {
     content: '';
     position: absolute;
     bottom: 60px;
@@ -112,25 +91,8 @@
     transform: rotate(-8deg);
 }
 
-.welcome-placeholder::after {
-    content: '';
-    position: absolute;
-    top: 50px;
-    left: 90px;
-    width: 80px;
-    height: 64px;
-    background: var(--theme-knot) center/contain no-repeat;
-    opacity: 0.60;
-    pointer-events: none;
-    z-index: 0;
-    transform: rotate(15deg);
-}
-
 .welcome-hero,
-.welcome-section {
-    position: relative;
-    z-index: 2;
-}
+.welcome-section { position: relative; z-index: 2; }
 
 .welcome-glow {
     background: radial-gradient(circle at 35% 30%,
@@ -142,12 +104,7 @@
 .welcome-hero {
     position: relative;
     padding: 38px 32px 34px;
-    background-image:
-        var(--theme-grain),
-        linear-gradient(180deg, #FFFCF7 0%, #F5E9D4 100%);
-    background-size: 200px 200px, 100% 100%;
-    background-position: 0 0, center;
-    background-repeat: repeat, no-repeat;
+    background: linear-gradient(180deg, #FFFCF7 0%, #F5E9D4 100%);
     border: 2px solid var(--violet-600);
     border-radius: 4px;
     box-shadow:
@@ -191,34 +148,18 @@
         0 0 0 3px rgba(184, 146, 104, 0.45);
 }
 
-/* ================================================================
-   2. HEADER
-   ================================================================ */
 .app-header {
     position: relative;
-    background-image:
-        var(--theme-grain-h),
-        linear-gradient(180deg, #FAF3E5 0%, #F2E5CC 100%);
-    background-size: 300px 200px, 100% 100%;
-    background-position: 0 0, center;
-    background-repeat: repeat, no-repeat;
+    background: linear-gradient(180deg, #FAF3E5 0%, #F2E5CC 100%);
     border-bottom: 2px solid var(--violet-600);
     box-shadow:
         inset 0 -1px 0 rgba(94, 62, 34, 0.20),
         0 2px 4px rgba(60, 35, 15, 0.10);
 }
 
-/* ================================================================
-   3. SIDEBAR
-   ================================================================ */
 .sidebar {
     position: relative;
-    background-image:
-        var(--theme-grain),
-        linear-gradient(90deg, #F2E5CC 0%, #EAD9BF 100%);
-    background-size: 200px 200px, 100% 100%;
-    background-position: 0 0, center;
-    background-repeat: repeat, no-repeat;
+    background: linear-gradient(90deg, #F2E5CC 0%, #EAD9BF 100%);
     border-right: 2px solid var(--violet-600);
     overflow: hidden;
 }
@@ -232,16 +173,12 @@
     color: var(--text-2);
     transition: all 0.20s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.nav-item:hover {
-    background: rgba(122, 82, 48, 0.08);
-    color: var(--text);
-}
+.nav-item:hover { background: rgba(122, 82, 48, 0.08); color: var(--text); }
 .nav-item.active {
     background: linear-gradient(180deg, #FFFCF7 0%, #FAF3E5 100%);
     color: var(--text);
     box-shadow:
         inset 0 0 0 1px var(--violet-400),
-        inset 0 0 0 2px rgba(255, 255, 255, 0.60),
         0 2px 4px rgba(60, 35, 15, 0.10);
 }
 .nav-item.active::before {
@@ -256,22 +193,13 @@
     .sidebar { position: fixed; }
 }
 
-/* ================================================================
-   4. ACCESOS RÁPIDOS
-   ================================================================ */
 .acceso-item {
     position: relative;
-    background-image:
-        var(--theme-grain),
-        linear-gradient(180deg, #FFFCF7 0%, #F5E9D4 100%);
-    background-size: 200px 200px, 100% 100%;
-    background-position: 0 0, center;
-    background-repeat: repeat, no-repeat;
+    background: linear-gradient(180deg, #FFFCF7 0%, #F5E9D4 100%);
     border: 1.5px solid var(--violet-500);
     border-radius: 5px;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.70),
-        inset 0 -2px 6px rgba(94, 62, 34, 0.08),
         0 3px 8px rgba(60, 35, 15, 0.10);
     overflow: visible;
     transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
@@ -281,11 +209,8 @@
     border-color: var(--violet-400);
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.85),
-        inset 0 -2px 6px rgba(94, 62, 34, 0.12),
-        0 12px 26px rgba(60, 35, 15, 0.18),
-        0 4px 8px rgba(60, 35, 15, 0.08);
+        0 12px 26px rgba(60, 35, 15, 0.18);
 }
-
 .acceso-icon-wrap {
     background: linear-gradient(180deg, #F0E4D0, #DBC49C);
     color: var(--violet-500);
@@ -300,20 +225,13 @@
     background: linear-gradient(180deg, #7A5230, #3E2814);
     color: #FAF3E5;
     border-color: var(--violet-300);
-    box-shadow:
-        0 0 0 3px rgba(184, 146, 104, 0.30),
-        0 4px 10px rgba(60, 35, 15, 0.35);
+    box-shadow: 0 4px 10px rgba(60, 35, 15, 0.35);
 }
 
-/* ================================================================
-   5. WIDGETS
-   ================================================================ */
 .widget-item {
     border: 1.5px solid var(--violet-500);
     border-radius: 5px;
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.60),
-        0 4px 10px rgba(60, 35, 15, 0.12);
+    box-shadow: 0 4px 10px rgba(60, 35, 15, 0.12);
     transition: all 0.22s;
 }
 .widget-item:hover {
@@ -321,16 +239,8 @@
     box-shadow: 0 12px 26px rgba(60, 35, 15, 0.18);
 }
 
-/* ================================================================
-   6. PESTAÑAS
-   ================================================================ */
 .tab-item.active {
-    background-image:
-        var(--theme-grain),
-        linear-gradient(180deg, #FFFCF7 0%, #F5E9D4 100%);
-    background-size: 200px 200px, 100% 100%;
-    background-position: 0 0, center;
-    background-repeat: repeat, no-repeat;
+    background: linear-gradient(180deg, #FFFCF7 0%, #F5E9D4 100%);
     border-color: var(--violet-600);
     border-radius: 5px 5px 0 0;
     color: var(--text);
@@ -340,24 +250,15 @@
 }
 .tab-item.active [data-lucide] { color: var(--violet-600); }
 
-/* ================================================================
-   7. MODALES
-   ================================================================ */
 .config-card,
 .modal-todas-card {
     position: relative;
     overflow: hidden;
-    background-image:
-        var(--theme-grain),
-        linear-gradient(180deg, #FFFCF7 0%, #F5E9D4 100%);
-    background-size: 200px 200px, 100% 100%;
-    background-position: 0 0, center;
-    background-repeat: repeat, no-repeat;
+    background: linear-gradient(180deg, #FFFCF7 0%, #F5E9D4 100%);
     border: 2px solid var(--violet-600);
     border-radius: 6px;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.75),
-        inset 0 0 0 5px rgba(94, 62, 34, 0.08),
         0 24px 48px rgba(60, 35, 15, 0.25);
 }
 .config-card::before,
@@ -378,12 +279,8 @@
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.60);
 }
 
-/* ================================================================
-   8. BOTÓN PRIMARIO
-   ================================================================ */
 .btn-primario {
-    background: linear-gradient(180deg,
-        #966E40 0%, #7A5230 45%, #5E3E22 55%, #3E2814 100%);
+    background: linear-gradient(180deg, #966E40 0%, #7A5230 45%, #5E3E22 55%, #3E2814 100%);
     border: 1.5px solid #3E2814;
     color: #FAF3E5;
     font-weight: 700;
@@ -395,19 +292,14 @@
     transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .btn-primario:hover {
-    background: linear-gradient(180deg,
-        #B89268 0%, #966E40 45%, #7A5230 55%, #5E3E22 100%);
+    background: linear-gradient(180deg, #B89268 0%, #966E40 45%, #7A5230 55%, #5E3E22 100%);
     transform: translateY(-1px);
     box-shadow:
         inset 0 1px 0 rgba(255, 240, 200, 0.50),
         inset 0 -2px 4px rgba(0, 0, 0, 0.35),
-        0 8px 20px rgba(60, 35, 15, 0.40),
-        0 0 0 3px rgba(184, 146, 104, 0.30);
+        0 8px 20px rgba(60, 35, 15, 0.40);
 }
 
-/* ================================================================
-   9. INPUTS
-   ================================================================ */
 .config-field input,
 .config-field select,
 .config-select {
@@ -425,9 +317,6 @@
         0 0 0 3px rgba(184, 146, 104, 0.30);
 }
 
-/* ================================================================
-   10. AVATAR Y NOTIFICACIONES
-   ================================================================ */
 .avatar-config {
     background: radial-gradient(circle at 35% 30%,
         #B89268 0%, #7A5230 45%, #5E3E22 75%, #3E2814 100%);
@@ -457,11 +346,7 @@
 }
 .search-bar:focus-within .search-icon { color: var(--violet-500); }
 
-/* ================================================================
-   11. RESPONSIVE
-   ================================================================ */
 @media (max-width: 768px) {
     .sidebar { position: fixed; }
-    .welcome-placeholder::before,
     .welcome-placeholder::after { display: none; }
 }
