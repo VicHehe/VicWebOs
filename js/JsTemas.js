@@ -9,6 +9,7 @@
 //  ESCALA DE PRECIO (0 a 50):
 //    0   → oficiales gratuitos
 //    5  → recolor puro :root
+//    15  → paleta curada, sin decoración
 //    20  → chrome reescrito (header, sidebar, tabs, botones)
 //    25  → chrome + un detalle decorativo (nubes, franja)
 //    30  → efecto visual claro (pattern SVG, scanlines, glitch)
@@ -16,21 +17,28 @@
 //    40  → textura + animación en vivo
 //    45  → artesanal (marcos, florituras, decoración por sección)
 //    50  → flagship: animaciones en vivo + múltiples capas
-//    18  → 🔒 EXCLUSIVO DE CONSENTIDO (referencia al 18 de septiembre)
+//    16  → 🔒 EXCLUSIVO DE MÉXICO (referencia al 15 de septiembre)
+//    18  → 🔒 EXCLUSIVO DE CHILE (referencia al 18 de septiembre)
 //
 //  ORGANIZACIÓN:
-//    Cada categoría ordenada por PRECIO de MENOR a MAYOR.
-//    Dentro del mismo precio, orden por afinidad temática.
+//    Las CATEGORÍAS están ordenadas por COSTO TOTAL ASCENDENTE
+//    (suma de los precios de todos los temas que la componen).
+//    Dentro de cada categoría, los temas van de MENOR a MAYOR precio.
 //
-//  CATEGORÍAS:
-//    Básicos      → recolor simple en light mode
-//    Oscuros      → dark mode simple, sin decoración
-//    Formales     → trabajo, elegantes, OS-like
-//    Retro        → referencias a décadas pasadas
-//    Festivos     → celebraciones patrias y culturales
-//    Atmósferas   → moods, ambientes, sensaciones cozy
-//    Fantasía     → narrativa, aventura, retro-futurista
-//    Cultura Pop  → juegos, música, redes, streaming, magia pop
+//  CATEGORÍAS (por costo total):
+//    Básicos            → 0
+//    Simples            → 20
+//    Oscuros            → 50
+//    Retro              → 60
+//    Cosmos             → 85
+//    Espacios Liminales → 85
+//    Festivos           → 90
+//    Formales           → 90
+//    Cine               → 120
+//    Atmósferas         → 150
+//    Fantasía           → 170
+//    3D                 → 200
+//    Cultura Pop        → 335
 //
 //  REGLA DE ORO: cada salto de precio se tiene que VER en la pantalla.
 // ============================================================
@@ -39,6 +47,7 @@ const TEMAS_DISPONIBLES = [
 
     // ============================================================
     //  BÁSICOS — Recolors simples, light mode
+    //  Costo total de la categoría: 0
     //  Todos comparten la misma estructura :root sin efectos.
     // ============================================================
     {
@@ -189,10 +198,9 @@ const TEMAS_DISPONIBLES = [
 
     // ============================================================
     //  SIMPLES — Recolors con alma, sin decoración compleja.
+    //  Costo total de la categoría: 20
     //  Paletas con temperatura propia (neutros tintados + un
-    //  acento protagonista). Pensados para quien quiere
-    //  personalidad sin efectos visuales ni animaciones.
-    //  Precio: 10-20. Espacio: 2 (solo :root).
+    //  acento protagonista). Espacio 2 (solo :root).
     // ============================================================
     {
         id: 'terracota',
@@ -266,9 +274,10 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFFFF'
         }
     },
-    
+
     // ============================================================
     //  OSCUROS — Dark mode simple, sin decoración
+    //  Costo total de la categoría: 50
     //  Base oscura, distintos acentos. Sin efectos visuales.
     // ============================================================
     {
@@ -344,193 +353,9 @@ const TEMAS_DISPONIBLES = [
         }
     },
 
-    {
-        id: 'aurora-boreal',
-        nombre: 'Aurora Boreal',
-        icono: 'sparkle',
-        descripcion: 'Verde esmeralda sobre azul noche profundo, con acento violeta. Paleta fría, luminosa y calma.',
-        categoria: 'Cosmos',
-        ruta: 'Temas/aurora-boreal.css',
-        espacio: 2,
-        monedas: 15,
-        colores: {
-            '--violet-100': '#0E2A22',
-            '--violet-300': '#34D399',
-            '--violet-500': '#8B5CF6',
-            '--bg':         '#071820',
-            '--bg-alt':     '#0A2028',
-            '--white':      '#0F2A35'
-        }
-    },
-    {
-        id: 'nebulosa',
-        nombre: 'Nebulosa',
-        icono: 'orbit',
-        descripcion: 'Magenta estelar y cyan sobre púrpura profundo. Saturación alta y contraste nocturno.',
-        categoria: 'Cosmos',
-        ruta: 'Temas/nebulosa.css',
-        espacio: 2,
-        monedas: 15,
-        colores: {
-            '--violet-100': '#240E38',
-            '--violet-300': '#F0ABFC',
-            '--violet-500': '#E879F9',
-            '--bg':         '#080318',
-            '--bg-alt':     '#0F0722',
-            '--white':      '#140A2E'
-        }
-    },
-    {
-        id: 'eclipse-solar',
-        nombre: 'Eclipse Solar',
-        icono: 'sun-moon',
-        descripcion: 'Casi negro con acento naranja-dorado. Alto contraste cálido sobre oscuridad densa.',
-        categoria: 'Cosmos',
-        ruta: 'Temas/eclipse-solar.css',
-        espacio: 2,
-        monedas: 15,
-        colores: {
-            '--violet-100': '#241508',
-            '--violet-300': '#FBBF24',
-            '--violet-500': '#F59E0B',
-            '--bg':         '#0A0705',
-            '--bg-alt':     '#120D08',
-            '--white':      '#18120C'
-        }
-    },
-    {
-        id: 'piscina-vacia',
-        nombre: 'Piscina Vacía',
-        icono: 'bath',
-        descripcion: 'Celeste pálido, blanco limpio y gris suave. Paleta fresca y desaturada.',
-        categoria: 'Espacios Liminales',
-        ruta: 'Temas/piscina-vacia.css',
-        espacio: 2,
-        monedas: 15,
-        colores: {
-            '--violet-100': '#D5E9F0',
-            '--violet-300': '#78B8CC',
-            '--violet-500': '#2E8898',
-            '--bg':         '#E8F3F7',
-            '--bg-alt':     '#D5E9F0',
-            '--white':      '#FFFFFF'
-        }
-    },
-    {
-        id: 'pasillo-hotel',
-        nombre: 'Pasillo de Hotel',
-        icono: 'door-closed',
-        descripcion: 'Vino profundo, crema cálida y marrón madera. Neutros cálidos con un acento vino intenso.',
-        categoria: 'Espacios Liminales',
-        ruta: 'Temas/pasillo-hotel.css',
-        espacio: 2,
-        monedas: 15,
-        colores: {
-            '--violet-100': '#EBD5D5',
-            '--violet-300': '#A84E5A',
-            '--violet-500': '#721D2A',
-            '--bg':         '#F5EBDC',
-            '--bg-alt':     '#EBD9C2',
-            '--white':      '#FFFCF7'
-        }
-    },
-    {
-        id: 'centro-comercial',
-        nombre: 'Centro Comercial',
-        icono: 'shopping-bag',
-        descripcion: 'Beige cálido y verde medio, con acento cyan frío. Paleta terrosa con contrapunto vivo.',
-        categoria: 'Espacios Liminales',
-        ruta: 'Temas/centro-comercial.css',
-        espacio: 2,
-        monedas: 15,
-        colores: {
-            '--violet-100': '#D5E5CC',
-            '--violet-300': '#7CB342',
-            '--violet-500': '#4A8C2E',
-            '--bg':         '#F0EBE3',
-            '--bg-alt':     '#E3DBD0',
-            '--white':      '#FFFFFF'
-        }
-    },
-    // ============================================================
-    //  FORMALES — Para trabajar, elegantes, OS-like
-    //  Vibra profesional, limpia, sin estridencias.
-    // ============================================================
-    {
-        id: 'oficina',
-        nombre: 'Oficina',
-        icono: 'briefcase',
-        descripcion: 'Formal y minimalista. Gris pizarra, bordes finos. Para trabajar en serio.',
-        categoria: 'Formales',
-        ruta: 'Temas/oficina.css',
-        espacio: 2,
-        monedas: 20,
-        colores: {
-            '--violet-100': '#E4E6EA',
-            '--violet-300': '#A8AEB8',
-            '--violet-500': '#4A5260',
-            '--bg':         '#E8E8E5',
-            '--bg-alt':     '#D8D8D4',
-            '--white':      '#FFFFFF'
-        }
-    },
-    {
-        id: 'oficina-dark',
-        nombre: 'Oficina Dark',
-        icono: 'building-2',
-        descripcion: 'La versión nocturna de Oficina. Negro formal, bordes grises. Para trabajar de noche.',
-        categoria: 'Formales',
-        ruta: 'Temas/oficina-dark.css',
-        espacio: 2,
-        monedas: 20,
-        colores: {
-            '--violet-100': '#1F1F23',
-            '--violet-300': '#3A3A40',
-            '--violet-500': '#A8A8B3',
-            '--bg':         '#0E0E10',
-            '--bg-alt':     '#171719',
-            '--white':      '#1F1F23'
-        }
-    },
-    {
-        id: 'ventanas',
-        nombre: 'Ventanas',
-        icono: 'app-window',
-        descripcion: 'Windows de barrio. Azul Fluent, esquinas suaves y chrome de ventana.',
-        categoria: 'Formales',
-        ruta: 'Temas/ventanas.css',
-        espacio: 4,
-        monedas: 25,
-        colores: {
-            '--violet-100': '#D6E8F7',
-            '--violet-300': '#7FB8E6',
-            '--violet-500': '#0078D4',
-            '--bg':         '#F3F3F3',
-            '--bg-alt':     '#EAEAEA',
-            '--white':      '#FFFFFF'
-        }
-    },
-    {
-        id: 'celeste',
-        nombre: 'Celeste Nublado',
-        icono: 'cloud',
-        descripcion: 'Cielo pastel grisáceo con nubes suaves vectoriales.',
-        categoria: 'Formales',
-        ruta: 'Temas/celeste.css',
-        espacio: 4,
-        monedas: 25,
-        colores: {
-            '--violet-100': '#DDE9F2',
-            '--violet-300': '#9CB8CD',
-            '--violet-500': '#5E84A0',
-            '--bg':         '#E7EDF3',
-            '--bg-alt':     '#CADEEF',
-            '--white':      '#FFFFFF'
-        }
-    },
-
     // ============================================================
     //  RETRO — Referencias a décadas pasadas
+    //  Costo total de la categoría: 60
     //  Cada uno evoca una época concreta.
     // ============================================================
     {
@@ -607,7 +432,169 @@ const TEMAS_DISPONIBLES = [
     },
 
     // ============================================================
+    //  COSMOS — Cielo profundo, cuerpos celestes, atmósfera
+    //  espacial. Paletas nocturnas ricas, oscuras, contemplativas.
+    //  Costo total de la categoría: 85
+    //  Progresión interna por color dominante:
+    //    verde → magenta → naranja → cyan (flagship).
+    // ============================================================
+    {
+        id: 'aurora-boreal',
+        nombre: 'Aurora Boreal',
+        icono: 'sparkle',
+        descripcion: 'Verde esmeralda sobre azul noche profundo, con acento violeta. Paleta fría, luminosa y calma.',
+        categoria: 'Cosmos',
+        ruta: 'Temas/aurora-boreal.css',
+        espacio: 2,
+        monedas: 15,
+        colores: {
+            '--violet-100': '#0E2A22',
+            '--violet-300': '#34D399',
+            '--violet-500': '#8B5CF6',
+            '--bg':         '#071820',
+            '--bg-alt':     '#0A2028',
+            '--white':      '#0F2A35'
+        }
+    },
+    {
+        id: 'nebulosa',
+        nombre: 'Nebulosa',
+        icono: 'orbit',
+        descripcion: 'Magenta estelar y cyan sobre púrpura profundo. Saturación alta y contraste nocturno.',
+        categoria: 'Cosmos',
+        ruta: 'Temas/nebulosa.css',
+        espacio: 2,
+        monedas: 15,
+        colores: {
+            '--violet-100': '#240E38',
+            '--violet-300': '#F0ABFC',
+            '--violet-500': '#E879F9',
+            '--bg':         '#080318',
+            '--bg-alt':     '#0F0722',
+            '--white':      '#140A2E'
+        }
+    },
+    {
+        id: 'eclipse-solar',
+        nombre: 'Eclipse Solar',
+        icono: 'sun-moon',
+        descripcion: 'Casi negro con acento naranja-dorado. Alto contraste cálido sobre oscuridad densa.',
+        categoria: 'Cosmos',
+        ruta: 'Temas/eclipse-solar.css',
+        espacio: 2,
+        monedas: 15,
+        colores: {
+            '--violet-100': '#241508',
+            '--violet-300': '#FBBF24',
+            '--violet-500': '#F59E0B',
+            '--bg':         '#0A0705',
+            '--bg-alt':     '#120D08',
+            '--white':      '#18120C'
+        }
+    },
+    {
+        id: 'cometa-errante',
+        nombre: 'Cometa Errante',
+        icono: 'shooting-star',
+        descripcion: 'Un cometa cruza el lobby dejando estela luminosa. Estrellas titilando y nebulosa que respira al fondo.',
+        categoria: 'Cosmos',
+        ruta: 'Temas/cometa-errante.css',
+        espacio: 4,
+        monedas: 40,
+        colores: {
+            '--violet-100': '#10202E',
+            '--violet-300': '#38BDF8',
+            '--violet-500': '#22D3EE',
+            '--bg':         '#05080F',
+            '--bg-alt':     '#0A1420',
+            '--white':      '#0A1220'
+        }
+    },
+
+    // ============================================================
+    //  ESPACIOS LIMINALES — Lugares vacíos, nostálgicos,
+    //  ligeramente inquietantes. Luz artificial, arquitectura
+    //  reconocible, silencio.
+    //  Costo total de la categoría: 85
+    //  Progresión interna por temperatura:
+    //    frío agua → cálido interior → beige mall → mostaza flagship.
+    // ============================================================
+    {
+        id: 'piscina-vacia',
+        nombre: 'Piscina Vacía',
+        icono: 'bath',
+        descripcion: 'Celeste pálido, blanco limpio y gris suave. Paleta fresca y desaturada.',
+        categoria: 'Espacios Liminales',
+        ruta: 'Temas/piscina-vacia.css',
+        espacio: 2,
+        monedas: 15,
+        colores: {
+            '--violet-100': '#D5E9F0',
+            '--violet-300': '#78B8CC',
+            '--violet-500': '#2E8898',
+            '--bg':         '#E8F3F7',
+            '--bg-alt':     '#D5E9F0',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
+        id: 'pasillo-hotel',
+        nombre: 'Pasillo de Hotel',
+        icono: 'door-closed',
+        descripcion: 'Vino profundo, crema cálida y marrón madera. Neutros cálidos con un acento vino intenso.',
+        categoria: 'Espacios Liminales',
+        ruta: 'Temas/pasillo-hotel.css',
+        espacio: 2,
+        monedas: 15,
+        colores: {
+            '--violet-100': '#EBD5D5',
+            '--violet-300': '#A84E5A',
+            '--violet-500': '#721D2A',
+            '--bg':         '#F5EBDC',
+            '--bg-alt':     '#EBD9C2',
+            '--white':      '#FFFCF7'
+        }
+    },
+    {
+        id: 'centro-comercial',
+        nombre: 'Centro Comercial',
+        icono: 'shopping-bag',
+        descripcion: 'Beige cálido y verde medio, con acento cyan frío. Paleta terrosa con contrapunto vivo.',
+        categoria: 'Espacios Liminales',
+        ruta: 'Temas/centro-comercial.css',
+        espacio: 2,
+        monedas: 15,
+        colores: {
+            '--violet-100': '#D5E5CC',
+            '--violet-300': '#7CB342',
+            '--violet-500': '#4A8C2E',
+            '--bg':         '#F0EBE3',
+            '--bg-alt':     '#E3DBD0',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
+        id: 'cuartos-traseros',
+        nombre: 'Cuartos Traseros',
+        icono: 'door-open',
+        descripcion: 'Habitación infinita. Amarillo mostaza, alfombra húmeda, papel tapiz sutil y luces fluorescentes que parpadean. No deberías estar acá.',
+        categoria: 'Espacios Liminales',
+        ruta: 'Temas/cuartos-traseros.css',
+        espacio: 4,
+        monedas: 40,
+        colores: {
+            '--violet-100': '#3A3015',
+            '--violet-300': '#B8A040',
+            '--violet-500': '#E8C840',
+            '--bg':         '#14120C',
+            '--bg-alt':     '#1A180F',
+            '--white':      '#1E1C14'
+        }
+    },
+
+    // ============================================================
     //  FESTIVOS — Celebraciones patrias y culturales
+    //  Costo total de la categoría: 90
     //  Referencias a fiestas nacionales, con decoración viva
     //  y precios fijos por la fecha que celebran.
     // ============================================================
@@ -647,7 +634,7 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFFFF'
         }
     },
-        {
+    {
         id: 'navidad-cozy',
         nombre: 'Navidad Cozy',
         icono: 'gift',
@@ -665,7 +652,7 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFFFF'
         }
     },
-        {
+    {
         id: 'carnaval-veneciano',
         nombre: 'Carnaval Veneciano',
         icono: 'theater',
@@ -685,7 +672,167 @@ const TEMAS_DISPONIBLES = [
     },
 
     // ============================================================
+    //  FORMALES — Para trabajar, elegantes, OS-like
+    //  Costo total de la categoría: 90
+    //  Vibra profesional, limpia, sin estridencias.
+    // ============================================================
+    {
+        id: 'oficina',
+        nombre: 'Oficina',
+        icono: 'briefcase',
+        descripcion: 'Formal y minimalista. Gris pizarra, bordes finos. Para trabajar en serio.',
+        categoria: 'Formales',
+        ruta: 'Temas/oficina.css',
+        espacio: 2,
+        monedas: 20,
+        colores: {
+            '--violet-100': '#E4E6EA',
+            '--violet-300': '#A8AEB8',
+            '--violet-500': '#4A5260',
+            '--bg':         '#E8E8E5',
+            '--bg-alt':     '#D8D8D4',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
+        id: 'oficina-dark',
+        nombre: 'Oficina Dark',
+        icono: 'building-2',
+        descripcion: 'La versión nocturna de Oficina. Negro formal, bordes grises. Para trabajar de noche.',
+        categoria: 'Formales',
+        ruta: 'Temas/oficina-dark.css',
+        espacio: 2,
+        monedas: 20,
+        colores: {
+            '--violet-100': '#1F1F23',
+            '--violet-300': '#3A3A40',
+            '--violet-500': '#A8A8B3',
+            '--bg':         '#0E0E10',
+            '--bg-alt':     '#171719',
+            '--white':      '#1F1F23'
+        }
+    },
+    {
+        id: 'ventanas',
+        nombre: 'Ventanas',
+        icono: 'app-window',
+        descripcion: 'Windows de barrio. Azul Fluent, esquinas suaves y chrome de ventana.',
+        categoria: 'Formales',
+        ruta: 'Temas/ventanas.css',
+        espacio: 4,
+        monedas: 25,
+        colores: {
+            '--violet-100': '#D6E8F7',
+            '--violet-300': '#7FB8E6',
+            '--violet-500': '#0078D4',
+            '--bg':         '#F3F3F3',
+            '--bg-alt':     '#EAEAEA',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
+        id: 'celeste',
+        nombre: 'Celeste Nublado',
+        icono: 'cloud',
+        descripcion: 'Cielo pastel grisáceo con nubes suaves vectoriales.',
+        categoria: 'Formales',
+        ruta: 'Temas/celeste.css',
+        espacio: 4,
+        monedas: 25,
+        colores: {
+            '--violet-100': '#DDE9F2',
+            '--violet-300': '#9CB8CD',
+            '--violet-500': '#5E84A0',
+            '--bg':         '#E7EDF3',
+            '--bg-alt':     '#CADEEF',
+            '--white':      '#FFFFFF'
+        }
+    },
+
+    // ============================================================
+    //  CINE — Géneros cinematográficos
+    //  Costo total de la categoría: 120
+    //  Cada tema evoca la gramática visual de un género de cine,
+    //  sin nombres de películas ni franquicias específicas.
+    //  Progresión interna: Romance (25) → Sci-fi (25) → Jazz (35)
+    //  → Terror (35).
+    // ============================================================
+    {
+        id: 'cine-romance-escolar',
+        nombre: 'Cine Romance Escolar',
+        icono: 'graduation-cap',
+        descripcion: 'Comedia romántica de secundaria. Cuaderno rayado, corazón y luz cálida de tarde noventera.',
+        categoria: 'Cine',
+        ruta: 'Temas/cine-romance-escolar.css',
+        espacio: 4,
+        monedas: 25,
+        colores: {
+            '--violet-100': '#FFE4DE',
+            '--violet-300': '#E8A0A0',
+            '--violet-500': '#C25E5E',
+            '--bg':         '#FFF8F2',
+            '--bg-alt':     '#FCEFE4',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
+        id: 'cine-ciencia-ficcion',
+        nombre: 'Cine Ciencia Ficción',
+        icono: 'rocket',
+        descripcion: 'Nave espacial, hologramas y grid de perspectiva cyberpunk. Sci-fi clásico y moderno.',
+        categoria: 'Cine',
+        ruta: 'Temas/cine-ciencia-ficcion.css',
+        espacio: 4,
+        monedas: 25,
+        colores: {
+            '--violet-100': '#0F1E38',
+            '--violet-300': '#00D9FF',
+            '--violet-500': '#00B8E0',
+            '--bg':         '#050810',
+            '--bg-alt':     '#0A1424',
+            '--white':      '#0C1828'
+        }
+    },
+    {
+        id: 'cine-jazzystreet',
+        nombre: 'Cine JazzyStreet',
+        icono: 'music-4',
+        descripcion: 'Bar speakeasy de los años 50. Cobre y ladrillo, luz cálida de farol, sol art déco y notas al pasar.',
+        categoria: 'Cine',
+        ruta: 'Temas/cine-jazzystreet.css',
+        espacio: 4,
+        monedas: 35,
+        colores: {
+            '--violet-100': '#2C1810',
+            '--violet-300': '#D97A54',
+            '--violet-500': '#C4562E',
+            '--bg':         '#100806',
+            '--bg-alt':     '#1A0D08',
+            '--white':      '#1A0F0A'
+        }
+    },
+    {
+        id: 'cine-terror',
+        nombre: 'Cine de Terror',
+        icono: 'skull',
+        descripcion: 'Sangre, sombras, grano de película vieja y un parpadeo que nunca está quieto.',
+        categoria: 'Cine',
+        ruta: 'Temas/cine-terror.css',
+        espacio: 4,
+        monedas: 35,
+        colores: {
+            '--violet-100': '#2A0608',
+            '--violet-300': '#B91C1C',
+            '--violet-500': '#991B1B',
+            '--bg':         '#050303',
+            '--bg-alt':     '#0A0505',
+            '--white':      '#0D0808'
+        }
+    },
+
+    // ============================================================
     //  ATMÓSFERAS — Moods, ambientes, sensaciones cozy
+    //  Costo total de la categoría: 150
     //  No representan un objeto: evocan un estado de ánimo,
     //  un momento del día, o una sensación táctil/visual.
     // ============================================================
@@ -743,7 +890,7 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFFFF'
         }
     },
-        {
+    {
         id: 'tormenta',
         nombre: 'Tormenta',
         icono: 'cloud-lightning',
@@ -764,6 +911,7 @@ const TEMAS_DISPONIBLES = [
 
     // ============================================================
     //  FANTASÍA — Narrativa, aventura, retro-futurista
+    //  Costo total de la categoría: 170
     //  Cuentan una historia con su estética.
     // ============================================================
     {
@@ -840,7 +988,92 @@ const TEMAS_DISPONIBLES = [
     },
 
     // ============================================================
+    //  3D — Efectos de perspectiva y profundidad real
+    //  Costo total de la categoría: 200
+    //  Uso de transform-style: preserve-3d, perspective() y
+    //  rotateX/rotateY en hover. Flat shading (color plano, sin
+    //  texture mapping) + sombras duras apiladas + biseles.
+    //  Todos con espacio 4 (implican patrones + pseudo-elementos
+    //  + transforms animados).
+    //  Progresión interna por tipo de escena:
+    //    arcade → papel → ciudad → paisaje.
+    // ============================================================
+    {
+        id: 'retro-3d-arcade',
+        nombre: 'Retro-3D Arcade',
+        icono: 'joystick',
+        descripcion: 'Flat-shaded polygons estilo Sega Model 1. Las cards se inclinan en 3D al pasar el mouse, con sombras duras y grid de perspectiva.',
+        categoria: '3D',
+        ruta: 'Temas/retro-3d-arcade.css',
+        espacio: 4,
+        monedas: 50,
+        colores: {
+            '--violet-100': '#101828',
+            '--violet-300': '#00D9FF',
+            '--violet-500': '#FF3DB0',
+            '--bg':         '#060810',
+            '--bg-alt':     '#0A0E1A',
+            '--white':      '#0C1020'
+        }
+    },
+    {
+        id: 'origami',
+        nombre: 'Origami',
+        icono: 'layers',
+        descripcion: 'Papel washi japonés con fibra real. Esquinas dobladas, capas apiladas y pliegues que se sienten físicos. Índigo, crema y bermellón.',
+        categoria: '3D',
+        ruta: 'Temas/origami.css',
+        espacio: 4,
+        monedas: 50,
+        colores: {
+            '--violet-100': '#E8DFD0',
+            '--violet-300': '#4A6B8A',
+            '--violet-500': '#2C3E50',
+            '--bg':         '#F5F0E8',
+            '--bg-alt':     '#EDE4D3',
+            '--white':      '#FDFAF3'
+        }
+    },
+    {
+        id: 'isometric-city',
+        nombre: 'Isometric City',
+        icono: 'blocks',
+        descripcion: 'Vista isométrica de una ciudad bloque. Cubos con ventanas iluminadas, sombras duras apiladas y proyección paralela. Estilo SimCity clásico.',
+        categoria: '3D',
+        ruta: 'Temas/isometric-city.css',
+        espacio: 4,
+        monedas: 50,
+        colores: {
+            '--violet-100': '#121F33',
+            '--violet-300': '#345675',
+            '--violet-500': '#FB923C',
+            '--bg':         '#0A1525',
+            '--bg-alt':     '#121F33',
+            '--white':      '#141F30'
+        }
+    },
+    {
+        id: 'low-poly-terrain',
+        nombre: 'Low Poly Terrain',
+        icono: 'mountain-snow',
+        descripcion: 'Paisaje low-poly con facetas triangulares, montañas geométricas y un sol facetado gigante. Estilo Monument Valley. Luz dura desde la izquierda.',
+        categoria: '3D',
+        ruta: 'Temas/low-poly-terrain.css',
+        espacio: 4,
+        monedas: 50,
+        colores: {
+            '--violet-100': '#3A2858',
+            '--violet-300': '#7A5A8C',
+            '--violet-500': '#F5A66B',
+            '--bg':         '#150A28',
+            '--bg-alt':     '#1A1030',
+            '--white':      '#1F1535'
+        }
+    },
+
+    // ============================================================
     //  CULTURA POP — Juegos, música, redes, streaming, magia pop
+    //  Costo total de la categoría: 335
     //  Referencias a la cultura contemporánea: entretenimiento,
     //  plataformas digitales, íconos pop y estéticas virales.
     // ============================================================
@@ -987,176 +1220,5 @@ const TEMAS_DISPONIBLES = [
             '--bg-alt':     '#0E0E16',
             '--white':      '#13131E'
         }
-    },
-
-    // ============================================================
-    //  CINE — Géneros cinematográficos
-    //  Cada tema evoca la gramática visual de un género de cine,
-    //  sin nombres de películas ni franquicias específicas.
-    //
-    //  Progresión interna de la categoría:
-    //    Romance (25) → Sci-fi (25) → Jazz (35) → Terror (35)
-    // ============================================================
-    {
-        id: 'cine-romance-escolar',
-        nombre: 'Cine Romance Escolar',
-        icono: 'graduation-cap',
-        descripcion: 'Comedia romántica de secundaria. Cuaderno rayado, corazón y luz cálida de tarde noventera.',
-        categoria: 'Cine',
-        ruta: 'Temas/cine-romance-escolar.css',
-        espacio: 4,
-        monedas: 25,
-        colores: {
-            '--violet-100': '#FFE4DE',
-            '--violet-300': '#E8A0A0',
-            '--violet-500': '#C25E5E',
-            '--bg':         '#FFF8F2',
-            '--bg-alt':     '#FCEFE4',
-            '--white':      '#FFFFFF'
-        }
-    },
-    {
-        id: 'cine-ciencia-ficcion',
-        nombre: 'Cine Ciencia Ficción',
-        icono: 'rocket',
-        descripcion: 'Nave espacial, hologramas y grid de perspectiva cyberpunk. Sci-fi clásico y moderno.',
-        categoria: 'Cine',
-        ruta: 'Temas/cine-ciencia-ficcion.css',
-        espacio: 4,
-        monedas: 25,
-        colores: {
-            '--violet-100': '#0F1E38',
-            '--violet-300': '#00D9FF',
-            '--violet-500': '#00B8E0',
-            '--bg':         '#050810',
-            '--bg-alt':     '#0A1424',
-            '--white':      '#0C1828'
-        }
-    },
-    {
-        id: 'cine-jazzystreet',
-        nombre: 'Cine JazzyStreet',
-        icono: 'music-4',
-        descripcion: 'Bar speakeasy de los años 50. Cobre y ladrillo, luz cálida de farol, sol art déco y notas al pasar.',
-        categoria: 'Cine',
-        ruta: 'Temas/cine-jazzystreet.css',
-        espacio: 4,
-        monedas: 35,
-        colores: {
-            '--violet-100': '#2C1810',
-            '--violet-300': '#D97A54',
-            '--violet-500': '#C4562E',
-            '--bg':         '#100806',
-            '--bg-alt':     '#1A0D08',
-            '--white':      '#1A0F0A'
-        }
-    },
-    {
-        id: 'cine-terror',
-        nombre: 'Cine de Terror',
-        icono: 'skull',
-        descripcion: 'Sangre, sombras, grano de película vieja y un parpadeo que nunca está quieto.',
-        categoria: 'Cine',
-        ruta: 'Temas/cine-terror.css',
-        espacio: 4,
-        monedas: 35,
-        colores: {
-            '--violet-100': '#2A0608',
-            '--violet-300': '#B91C1C',
-            '--violet-500': '#991B1B',
-            '--bg':         '#050303',
-            '--bg-alt':     '#0A0505',
-            '--white':      '#0D0808'
-        }
-    },
-        // ============================================================
-    //  3D — Efectos de perspectiva y profundidad real
-    //  Uso de transform-style: preserve-3d, perspective() y
-    //  rotateX/rotateY en hover. Flat shading (color plano, sin
-    //  texture mapping) + sombras duras apiladas + biseles.
-    //  Todos con espacio 4 (implican patrones + pseudo-elementos
-    //  + transforms animados).
-    //
-    //  Precio: 40-50. Progresión interna por intensidad del efecto.
-    // ============================================================
-        // ============================================================
-    //  PAISAJES — Dioramas visuales como fondo del lobby
-    //  La estrella es el lobby (ciudad, horizonte, ambiente).
-    //  El resto del shell es recolore simple para no competir
-    //  con la escena del fondo.
-    //  Precio: 45 (lobby flagship + shell minimalista).
-    // ============================================================
-    {
-        id: 'retro-3d-arcade',
-        nombre: 'Retro-3D Arcade',
-        icono: 'joystick',
-        descripcion: 'Flat-shaded polygons estilo Sega Model 1. Las cards se inclinan en 3D al pasar el mouse, con sombras duras y grid de perspectiva.',
-        categoria: '3D',
-        ruta: 'Temas/retro-3d-arcade.css',
-        espacio: 4,
-        monedas: 50,
-        colores: {
-            '--violet-100': '#101828',
-            '--violet-300': '#00D9FF',
-            '--violet-500': '#FF3DB0',
-            '--bg':         '#060810',
-            '--bg-alt':     '#0A0E1A',
-            '--white':      '#0C1020'
-        }
-    },
-        {
-        id: 'origami',
-        nombre: 'Origami',
-        icono: 'layers',
-        descripcion: 'Papel washi japonés con fibra real. Esquinas dobladas, capas apiladas y pliegues que se sienten físicos. Índigo, crema y bermellón.',
-        categoria: '3D',
-        ruta: 'Temas/origami.css',
-        espacio: 4,
-        monedas: 50,
-        colores: {
-            '--violet-100': '#E8DFD0',
-            '--violet-300': '#4A6B8A',
-            '--violet-500': '#2C3E50',
-            '--bg':         '#F5F0E8',
-            '--bg-alt':     '#EDE4D3',
-            '--white':      '#FDFAF3'
-        }
-    },
-        {
-        id: 'isometric-city',
-        nombre: 'Isometric City',
-        icono: 'blocks',
-        descripcion: 'Vista isométrica de una ciudad bloque. Cubos con ventanas iluminadas, sombras duras apiladas y proyección paralela. Estilo SimCity clásico.',
-        categoria: '3D',
-        ruta: 'Temas/isometric-city.css',
-        espacio: 4,
-        monedas: 50,
-        colores: {
-            '--violet-100': '#121F33',
-            '--violet-300': '#345675',
-            '--violet-500': '#FB923C',
-            '--bg':         '#0A1525',
-            '--bg-alt':     '#121F33',
-            '--white':      '#141F30'
-        }
-    },
-    {
-        id: 'low-poly-terrain',
-        nombre: 'Low Poly Terrain',
-        icono: 'mountain-snow',
-        descripcion: 'Paisaje low-poly con facetas triangulares, montañas geométricas y un sol facetado gigante. Estilo Monument Valley. Luz dura desde la izquierda.',
-        categoria: '3D',
-        ruta: 'Temas/low-poly-terrain.css',
-        espacio: 4,
-        monedas: 50,
-        colores: {
-            '--violet-100': '#3A2858',
-            '--violet-300': '#7A5A8C',
-            '--violet-500': '#F5A66B',
-            '--bg':         '#150A28',
-            '--bg-alt':     '#1A1030',
-            '--white':      '#1F1535'
-        }
     }
 ];
-
