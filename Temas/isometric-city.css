@@ -1,6 +1,6 @@
 /* ================================================
    Tema: Isometric City
-   Vista isométrica de una ciudad bloque. Cubos
+   Vista isométrica de una ciudad bloque. Edificios
    con ventanas iluminadas, grid de perspectiva
    paralela y sombras DURAS apiladas. Estilo
    SimCity clásico / Monument Valley / Fez.
@@ -78,13 +78,14 @@
        creando una red de rombos a 30°/-30° */
     --theme-iso-grid: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 24'%3E%3Cg stroke='%23345675' stroke-width='0.7' fill='none' stroke-opacity='0.45'%3E%3Cpath d='M0,12 L20,0 L40,12 L20,24 Z'/%3E%3C/g%3E%3C/svg%3E");
 
-    /* Cubo isométrico con ventanas iluminadas.
-       Top brillante, izquierda media, derecha en sombra. */
-    --theme-cube: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 116'%3E%3Cpath d='M50,0 L100,29 L50,58 L0,29 Z' fill='%233D5A80'/%3E%3Cpath d='M0,29 L50,58 L50,116 L0,87 Z' fill='%232A4060'/%3E%3Cpath d='M100,29 L50,58 L50,116 L100,87 Z' fill='%231A2A44'/%3E%3Cg fill='%23FB923C' fill-opacity='0.90'%3E%3Crect x='14' y='50' width='4' height='4'/%3E%3Crect x='24' y='50' width='4' height='4'/%3E%3Crect x='34' y='50' width='4' height='4'/%3E%3Crect x='14' y='64' width='4' height='4'/%3E%3Crect x='34' y='64' width='4' height='4'/%3E%3Crect x='14' y='78' width='4' height='4'/%3E%3Crect x='24' y='78' width='4' height='4'/%3E%3Crect x='62' y='50' width='4' height='4'/%3E%3Crect x='72' y='50' width='4' height='4'/%3E%3Crect x='82' y='50' width='4' height='4'/%3E%3Crect x='62' y='64' width='4' height='4'/%3E%3Crect x='82' y='64' width='4' height='4'/%3E%3Crect x='72' y='78' width='4' height='4'/%3E%3C/g%3E%3C/svg%3E");
+    /* Edificio isométrico real con ventanas, puertas,
+       antena, caja de AC en el techo y luces encendidas
+       que siguen la perspectiva de cada cara. */
+    --theme-cube: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 180'%3E%3Cline x1='60' y1='20' x2='60' y2='2' stroke='%233D5A80' stroke-width='1.5'/%3E%3Ccircle cx='60' cy='2' r='2' fill='%23FB923C' opacity='0.9'/%3E%3Cline x1='56' y1='10' x2='64' y2='10' stroke='%233D5A80' stroke-width='1'/%3E%3Cpath d='M60,20 L100,40 L60,60 L20,40 Z' fill='%233D5A80'/%3E%3Cpath d='M20,40 L60,60 L60,160 L20,140 Z' fill='%232A4060'/%3E%3Cpath d='M60,60 L100,40 L100,140 L60,160 Z' fill='%231A2A44'/%3E%3Cpath d='M48,30 L60,36 L48,42 L36,36 Z' fill='%234A6B8A'/%3E%3Cpath d='M36,36 L48,42 L48,50 L36,44 Z' fill='%232A4060'/%3E%3Cpath d='M48,42 L60,36 L60,44 L48,50 Z' fill='%231A2A44'/%3E%3Cg fill='%23FB923C' fill-opacity='0.92'%3E%3Cpath d='M22,46 L34,52 L34,70 L22,64 Z'/%3E%3Cpath d='M42,56 L54,62 L54,80 L42,74 Z'/%3E%3Cpath d='M22,78 L34,84 L34,102 L22,96 Z'/%3E%3Cpath d='M22,110 L34,116 L34,134 L22,128 Z'/%3E%3Cpath d='M42,120 L54,126 L54,144 L42,138 Z'/%3E%3C/g%3E%3Cpath d='M42,88 L54,94 L54,112 L42,106 Z' fill='%23142238'/%3E%3Cg fill='%23FB923C' fill-opacity='0.92'%3E%3Cpath d='M62,64 L74,58 L74,76 L62,82 Z'/%3E%3Cpath d='M82,54 L94,48 L94,66 L82,72 Z'/%3E%3Cpath d='M62,96 L74,90 L74,108 L62,114 Z'/%3E%3Cpath d='M82,86 L94,80 L94,98 L82,104 Z'/%3E%3Cpath d='M62,128 L74,122 L74,140 L62,146 Z'/%3E%3C/g%3E%3Cpath d='M82,118 L94,112 L94,130 L82,136 Z' fill='%23142238'/%3E%3Cpath d='M36,124 L46,129 L46,146 L36,141 Z' fill='%230A1424'/%3E%3Cpath d='M74,129 L84,124 L84,141 L74,146 Z' fill='%230A1424'/%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   1. WELCOME — grid isométrico + cubos decorativos en las esquinas
+   1. WELCOME — grid isométrico + edificios en las esquinas
    ================================================================ */
 .welcome-placeholder {
     position: relative;
@@ -112,42 +113,55 @@
     to   { background-position: 240px 144px, center top, center bottom; }
 }
 
-/* Cubo grande — esquina superior derecha */
+/* Edificio grande — esquina superior derecha.
+   La sombra va hacia la derecha porque la luz viene de la izquierda. */
 .welcome-placeholder::before {
     content: '';
     position: absolute;
-    top: 40px;
-    right: 50px;
-    width: 130px;
-    height: 150px;
+    top: 30px;
+    right: 40px;
+    width: 150px;
+    height: 200px;
     background: var(--theme-cube) center/contain no-repeat;
     pointer-events: none;
     z-index: 0;
     filter:
-        drop-shadow(-6px 8px 0 rgba(0, 0, 0, 0.55))
-        drop-shadow(-12px 16px 0 rgba(0, 0, 0, 0.25));
+        drop-shadow(6px 8px 0 rgba(0, 0, 0, 0.55))
+        drop-shadow(12px 16px 0 rgba(0, 0, 0, 0.25));
     animation: iso-cube-twinkle 9s ease-in-out infinite;
 }
 @keyframes iso-cube-twinkle {
-    0%, 100% { opacity: 0.90; }
-    50%      { opacity: 1; filter: drop-shadow(-6px 8px 0 rgba(0, 0, 0, 0.55)) drop-shadow(-12px 16px 0 rgba(0, 0, 0, 0.25)) brightness(1.12); }
+    0%, 100% {
+        opacity: 0.90;
+        filter:
+            drop-shadow(6px 8px 0 rgba(0, 0, 0, 0.55))
+            drop-shadow(12px 16px 0 rgba(0, 0, 0, 0.25));
+    }
+    50% {
+        opacity: 1;
+        filter:
+            drop-shadow(6px 8px 0 rgba(0, 0, 0, 0.55))
+            drop-shadow(12px 16px 0 rgba(0, 0, 0, 0.25))
+            brightness(1.12);
+    }
 }
 
-/* Cubo chico espejado — esquina inferior izquierda */
+/* Edificio chico espejado — esquina inferior izquierda.
+   Espejado con scaleX(-1), así que la sombra también se invierte. */
 .welcome-placeholder::after {
     content: '';
     position: absolute;
     bottom: 50px;
     left: 40px;
-    width: 85px;
-    height: 98px;
+    width: 100px;
+    height: 132px;
     background: var(--theme-cube) center/contain no-repeat;
     pointer-events: none;
     z-index: 0;
     transform: scaleX(-1);
     filter:
-        drop-shadow(6px -6px 0 rgba(0, 0, 0, 0.50))
-        drop-shadow(10px -10px 0 rgba(0, 0, 0, 0.22));
+        drop-shadow(-6px 8px 0 rgba(0, 0, 0, 0.50))
+        drop-shadow(-10px 14px 0 rgba(0, 0, 0, 0.22));
 }
 
 .welcome-hero,
@@ -294,7 +308,7 @@
 }
 
 /* ================================================================
-   3. SIDEBAR — cubos en miniatura apilados en el fondo
+   3. SIDEBAR — grid isométrico y un edificio de fondo
    ================================================================ */
 .sidebar {
     position: relative;
@@ -319,13 +333,13 @@
     bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
-    width: 110px;
-    height: 128px;
+    width: 130px;
+    height: 180px;
     background: var(--theme-cube) center/contain no-repeat;
     pointer-events: none;
     z-index: 0;
     opacity: 0.32;
-    filter: drop-shadow(-4px 5px 0 rgba(0, 0, 0, 0.45));
+    filter: drop-shadow(5px 6px 0 rgba(0, 0, 0, 0.45));
 }
 .sidebar-comunidad,
 .sidebar-label,
