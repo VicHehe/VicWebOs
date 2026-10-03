@@ -348,7 +348,6 @@ html, body {
     background: var(--violet-100, #EDE9FE);
     border: 1px solid var(--violet-200, #DDD6FE);
 }
-/* FIX: ahora usa el accent del tema en vez de verde hardcodeado */
 .sh-badge-instalada {
     color: var(--violet-700, #6D28D9);
     background: var(--violet-100, #EDE9FE);
@@ -428,7 +427,7 @@ html, body {
 }
 .sh-btn-aplicar:hover:not(:disabled) { background: var(--gray-200, #E8E8EE); }
 
-/* FIX: botón "En carrito" usa el accent del tema, no verde hardcodeado */
+/* Botón "En carrito" usa el accent del tema */
 .sh-btn-carrito-activo {
     background: var(--violet-100, #EDE9FE);
     color: var(--violet-700, #6D28D9);
@@ -522,18 +521,24 @@ html, body {
 }
 
 /* ========== TOAST ========== */
+/* FIX: fondo oscuro hardcodeado, sin depender del tema */
 .sh-toast {
     position: fixed;
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%) translateY(100px);
-    background: var(--gray-900, #18181B);
-    color: white;
+    background: rgba(0, 0, 0, 0.92);
+    color: #FFFFFF;
     padding: 10px 20px;
     border-radius: var(--r-full, 999px);
     font-size: 13px;
     font-weight: 700;
-    box-shadow: var(--shadow-lg, 0 12px 32px rgba(0, 0, 0, 0.10));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow:
+        0 12px 32px rgba(0, 0, 0, 0.35),
+        0 2px 8px rgba(0, 0, 0, 0.20);
     opacity: 0;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     pointer-events: none;
@@ -545,8 +550,8 @@ html, body {
 }
 .sh-toast [data-lucide] { width: 15px; height: 15px; }
 .sh-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.sh-toast.success { background: #065F46; }
-.sh-toast.error   { background: #991B1B; }
+.sh-toast.success { background: #065F46; border-color: rgba(16, 185, 129, 0.30); }
+.sh-toast.error   { background: #991B1B; border-color: rgba(239, 68, 68, 0.30); }
 
 /* ========== RECURSOS ========== */
 .sh-recursos { display: flex; gap: 10px; flex-wrap: wrap; flex-shrink: 0; }
@@ -600,6 +605,8 @@ html, body {
 
 /* ================================================
    BARRA FLOTANTE DEL CARRITO
+   FIX: fondo oscuro hardcodeado + blur, para que sea
+   legible sobre cualquier tema (claro u oscuro).
    ================================================ */
 .sh-cart-bar {
     position: fixed;
@@ -611,12 +618,16 @@ html, body {
     align-items: center;
     gap: 16px;
     padding: 10px 14px 10px 16px;
-    background: var(--gray-900, #18181B);
-    color: white;
+    background: rgba(0, 0, 0, 0.85);
+    color: #FFFFFF;
+    border: 1px solid rgba(255, 255, 255, 0.10);
     border-radius: 16px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     box-shadow:
-        0 16px 40px rgba(0, 0, 0, 0.35),
-        0 4px 12px rgba(0, 0, 0, 0.20);
+        0 20px 50px rgba(0, 0, 0, 0.45),
+        0 6px 16px rgba(0, 0, 0, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
     animation: shCartBarIn 0.32s cubic-bezier(0.16, 1, 0.3, 1);
     max-width: calc(100% - 32px);
 }
@@ -634,12 +645,12 @@ html, body {
 .sh-cart-bar-icono {
     width: 40px;
     height: 40px;
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.14);
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #FFFFFF;
     flex-shrink: 0;
 }
 .sh-cart-bar-icono [data-lucide] {
@@ -653,19 +664,20 @@ html, body {
     font-weight: 800;
     letter-spacing: -0.01em;
     line-height: 1.2;
+    color: #FFFFFF;
 }
 .sh-cart-bar-titulo strong { font-weight: 900; }
 .sh-cart-bar-detalle {
     font-size: 11.5px;
     font-weight: 600;
-    opacity: 0.75;
+    color: rgba(255, 255, 255, 0.72);
     margin-top: 1px;
     font-variant-numeric: tabular-nums;
 }
 .sh-cart-bar .sh-btn-instalar {
     padding: 8px 14px;
     font-size: 12.5px;
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.40);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.45);
     flex-shrink: 0;
 }
 .sh-cart-bar .sh-btn-instalar [data-lucide] { width: 14px; height: 14px; }
@@ -676,7 +688,7 @@ html, body {
 .sh-cart-modal {
     position: fixed;
     inset: 0;
-    background: rgba(24, 24, 27, 0.55);
+    background: rgba(0, 0, 0, 0.55);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     display: flex;
@@ -696,6 +708,7 @@ html, body {
     max-width: 520px;
     max-height: 85vh;
     background: var(--white, #FFFFFF);
+    color: var(--text, #18181B);
     border: 1px solid var(--border, #E8E8EE);
     border-radius: 18px;
     box-shadow:
@@ -1021,7 +1034,7 @@ html, body {
 .sh-amp-modal {
     position: fixed;
     inset: 0;
-    background: rgba(24, 24, 27, 0.55);
+    background: rgba(0, 0, 0, 0.55);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     display: flex;
@@ -1040,6 +1053,7 @@ html, body {
     width: 100%;
     max-width: 440px;
     background: var(--white, #FFFFFF);
+    color: var(--text, #18181B);
     border: 1px solid var(--border, #E8E8EE);
     border-radius: 18px;
     padding: 22px 24px 24px;
