@@ -63,15 +63,22 @@ async function _conLock(clave, fn) {
 }
 
 // ------------------------------------------------------------
-//  Exponer como getters de window para scripts que no comparten
-//  scope con este archivo.
+//  Exponer como getters+setters de window para scripts que no
+//  comparten scope con este archivo.
+//  ------------------------------------------------------------
+//  IMPORTANTE: el setter es necesario porque PaquetePromo.js
+//  (y otros) escriben `window.configCuentaActual = ...` para
+//  refrescar el estado después de compras. Sin setter, la
+//  propiedad queda de solo lectura y lanza TypeError.
 // ------------------------------------------------------------
 Object.defineProperty(window, 'cuentaActual', {
     get: () => cuentaActual,
+    set: (v) => { cuentaActual = v; },
     configurable: true
 });
 Object.defineProperty(window, 'configCuentaActual', {
     get: () => configCuentaActual,
+    set: (v) => { configCuentaActual = v; },
     configurable: true
 });
 
