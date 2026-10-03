@@ -1,11 +1,10 @@
 /* ================================================
    Tema: Cuartos Traseros
-   Habitación infinita. Papel tapiz con líneas
-   verticales, alfombra húmeda, luz fluorescente
-   desde el techo y vignette lateral que da la
-   sensación de pasillo. Sin SVG de perspectiva:
-   todo CSS puro que se estira sin deformarse.
-   Flagship.
+   Pasillo infinito con perspectiva 3D real.
+   Techo, suelo y paredes convergen a un punto
+   de fuga. Puerta al fondo, 4 luces fluorescentes
+   recediendo, papel tapiz vertical, juntas del
+   suelo radiales. Flagship.
    ================================================ */
 
 :root {
@@ -55,92 +54,62 @@
     --r-lg: 4px;
     --r-xl: 6px;
 
-    /* Alfombra: ruido moteado */
+    /* Alfombra: ruido moteado encima del SVG */
     --theme-alfombra: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0.1'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.18'/%3E%3C/svg%3E");
 
-    /* Papel tapiz: líneas verticales sutiles */
-    --theme-papel: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%23D4B840' stroke-width='0.5' opacity='0.14'%3E%3Cline x1='20' y1='0' x2='20' y2='80'/%3E%3Cline x1='60' y1='0' x2='60' y2='80'/%3E%3Cline x1='21.5' y1='0' x2='21.5' y2='80' opacity='0.5'/%3E%3Cline x1='61.5' y1='0' x2='61.5' y2='80' opacity='0.5'/%3E%3C/g%3E%3C/svg%3E");
+    /* PASILLO 3D — SVG con perspectiva real
+       preserveAspectRatio='none' → se estira sin recortar.
+       Punto de fuga en (600, 750).
+       Paredes con papel tapiz, techo con 4 luces recediendo,
+       suelo con juntas radiales, puerta al fondo con glow. */
+    --theme-pasillo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 1400' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='a' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%232A2510'/%3E%3Cstop offset='1' stop-color='%234A3E1A'/%3E%3C/linearGradient%3E%3ClinearGradient id='b' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%234A3E1A'/%3E%3Cstop offset='1' stop-color='%2314120C'/%3E%3C/linearGradient%3E%3ClinearGradient id='c' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%231A180F'/%3E%3Cstop offset='1' stop-color='%233A3015'/%3E%3C/linearGradient%3E%3ClinearGradient id='d' x1='1' y1='0' x2='0' y2='0'%3E%3Cstop offset='0' stop-color='%231A180F'/%3E%3Cstop offset='1' stop-color='%233A3015'/%3E%3C/linearGradient%3E%3CradialGradient id='e' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0' stop-color='%23F5EEC8' stop-opacity='0.85'/%3E%3Cstop offset='0.4' stop-color='%23E8C840' stop-opacity='0.45'/%3E%3Cstop offset='1' stop-color='%23E8C840' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cpolygon points='0,0 1200,0 800,350 400,350' fill='url(%23a)'/%3E%3Cpolygon points='0,1400 1200,1400 800,1050 400,1050' fill='url(%23b)'/%3E%3Cpolygon points='0,0 400,350 400,1050 0,1400' fill='url(%23c)'/%3E%3Cpolygon points='1200,0 800,350 800,1050 1200,1400' fill='url(%23d)'/%3E%3Crect x='400' y='350' width='400' height='700' fill='%232A2510'/%3E%3Cg stroke='%238A7020' stroke-width='1.2' opacity='0.22' fill='none'%3E%3Cline x1='80' y1='80' x2='80' y2='1310'/%3E%3Cline x1='180' y1='160' x2='180' y2='1230'/%3E%3Cline x1='280' y1='240' x2='280' y2='1150'/%3E%3Cline x1='360' y1='310' x2='360' y2='1080'/%3E%3Cline x1='1120' y1='80' x2='1120' y2='1310'/%3E%3Cline x1='1020' y1='160' x2='1020' y2='1230'/%3E%3Cline x1='920' y1='240' x2='920' y2='1150'/%3E%3Cline x1='840' y1='310' x2='840' y2='1080'/%3E%3C/g%3E%3Cg stroke='%230F0C08' stroke-width='1' opacity='0.4' fill='none'%3E%3Cline x1='0' y1='90' x2='1200' y2='90'/%3E%3Cline x1='60' y1='180' x2='1140' y2='180'/%3E%3Cline x1='160' y1='260' x2='1040' y2='260'/%3E%3Cline x1='300' y1='330' x2='900' y2='330'/%3E%3C/g%3E%3Crect x='480' y='60' width='240' height='16' fill='%23F5EEC8' opacity='0.95' rx='2'/%3E%3Crect x='520' y='150' width='160' height='12' fill='%23F5EEC8' opacity='0.75' rx='2'/%3E%3Crect x='550' y='230' width='100' height='8' fill='%23F5EEC8' opacity='0.55' rx='1'/%3E%3Crect x='580' y='300' width='40' height='5' fill='%23F5EEC8' opacity='0.35' rx='1'/%3E%3Cg stroke='%230F0C08' stroke-width='1' opacity='0.35' fill='none'%3E%3Cline x1='0' y1='1310' x2='1200' y2='1310'/%3E%3Cline x1='60' y1='1220' x2='1140' y2='1220'/%3E%3Cline x1='160' y1='1140' x2='1040' y2='1140'/%3E%3Cline x1='300' y1='1070' x2='900' y2='1070'/%3E%3C/g%3E%3Cg stroke='%230F0C08' stroke-width='1.2' opacity='0.4' fill='none'%3E%3Cline x1='600' y1='1050' x2='0' y2='1400'/%3E%3Cline x1='600' y1='1050' x2='300' y2='1400'/%3E%3Cline x1='600' y1='1050' x2='600' y2='1400'/%3E%3Cline x1='600' y1='1050' x2='900' y2='1400'/%3E%3Cline x1='600' y1='1050' x2='1200' y2='1400'/%3E%3C/g%3E%3Cellipse cx='600' cy='750' rx='250' ry='280' fill='url(%23e)' opacity='0.55'/%3E%3Crect x='540' y='620' width='120' height='430' fill='%231A1408'/%3E%3Crect x='540' y='620' width='120' height='430' fill='none' stroke='%234A3E1A' stroke-width='3'/%3E%3Ccircle cx='638' cy='835' r='4' fill='%23B8A040'/%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   1. WELCOME — Habitación infinita por capas CSS
+   1. WELCOME — Pasillo 3D con fix de altura
    ================================================================ */
 .welcome-placeholder {
     position: relative;
+    height: auto;
+    min-height: 100%;
     background-color: #1A180F;
     background-image:
         var(--theme-alfombra),
-        var(--theme-papel),
-        radial-gradient(ellipse 80% 20% at 50% 0%,
-            rgba(245, 238, 200, 0.22) 0%,
-            rgba(232, 200, 64, 0.10) 35%,
-            transparent 70%
-        ),
-        radial-gradient(ellipse 50% 12% at 50% 0%,
-            rgba(245, 238, 200, 0.15) 0%,
-            transparent 60%
-        ),
-        linear-gradient(90deg,
-            rgba(0, 0, 0, 0.45) 0%,
-            rgba(0, 0, 0, 0.15) 8%,
-            transparent 22%,
-            transparent 78%,
-            rgba(0, 0, 0, 0.15) 92%,
-            rgba(0, 0, 0, 0.45) 100%
-        ),
+        var(--theme-pasillo),
         linear-gradient(180deg,
-            #1A180F 0%,
-            #2A2510 6%,
-            #3A3015 18%,
-            #3A3015 55%,
-            #2A2510 88%,
+            #2A2510 0%,
+            #3A3015 50%,
             #14120C 100%
         );
     background-size:
         200px 200px,
-        80px 80px,
-        100% 100%,
-        100% 100%,
         100% 100%,
         100% 100%;
     background-position:
         0 0,
-        0 0,
         center top,
-        center top,
-        center center,
         center center;
     background-repeat:
         repeat,
-        repeat,
-        no-repeat,
-        no-repeat,
         no-repeat,
         no-repeat;
     background-attachment:
         local,
         local,
-        local,
-        local,
-        local,
         local;
 }
 
-/* Parpadeo fluorescente real */
+/* Parpadeo fluorescente encima del SVG */
 .welcome-placeholder::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 220px;
+    inset: 0;
     pointer-events: none;
     z-index: 1;
     background: radial-gradient(
-        ellipse 65% 100% at 50% 0%,
-        rgba(245, 238, 200, 0.30) 0%,
-        rgba(232, 200, 64, 0.10) 45%,
-        transparent 80%
+        ellipse 70% 25% at 50% 5%,
+        rgba(245, 238, 200, 0.18) 0%,
+        transparent 60%
     );
     animation: fluorescente 3.5s linear infinite;
 }
@@ -154,17 +123,16 @@
     83%   { opacity: 1; }
 }
 
-/* Vignette suave arriba/abajo */
+/* Vignette exterior: cierra los bordes suavemente */
 .welcome-placeholder::after {
     content: '';
     position: absolute;
     inset: 0;
     pointer-events: none;
     z-index: 2;
-    background: linear-gradient(180deg,
-        rgba(0, 0, 0, 0.35) 0%,
-        transparent 12%,
-        transparent 88%,
+    background: radial-gradient(
+        ellipse 110% 100% at 50% 50%,
+        transparent 45%,
         rgba(0, 0, 0, 0.40) 100%
     );
 }
@@ -183,6 +151,7 @@
     z-index: 3;
 }
 
+/* Hero como cartel colgado en la pared del pasillo */
 .welcome-hero {
     position: relative;
     padding: 40px 32px 36px;
