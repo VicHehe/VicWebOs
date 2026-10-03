@@ -1,141 +1,140 @@
 /* ================================================
    Tema: Vidrio
-   Vidrio templado y esmerilado con transparencias
-   reales (backdrop-filter), bordes con filo claro,
-   reflejos diagonales y remaches en las esquinas.
-   Paleta celeste-blanco muy fría, pero cálida en
-   los detalles. Sin animaciones: el peso está en
-   cómo la luz atraviesa las superficies.
+   Vidrio templado con reflejos especulares duros,
+   transparencias reales (backdrop-filter), filo
+   luminoso en los cantos y deformación de lo que
+   hay detrás. Frío, cortante, delicado.
 
    REGLA DE LUZ:
-   Fría desde arriba-izquierda. Los bordes tienen
-   un filo blanco que simula el canto pulido del
-   vidrio. Las superficies translúcidas dejan pasar
-   la luz de fondo.
+   Fría desde arriba. Las zonas superiores tienen
+   brillo especular puro; las inferiores son más
+   oscuras. Los reflejos son RAYAS duras, no
+   gradientes suaves.
    ================================================ */
 
 :root {
-    /* Paleta vidrio: celeste lechoso */
-    --violet-50:  #F4FAFE;
-    --violet-100: #E4F1FA;
-    --violet-200: #C4DEEC;
-    --violet-300: #94BED8;
-    --violet-400: #6298B8;
-    --violet-500: #3E7094;
-    --violet-600: #2A546E;
-    --violet-700: #163648;
+    /* Paleta vidrio — celeste con profundidad */
+    --violet-50:  #F0F7FC;
+    --violet-100: #DAEBF5;
+    --violet-200: #A8CBDF;
+    --violet-300: #6FA3C0;
+    --violet-400: #46789A;
+    --violet-500: #2B5878;
+    --violet-600: #1B3E58;
+    --violet-700: #0F283C;
 
-    /* Superficies cristalinas */
     --white:   #FFFFFF;
-    --bg:      #E8F2F8;
-    --bg-alt:  #DAE8F2;
-    --gray-50:  #F4FAFE;
-    --gray-100: #E4F1FA;
-    --gray-200: #C4DEEC;
-    --gray-300: #9CB8CC;
-    --gray-400: #7292A8;
-    --gray-500: #4E6A80;
-    --gray-600: #344C60;
-    --gray-700: #1E3242;
-    --gray-800: #0E1A26;
-    --gray-900: #06121A;
+    --bg:      #C4DCEA;
+    --bg-alt:  #B0CCE0;
+    --gray-50:  #E8F2F8;
+    --gray-100: #C4DCEA;
+    --gray-200: #A0B8CC;
+    --gray-300: #6E8AA4;
+    --gray-400: #4E6A84;
+    --gray-500: #344C62;
+    --gray-600: #1E3244;
+    --gray-700: #0F1E2C;
+    --gray-800: #061220;
+    --gray-900: #030814;
 
-    --border:  #C4DEEC;
-    --text:    #0E1A26;
-    --text-2:  #344C60;
-    --text-3:  #4E6A80;
+    --border:  #A0B8CC;
+    --text:    #061220;
+    --text-2:  #344C62;
+    --text-3:  #4E6A84;
 
-    /* Sombras frías con borde cristalino */
-    --shadow-xs: 0 1px 2px rgba(30, 60, 90, 0.08),
-                 0 0 0 1px rgba(255, 255, 255, 0.60) inset;
-    --shadow-sm: 0 2px 4px rgba(30, 60, 90, 0.10),
-                 0 0 0 1px rgba(255, 255, 255, 0.70) inset;
-    --shadow-md: 0 6px 16px rgba(30, 60, 90, 0.12),
-                 0 0 0 1px rgba(255, 255, 255, 0.75) inset;
-    --shadow-lg: 0 14px 34px rgba(30, 60, 90, 0.16),
-                 0 0 0 1px rgba(255, 255, 255, 0.80) inset;
-    --shadow-xl: 0 24px 48px rgba(30, 60, 90, 0.20),
-                 0 0 0 1px rgba(255, 255, 255, 0.85) inset;
-    --shadow-glow: 0 0 0 4px rgba(98, 152, 184, 0.18);
+    --shadow-xs: 0 1px 2px rgba(10, 30, 50, 0.15);
+    --shadow-sm: 0 2px 4px rgba(10, 30, 50, 0.18);
+    --shadow-md: 0 6px 14px rgba(10, 30, 50, 0.22),
+                 0 2px 4px rgba(10, 30, 50, 0.15);
+    --shadow-lg: 0 14px 34px rgba(10, 30, 50, 0.28),
+                 0 4px 8px rgba(10, 30, 50, 0.15);
+    --shadow-xl: 0 24px 48px rgba(10, 30, 50, 0.35),
+                 0 8px 16px rgba(10, 30, 50, 0.20);
+    --shadow-glow: 0 0 0 4px rgba(70, 120, 154, 0.25);
 
-    --accent-gradient: linear-gradient(135deg, #6298B8, #163648);
-    --accent-gradient-hover: linear-gradient(135deg, #94BED8, #2A546E);
-    --accent-shadow: rgba(98, 152, 184, 0.28);
-    --accent-shadow-hover: rgba(98, 152, 184, 0.45);
-    --accent-text-gradient: linear-gradient(135deg, #0E1A26, #3E7094);
+    --accent-gradient: linear-gradient(135deg, #46789A, #0F283C);
+    --accent-gradient-hover: linear-gradient(135deg, #6FA3C0, #1B3E58);
+    --accent-shadow: rgba(43, 88, 120, 0.40);
+    --accent-shadow-hover: rgba(43, 88, 120, 0.60);
+    --accent-text-gradient: linear-gradient(135deg, #0F283C, #46789A);
 
-    /* Radios: esquinas vivas pero suavizadas, como vidrio cortado */
     --r-sm: 4px;
     --r-md: 6px;
     --r-lg: 10px;
     --r-xl: 14px;
 
     /* ------------------------------------------------------------
-       Brillo diagonal — reflejo que cruza el vidrio
+       Rayo especular — banda diagonal dura, blanca pura. El
+       núcleo del look "vidrio". No es gradiente suave: tiene
+       un borde marcado.
        ------------------------------------------------------------ */
-    --theme-glare: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23FFFFFF' stop-opacity='0.85'/%3E%3Cstop offset='25%25' stop-color='%23FFFFFF' stop-opacity='0.20'/%3E%3Cstop offset='50%25' stop-color='%23FFFFFF' stop-opacity='0'/%3E%3Cstop offset='100%25' stop-color='%23FFFFFF' stop-opacity='0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='200' height='200' fill='url(%23g)'/%3E%3C/svg%3E");
+    --theme-shine: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='s1' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0%25' stop-color='%23FFFFFF' stop-opacity='0'/%3E%3Cstop offset='38%25' stop-color='%23FFFFFF' stop-opacity='0'/%3E%3Cstop offset='40%25' stop-color='%23FFFFFF' stop-opacity='0.85'/%3E%3Cstop offset='44%25' stop-color='%23FFFFFF' stop-opacity='1'/%3E%3Cstop offset='48%25' stop-color='%23FFFFFF' stop-opacity='0.85'/%3E%3Cstop offset='50%25' stop-color='%23FFFFFF' stop-opacity='0'/%3E%3Cstop offset='100%25' stop-color='%23FFFFFF' stop-opacity='0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='400' height='400' fill='url(%23s1)'/%3E%3C/svg%3E");
 
     /* ------------------------------------------------------------
-       Grano esmerilado — micro puntillado muy sutil
+       Grano vidrio — ruido muy fino, casi invisible
        ------------------------------------------------------------ */
-    --theme-frost: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='%23FFFFFF'%3E%3Ccircle cx='1' cy='3' r='0.4' fill-opacity='0.55'/%3E%3Ccircle cx='5' cy='1' r='0.35' fill-opacity='0.40'/%3E%3Ccircle cx='9' cy='4' r='0.5' fill-opacity='0.60'/%3E%3Ccircle cx='13' cy='2' r='0.35' fill-opacity='0.45'/%3E%3Ccircle cx='17' cy='5' r='0.4' fill-opacity='0.50'/%3E%3Ccircle cx='3' cy='9' r='0.45' fill-opacity='0.55'/%3E%3Ccircle cx='7' cy='12' r='0.4' fill-opacity='0.40'/%3E%3Ccircle cx='11' cy='10' r='0.5' fill-opacity='0.60'/%3E%3Ccircle cx='15' cy='14' r='0.35' fill-opacity='0.45'/%3E%3Ccircle cx='19' cy='11' r='0.4' fill-opacity='0.50'/%3E%3Ccircle cx='2' cy='16' r='0.35' fill-opacity='0.45'/%3E%3Ccircle cx='6' cy='18' r='0.45' fill-opacity='0.55'/%3E%3Ccircle cx='10' cy='17' r='0.4' fill-opacity='0.50'/%3E%3Ccircle cx='14' cy='19' r='0.35' fill-opacity='0.40'/%3E%3Ccircle cx='18' cy='16' r='0.45' fill-opacity='0.55'/%3E%3C/g%3E%3C/svg%3E");
+    --theme-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.20 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)'/%3E%3C/svg%3E");
 
     /* ------------------------------------------------------------
-       Remache de acero con brillo — esquinas del shell
+       Remache — acero con brillo, para esquinas
        ------------------------------------------------------------ */
-    --theme-rivet: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Ccircle cx='10' cy='10' r='7' fill='%23B8CDD8'/%3E%3Ccircle cx='10' cy='10' r='7' fill='none' stroke='%233E7094' stroke-width='0.8'/%3E%3Ccircle cx='10' cy='10' r='5' fill='none' stroke='%23F0F7FB' stroke-width='0.6'/%3E%3Cpath d='M7,6 Q10,4 13,7' stroke='%23FFFFFF' stroke-width='1.2' fill='none' stroke-linecap='round' opacity='0.85'/%3E%3Ccircle cx='7' cy='7' r='1.2' fill='%23FFFFFF' fill-opacity='0.80'/%3E%3C/svg%3E");
+    --theme-rivet: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cdefs%3E%3CradialGradient id='r' cx='0.35' cy='0.30'%3E%3Cstop offset='0%25' stop-color='%23FFFFFF'/%3E%3Cstop offset='50%25' stop-color='%23DAEBF5'/%3E%3Cstop offset='100%25' stop-color='%232B5878'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='12' cy='12' r='9' fill='url(%23r)'/%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%230F283C' stroke-width='0.8'/%3E%3Ccircle cx='12' cy='12' r='6' fill='none' stroke='%23FFFFFF' stroke-width='0.6' stroke-opacity='0.70'/%3E%3Ccircle cx='9' cy='9' r='2' fill='%23FFFFFF' fill-opacity='0.95'/%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   1. WELCOME — capa de vidrio templado con reflejo diagonal
+   1. WELCOME — plancha de vidrio con doble reflejo
    ================================================================ */
 .welcome-placeholder {
     position: relative;
     background-image:
-        var(--theme-frost),
-        var(--theme-glare),
-        linear-gradient(180deg, #F4FAFE 0%, #E8F2F8 45%, #D4E6F1 100%);
+        var(--theme-grain),
+        var(--theme-shine),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.10) 35%, rgba(43, 88, 120, 0.15) 100%),
+        linear-gradient(180deg, #DAEBF5 0%, #B0CCE0 50%, #6FA3C0 100%);
     background-size:
-        20px 20px,
+        200px 200px,
+        400px 400px,
         100% 100%,
         100% 100%;
     background-position:
         0 0,
         top left,
+        center top,
         center top;
     background-repeat:
         repeat,
+        no-repeat,
         no-repeat,
         no-repeat;
     background-color: var(--bg);
 }
 
-/* Remache superior derecho */
+/* Remache arriba izquierda */
 .welcome-placeholder::before {
     content: '';
     position: absolute;
-    top: 26px;
-    right: 34px;
+    top: 24px;
+    left: 24px;
     width: 22px;
     height: 22px;
     background: var(--theme-rivet) center/contain no-repeat;
     pointer-events: none;
     z-index: 0;
-    filter: drop-shadow(0 1px 2px rgba(30, 60, 90, 0.25));
+    filter: drop-shadow(0 2px 3px rgba(10, 30, 50, 0.35));
 }
 
-/* Remache inferior izquierdo */
+/* Remache abajo derecha */
 .welcome-placeholder::after {
     content: '';
     position: absolute;
-    bottom: 26px;
-    left: 34px;
+    bottom: 24px;
+    right: 24px;
     width: 22px;
     height: 22px;
     background: var(--theme-rivet) center/contain no-repeat;
     pointer-events: none;
     z-index: 0;
-    filter: drop-shadow(0 1px 2px rgba(30, 60, 90, 0.25));
+    filter: drop-shadow(0 2px 3px rgba(10, 30, 50, 0.35));
 }
 
 .welcome-hero,
@@ -147,42 +146,42 @@
 .welcome-glow {
     background: radial-gradient(
         circle at 30% 25%,
-        rgba(255, 255, 255, 0.65) 0%,
-        rgba(98, 152, 184, 0.10) 45%,
+        rgba(255, 255, 255, 0.70) 0%,
+        rgba(70, 120, 154, 0.15) 45%,
         transparent 70%
     );
 }
 
-/* Hero como "panel de vidrio templado" con filo claro */
+/* Hero — panel de vidrio con reflejo duro y filo blanco */
 .welcome-hero {
     position: relative;
-    padding: 36px 30px 32px;
+    padding: 38px 32px 34px;
     background-image:
-        var(--theme-glare),
+        var(--theme-grain),
+        var(--theme-shine),
         linear-gradient(180deg,
-            rgba(255, 255, 255, 0.85) 0%,
-            rgba(228, 241, 250, 0.70) 50%,
-            rgba(196, 222, 236, 0.65) 100%);
-    background-size: 100% 100%, 100% 100%;
-    background-position: top left, center;
-    background-repeat: no-repeat, no-repeat;
-    backdrop-filter: blur(14px) saturate(140%);
-    -webkit-backdrop-filter: blur(14px) saturate(140%);
-    border: 1.5px solid rgba(255, 255, 255, 0.90);
-    border-radius: 12px;
+            rgba(255, 255, 255, 0.75) 0%,
+            rgba(218, 235, 245, 0.60) 50%,
+            rgba(111, 163, 192, 0.55) 100%);
+    background-size: 200px 200px, 100% 100%, 100% 100%;
+    background-position: 0 0, top left, center;
+    background-repeat: repeat, no-repeat, no-repeat;
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border: 1.5px solid rgba(255, 255, 255, 0.95);
+    border-radius: 14px;
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.95),
-        inset 0 -1px 0 rgba(98, 152, 184, 0.20),
-        inset 0 0 40px rgba(255, 255, 255, 0.35),
-        0 12px 32px rgba(30, 60, 90, 0.16),
-        0 4px 8px rgba(30, 60, 90, 0.08),
-        0 0 0 1px rgba(98, 152, 184, 0.10);
+        inset 0 1px 0 rgba(255, 255, 255, 1),
+        inset 0 -2px 6px rgba(43, 88, 120, 0.25),
+        inset 0 0 60px rgba(255, 255, 255, 0.30),
+        0 16px 40px rgba(10, 30, 50, 0.30),
+        0 0 0 1px rgba(111, 163, 192, 0.20);
     max-width: 660px;
     margin-left: auto;
     margin-right: auto;
 }
 
-/* Filo superior tipo "canto de vidrio" */
+/* Filo blanco superior duro */
 .welcome-hero::before {
     content: '';
     position: absolute;
@@ -192,12 +191,12 @@
     height: 2px;
     background: linear-gradient(90deg,
         transparent,
-        rgba(255, 255, 255, 1) 20%,
-        rgba(255, 255, 255, 1) 80%,
+        rgba(255, 255, 255, 1) 15%,
+        rgba(255, 255, 255, 1) 85%,
         transparent);
     pointer-events: none;
     z-index: 3;
-    border-radius: 12px 12px 0 0;
+    border-radius: 14px 14px 0 0;
 }
 
 /* Reflejo diagonal inferior derecho */
@@ -206,14 +205,15 @@
     position: absolute;
     bottom: 0;
     right: 0;
-    width: 60%;
-    height: 40%;
+    width: 55%;
+    height: 45%;
     background: linear-gradient(315deg,
-        rgba(255, 255, 255, 0.30) 0%,
+        rgba(255, 255, 255, 0.45) 0%,
+        rgba(255, 255, 255, 0.15) 30%,
         transparent 60%);
     pointer-events: none;
     z-index: 2;
-    border-radius: 0 0 12px 0;
+    border-radius: 0 0 14px 0;
 }
 
 .welcome-hero > * {
@@ -223,46 +223,50 @@
 
 .welcome-hero h1 {
     letter-spacing: 0.005em;
-    color: #0E1A26;
+    color: #0F283C;
     text-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.95),
-        0 2px 6px rgba(30, 60, 90, 0.12);
+        0 1px 0 rgba(255, 255, 255, 1),
+        0 2px 6px rgba(10, 30, 50, 0.20);
 }
 
-/* Icono: medallón de vidrio esmerilado con reflejo */
+/* Icono — medallón de vidrio templado */
 .welcome-icon-wrap {
     background:
-        linear-gradient(135deg,
-            rgba(255, 255, 255, 0.90) 0%,
-            rgba(196, 222, 236, 0.75) 50%,
-            rgba(98, 152, 184, 0.60) 100%);
+        radial-gradient(circle at 30% 25%,
+            rgba(255, 255, 255, 1) 0%,
+            rgba(218, 235, 245, 0.90) 30%,
+            rgba(111, 163, 192, 0.80) 70%,
+            rgba(43, 88, 120, 0.75) 100%);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.85);
+    border: 1.5px solid rgba(255, 255, 255, 1);
+    border-radius: 14px;
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.95),
-        inset 0 -2px 6px rgba(98, 152, 184, 0.25),
-        0 8px 20px rgba(30, 60, 90, 0.20),
-        0 0 0 1px rgba(98, 152, 184, 0.15);
+        inset 0 2px 4px rgba(255, 255, 255, 1),
+        inset 0 -3px 8px rgba(43, 88, 120, 0.35),
+        0 10px 24px rgba(10, 30, 50, 0.30),
+        0 0 0 1px rgba(111, 163, 192, 0.30);
 }
 
 /* ================================================================
-   2. HEADER — banda de vidrio con reflejo lineal
+   2. HEADER — banda de vidrio con reflejo
    ================================================================ */
 .app-header {
     position: relative;
     background-image:
+        var(--theme-shine),
         linear-gradient(180deg,
-            rgba(255, 255, 255, 0.85) 0%,
-            rgba(228, 241, 250, 0.70) 100%);
-    backdrop-filter: blur(16px) saturate(150%);
-    -webkit-backdrop-filter: blur(16px) saturate(150%);
-    border-bottom: 1.5px solid rgba(255, 255, 255, 0.85);
+            rgba(255, 255, 255, 0.70) 0%,
+            rgba(218, 235, 245, 0.55) 100%);
+    background-size: 100% 100%, 100% 100%;
+    background-position: center, center;
+    background-repeat: no-repeat, no-repeat;
+    backdrop-filter: blur(18px) saturate(170%);
+    -webkit-backdrop-filter: blur(18px) saturate(170%);
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.90);
     box-shadow:
-        inset 0 -1px 0 rgba(98, 152, 184, 0.18),
-        0 1px 2px rgba(30, 60, 90, 0.06),
-        0 3px 8px rgba(30, 60, 90, 0.04);
+        inset 0 -1px 0 rgba(43, 88, 120, 0.20),
+        0 2px 6px rgba(10, 30, 50, 0.12);
 }
 
 /* ================================================================
@@ -271,18 +275,18 @@
 .sidebar {
     position: relative;
     background-image:
-        var(--theme-frost),
+        var(--theme-grain),
         linear-gradient(90deg,
-            rgba(255, 255, 255, 0.70) 0%,
-            rgba(218, 232, 242, 0.65) 100%);
-    background-size: 20px 20px, 100% 100%;
+            rgba(255, 255, 255, 0.55) 0%,
+            rgba(176, 204, 224, 0.55) 100%);
+    background-size: 200px 200px, 100% 100%;
     background-position: 0 0, center;
     background-repeat: repeat, no-repeat;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-right: 1.5px solid rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(14px) saturate(150%);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    border-right: 1.5px solid rgba(255, 255, 255, 0.90);
     overflow: hidden;
-    box-shadow: inset -1px 0 0 rgba(98, 152, 184, 0.15);
+    box-shadow: inset -1px 0 0 rgba(43, 88, 120, 0.15);
 }
 .sidebar-comunidad,
 .sidebar-label,
@@ -293,114 +297,128 @@
 }
 
 .nav-item {
-    border-radius: 6px;
+    border-radius: 8px;
     transition: all 0.20s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .nav-item:hover {
     background: rgba(255, 255, 255, 0.55);
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.70) inset;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.80);
 }
 .nav-item.active {
     background: linear-gradient(180deg,
         rgba(255, 255, 255, 0.95) 0%,
-        rgba(228, 241, 250, 0.85) 100%);
-    border-radius: 6px;
+        rgba(218, 235, 245, 0.85) 100%);
+    border-radius: 8px;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 1),
-        inset 0 0 0 1px var(--violet-300),
-        0 2px 6px rgba(30, 60, 90, 0.10);
+        inset 0 -1px 0 rgba(43, 88, 120, 0.20),
+        inset 0 0 0 1px rgba(111, 163, 192, 0.40),
+        0 2px 6px rgba(10, 30, 50, 0.15);
 }
 .nav-item.active::before {
-    background: linear-gradient(180deg, var(--violet-300), var(--violet-500));
+    background: linear-gradient(180deg, #6FA3C0, #2B5878);
     width: 3px;
     height: 22px;
     border-radius: 0 3px 3px 0;
-    box-shadow: 0 0 6px rgba(98, 152, 184, 0.45);
+    box-shadow: 0 0 8px rgba(70, 120, 154, 0.60);
 }
 
 /* ================================================================
-   4. ACCESOS RÁPIDOS — paneles de vidrio templado
+   4. ACCESOS RÁPIDOS — paneles de vidrio con reflejo duro
    ================================================================ */
 .acceso-item {
     position: relative;
     background-image:
+        var(--theme-shine),
         linear-gradient(180deg,
-            rgba(255, 255, 255, 0.85) 0%,
-            rgba(228, 241, 250, 0.75) 100%);
-    backdrop-filter: blur(10px) saturate(140%);
-    -webkit-backdrop-filter: blur(10px) saturate(140%);
-    border: 1.5px solid rgba(255, 255, 255, 0.85);
-    border-radius: 10px;
+            rgba(255, 255, 255, 0.75) 0%,
+            rgba(218, 235, 245, 0.60) 100%);
+    background-size: 100% 100%, 100% 100%;
+    background-position: top left, center;
+    background-repeat: no-repeat, no-repeat;
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+    border: 1.5px solid rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.95),
-        inset 0 -2px 6px rgba(98, 152, 184, 0.15),
-        0 3px 10px rgba(30, 60, 90, 0.10),
-        0 0 0 1px rgba(98, 152, 184, 0.08);
+        inset 0 1px 0 rgba(255, 255, 255, 1),
+        inset 0 -2px 6px rgba(43, 88, 120, 0.20),
+        0 4px 12px rgba(10, 30, 50, 0.20),
+        0 0 0 1px rgba(111, 163, 192, 0.15);
     overflow: visible;
     transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* Filo blanco superior duro */
 .acceso-item::after {
     content: '';
     position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: linear-gradient(135deg,
-        rgba(255, 255, 255, 0.50) 0%,
-        transparent 40%);
+    top: 0;
+    left: 8%;
+    right: 8%;
+    height: 1.5px;
+    background: linear-gradient(90deg,
+        transparent,
+        rgba(255, 255, 255, 1) 20%,
+        rgba(255, 255, 255, 1) 80%,
+        transparent);
     pointer-events: none;
-    z-index: 2;
-    opacity: 0.85;
+    z-index: 3;
+    border-radius: 12px 12px 0 0;
 }
+
 .acceso-item:hover {
     transform: translateY(-3px);
     border-color: rgba(255, 255, 255, 1);
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 1),
-        inset 0 -2px 6px rgba(98, 152, 184, 0.20),
-        0 12px 26px rgba(30, 60, 90, 0.16),
-        0 4px 8px rgba(30, 60, 90, 0.08),
-        0 0 0 1px rgba(98, 152, 184, 0.20);
+        inset 0 -2px 6px rgba(43, 88, 120, 0.25),
+        0 14px 30px rgba(10, 30, 50, 0.28),
+        0 0 0 1px rgba(111, 163, 192, 0.35);
 }
 
 .acceso-icon-wrap {
     background: linear-gradient(135deg,
-        rgba(255, 255, 255, 0.90) 0%,
-        rgba(196, 222, 236, 0.70) 100%);
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(168, 203, 223, 0.75) 100%);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    color: var(--violet-600);
-    border: 1px solid rgba(255, 255, 255, 0.90);
+    color: var(--violet-500);
+    border: 1.5px solid rgba(255, 255, 255, 1);
     border-radius: 50%;
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.95),
-        inset 0 -1px 2px rgba(98, 152, 184, 0.20);
+        inset 0 2px 3px rgba(255, 255, 255, 1),
+        inset 0 -2px 4px rgba(43, 88, 120, 0.25),
+        0 2px 6px rgba(10, 30, 50, 0.20);
     transition: all 0.22s ease;
 }
 .acceso-item:hover .acceso-icon-wrap {
-    background: var(--accent-gradient);
+    background: linear-gradient(135deg,
+        #6FA3C0 0%,
+        #1B3E58 100%);
     color: #FFFFFF;
-    border-color: rgba(255, 255, 255, 0.60);
+    border-color: rgba(255, 255, 255, 0.90);
     box-shadow:
-        0 0 0 3px rgba(98, 152, 184, 0.20),
-        0 4px 10px rgba(30, 60, 90, 0.30);
+        0 0 0 3px rgba(111, 163, 192, 0.30),
+        0 4px 10px rgba(10, 30, 50, 0.30);
 }
 
 /* ================================================================
    5. WIDGETS
    ================================================================ */
 .widget-item {
-    border: 1.5px solid rgba(255, 255, 255, 0.85);
-    border-radius: 10px;
+    border: 1.5px solid rgba(255, 255, 255, 0.90);
+    border-radius: 12px;
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.90),
-        0 4px 12px rgba(30, 60, 90, 0.10);
+        inset 0 1px 0 rgba(255, 255, 255, 0.95),
+        0 4px 12px rgba(10, 30, 50, 0.20);
     transition: all 0.22s;
 }
 .widget-item:hover {
     border-color: rgba(255, 255, 255, 1);
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.95),
-        0 10px 24px rgba(30, 60, 90, 0.16);
+        inset 0 1px 0 rgba(255, 255, 255, 1),
+        0 12px 28px rgba(10, 30, 50, 0.28);
 }
 
 /* ================================================================
@@ -409,16 +427,16 @@
 .tab-item.active {
     background: linear-gradient(180deg,
         rgba(255, 255, 255, 0.95) 0%,
-        rgba(228, 241, 250, 0.85) 100%);
+        rgba(218, 235, 245, 0.85) 100%);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    border-color: rgba(255, 255, 255, 0.95);
-    border-radius: 10px 10px 0 0;
+    border-color: rgba(255, 255, 255, 1);
+    border-radius: 12px 12px 0 0;
     box-shadow:
-        inset 0 -3px 0 var(--violet-400),
+        inset 0 -3px 0 var(--violet-300),
         inset 0 1px 0 rgba(255, 255, 255, 1);
 }
-.tab-item.active [data-lucide] { color: var(--violet-500); }
+.tab-item.active [data-lucide] { color: var(--violet-400); }
 
 /* ================================================================
    7. MODALES — plancha de vidrio con remaches
@@ -427,18 +445,24 @@
 .modal-todas-card {
     position: relative;
     overflow: hidden;
-    background: linear-gradient(180deg,
-        rgba(255, 255, 255, 0.95) 0%,
-        rgba(228, 241, 250, 0.90) 100%);
-    backdrop-filter: blur(20px) saturate(150%);
-    -webkit-backdrop-filter: blur(20px) saturate(150%);
-    border: 1.5px solid rgba(255, 255, 255, 0.90);
-    border-radius: 14px;
+    background-image:
+        var(--theme-grain),
+        var(--theme-shine),
+        linear-gradient(180deg,
+            rgba(255, 255, 255, 0.90) 0%,
+            rgba(218, 235, 245, 0.85) 100%);
+    background-size: 200px 200px, 100% 100%, 100% 100%;
+    background-position: 0 0, top left, center;
+    background-repeat: repeat, no-repeat, no-repeat;
+    backdrop-filter: blur(22px) saturate(160%);
+    -webkit-backdrop-filter: blur(22px) saturate(160%);
+    border: 1.5px solid rgba(255, 255, 255, 1);
+    border-radius: 16px;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 1),
-        inset 0 -1px 0 rgba(98, 152, 184, 0.20),
-        0 24px 48px rgba(30, 60, 90, 0.20),
-        0 0 0 1px rgba(98, 152, 184, 0.12);
+        inset 0 -2px 6px rgba(43, 88, 120, 0.20),
+        0 24px 48px rgba(10, 30, 50, 0.30),
+        0 0 0 1px rgba(111, 163, 192, 0.20);
 }
 
 /* Remaches en las 4 esquinas */
@@ -461,9 +485,9 @@
         10px calc(100% - 10px),
         calc(100% - 10px) calc(100% - 10px);
     background-repeat: no-repeat;
+    filter: drop-shadow(0 1px 1px rgba(10, 30, 50, 0.40));
 }
 
-/* Reflejo superior */
 .config-card::after,
 .modal-todas-card::after {
     content: '';
@@ -472,10 +496,7 @@
     left: 15%;
     right: 15%;
     height: 2px;
-    background: linear-gradient(90deg,
-        transparent,
-        rgba(255, 255, 255, 1),
-        transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 1), transparent);
     pointer-events: none;
     z-index: 4;
 }
@@ -483,45 +504,45 @@
 .config-header,
 .modal-todas-header {
     background: linear-gradient(180deg,
-        rgba(228, 241, 250, 0.85) 0%,
-        rgba(196, 222, 236, 0.75) 100%);
-    border-bottom: 1.5px solid rgba(255, 255, 255, 0.85);
+        rgba(218, 235, 245, 0.90) 0%,
+        rgba(168, 203, 223, 0.75) 100%);
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.95);
     position: relative;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.90);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
 
 /* ================================================================
-   8. BOTÓN PRIMARIO — botón de vidrio pulido
+   8. BOTÓN PRIMARIO — botón de vidrio con reflejo
    ================================================================ */
 .btn-primario {
     background: linear-gradient(180deg,
-        #94BED8 0%,
-        #6298B8 45%,
-        #2A546E 55%,
-        #163648 100%);
-    border: 1.5px solid rgba(255, 255, 255, 0.45);
+        #A8CBDF 0%,
+        #46789A 45%,
+        #1B3E58 55%,
+        #0F283C 100%);
+    border: 1.5px solid rgba(255, 255, 255, 0.65);
     color: #FFFFFF;
     font-weight: 700;
-    text-shadow: 0 1px 2px rgba(30, 60, 90, 0.40);
+    text-shadow: 0 1px 2px rgba(10, 30, 50, 0.50);
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.55),
-        inset 0 -2px 4px rgba(30, 60, 90, 0.35),
-        0 4px 12px rgba(30, 60, 90, 0.30),
-        0 2px 4px rgba(30, 60, 90, 0.15);
+        inset 0 2px 0 rgba(255, 255, 255, 0.60),
+        inset 0 -2px 4px rgba(10, 30, 50, 0.50),
+        0 4px 12px rgba(10, 30, 50, 0.35),
+        0 0 0 1px rgba(111, 163, 192, 0.30);
     transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .btn-primario:hover {
     background: linear-gradient(180deg,
-        #C4DEEC 0%,
-        #94BED8 45%,
-        #3E7094 55%,
-        #1E3242 100%);
+        #DAEBF5 0%,
+        #6FA3C0 45%,
+        #2B5878 55%,
+        #0F283C 100%);
     transform: translateY(-1px);
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.65),
-        inset 0 -2px 4px rgba(30, 60, 90, 0.35),
-        0 8px 20px rgba(30, 60, 90, 0.40),
-        0 0 0 3px rgba(98, 152, 184, 0.20);
+        inset 0 2px 0 rgba(255, 255, 255, 0.75),
+        inset 0 -2px 4px rgba(10, 30, 50, 0.50),
+        0 8px 20px rgba(10, 30, 50, 0.45),
+        0 0 0 3px rgba(111, 163, 192, 0.30);
 }
 
 /* ================================================================
@@ -531,56 +552,54 @@
 .config-field select,
 .config-select {
     background: rgba(255, 255, 255, 0.75);
-    border: 1.5px solid rgba(255, 255, 255, 0.85);
+    border: 1.5px solid rgba(255, 255, 255, 0.95);
     color: var(--text);
     box-shadow:
-        inset 0 1px 3px rgba(30, 60, 90, 0.08),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.60),
-        0 0 0 1px rgba(98, 152, 184, 0.10);
+        inset 0 2px 4px rgba(10, 30, 50, 0.12),
+        inset 0 0 0 1px rgba(111, 163, 192, 0.15);
 }
 .config-field input:focus,
 .config-field select:focus,
 .config-select:focus {
-    border-color: rgba(98, 152, 184, 0.55);
+    border-color: rgba(111, 163, 192, 0.70);
     box-shadow:
-        inset 0 1px 3px rgba(30, 60, 90, 0.08),
-        0 0 0 3px rgba(98, 152, 184, 0.20);
+        inset 0 2px 4px rgba(10, 30, 50, 0.12),
+        0 0 0 3px rgba(111, 163, 192, 0.25);
 }
 
 /* ================================================================
-   10. AVATAR — medalla de vidrio templado
+   10. AVATAR — medallón de vidrio
    ================================================================ */
 .avatar-config {
     background:
-        radial-gradient(circle at 35% 30%,
-            rgba(255, 255, 255, 0.95) 0%,
-            rgba(196, 222, 236, 0.85) 50%,
-            rgba(98, 152, 184, 0.75) 100%);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 2px solid rgba(255, 255, 255, 0.95);
+        radial-gradient(circle at 30% 25%,
+            #FFFFFF 0%,
+            #DAEBF5 30%,
+            #6FA3C0 65%,
+            #1B3E58 100%);
+    border: 2px solid rgba(255, 255, 255, 1);
     box-shadow:
-        inset 0 2px 3px rgba(255, 255, 255, 0.95),
-        inset 0 -2px 4px rgba(98, 152, 184, 0.30),
-        0 0 0 1px rgba(98, 152, 184, 0.35),
-        0 4px 12px rgba(30, 60, 90, 0.20);
+        inset 0 3px 4px rgba(255, 255, 255, 1),
+        inset 0 -3px 6px rgba(43, 88, 120, 0.40),
+        0 0 0 1px rgba(111, 163, 192, 0.40),
+        0 4px 12px rgba(10, 30, 50, 0.30);
 }
 .avatar-config:hover {
     transform: translateY(-1px) scale(1.05);
     box-shadow:
-        inset 0 2px 3px rgba(255, 255, 255, 1),
-        inset 0 -2px 4px rgba(98, 152, 184, 0.35),
-        0 0 0 1px rgba(98, 152, 184, 0.50),
-        0 6px 16px rgba(30, 60, 90, 0.30);
+        inset 0 3px 4px rgba(255, 255, 255, 1),
+        inset 0 -3px 6px rgba(43, 88, 120, 0.45),
+        0 0 0 1px rgba(111, 163, 192, 0.55),
+        0 8px 20px rgba(10, 30, 50, 0.40);
 }
 
 .noti-btn.tiene-no-leidas {
-    background: rgba(98, 152, 184, 0.15);
+    background: rgba(111, 163, 192, 0.20);
     color: var(--violet-600);
 }
 .search-bar:focus-within {
-    border-color: rgba(98, 152, 184, 0.55);
-    box-shadow: 0 0 0 3px rgba(98, 152, 184, 0.20);
+    border-color: rgba(111, 163, 192, 0.70);
+    box-shadow: 0 0 0 3px rgba(111, 163, 192, 0.25);
 }
 .search-bar:focus-within .search-icon { color: var(--violet-500); }
 
