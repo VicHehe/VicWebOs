@@ -1,0 +1,719 @@
+/* ================================================
+   Tema: Low Poly Terrain
+   Paisaje low-poly con facetas triangulares planas,
+   montañas geométricas y un sol facetado gigante.
+   Estilo Monument Valley / Poly Bridge.
+   Geometría pura, sin texturas.
+
+   REGLA DE LUZ:
+   Toda la escena respeta una única fuente de luz
+   proveniente de la IZQUIERDA. Las caras de los
+   triángulos que miran a la izquierda son claras,
+   las que miran a la derecha son oscuras. Las
+   sombras proyectadas van hacia la derecha.
+   ================================================ */
+
+:root {
+    /* Acento: coral de atardecer */
+    --violet-50:  #2A1B3D;
+    --violet-100: #3A2858;
+    --violet-200: #4A3560;
+    --violet-300: #7A5A8C;
+    --violet-400: #D97757;
+    --violet-500: #F5A66B;
+    --violet-600: #E8853D;
+    --violet-700: #B85C2A;
+
+    /* Superficies */
+    --white:   #1F1535;
+    --bg:      #150A28;
+    --bg-alt:  #1A1030;
+    --gray-50:  #1A1030;
+    --gray-100: #251840;
+    --gray-200: #3A2858;
+    --gray-300: #4F3A6E;
+    --gray-400: #7A6590;
+    --gray-500: #A896B8;
+    --gray-600: #C8B8D8;
+    --gray-700: #DDD0E8;
+    --gray-800: #EDE4F5;
+    --gray-900: #F8F4FF;
+
+    --border:  #3A2858;
+    --text:    #F8F4FF;
+    --text-2:  #C8B8D8;
+    --text-3:  #A896B8;
+
+    /* Sombras DURAS — offset sólido, sin blur.
+       La pila apilada simula profundidad geométrica. */
+    --shadow-xs: 1px 1px 0 rgba(0, 0, 0, 0.55);
+    --shadow-sm: 2px 2px 0 rgba(0, 0, 0, 0.60);
+    --shadow-md: 3px 3px 0 rgba(0, 0, 0, 0.65),
+                 5px 5px 0 rgba(0, 0, 0, 0.35);
+    --shadow-lg: 5px 5px 0 rgba(0, 0, 0, 0.65),
+                 9px 9px 0 rgba(0, 0, 0, 0.40),
+                 13px 13px 0 rgba(0, 0, 0, 0.20);
+    --shadow-xl: 7px 7px 0 rgba(0, 0, 0, 0.70),
+                 14px 14px 0 rgba(0, 0, 0, 0.45),
+                 21px 21px 0 rgba(0, 0, 0, 0.25);
+    --shadow-glow: 0 0 0 4px rgba(245, 166, 107, 0.20);
+
+    --accent-gradient: linear-gradient(135deg, #F5A66B, #B85C2A);
+    --accent-gradient-hover: linear-gradient(135deg, #FFB680, #D97757);
+    --accent-shadow: rgba(245, 166, 107, 0.35);
+    --accent-shadow-hover: rgba(245, 166, 107, 0.55);
+    --accent-text-gradient: linear-gradient(135deg, #F8F4FF, #F5A66B);
+
+    /* Paleta natural del sol y las montañas */
+    --sun-bright: #FFE4A0;
+    --sun-mid:    #F5A66B;
+    --sun-deep:   #D97757;
+
+    --mtn-far:  #7A5A8C;
+    --mtn-mid:  #5C3E7A;
+    --mtn-near: #3A2858;
+    --mtn-dark: #2A1B3D;
+
+    /* Radios: esquinas vivas, look de faceta */
+    --r-sm: 2px;
+    --r-md: 3px;
+    --r-lg: 5px;
+    --r-xl: 8px;
+
+    /* ------------------------------------------------------------
+       Sol facetado — 8 wedges triangulares.
+       Las caras izquierda son claras (luz viene de izq),
+       las derecha son oscuras.
+       ------------------------------------------------------------ */
+    --theme-sun: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath d='M100,100 L100,10 L163,37 Z' fill='%23F5A66B'/%3E%3Cpath d='M100,100 L163,37 L190,100 Z' fill='%23E8853D'/%3E%3Cpath d='M100,100 L190,100 L163,163 Z' fill='%23D97757'/%3E%3Cpath d='M100,100 L163,163 L100,190 Z' fill='%23D97757'/%3E%3Cpath d='M100,100 L100,190 L37,163 Z' fill='%23F5A66B'/%3E%3Cpath d='M100,100 L37,163 L10,100 Z' fill='%23FFD4A0'/%3E%3Cpath d='M100,100 L10,100 L37,37 Z' fill='%23FFE4A0'/%3E%3Cpath d='M100,100 L37,37 L100,10 Z' fill='%23F5A66B'/%3E%3C/svg%3E");
+
+    /* ------------------------------------------------------------
+       Cordillera de 4 picos. Cada pico tiene cara clara a la
+       izquierda y oscura a la derecha. El pico central tiene
+       una nieve perpetua (snow cap).
+       ------------------------------------------------------------ */
+    --theme-mountains: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 240' preserveAspectRatio='none'%3E%3Cpath d='M-20,240 L100,140 L100,240 Z' fill='%237A5A8C'/%3E%3Cpath d='M100,140 L220,240 L100,240 Z' fill='%233A2858'/%3E%3Cpath d='M180,240 L380,60 L380,240 Z' fill='%238B6AA8'/%3E%3Cpath d='M380,60 L560,240 L380,240 Z' fill='%232A1B3D'/%3E%3Cpath d='M350,90 L380,60 L410,90 L380,100 Z' fill='%23F8F4FF'/%3E%3Cpath d='M500,240 L640,120 L640,240 Z' fill='%237A5A8C'/%3E%3Cpath d='M640,120 L780,240 L640,240 Z' fill='%233A2858'/%3E%3Cpath d='M700,240 L820,140 L820,240 Z' fill='%238B6AA8'/%3E%3Cpath d='M820,140 L940,240 L820,240 Z' fill='%232A1B3D'/%3E%3C/svg%3E");
+
+    /* ------------------------------------------------------------
+       Facetas — patrón de rombos para el fondo del lobby.
+       Muy sutil, solo para dar textura poligonal.
+       ------------------------------------------------------------ */
+    --theme-facets: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cpath d='M0,0 L30,30 L0,60 Z' fill='none' stroke='%237A5A8C' stroke-width='0.5' stroke-opacity='0.30'/%3E%3Cpath d='M0,0 L60,0 L30,30 Z' fill='none' stroke='%237A5A8C' stroke-width='0.5' stroke-opacity='0.30'/%3E%3Cpath d='M60,0 L60,60 L30,30 Z' fill='none' stroke='%237A5A8C' stroke-width='0.5' stroke-opacity='0.30'/%3E%3Cpath d='M0,60 L60,60 L30,30 Z' fill='none' stroke='%237A5A8C' stroke-width='0.5' stroke-opacity='0.30'/%3E%3C/svg%3E");
+}
+
+/* ================================================================
+   1. WELCOME — cielo de atardecer + facetas + luz desde la izq
+   ================================================================ */
+.welcome-placeholder {
+    position: relative;
+    background-image:
+        var(--theme-facets),
+        linear-gradient(90deg, rgba(245, 166, 107, 0.10) 0%, transparent 45%),
+        linear-gradient(180deg, #1E1338 0%, #2A1B4A 40%, #3A2858 100%);
+    background-size:
+        60px 60px,
+        100% 100%,
+        100% 100%;
+    background-position:
+        0 0,
+        center top,
+        center top;
+    background-repeat:
+        repeat,
+        no-repeat,
+        no-repeat;
+    background-color: var(--bg);
+}
+
+/* Sol facetado — esquina superior izquierda
+   (coherente con la luz que viene desde ahí) */
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    top: 40px;
+    left: 40px;
+    width: 180px;
+    height: 180px;
+    background: var(--theme-sun) center/contain no-repeat;
+    pointer-events: none;
+    z-index: 0;
+    filter:
+        drop-shadow(0 0 40px rgba(245, 166, 107, 0.55))
+        drop-shadow(0 0 90px rgba(245, 166, 107, 0.35))
+        drop-shadow(6px 8px 0 rgba(0, 0, 0, 0.35));
+    animation: lowpoly-sun-breathe 6s ease-in-out infinite;
+}
+@keyframes lowpoly-sun-breathe {
+    0%, 100% {
+        filter:
+            drop-shadow(0 0 40px rgba(245, 166, 107, 0.55))
+            drop-shadow(0 0 90px rgba(245, 166, 107, 0.35))
+            drop-shadow(6px 8px 0 rgba(0, 0, 0, 0.35));
+    }
+    50% {
+        filter:
+            drop-shadow(0 0 55px rgba(245, 166, 107, 0.75))
+            drop-shadow(0 0 120px rgba(245, 166, 107, 0.50))
+            drop-shadow(6px 8px 0 rgba(0, 0, 0, 0.35));
+    }
+}
+
+/* Cordillera — anclada al borde inferior del lobby */
+.welcome-placeholder::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 240px;
+    background: var(--theme-mountains) bottom/100% 100% no-repeat;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.welcome-hero,
+.welcome-section {
+    position: relative;
+    z-index: 2;
+}
+
+.welcome-glow {
+    background: radial-gradient(
+        circle at 25% 25%,
+        rgba(245, 166, 107, 0.16) 0%,
+        rgba(122, 90, 140, 0.10) 40%,
+        transparent 68%
+    );
+}
+
+/* Hero como "mirador" — marco con bisel de faceta */
+.welcome-hero {
+    position: relative;
+    padding: 36px 30px 32px;
+    background: linear-gradient(
+        180deg,
+        #2A1B4A 0%,
+        #1F1535 100%
+    );
+    border: 2px solid var(--mtn-far);
+    border-radius: 2px;
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.08),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.50),
+        6px 6px 0 rgba(0, 0, 0, 0.70),
+        12px 12px 0 rgba(122, 90, 140, 0.35),
+        18px 18px 0 rgba(245, 166, 107, 0.18);
+    max-width: 660px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Bisel superior: cara iluminada del hero */
+.welcome-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg,
+        var(--sun-bright) 0%,
+        var(--sun-mid) 50%,
+        transparent 100%);
+    opacity: 0.65;
+    pointer-events: none;
+    z-index: 3;
+}
+
+/* Faceta triangular inferior derecha */
+.welcome-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 26px;
+    height: 26px;
+    background: var(--violet-500);
+    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    opacity: 0.35;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.welcome-hero > * {
+    position: relative;
+    z-index: 1;
+}
+
+.welcome-hero h1 {
+    letter-spacing: 0.01em;
+    text-shadow:
+        2px 2px 0 rgba(0, 0, 0, 0.45),
+        0 0 22px rgba(245, 166, 107, 0.35);
+}
+
+/* Icono: faceta triangular con sombras apiladas */
+.welcome-icon-wrap {
+    background: linear-gradient(135deg, #FFD4A0 0%, #F5A66B 50%, #D97757 100%);
+    border-radius: 4px;
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.25),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.30),
+        5px 5px 0 rgba(0, 0, 0, 0.70),
+        10px 10px 0 rgba(245, 166, 107, 0.35),
+        15px 15px 0 rgba(122, 90, 140, 0.25);
+    animation: lowpoly-icon-lift 4s ease-in-out infinite;
+}
+@keyframes lowpoly-icon-lift {
+    0%, 100% {
+        transform: translateY(0);
+        box-shadow:
+            inset 2px 2px 0 rgba(255, 255, 255, 0.25),
+            inset -2px -2px 0 rgba(0, 0, 0, 0.30),
+            5px 5px 0 rgba(0, 0, 0, 0.70),
+            10px 10px 0 rgba(245, 166, 107, 0.35),
+            15px 15px 0 rgba(122, 90, 140, 0.25);
+    }
+    50% {
+        transform: translateY(-4px);
+        box-shadow:
+            inset 2px 2px 0 rgba(255, 255, 255, 0.30),
+            inset -2px -2px 0 rgba(0, 0, 0, 0.30),
+            6px 6px 0 rgba(0, 0, 0, 0.70),
+            12px 12px 0 rgba(245, 166, 107, 0.45),
+            18px 18px 0 rgba(122, 90, 140, 0.30);
+    }
+}
+
+/* ================================================================
+   2. HEADER — línea de horizonte al atardecer
+   ================================================================ */
+.app-header {
+    position: relative;
+    background: linear-gradient(180deg, #1A1030 0%, #150A28 100%);
+    border-bottom: 2px solid var(--mtn-far);
+    box-shadow:
+        inset 0 -2px 0 rgba(0, 0, 0, 0.50),
+        0 3px 0 rgba(245, 166, 107, 0.30),
+        0 6px 0 rgba(0, 0, 0, 0.35);
+}
+.app-header::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 15%;
+    right: 15%;
+    height: 2px;
+    background: linear-gradient(90deg,
+        var(--sun-bright),
+        var(--sun-mid),
+        transparent);
+    opacity: 0.70;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* ================================================================
+   3. SIDEBAR — suelo con silueta de montaña al fondo
+   ================================================================ */
+.sidebar {
+    position: relative;
+    background: linear-gradient(180deg, #1A1030 0%, #150A28 100%);
+    border-right: 2px solid var(--mtn-near);
+    overflow: hidden;
+}
+.sidebar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.20;
+    background-image: var(--theme-facets);
+    background-size: 40px 40px;
+    background-repeat: repeat;
+}
+.sidebar::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    background: var(--theme-mountains) bottom/100% 100% no-repeat;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.45;
+}
+.sidebar-comunidad,
+.sidebar-label,
+.sidebar-nav,
+.sidebar-mobile-header {
+    position: relative;
+    z-index: 1;
+}
+
+.nav-item {
+    border-radius: 2px;
+    transition: all 0.20s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.nav-item:hover {
+    transform: translateX(2px);
+}
+.nav-item.active {
+    background: linear-gradient(180deg, rgba(245, 166, 107, 0.14) 0%, rgba(122, 90, 140, 0.10) 100%);
+    border-radius: 2px;
+    box-shadow:
+        inset 1px 1px 0 rgba(255, 255, 255, 0.08),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.45),
+        2px 2px 0 rgba(0, 0, 0, 0.55);
+}
+.nav-item.active::before {
+    background: linear-gradient(180deg, var(--sun-bright), var(--violet-700));
+    width: 3px;
+    height: 22px;
+    box-shadow:
+        2px 0 0 rgba(0, 0, 0, 0.55),
+        0 0 8px rgba(245, 166, 107, 0.50);
+    border-radius: 0;
+}
+
+/* ================================================================
+   4. ACCESOS RÁPIDOS — facetas que EXTRUYEN al hover
+   ================================================================ */
+.acceso-item {
+    position: relative;
+    background: linear-gradient(180deg, #2A1B4A 0%, #1F1535 100%);
+    border: 1px solid rgba(122, 90, 140, 0.50);
+    border-radius: 3px;
+    box-shadow:
+        inset 1px 1px 0 rgba(255, 255, 255, 0.08),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.50),
+        3px 3px 0 rgba(0, 0, 0, 0.70),
+        6px 6px 0 rgba(122, 90, 140, 0.30);
+    transition:
+        transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.24s cubic-bezier(0.34, 1.56, 0.64, 1),
+        border-color 0.24s ease;
+    transform-style: preserve-3d;
+    will-change: transform;
+    overflow: visible;
+}
+
+.acceso-item:hover {
+    transform: translate(-3px, -3px);
+    border-color: var(--violet-500);
+    box-shadow:
+        inset 1px 1px 0 rgba(255, 255, 255, 0.14),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.50),
+        5px 5px 0 rgba(0, 0, 0, 0.70),
+        10px 10px 0 rgba(122, 90, 140, 0.40),
+        15px 15px 0 rgba(245, 166, 107, 0.22);
+}
+
+/* Faceta triangular inferior derecha — aparece al hover */
+.acceso-item::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 14px;
+    height: 14px;
+    background: var(--violet-500);
+    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    opacity: 0;
+    transition: opacity 0.24s ease;
+    pointer-events: none;
+    z-index: 3;
+}
+.acceso-item:hover::after {
+    opacity: 0.65;
+}
+
+.acceso-icon-wrap {
+    background: rgba(245, 166, 107, 0.10);
+    color: var(--violet-500);
+    border: 1px solid rgba(245, 166, 107, 0.30);
+    border-radius: 3px;
+    box-shadow:
+        inset 1px 1px 0 rgba(245, 166, 107, 0.20),
+        2px 2px 0 rgba(0, 0, 0, 0.45);
+    transition: all 0.24s ease;
+}
+.acceso-item:hover .acceso-icon-wrap {
+    background: var(--accent-gradient);
+    color: #150A28;
+    border-color: var(--violet-400);
+    box-shadow:
+        inset 1px 1px 0 rgba(255, 255, 255, 0.30),
+        3px 3px 0 rgba(0, 0, 0, 0.60),
+        0 0 12px rgba(245, 166, 107, 0.45);
+}
+
+/* ================================================================
+   5. WIDGETS — mismo tratamiento
+   ================================================================ */
+.widget-item {
+    border: 1px solid rgba(122, 90, 140, 0.50);
+    border-radius: 3px;
+    box-shadow:
+        inset 1px 1px 0 rgba(255, 255, 255, 0.08),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.50),
+        3px 3px 0 rgba(0, 0, 0, 0.65),
+        6px 6px 0 rgba(122, 90, 140, 0.30);
+    transition: all 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.widget-item:hover {
+    transform: translate(-2px, -2px);
+    border-color: var(--violet-500);
+    box-shadow:
+        inset 1px 1px 0 rgba(255, 255, 255, 0.12),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.50),
+        5px 5px 0 rgba(0, 0, 0, 0.65),
+        10px 10px 0 rgba(245, 166, 107, 0.20);
+}
+
+/* ================================================================
+   6. PESTAÑAS
+   ================================================================ */
+.tab-item.active {
+    background: linear-gradient(180deg, #2A1B4A 0%, #1F1535 100%);
+    border-color: var(--mtn-far);
+    box-shadow:
+        inset 1px 1px 0 rgba(255, 255, 255, 0.08),
+        0 -3px 0 var(--violet-500) inset,
+        3px 0 0 rgba(0, 0, 0, 0.45);
+    position: relative;
+}
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 8px;
+    right: 8px;
+    height: 2px;
+    background: linear-gradient(90deg,
+        var(--sun-bright),
+        var(--sun-mid),
+        transparent);
+    box-shadow: 0 0 8px rgba(245, 166, 107, 0.55);
+    pointer-events: none;
+}
+.tab-item.active [data-lucide] { color: var(--violet-500); }
+
+/* ================================================================
+   7. MODALES — marco faceteado con esquina triangular
+   ================================================================ */
+.config-card,
+.modal-todas-card {
+    position: relative;
+    overflow: hidden;
+    border: 2px solid var(--mtn-far);
+    border-radius: 3px;
+    background: linear-gradient(180deg, #2A1B4A 0%, #150A28 100%);
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+        inset 2px 2px 0 rgba(255, 255, 255, 0.08),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.50),
+        8px 8px 0 rgba(0, 0, 0, 0.70),
+        16px 16px 0 rgba(122, 90, 140, 0.40),
+        24px 24px 0 rgba(245, 166, 107, 0.18);
+}
+
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg,
+        var(--sun-bright),
+        var(--sun-mid) 30%,
+        transparent 80%);
+    pointer-events: none;
+    z-index: 3;
+    box-shadow: 0 0 12px rgba(245, 166, 107, 0.55);
+}
+
+.config-card::after,
+.modal-todas-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 32px;
+    height: 32px;
+    background: var(--violet-500);
+    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    opacity: 0.35;
+    pointer-events: none;
+    z-index: 4;
+}
+
+.config-header,
+.modal-todas-header {
+    background: linear-gradient(180deg, #2A1B4A 0%, #1A1030 100%);
+    border-bottom: 2px solid var(--mtn-far);
+    position: relative;
+}
+
+/* ================================================================
+   8. BOTÓN PRIMARIO — botón faceteado con press físico
+   ================================================================ */
+.btn-primario {
+    position: relative;
+    background: linear-gradient(180deg,
+        #FFD4A0 0%,
+        #F5A66B 45%,
+        #D97757 55%,
+        #B85C2A 100%);
+    border: 2px solid #150A28;
+    border-radius: 3px;
+    color: #150A28;
+    font-weight: 800;
+    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.25);
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.30),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.30),
+        4px 4px 0 rgba(0, 0, 0, 0.70),
+        6px 6px 0 rgba(122, 90, 140, 0.55);
+    transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-primario:hover {
+    transform: translate(-2px, -2px);
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.40),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.30),
+        6px 6px 0 rgba(0, 0, 0, 0.70),
+        9px 9px 0 rgba(122, 90, 140, 0.60);
+}
+.btn-primario:active {
+    transform: translate(2px, 2px);
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.20),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.35),
+        2px 2px 0 rgba(0, 0, 0, 0.70),
+        3px 3px 0 rgba(122, 90, 140, 0.45);
+}
+
+/* ================================================================
+   9. INPUTS
+   ================================================================ */
+.config-field input,
+.config-field select,
+.config-select {
+    background: rgba(21, 10, 40, 0.60);
+    border: 1px solid rgba(122, 90, 140, 0.50);
+    color: var(--text);
+    box-shadow:
+        inset 1px 1px 0 rgba(0, 0, 0, 0.50),
+        2px 2px 0 rgba(0, 0, 0, 0.30);
+}
+.config-field input:focus,
+.config-field select:focus,
+.config-select:focus {
+    border-color: var(--violet-500);
+    box-shadow:
+        inset 1px 1px 0 rgba(0, 0, 0, 0.50),
+        0 0 0 3px rgba(245, 166, 107, 0.20);
+}
+
+/* ================================================================
+   10. AVATAR — faceta del sol en miniatura
+   ================================================================ */
+.avatar-config {
+    background: linear-gradient(135deg, #FFD4A0, #B85C2A);
+    border: 2px solid #150A28;
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.30),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.30),
+        3px 3px 0 rgba(0, 0, 0, 0.70),
+        5px 5px 0 rgba(122, 90, 140, 0.50);
+}
+.avatar-config:hover {
+    transform: translate(-1px, -1px) scale(1.05);
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.35),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.30),
+        5px 5px 0 rgba(0, 0, 0, 0.70),
+        8px 8px 0 rgba(245, 166, 107, 0.40);
+}
+
+.noti-btn.tiene-no-leidas {
+    background: rgba(245, 166, 107, 0.15);
+    color: var(--violet-500);
+}
+.search-bar:focus-within {
+    border-color: var(--violet-500);
+    box-shadow:
+        0 0 0 3px rgba(245, 166, 107, 0.20),
+        inset 2px 2px 0 rgba(0, 0, 0, 0.30);
+}
+.search-bar:focus-within .search-icon { color: var(--violet-500); }
+
+/* ================================================================
+   11. RESPONSIVE — FIX drawer móvil
+   ================================================================ */
+@media (max-width: 768px) {
+    .sidebar { position: fixed; }
+}
+
+/* ================================================================
+   12. RESPONSIVE — simplificar la escena en pantallas chicas
+   ================================================================ */
+@media (max-width: 768px) {
+    .welcome-placeholder {
+        background-image:
+            var(--theme-facets),
+            linear-gradient(180deg, #1E1338 0%, #2A1B4A 40%, #3A2858 100%);
+        background-size:
+            40px 40px,
+            100% 100%;
+        background-position:
+            0 0,
+            center top;
+        background-repeat:
+            repeat,
+            no-repeat;
+    }
+    .welcome-placeholder::before {
+        width: 100px;
+        height: 100px;
+        top: 20px;
+        left: 20px;
+        animation: none;
+        filter:
+            drop-shadow(0 0 25px rgba(245, 166, 107, 0.50))
+            drop-shadow(4px 5px 0 rgba(0, 0, 0, 0.35));
+    }
+    .welcome-placeholder::after {
+        height: 140px;
+    }
+}
+
+/* ================================================================
+   13. prefers-reduced-motion
+   ================================================================ */
+@media (prefers-reduced-motion: reduce) {
+    .welcome-placeholder::before,
+    .welcome-icon-wrap {
+        animation: none !important;
+    }
+    .acceso-item,
+    .widget-item,
+    .btn-primario,
+    .avatar-config,
+    .nav-item {
+        transition: none !important;
+        transform: none !important;
+    }
+    .acceso-item:hover,
+    .widget-item:hover,
+    .btn-primario:hover,
+    .btn-primario:active,
+    .avatar-config:hover {
+        transform: none !important;
+    }
+}
