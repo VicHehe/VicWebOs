@@ -82,6 +82,17 @@ const WIDGETS_DISPONIBLES = [
         espacio: 4,
         monedas: 25
     },
+        {
+        id: 'generador-nombres',
+        nombre: 'Generador de Nombres',
+        icono: 'signature',
+        ruta: 'Widgets/generador-nombres/index.html',
+        descripcion: 'Genera nombres sintetizados por sílabas: latino, japonés, anglo o fantasía.',
+        categoria: 'Azar',
+        esBase: false,
+        espacio: 2,
+        monedas: 30
+    },
     {
         id: 'diapositivas',
         nombre: 'Diapositivas',
