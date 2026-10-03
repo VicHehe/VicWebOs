@@ -557,6 +557,24 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFFFF'
         }
     },
+        {
+        id: 'carnaval-veneciano',
+        nombre: 'Carnaval Veneciano',
+        icono: 'theater',
+        descripcion: 'Terciopelo vino, damasco barroco y máscaras doradas. El carnaval de Venecia con candelabros, plumas de pavo real y velas titilando.',
+        categoria: 'Festivos',
+        ruta: 'Temas/carnaval-veneciano.css',
+        espacio: 4,
+        monedas: 31,
+        colores: {
+            '--violet-100': '#2A1018',
+            '--violet-300': '#8B6A3A',
+            '--violet-500': '#D4AF37',
+            '--bg':         '#0F0608',
+            '--bg-alt':     '#1A0A10',
+            '--white':      '#1F0E14'
+        }
+    },
 
     // ============================================================
     //  ATMÓSFERAS — Moods, ambientes, sensaciones cozy
