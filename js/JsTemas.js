@@ -344,18 +344,11 @@ const TEMAS_DISPONIBLES = [
         }
     },
 
-        // ============================================================
-    //  COSMOS — Cielo profundo, cuerpos celestes, atmósfera
-    //  espacial. Paletas nocturnas ricas, oscuras, contemplativas.
-    //  3 de entrada a 15 monedas (pendiente: 1 flagship a 40).
-    //  Progresión interna por color dominante:
-    //    verde → magenta → naranja → (cyan reservado para el 40)
-    // ============================================================
     {
         id: 'aurora-boreal',
         nombre: 'Aurora Boreal',
         icono: 'sparkle',
-        descripcion: 'Cielo nocturno con verde esmeralda ondulando sobre violeta.',
+        descripcion: 'Verde esmeralda sobre azul noche profundo, con acento violeta. Paleta fría, luminosa y calma.',
         categoria: 'Cosmos',
         ruta: 'Temas/aurora-boreal.css',
         espacio: 2,
@@ -373,7 +366,7 @@ const TEMAS_DISPONIBLES = [
         id: 'nebulosa',
         nombre: 'Nebulosa',
         icono: 'orbit',
-        descripcion: 'Magenta estelar y cyan profundo flotando en púrpura-espacio.',
+        descripcion: 'Magenta estelar y cyan sobre púrpura profundo. Saturación alta y contraste nocturno.',
         categoria: 'Cosmos',
         ruta: 'Temas/nebulosa.css',
         espacio: 2,
@@ -391,7 +384,7 @@ const TEMAS_DISPONIBLES = [
         id: 'eclipse-solar',
         nombre: 'Eclipse Solar',
         icono: 'sun-moon',
-        descripcion: 'Casi negro con anillo de fuego naranja-dorado. Silencio y calor.',
+        descripcion: 'Casi negro con acento naranja-dorado. Alto contraste cálido sobre oscuridad densa.',
         categoria: 'Cosmos',
         ruta: 'Temas/eclipse-solar.css',
         espacio: 2,
@@ -405,21 +398,11 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#18120C'
         }
     },
-
-    // ============================================================
-    //  ESPACIOS LIMINALES — Lugares vacíos, nostálgicos,
-    //  ligeramente inquietantes. Luz artificial, arquitectura
-    //  reconocible, silencio. 3 de entrada a 15 (pendiente:
-    //  1 flagship a 40).
-    //  Progresión interna por temperatura:
-    //    frío agua → cálido interior → beige mall → (gris clínico
-    //    reservado para el 40)
-    // ============================================================
     {
         id: 'piscina-vacia',
         nombre: 'Piscina Vacía',
         icono: 'bath',
-        descripcion: 'Azulejo blanco, agua detenida, luz de tarde filtrándose desde arriba.',
+        descripcion: 'Celeste pálido, blanco limpio y gris suave. Paleta fresca y desaturada.',
         categoria: 'Espacios Liminales',
         ruta: 'Temas/piscina-vacia.css',
         espacio: 2,
@@ -437,7 +420,7 @@ const TEMAS_DISPONIBLES = [
         id: 'pasillo-hotel',
         nombre: 'Pasillo de Hotel',
         icono: 'door-closed',
-        descripcion: 'Alfombra vino, papel tapiz crema, madera oscura. Luz cálida que no llega a ser acogedora.',
+        descripcion: 'Vino profundo, crema cálida y marrón madera. Neutros cálidos con un acento vino intenso.',
         categoria: 'Espacios Liminales',
         ruta: 'Temas/pasillo-hotel.css',
         espacio: 2,
@@ -455,7 +438,7 @@ const TEMAS_DISPONIBLES = [
         id: 'centro-comercial',
         nombre: 'Centro Comercial',
         icono: 'shopping-bag',
-        descripcion: 'Beige de mall, verde de planta artificial y neón frío de cartel.',
+        descripcion: 'Beige cálido y verde medio, con acento cyan frío. Paleta terrosa con contrapunto vivo.',
         categoria: 'Espacios Liminales',
         ruta: 'Temas/centro-comercial.css',
         espacio: 2,
@@ -469,7 +452,6 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFFFF'
         }
     },
-
     // ============================================================
     //  FORMALES — Para trabajar, elegantes, OS-like
     //  Vibra profesional, limpia, sin estridencias.
