@@ -539,6 +539,24 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFFFF'
         }
     },
+        {
+        id: 'navidad-cozy',
+        nombre: 'Navidad Cozy',
+        icono: 'gift',
+        descripcion: 'Chimenea, calcetines y luces de colores titilando. Navidad sin estridencia, en clave hygge. Verde pino, rojo profundo y dorado sobre crema.',
+        categoria: 'Festivos',
+        ruta: 'Temas/navidad-cozy.css',
+        espacio: 4,
+        monedas: 25,
+        colores: {
+            '--violet-100': '#E8F0DC',
+            '--violet-300': '#A8BE88',
+            '--violet-500': '#4A7040',
+            '--bg':         '#FAF6EE',
+            '--bg-alt':     '#F0E8DC',
+            '--white':      '#FFFFFF'
+        }
+    },
 
     // ============================================================
     //  ATMÓSFERAS — Moods, ambientes, sensaciones cozy
@@ -976,6 +994,24 @@ const TEMAS_DISPONIBLES = [
             '--bg':         '#F5F0E8',
             '--bg-alt':     '#EDE4D3',
             '--white':      '#FDFAF3'
+        }
+    },
+        {
+        id: 'isometric-city',
+        nombre: 'Isometric City',
+        icono: 'blocks',
+        descripcion: 'Vista isométrica de una ciudad bloque. Cubos con ventanas iluminadas, sombras duras apiladas y proyección paralela. Estilo SimCity clásico.',
+        categoria: '3D',
+        ruta: 'Temas/isometric-city.css',
+        espacio: 4,
+        monedas: 50,
+        colores: {
+            '--violet-100': '#121F33',
+            '--violet-300': '#345675',
+            '--violet-500': '#FB923C',
+            '--bg':         '#0A1525',
+            '--bg-alt':     '#121F33',
+            '--white':      '#141F30'
         }
     }
 ];
