@@ -1014,7 +1014,6 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#141F30'
         }
     },
-        ,
     {
         id: 'low-poly-terrain',
         nombre: 'Low Poly Terrain',
