@@ -1,0 +1,43 @@
+/* ================================================
+   Tema: Eclipse Solar
+   Casi negro con anillo de fuego naranja-dorado.
+   Silencio y calor. Solo paleta.
+   ================================================ */
+
+:root {
+    --violet-50:  #1A0E05;
+    --violet-100: #241508;
+    --violet-200: #351F0E;
+    --violet-300: #FBBF24;
+    --violet-400: #FB923C;
+    --violet-500: #F59E0B;
+    --violet-600: #D97706;
+    --violet-700: #B45309;
+
+    --white:   #18120C;
+    --bg:      #0A0705;
+    --bg-alt:  #120D08;
+    --gray-50:  #120D08;
+    --gray-100: #1A120A;
+    --gray-200: #281C10;
+    --gray-300: #3A2A18;
+    --gray-400: #5C4428;
+    --gray-500: #8A6A48;
+    --gray-600: #B89878;
+    --gray-700: #D5BCA0;
+    --gray-800: #E8D8C0;
+    --gray-900: #F8EEDD;
+
+    --border:  #281C10;
+    --text:    #F8EEDD;
+    --text-2:  #B89878;
+    --text-3:  #8A6A48;
+
+    --shadow-glow: 0 0 0 4px rgba(251, 146, 60, 0.20);
+
+    --accent-gradient: linear-gradient(135deg, #FB923C, #FCD34D);
+    --accent-gradient-hover: linear-gradient(135deg, #FBBF24, #FCD34D);
+    --accent-shadow: rgba(251, 146, 60, 0.35);
+    --accent-shadow-hover: rgba(251, 146, 60, 0.55);
+    --accent-text-gradient: linear-gradient(135deg, #FCD34D, #FB923C);
+}
