@@ -1013,6 +1013,25 @@ const TEMAS_DISPONIBLES = [
             '--bg-alt':     '#121F33',
             '--white':      '#141F30'
         }
+    },
+        ,
+    {
+        id: 'low-poly-terrain',
+        nombre: 'Low Poly Terrain',
+        icono: 'mountain-snow',
+        descripcion: 'Paisaje low-poly con facetas triangulares, montañas geométricas y un sol facetado gigante. Estilo Monument Valley. Luz dura desde la izquierda.',
+        categoria: '3D',
+        ruta: 'Temas/low-poly-terrain.css',
+        espacio: 4,
+        monedas: 50,
+        colores: {
+            '--violet-100': '#3A2858',
+            '--violet-300': '#7A5A8C',
+            '--violet-500': '#F5A66B',
+            '--bg':         '#150A28',
+            '--bg-alt':     '#1A1030',
+            '--white':      '#1F1535'
+        }
     }
 ];
 
