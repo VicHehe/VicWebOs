@@ -9,12 +9,11 @@
    Toda la escena respeta una única fuente de luz
    proveniente de la IZQUIERDA. Las caras de los
    triángulos que miran a la izquierda son claras,
-   las que miran a la derecha son oscuras. Las
-   sombras proyectadas van hacia la derecha.
+   las que miran a la derecha son oscuras.
 
    ESCENA INFERIOR (::after):
-     · Cordillera con suelo continuo (no se corta)
-     · Línea de árboles low-poly repetidos al pie
+     · Cordillera de 4 picos (restaurada al original)
+     · Fila de pinos low-poly al pie que la anclan al suelo
    ================================================ */
 
 :root {
@@ -89,20 +88,22 @@
     --theme-sun: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath d='M100,100 L100,10 L163,37 Z' fill='%23F5A66B'/%3E%3Cpath d='M100,100 L163,37 L190,100 Z' fill='%23E8853D'/%3E%3Cpath d='M100,100 L190,100 L163,163 Z' fill='%23D97757'/%3E%3Cpath d='M100,100 L163,163 L100,190 Z' fill='%23D97757'/%3E%3Cpath d='M100,100 L100,190 L37,163 Z' fill='%23F5A66B'/%3E%3Cpath d='M100,100 L37,163 L10,100 Z' fill='%23FFD4A0'/%3E%3Cpath d='M100,100 L10,100 L37,37 Z' fill='%23FFE4A0'/%3E%3Cpath d='M100,100 L37,37 L100,10 Z' fill='%23F5A66B'/%3E%3C/svg%3E");
 
     /* ------------------------------------------------------------
-       Cordillera con SUELO CONTINUO
-       Cada pico "aterriza" en una franja de suelo que llega
-       hasta el borde inferior del viewBox. Así nunca se corta.
+       Cordillera — 4 picos (versión original que funcionaba)
        ------------------------------------------------------------ */
-    --theme-mountains: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 260' preserveAspectRatio='none'%3E%3Cpath d='M-20,220 L100,140 L100,220 Z' fill='%237A5A8C'/%3E%3Cpath d='M100,140 L220,220 L100,220 Z' fill='%233A2858'/%3E%3Cpath d='M180,220 L380,90 L380,220 Z' fill='%238B6AA8'/%3E%3Cpath d='M380,90 L560,220 L380,220 Z' fill='%232A1B3D'/%3E%3Cpath d='M348,110 L380,90 L412,110 L380,122 Z' fill='%23F8F4FF'/%3E%3Cpath d='M500,220 L640,120 L640,220 Z' fill='%237A5A8C'/%3E%3Cpath d='M640,120 L780,220 L640,220 Z' fill='%233A2858'/%3E%3Cpath d='M700,220 L820,140 L820,220 Z' fill='%238B6AA8'/%3E%3Cpath d='M820,140 L940,220 L820,220 Z' fill='%232A1B3D'/%3E%3Crect x='0' y='220' width='800' height='40' fill='%231F1535'/%3E%3Crect x='0' y='220' width='800' height='3' fill='%233A2858' opacity='0.55'/%3E%3C/svg%3E");
+    --theme-mountains: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 240' preserveAspectRatio='none'%3E%3Cpath d='M-20,240 L100,140 L100,240 Z' fill='%237A5A8C'/%3E%3Cpath d='M100,140 L220,240 L100,240 Z' fill='%233A2858'/%3E%3Cpath d='M180,240 L380,60 L380,240 Z' fill='%238B6AA8'/%3E%3Cpath d='M380,60 L560,240 L380,240 Z' fill='%232A1B3D'/%3E%3Cpath d='M350,90 L380,60 L410,90 L380,100 Z' fill='%23F8F4FF'/%3E%3Cpath d='M500,240 L640,120 L640,240 Z' fill='%237A5A8C'/%3E%3Cpath d='M640,120 L780,240 L640,240 Z' fill='%233A2858'/%3E%3Cpath d='M700,240 L820,140 L820,240 Z' fill='%238B6AA8'/%3E%3Cpath d='M820,140 L940,240 L820,240 Z' fill='%232A1B3D'/%3E%3C/svg%3E");
 
     /* ------------------------------------------------------------
-       Árboles low-poly — fila repetida al pie de las montañas.
-       Cada árbol tiene cara clara (izq) y oscura (der).
+       Pinos low-poly — 3 árboles de distinto tamaño en una
+       sola baldosa de 200×50. Cada árbol tiene:
+         · tronco (rect oscuro)
+         · 2-3 pisos triangulares apilados
+         · cara izquierda CLARA (recibe luz) y derecha OSCURA
+       Al repetir horizontalmente se ve un bosque variado.
        ------------------------------------------------------------ */
-    --theme-trees: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 50'%3E%3Cpath d='M20,50 L30,20 L30,50 Z' fill='%235C3E7A'/%3E%3Cpath d='M30,20 L40,50 L30,50 Z' fill='%232A1B3D'/%3E%3Crect x='28' y='46' width='4' height='4' fill='%231F1535'/%3E%3Cpath d='M60,50 L67,30 L67,50 Z' fill='%237A5A8C'/%3E%3Cpath d='M67,30 L74,50 L67,50 Z' fill='%233A2858'/%3E%3Crect x='65.5' y='46' width='3' height='4' fill='%231F1535'/%3E%3Cpath d='M110,50 L122,15 L122,50 Z' fill='%235C3E7A'/%3E%3Cpath d='M122,15 L134,50 L122,50 Z' fill='%232A1B3D'/%3E%3Crect x='119' y='46' width='6' height='4' fill='%231F1535'/%3E%3Cpath d='M165,50 L172,30 L172,50 Z' fill='%237A5A8C'/%3E%3Cpath d='M172,30 L179,50 L172,50 Z' fill='%233A2858'/%3E%3Crect x='170' y='46' width='3' height='4' fill='%231F1535'/%3E%3C/svg%3E");
+    --theme-trees: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 50'%3E%3Crect x='28' y='46' width='4' height='4' fill='%230F0820'/%3E%3Cpath d='M13,46 L30,20 L30,46 Z' fill='%235C3E7A'/%3E%3Cpath d='M30,20 L47,46 L30,46 Z' fill='%231F1535'/%3E%3Cpath d='M18,32 L30,10 L30,32 Z' fill='%235C3E7A'/%3E%3Cpath d='M30,10 L42,32 L30,32 Z' fill='%231F1535'/%3E%3Cpath d='M23,18 L30,0 L30,18 Z' fill='%235C3E7A'/%3E%3Cpath d='M30,0 L37,18 L30,18 Z' fill='%231F1535'/%3E%3Crect x='98' y='46' width='4' height='4' fill='%230F0820'/%3E%3Cpath d='M86,46 L100,22 L100,46 Z' fill='%235C3E7A'/%3E%3Cpath d='M100,22 L114,46 L100,46 Z' fill='%231F1535'/%3E%3Cpath d='M91,32 L100,12 L100,32 Z' fill='%235C3E7A'/%3E%3Cpath d='M100,12 L109,32 L100,32 Z' fill='%231F1535'/%3E%3Crect x='158' y='46' width='4' height='4' fill='%230F0820'/%3E%3Cpath d='M149,46 L160,30 L160,46 Z' fill='%235C3E7A'/%3E%3Cpath d='M160,30 L171,46 L160,46 Z' fill='%231F1535'/%3E%3Cpath d='M153,38 L160,22 L160,38 Z' fill='%235C3E7A'/%3E%3Cpath d='M160,22 L167,38 L160,38 Z' fill='%231F1535'/%3E%3C/svg%3E");
 
     /* ------------------------------------------------------------
-       Facetas — patrón de rombos para el fondo del lobby
+       Facetas — patrón de rombos para el fondo
        ------------------------------------------------------------ */
     --theme-facets: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cpath d='M0,0 L30,30 L0,60 Z' fill='none' stroke='%237A5A8C' stroke-width='0.5' stroke-opacity='0.30'/%3E%3Cpath d='M0,0 L60,0 L30,30 Z' fill='none' stroke='%237A5A8C' stroke-width='0.5' stroke-opacity='0.30'/%3E%3Cpath d='M60,0 L60,60 L30,30 Z' fill='none' stroke='%237A5A8C' stroke-width='0.5' stroke-opacity='0.30'/%3E%3Cpath d='M0,60 L60,60 L30,30 Z' fill='none' stroke='%237A5A8C' stroke-width='0.5' stroke-opacity='0.30'/%3E%3C/svg%3E");
 }
@@ -131,8 +132,7 @@
     background-color: var(--bg);
 }
 
-/* Sol facetado — esquina superior izquierda
-   (coherente con la luz que viene desde ahí) */
+/* Sol facetado — esquina superior izquierda */
 .welcome-placeholder::before {
     content: '';
     position: absolute;
@@ -164,15 +164,17 @@
     }
 }
 
-/* Cordillera + árboles — anclados al borde inferior del lobby.
-   Los árboles van ENCIMA de las montañas (capa 1 = más al frente). */
+/* Cordillera + pinos al pie — anclados al borde inferior.
+   El tile de árboles (200×50) va ENCIMA de las montañas.
+   Como las montañas llegan al borde (y=240 = bottom), los
+   árboles se apoyan justo en su base y las anclan al suelo. */
 .welcome-placeholder::after {
     content: '';
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    height: 260px;
+    height: 240px;
     background-image:
         var(--theme-trees),
         var(--theme-mountains);
@@ -226,7 +228,6 @@
     margin-right: auto;
 }
 
-/* Bisel superior: cara iluminada del hero */
 .welcome-hero::before {
     content: '';
     position: absolute;
@@ -243,7 +244,6 @@
     z-index: 3;
 }
 
-/* Faceta triangular inferior derecha */
 .welcome-hero::after {
     content: '';
     position: absolute;
@@ -270,7 +270,6 @@
         0 0 22px rgba(245, 166, 107, 0.35);
 }
 
-/* Icono: faceta triangular con sombras apiladas */
 .welcome-icon-wrap {
     background: linear-gradient(135deg, #FFD4A0 0%, #F5A66B 50%, #D97757 100%);
     border-radius: 4px;
@@ -332,7 +331,7 @@
 }
 
 /* ================================================================
-   3. SIDEBAR — suelo con silueta de montaña + árboles al fondo
+   3. SIDEBAR — silueta de montaña + pinos al fondo
    ================================================================ */
 .sidebar {
     position: relative;
@@ -357,7 +356,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 140px;
+    height: 160px;
     background-image:
         var(--theme-trees),
         var(--theme-mountains);
@@ -479,7 +478,7 @@
 }
 
 /* ================================================================
-   5. WIDGETS — mismo tratamiento
+   5. WIDGETS
    ================================================================ */
 .widget-item {
     border: 1px solid rgba(122, 90, 140, 0.50);
@@ -530,7 +529,7 @@
 .tab-item.active [data-lucide] { color: var(--violet-500); }
 
 /* ================================================================
-   7. MODALES — marco faceteado con esquina triangular
+   7. MODALES
    ================================================================ */
 .config-card,
 .modal-todas-card {
@@ -588,7 +587,7 @@
 }
 
 /* ================================================================
-   8. BOTÓN PRIMARIO — botón faceteado con press físico
+   8. BOTÓN PRIMARIO
    ================================================================ */
 .btn-primario {
     position: relative;
@@ -649,7 +648,7 @@
 }
 
 /* ================================================================
-   10. AVATAR — faceta del sol en miniatura
+   10. AVATAR
    ================================================================ */
 .avatar-config {
     background: linear-gradient(135deg, #FFD4A0, #B85C2A);
@@ -719,7 +718,7 @@
     .welcome-placeholder::after {
         height: 180px;
         background-size:
-            150px 38px,
+            140px 35px,
             100% 100%;
     }
 }
