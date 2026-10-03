@@ -1,17 +1,21 @@
 /* ================================================
    Tema: Madera
-   Nogal oscuro. Veta curva dibujada a mano (paths
-   SVG), nudos elípticos con anillos concéntricos,
-   grano procedural con feTurbulence y acabado
-   satinado. Cálido, profundo, sin animaciones.
+   Nogal oscuro. Veta curva dibujada, nudos con
+   anillos concéntricos, grano procedural con
+   feDiffuseLighting (no feColorMatrix — ese
+   rompe el tileo) y capa de compositing propia
+   para evitar la costura lateral de Chrome.
 
-   REGLA DE LUZ:
-   Cálida desde arriba. La veta corre horizontal en
-   el welcome/header, vertical en el sidebar.
+   FIXES v3:
+     #1 feColorMatrix → feDiffuseLighting
+     #2 stitchTiles='stitch' para seamless
+     #3 transform: translateZ(0) en welcome
+        para forzar layer propio y evitar el
+        bug de compositing con backdrop-filter
+        del sidebar.
    ================================================ */
 
 :root {
-    /* Paleta nogal — profundos, no cremas */
     --violet-50:  #F0E4D0;
     --violet-100: #E0CDA8;
     --violet-200: #C69E68;
@@ -42,12 +46,9 @@
 
     --shadow-xs: 0 1px 2px rgba(30, 15, 5, 0.30);
     --shadow-sm: 0 2px 4px rgba(30, 15, 5, 0.35);
-    --shadow-md: 0 6px 14px rgba(30, 15, 5, 0.40),
-                 0 2px 4px rgba(30, 15, 5, 0.25);
-    --shadow-lg: 0 14px 34px rgba(30, 15, 5, 0.45),
-                 0 4px 8px rgba(30, 15, 5, 0.25);
-    --shadow-xl: 0 24px 48px rgba(30, 15, 5, 0.55),
-                 0 8px 16px rgba(30, 15, 5, 0.30);
+    --shadow-md: 0 6px 14px rgba(30, 15, 5, 0.40), 0 2px 4px rgba(30, 15, 5, 0.25);
+    --shadow-lg: 0 14px 34px rgba(30, 15, 5, 0.45), 0 4px 8px rgba(30, 15, 5, 0.25);
+    --shadow-xl: 0 24px 48px rgba(30, 15, 5, 0.55), 0 8px 16px rgba(30, 15, 5, 0.30);
     --shadow-glow: 0 0 0 4px rgba(122, 79, 30, 0.25);
 
     --accent-gradient: linear-gradient(135deg, #7A4F1E, #2B1607);
@@ -62,31 +63,20 @@
     --r-xl: 12px;
 
     /* ------------------------------------------------------------
-       Grano procedural — feTurbulence para la superficie de la
-       madera. Da una micro-textura irregular que no se nota
-       conscientemente pero se siente.
+       Grano procedural — feDiffuseLighting sobre feTurbulence.
+       Produce micro-relieve real, no una tinta plana.
        ------------------------------------------------------------ */
-    --theme-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85 0.15' numOctaves='3' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0.25 0 0 0 0 0.14 0 0 0 0 0.06 0 0 0 0.35 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)'/%3E%3C/svg%3E");
+    --theme-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85 0.15' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeDiffuseLighting in='noise' lighting-color='%238C5A28' surfaceScale='1.2'%3E%3CfeDistantLight azimuth='120' elevation='65'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)' opacity='0.45'/%3E%3C/svg%3E");
 
-    /* ------------------------------------------------------------
-       Veta horizontal — veta curva dibujada. Ondas largas que se
-       agrupan en líneas parecidas pero no idénticas.
-       ------------------------------------------------------------ */
     --theme-grain-h: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M-5,15 Q40,8 80,18 T180,12 T295,20' stroke='%233E260A' stroke-width='1.4' stroke-opacity='0.35'/%3E%3Cpath d='M-5,28 Q50,22 90,32 T190,26 T295,34' stroke='%233E260A' stroke-width='0.9' stroke-opacity='0.28'/%3E%3Cpath d='M-5,42 Q45,36 85,46 T185,40 T295,48' stroke='%235C3A15' stroke-width='1.8' stroke-opacity='0.40'/%3E%3Cpath d='M-5,56 Q40,50 85,60 T185,54 T295,62' stroke='%233E260A' stroke-width='1' stroke-opacity='0.25'/%3E%3Cpath d='M-5,70 Q55,64 95,74 T195,68 T295,76' stroke='%235C3A15' stroke-width='1.6' stroke-opacity='0.35'/%3E%3Cpath d='M-5,86 Q45,80 85,90 T185,84 T295,92' stroke='%233E260A' stroke-width='0.8' stroke-opacity='0.22'/%3E%3Cpath d='M-5,100 Q50,94 90,104 T190,98 T295,106' stroke='%235C3A15' stroke-width='1.5' stroke-opacity='0.38'/%3E%3Cpath d='M-5,116 Q40,110 85,120 T185,114 T295,122' stroke='%233E260A' stroke-width='1' stroke-opacity='0.28'/%3E%3Cpath d='M-5,130 Q55,124 95,134 T195,128 T295,136' stroke='%235C3A15' stroke-width='1.4' stroke-opacity='0.35'/%3E%3Cpath d='M-5,146 Q45,140 85,150 T185,144 T295,152' stroke='%233E260A' stroke-width='0.9' stroke-opacity='0.24'/%3E%3Cpath d='M-5,160 Q50,154 90,164 T190,158 T295,166' stroke='%235C3A15' stroke-width='1.5' stroke-opacity='0.38'/%3E%3Cpath d='M-5,176 Q40,170 85,180 T185,174 T295,182' stroke='%233E260A' stroke-width='1' stroke-opacity='0.26'/%3E%3Cpath d='M-5,192 Q55,186 95,196 T195,190 T295,198' stroke='%235C3A15' stroke-width='1.3' stroke-opacity='0.35'/%3E%3C/g%3E%3C/svg%3E");
 
-    /* ------------------------------------------------------------
-       Veta vertical — para el sidebar
-       ------------------------------------------------------------ */
     --theme-grain-v: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 300'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M15,-5 Q8,40 18,80 T12,180 T20,295' stroke='%233E260A' stroke-width='1.4' stroke-opacity='0.35'/%3E%3Cpath d='M28,-5 Q22,50 32,90 T26,190 T34,295' stroke='%233E260A' stroke-width='0.9' stroke-opacity='0.28'/%3E%3Cpath d='M42,-5 Q36,45 46,85 T40,185 T48,295' stroke='%235C3A15' stroke-width='1.8' stroke-opacity='0.40'/%3E%3Cpath d='M56,-5 Q50,40 60,85 T54,185 T62,295' stroke='%233E260A' stroke-width='1' stroke-opacity='0.25'/%3E%3Cpath d='M70,-5 Q64,55 74,95 T68,195 T76,295' stroke='%235C3A15' stroke-width='1.6' stroke-opacity='0.35'/%3E%3Cpath d='M86,-5 Q80,45 90,85 T84,185 T92,295' stroke='%233E260A' stroke-width='0.8' stroke-opacity='0.22'/%3E%3Cpath d='M100,-5 Q94,50 104,90 T98,190 T106,295' stroke='%235C3A15' stroke-width='1.5' stroke-opacity='0.38'/%3E%3Cpath d='M116,-5 Q110,40 120,85 T114,185 T122,295' stroke='%233E260A' stroke-width='1' stroke-opacity='0.28'/%3E%3Cpath d='M130,-5 Q124,55 134,95 T128,195 T136,295' stroke='%235C3A15' stroke-width='1.4' stroke-opacity='0.35'/%3E%3Cpath d='M146,-5 Q140,45 150,85 T144,185 T152,295' stroke='%233E260A' stroke-width='0.9' stroke-opacity='0.24'/%3E%3Cpath d='M160,-5 Q154,50 164,90 T158,190 T166,295' stroke='%235C3A15' stroke-width='1.5' stroke-opacity='0.38'/%3E%3Cpath d='M176,-5 Q170,40 180,85 T174,185 T182,295' stroke='%233E260A' stroke-width='1' stroke-opacity='0.26'/%3E%3Cpath d='M192,-5 Q186,55 196,95 T190,195 T198,295' stroke='%235C3A15' stroke-width='1.3' stroke-opacity='0.35'/%3E%3C/g%3E%3C/svg%3E");
 
-    /* ------------------------------------------------------------
-       Nudo — anillos elípticos concéntricos (no círculos)
-       ------------------------------------------------------------ */
     --theme-knot: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 80'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cellipse cx='50' cy='40' rx='38' ry='28' stroke='%235C3A15' stroke-width='1.5' stroke-opacity='0.65'/%3E%3Cellipse cx='50' cy='40' rx='30' ry='22' stroke='%233E260A' stroke-width='1.6' stroke-opacity='0.75'/%3E%3Cellipse cx='50' cy='40' rx='22' ry='16' stroke='%235C3A15' stroke-width='1.5' stroke-opacity='0.80'/%3E%3Cellipse cx='50' cy='40' rx='15' ry='11' stroke='%232B1607' stroke-width='1.6' stroke-opacity='0.85'/%3E%3Cellipse cx='50' cy='40' rx='9' ry='6.5' stroke='%232B1607' stroke-width='1.5' stroke-opacity='0.90'/%3E%3Cellipse cx='50' cy='40' rx='4.5' ry='3' fill='%231A0E06' fill-opacity='0.85'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   1. WELCOME — tabla de nogal con veta horizontal
+   1. WELCOME — tabla de nogal con FIX de compositing
    ================================================================ */
 .welcome-placeholder {
     position: relative;
@@ -111,9 +101,11 @@
         no-repeat,
         no-repeat;
     background-color: var(--bg);
+    /* FIX: fuerza layer propio, aísla del backdrop-filter del sidebar */
+    transform: translateZ(0);
+    will-change: transform;
 }
 
-/* Nudo grande — abajo derecha */
 .welcome-placeholder::before {
     content: '';
     position: absolute;
@@ -128,7 +120,6 @@
     transform: rotate(-8deg);
 }
 
-/* Nudo chico — arriba izquierda */
 .welcome-placeholder::after {
     content: '';
     position: absolute;
@@ -150,15 +141,12 @@
 }
 
 .welcome-glow {
-    background: radial-gradient(
-        circle at 35% 30%,
+    background: radial-gradient(circle at 35% 30%,
         rgba(255, 220, 160, 0.30) 0%,
         rgba(122, 79, 30, 0.15) 45%,
-        transparent 70%
-    );
+        transparent 70%);
 }
 
-/* Hero — tabla enmarcada con veta continua */
 .welcome-hero {
     position: relative;
     padding: 38px 32px 34px;
@@ -205,10 +193,7 @@
     border-radius: 0 0 4px 4px;
 }
 
-.welcome-hero > * {
-    position: relative;
-    z-index: 1;
-}
+.welcome-hero > * { position: relative; z-index: 1; }
 
 .welcome-hero h1 {
     letter-spacing: 0.005em;
@@ -218,14 +203,9 @@
         0 2px 4px rgba(30, 15, 5, 0.30);
 }
 
-/* Icono — medallón de madera tallada */
 .welcome-icon-wrap {
-    background:
-        radial-gradient(circle at 35% 30%,
-            #E0B87A 0%,
-            #96672F 40%,
-            #5C3A15 70%,
-            #2B1607 100%);
+    background: radial-gradient(circle at 35% 30%,
+        #E0B87A 0%, #96672F 40%, #5C3A15 70%, #2B1607 100%);
     border-radius: 12px;
     box-shadow:
         inset 0 3px 4px rgba(255, 220, 160, 0.40),
@@ -254,7 +234,7 @@
 }
 
 /* ================================================================
-   3. SIDEBAR — veta vertical
+   3. SIDEBAR — veta vertical + FIX compositing
    ================================================================ */
 .sidebar {
     position: relative;
@@ -268,23 +248,20 @@
     border-right: 3px solid var(--violet-600);
     overflow: hidden;
     box-shadow: inset -1px 0 0 rgba(30, 15, 5, 0.30);
+    transform: translateZ(0);
+    will-change: transform;
 }
 .sidebar-comunidad,
 .sidebar-label,
 .sidebar-nav,
-.sidebar-mobile-header {
-    position: relative;
-    z-index: 1;
-}
+.sidebar-mobile-header { position: relative; z-index: 1; }
 
 .nav-item {
     border-radius: 3px;
     transition: all 0.20s cubic-bezier(0.4, 0, 0.2, 1);
     color: #2B1607;
 }
-.nav-item:hover {
-    background: rgba(255, 220, 160, 0.15);
-}
+.nav-item:hover { background: rgba(255, 220, 160, 0.15); }
 .nav-item.active {
     background: linear-gradient(180deg, #E0B87A 0%, #C99B67 100%);
     border-radius: 3px;
@@ -304,7 +281,7 @@
 .nav-item.active .nav-icon { color: #2B1607; }
 
 /* ================================================================
-   4. ACCESOS RÁPIDOS — cajas de nogal pulido
+   4. ACCESOS RÁPIDOS
    ================================================================ */
 .acceso-item {
     position: relative;
@@ -333,7 +310,6 @@
         0 14px 30px rgba(30, 15, 5, 0.50),
         0 4px 8px rgba(30, 15, 5, 0.25);
 }
-
 .acceso-icon-wrap {
     background: linear-gradient(180deg, #F0E4D0, #C69E68);
     color: var(--violet-600);
@@ -392,7 +368,7 @@
 .tab-item.active [data-lucide] { color: var(--violet-600); }
 
 /* ================================================================
-   7. MODALES — caja de nogal enmarcada
+   7. MODALES
    ================================================================ */
 .config-card,
 .modal-todas-card {
@@ -423,7 +399,6 @@
     pointer-events: none;
     z-index: 3;
 }
-
 .config-header,
 .modal-todas-header {
     background: linear-gradient(180deg, #A87C48 0%, #7A4F1E 100%);
@@ -437,10 +412,7 @@
    ================================================================ */
 .btn-primario {
     background: linear-gradient(180deg,
-        #96672F 0%,
-        #7A4F1E 45%,
-        #5C3A15 55%,
-        #2B1607 100%);
+        #96672F 0%, #7A4F1E 45%, #5C3A15 55%, #2B1607 100%);
     border: 1.5px solid #1A0E06;
     color: #F0E4D0;
     font-weight: 700;
@@ -453,10 +425,7 @@
 }
 .btn-primario:hover {
     background: linear-gradient(180deg,
-        #C69E68 0%,
-        #96672F 45%,
-        #7A4F1E 55%,
-        #3E260A 100%);
+        #C69E68 0%, #96672F 45%, #7A4F1E 55%, #3E260A 100%);
     transform: translateY(-1px);
     box-shadow:
         inset 0 1px 0 rgba(255, 240, 200, 0.50),
@@ -488,15 +457,11 @@
 }
 
 /* ================================================================
-   10. AVATAR — medallón de madera tallada
+   10. AVATAR
    ================================================================ */
 .avatar-config {
-    background:
-        radial-gradient(circle at 35% 30%,
-            #E0B87A 0%,
-            #96672F 45%,
-            #5C3A15 75%,
-            #2B1607 100%);
+    background: radial-gradient(circle at 35% 30%,
+        #E0B87A 0%, #96672F 45%, #5C3A15 75%, #2B1607 100%);
     border: 2px solid #F0E4D0;
     box-shadow:
         inset 0 3px 4px rgba(255, 220, 160, 0.40),
