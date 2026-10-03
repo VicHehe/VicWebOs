@@ -1,13 +1,14 @@
 // ============================================================
-//  Widget: Generador de Nombres v2
+//  Widget: Generador de Nombres v3
 //  ------------------------------------------------------------
-//  Motor híbrido:
-//    1. Banco de sílabas reales extraídas de nombres hispanos.
-//    2. Cadenas de Markov (bigramas) entrenadas con esos nombres.
-//    3. Reglas fonotácticas estrictas de español.
+//  Motor: Markov de caracteres con bigramas (orden 2).
+//  Aprende qué letra sigue a cada par de letras viendo nombres
+//  reales. Genera secuencias que respetan la fonotáctica natural
+//  sin reglas duras.
 //
-//  Esto produce nombres como "Nicolás", "Amaro", "Cassie" o
-//  "Haruko" con naturalidad, no cosas como "Bliadrolie".
+//  Este enfoque es el que usan librerías como markov-namegen
+//  y fantasy-name-generator. Produce nombres como "Nicolás",
+//  "Cassie", "Haruko" con naturalidad.
 //
 //  SIN persistencia.
 // ============================================================
@@ -17,34 +18,37 @@
 const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 
 // ============================================================
-//  BANCO DE NOMBRES DE ENTRENAMIENTO
+//  SET DE ENTRENAMIENTO
 //  ------------------------------------------------------------
-//  Nombres reales (hispanos + algunos anglo/japoneses comunes)
-//  que el motor usa para aprender transiciones de sílabas.
-//  Cuantos más nombres, mejor la calidad de salida.
+//  Nombres reales por estilo. Cuantos más, mejor. El modelo
+//  aprende transiciones de bigramas de estos ejemplos.
 // ============================================================
 const NOMBRES_ENTRENAMIENTO = {
     latino: [
-        'nicolas','nicol','nicolas','amaro','antonio','jose','juan','manuel',
-        'francisco','luis','javier','miguel','angel','carlos','jesus','david',
-        'pedro','alejandro','fernando','sergio','ricardo','eduardo','roberto',
-        'daniel','pablo','andres','adrian','diego','rafael','gonzalo','tomas',
-        'martin','agustin','felipe','ignacio','matias','sebastian','cristobal',
+        'nicolas','nicol','amaro','antonio','jose','juan','manuel','francisco',
+        'luis','javier','miguel','angel','carlos','jesus','david','pedro',
+        'alejandro','fernando','sergio','ricardo','eduardo','roberto','daniel',
+        'pablo','andres','adrian','diego','rafael','gonzalo','tomas','martin',
+        'agustin','felipe','ignacio','matias','sebastian','cristobal','ramiro',
+        'mauricio','rodrigo','fabricio','leonardo','marcelo','octavio','santiago',
+        'benjamin','joaquin','maximiliano','lucas','mateo','vicente','renato',
+        'bruno','alonso','bastian','emilio','hector','victor','oscar','hugo',
         'valentina','camila','isidora','josefa','florencia','martina','catalina',
         'antonia','javiera','emilia','sofia','lucia','maria','carmen','paula',
         'andrea','daniela','gabriela','valeria','fernanda','constanza','trinidad',
         'magdalena','rosario','esperanza','soledad','amparo','dolores','pilar',
-        'ramiro','gonzalo','mauricio','rodrigo','fabricio','leonardo','marcelo',
-        'octavio','tomas','santiago','benjamin','joaquin','maximiliano','lucas',
-        'mateo','tomas','vicente','renato','bruno','alonso','bastian'
+        'beatriz','elena','irene','lorena','marcela','patricia','veronica',
+        'alejandra','carolina','cecilia','claudia','gloria','silvia','teresa'
     ],
     japones: [
         'haruko','kasumi','tomoe','ryu','ryuu','haruki','takeshi','kenta',
         'yuki','sakura','aiko','kenji','hiroshi','takumi','daisuke','yumi',
         'akira','naomi','keiko','michiko','yoko','hana','ren','sora','hikari',
-        'kaito','riku','sota','yuto','daiki','ryota','kazuya','shinji',
+        'kaito','riku','sota','yuto','daiki','ryota','kazuya','shinji','yuto',
         'asuka','mio','saki','mei','yuna','hina','rin','kaede','tsubaki',
-        'ayame','fuyuko','hotaru','kaoru','midori','natsuki','sakiko'
+        'ayame','fuyuko','hotaru','kaoru','midori','natsuki','sakiko','ayumi',
+        'chiyo','fumiko','harumi','junko','kumiko','masako','noriko','reiko',
+        'satomi','tomoko','wakana','yoshiko','ichiro','jiro','katsuo','ryosuke'
     ],
     anglo: [
         'jimmy','tommy','andy','charlie','bobby','danny','eddie','freddy',
@@ -52,207 +56,179 @@ const NOMBRES_ENTRENAMIENTO = {
         'nick','paul','peter','rick','rob','sam','steve','tim','tom','will',
         'cassie','rosie','maggie','ellie','katie','lily','lucy','molly',
         'nancy','penny','polly','sally','sophie','annie','betty','daisy',
-        'emily','grace','hannah','isabel','jane','kelly','laura','megan'
+        'emily','grace','hannah','isabel','jane','kelly','laura','megan',
+        'oliver','noah','liam','ethan','mason','logan','jacob','william',
+        'mia','ava','emma','olivia','sophia','chloe','zoe','ruby','ivy'
     ],
     fantasia: [
         'aelin','aelric','bran','cass','dorian','elara','fen','garrick',
         'hale','iris','jax','kael','lyra','mira','nox','orion','pax',
         'quinn','raven','sable','thane','ulric','vesper','wren','xander',
-        'yara','zephyr','alric','briar','cedric','draven','elara','faelan',
+        'yara','zephyr','alric','briar','cedric','draven','faelan',
         'gideon','harlow','imre','jarek','kiran','lorcan','maeve','niamh',
-        'orla','peregrine','rowan','seraphina','tarian','ulric','vanya'
+        'orla','peregrine','rowan','seraphina','tarian','vanya','ashlin',
+        'cassia','dorian','edric','faelan','gwyn','hale','isolde','joran'
     ]
 };
 
 // ============================================================
-//  REGLAS FONOTÁCTICAS DEL ESPAÑOL
+//  CONSTRUCCIÓN DEL MODELO DE MARKOV
 //  ------------------------------------------------------------
-//  Restricciones basadas en la estructura silábica real:
-//    - CV 51.2%, CVC 20.6%, V 9.5%, VC 5.8%, CCV 4.6%[reference:2]
-//  Los clusters "bl", "br", "cl", "cr", "dr", "fl", "fr", "gl",
-//  "gr", "pl", "pr", "tr" existen pero son infrecuentes.
+//  Padding: "__" al inicio y "_" al final de cada nombre.
+//  Mapa: bigrama (2 chars) → { siguienteChar: peso }
 // ============================================================
+const PAD_INICIO = '__';
+const PAD_FIN    = '_';
 
-// Onsets simples (más frecuentes)
-const ONSETS_SIMPLES = ['b','c','d','f','g','j','l','m','n','p','r','s','t','v','y','z'];
-
-// Onsets compuestos válidos en español (plosiva/f + líquida)
-const ONSETS_COMPUESTOS = ['bl','br','cl','cr','dr','fl','fr','gl','gr','pl','pr','tr'];
-
-// Vocales simples
-const VOCALES = ['a','e','i','o','u'];
-
-// Diptongos comunes
-const DIPTONGOS = ['ia','ie','io','ua','ue','ai','ei','oi','au','eu','ou','iu','ui'];
-
-// Codas frecuentes en nombres (mucho más restrictivo que antes)
-const CODAS = ['', '', '', 'n', 'r', 's', 'l', 'd'];
-
-// Terminaciones muy comunes en nombres hispanos
-const TERMINACIONES_MASC = ['o', 'el', 'in', 'on', 'an', 'io', 'iel', 'er'];
-const TERMINACIONES_FEM  = ['a', 'ia', 'ina', 'ela', 'ita', 'ora', 'ana', 'ia'];
-
-// ============================================================
-//  MOTOR DE CADENAS DE MARKOV
-//  ------------------------------------------------------------
-//  Aprende las transiciones entre sílabas a partir de los
-//  nombres de entrenamiento.
-// ============================================================
-let modeloMarkov = {};
-
-function construirModeloMarkov(nombres) {
+function construirModelo(nombres) {
     const modelo = {};
+
     for (const nombre of nombres) {
-        const silabas = silabificar(nombre);
-        for (let i = 0; i < silabas.length; i++) {
-            const actual = silabas[i];
-            const siguiente = silabas[i + 1] || '__FIN__';
-            if (!modelo[actual]) modelo[actual] = {};
-            modelo[actual][siguiente] = (modelo[actual][siguiente] || 0) + 1;
+        const n = nombre.toLowerCase();
+        const secuencia = PAD_INICIO + n + PAD_FIN;
+
+        // Recorremos la secuencia en ventanas de 3: (a, b) → c
+        for (let i = 0; i < secuencia.length - 2; i++) {
+            const bigrama = secuencia[i] + secuencia[i + 1];
+            const siguiente = secuencia[i + 2];
+            if (!modelo[bigrama]) modelo[bigrama] = {};
+            modelo[bigrama][siguiente] = (modelo[bigrama][siguiente] || 0) + 1;
         }
-        // También registrar el inicio
-        const inicio = silabas[0];
-        if (!modelo['__INICIO__']) modelo['__INICIO__'] = {};
-        modelo['__INICIO__'][inicio] = (modelo['__INICIO__'][inicio] || 0) + 1;
     }
     return modelo;
 }
 
-// Silabificador simple (no perfecto, pero suficiente para el modelo)
-function silabificar(palabra) {
-    const silabas = [];
-    let actual = '';
-    const vocales = 'aeiouáéíóúü';
-    const palabraLower = palabra.toLowerCase();
+// ============================================================
+//  GENERACIÓN CON TEMPERATURA
+//  ------------------------------------------------------------
+//  La temperatura controla la variedad:
+//    0.5 → conservador (muy parecido a los nombres reales)
+//    1.0 → balance
+//    1.5 → caótico (más inventivo pero más feo a veces)
+// ============================================================
+const TEMPERATURA = 0.85;
 
-    for (let i = 0; i < palabraLower.length; i++) {
-        const c = palabraLower[i];
-        actual += c;
-        const esVocal = vocales.includes(c);
-        const sigEsConsonante = i + 1 < palabraLower.length && !vocales.includes(palabraLower[i + 1]);
-        const sigEsVocal = i + 1 < palabraLower.length && vocales.includes(palabraLower[i + 1]);
+function elegirSiguiente(opciones, temperatura = TEMPERATURA) {
+    const entradas = Object.entries(opciones);
+    if (entradas.length === 0) return null;
 
-        // Regla simple: cortar después de una vocal si la siguiente es consonante
-        if (esVocal && (sigEsConsonante || i === palabraLower.length - 1)) {
-            // No cortar si es un diptongo
-            if (i + 1 < palabraLower.length && vocales.includes(palabraLower[i + 1])) {
-                continue;
-            }
-            silabas.push(actual);
-            actual = '';
-        }
-    }
-    if (actual) silabas.push(actual);
-    return silabas.length ? silabas : [palabraLower];
-}
-
-// Elegir la siguiente sílaba según el modelo de Markov
-function elegirSiguienteMarkov(silabaActual, modelo) {
-    const opciones = modelo[silabaActual];
-    if (!opciones) return null;
-    const total = Object.values(opciones).reduce((a, b) => a + b, 0);
+    // Aplicar temperatura a los pesos
+    const pesos = entradas.map(([, c]) => Math.pow(c, 1 / temperatura));
+    const total = pesos.reduce((a, b) => a + b, 0);
     let r = Math.random() * total;
-    for (const [sig, peso] of Object.entries(opciones)) {
-        r -= peso;
-        if (r <= 0) return sig;
+
+    for (let i = 0; i < entradas.length; i++) {
+        r -= pesos[i];
+        if (r <= 0) return entradas[i][0];
     }
-    return Object.keys(opciones)[0];
+    return entradas[entradas.length - 1][0];
+}
+
+function generarConModelo(modelo, maxLen = 12) {
+    let resultado = '';
+    let contexto = PAD_INICIO;
+
+    for (let i = 0; i < maxLen; i++) {
+        const opciones = modelo[contexto];
+        if (!opciones) break;
+
+        const sig = elegirSiguiente(opciones);
+        if (!sig || sig === PAD_FIN) break;
+
+        resultado += sig;
+
+        // Actualizar contexto: últimos 2 caracteres
+        contexto = (contexto + sig).slice(-2);
+    }
+
+    return resultado;
 }
 
 // ============================================================
-//  GENERADOR HÍBRIDO
+//  VALIDACIÓN POST-GENERACIÓN
 //  ------------------------------------------------------------
-//  Estrategia:
-//    1. Elegir un inicio con Markov (transiciones aprendidas).
-//    2. Seguir generando sílabas con Markov hasta llegar a FIN.
-//    3. Validar fonotácticamente y regenerar si es feo.
-//    4. Ajustar la terminación según el género elegido.
+//  Filtros finales para descartar nombres feos o inválidos.
 // ============================================================
-function generarNombreMarkov(estiloId, genero, intento = 0) {
-    if (intento > 20) return generarNombreFallback(genero);
-
-    const nombres = NOMBRES_ENTRENAMIENTO[estiloId] || NOMBRES_ENTRENAMIENTO.latino;
-    const modelo = construirModeloMarkov(nombres);
-
-    // Construir nombre sílaba a sílaba con Markov
-    let silabas = [];
-    let actual = '__INICIO__';
-    const maxSilabas = 4;
-
-    for (let i = 0; i < maxSilabas; i++) {
-        const sig = elegirSiguienteMarkov(actual, modelo);
-        if (!sig || sig === '__FIN__') break;
-        silabas.push(sig);
-        actual = sig;
-    }
-
-    if (silabas.length === 0) return generarNombreMarkov(estiloId, genero, intento + 1);
-
-    // Ajustar terminación según género
-    if (genero === 'masc') {
-        const ultima = silabas[silabas.length - 1];
-        // Reemplazar terminación femenina por masculina común
-        if (/a$/.test(ultima) && silabas.length > 1) {
-            silabas[silabas.length - 1] = ultima.slice(0, -1) + 'o';
-        }
-    } else if (genero === 'fem') {
-        const ultima = silabas[silabas.length - 1];
-        if (/o$/.test(ultima) && silabas.length > 1) {
-            silabas[silabas.length - 1] = ultima.slice(0, -1) + 'a';
-        }
-    }
-
-    let nombre = silabas.join('');
-
-    // Validaciones
-    if (nombre.length < 3) return generarNombreMarkov(estiloId, genero, intento + 1);
-    if (esNombreFeo(nombre)) return generarNombreMarkov(estiloId, genero, intento + 1);
-
-    return nombre.charAt(0).toUpperCase() + nombre.slice(1).toLowerCase();
-}
-
-// Fallback si Markov falla muchas veces
-function generarNombreFallback(genero) {
-    const onsets = ONSETS_SIMPLES;
-    const terminaciones = genero === 'fem' ? TERMINACIONES_FEM : TERMINACIONES_MASC;
-    const onset = pick(onsets);
-    const vocal = pick(VOCALES);
-    const coda = pick(['n', 'r', 's', 'l']);
-    const term = pick(terminaciones);
-    let nombre = onset + vocal + coda + term;
-    return nombre.charAt(0).toUpperCase() + nombre.slice(1).toLowerCase();
-}
-
-// ============================================================
-//  VALIDACIÓN FONOTÁCTICA
-//  ------------------------------------------------------------
-//  Detecta nombres visual o fonéticamente feos:
-//    - 3+ vocales iguales seguidas
-//    - "quu", "guu" (imposibles)
-//    - 4+ vocales seguidas
-//    - 4+ consonantes seguidas
-//    - Clusters imposibles (bl+dr, etc.)
-//    - Sílabas repetidas
-// ============================================================
-function esNombreFeo(nombre) {
+function esNombreValido(nombre) {
     const n = String(nombre).toLowerCase();
 
-    if (/([aeiou])\1{2,}/.test(n)) return true;        // aaa, eee
-    if (/quu|guu/.test(n)) return true;
-    if (/[aeiou]{4,}/.test(n)) return true;            // 4+ vocales
-    if (/[bcdfghjklmnpqrstvwxyz]{4,}/.test(n)) return true;  // 4+ consonantes
+    // Longitud razonable
+    if (n.length < 3) return false;
+    if (n.length > 11) return false;
 
-    // Clusters consonánticos imposibles en español
-    if (/(bl|br|cl|cr|dr|fl|fr|gl|gr|pl|pr|tr){2,}/.test(n)) return true;
+    // Debe tener al menos una vocal
+    if (!/[aeiouáéíóú]/.test(n)) return false;
 
-    // Sílabas repetidas 3 veces
-    if (/(.{2,3})\1{2,}/.test(n)) return true;
+    // No empezar con consonante duplicada rara
+    if (/^(.)\1/.test(n)) return false;
 
-    return false;
+    // 3+ vocales iguales
+    if (/([aeiou])\1{2,}/.test(n)) return false;
+
+    // 3+ consonantes iguales
+    if (/([bcdfghjklmnpqrstvwxyz])\1{2,}/.test(n)) return false;
+
+    // 4+ consonantes seguidas
+    if (/[bcdfghjklmnpqrstvwxyz]{4,}/.test(n)) return false;
+
+    // No terminar en 3+ consonantes
+    if (/[bcdfghjklmnpqrstvwxyz]{3,}$/.test(n)) return false;
+
+    // Terminación muy rara: no termina en vocal ni en consonante común
+    if (!/[aeiounrsldáéíóú]$/.test(n)) return false;
+
+    // Clusters imposibles al inicio (bl+tr, pr+dr, etc.)
+    if (/^(bl|br|cl|cr|dr|fl|fr|gl|gr|pl|pr|tr){2}/.test(n)) return false;
+
+    return true;
 }
 
-function pick(arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
+// ============================================================
+//  AJUSTE DE GÉNERO
+//  ------------------------------------------------------------
+//  Ajusta la terminación según el sesgo pedido.
+// ============================================================
+function ajustarGenero(nombre, genero) {
+    if (genero === 'ambos' || !nombre) return nombre;
+    const n = nombre.toLowerCase();
+
+    if (genero === 'fem') {
+        // Terminar en -a si no termina ya en vocal femenina
+        if (!/[aei]$/.test(n)) {
+            return n.replace(/[ou]$/, 'a') + (!/[aeiou]$/.test(n) ? 'a' : '');
+        }
+    }
+    if (genero === 'masc') {
+        // Terminar en -o si termina en -a
+        if (/a$/.test(n) && n.length > 3) {
+            return n.slice(0, -1) + 'o';
+        }
+    }
+    return nombre;
+}
+
+// ============================================================
+//  GENERADOR PRINCIPAL
+// ============================================================
+function generarNombre(estiloId, genero, intento = 0) {
+    const nombres = NOMBRES_ENTRENAMIENTO[estiloId] || NOMBRES_ENTRENAMIENTO.latino;
+    const modelo = construirModelo(nombres);
+
+    const intentosMax = 30;
+    for (let i = 0; i < intentosMax; i++) {
+        let nombre = generarConModelo(modelo, 11);
+        if (!nombre) continue;
+
+        nombre = ajustarGenero(nombre, genero);
+
+        if (esNombreValido(nombre)) {
+            return nombre.charAt(0).toUpperCase() + nombre.slice(1).toLowerCase();
+        }
+    }
+
+    // Fallback de emergencia
+    const base = nombres[Math.floor(Math.random() * nombres.length)];
+    return base.charAt(0).toUpperCase() + base.slice(1).toLowerCase();
 }
 
 // ============================================================
@@ -298,7 +274,7 @@ window.addEventListener('message', (e) => {
 function nuevoNombre() {
     const el = document.getElementById('ngNombre');
     if (!el) return;
-    const nombre = generarNombreMarkov(estiloActual, generoActual);
+    const nombre = generarNombre(estiloActual, generoActual);
     el.textContent = nombre;
     el.classList.remove('pop');
     void el.offsetWidth;
