@@ -1,0 +1,43 @@
+/* ================================================
+   Tema: Centro Comercial
+   Beige de mall, verde de planta artificial y
+   neón frío de cartel. Solo paleta.
+   ================================================ */
+
+:root {
+    --violet-50:  #EBF3E8;
+    --violet-100: #D5E5CC;
+    --violet-200: #B0C8A0;
+    --violet-300: #7CB342;
+    --violet-400: #5E9E30;
+    --violet-500: #4A8C2E;
+    --violet-600: #3D7424;
+    --violet-700: #2E5C1C;
+
+    --white:   #FFFFFF;
+    --bg:      #F0EBE3;
+    --bg-alt:  #E3DBD0;
+    --gray-50:  #F7F3EC;
+    --gray-100: #EBE5DA;
+    --gray-200: #D5CCBE;
+    --gray-300: #B0A694;
+    --gray-400: #857A68;
+    --gray-500: #665C4C;
+    --gray-600: #4A4236;
+    --gray-700: #322C22;
+    --gray-800: #1E1A14;
+    --gray-900: #0F0C08;
+
+    --border:  #D0C6B6;
+    --text:    #1E1A14;
+    --text-2:  #4A4236;
+    --text-3:  #665C4C;
+
+    --shadow-glow: 0 0 0 4px rgba(124, 179, 66, 0.18);
+
+    --accent-gradient: linear-gradient(135deg, #7CB342, #00BCD4);
+    --accent-gradient-hover: linear-gradient(135deg, #8BC34A, #26C6DA);
+    --accent-shadow: rgba(124, 179, 66, 0.30);
+    --accent-shadow-hover: rgba(124, 179, 66, 0.45);
+    --accent-text-gradient: linear-gradient(135deg, #1E1A14, #4A8C2E);
+}
