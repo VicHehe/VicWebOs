@@ -2,6 +2,11 @@
    Stor-He — Estilos
    Compatible con TODOS los temas (var() con fallbacks).
    Sin emojis.
+
+   REGLA: los elementos de UI usan SOLO variables del tema.
+   Los únicos colores hardcodeados son los SEMÁNTICOS
+   (verde éxito, rojo error, amarillo monedas, naranja promo)
+   que no pertenecen a ningún tema en particular.
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -82,7 +87,7 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: var(--white, #FFFFFF);
     box-shadow: 0 8px 20px var(--accent-shadow, rgba(139, 92, 246, 0.28));
     flex-shrink: 0;
 }
@@ -225,6 +230,7 @@ html, body {
     color: var(--violet-700, #6D28D9);
 }
 
+/* Semántico: PromoZione tiene identidad naranja/amarilla propia */
 .sh-tab-promo.active {
     color: #B45309;
     border-bottom-color: #F59E0B;
@@ -390,9 +396,14 @@ html, body {
 
 .sh-btn-full { width: 100%; }
 
+/* Botón principal: usa accent de fondo + --white como texto.
+   --white es el color de "tarjeta" del tema, que siempre contrasta
+   con el accent (claro ↔ oscuro). text-shadow fuerza legibilidad
+   en los pocos casos donde accent y --white son similares. */
 .sh-btn-instalar {
     background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
-    color: white;
+    color: var(--white, #FFFFFF);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
     box-shadow: 0 4px 10px var(--accent-shadow, rgba(139, 92, 246, 0.25));
 }
 .sh-btn-instalar:hover:not(:disabled) {
@@ -411,6 +422,7 @@ html, body {
     border-color: var(--violet-400, #A78BFA);
 }
 
+/* Semántico: rojo "eliminar" universal */
 .sh-btn-icono {
     background: var(--gray-100, #F4F4F7);
     color: var(--gray-600, #52525B);
@@ -427,7 +439,7 @@ html, body {
 }
 .sh-btn-aplicar:hover:not(:disabled) { background: var(--gray-200, #E8E8EE); }
 
-/* Botón "En carrito" usa el accent del tema */
+/* Botón "En carrito" — usa accent del tema en versión "apagada" */
 .sh-btn-carrito-activo {
     background: var(--violet-100, #EDE9FE);
     color: var(--violet-700, #6D28D9);
@@ -521,24 +533,26 @@ html, body {
 }
 
 /* ========== TOAST ========== */
-/* FIX: fondo oscuro hardcodeado, sin depender del tema */
+/* Inversión semántica del tema: fondo = --text, texto = --bg.
+   En tema claro sale oscuro, en tema oscuro sale claro.
+   Cero hardcodeo. */
 .sh-toast {
     position: fixed;
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%) translateY(100px);
-    background: rgba(0, 0, 0, 0.92);
-    color: #FFFFFF;
+    background: color-mix(in srgb, var(--text, #18181B) 88%, var(--bg, #FFFFFF) 12%);
+    color: var(--bg, #FFFFFF);
     padding: 10px 20px;
     border-radius: var(--r-full, 999px);
     font-size: 13px;
     font-weight: 700;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid color-mix(in srgb, var(--bg, #FFFFFF) 20%, transparent);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     box-shadow:
-        0 12px 32px rgba(0, 0, 0, 0.35),
-        0 2px 8px rgba(0, 0, 0, 0.20);
+        0 12px 32px rgba(0, 0, 0, 0.25),
+        0 2px 8px rgba(0, 0, 0, 0.12);
     opacity: 0;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     pointer-events: none;
@@ -550,8 +564,18 @@ html, body {
 }
 .sh-toast [data-lucide] { width: 15px; height: 15px; }
 .sh-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.sh-toast.success { background: #065F46; border-color: rgba(16, 185, 129, 0.30); }
-.sh-toast.error   { background: #991B1B; border-color: rgba(239, 68, 68, 0.30); }
+
+/* Semántico: verde éxito / rojo error, universales */
+.sh-toast.success {
+    background: #065F46;
+    color: #FFFFFF;
+    border-color: rgba(16, 185, 129, 0.35);
+}
+.sh-toast.error {
+    background: #991B1B;
+    color: #FFFFFF;
+    border-color: rgba(239, 68, 68, 0.35);
+}
 
 /* ========== RECURSOS ========== */
 .sh-recursos { display: flex; gap: 10px; flex-wrap: wrap; flex-shrink: 0; }
@@ -601,12 +625,13 @@ html, body {
 .sh-coste [data-lucide] { width: 10px; height: 10px; }
 .sh-coste s { opacity: 0.55; margin-left: 3px; }
 .sh-coste-esp { background: var(--gray-100, #F4F4F7); color: var(--gray-700, #3F3F46); }
+/* Semántico: amarillo monedas */
 .sh-coste-mon { background: #FEF3C7; color: #92400E; }
 
 /* ================================================
    BARRA FLOTANTE DEL CARRITO
-   FIX: fondo oscuro hardcodeado + blur, para que sea
-   legible sobre cualquier tema (claro u oscuro).
+   Inversión semántica del tema: fondo = --text, texto = --bg.
+   En Cuartos Traseros sale clara, en violeta sale oscura.
    ================================================ */
 .sh-cart-bar {
     position: fixed;
@@ -618,16 +643,15 @@ html, body {
     align-items: center;
     gap: 16px;
     padding: 10px 14px 10px 16px;
-    background: rgba(0, 0, 0, 0.85);
-    color: #FFFFFF;
-    border: 1px solid rgba(255, 255, 255, 0.10);
+    background: color-mix(in srgb, var(--text, #18181B) 88%, var(--bg, #FFFFFF) 12%);
+    color: var(--bg, #FFFFFF);
+    border: 1px solid color-mix(in srgb, var(--bg, #FFFFFF) 18%, transparent);
     border-radius: 16px;
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     box-shadow:
-        0 20px 50px rgba(0, 0, 0, 0.45),
-        0 6px 16px rgba(0, 0, 0, 0.25),
-        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        0 20px 50px rgba(0, 0, 0, 0.28),
+        0 6px 16px rgba(0, 0, 0, 0.15);
     animation: shCartBarIn 0.32s cubic-bezier(0.16, 1, 0.3, 1);
     max-width: calc(100% - 32px);
 }
@@ -645,12 +669,12 @@ html, body {
 .sh-cart-bar-icono {
     width: 40px;
     height: 40px;
-    background: rgba(255, 255, 255, 0.14);
+    background: color-mix(in srgb, var(--bg, #FFFFFF) 15%, transparent);
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #FFFFFF;
+    color: inherit;
     flex-shrink: 0;
 }
 .sh-cart-bar-icono [data-lucide] {
@@ -664,20 +688,18 @@ html, body {
     font-weight: 800;
     letter-spacing: -0.01em;
     line-height: 1.2;
-    color: #FFFFFF;
 }
 .sh-cart-bar-titulo strong { font-weight: 900; }
 .sh-cart-bar-detalle {
     font-size: 11.5px;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.72);
+    opacity: 0.72;
     margin-top: 1px;
     font-variant-numeric: tabular-nums;
 }
 .sh-cart-bar .sh-btn-instalar {
     padding: 8px 14px;
     font-size: 12.5px;
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.45);
     flex-shrink: 0;
 }
 .sh-cart-bar .sh-btn-instalar [data-lucide] { width: 14px; height: 14px; }
@@ -1001,7 +1023,7 @@ html, body {
     gap: 4px;
     font-size: 12px;
     font-weight: 800;
-    color: #92400E;
+    color: #92400E; /* semántico: dorado monedas */
     font-variant-numeric: tabular-nums;
 }
 .sh-amp-precio [data-lucide] {
@@ -1015,12 +1037,13 @@ html, body {
     margin-left: 2px;
     font-weight: 600;
 }
+/* Semántico: verde "ahorro/éxito" */
 .sh-amp-ahorro {
     position: absolute;
     top: -7px;
     right: -6px;
     background: #10B981;
-    color: white;
+    color: #FFFFFF;
     font-size: 10px;
     font-weight: 800;
     padding: 2px 7px;
@@ -1133,7 +1156,7 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: var(--white, #FFFFFF);
     box-shadow: 0 10px 24px var(--accent-shadow, rgba(139,92,246,0.30));
 }
 .sh-amp-confirmar-icono-wrap [data-lucide] {
@@ -1191,6 +1214,7 @@ html, body {
     height: 12px;
     color: #F59E0B;
 }
+/* Semántico: verde descuento/éxito */
 .sh-amp-desc-verde { color: #059669 !important; }
 .sh-amp-desc-verde [data-lucide] { color: #10B981 !important; }
 
@@ -1298,6 +1322,7 @@ html, body {
     text-align: center;
     padding: 8px 0 4px;
 }
+/* Semántico: verde éxito */
 .sh-amp-exito-icono {
     width: 80px;
     height: 80px;
@@ -1306,7 +1331,7 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #FFFFFF;
     margin: 0 auto 16px;
     box-shadow: 0 12px 28px rgba(16, 185, 129, 0.35);
     animation: shAmpPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -1345,7 +1370,7 @@ html, body {
     align-items: center;
     gap: 6px;
     padding: 6px 12px;
-    background: #ECFDF5;
+    background: #ECFDF5; /* semántico: verde éxito */
     border: 1px solid #A7F3D0;
     border-radius: 999px;
     font-size: 11.5px;
@@ -1364,7 +1389,8 @@ html, body {
 }
 
 /* ================================================
-   PROMOZIONE
+   PROMOZIONE — semántico: identidad propia
+   naranja/amarilla, no depende del tema.
    ================================================ */
 .sh-promo-header {
     display: flex;
@@ -1384,7 +1410,7 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #FFFFFF;
     flex-shrink: 0;
     box-shadow: 0 6px 14px rgba(217, 119, 6, 0.3);
 }
@@ -1545,7 +1571,7 @@ html, body {
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: #065F46;
+    color: #065F46; /* semántico: verde ahorro */
     background: #ECFDF5;
     border: 1px solid #A7F3D0;
     padding: 1px 7px;
@@ -1582,7 +1608,7 @@ html, body {
 }
 .sh-pack-item-check {
     margin-left: auto;
-    color: #10B981 !important;
+    color: #10B981 !important; /* semántico: check verde */
     width: 14px !important;
     height: 14px !important;
 }
@@ -1619,6 +1645,7 @@ html, body {
     transform: translateY(-3px);
     box-shadow: var(--shadow-md, 0 8px 20px rgba(0,0,0,0.08));
 }
+/* Semántico: color según % de descuento */
 .sh-oferta-card.sh-desc-25 { border-color: #C4B5FD; }
 .sh-oferta-card.sh-desc-50 { border-color: #F59E0B; }
 .sh-oferta-card.sh-desc-75 {
@@ -1631,7 +1658,7 @@ html, body {
     top: -10px;
     right: -6px;
     background: #EF4444;
-    color: white;
+    color: #FFFFFF;
     font-size: 12px;
     font-weight: 900;
     padding: 3px 10px;
@@ -1711,7 +1738,7 @@ html, body {
 .sh-oferta-precio-final [data-lucide] {
     width: 16px;
     height: 16px;
-    color: #F59E0B;
+    color: #F59E0B; /* semántico: dorado monedas */
 }
 
 .sh-oferta-espacio {
