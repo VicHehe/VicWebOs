@@ -1,11 +1,9 @@
 /* ================================================
    Tema: Cuartos Traseros
    El lobby se convierte en un pasillo infinito
-   con perspectiva 3D real: suelo, techo y paredes
-   convergen a un punto de fuga. Amarillo mostaza,
-   alfombra húmeda, papel tapiz y luces fluorescentes
-   que parpadean. No deberías estar acá.
-   Flagship.
+   con perspectiva 3D real. El fondo se estira
+   con el scroll (attachment local) para no
+   cortarse nunca. Flagship.
    ================================================ */
 
 :root {
@@ -50,27 +48,22 @@
     --accent-shadow-hover: rgba(232, 200, 64, 0.60);
     --accent-text-gradient: linear-gradient(135deg, #F5EEC8, #E8C840);
 
-    /* Radios cuadrados, institucionales */
     --r-sm: 2px;
     --r-md: 3px;
     --r-lg: 4px;
     --r-xl: 6px;
 
-    /* ---- TEXTURAS ---- */
-
     /* Alfombra: ruido sutil, moteado, como lana húmeda */
     --theme-alfombra: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0.1'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.18'/%3E%3C/svg%3E");
 
-    /* PASILLO 3D — SVG con perspectiva real
-       Punto de fuga en el centro. Paredes con papel tapiz,
-       techo con luces fluorescentes recediendo, suelo con
-       alfombra y juntas convergentes. */
-    --theme-pasillo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600' preserveAspectRatio='xMidYMid slice'%3E%3Cdefs%3E%3ClinearGradient id='ceil' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%238A7020'/%3E%3Cstop offset='1' stop-color='%234A3E1A'/%3E%3C/linearGradient%3E%3ClinearGradient id='flr' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%234A3E1A'/%3E%3Cstop offset='1' stop-color='%231A180F'/%3E%3C/linearGradient%3E%3ClinearGradient id='wl' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%238A7020'/%3E%3Cstop offset='1' stop-color='%23D4B840'/%3E%3C/linearGradient%3E%3ClinearGradient id='wr' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%23D4B840'/%3E%3Cstop offset='1' stop-color='%238A7020'/%3E%3C/linearGradient%3E%3CradialGradient id='glw' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0' stop-color='%23F5EEC8' stop-opacity='0.95'/%3E%3Cstop offset='0.5' stop-color='%23E8C840' stop-opacity='0.4'/%3E%3Cstop offset='1' stop-color='%23E8C840' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cpolygon points='0,0 800,0 500,200 300,200' fill='url(%23ceil)'/%3E%3Cpolygon points='0,600 800,600 500,400 300,400' fill='url(%23flr)'/%3E%3Cpolygon points='0,0 300,200 300,400 0,600' fill='url(%23wl)'/%3E%3Cpolygon points='800,0 500,200 500,400 800,600' fill='url(%23wr)'/%3E%3Crect x='300' y='200' width='200' height='200' fill='url(%23glw)'/%3E%3Cg stroke='%232A2510' stroke-width='0.6' opacity='0.5' fill='none'%3E%3Cline x1='0' y1='50' x2='300' y2='200'/%3E%3Cline x1='800' y1='50' x2='500' y2='200'/%3E%3Cline x1='0' y1='120' x2='300' y2='200'/%3E%3Cline x1='800' y1='120' x2='500' y2='200'/%3E%3Cline x1='0' y1='170' x2='300' y2='200'/%3E%3Cline x1='800' y1='170' x2='500' y2='200'/%3E%3C/g%3E%3Cg stroke='%230F0C08' stroke-width='0.8' opacity='0.55' fill='none'%3E%3Cline x1='400' y1='400' x2='0' y2='600'/%3E%3Cline x1='400' y1='400' x2='200' y2='600'/%3E%3Cline x1='400' y1='400' x2='400' y2='600'/%3E%3Cline x1='400' y1='400' x2='600' y2='600'/%3E%3Cline x1='400' y1='400' x2='800' y2='600'/%3E%3C/g%3E%3Cpolygon points='340,60 460,60 440,90 360,90' fill='%23F5EEC8' opacity='0.9'/%3E%3Cpolygon points='360,120 440,120 425,145 375,145' fill='%23F5EEC8' opacity='0.65'/%3E%3Cpolygon points='375,165 425,165 415,182 385,182' fill='%23F5EEC8' opacity='0.45'/%3E%3C/svg%3E");
+    /* PASILLO 3D — preserveAspectRatio='none' para estirar sin recortar */
+    --theme-pasillo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='ceil' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%238A7020'/%3E%3Cstop offset='1' stop-color='%234A3E1A'/%3E%3C/linearGradient%3E%3ClinearGradient id='flr' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%234A3E1A'/%3E%3Cstop offset='1' stop-color='%231A180F'/%3E%3C/linearGradient%3E%3ClinearGradient id='wl' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%238A7020'/%3E%3Cstop offset='1' stop-color='%23D4B840'/%3E%3C/linearGradient%3E%3ClinearGradient id='wr' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%23D4B840'/%3E%3Cstop offset='1' stop-color='%238A7020'/%3E%3C/linearGradient%3E%3CradialGradient id='glw' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0' stop-color='%23F5EEC8' stop-opacity='0.95'/%3E%3Cstop offset='0.5' stop-color='%23E8C840' stop-opacity='0.4'/%3E%3Cstop offset='1' stop-color='%23E8C840' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cpolygon points='0,0 800,0 500,200 300,200' fill='url(%23ceil)'/%3E%3Cpolygon points='0,600 800,600 500,400 300,400' fill='url(%23flr)'/%3E%3Cpolygon points='0,0 300,200 300,400 0,600' fill='url(%23wl)'/%3E%3Cpolygon points='800,0 500,200 500,400 800,600' fill='url(%23wr)'/%3E%3Crect x='300' y='200' width='200' height='200' fill='url(%23glw)'/%3E%3Cg stroke='%232A2510' stroke-width='0.6' opacity='0.5' fill='none'%3E%3Cline x1='0' y1='50' x2='300' y2='200'/%3E%3Cline x1='800' y1='50' x2='500' y2='200'/%3E%3Cline x1='0' y1='120' x2='300' y2='200'/%3E%3Cline x1='800' y1='120' x2='500' y2='200'/%3E%3Cline x1='0' y1='170' x2='300' y2='200'/%3E%3Cline x1='800' y1='170' x2='500' y2='200'/%3E%3C/g%3E%3Cg stroke='%230F0C08' stroke-width='0.8' opacity='0.55' fill='none'%3E%3Cline x1='400' y1='400' x2='0' y2='600'/%3E%3Cline x1='400' y1='400' x2='200' y2='600'/%3E%3Cline x1='400' y1='400' x2='400' y2='600'/%3E%3Cline x1='400' y1='400' x2='600' y2='600'/%3E%3Cline x1='400' y1='400' x2='800' y2='600'/%3E%3C/g%3E%3Cpolygon points='340,60 460,60 440,90 360,90' fill='%23F5EEC8' opacity='0.9'/%3E%3Cpolygon points='360,120 440,120 425,145 375,145' fill='%23F5EEC8' opacity='0.65'/%3E%3Cpolygon points='375,165 425,165 415,182 385,182' fill='%23F5EEC8' opacity='0.45'/%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   1. WELCOME — Pasillo 3D completo
-   NO se toca overflow: mantiene el overflow-y: auto del CSS base.
+   1. WELCOME — Pasillo 3D con attachment local
+   local hace que el fondo se estire con el contenido completo,
+   no solo con la altura del viewport.
    ================================================================ */
 .welcome-placeholder {
     position: relative;
@@ -88,27 +81,27 @@
         no-repeat,
         repeat;
     background-attachment:
-        scroll,
-        scroll;
+        local,
+        local;
+    min-height: 100%;
 }
 
 /* Luz fluorescente que parpadea desde arriba */
 .welcome-placeholder::before {
     content: '';
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
     pointer-events: none;
     z-index: 1;
-    background: radial-gradient(
-        ellipse 55% 18% at 50% 12%,
-        rgba(245, 238, 200, 0.35) 0%,
-        rgba(232, 200, 64, 0.10) 40%,
-        transparent 75%
-    );
+    background:
+        radial-gradient(ellipse 55% 12% at 50% 8%, rgba(245, 238, 200, 0.32) 0%, rgba(232, 200, 64, 0.08) 45%, transparent 75%),
+        radial-gradient(ellipse 40% 8% at 50% 30%, rgba(232, 200, 64, 0.06) 0%, transparent 70%);
     animation: fluorescente 3.5s linear infinite;
 }
 
-/* El parpadeo REAL: opacidad con micro-cortes */
 @keyframes fluorescente {
     0%, 18%, 20%, 50%, 52%, 80%, 100% { opacity: 1; }
     19%   { opacity: 0.35; }
@@ -118,7 +111,7 @@
     83%   { opacity: 1; }
 }
 
-/* Vignette: oscuridad que se cierra en los bordes */
+/* Vignette suave (sin cortes duros) */
 .welcome-placeholder::after {
     content: '';
     position: absolute;
@@ -126,9 +119,10 @@
     pointer-events: none;
     z-index: 2;
     background: radial-gradient(
-        ellipse at center,
-        transparent 35%,
-        rgba(0, 0, 0, 0.55) 100%
+        ellipse 120% 90% at 50% 50%,
+        transparent 40%,
+        rgba(0, 0, 0, 0.35) 90%,
+        rgba(0, 0, 0, 0.45) 100%
     );
 }
 
@@ -146,7 +140,6 @@
     z-index: 3;
 }
 
-/* El hero como un cartel colgado en la pared del pasillo */
 .welcome-hero {
     position: relative;
     padding: 40px 32px 36px;
@@ -166,7 +159,6 @@
     margin-right: auto;
 }
 
-/* Esquinas erosionadas */
 .welcome-hero::before {
     content: '';
     position: absolute;
@@ -207,7 +199,7 @@
 }
 
 /* ================================================================
-   2. HEADER — Tubo fluorescente horizontal
+   2. HEADER
    ================================================================ */
 .app-header {
     position: relative;
@@ -237,7 +229,7 @@
 }
 
 /* ================================================================
-   3. SIDEBAR — Pasillo infinito con alfombra
+   3. SIDEBAR
    ================================================================ */
 .sidebar {
     position: relative;
@@ -281,7 +273,7 @@
 }
 
 /* ================================================================
-   4. ACCESOS RÁPIDOS — Placas de yeso en la pared
+   4. ACCESOS RÁPIDOS
    ================================================================ */
 .acceso-item {
     position: relative;
@@ -329,7 +321,7 @@
 }
 
 /* ================================================================
-   5. WIDGETS — Mismo tratamiento de placa
+   5. WIDGETS
    ================================================================ */
 .widget-item {
     border: 1px solid rgba(212, 184, 64, 0.20);
@@ -344,7 +336,7 @@
 }
 
 /* ================================================================
-   6. PESTAÑAS — Marca de luz arriba
+   6. PESTAÑAS
    ================================================================ */
 .tab-item.active::before {
     content: '';
@@ -363,7 +355,7 @@
 }
 
 /* ================================================================
-   7. MODALES — Borde de placa con luz
+   7. MODALES
    ================================================================ */
 .config-card,
 .modal-todas-card {
@@ -412,7 +404,7 @@
 }
 
 /* ================================================================
-   8. BOTÓN PRIMARIO — Sólido, pesado
+   8. BOTÓN PRIMARIO
    ================================================================ */
 .btn-primario {
     background: linear-gradient(135deg, #A08820, #6E5E2A);
