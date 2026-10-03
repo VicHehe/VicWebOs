@@ -1,0 +1,447 @@
+/* ================================================
+   Tema: Cometa Errante
+   Cosmos profundo. Un cometa cruza el lobby
+   dejando estela luminosa. Estrellas titilando
+   en el sidebar. Nebulosa que respira al fondo.
+   Flagship.
+   ================================================ */
+
+:root {
+    --violet-50:  #0A1420;
+    --violet-100: #10202E;
+    --violet-200: #1A3040;
+    --violet-300: #38BDF8;
+    --violet-400: #22D3EE;
+    --violet-500: #22D3EE;
+    --violet-600: #06B6D4;
+    --violet-700: #0891B2;
+
+    --white:   #0A1220;
+    --bg:      #05080F;
+    --bg-alt:  #0A1420;
+    --gray-50:  #0A1420;
+    --gray-100: #101C2C;
+    --gray-200: #1A2A3E;
+    --gray-300: #2E4258;
+    --gray-400: #4E6280;
+    --gray-500: #7A8FAC;
+    --gray-600: #A8BCD4;
+    --gray-700: #CCD8E8;
+    --gray-800: #E2EAF4;
+    --gray-900: #F0F6FC;
+
+    --border:  #1A2A3E;
+    --text:    #F0F6FC;
+    --text-2:  #A8BCD4;
+    --text-3:  #7A8FAC;
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.55);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.65);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.65);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.75);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.85);
+    --shadow-glow: 0 0 0 4px rgba(34, 211, 238, 0.20);
+
+    --accent-gradient: linear-gradient(135deg, #22D3EE, #0891B2);
+    --accent-gradient-hover: linear-gradient(135deg, #67E8F9, #06B6D4);
+    --accent-shadow: rgba(34, 211, 238, 0.35);
+    --accent-shadow-hover: rgba(34, 211, 238, 0.55);
+    --accent-text-gradient: linear-gradient(135deg, #F0F6FC, #22D3EE);
+
+    /* ---- TEXTURAS ---- */
+
+    /* Campo de estrellas: 30 estrellas en un tile de 400x400 */
+    --theme-estrellas: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Cg fill='%23F0F6FC'%3E%3Ccircle cx='20' cy='30' r='1.2' opacity='0.9'/%3E%3Ccircle cx='50' cy='80' r='0.8' opacity='0.6'/%3E%3Ccircle cx='90' cy='40' r='1.5' opacity='0.95'/%3E%3Ccircle cx='130' cy='90' r='0.9' opacity='0.7'/%3E%3Ccircle cx='170' cy='50' r='1' opacity='0.8'/%3E%3Ccircle cx='30' cy='140' r='0.8' opacity='0.5'/%3E%3Ccircle cx='80' cy='170' r='1.1' opacity='0.75'/%3E%3Ccircle cx='120' cy='150' r='0.7' opacity='0.5'/%3E%3Ccircle cx='160' cy='130' r='1' opacity='0.65'/%3E%3Ccircle cx='190' cy='170' r='0.9' opacity='0.55'/%3E%3Ccircle cx='10' cy='100' r='0.6' opacity='0.4'/%3E%3Ccircle cx='60' cy='20' r='0.7' opacity='0.55'/%3E%3Ccircle cx='110' cy='10' r='0.9' opacity='0.6'/%3E%3Ccircle cx='150' cy='180' r='0.8' opacity='0.5'/%3E%3Ccircle cx='40' cy='60' r='1.1' opacity='0.7'/%3E%3Ccircle cx='100' cy='120' r='0.6' opacity='0.45'/%3E%3Ccircle cx='200' cy='80' r='1.3' opacity='0.85'/%3E%3Ccircle cx='250' cy='30' r='0.9' opacity='0.6'/%3E%3Ccircle cx='300' cy='70' r='1.1' opacity='0.75'/%3E%3Ccircle cx='350' cy='40' r='0.8' opacity='0.5'/%3E%3Ccircle cx='220' cy='150' r='1' opacity='0.7'/%3E%3Ccircle cx='270' cy='190' r='0.7' opacity='0.45'/%3E%3Ccircle cx='320' cy='140' r='1.2' opacity='0.8'/%3E%3Ccircle cx='370' cy='170' r='0.9' opacity='0.6'/%3E%3Ccircle cx='240' cy='250' r='1.1' opacity='0.75'/%3E%3Ccircle cx='290' cy='300' r='0.8' opacity='0.5'/%3E%3Ccircle cx='340' cy='260' r='1' opacity='0.65'/%3E%3Ccircle cx='380' cy='320' r='0.7' opacity='0.45'/%3E%3Ccircle cx='210' cy='350' r='1.2' opacity='0.8'/%3E%3Ccircle cx='260' cy='380' r='0.9' opacity='0.55'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* Cometa: estela curva con cabeza luminosa */
+    --theme-cometa: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 250'%3E%3Cdefs%3E%3ClinearGradient id='cola' x1='0' y1='1' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%2322D3EE' stop-opacity='0'/%3E%3Cstop offset='0.4' stop-color='%2367E8F9' stop-opacity='0.25'/%3E%3Cstop offset='0.8' stop-color='%23F0F6FC' stop-opacity='0.85'/%3E%3Cstop offset='1' stop-color='%23FFFFFF' stop-opacity='1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0,250 C100,220 220,160 340,80 L500,-20 L500,10 C340,110 220,190 100,250 Z' fill='url(%23cola)'/%3E%3Ccircle cx='480' cy='0' r='5' fill='%23FFFFFF'/%3E%3Ccircle cx='480' cy='0' r='12' fill='%2367E8F9' opacity='0.40'/%3E%3Ccircle cx='480' cy='0' r='22' fill='%2322D3EE' opacity='0.18'/%3E%3Ccircle cx='480' cy='0' r='36' fill='%2322D3EE' opacity='0.06'/%3E%3C/svg%3E");
+}
+
+/* ================================================================
+   1. WELCOME — Espacio profundo con cometa
+   ================================================================ */
+.welcome-placeholder {
+    position: relative;
+    background-color: var(--bg);
+    background-image:
+        var(--theme-estrellas),
+        radial-gradient(ellipse at 25% 25%, rgba(34, 211, 238, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 75% 75%, rgba(139, 92, 246, 0.04) 0%, transparent 55%),
+        linear-gradient(180deg, #05080F 0%, #070B14 50%, #05080F 100%);
+    background-size:
+        400px 400px,
+        100% 100%,
+        100% 100%,
+        100% 100%;
+    background-repeat: repeat, no-repeat, no-repeat, no-repeat;
+    background-attachment: fixed, scroll, scroll, scroll;
+    overflow: hidden;
+}
+
+/* El cometa cruzando */
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: var(--theme-cometa);
+    background-size: 500px 250px;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    z-index: 1;
+    animation: cometa-vuelo 16s linear infinite;
+    filter: drop-shadow(0 0 12px rgba(34, 211, 238, 0.55));
+}
+
+@keyframes cometa-vuelo {
+    0%   { background-position: -500px 120%; opacity: 0; }
+    8%   { opacity: 1; }
+    88%  { opacity: 1; }
+    100% { background-position: 110% -30%; opacity: 0; }
+}
+
+/* Nebulosa que respira */
+.welcome-placeholder::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+        radial-gradient(ellipse at 30% 40%, rgba(34, 211, 238, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse at 70% 60%, rgba(139, 92, 246, 0.05) 0%, transparent 60%);
+    animation: nebulosa-respira 12s ease-in-out infinite alternate;
+}
+
+@keyframes nebulosa-respira {
+    0%   { opacity: 0.6; transform: scale(1); }
+    100% { opacity: 1; transform: scale(1.08); }
+}
+
+.welcome-glow {
+    background: radial-gradient(
+        circle,
+        rgba(34, 211, 238, 0.12) 0%,
+        rgba(139, 92, 246, 0.05) 30%,
+        transparent 68%
+    );
+}
+
+.welcome-hero,
+.welcome-section {
+    position: relative;
+    z-index: 2;
+}
+
+/* Hero flotando en el espacio */
+.welcome-hero {
+    position: relative;
+    padding: 40px 32px 36px;
+    background: linear-gradient(
+        180deg,
+        rgba(10, 18, 32, 0.85) 0%,
+        rgba(5, 8, 15, 0.92) 100%
+    );
+    border: 1px solid rgba(34, 211, 238, 0.20);
+    border-radius: 12px;
+    box-shadow:
+        inset 0 0 0 1px rgba(34, 211, 238, 0.06),
+        inset 0 0 60px rgba(0, 0, 0, 0.50),
+        0 12px 40px rgba(0, 0, 0, 0.65),
+        0 0 80px rgba(34, 211, 238, 0.06);
+    max-width: 680px;
+    margin-left: auto;
+    margin-right: auto;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.welcome-hero h1 {
+    letter-spacing: 0.01em;
+    text-shadow: 0 0 30px rgba(34, 211, 238, 0.30);
+}
+
+.welcome-icon-wrap {
+    background: linear-gradient(135deg, #22D3EE, #0A1420);
+    border-radius: 50%;
+    box-shadow:
+        0 12px 32px rgba(34, 211, 238, 0.35),
+        0 4px 8px rgba(0, 0, 0, 0.55),
+        0 0 0 3px rgba(34, 211, 238, 0.15),
+        0 0 0 6px rgba(34, 211, 238, 0.06);
+    animation: cometa-pulso 5s ease-in-out infinite;
+}
+
+@keyframes cometa-pulso {
+    0%, 100% { box-shadow: 0 12px 32px rgba(34, 211, 238, 0.35), 0 4px 8px rgba(0, 0, 0, 0.55), 0 0 0 3px rgba(34, 211, 238, 0.15), 0 0 0 6px rgba(34, 211, 238, 0.06); }
+    50%      { box-shadow: 0 12px 32px rgba(34, 211, 238, 0.60), 0 4px 8px rgba(0, 0, 0, 0.55), 0 0 0 3px rgba(34, 211, 238, 0.30), 0 0 0 8px rgba(34, 211, 238, 0.12), 0 0 60px rgba(34, 211, 238, 0.35); }
+}
+
+/* ================================================================
+   2. HEADER — Línea cósmica
+   ================================================================ */
+.app-header {
+    position: relative;
+    background: linear-gradient(180deg, #0A1420 0%, #05080F 100%);
+    border-bottom: 1px solid rgba(34, 211, 238, 0.20);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+}
+
+.app-header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 15%;
+    right: 15%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #22D3EE, transparent);
+    box-shadow: 0 0 10px rgba(34, 211, 238, 0.60);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* ================================================================
+   3. SIDEBAR — Campo de estrellas fijo
+   ================================================================ */
+.sidebar {
+    position: relative;
+    background: linear-gradient(180deg, #0A1420 0%, #05080F 100%);
+    border-right: 1px solid rgba(34, 211, 238, 0.15);
+    overflow: hidden;
+}
+
+.sidebar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: var(--theme-estrellas);
+    background-size: 300px 300px;
+    background-attachment: fixed;
+    opacity: 0.55;
+    z-index: 0;
+}
+
+.sidebar-comunidad,
+.sidebar-label,
+.sidebar-nav,
+.sidebar-mobile-header {
+    position: relative;
+    z-index: 1;
+}
+
+.nav-item.active::before {
+    background: linear-gradient(180deg, #22D3EE, #0891B2);
+    width: 3px;
+    box-shadow: 0 0 10px rgba(34, 211, 238, 0.65);
+    border-radius: 0 3px 3px 0;
+}
+
+.nav-item.active {
+    background: rgba(34, 211, 238, 0.08);
+}
+
+@media (max-width: 768px) {
+    .sidebar { position: fixed; }
+}
+
+/* ================================================================
+   4. ACCESOS RÁPIDOS — Módulos espaciales
+   ================================================================ */
+.acceso-item {
+    position: relative;
+    background: linear-gradient(180deg, #101C2C 0%, #0A1420 100%);
+    border: 1px solid rgba(34, 211, 238, 0.22);
+    border-radius: 10px;
+    box-shadow:
+        inset 0 1px 0 rgba(34, 211, 238, 0.06),
+        0 2px 10px rgba(0, 0, 0, 0.50);
+    overflow: hidden;
+}
+
+.acceso-item:hover {
+    transform: translateY(-3px);
+    border-color: var(--violet-500);
+    box-shadow:
+        inset 0 1px 0 rgba(34, 211, 238, 0.15),
+        0 10px 26px rgba(34, 211, 238, 0.28),
+        0 0 0 1px rgba(34, 211, 238, 0.30);
+}
+
+.acceso-icon-wrap {
+    background: rgba(34, 211, 238, 0.10);
+    border: 1px solid rgba(34, 211, 238, 0.25);
+    color: var(--violet-500);
+    border-radius: 50%;
+    transition: all 0.22s;
+}
+
+.acceso-item:hover .acceso-icon-wrap {
+    background: var(--accent-gradient);
+    color: #05080F;
+    border-color: var(--violet-400);
+    box-shadow:
+        0 0 0 3px rgba(34, 211, 238, 0.22),
+        0 6px 16px rgba(34, 211, 238, 0.45);
+}
+
+/* ================================================================
+   5. WIDGETS
+   ================================================================ */
+.widget-item {
+    border: 1px solid rgba(34, 211, 238, 0.22);
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
+    overflow: hidden;
+}
+
+.widget-item:hover {
+    border-color: var(--violet-500);
+    box-shadow: 0 10px 24px rgba(34, 211, 238, 0.22);
+}
+
+/* ================================================================
+   6. PESTAÑAS — Rastro de cometa
+   ================================================================ */
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 14px;
+    right: 14px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #22D3EE, transparent);
+    box-shadow: 0 0 10px rgba(34, 211, 238, 0.60);
+    pointer-events: none;
+}
+
+.tab-item.active [data-lucide] {
+    color: var(--violet-500);
+}
+
+/* ================================================================
+   7. MODALES — Cristal espacial
+   ================================================================ */
+.config-card,
+.modal-todas-card {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(180deg, #0A1420 0%, #05080F 100%);
+    border: 1px solid rgba(34, 211, 238, 0.30);
+    border-radius: 12px;
+    box-shadow:
+        inset 0 0 0 1px rgba(34, 211, 238, 0.08),
+        0 24px 48px rgba(0, 0, 0, 0.85),
+        0 0 80px rgba(34, 211, 238, 0.10);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #22D3EE, #67E8F9, #22D3EE, transparent);
+    box-shadow: 0 0 14px rgba(34, 211, 238, 0.65);
+    z-index: 3;
+}
+
+.config-header,
+.modal-todas-header {
+    background: linear-gradient(180deg, #101C2C 0%, #0A1420 100%);
+    border-bottom-color: rgba(34, 211, 238, 0.20);
+}
+
+/* ================================================================
+   8. BOTÓN PRIMARIO
+   ================================================================ */
+.btn-primario {
+    background: linear-gradient(135deg, #06B6D4, #0891B2);
+    border: 1px solid rgba(103, 232, 249, 0.35);
+    color: #F0F6FC;
+    box-shadow:
+        0 4px 12px rgba(34, 211, 238, 0.35),
+        inset 0 1px 0 rgba(186, 230, 253, 0.22);
+    border-radius: 8px;
+}
+
+.btn-primario:hover {
+    background: linear-gradient(135deg, #22D3EE, #06B6D4);
+    box-shadow:
+        0 8px 22px rgba(34, 211, 238, 0.55),
+        0 0 0 3px rgba(34, 211, 238, 0.18);
+}
+
+/* ================================================================
+   9. INPUTS
+   ================================================================ */
+.config-field input,
+.config-field select,
+.config-select {
+    background: rgba(5, 8, 15, 0.55);
+    border: 1px solid rgba(34, 211, 238, 0.20);
+    color: var(--text);
+    border-radius: 8px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.50);
+}
+
+.config-field input:focus,
+.config-field select:focus,
+.config-select:focus {
+    border-color: var(--violet-500);
+    box-shadow:
+        inset 0 1px 3px rgba(0, 0, 0, 0.50),
+        0 0 0 3px rgba(34, 211, 238, 0.20);
+}
+
+/* ================================================
+   10. AVATAR Y NOTIFICACIONES
+   ================================================ */
+.avatar-config {
+    background: linear-gradient(135deg, #22D3EE, #0A1420);
+    border: 2px solid rgba(34, 211, 238, 0.40);
+    box-shadow:
+        var(--shadow-sm),
+        0 0 0 1px rgba(5, 8, 15, 0.9),
+        0 0 0 3px rgba(34, 211, 238, 0.15);
+}
+
+.avatar-config:hover {
+    transform: translateY(-1px) scale(1.05);
+    box-shadow:
+        0 6px 18px rgba(34, 211, 238, 0.50),
+        0 0 0 1px var(--violet-400),
+        0 0 0 4px rgba(34, 211, 238, 0.15);
+}
+
+.noti-btn.tiene-no-leidas {
+    background: rgba(34, 211, 238, 0.12);
+    color: var(--violet-500);
+}
+
+.search-bar:focus-within {
+    border-color: var(--violet-500);
+    box-shadow: var(--shadow-glow);
+}
+
+.search-bar:focus-within .search-icon {
+    color: var(--violet-500);
+}
+
+/* ================================================
+   11. prefers-reduced-motion
+   ================================================ */
+@media (prefers-reduced-motion: reduce) {
+    .welcome-placeholder::before,
+    .welcome-placeholder::after,
+    .welcome-icon-wrap {
+        animation: none !important;
+    }
+    .welcome-placeholder::before { opacity: 0.30; }
+}
