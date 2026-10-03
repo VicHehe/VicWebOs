@@ -1,19 +1,18 @@
 /* ================================================
    Tema: Esmeralda
-   Gema en bruto pulida. Vetas irregulares dibujadas,
-   inclusiones negras, luz que atraviesa el mineral y
-   facetas angulosas con brillo especular propio.
-   Nada de gradientes suaves: la esmeralda es angular,
-   profunda y con imperfecciones reales.
+   Gema en bruto pulida. Vetas internas dibujadas,
+   inclusiones negras y una gema angular SVG con
+   facetas de distinta luminosidad.
 
-   REGLA DE LUZ:
-   Cálida desde arriba-izquierda. La luz ATRAVIESA la
-   gema: hay zonas de claridad interna brillante
-   rodeadas de zonas profundamente oscuras.
+   FIXES v3:
+     #1 --theme-veins ahora con viewBox 800×800 y
+        paths que empiezan y terminan en los bordes
+        con el mismo Y (tileado perfecto, sin costura)
+     #2 transform: translateZ(0) en welcome y sidebar
+        (evita el bug de compositing con backdrop-filter)
    ================================================ */
 
 :root {
-    /* Paleta esmeralda — verde profundo saturado */
     --violet-50:  #D4F0E0;
     --violet-100: #A8E0C4;
     --violet-200: #6ECBA4;
@@ -44,12 +43,9 @@
 
     --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.60);
     --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.65);
-    --shadow-md: 0 6px 14px rgba(0, 0, 0, 0.65),
-                 0 2px 4px rgba(0, 0, 0, 0.55);
-    --shadow-lg: 0 14px 34px rgba(0, 0, 0, 0.75),
-                 0 4px 8px rgba(0, 0, 0, 0.55);
-    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.85),
-                 0 8px 16px rgba(0, 0, 0, 0.65);
+    --shadow-md: 0 6px 14px rgba(0, 0, 0, 0.65), 0 2px 4px rgba(0, 0, 0, 0.55);
+    --shadow-lg: 0 14px 34px rgba(0, 0, 0, 0.75), 0 4px 8px rgba(0, 0, 0, 0.55);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.85), 0 8px 16px rgba(0, 0, 0, 0.65);
     --shadow-glow: 0 0 0 4px rgba(63, 168, 122, 0.30);
 
     --accent-gradient: linear-gradient(135deg, #3FA87A, #062816);
@@ -64,26 +60,20 @@
     --r-xl: 8px;
 
     /* ------------------------------------------------------------
-       Vetas internas — líneas diagonales irregulares dibujadas
-       a mano. Son las "estructuras cristalinas" típicas de la
-       esmeralda bruta.
+       Vetas internas TILEABLES — viewBox 800×800 con paths
+       que empiezan en X=0 y terminan en X=800 con el mismo Y.
+       Al repetir, el final de un tile coincide con el inicio
+       del siguiente: cero costura.
        ------------------------------------------------------------ */
-    --theme-veins: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M-20,60 L120,180 L260,120 L420,240' stroke='%236ECBA4' stroke-width='1.8' stroke-opacity='0.28'/%3E%3Cpath d='M-20,120 L140,220 L300,160 L420,280' stroke='%233FA87A' stroke-width='1.4' stroke-opacity='0.32'/%3E%3Cpath d='M-20,200 L160,300 L300,240 L420,340' stroke='%236ECBA4' stroke-width='2' stroke-opacity='0.22'/%3E%3Cpath d='M-20,280 L100,360 L240,320 L420,380' stroke='%233FA87A' stroke-width='1.2' stroke-opacity='0.30'/%3E%3Cpath d='M80,-20 L180,120 L120,260 L240,400' stroke='%236ECBA4' stroke-width='1.6' stroke-opacity='0.25'/%3E%3Cpath d='M260,-20 L320,140 L200,280 L340,400' stroke='%233FA87A' stroke-width='1.3' stroke-opacity='0.28'/%3E%3C/g%3E%3Cg fill='%23052816' fill-opacity='0.75'%3E%3Ccircle cx='180' cy='140' r='2.2'/%3E%3Ccircle cx='210' cy='150' r='1.6'/%3E%3Ccircle cx='160' cy='200' r='2.4'/%3E%3Ccircle cx='280' cy='250' r='2'/%3E%3Ccircle cx='90' cy='100' r='1.8'/%3E%3Ccircle cx='320' cy='80' r='2'/%3E%3Ccircle cx='130' cy='320' r='2.2'/%3E%3Ccircle cx='360' cy='310' r='1.7'/%3E%3C/g%3E%3C/svg%3E");
+    --theme-veins: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 800'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M0,200 Q200,150 400,200 Q600,250 800,200' stroke='%236ECBA4' stroke-width='2' stroke-opacity='0.30'/%3E%3Cpath d='M0,400 Q200,350 400,400 Q600,450 800,400' stroke='%233FA87A' stroke-width='1.5' stroke-opacity='0.35'/%3E%3Cpath d='M0,600 Q200,550 400,600 Q600,650 800,600' stroke='%236ECBA4' stroke-width='1.8' stroke-opacity='0.28'/%3E%3Cpath d='M200,0 Q150,200 200,400 Q250,600 200,800' stroke='%233FA87A' stroke-width='1.5' stroke-opacity='0.30'/%3E%3Cpath d='M600,0 Q550,200 600,400 Q650,600 600,800' stroke='%236ECBA4' stroke-width='1.8' stroke-opacity='0.28'/%3E%3C/g%3E%3Cg fill='%23052816' fill-opacity='0.75'%3E%3Ccircle cx='180' cy='140' r='2.2'/%3E%3Ccircle cx='380' cy='280' r='1.8'/%3E%3Ccircle cx='580' cy='420' r='2'/%3E%3Ccircle cx='280' cy='580' r='2.2'/%3E%3Ccircle cx='680' cy='680' r='1.6'/%3E%3Ccircle cx='80' cy='720' r='1.8'/%3E%3C/g%3E%3C/svg%3E");
 
-    /* ------------------------------------------------------------
-       Faceta de esmeralda — gema angular con caras de luminosidad
-       muy distinta. Iluminada desde arriba-izquierda.
-       ------------------------------------------------------------ */
     --theme-gem: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 260'%3E%3Cpath d='M110,15 L190,70 L190,180 L110,235 L30,180 L30,70 Z' fill='%231A6242'/%3E%3Cpath d='M110,15 L110,75 L30,70 Z' fill='%233FA87A'/%3E%3Cpath d='M110,15 L110,75 L190,70 Z' fill='%236ECBA4'/%3E%3Cpath d='M30,70 L110,75 L110,140 L30,180 Z' fill='%231A6242'/%3E%3Cpath d='M190,70 L110,75 L110,140 L190,180 Z' fill='%230E4229'/%3E%3Cpath d='M30,180 L110,140 L110,235 Z' fill='%230A3420'/%3E%3Cpath d='M190,180 L110,140 L110,235 Z' fill='%23052816'/%3E%3Cpath d='M80,105 L100,98 L105,118 L85,125 Z' fill='%23A8E0C4' fill-opacity='0.60'/%3E%3Cpath d='M130,115 L148,108 L150,128 L132,135 Z' fill='%23052816' fill-opacity='0.70'/%3E%3Cpath d='M70,150 L85,144 L88,162 L73,168 Z' fill='%23052816' fill-opacity='0.75'/%3E%3Cpath d='M140,160 L155,155 L157,172 L142,177 Z' fill='%23052816' fill-opacity='0.65'/%3E%3Cpath d='M95,175 L110,170 L112,190 L97,195 Z' fill='%233FA87A' fill-opacity='0.55'/%3E%3Cg stroke='%23A8E0C4' stroke-width='0.9' fill='none' stroke-opacity='0.65'%3E%3Cpath d='M110,15 L30,70'/%3E%3Cpath d='M110,15 L190,70'/%3E%3Cpath d='M30,180 L110,235 L190,180'/%3E%3Cpath d='M110,75 L110,140' stroke-opacity='0.40'/%3E%3Cpath d='M30,70 L110,140 L190,70' stroke-opacity='0.30'/%3E%3C/g%3E%3Cpath d='M85,35 L100,28 L100,45 L85,52 Z' fill='%23D4F0E0' fill-opacity='0.55'/%3E%3Cpath d='M120,30 L132,26 L134,40 L122,44 Z' fill='%23A8E0C4' fill-opacity='0.40'/%3E%3C/svg%3E");
 
-    /* ------------------------------------------------------------
-       Filigrana dorada — solo para detalles muy puntuales
-       ------------------------------------------------------------ */
     --theme-filigree: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%23C9A961' stroke-width='1.3' stroke-linecap='round' opacity='0.90'%3E%3Cpath d='M2,20 Q2,2 20,2'/%3E%3Cpath d='M6,20 Q6,6 20,6'/%3E%3Cpath d='M2,20 Q10,18 12,12 Q14,6 20,6'/%3E%3Ccircle cx='6' cy='6' r='1.6' fill='%23C9A961'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   1. WELCOME — cámara de mineral con vetas y luz atravesando
+   1. WELCOME — cámara de mineral con FIX compositing
    ================================================================ */
 .welcome-placeholder {
     position: relative;
@@ -93,7 +83,7 @@
         radial-gradient(ellipse 40% 30% at 70% 80%, rgba(26, 98, 66, 0.30) 0%, transparent 100%),
         linear-gradient(180deg, #07281A 0%, #0A3420 50%, #051A0E 100%);
     background-size:
-        400px 400px,
+        800px 800px,
         100% 100%,
         100% 100%,
         100% 100%;
@@ -108,9 +98,11 @@
         no-repeat,
         no-repeat;
     background-color: var(--bg);
+    /* FIX: fuerza layer propio */
+    transform: translateZ(0);
+    will-change: transform;
 }
 
-/* Gema grande arriba derecha */
 .welcome-placeholder::before {
     content: '';
     position: absolute;
@@ -126,7 +118,6 @@
         drop-shadow(6px 10px 0 rgba(0, 0, 0, 0.55));
 }
 
-/* Gema chica espejada abajo izquierda */
 .welcome-placeholder::after {
     content: '';
     position: absolute;
@@ -145,21 +136,15 @@
 }
 
 .welcome-hero,
-.welcome-section {
-    position: relative;
-    z-index: 2;
-}
+.welcome-section { position: relative; z-index: 2; }
 
 .welcome-glow {
-    background: radial-gradient(
-        circle at 30% 30%,
+    background: radial-gradient(circle at 30% 30%,
         rgba(168, 224, 196, 0.22) 0%,
         rgba(26, 98, 66, 0.15) 45%,
-        transparent 70%
-    );
+        transparent 70%);
 }
 
-/* Hero — caja de mineral pulido con filigrana dorada */
 .welcome-hero {
     position: relative;
     padding: 40px 32px 36px;
@@ -167,7 +152,7 @@
         var(--theme-veins),
         radial-gradient(ellipse at 30% 20%, rgba(110, 203, 164, 0.15) 0%, transparent 55%),
         linear-gradient(180deg, #0F3A24 0%, #062816 100%);
-    background-size: 400px 400px, 100% 100%, 100% 100%;
+    background-size: 800px 800px, 100% 100%, 100% 100%;
     background-position: 0 0, center top, center top;
     background-repeat: repeat, no-repeat, no-repeat;
     border: 1.5px solid var(--violet-300);
@@ -184,7 +169,6 @@
     margin-right: auto;
 }
 
-/* Filigrana en las 4 esquinas */
 .welcome-hero::before {
     content: '';
     position: absolute;
@@ -206,7 +190,6 @@
     background-repeat: no-repeat;
 }
 
-/* Resplandor interno */
 .welcome-hero::after {
     content: '';
     position: absolute;
@@ -222,10 +205,7 @@
     filter: blur(10px);
 }
 
-.welcome-hero > * {
-    position: relative;
-    z-index: 1;
-}
+.welcome-hero > * { position: relative; z-index: 1; }
 
 .welcome-hero h1 {
     letter-spacing: 0.015em;
@@ -235,14 +215,9 @@
         0 0 32px rgba(110, 203, 164, 0.55);
 }
 
-/* Icono — gema tallada con brillo especular */
 .welcome-icon-wrap {
-    background:
-        radial-gradient(circle at 32% 28%,
-            #A8E0C4 0%,
-            #3FA87A 30%,
-            #1A6242 60%,
-            #062816 100%);
+    background: radial-gradient(circle at 32% 28%,
+        #A8E0C4 0%, #3FA87A 30%, #1A6242 60%, #062816 100%);
     border-radius: 6px;
     box-shadow:
         inset 0 3px 4px rgba(212, 240, 224, 0.50),
@@ -254,12 +229,11 @@
 }
 
 /* ================================================================
-   2. HEADER — banda de mineral con brillo verde
+   2. HEADER
    ================================================================ */
 .app-header {
     position: relative;
-    background-image:
-        linear-gradient(180deg, #0F3A24 0%, #062816 100%);
+    background-image: linear-gradient(180deg, #0F3A24 0%, #062816 100%);
     border-bottom: 2px solid var(--violet-300);
     box-shadow:
         inset 0 -1px 0 rgba(168, 224, 196, 0.35),
@@ -272,10 +246,7 @@
     left: 20%;
     right: 20%;
     height: 2px;
-    background: linear-gradient(90deg,
-        transparent,
-        var(--violet-200),
-        transparent);
+    background: linear-gradient(90deg, transparent, var(--violet-200), transparent);
     opacity: 0.70;
     pointer-events: none;
     z-index: 1;
@@ -283,19 +254,21 @@
 }
 
 /* ================================================================
-   3. SIDEBAR — pared de mineral con vetas
+   3. SIDEBAR — pared de mineral + FIX compositing
    ================================================================ */
 .sidebar {
     position: relative;
     background-image:
         var(--theme-veins),
         linear-gradient(90deg, #0A3420 0%, #051A0E 100%);
-    background-size: 400px 400px, 100% 100%;
+    background-size: 800px 800px, 100% 100%;
     background-position: 0 0, center;
     background-repeat: repeat, no-repeat;
     border-right: 2px solid var(--violet-300);
     overflow: hidden;
     box-shadow: inset -1px 0 0 rgba(168, 224, 196, 0.20);
+    transform: translateZ(0);
+    will-change: transform;
 }
 .sidebar::after {
     content: '';
@@ -314,18 +287,13 @@
 .sidebar-comunidad,
 .sidebar-label,
 .sidebar-nav,
-.sidebar-mobile-header {
-    position: relative;
-    z-index: 1;
-}
+.sidebar-mobile-header { position: relative; z-index: 1; }
 
 .nav-item {
     border-radius: 3px;
     transition: all 0.20s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.nav-item:hover {
-    background: rgba(110, 203, 164, 0.10);
-}
+.nav-item:hover { background: rgba(110, 203, 164, 0.10); }
 .nav-item.active {
     background: linear-gradient(180deg, rgba(110, 203, 164, 0.20) 0%, rgba(26, 98, 66, 0.18) 100%);
     border-radius: 3px;
@@ -342,7 +310,7 @@
 }
 
 /* ================================================================
-   4. ACCESOS RÁPIDOS — cajas de mineral pulido
+   4. ACCESOS RÁPIDOS
    ================================================================ */
 .acceso-item {
     position: relative;
@@ -350,7 +318,7 @@
         var(--theme-veins),
         radial-gradient(ellipse at 30% 20%, rgba(110, 203, 164, 0.12) 0%, transparent 55%),
         linear-gradient(180deg, #0F3A24 0%, #062816 100%);
-    background-size: 400px 400px, 100% 100%, 100% 100%;
+    background-size: 800px 800px, 100% 100%, 100% 100%;
     background-position: 0 0, center top, center top;
     background-repeat: repeat, no-repeat, no-repeat;
     border: 1.5px solid var(--violet-400);
@@ -371,11 +339,8 @@
         0 14px 30px rgba(63, 168, 122, 0.30),
         0 6px 14px rgba(0, 0, 0, 0.70);
 }
-
 .acceso-icon-wrap {
-    background: radial-gradient(circle at 30% 30%,
-        #0F3A24 0%,
-        #062816 100%);
+    background: radial-gradient(circle at 30% 30%, #0F3A24 0%, #062816 100%);
     color: var(--violet-200);
     border: 1.5px solid var(--violet-400);
     border-radius: 50%;
@@ -386,9 +351,7 @@
 }
 .acceso-item:hover .acceso-icon-wrap {
     background: radial-gradient(circle at 30% 30%,
-        #A8E0C4 0%,
-        #3FA87A 55%,
-        #1A6242 100%);
+        #A8E0C4 0%, #3FA87A 55%, #1A6242 100%);
     color: #062816;
     border-color: var(--violet-200);
     box-shadow:
@@ -434,11 +397,7 @@
     right: 12px;
     height: 2px;
     background: linear-gradient(90deg,
-        transparent,
-        var(--violet-200),
-        var(--violet-300),
-        var(--violet-200),
-        transparent);
+        transparent, var(--violet-200), var(--violet-300), var(--violet-200), transparent);
     border-radius: 2px 2px 0 0;
     box-shadow: 0 0 10px rgba(110, 203, 164, 0.65);
     pointer-events: none;
@@ -446,7 +405,7 @@
 .tab-item.active [data-lucide] { color: var(--violet-200); }
 
 /* ================================================================
-   7. MODALES — caja fuerte con filigrana dorada
+   7. MODALES
    ================================================================ */
 .config-card,
 .modal-todas-card {
@@ -456,7 +415,7 @@
         var(--theme-veins),
         radial-gradient(ellipse at 30% 20%, rgba(110, 203, 164, 0.10) 0%, transparent 55%),
         linear-gradient(180deg, #0F3A24 0%, #051A0E 100%);
-    background-size: 400px 400px, 100% 100%, 100% 100%;
+    background-size: 800px 800px, 100% 100%, 100% 100%;
     background-position: 0 0, center top, center top;
     background-repeat: repeat, no-repeat, no-repeat;
     border: 1.5px solid var(--violet-300);
@@ -469,7 +428,6 @@
         0 24px 48px rgba(0, 0, 0, 0.90),
         0 0 60px rgba(63, 168, 122, 0.20);
 }
-
 .config-card::before,
 .modal-todas-card::before {
     content: '';
@@ -491,7 +449,6 @@
         calc(100% - 10px) calc(100% - 10px);
     background-repeat: no-repeat;
 }
-
 .config-card::after,
 .modal-todas-card::after {
     content: '';
@@ -500,16 +457,12 @@
     left: 20%;
     right: 20%;
     height: 2px;
-    background: linear-gradient(90deg,
-        transparent,
-        var(--violet-200),
-        transparent);
+    background: linear-gradient(90deg, transparent, var(--violet-200), transparent);
     opacity: 0.65;
     pointer-events: none;
     z-index: 4;
     box-shadow: 0 0 12px rgba(110, 203, 164, 0.65);
 }
-
 .config-header,
 .modal-todas-header {
     background: linear-gradient(180deg, #0F3A24 0%, #07281A 100%);
@@ -518,14 +471,11 @@
 }
 
 /* ================================================================
-   8. BOTÓN PRIMARIO — esmeralda con brillo profundo
+   8. BOTÓN PRIMARIO
    ================================================================ */
 .btn-primario {
     background: linear-gradient(180deg,
-        #6ECBA4 0%,
-        #3FA87A 45%,
-        #1A6242 55%,
-        #062816 100%);
+        #6ECBA4 0%, #3FA87A 45%, #1A6242 55%, #062816 100%);
     border: 1.5px solid rgba(201, 169, 97, 0.55);
     color: #E0F5E8;
     font-weight: 700;
@@ -539,10 +489,7 @@
 }
 .btn-primario:hover {
     background: linear-gradient(180deg,
-        #A8E0C4 0%,
-        #6ECBA4 45%,
-        #3FA87A 55%,
-        #0E4229 100%);
+        #A8E0C4 0%, #6ECBA4 45%, #3FA87A 55%, #0E4229 100%);
     transform: translateY(-1px);
     box-shadow:
         inset 0 2px 0 rgba(212, 240, 224, 0.65),
@@ -574,14 +521,11 @@
 }
 
 /* ================================================================
-   10. AVATAR — medallón de esmeralda
+   10. AVATAR
    ================================================================ */
 .avatar-config {
     background: radial-gradient(circle at 32% 28%,
-        #A8E0C4 0%,
-        #3FA87A 40%,
-        #1A6242 70%,
-        #062816 100%);
+        #A8E0C4 0%, #3FA87A 40%, #1A6242 70%, #062816 100%);
     border: 2px solid rgba(201, 169, 97, 0.60);
     box-shadow:
         inset 0 3px 4px rgba(212, 240, 224, 0.50),
