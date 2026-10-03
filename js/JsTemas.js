@@ -344,6 +344,132 @@ const TEMAS_DISPONIBLES = [
         }
     },
 
+        // ============================================================
+    //  COSMOS — Cielo profundo, cuerpos celestes, atmósfera
+    //  espacial. Paletas nocturnas ricas, oscuras, contemplativas.
+    //  3 de entrada a 15 monedas (pendiente: 1 flagship a 40).
+    //  Progresión interna por color dominante:
+    //    verde → magenta → naranja → (cyan reservado para el 40)
+    // ============================================================
+    {
+        id: 'aurora-boreal',
+        nombre: 'Aurora Boreal',
+        icono: 'sparkle',
+        descripcion: 'Cielo nocturno con verde esmeralda ondulando sobre violeta.',
+        categoria: 'Cosmos',
+        ruta: 'Temas/aurora-boreal.css',
+        espacio: 2,
+        monedas: 15,
+        colores: {
+            '--violet-100': '#0E2A22',
+            '--violet-300': '#34D399',
+            '--violet-500': '#8B5CF6',
+            '--bg':         '#071820',
+            '--bg-alt':     '#0A2028',
+            '--white':      '#0F2A35'
+        }
+    },
+    {
+        id: 'nebulosa',
+        nombre: 'Nebulosa',
+        icono: 'orbit',
+        descripcion: 'Magenta estelar y cyan profundo flotando en púrpura-espacio.',
+        categoria: 'Cosmos',
+        ruta: 'Temas/nebulosa.css',
+        espacio: 2,
+        monedas: 15,
+        colores: {
+            '--violet-100': '#240E38',
+            '--violet-300': '#F0ABFC',
+            '--violet-500': '#E879F9',
+            '--bg':         '#080318',
+            '--bg-alt':     '#0F0722',
+            '--white':      '#140A2E'
+        }
+    },
+    {
+        id: 'eclipse-solar',
+        nombre: 'Eclipse Solar',
+        icono: 'sun-moon',
+        descripcion: 'Casi negro con anillo de fuego naranja-dorado. Silencio y calor.',
+        categoria: 'Cosmos',
+        ruta: 'Temas/eclipse-solar.css',
+        espacio: 2,
+        monedas: 15,
+        colores: {
+            '--violet-100': '#241508',
+            '--violet-300': '#FBBF24',
+            '--violet-500': '#F59E0B',
+            '--bg':         '#0A0705',
+            '--bg-alt':     '#120D08',
+            '--white':      '#18120C'
+        }
+    },
+
+    // ============================================================
+    //  ESPACIOS LIMINALES — Lugares vacíos, nostálgicos,
+    //  ligeramente inquietantes. Luz artificial, arquitectura
+    //  reconocible, silencio. 3 de entrada a 15 (pendiente:
+    //  1 flagship a 40).
+    //  Progresión interna por temperatura:
+    //    frío agua → cálido interior → beige mall → (gris clínico
+    //    reservado para el 40)
+    // ============================================================
+    {
+        id: 'piscina-vacia',
+        nombre: 'Piscina Vacía',
+        icono: 'bath',
+        descripcion: 'Azulejo blanco, agua detenida, luz de tarde filtrándose desde arriba.',
+        categoria: 'Espacios Liminales',
+        ruta: 'Temas/piscina-vacia.css',
+        espacio: 2,
+        monedas: 15,
+        colores: {
+            '--violet-100': '#D5E9F0',
+            '--violet-300': '#78B8CC',
+            '--violet-500': '#2E8898',
+            '--bg':         '#E8F3F7',
+            '--bg-alt':     '#D5E9F0',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
+        id: 'pasillo-hotel',
+        nombre: 'Pasillo de Hotel',
+        icono: 'door-closed',
+        descripcion: 'Alfombra vino, papel tapiz crema, madera oscura. Luz cálida que no llega a ser acogedora.',
+        categoria: 'Espacios Liminales',
+        ruta: 'Temas/pasillo-hotel.css',
+        espacio: 2,
+        monedas: 15,
+        colores: {
+            '--violet-100': '#EBD5D5',
+            '--violet-300': '#A84E5A',
+            '--violet-500': '#721D2A',
+            '--bg':         '#F5EBDC',
+            '--bg-alt':     '#EBD9C2',
+            '--white':      '#FFFCF7'
+        }
+    },
+    {
+        id: 'centro-comercial',
+        nombre: 'Centro Comercial',
+        icono: 'shopping-bag',
+        descripcion: 'Beige de mall, verde de planta artificial y neón frío de cartel.',
+        categoria: 'Espacios Liminales',
+        ruta: 'Temas/centro-comercial.css',
+        espacio: 2,
+        monedas: 15,
+        colores: {
+            '--violet-100': '#D5E5CC',
+            '--violet-300': '#7CB342',
+            '--violet-500': '#4A8C2E',
+            '--bg':         '#F0EBE3',
+            '--bg-alt':     '#E3DBD0',
+            '--white':      '#FFFFFF'
+        }
+    },
+
     // ============================================================
     //  FORMALES — Para trabajar, elegantes, OS-like
     //  Vibra profesional, limpia, sin estridencias.
