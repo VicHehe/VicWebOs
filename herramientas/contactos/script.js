@@ -1,18 +1,12 @@
 // ============================================================
 //  Contactos — Directorio + regalos + estado + temas
 //  ------------------------------------------------------------
-//  Novedades:
-//    · Cada tarjeta se tinta con el TEMA ACTIVO del usuario
-//      (leyendo cuentaConfig.json + los CSS de Temas/).
-//    · "Hace X" en el estado de cada persona.
-//    · Modal de perfil extendido al tocar una tarjeta.
-//    · Modal de historial de regalos (dados / recibidos).
-//
-//  Datos:
-//    app/contactos/presencia.json
-//    app/contactos/regalos.json
-//    cuenta.json
-//    cuentaConfig.json   (solo lectura, para sacar el tema)
+//  · Cada tarjeta se tinta con el TEMA ACTIVO del usuario.
+//    Los colores se leen de TEMAS_DISPONIBLES[...].colores
+//    (ya están en memoria del shell — sin fetch, sin parse).
+//  · "Hace X" en el estado de cada persona.
+//  · Modal de perfil extendido al tocar una tarjeta.
+//  · Modal de historial de regalos (dados / recibidos).
 // ============================================================
 
 'use strict';
@@ -32,25 +26,20 @@ let usuarioActual = null;
 let usuarios = [];
 let presencia = {};
 let regalos = [];
-let configsGlobales = {};      // { codigo: { temaActivo: 'x', ... } }
+let configsGlobales = {};
 let monedasPropias = 0;
 let miEstado = null;
 
-// Modal regalo
 let destinatarioRegalo = null;
 let montoSeleccionado = null;
-
-// Perfil
 let perfilAbierto = null;
-
-// Historial
 let histTab = 'dados';
 
 // ============================================================
 //  CACHE DE TEMAS
 //  ------------------------------------------------------------
-//  _temasCache: { 'violeta': { '--violet-500': '#...', ... }, ... }
-//  Se llena una sola vez por sesión de la app.
+//  _temasCache: { 'violeta': { '--violet-500': '#...', ... } }
+//  Se llena a partir de TEMAS_DISPONIBLES[...].colores del padre.
 // ============================================================
 const _temasCache = new Map();
 
@@ -126,9 +115,6 @@ function estadoInfo(estado) {
     return { label: 'Sin estado', icono: 'circle-dashed', clase: 'estado-sin' };
 }
 
-// ------------------------------------------------------------
-//  Tiempo relativo: "hace 2h", "hace 3d", etc.
-// ------------------------------------------------------------
 function tiempoRelativo(iso) {
     if (!iso) return '';
     const d = new Date(iso);
@@ -196,54 +182,29 @@ async function cargarConfigs() {
 }
 
 // ============================================================
-//  TEMAS — carga y aplicación
+//  TEMAS — obtener variables del catálogo del shell
 //  ------------------------------------------------------------
-//  Descarga cada CSS de tema una sola vez (por sesión) y
-//  extrae su bloque :root como objeto de variables CSS.
+//  SIN fetch, SIN parse. Los colores ya están en memoria.
 // ============================================================
-function parsearRootVariables(css) {
-    const vars = {};
-    const re = /:root\s*\{([^}]*)\}/g;
-    let match;
-    while ((match = re.exec(css)) !== null) {
-        const body = match[1];
-        const varRe = /(--[\w-]+)\s*:\s*([^;]+);/g;
-        let m;
-        while ((m = varRe.exec(body)) !== null) {
-            vars[m[1]] = m[2].trim();
-        }
+function obtenerCatalogoTemas() {
+    try {
+        return window.parent.TEMAS_DISPONIBLES || [];
+    } catch (e) {
+        return [];
     }
-    return vars;
 }
 
-async function cargarVariablesTema(temaId) {
+function obtenerVariablesTema(temaId) {
     if (!temaId) return null;
     if (_temasCache.has(temaId)) return _temasCache.get(temaId);
 
-    let catalogo;
-    try {
-        catalogo = window.parent.TEMAS_DISPONIBLES || [];
-    } catch (e) { catalogo = []; }
-
+    const catalogo = obtenerCatalogoTemas();
     const tema = catalogo.find(t => t.id === temaId);
-    if (!tema || !tema.ruta) return null;
+    if (!tema) return null;
 
-    let url;
-    try {
-        url = new URL(tema.ruta, window.parent.location.href).href;
-    } catch (e) { return null; }
-
-    try {
-        const res = await fetch(url);
-        if (!res.ok) return null;
-        const css = await res.text();
-        const vars = parsearRootVariables(css);
-        _temasCache.set(temaId, vars);
-        return vars;
-    } catch (e) {
-        console.warn('[Contactos] No se pudo cargar tema', temaId, e);
-        return null;
-    }
+    const vars = tema.colores || {};
+    _temasCache.set(temaId, vars);
+    return vars;
 }
 
 function aplicarTemaATarjeta(el, vars) {
@@ -251,21 +212,6 @@ function aplicarTemaATarjeta(el, vars) {
     for (const [key, value] of Object.entries(vars)) {
         try { el.style.setProperty(key, value); } catch (e) { /* ignorar */ }
     }
-}
-
-// ------------------------------------------------------------
-//  Pre-carga de todos los temas usados por la comunidad.
-//  Se llama antes de renderizar la grilla.
-// ------------------------------------------------------------
-async function precargarTemasDeUsuarios() {
-    const usados = new Set();
-    for (const u of usuarios) {
-        const cfg = configsGlobales[u.codigo];
-        const t = (cfg && cfg.temaActivo) ? cfg.temaActivo : TEMA_POR_DEFECTO;
-        usados.add(t);
-    }
-    const promesas = [...usados].map(id => cargarVariablesTema(id));
-    await Promise.all(promesas);
 }
 
 // ============================================================
@@ -372,17 +318,22 @@ function render() {
     grid.innerHTML = ordenados.map(u => renderTarjeta(u)).join('');
     if (window.lucide) window.lucide.createIcons();
 
-    // Aplicar tema a cada tarjeta
-    ordenados.forEach(u => {
-        const card = grid.querySelector(`.ct-card[data-codigo="${CSS.escape(u.codigo)}"]`);
-        if (!card) return;
-        const cfg = configsGlobales[u.codigo];
+    // ---------- Aplicar tema a cada tarjeta ----------
+    // Iteramos sobre las tarjetas ya renderizadas.
+    grid.querySelectorAll('.ct-card').forEach(card => {
+        const codigo = card.dataset.codigo;
+        if (!codigo) return;
+
+        const cfg = configsGlobales[codigo];
         const temaId = (cfg && cfg.temaActivo) ? cfg.temaActivo : TEMA_POR_DEFECTO;
-        const vars = _temasCache.get(temaId);
-        if (vars) aplicarTemaATarjeta(card, vars);
+        const vars = obtenerVariablesTema(temaId);
+
+        if (vars) {
+            aplicarTemaATarjeta(card, vars);
+        }
     });
 
-    // Cablear clicks
+    // ---------- Cablear clicks ----------
     grid.querySelectorAll('.ct-card').forEach(card => {
         const codigo = card.dataset.codigo;
 
@@ -464,7 +415,6 @@ function abrirPerfil(codigo) {
     const info = estadoInfo(estado?.estado);
     const cuando = estado?.desde ? tiempoRelativo(estado.desde) : '';
 
-    // Avatar
     const avatarEl = document.getElementById('ctPerfilAvatar');
     if (u.foto) {
         avatarEl.innerHTML = `<img src="${u.foto}" alt="">`;
@@ -473,7 +423,6 @@ function abrirPerfil(codigo) {
         avatarEl.innerHTML = `<span class="ct-perfil-avatar-inicial">${escapar(inicial)}</span>`;
     }
 
-    // Nombre / código / estado
     document.getElementById('ctPerfilNombre').textContent = u.nombre || 'Sin nombre';
     document.getElementById('ctPerfilCodigo').textContent = `@${u.codigo}`;
 
@@ -483,16 +432,13 @@ function abrirPerfil(codigo) {
     const textoTiempo = cuando && estado?.estado ? ` · ${cuando}` : '';
     document.getElementById('ctPerfilEstadoTxt').textContent = info.label + textoTiempo;
 
-    // Fecha de creación
     document.getElementById('ctPerfilCreado').textContent = formatearFechaLarga(u.creado);
 
-    // Stats de regalos
     const dados = regalos.filter(r => r.de === codigo).length;
     const recibidos = regalos.filter(r => r.para === codigo).length;
     document.getElementById('ctPerfilRegalosDados').textContent = dados;
     document.getElementById('ctPerfilRegalosRecibidos').textContent = recibidos;
 
-    // Botón regalar
     const btnRegalar = document.getElementById('ctPerfilRegalar');
     const txtRegalar = document.getElementById('ctPerfilRegalarTxt');
     const regaladoHoy = yaRegaleHoy(codigo);
@@ -506,11 +452,10 @@ function abrirPerfil(codigo) {
 
     // Aplicar tema del usuario al modal
     const card = document.getElementById('ctPerfilCard');
-    // limpiar antes
     card.removeAttribute('style');
     const cfg = configsGlobales[codigo];
     const temaId = (cfg && cfg.temaActivo) ? cfg.temaActivo : TEMA_POR_DEFECTO;
-    const vars = _temasCache.get(temaId);
+    const vars = obtenerVariablesTema(temaId);
     if (vars) aplicarTemaATarjeta(card, vars);
 
     document.getElementById('ctModalPerfil').hidden = false;
@@ -745,7 +690,6 @@ async function refrescar() {
     if (btn) btn.classList.add('spin');
 
     try {
-        // 1. Datos base
         usuarios = await cargarUsuarios();
         presencia = await cargarPresencia();
         regalos = await cargarRegalos();
@@ -757,10 +701,6 @@ async function refrescar() {
             try { monedasPropias = api.obtenerMonedas() || 0; } catch (e) { monedasPropias = 0; }
         }
 
-        // 2. Precargar temas que usa la comunidad
-        await precargarTemasDeUsuarios();
-
-        // 3. Render
         renderMiBloque();
         render();
     } finally {
@@ -791,11 +731,9 @@ async function inicializar() {
 
     await refrescar();
 
-    // Eventos base
     document.getElementById('ctBtnRefresh')?.addEventListener('click', refrescar);
     document.getElementById('ctBtnRegalos')?.addEventListener('click', abrirHistorial);
 
-    // Modal regalo
     document.getElementById('ctRegaloCerrar')?.addEventListener('click', cerrarModalRegalo);
     document.getElementById('ctRegaloCancelar')?.addEventListener('click', cerrarModalRegalo);
     document.getElementById('ctRegaloEnviar')?.addEventListener('click', enviarRegalo);
@@ -807,7 +745,6 @@ async function inicializar() {
         });
     });
 
-    // Modal perfil
     document.getElementById('ctPerfilCerrar')?.addEventListener('click', cerrarPerfil);
     document.getElementById('ctPerfilRegalar')?.addEventListener('click', () => {
         if (!perfilAbierto) return;
@@ -816,7 +753,6 @@ async function inicializar() {
         abrirModalRegalo(codigo);
     });
 
-    // Modal historial
     document.getElementById('ctHistorialCerrar')?.addEventListener('click', cerrarHistorial);
     document.querySelectorAll('.ct-hist-tab').forEach(tab => {
         tab.addEventListener('click', () => {
@@ -827,7 +763,6 @@ async function inicializar() {
         });
     });
 
-    // Selector de estado
     document.querySelectorAll('.ct-yo-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             if (btn.disabled) return;
@@ -835,7 +770,6 @@ async function inicializar() {
         });
     });
 
-    // Click fuera de los modales
     ['ctModalRegalo', 'ctModalPerfil', 'ctModalHistorial'].forEach(id => {
         const m = document.getElementById(id);
         if (!m) return;
@@ -847,7 +781,6 @@ async function inicializar() {
         });
     });
 
-    // ESC
     document.addEventListener('keydown', (e) => {
         if (e.key !== 'Escape') return;
         if (!document.getElementById('ctModalRegalo').hidden) { cerrarModalRegalo(); return; }
