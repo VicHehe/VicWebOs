@@ -91,7 +91,6 @@ body {
     margin-top: 2px;
 }
 
-/* --- Acciones del header (regalos + refresh) --- */
 .ct-header-actions {
     display: flex;
     gap: 6px;
@@ -268,7 +267,6 @@ body {
     white-space: nowrap;
 }
 
-/* Colores de icono por tipo (siempre) */
 .ct-yo-btn[data-estado="activo"] > [data-lucide]       { color: #10B981; }
 .ct-yo-btn[data-estado="descansando"] > [data-lucide]  { color: #F59E0B; }
 .ct-yo-btn[data-estado="desconectado"] > [data-lucide] { color: #71717A; }
@@ -279,7 +277,6 @@ body {
     box-shadow: 0 4px 10px rgba(0,0,0,0.06);
 }
 
-/* Estado activo (seleccionado) */
 .ct-yo-btn.active {
     color: white;
     border-color: transparent;
@@ -305,12 +302,18 @@ body {
     cursor: not-allowed;
 }
 
-/* ========== MAIN ========== */
+/* ========== MAIN ==========
+   padding-top generoso para que el hover translateY(-2px)
+   y la sombra de arriba no se corten contra el borde.
+   padding lateral para que la sombra lateral tampoco se corte.
+   ============================================================ */
 .ct-main {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    padding-right: 4px;
+    overflow-x: hidden;
+    padding: 8px 6px 6px 2px;
+    margin: -8px -6px -6px -2px;
 }
 
 /* ========== GRID ========== */
@@ -318,6 +321,8 @@ body {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
     gap: 12px;
+    padding: 4px;
+    margin: -4px;
 }
 
 /* ========== TARJETA ========== */
@@ -374,7 +379,6 @@ body {
     line-height: 1;
 }
 
-/* Chip de estado superpuesto al avatar */
 .ct-estado-dot {
     position: absolute;
     bottom: 0;
@@ -397,13 +401,11 @@ body {
     color: white;
 }
 
-/* Colores de estado (compartidos con dot-mini del perfil) */
 .estado-activo     { background: #10B981 !important; }
 .estado-descanso   { background: #F59E0B !important; }
 .estado-off        { background: #71717A !important; }
 .estado-sin        { background: var(--gray-300, #D4D4DD) !important; }
 
-/* Info */
 .ct-info {
     display: flex;
     flex-direction: column;
@@ -464,14 +466,12 @@ body {
 }
 .ct-estado-label.estado-off [data-lucide] { color: #71717A; }
 
-/* "Hace X" — aparece al lado del estado */
 .ct-estado-tiempo {
     font-weight: 600;
     opacity: 0.75;
     margin-left: 2px;
 }
 
-/* Botón regalar */
 .ct-btn-regalar {
     display: inline-flex;
     align-items: center;
@@ -876,7 +876,6 @@ body {
     flex-shrink: 0;
 }
 
-/* Secciones del perfil */
 .ct-perfil-seccion {
     display: flex;
     flex-direction: column;
@@ -908,7 +907,6 @@ body {
     text-transform: capitalize;
 }
 
-/* Stats de regalos */
 .ct-perfil-stats {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1168,7 +1166,6 @@ body {
     .ct-btn-header,
     .ct-btn-refresh { width: 36px; height: 36px; }
 
-    /* Mi bloque en móvil: avatar + nombre arriba, botones abajo */
     .ct-yo {
         flex-wrap: wrap;
         gap: 10px;
@@ -1188,6 +1185,8 @@ body {
         padding: 8px 4px;
     }
 
+    .ct-main { padding: 6px 4px 4px 0; margin: -6px -4px -4px 0; }
+
     .ct-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px;
@@ -1202,14 +1201,12 @@ body {
     .ct-estado-label { font-size: 10.5px; }
     .ct-btn-regalar { padding: 8px 10px; font-size: 11.5px; }
 
-    /* Modales */
     .ct-modal-card { border-radius: 16px; }
     .ct-modal-header { padding: 14px 16px; }
     .ct-modal-header h2 { font-size: 14.5px; }
     .ct-modal-body { padding: 16px; }
     .ct-modal-actions { padding: 12px 16px; }
 
-    /* Perfil */
     .ct-perfil-body { padding: 18px 16px 16px; gap: 14px; }
     .ct-perfil-avatar { width: 80px; height: 80px; }
     .ct-perfil-avatar-inicial { font-size: 32px; }
@@ -1219,7 +1216,6 @@ body {
     .ct-perfil-stat-icono [data-lucide] { width: 15px; height: 15px; }
     .ct-perfil-stat-num { font-size: 16px; }
 
-    /* Historial */
     .ct-hist-lista { max-height: 55dvh; }
     .ct-hist-item { padding: 9px 10px; gap: 10px; }
     .ct-hist-icono { width: 32px; height: 32px; }
