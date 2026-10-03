@@ -49,6 +49,17 @@ const WIDGETS_DISPONIBLES = [
         espacio: 2,
         monedas: 5
     },
+        {
+        id: 'cara-cruz',
+        nombre: 'Cara o Cruz',
+        icono: 'circle-dollar-sign',
+        ruta: 'Widgets/cara-cruz/index.html',
+        descripcion: 'Lanza una moneda al aire. Cara o cruz al instante.',
+        categoria: 'Azar',
+        esBase: false,
+        espacio: 2,
+        monedas: 5
+    },
     {
         id: 'dados',
         nombre: 'Tirar Dados',
