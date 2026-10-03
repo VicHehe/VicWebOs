@@ -1,6 +1,7 @@
 // ============================================================
 //  Stor-He — Lógica
 //  Tabs: Apps / Temas / Widgets / PromoZione
+//  + Ampliación de espacio con pantalla de progreso
 //  Compatible con TODOS los temas (var() con fallbacks).
 //  Sin emojis.
 // ============================================================
@@ -12,6 +13,19 @@ const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const _accionesEnVuelo = new Set();
 
 let _timerOfertas = null;
+
+// ============================================================
+//  PAQUETES DE ESPACIO (compra rápida)
+//  El shell vende +5 por 350. Acá agrupamos varias compras
+//  con un pequeño descuento por volumen (máx 350 = 1 gratis).
+// ============================================================
+const PAQUETES_ESPACIO = [
+    { cantidad: 5,   compras: 1,  costoBruto: 350,  ahorro: 0   },
+    { cantidad: 15,  compras: 3,  costoBruto: 1050, ahorro: 50  },
+    { cantidad: 50,  compras: 10, costoBruto: 3500, ahorro: 200 },
+    { cantidad: 100, compras: 20, costoBruto: 7000, ahorro: 350 }
+];
+const PRECIO_BASE_UNIDAD = 350; // costo de +5 según shell
 
 // ============================================================
 //  TEMA
@@ -80,7 +94,7 @@ function actualizarRecursos() {
 }
 
 // ============================================================
-//  AMPLIACIÓN DE ESPACIO
+//  AMPLIACIÓN DE ESPACIO — render de tarjetas
 // ============================================================
 function renderAmpliacion() {
     const cont = document.getElementById('shAmpliacion');
@@ -89,29 +103,171 @@ function renderAmpliacion() {
 
     const max     = api.obtenerEspacioMaximo() ?? 50;
     const monedas = api.obtenerMonedas() ?? 0;
-    const costo   = api.COSTO_COMPRA_ESPACIO ?? 350;
-    const sumar   = api.ESPACIO_POR_COMPRA ?? 5;
-    const puede   = monedas >= costo;
 
     cont.innerHTML = `
         <div class="sh-ampliacion-card">
-            <div class="sh-ampliacion-icono"><i data-lucide="hard-drive"></i></div>
-            <div class="sh-ampliacion-info">
-                <div class="sh-ampliacion-titulo">Ampliar espacio</div>
-                <div class="sh-ampliacion-desc">
-                    Añade <strong>+${sumar} espacio</strong> a tu VicWebOs.
-                    Actualmente tienes <strong>${max}</strong>.
+            <div class="sh-ampliacion-header">
+                <div class="sh-ampliacion-icono"><i data-lucide="hard-drive"></i></div>
+                <div class="sh-ampliacion-info">
+                    <div class="sh-ampliacion-titulo">Ampliar espacio</div>
+                    <div class="sh-ampliacion-desc">
+                        Tenés <strong>${max}</strong> de espacio total. Elegí cuánto querés añadir.
+                    </div>
                 </div>
             </div>
-            <button class="sh-btn ${puede ? 'sh-btn-instalar' : 'sh-btn-aplicar'}"
-                    data-accion="comprarEspacio"
-                    ${puede ? '' : 'disabled title="Te faltan monedas"'}>
-                <i data-lucide="coins"></i>
-                ${costo} monedas
-            </button>
+            <div class="sh-amp-grid">
+                ${PAQUETES_ESPACIO.map(o => {
+                    const total = o.costoBruto - o.ahorro;
+                    const puede = monedas >= total;
+                    const badge = o.ahorro > 0
+                        ? `<span class="sh-amp-ahorro">−${o.ahorro}</span>`
+                        : '';
+                    return `
+                        <button class="sh-amp-opcion ${puede ? '' : 'disabled'}"
+                                data-accion="abrirCompraEspacio"
+                                data-cantidad="${o.cantidad}"
+                                data-compras="${o.compras}"
+                                data-costo-bruto="${o.costoBruto}"
+                                data-ahorro="${o.ahorro}"
+                                data-total="${total}"
+                                ${puede ? '' : 'disabled'}
+                                title="${puede ? '' : `Te faltan ${total - monedas} monedas`}">
+                            <div class="sh-amp-cantidad">+${o.cantidad}</div>
+                            <div class="sh-amp-precio">
+                                <i data-lucide="coins"></i> ${total}
+                                ${o.ahorro > 0 ? `<s>${o.costoBruto}</s>` : ''}
+                            </div>
+                            ${badge}
+                        </button>
+                    `;
+                }).join('')}
+            </div>
         </div>
     `;
     lucide.createIcons();
+}
+
+// ============================================================
+//  AMPLIACIÓN — Modal con progreso
+// ============================================================
+let _ampCtx = null;          // contexto actual de compra
+let _ampEnProgreso = false;  // bloquea cierre durante proceso
+
+function _qs(id) { return document.getElementById(id); }
+
+function _ampSetVista(vista) {
+    const v1 = _qs('shAmpVistaConfirmar');
+    const v2 = _qs('shAmpVistaProgreso');
+    const v3 = _qs('shAmpVistaExito');
+    if (v1) v1.style.display = vista === 'confirmar' ? 'block' : 'none';
+    if (v2) v2.style.display = vista === 'progreso'  ? 'block' : 'none';
+    if (v3) v3.style.display = vista === 'exito'     ? 'block' : 'none';
+}
+
+function abrirModalEspacio(cantidad, compras, costoBruto, ahorro, total) {
+    const modal = _qs('shAmpModal');
+    if (!modal) return;
+
+    _ampCtx = { cantidad, compras, costoBruto, ahorro, total };
+
+    _qs('shAmpConfirmarCantidad').textContent = cantidad;
+    _qs('shAmpConfirmarCompras').textContent  = compras;
+    _qs('shAmpConfirmarTotal').textContent    = total;
+
+    const wrapDesc = _qs('shAmpConfirmarDescuentoWrap');
+    if (wrapDesc) wrapDesc.style.display = ahorro > 0 ? 'flex' : 'none';
+    if (ahorro > 0) _qs('shAmpConfirmarDescuento').textContent = ahorro;
+
+    _ampSetVista('confirmar');
+    modal.style.display = 'flex';
+    lucide.createIcons();
+}
+
+function cerrarModalEspacio() {
+    if (_ampEnProgreso) return; // no se puede cerrar durante el progreso
+    const modal = _qs('shAmpModal');
+    if (modal) modal.style.display = 'none';
+    _ampCtx = null;
+}
+
+async function ejecutarCompraEspacio() {
+    const api = API();
+    if (!api || !_ampCtx) return;
+
+    _ampEnProgreso = true;
+
+    // Ocultar botón de cerrar en el header
+    const btnClose = _qs('shAmpClose');
+    if (btnClose) btnClose.style.display = 'none';
+
+    const { cantidad, compras, ahorro, total } = _ampCtx;
+
+    _ampSetVista('progreso');
+    _qs('shAmpProgresoSub').textContent = `Compra 0 de ${compras}`;
+    _qs('shAmpProgresoFill').style.width = '0%';
+    _qs('shAmpProgresoPct').textContent = '0%';
+    lucide.createIcons();
+
+    let exitos = 0;
+    let errorFinal = null;
+
+    for (let i = 0; i < compras; i++) {
+        try {
+            await api.comprarEspacio();
+            exitos++;
+        } catch (e) {
+            errorFinal = e;
+            break;
+        }
+
+        const pct = Math.round(((i + 1) / compras) * 100);
+        _qs('shAmpProgresoSub').textContent = `Compra ${i + 1} de ${compras}`;
+        _qs('shAmpProgresoFill').style.width = pct + '%';
+        _qs('shAmpProgresoPct').textContent = pct + '%';
+
+        // Respiro mínimo para que se vea la animación (300ms)
+        await new Promise(r => setTimeout(r, 300));
+    }
+
+    // Descuento por volumen (solo si se completaron todas las compras)
+    if (!errorFinal && ahorro > 0 && exitos === compras) {
+        try {
+            await api.canjear(
+                'hard-drive',
+                'stor-he',
+                `Descuento por compra en volumen (+${cantidad})`,
+                ahorro
+            );
+        } catch (e) {
+            console.warn('No se pudo aplicar el descuento:', e);
+        }
+    }
+
+    _ampEnProgreso = false;
+    if (btnClose) btnClose.style.display = 'flex';
+
+    if (errorFinal) {
+        // Error a mitad de camino: volvemos a confirmar con aviso
+        _ampSetVista('confirmar');
+        toast(errorFinal.message || 'Error al ampliar espacio', 'error');
+        cerrarModalEspacio();
+        refrescarTodo();
+        return;
+    }
+
+    // Éxito
+    const nuevoMax = api.obtenerEspacioMaximo() ?? 0;
+    _qs('shAmpExitoTotal').textContent = nuevoMax;
+
+    const wrapAhorro = _qs('shAmpExitoDescuento');
+    if (wrapAhorro) {
+        wrapAhorro.style.display = ahorro > 0 ? 'flex' : 'none';
+        if (ahorro > 0) _qs('shAmpExitoAhorro').textContent = ahorro;
+    }
+
+    _ampSetVista('exito');
+    lucide.createIcons();
+    refrescarTodo();
 }
 
 // ============================================================
@@ -686,6 +842,20 @@ async function manejarAccion(accion, id, btnOrigen, extra) {
     const pz = PZ();
     if (!api) return;
 
+    // --- Abrir modal de ampliación (no async) ---
+    if (accion === 'abrirCompraEspacio') {
+        if (!btnOrigen) return;
+        const d = btnOrigen.dataset;
+        abrirModalEspacio(
+            Number(d.cantidad),
+            Number(d.compras),
+            Number(d.costoBruto),
+            Number(d.ahorro),
+            Number(d.total)
+        );
+        return;
+    }
+
     const clave = `${accion}:${id || 'x'}`;
     if (_accionesEnVuelo.has(clave)) return;
     _accionesEnVuelo.add(clave);
@@ -733,10 +903,6 @@ async function manejarAccion(accion, id, btnOrigen, extra) {
                 await api.desinstalarWidget(id);
                 toast('Widget desinstalado', 'success');
                 break;
-            case 'comprarEspacio':
-                await api.comprarEspacio();
-                toast('¡Espacio ampliado!', 'success');
-                break;
             case 'comprarPaquete':
                 if (!pz) throw new Error('PromoZione no disponible.');
                 await pz.comprarPaquete(id);
@@ -768,12 +934,8 @@ function refrescarTodo() {
     renderTemas();
     renderWidgets();
 
-    // Solo re-renderizar PromoZione si la tab está activa o ya fue abierta
     const panelPromo = document.querySelector('.sh-panel[data-panel="promozione"]');
-    if (panelPromo && panelPromo.classList.contains('active')) {
-        renderPaquetes();
-        renderOfertas();
-    } else if (panelPromo && panelPromo.dataset.visto === '1') {
+    if (panelPromo && (panelPromo.classList.contains('active') || panelPromo.dataset.visto === '1')) {
         renderPaquetes();
         renderOfertas();
     }
@@ -797,7 +959,6 @@ function inicializarTabs() {
             if (tab.dataset.tab === 'promozione') {
                 renderPromoZione();
             } else {
-                // Detener timer si salimos de promo
                 detenerTimerOfertas();
             }
         });
@@ -811,6 +972,7 @@ document.addEventListener('DOMContentLoaded', () => {
     aplicarTemaDelPadre();
     inicializarTabs();
 
+    // -------- Delegado global para data-accion --------
     document.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-accion]');
         if (!btn) return;
@@ -822,6 +984,32 @@ document.addEventListener('DOMContentLoaded', () => {
         if (btn.dataset.descuento) extra.descuento = Number(btn.dataset.descuento);
 
         manejarAccion(btn.dataset.accion, btn.dataset.id, btn, extra);
+    });
+
+    // -------- Modal de ampliación --------
+    const btnClose    = document.getElementById('shAmpClose');
+    const btnCancelar = document.getElementById('shAmpCancelar');
+    const btnConfirmar = document.getElementById('shAmpConfirmar');
+    const btnExitoCerrar = document.getElementById('shAmpExitoCerrar');
+    const modalAmp = document.getElementById('shAmpModal');
+
+    if (btnClose)      btnClose.addEventListener('click', cerrarModalEspacio);
+    if (btnCancelar)   btnCancelar.addEventListener('click', cerrarModalEspacio);
+    if (btnExitoCerrar) btnExitoCerrar.addEventListener('click', cerrarModalEspacio);
+
+    if (btnConfirmar)  btnConfirmar.addEventListener('click', ejecutarCompraEspacio);
+
+    if (modalAmp) {
+        modalAmp.addEventListener('click', (e) => {
+            if (e.target === modalAmp && !_ampEnProgreso) cerrarModalEspacio();
+        });
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !_ampEnProgreso) {
+            const m = document.getElementById('shAmpModal');
+            if (m && m.style.display === 'flex') cerrarModalEspacio();
+        }
     });
 
     setTimeout(refrescarTodo, 100);
