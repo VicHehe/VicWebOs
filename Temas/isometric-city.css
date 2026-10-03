@@ -1,0 +1,671 @@
+/* ================================================
+   Tema: Isometric City
+   Vista isométrica de una ciudad bloque. Cubos
+   con ventanas iluminadas, grid de perspectiva
+   paralela y sombras DURAS apiladas. Estilo
+   SimCity clásico / Monument Valley / Fez.
+
+   Técnica central: proyección isométrica SIN
+   perspectiva (paralela), sombras con offset
+   sólido apiladas en 3-4 capas y cards que
+   "extruyen" como cubos al hover (translate +
+   crecimiento de la pila de sombras).
+   ================================================ */
+
+:root {
+    /* Acento: ámbar de ventanas encendidas */
+    --violet-50:  #0B1622;
+    --violet-100: #121F33;
+    --violet-200: #1E3048;
+    --violet-300: #345675;
+    --violet-400: #F59E0B;
+    --violet-500: #FB923C;
+    --violet-600: #F97316;
+    --violet-700: #EA580C;
+
+    /* Azul noche frío con tinte cálido */
+    --white:   #141F30;
+    --bg:      #0A1525;
+    --bg-alt:  #121F33;
+    --gray-50:  #0D1828;
+    --gray-100: #131E30;
+    --gray-200: #283A52;
+    --gray-300: #3A4E68;
+    --gray-400: #5A7090;
+    --gray-500: #8098B8;
+    --gray-600: #A8BCD4;
+    --gray-700: #C8D6E6;
+    --gray-800: #DCE6F0;
+    --gray-900: #ECF2F8;
+
+    --border:  #283A52;
+    --text:    #ECF2F8;
+    --text-2:  #A8BCD4;
+    --text-3:  #8098B8;
+
+    /* Sombras DURAS — offset sólido, sin blur.
+       La pila apilada simula extrusión isométrica. */
+    --shadow-xs: 1px 1px 0 rgba(0, 0, 0, 0.60);
+    --shadow-sm: 2px 2px 0 rgba(0, 0, 0, 0.65);
+    --shadow-md: 3px 3px 0 rgba(0, 0, 0, 0.70),
+                 5px 5px 0 rgba(0, 0, 0, 0.45);
+    --shadow-lg: 4px 4px 0 rgba(0, 0, 0, 0.70),
+                 8px 8px 0 rgba(0, 0, 0, 0.45),
+                 12px 12px 0 rgba(0, 0, 0, 0.25);
+    --shadow-xl: 6px 6px 0 rgba(0, 0, 0, 0.75),
+                 12px 12px 0 rgba(0, 0, 0, 0.55),
+                 18px 18px 0 rgba(0, 0, 0, 0.30),
+                 24px 24px 0 rgba(0, 0, 0, 0.15);
+    --shadow-glow: 0 0 0 4px rgba(251, 146, 60, 0.20);
+
+    --accent-gradient: linear-gradient(135deg, #FB923C, #EA580C);
+    --accent-gradient-hover: linear-gradient(135deg, #FDBA74, #F97316);
+    --accent-shadow: rgba(251, 146, 60, 0.35);
+    --accent-shadow-hover: rgba(251, 146, 60, 0.55);
+    --accent-text-gradient: linear-gradient(135deg, #ECF2F8, #FB923C);
+
+    --iso-warm:  #FB923C;
+    --iso-cool:  #345675;
+    --iso-night: #0A1525;
+
+    /* Radios: esquinas vivas, look de cubo */
+    --r-sm: 2px;
+    --r-md: 3px;
+    --r-lg: 4px;
+    --r-xl: 6px;
+
+    /* Grid isométrico — diamante que se repite
+       creando una red de rombos a 30°/-30° */
+    --theme-iso-grid: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 24'%3E%3Cg stroke='%23345675' stroke-width='0.7' fill='none' stroke-opacity='0.45'%3E%3Cpath d='M0,12 L20,0 L40,12 L20,24 Z'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* Cubo isométrico con ventanas iluminadas.
+       Top brillante, izquierda media, derecha en sombra. */
+    --theme-cube: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 116'%3E%3Cpath d='M50,0 L100,29 L50,58 L0,29 Z' fill='%233D5A80'/%3E%3Cpath d='M0,29 L50,58 L50,116 L0,87 Z' fill='%232A4060'/%3E%3Cpath d='M100,29 L50,58 L50,116 L100,87 Z' fill='%231A2A44'/%3E%3Cg fill='%23FB923C' fill-opacity='0.90'%3E%3Crect x='14' y='50' width='4' height='4'/%3E%3Crect x='24' y='50' width='4' height='4'/%3E%3Crect x='34' y='50' width='4' height='4'/%3E%3Crect x='14' y='64' width='4' height='4'/%3E%3Crect x='34' y='64' width='4' height='4'/%3E%3Crect x='14' y='78' width='4' height='4'/%3E%3Crect x='24' y='78' width='4' height='4'/%3E%3Crect x='62' y='50' width='4' height='4'/%3E%3Crect x='72' y='50' width='4' height='4'/%3E%3Crect x='82' y='50' width='4' height='4'/%3E%3Crect x='62' y='64' width='4' height='4'/%3E%3Crect x='82' y='64' width='4' height='4'/%3E%3Crect x='72' y='78' width='4' height='4'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ================================================================
+   1. WELCOME — grid isométrico + cubos decorativos en las esquinas
+   ================================================================ */
+.welcome-placeholder {
+    position: relative;
+    background-image:
+        var(--theme-iso-grid),
+        radial-gradient(ellipse at 50% 0%, rgba(251, 146, 60, 0.10) 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 100%, rgba(52, 86, 117, 0.22) 0%, transparent 55%);
+    background-size:
+        40px 24px,
+        100% 100%,
+        100% 100%;
+    background-position:
+        0 0,
+        center top,
+        center bottom;
+    background-repeat:
+        repeat,
+        no-repeat,
+        no-repeat;
+    background-color: var(--bg);
+    animation: iso-grid-drift 80s linear infinite;
+}
+@keyframes iso-grid-drift {
+    from { background-position: 0 0, center top, center bottom; }
+    to   { background-position: 240px 144px, center top, center bottom; }
+}
+
+/* Cubo grande — esquina superior derecha */
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    top: 40px;
+    right: 50px;
+    width: 130px;
+    height: 150px;
+    background: var(--theme-cube) center/contain no-repeat;
+    pointer-events: none;
+    z-index: 0;
+    filter:
+        drop-shadow(-6px 8px 0 rgba(0, 0, 0, 0.55))
+        drop-shadow(-12px 16px 0 rgba(0, 0, 0, 0.25));
+    animation: iso-cube-twinkle 9s ease-in-out infinite;
+}
+@keyframes iso-cube-twinkle {
+    0%, 100% { opacity: 0.90; }
+    50%      { opacity: 1; filter: drop-shadow(-6px 8px 0 rgba(0, 0, 0, 0.55)) drop-shadow(-12px 16px 0 rgba(0, 0, 0, 0.25)) brightness(1.12); }
+}
+
+/* Cubo chico espejado — esquina inferior izquierda */
+.welcome-placeholder::after {
+    content: '';
+    position: absolute;
+    bottom: 50px;
+    left: 40px;
+    width: 85px;
+    height: 98px;
+    background: var(--theme-cube) center/contain no-repeat;
+    pointer-events: none;
+    z-index: 0;
+    transform: scaleX(-1);
+    filter:
+        drop-shadow(6px -6px 0 rgba(0, 0, 0, 0.50))
+        drop-shadow(10px -10px 0 rgba(0, 0, 0, 0.22));
+}
+
+.welcome-hero,
+.welcome-section {
+    position: relative;
+    z-index: 2;
+}
+
+.welcome-glow {
+    background: radial-gradient(
+        circle at 50% 40%,
+        rgba(251, 146, 60, 0.16) 0%,
+        rgba(52, 86, 117, 0.10) 40%,
+        transparent 68%
+    );
+}
+
+/* Hero como "edificio mirador" con marco biselado */
+.welcome-hero {
+    position: relative;
+    padding: 36px 30px 32px;
+    background: linear-gradient(
+        180deg,
+        #1A2A44 0%,
+        #141F30 100%
+    );
+    border: 2px solid var(--iso-cool);
+    border-radius: 2px;
+    box-shadow:
+        inset 2px 2px 0 rgba(200, 214, 230, 0.10),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.55),
+        6px 6px 0 rgba(0, 0, 0, 0.75),
+        12px 12px 0 rgba(52, 86, 117, 0.40),
+        18px 18px 0 rgba(251, 146, 60, 0.18);
+    max-width: 660px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Bisel superior tipo "cara iluminada del cubo" */
+.welcome-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg,
+        transparent,
+        var(--iso-warm) 30%,
+        var(--iso-warm) 70%,
+        transparent);
+    opacity: 0.65;
+    pointer-events: none;
+    z-index: 3;
+}
+
+/* Esquina "cortada" del cubo */
+.welcome-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 26px;
+    height: 26px;
+    background: var(--iso-warm);
+    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    opacity: 0.30;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.welcome-hero > * {
+    position: relative;
+    z-index: 1;
+}
+
+.welcome-hero h1 {
+    letter-spacing: 0.01em;
+    text-shadow:
+        2px 2px 0 rgba(0, 0, 0, 0.45),
+        0 0 22px rgba(251, 146, 60, 0.30);
+}
+
+/* Icono: bloque cúbico con sombras apiladas */
+.welcome-icon-wrap {
+    background: linear-gradient(135deg, #FB923C, #EA580C);
+    border-radius: 4px;
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.20),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.35),
+        5px 5px 0 rgba(0, 0, 0, 0.75),
+        10px 10px 0 rgba(251, 146, 60, 0.35),
+        15px 15px 0 rgba(52, 86, 117, 0.25);
+    animation: iso-icon-lift 4s ease-in-out infinite;
+}
+@keyframes iso-icon-lift {
+    0%, 100% {
+        transform: translateY(0);
+        box-shadow:
+            inset 2px 2px 0 rgba(255, 255, 255, 0.20),
+            inset -2px -2px 0 rgba(0, 0, 0, 0.35),
+            5px 5px 0 rgba(0, 0, 0, 0.75),
+            10px 10px 0 rgba(251, 146, 60, 0.35),
+            15px 15px 0 rgba(52, 86, 117, 0.25);
+    }
+    50% {
+        transform: translateY(-4px);
+        box-shadow:
+            inset 2px 2px 0 rgba(255, 255, 255, 0.25),
+            inset -2px -2px 0 rgba(0, 0, 0, 0.35),
+            6px 6px 0 rgba(0, 0, 0, 0.75),
+            12px 12px 0 rgba(251, 146, 60, 0.42),
+            18px 18px 0 rgba(52, 86, 117, 0.30);
+    }
+}
+
+/* ================================================================
+   2. HEADER — banda horizontal con borde duro
+   ================================================================ */
+.app-header {
+    position: relative;
+    background: linear-gradient(180deg, #121F33 0%, #0A1525 100%);
+    border-bottom: 2px solid var(--iso-cool);
+    box-shadow:
+        inset 0 -2px 0 rgba(0, 0, 0, 0.55),
+        0 3px 0 rgba(251, 146, 60, 0.30),
+        0 6px 0 rgba(0, 0, 0, 0.40);
+}
+.app-header::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 15%;
+    right: 15%;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent,
+        var(--iso-warm),
+        transparent);
+    opacity: 0.70;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* ================================================================
+   3. SIDEBAR — cubos en miniatura apilados en el fondo
+   ================================================================ */
+.sidebar {
+    position: relative;
+    background: linear-gradient(180deg, #121F33 0%, #0A1525 100%);
+    border-right: 2px solid var(--iso-cool);
+    overflow: hidden;
+}
+.sidebar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.14;
+    background-image: var(--theme-iso-grid);
+    background-size: 30px 18px;
+    background-repeat: repeat;
+}
+.sidebar::after {
+    content: '';
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 110px;
+    height: 128px;
+    background: var(--theme-cube) center/contain no-repeat;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.32;
+    filter: drop-shadow(-4px 5px 0 rgba(0, 0, 0, 0.45));
+}
+.sidebar-comunidad,
+.sidebar-label,
+.sidebar-nav,
+.sidebar-mobile-header {
+    position: relative;
+    z-index: 1;
+}
+
+.nav-item {
+    border-radius: 2px;
+    transition: all 0.20s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.nav-item:hover {
+    transform: translateX(2px);
+}
+.nav-item.active {
+    background: linear-gradient(180deg, rgba(251, 146, 60, 0.14) 0%, rgba(52, 86, 117, 0.10) 100%);
+    border-radius: 2px;
+    box-shadow:
+        inset 1px 1px 0 rgba(200, 214, 230, 0.10),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.45),
+        2px 2px 0 rgba(0, 0, 0, 0.55);
+}
+.nav-item.active::before {
+    background: linear-gradient(180deg, var(--iso-warm), var(--violet-600));
+    width: 3px;
+    height: 22px;
+    box-shadow:
+        2px 0 0 rgba(0, 0, 0, 0.55),
+        0 0 8px rgba(251, 146, 60, 0.50);
+    border-radius: 0;
+}
+
+/* FIX drawer móvil */
+@media (max-width: 768px) {
+    .sidebar { position: fixed; }
+}
+
+/* ================================================================
+   4. ACCESOS RÁPIDOS — cubos que EXTRUYEN al hover
+   La sombra apilada crece y la card se desplaza arriba-izquierda.
+   ================================================================ */
+.acceso-item {
+    position: relative;
+    background: linear-gradient(180deg, #1E3048 0%, #141F30 100%);
+    border: 1px solid rgba(52, 86, 117, 0.55);
+    border-radius: 3px;
+    box-shadow:
+        inset 1px 1px 0 rgba(200, 214, 230, 0.10),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.55),
+        3px 3px 0 rgba(0, 0, 0, 0.75),
+        6px 6px 0 rgba(52, 86, 117, 0.35);
+    transition:
+        transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.24s cubic-bezier(0.34, 1.56, 0.64, 1),
+        border-color 0.24s ease;
+    transform-style: preserve-3d;
+    will-change: transform;
+    overflow: visible;
+}
+
+.acceso-item:hover {
+    transform: translate(-3px, -3px);
+    border-color: var(--iso-warm);
+    box-shadow:
+        inset 1px 1px 0 rgba(200, 214, 230, 0.18),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.55),
+        5px 5px 0 rgba(0, 0, 0, 0.75),
+        10px 10px 0 rgba(52, 86, 117, 0.45),
+        15px 15px 0 rgba(251, 146, 60, 0.22);
+}
+
+/* Esquina "cortada" tipo cubo */
+.acceso-item::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 12px;
+    height: 12px;
+    background: var(--iso-warm);
+    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    opacity: 0;
+    transition: opacity 0.24s ease;
+    pointer-events: none;
+    z-index: 3;
+}
+.acceso-item:hover::after {
+    opacity: 0.60;
+}
+
+.acceso-icon-wrap {
+    background: rgba(251, 146, 60, 0.10);
+    color: var(--iso-warm);
+    border: 1px solid rgba(251, 146, 60, 0.30);
+    border-radius: 3px;
+    box-shadow:
+        inset 1px 1px 0 rgba(251, 146, 60, 0.20),
+        2px 2px 0 rgba(0, 0, 0, 0.45);
+    transition: all 0.24s ease;
+}
+.acceso-item:hover .acceso-icon-wrap {
+    background: var(--accent-gradient);
+    color: #0A1525;
+    border-color: var(--violet-400);
+    box-shadow:
+        inset 1px 1px 0 rgba(255, 255, 255, 0.30),
+        3px 3px 0 rgba(0, 0, 0, 0.60),
+        0 0 12px rgba(251, 146, 60, 0.45);
+}
+
+/* ================================================================
+   5. WIDGETS — mismo tratamiento de cubo, más sutil
+   ================================================================ */
+.widget-item {
+    border: 1px solid rgba(52, 86, 117, 0.55);
+    border-radius: 3px;
+    box-shadow:
+        inset 1px 1px 0 rgba(200, 214, 230, 0.08),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.50),
+        3px 3px 0 rgba(0, 0, 0, 0.65),
+        6px 6px 0 rgba(52, 86, 117, 0.30);
+    transition: all 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.widget-item:hover {
+    transform: translate(-2px, -2px);
+    border-color: var(--iso-warm);
+    box-shadow:
+        inset 1px 1px 0 rgba(200, 214, 230, 0.12),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.50),
+        5px 5px 0 rgba(0, 0, 0, 0.65),
+        10px 10px 0 rgba(251, 146, 60, 0.20);
+}
+
+/* ================================================================
+   6. PESTAÑAS — pestaña activa con bisel superior naranja
+   ================================================================ */
+.tab-item.active {
+    background: linear-gradient(180deg, #1A2A44 0%, #141F30 100%);
+    border-color: var(--iso-cool);
+    box-shadow:
+        inset 1px 1px 0 rgba(200, 214, 230, 0.10),
+        0 -3px 0 var(--iso-warm) inset,
+        3px 0 0 rgba(0, 0, 0, 0.45);
+    position: relative;
+}
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 8px;
+    right: 8px;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent,
+        var(--iso-warm),
+        transparent);
+    box-shadow: 0 0 8px rgba(251, 146, 60, 0.55);
+    pointer-events: none;
+}
+.tab-item.active [data-lucide] { color: var(--iso-warm); }
+
+/* ================================================================
+   7. MODALES — marco biselado doble estilo cubo grande
+   ================================================================ */
+.config-card,
+.modal-todas-card {
+    position: relative;
+    overflow: hidden;
+    border: 2px solid var(--iso-cool);
+    border-radius: 3px;
+    background: linear-gradient(180deg, #1A2A44 0%, #0A1525 100%);
+    box-shadow:
+        inset 0 0 0 1px rgba(200, 214, 230, 0.08),
+        inset 2px 2px 0 rgba(200, 214, 230, 0.10),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.55),
+        8px 8px 0 rgba(0, 0, 0, 0.75),
+        16px 16px 0 rgba(52, 86, 117, 0.45),
+        24px 24px 0 rgba(251, 146, 60, 0.20);
+}
+
+/* Franja superior naranja */
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg,
+        transparent,
+        var(--iso-warm) 20%,
+        var(--iso-warm) 80%,
+        transparent);
+    pointer-events: none;
+    z-index: 3;
+    box-shadow: 0 0 12px rgba(251, 146, 60, 0.55);
+}
+
+/* Esquina cortada del cubo en la esquina inferior derecha */
+.config-card::after,
+.modal-todas-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 32px;
+    height: 32px;
+    background: var(--iso-warm);
+    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    opacity: 0.35;
+    pointer-events: none;
+    z-index: 4;
+}
+
+.config-header,
+.modal-todas-header {
+    background: linear-gradient(180deg, #1E3048 0%, #121F33 100%);
+    border-bottom: 2px solid var(--iso-cool);
+    position: relative;
+}
+
+/* ================================================================
+   8. BOTÓN PRIMARIO — botón cúbico con bisel y press físico
+   ================================================================ */
+.btn-primario {
+    position: relative;
+    background: linear-gradient(180deg,
+        #FB923C 0%,
+        #FB923C 45%,
+        #EA580C 55%,
+        #EA580C 100%);
+    border: 2px solid #0A1525;
+    border-radius: 3px;
+    color: #0A1525;
+    font-weight: 800;
+    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.25);
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.30),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.35),
+        4px 4px 0 rgba(0, 0, 0, 0.75),
+        6px 6px 0 rgba(52, 86, 117, 0.55);
+    transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-primario:hover {
+    transform: translate(-2px, -2px);
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.40),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.35),
+        6px 6px 0 rgba(0, 0, 0, 0.75),
+        9px 9px 0 rgba(52, 86, 117, 0.60);
+}
+.btn-primario:active {
+    transform: translate(2px, 2px);
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.20),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.40),
+        2px 2px 0 rgba(0, 0, 0, 0.75),
+        3px 3px 0 rgba(52, 86, 117, 0.45);
+}
+
+/* ================================================================
+   9. INPUTS
+   ================================================================ */
+.config-field input,
+.config-field select,
+.config-select {
+    background: rgba(10, 21, 37, 0.60);
+    border: 1px solid rgba(52, 86, 117, 0.55);
+    color: var(--text);
+    box-shadow:
+        inset 1px 1px 0 rgba(0, 0, 0, 0.55),
+        2px 2px 0 rgba(0, 0, 0, 0.30);
+}
+.config-field input:focus,
+.config-field select:focus,
+.config-select:focus {
+    border-color: var(--iso-warm);
+    box-shadow:
+        inset 1px 1px 0 rgba(0, 0, 0, 0.55),
+        0 0 0 3px rgba(251, 146, 60, 0.20);
+}
+
+/* ================================================================
+   10. AVATAR — moneda isométrica
+   ================================================================ */
+.avatar-config {
+    background: linear-gradient(135deg, #FB923C, #EA580C);
+    border: 2px solid #0A1525;
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.30),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.30),
+        3px 3px 0 rgba(0, 0, 0, 0.75),
+        5px 5px 0 rgba(52, 86, 117, 0.50);
+}
+.avatar-config:hover {
+    transform: translate(-1px, -1px) scale(1.05);
+    box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.35),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.30),
+        5px 5px 0 rgba(0, 0, 0, 0.75),
+        8px 8px 0 rgba(251, 146, 60, 0.40);
+}
+
+.noti-btn.tiene-no-leidas {
+    background: rgba(251, 146, 60, 0.15);
+    color: var(--iso-warm);
+}
+.search-bar:focus-within {
+    border-color: var(--iso-warm);
+    box-shadow:
+        0 0 0 3px rgba(251, 146, 60, 0.20),
+        inset 2px 2px 0 rgba(0, 0, 0, 0.30);
+}
+.search-bar:focus-within .search-icon { color: var(--iso-warm); }
+
+/* ================================================================
+   11. prefers-reduced-motion
+   ================================================================ */
+@media (prefers-reduced-motion: reduce) {
+    .welcome-placeholder,
+    .welcome-placeholder::before,
+    .welcome-icon-wrap {
+        animation: none !important;
+    }
+    .acceso-item,
+    .widget-item,
+    .btn-primario,
+    .avatar-config,
+    .nav-item {
+        transition: none !important;
+        transform: none !important;
+    }
+    .acceso-item:hover,
+    .widget-item:hover,
+    .btn-primario:hover,
+    .btn-primario:active,
+    .avatar-config:hover {
+        transform: none !important;
+    }
+}
