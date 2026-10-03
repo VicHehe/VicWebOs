@@ -15,6 +15,7 @@
 const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const POR_PAGINA = 6;
 const MAX_ARCHIVO_MB = 1;
+const MAX_TOTAL_MB = 50;   // ← NUEVO: límite total por usuario
 
 // ------------------------------------------------------------
 //  Estado
@@ -110,6 +111,21 @@ function nombreCarpeta(id) {
     if (id === 'todas') return 'Todas';
     const c = carpetas.find(x => x.id === id);
     return c ? c.nombre : 'Sin carpeta';
+}
+
+// ------------------------------------------------------------
+//  NUEVO: cálculo de espacio usado / disponible
+// ------------------------------------------------------------
+function bytesUsados() {
+    return imagenes.reduce((acc, i) => acc + (i.tamano || 0), 0);
+}
+
+function bytesMaximos() {
+    return MAX_TOTAL_MB * 1024 * 1024;
+}
+
+function bytesDisponibles() {
+    return Math.max(0, bytesMaximos() - bytesUsados());
 }
 
 // ------------------------------------------------------------
@@ -284,8 +300,22 @@ function renderGrid() {
     document.getElementById('btnPrev').disabled = paginaActual <= 1;
     document.getElementById('btnNext').disabled = paginaActual >= totalPaginas;
 
-    const bytesTotal = lista.reduce((acc, i) => acc + (i.tamano || 0), 0);
-    document.getElementById('gxTamanoTotal').textContent = `Total: ${formatearBytes(bytesTotal)}`;
+    // ---------- NUEVO: indicador de espacio ----------
+    // Usamos TODAS las imágenes (no las filtradas) porque el
+    // límite es del usuario completo, no de la vista actual.
+    const usados = bytesUsados();
+    const maxBytes = bytesMaximos();
+    const pct = Math.min(100, Math.round((usados / maxBytes) * 100));
+
+    const elTamano = document.getElementById('gxTamanoTotal');
+    if (elTamano) {
+        elTamano.textContent = `${formatearBytes(usados)} / ${MAX_TOTAL_MB} MB · ${pct}%`;
+        // Semántico: ámbar al 80%, rojo al 100%. Inline para no tocar CSS.
+        elTamano.style.color =
+            pct >= 100 ? '#991B1B' :
+            pct >= 80  ? '#92400E' : '';
+        elTamano.style.fontWeight = pct >= 80 ? '800' : '';
+    }
 
     grid.querySelectorAll('.gx-item').forEach(el => {
         el.addEventListener('click', () => abrirPreview(el.dataset.id));
@@ -366,7 +396,7 @@ function cerrarPreview() {
 }
 
 // ------------------------------------------------------------
-//  Subir imágenes
+//  Subir imágenes  ← MODIFICADO: límite total por usuario
 // ------------------------------------------------------------
 async function subirArchivos(files) {
     if (!files || files.length === 0) return;
@@ -374,38 +404,99 @@ async function subirArchivos(files) {
     const mh = MH();
     if (!mh) return;
 
-    const validos = Array.from(files).filter(f => {
+    // ---------- 1. Chequeo rápido: ¿queda algo de espacio? ----------
+    const usados = bytesUsados();
+    const disponibles = bytesDisponibles();
+
+    if (disponibles <= 0) {
+        toast(
+            `Límite alcanzado: ${MAX_TOTAL_MB} MB por usuario. Borra algo para subir más.`,
+            'error'
+        );
+        return;
+    }
+
+    // ---------- 2. Filtrar por tipo y por límite individual ----------
+    const validos = [];
+    let rechazadosTipo = 0;
+    let rechazadosTamanoIndividual = 0;
+
+    for (const f of Array.from(files)) {
         if (!f.type.startsWith('image/')) {
-            toast(`"${f.name}" no es una imagen.`, 'error');
-            return false;
+            rechazadosTipo++;
+            continue;
         }
         if (f.size > MAX_ARCHIVO_MB * 1024 * 1024) {
-            toast(`"${f.name}" supera ${MAX_ARCHIVO_MB} MB.`, 'error');
-            return false;
+            rechazadosTamanoIndividual++;
+            continue;
         }
-        return true;
-    });
+        validos.push(f);
+    }
+
+    if (rechazadosTipo > 0 || rechazadosTamanoIndividual > 0) {
+        const partes = [];
+        if (rechazadosTipo > 0) {
+            partes.push(`${rechazadosTipo} no son imágenes`);
+        }
+        if (rechazadosTamanoIndividual > 0) {
+            partes.push(`${rechazadosTamanoIndividual} superan ${MAX_ARCHIVO_MB} MB`);
+        }
+        toast(partes.join(' · '), 'info');
+    }
 
     if (validos.length === 0) return;
 
+    // ---------- 3. Aplicar límite TOTAL ----------
+    // Recorremos en orden y aceptamos los que caben.
+    // Es conservador: usa el tamaño original (pre-compresión).
+    let espacioRestante = disponibles;
+    const aceptados = [];
+    let omitidosPorLimite = 0;
+
+    for (const f of validos) {
+        if (f.size > espacioRestante) {
+            omitidosPorLimite++;
+            continue;
+        }
+        espacioRestante -= f.size;
+        aceptados.push(f);
+    }
+
+    if (aceptados.length === 0) {
+        toast(
+            `Sin espacio: ${formatearBytes(usados)} de ${MAX_TOTAL_MB} MB usados.`,
+            'error'
+        );
+        return;
+    }
+
+    if (omitidosPorLimite > 0) {
+        toast(
+            `${omitidosPorLimite} imagen(es) omitida(s): no caben en el espacio libre`,
+            'info'
+        );
+    }
+
+    // ---------- 4. Carpeta destino ----------
     let carpetaDestino = 'c_general';
     if (carpetaActual !== 'todas' && carpetas.find(c => c.id === carpetaActual)) {
         carpetaDestino = carpetaActual;
     }
 
+    // ---------- 5. Overlay + subida ----------
     const overlay = document.getElementById('overlaySubida');
     const overlayTexto = document.getElementById('overlaySubidaTexto');
     const overlayProgFill = document.getElementById('overlayProgresoFill');
     const overlayProgTexto = document.getElementById('overlayProgresoTexto');
     overlay.hidden = false;
     overlayProgFill.style.width = '0%';
-    overlayProgTexto.textContent = `0 / ${validos.length}`;
+    overlayProgTexto.textContent = `0 / ${aceptados.length}`;
 
     let ok = 0;
     let fallos = 0;
 
-    for (let i = 0; i < validos.length; i++) {
-        const f = validos[i];
+    for (let i = 0; i < aceptados.length; i++) {
+        const f = aceptados[i];
         overlayTexto.textContent = `Subiendo "${f.name}"...`;
         try {
             await mh.galeria.subirImagen(f, {
@@ -417,9 +508,9 @@ async function subirArchivos(files) {
             console.warn('[Galería] Falló subida de', f.name, e);
             fallos++;
         }
-        const pct = Math.round(((i + 1) / validos.length) * 100);
+        const pct = Math.round(((i + 1) / aceptados.length) * 100);
         overlayProgFill.style.width = pct + '%';
-        overlayProgTexto.textContent = `${i + 1} / ${validos.length}`;
+        overlayProgTexto.textContent = `${i + 1} / ${aceptados.length}`;
     }
 
     overlay.hidden = true;
