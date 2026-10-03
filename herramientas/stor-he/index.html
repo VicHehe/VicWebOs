@@ -87,6 +87,96 @@
 
     </div>
 
+    <!-- ===== MODAL DE AMPLIACIÓN DE ESPACIO ===== -->
+    <div class="sh-amp-modal" id="shAmpModal" style="display:none;">
+        <div class="sh-amp-modal-card" id="shAmpModalCard">
+
+            <!-- VISTA 1: Confirmación -->
+            <div class="sh-amp-vista" id="shAmpVistaConfirmar">
+                <div class="sh-amp-modal-header">
+                    <div>
+                        <h2><i data-lucide="hard-drive"></i> Ampliar espacio</h2>
+                        <p class="sh-amp-modal-sub">Revisá antes de confirmar</p>
+                    </div>
+                    <button class="sh-amp-close" id="shAmpClose" aria-label="Cerrar"><i data-lucide="x"></i></button>
+                </div>
+
+                <div class="sh-amp-confirmar-icono">
+                    <div class="sh-amp-confirmar-icono-wrap">
+                        <i data-lucide="hard-drive"></i>
+                    </div>
+                    <div class="sh-amp-confirmar-cantidad">+<span id="shAmpConfirmarCantidad">0</span></div>
+                    <div class="sh-amp-confirmar-label">espacio</div>
+                </div>
+
+                <div class="sh-amp-confirmar-detalle">
+                    <div class="sh-amp-confirmar-linea">
+                        <span>Precio por +5</span>
+                        <strong>350 <i data-lucide="coins"></i></strong>
+                    </div>
+                    <div class="sh-amp-confirmar-linea">
+                        <span>Compras necesarias</span>
+                        <strong id="shAmpConfirmarCompras">0</strong>
+                    </div>
+                    <div class="sh-amp-confirmar-linea" id="shAmpConfirmarDescuentoWrap" style="display:none;">
+                        <span>Descuento por volumen</span>
+                        <strong class="sh-amp-desc-verde">−<span id="shAmpConfirmarDescuento">0</span> <i data-lucide="coins"></i></strong>
+                    </div>
+                    <div class="sh-amp-confirmar-linea sh-amp-confirmar-total">
+                        <span>Total a pagar</span>
+                        <strong><span id="shAmpConfirmarTotal">0</span> <i data-lucide="coins"></i></strong>
+                    </div>
+                </div>
+
+                <div class="sh-amp-modal-footer">
+                    <button class="sh-btn sh-btn-aplicar" id="shAmpCancelar">
+                        <i data-lucide="x"></i> Cancelar
+                    </button>
+                    <button class="sh-btn sh-btn-instalar" id="shAmpConfirmar">
+                        <i data-lucide="shopping-bag"></i> Confirmar compra
+                    </button>
+                </div>
+            </div>
+
+            <!-- VISTA 2: Progreso -->
+            <div class="sh-amp-vista" id="shAmpVistaProgreso" style="display:none;">
+                <div class="sh-amp-progreso-icono">
+                    <i data-lucide="loader-2" class="spin"></i>
+                </div>
+                <div class="sh-amp-progreso-titulo">Ampliando espacio...</div>
+                <div class="sh-amp-progreso-sub" id="shAmpProgresoSub">Compra 1 de 20</div>
+
+                <div class="sh-amp-progreso-barra">
+                    <div class="sh-amp-progreso-fill" id="shAmpProgresoFill"></div>
+                </div>
+                <div class="sh-amp-progreso-pct" id="shAmpProgresoPct">0%</div>
+
+                <div class="sh-amp-progreso-nota">
+                    No cierres esta ventana
+                </div>
+            </div>
+
+            <!-- VISTA 3: Éxito -->
+            <div class="sh-amp-vista" id="shAmpVistaExito" style="display:none;">
+                <div class="sh-amp-exito-icono">
+                    <i data-lucide="check-circle-2"></i>
+                </div>
+                <div class="sh-amp-exito-titulo">¡Espacio ampliado!</div>
+                <div class="sh-amp-exito-sub">
+                    Ahora tenés <strong id="shAmpExitoTotal">0</strong> de espacio total.
+                </div>
+                <div class="sh-amp-exito-sub2" id="shAmpExitoDescuento" style="display:none;">
+                    <i data-lucide="sparkles"></i>
+                    <span>Ahorraste <strong id="shAmpExitoAhorro">0</strong> monedas por volumen</span>
+                </div>
+                <button class="sh-btn sh-btn-instalar sh-btn-full" id="shAmpExitoCerrar">
+                    <i data-lucide="check"></i> Listo
+                </button>
+            </div>
+
+        </div>
+    </div>
+
     <div class="sh-toast" id="shToast"></div>
 
     <script src="script.js"></script>
