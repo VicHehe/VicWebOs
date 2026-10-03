@@ -1,7 +1,7 @@
 // ============================================================
 //  Stor-He — Lógica
 //  Tabs: Apps / Temas / Widgets / PromoZione
-//  + Ampliación de espacio con pantalla de progreso
+//  + Carrito · Buscador · Ampliación con progreso
 //  Compatible con TODOS los temas (var() con fallbacks).
 //  Sin emojis.
 // ============================================================
@@ -13,11 +13,11 @@ const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const _accionesEnVuelo = new Set();
 
 let _timerOfertas = null;
+let _busquedaActual = '';
+let _tabActual = 'apps';
 
 // ============================================================
 //  PAQUETES DE ESPACIO (compra rápida)
-//  El shell vende +5 por 350. Acá agrupamos varias compras
-//  con un pequeño descuento por volumen (máx 350 = 1 gratis).
 // ============================================================
 const PAQUETES_ESPACIO = [
     { cantidad: 5,   compras: 1,  costoBruto: 350,  ahorro: 0   },
@@ -25,7 +25,6 @@ const PAQUETES_ESPACIO = [
     { cantidad: 50,  compras: 10, costoBruto: 3500, ahorro: 200 },
     { cantidad: 100, compras: 20, costoBruto: 7000, ahorro: 350 }
 ];
-const PRECIO_BASE_UNIDAD = 350; // costo de +5 según shell
 
 // ============================================================
 //  TEMA
@@ -94,7 +93,290 @@ function actualizarRecursos() {
 }
 
 // ============================================================
-//  AMPLIACIÓN DE ESPACIO — render de tarjetas
+//  CARRITO
+// ============================================================
+let _carrito = new Map();
+
+function _carritoKey() {
+    const api = API();
+    const c = api && api.obtenerCuenta ? api.obtenerCuenta() : null;
+    return `sh_carrito_${c && c.codigo ? c.codigo : 'anon'}`;
+}
+
+function cargarCarrito() {
+    _carrito = new Map();
+    try {
+        const raw = localStorage.getItem(_carritoKey());
+        if (!raw) return;
+        const arr = JSON.parse(raw);
+        if (!Array.isArray(arr)) return;
+        arr.forEach(x => {
+            if (x && x.tipo && x.id) _carrito.set(`${x.tipo}:${x.id}`, x);
+        });
+    } catch (e) { _carrito = new Map(); }
+}
+
+function guardarCarrito() {
+    try {
+        const arr = Array.from(_carrito.values());
+        localStorage.setItem(_carritoKey(), JSON.stringify(arr));
+    } catch (e) { /* silencioso */ }
+}
+
+function carritoEsta(tipo, id) {
+    return _carrito.has(`${tipo}:${id}`);
+}
+
+function carritoAñadir(tipo, item) {
+    const key = `${tipo}:${item.id}`;
+    if (_carrito.has(key)) return false;
+    _carrito.set(key, {
+        tipo,
+        id: item.id,
+        nombre: item.nombre || item.id,
+        icono: item.icono || 'circle',
+        espacio: item.espacio || 0,
+        monedas: item.monedas || 0
+    });
+    guardarCarrito();
+    return true;
+}
+
+function carritoQuitar(tipo, id) {
+    _carrito.delete(`${tipo}:${id}`);
+    guardarCarrito();
+}
+
+function carritoVaciar() {
+    _carrito.clear();
+    guardarCarrito();
+}
+
+function carritoTotal() {
+    let espacio = 0, monedas = 0;
+    _carrito.forEach(x => { espacio += x.espacio; monedas += x.monedas; });
+    return { espacio, monedas, count: _carrito.size };
+}
+
+function limpiarCarritoInstalados() {
+    const api = API();
+    if (!api) return;
+    const apps    = api.obtenerInstaladas() || [];
+    const temas   = api.obtenerTemasInstalados() || [];
+    const widgets = api.obtenerWidgetsInstalados() || [];
+    let cambio = false;
+    _carrito.forEach((x, k) => {
+        const yaEsta =
+            (x.tipo === 'app'    && apps.includes(x.id)) ||
+            (x.tipo === 'tema'   && temas.includes(x.id)) ||
+            (x.tipo === 'widget' && widgets.includes(x.id));
+        if (yaEsta) { _carrito.delete(k); cambio = true; }
+    });
+    if (cambio) guardarCarrito();
+}
+
+function _tipoNombreSimple(tipo) {
+    if (tipo === 'app')    return 'App';
+    if (tipo === 'tema')   return 'Tema';
+    if (tipo === 'widget') return 'Widget';
+    return '';
+}
+
+// ---------- Barra del carrito ----------
+function renderCarritoBar() {
+    const bar = document.getElementById('shCartBar');
+    if (!bar) return;
+    const t = carritoTotal();
+    if (t.count === 0) {
+        bar.style.display = 'none';
+        return;
+    }
+    bar.style.display = 'flex';
+    const cCount = document.getElementById('shCartCount');
+    const cLabel = document.getElementById('shCartCountLabel');
+    const cEsp   = document.getElementById('shCartEspacio');
+    const cMon   = document.getElementById('shCartMonedas');
+    if (cCount) cCount.textContent = t.count;
+    if (cLabel) cLabel.textContent = t.count === 1 ? 'item' : 'items';
+    if (cEsp)   cEsp.textContent = t.espacio;
+    if (cMon)   cMon.textContent = t.monedas;
+}
+
+// ---------- Modal del carrito ----------
+function renderCarritoModal() {
+    const lista = document.getElementById('shCartLista');
+    if (!lista) return;
+    const items = Array.from(_carrito.values());
+
+    if (items.length === 0) {
+        lista.innerHTML = `
+            <div class="sh-cart-vacio">
+                <i data-lucide="shopping-cart"></i>
+                <h3>Tu carrito está vacío</h3>
+                <p>Agregá apps, temas o widgets desde el catálogo.</p>
+            </div>`;
+        lucide.createIcons();
+    } else {
+        lista.innerHTML = items.map(x => `
+            <div class="sh-cart-item">
+                <div class="sh-cart-item-icono"><i data-lucide="${x.icono}"></i></div>
+                <div class="sh-cart-item-info">
+                    <div class="sh-cart-item-nombre">${x.nombre}</div>
+                    <div class="sh-cart-item-tipo">${_tipoNombreSimple(x.tipo)}</div>
+                </div>
+                <div class="sh-cart-item-costos">
+                    ${x.espacio > 0 ? `<span class="sh-coste sh-coste-esp"><i data-lucide="hard-drive"></i> ${x.espacio}</span>` : ''}
+                    ${x.monedas > 0 ? `<span class="sh-coste sh-coste-mon"><i data-lucide="coins"></i> ${x.monedas}</span>` : ''}
+                    ${x.espacio === 0 && x.monedas === 0 ? `<span class="sh-coste sh-coste-esp">Gratis</span>` : ''}
+                </div>
+                <button class="sh-btn sh-btn-icono" data-accion="carritoQuitar" data-tipo="${x.tipo}" data-id="${x.id}" title="Quitar del carrito">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+        `).join('');
+        lucide.createIcons();
+    }
+
+    const t = carritoTotal();
+    const elEsp = document.getElementById('shCartModalEspacio');
+    const elMon = document.getElementById('shCartModalMonedas');
+    if (elEsp) elEsp.textContent = t.espacio;
+    if (elMon) elMon.textContent = t.monedas;
+
+    const api = API();
+    const btnComprar = document.getElementById('shCartComprar');
+    if (!btnComprar) return;
+    const monedasDisp = api ? (api.obtenerMonedas() ?? 0) : 0;
+    const espLibre    = api ? (api.obtenerEspacioLibre() ?? 0) : 0;
+
+    if (t.count === 0) {
+        btnComprar.disabled = true;
+        btnComprar.title = '';
+    } else if (t.monedas > monedasDisp) {
+        btnComprar.disabled = true;
+        btnComprar.title = `Te faltan ${t.monedas - monedasDisp} monedas`;
+    } else if (t.espacio > espLibre) {
+        btnComprar.disabled = true;
+        btnComprar.title = `Te falta ${t.espacio - espLibre} de espacio`;
+    } else {
+        btnComprar.disabled = false;
+        btnComprar.title = '';
+    }
+}
+
+function abrirCarrito() {
+    const modal = document.getElementById('shCartModal');
+    if (!modal) return;
+    limpiarCarritoInstalados();
+    renderCarritoModal();
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    lucide.createIcons();
+}
+
+function cerrarCarrito() {
+    const modal = document.getElementById('shCartModal');
+    if (!modal) return;
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+async function comprarCarrito() {
+    const api = API();
+    if (!api) return;
+    const items = Array.from(_carrito.values());
+    if (items.length === 0) return;
+
+    const btn = document.getElementById('shCartComprar');
+    if (!btn || btn.disabled) return;
+    const original = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Comprando...';
+    lucide.createIcons();
+
+    let ok = 0;
+    const errores = [];
+
+    for (const x of items) {
+        try {
+            if (x.tipo === 'app')         await api.instalar(x.id);
+            else if (x.tipo === 'tema')   await api.instalarTema(x.id);
+            else if (x.tipo === 'widget') await api.instalarWidget(x.id);
+            carritoQuitar(x.tipo, x.id);
+            ok++;
+        } catch (e) {
+            errores.push(`${x.nombre}: ${e.message}`);
+        }
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = original;
+    lucide.createIcons();
+
+    if (errores.length === 0) {
+        toast(`${ok} ${ok === 1 ? 'item comprado' : 'items comprados'}`, 'success');
+        cerrarCarrito();
+    } else if (ok > 0) {
+        toast(`${ok} ok, ${errores.length} con error`, 'info');
+    } else {
+        toast(errores[0] || 'Error al comprar', 'error');
+    }
+
+    renderCarritoBar();
+    renderCarritoModal();
+    refrescarTodo();
+}
+
+// ============================================================
+//  BUSCADOR
+// ============================================================
+function _normalizar(s) {
+    return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function _coincide(item, q) {
+    if (!q) return true;
+    const nq = _normalizar(q);
+    return _normalizar(item.nombre).includes(nq) ||
+           _normalizar(item.descripcion).includes(nq) ||
+           _normalizar(item.categoria).includes(nq);
+}
+
+function _placeholderBusqueda(tab) {
+    if (tab === 'apps')    return 'Buscar apps...';
+    if (tab === 'temas')   return 'Buscar temas...';
+    if (tab === 'widgets') return 'Buscar widgets...';
+    return 'Buscar...';
+}
+
+function renderBusquedaVacia(cont, q) {
+    cont.innerHTML = `
+        <div class="sh-empty">
+            <i data-lucide="search-x"></i>
+            <h3>Sin resultados</h3>
+            <p>Nada coincide con "<strong>${q}</strong>".</p>
+        </div>`;
+    lucide.createIcons();
+}
+
+function actualizarBuscadorVisibilidad(tab) {
+    const wrap = document.getElementById('shSearchWrap');
+    const input = document.getElementById('shSearch');
+    if (!wrap || !input) return;
+    if (tab === 'promozione') {
+        wrap.style.display = 'none';
+        input.value = '';
+        _busquedaActual = '';
+        const clr = document.getElementById('shSearchClear');
+        if (clr) clr.style.display = 'none';
+    } else {
+        wrap.style.display = 'flex';
+        input.placeholder = _placeholderBusqueda(tab);
+    }
+}
+
+// ============================================================
+//  AMPLIACIÓN DE ESPACIO
 // ============================================================
 function renderAmpliacion() {
     const cont = document.getElementById('shAmpliacion');
@@ -147,11 +429,9 @@ function renderAmpliacion() {
     lucide.createIcons();
 }
 
-// ============================================================
-//  AMPLIACIÓN — Modal con progreso
-// ============================================================
-let _ampCtx = null;          // contexto actual de compra
-let _ampEnProgreso = false;  // bloquea cierre durante proceso
+// ---------- Modal con progreso ----------
+let _ampCtx = null;
+let _ampEnProgreso = false;
 
 function _qs(id) { return document.getElementById(id); }
 
@@ -184,7 +464,7 @@ function abrirModalEspacio(cantidad, compras, costoBruto, ahorro, total) {
 }
 
 function cerrarModalEspacio() {
-    if (_ampEnProgreso) return; // no se puede cerrar durante el progreso
+    if (_ampEnProgreso) return;
     const modal = _qs('shAmpModal');
     if (modal) modal.style.display = 'none';
     _ampCtx = null;
@@ -196,11 +476,10 @@ async function ejecutarCompraEspacio() {
 
     _ampEnProgreso = true;
 
-    // Ocultar botón de cerrar en el header
     const btnClose = _qs('shAmpClose');
     if (btnClose) btnClose.style.display = 'none';
 
-    const { cantidad, compras, ahorro, total } = _ampCtx;
+    const { cantidad, compras, ahorro } = _ampCtx;
 
     _ampSetVista('progreso');
     _qs('shAmpProgresoSub').textContent = `Compra 0 de ${compras}`;
@@ -225,11 +504,9 @@ async function ejecutarCompraEspacio() {
         _qs('shAmpProgresoFill').style.width = pct + '%';
         _qs('shAmpProgresoPct').textContent = pct + '%';
 
-        // Respiro mínimo para que se vea la animación (300ms)
         await new Promise(r => setTimeout(r, 300));
     }
 
-    // Descuento por volumen (solo si se completaron todas las compras)
     if (!errorFinal && ahorro > 0 && exitos === compras) {
         try {
             await api.canjear(
@@ -247,7 +524,6 @@ async function ejecutarCompraEspacio() {
     if (btnClose) btnClose.style.display = 'flex';
 
     if (errorFinal) {
-        // Error a mitad de camino: volvemos a confirmar con aviso
         _ampSetVista('confirmar');
         toast(errorFinal.message || 'Error al ampliar espacio', 'error');
         cerrarModalEspacio();
@@ -255,7 +531,6 @@ async function ejecutarCompraEspacio() {
         return;
     }
 
-    // Éxito
     const nuevoMax = api.obtenerEspacioMaximo() ?? 0;
     _qs('shAmpExitoTotal').textContent = nuevoMax;
 
@@ -321,6 +596,49 @@ function etiquetaCosto(item) {
     return `<div class="sh-costes">${partes.join('')}</div>`;
 }
 
+// ---------- Botones de no-instalado (carrito + instalar ya) ----------
+function _botonesNoInstalado(tipo, item, bloqueado, motivo) {
+    const enCarrito = carritoEsta(tipo, item.id);
+
+    const clasePrincipal = enCarrito
+        ? 'sh-btn-carrito-activo'
+        : (bloqueado ? 'sh-btn-aplicar' : 'sh-btn-instalar');
+
+    const disabledPrincipal = (!enCarrito && bloqueado) ? 'disabled' : '';
+    const titlePrincipal = enCarrito
+        ? 'Quitar del carrito'
+        : (bloqueado ? motivo : 'Añadir al carrito');
+
+    const iconoPrincipal = enCarrito ? 'check' : 'shopping-cart';
+    const textoPrincipal = enCarrito ? 'En carrito' : 'Agregar';
+
+    const accionInstalar = tipo === 'app' ? 'instalar'
+                         : tipo === 'tema' ? 'instalarTema'
+                         : 'instalarWidget';
+
+    return `
+        <div class="sh-acciones">
+            <button class="sh-btn ${clasePrincipal}"
+                    data-accion="carrito"
+                    data-tipo="${tipo}"
+                    data-id="${item.id}"
+                    ${disabledPrincipal}
+                    title="${titlePrincipal}">
+                <i data-lucide="${iconoPrincipal}"></i>
+                ${textoPrincipal}
+            </button>
+            ${!enCarrito ? `
+                <button class="sh-btn sh-btn-icono sh-btn-instalar-ya"
+                        data-accion="${accionInstalar}"
+                        data-id="${item.id}"
+                        ${bloqueado ? `disabled title="${motivo}"` : ''}
+                        title="Instalar ahora">
+                    <i data-lucide="zap"></i>
+                </button>
+            ` : ''}
+        </div>`;
+}
+
 // ============================================================
 //  TAB: APPS
 // ============================================================
@@ -339,7 +657,13 @@ function renderApps() {
     const instaladas = api.obtenerInstaladas() || [];
     document.getElementById('countApps').textContent = catalogo.length;
 
-    renderGrid(cont, catalogo, (app) => {
+    const filtrado = catalogo.filter(a => _coincide(a, _busquedaActual));
+    if (filtrado.length === 0 && _busquedaActual) {
+        renderBusquedaVacia(cont, _busquedaActual);
+        return;
+    }
+
+    renderGrid(cont, filtrado, (app) => {
         const instalada = instaladas.includes(app.id);
         const esBase    = !!app.esBase;
         const check     = api.puedeInstalar({ espacio: app.espacio || 0, monedas: app.monedas || 0 });
@@ -370,13 +694,7 @@ function renderApps() {
                                 <i data-lucide="external-link"></i> Abrir
                              </button>
                            </div>`
-                        : `<div class="sh-acciones">
-                             <button class="sh-btn ${bloqueado ? 'sh-btn-aplicar' : 'sh-btn-instalar'}"
-                                     data-accion="instalar" data-id="${app.id}"
-                                     ${bloqueado ? `disabled title="${check.motivo}"` : ''}>
-                                <i data-lucide="plus-circle"></i> Agregar
-                             </button>
-                           </div>`}
+                        : _botonesNoInstalado('app', app, bloqueado, check.motivo)}
                 </div>
             </div>`;
     });
@@ -428,7 +746,13 @@ function renderTemas() {
 
     document.getElementById('countTemas').textContent = catalogo.length;
 
-    renderGrid(cont, catalogo, (tema) => {
+    const filtrado = catalogo.filter(t => _coincide(t, _busquedaActual));
+    if (filtrado.length === 0 && _busquedaActual) {
+        renderBusquedaVacia(cont, _busquedaActual);
+        return;
+    }
+
+    renderGrid(cont, filtrado, (tema) => {
         const instalado = instalados.includes(tema.id);
         const esBase    = !!tema.esBase;
         const esActivo  = activo === tema.id;
@@ -461,13 +785,7 @@ function renderTemas() {
                                     <i data-lucide="trash-2"></i>
                                 </button>`}
                            </div>`
-                        : `<div class="sh-acciones">
-                             <button class="sh-btn ${bloqueado ? 'sh-btn-aplicar' : 'sh-btn-instalar'}"
-                                     data-accion="instalarTema" data-id="${tema.id}"
-                                     ${bloqueado ? `disabled title="${check.motivo}"` : ''}>
-                                <i data-lucide="download"></i> Instalar
-                             </button>
-                           </div>`}
+                        : _botonesNoInstalado('tema', tema, bloqueado, check.motivo)}
                 </div>
             </div>`;
     });
@@ -492,7 +810,13 @@ function renderWidgets() {
 
     document.getElementById('countWidgets').textContent = catalogo.length;
 
-    renderGrid(cont, catalogo, (widget) => {
+    const filtrado = catalogo.filter(w => _coincide(w, _busquedaActual));
+    if (filtrado.length === 0 && _busquedaActual) {
+        renderBusquedaVacia(cont, _busquedaActual);
+        return;
+    }
+
+    renderGrid(cont, filtrado, (widget) => {
         const instalado = instalados.includes(widget.id);
         const esBase    = !!widget.esBase;
         const check     = api.puedeInstalar({ espacio: widget.espacio || 0, monedas: widget.monedas || 0 });
@@ -523,13 +847,7 @@ function renderWidgets() {
                                     <i data-lucide="trash-2"></i>
                                 </button>`}
                            </div>`
-                        : `<div class="sh-acciones">
-                             <button class="sh-btn ${bloqueado ? 'sh-btn-aplicar' : 'sh-btn-instalar'}"
-                                     data-accion="instalarWidget" data-id="${widget.id}"
-                                     ${bloqueado ? `disabled title="${check.motivo}"` : ''}>
-                                <i data-lucide="download"></i> Instalar
-                             </button>
-                           </div>`}
+                        : _botonesNoInstalado('widget', widget, bloqueado, check.motivo)}
                 </div>
             </div>`;
     });
@@ -856,6 +1174,37 @@ async function manejarAccion(accion, id, btnOrigen, extra) {
         return;
     }
 
+    // --- Carrito: acciones locales ---
+    if (accion === 'carrito') {
+        const tipo = (btnOrigen && btnOrigen.dataset.tipo) || 'app';
+        const item = _buscarItemPorId(tipo, id);
+        if (!item) return;
+        if (carritoEsta(tipo, id)) {
+            carritoQuitar(tipo, id);
+            toast('Quitado del carrito', 'info');
+        } else {
+            carritoAñadir(tipo, item);
+            toast('Añadido al carrito', 'success');
+        }
+        renderCarritoBar();
+        if (tipo === 'app')    renderApps();
+        if (tipo === 'tema')   renderTemas();
+        if (tipo === 'widget') renderWidgets();
+        return;
+    }
+
+    if (accion === 'carritoQuitar') {
+        const tipo = (btnOrigen && btnOrigen.dataset.tipo) || 'app';
+        carritoQuitar(tipo, id);
+        renderCarritoBar();
+        renderCarritoModal();
+        if (tipo === 'app')    renderApps();
+        if (tipo === 'tema')   renderTemas();
+        if (tipo === 'widget') renderWidgets();
+        return;
+    }
+
+    // --- Resto de acciones (async con lock) ---
     const clave = `${accion}:${id || 'x'}`;
     if (_accionesEnVuelo.has(clave)) return;
     _accionesEnVuelo.add(clave);
@@ -927,12 +1276,24 @@ async function manejarAccion(accion, id, btnOrigen, extra) {
     }
 }
 
+// Busca un item en el catálogo del shell por tipo+id
+function _buscarItemPorId(tipo, id) {
+    const api = API();
+    if (!api) return null;
+    if (tipo === 'app')    return (api.obtenerCatalogo() || []).find(x => x.id === id);
+    if (tipo === 'tema')   return (api.obtenerTemas()    || []).find(x => x.id === id);
+    if (tipo === 'widget') return (api.obtenerWidgets()  || []).find(x => x.id === id);
+    return null;
+}
+
 function refrescarTodo() {
+    limpiarCarritoInstalados();
     actualizarRecursos();
     renderAmpliacion();
     renderApps();
     renderTemas();
     renderWidgets();
+    renderCarritoBar();
 
     const panelPromo = document.querySelector('.sh-panel[data-panel="promozione"]');
     if (panelPromo && (panelPromo.classList.contains('active') || panelPromo.dataset.visto === '1')) {
@@ -956,10 +1317,22 @@ function inicializarTabs() {
                 panel.dataset.visto = '1';
             }
 
-            if (tab.dataset.tab === 'promozione') {
+            _tabActual = tab.dataset.tab;
+            _busquedaActual = '';
+            const inputBuscador = document.getElementById('shSearch');
+            if (inputBuscador) inputBuscador.value = '';
+            const clrBuscador = document.getElementById('shSearchClear');
+            if (clrBuscador) clrBuscador.style.display = 'none';
+            actualizarBuscadorVisibilidad(_tabActual);
+
+            if (_tabActual === 'promozione') {
+                detenerTimerOfertas();
                 renderPromoZione();
             } else {
                 detenerTimerOfertas();
+                if (_tabActual === 'apps')    renderApps();
+                if (_tabActual === 'temas')   renderTemas();
+                if (_tabActual === 'widgets') renderWidgets();
             }
         });
     });
@@ -971,6 +1344,8 @@ function inicializarTabs() {
 document.addEventListener('DOMContentLoaded', () => {
     aplicarTemaDelPadre();
     inicializarTabs();
+
+    cargarCarrito();
 
     // -------- Delegado global para data-accion --------
     document.addEventListener('click', (e) => {
@@ -986,18 +1361,78 @@ document.addEventListener('DOMContentLoaded', () => {
         manejarAccion(btn.dataset.accion, btn.dataset.id, btn, extra);
     });
 
+    // -------- Buscador --------
+    const inputBuscador = document.getElementById('shSearch');
+    const clrBuscador   = document.getElementById('shSearchClear');
+
+    if (inputBuscador) {
+        let _debounce = null;
+        inputBuscador.addEventListener('input', () => {
+            _busquedaActual = inputBuscador.value;
+            if (clrBuscador) clrBuscador.style.display = _busquedaActual ? 'flex' : 'none';
+            clearTimeout(_debounce);
+            _debounce = setTimeout(() => {
+                if (_tabActual === 'apps')    renderApps();
+                if (_tabActual === 'temas')   renderTemas();
+                if (_tabActual === 'widgets') renderWidgets();
+            }, 120);
+        });
+    }
+
+    if (clrBuscador) {
+        clrBuscador.addEventListener('click', () => {
+            if (inputBuscador) inputBuscador.value = '';
+            _busquedaActual = '';
+            clrBuscador.style.display = 'none';
+            if (inputBuscador) inputBuscador.focus();
+            if (_tabActual === 'apps')    renderApps();
+            if (_tabActual === 'temas')   renderTemas();
+            if (_tabActual === 'widgets') renderWidgets();
+        });
+    }
+
+    // -------- Carrito --------
+    const btnAbrir = document.getElementById('shCartOpen');
+    if (btnAbrir) btnAbrir.addEventListener('click', abrirCarrito);
+
+    const btnCerrarCart = document.getElementById('shCartClose');
+    if (btnCerrarCart) btnCerrarCart.addEventListener('click', cerrarCarrito);
+
+    const modalCart = document.getElementById('shCartModal');
+    if (modalCart) {
+        modalCart.addEventListener('click', (e) => {
+            if (e.target === modalCart) cerrarCarrito();
+        });
+    }
+
+    const btnVaciar = document.getElementById('shCartVaciar');
+    if (btnVaciar) {
+        btnVaciar.addEventListener('click', () => {
+            if (!confirm('¿Vaciar el carrito? Se van a quitar todos los items.')) return;
+            carritoVaciar();
+            renderCarritoBar();
+            renderCarritoModal();
+            if (_tabActual === 'apps')    renderApps();
+            if (_tabActual === 'temas')   renderTemas();
+            if (_tabActual === 'widgets') renderWidgets();
+            toast('Carrito vaciado', 'info');
+        });
+    }
+
+    const btnComprar = document.getElementById('shCartComprar');
+    if (btnComprar) btnComprar.addEventListener('click', comprarCarrito);
+
     // -------- Modal de ampliación --------
-    const btnClose    = document.getElementById('shAmpClose');
-    const btnCancelar = document.getElementById('shAmpCancelar');
-    const btnConfirmar = document.getElementById('shAmpConfirmar');
-    const btnExitoCerrar = document.getElementById('shAmpExitoCerrar');
-    const modalAmp = document.getElementById('shAmpModal');
+    const btnCloseAmp     = document.getElementById('shAmpClose');
+    const btnCancelarAmp  = document.getElementById('shAmpCancelar');
+    const btnConfirmarAmp = document.getElementById('shAmpConfirmar');
+    const btnExitoCerrar  = document.getElementById('shAmpExitoCerrar');
+    const modalAmp        = document.getElementById('shAmpModal');
 
-    if (btnClose)      btnClose.addEventListener('click', cerrarModalEspacio);
-    if (btnCancelar)   btnCancelar.addEventListener('click', cerrarModalEspacio);
-    if (btnExitoCerrar) btnExitoCerrar.addEventListener('click', cerrarModalEspacio);
-
-    if (btnConfirmar)  btnConfirmar.addEventListener('click', ejecutarCompraEspacio);
+    if (btnCloseAmp)      btnCloseAmp.addEventListener('click', cerrarModalEspacio);
+    if (btnCancelarAmp)   btnCancelarAmp.addEventListener('click', cerrarModalEspacio);
+    if (btnExitoCerrar)   btnExitoCerrar.addEventListener('click', cerrarModalEspacio);
+    if (btnConfirmarAmp)  btnConfirmarAmp.addEventListener('click', ejecutarCompraEspacio);
 
     if (modalAmp) {
         modalAmp.addEventListener('click', (e) => {
@@ -1005,12 +1440,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // -------- ESC --------
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !_ampEnProgreso) {
-            const m = document.getElementById('shAmpModal');
-            if (m && m.style.display === 'flex') cerrarModalEspacio();
+        if (e.key !== 'Escape') return;
+
+        // Prioridad: carrito primero si está abierto
+        const cartModal = document.getElementById('shCartModal');
+        if (cartModal && cartModal.style.display === 'flex') {
+            cerrarCarrito();
+            return;
+        }
+
+        // Ampliación
+        if (!_ampEnProgreso) {
+            const ampModal = document.getElementById('shAmpModal');
+            if (ampModal && ampModal.style.display === 'flex') cerrarModalEspacio();
         }
     });
 
-    setTimeout(refrescarTodo, 100);
+    // Visibilidad inicial del buscador
+    actualizarBuscadorVisibilidad(_tabActual);
+
+    setTimeout(() => {
+        refrescarTodo();
+        renderCarritoBar();
+    }, 100);
 });
