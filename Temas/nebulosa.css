@@ -1,0 +1,43 @@
+/* ================================================
+   Tema: Nebulosa
+   Magenta estelar y cyan profundo flotando en
+   púrpura-espacio. Solo paleta.
+   ================================================ */
+
+:root {
+    --violet-50:  #1A0A28;
+    --violet-100: #240E38;
+    --violet-200: #341A4E;
+    --violet-300: #F0ABFC;
+    --violet-400: #C084FC;
+    --violet-500: #E879F9;
+    --violet-600: #A855F7;
+    --violet-700: #9333EA;
+
+    --white:   #140A2E;
+    --bg:      #080318;
+    --bg-alt:  #0F0722;
+    --gray-50:  #0F0722;
+    --gray-100: #1A0F30;
+    --gray-200: #251840;
+    --gray-300: #382858;
+    --gray-400: #584078;
+    --gray-500: #8A7AB0;
+    --gray-600: #B8A8CC;
+    --gray-700: #D5C8E5;
+    --gray-800: #E8DEF2;
+    --gray-900: #F5EFFF;
+
+    --border:  #251840;
+    --text:    #F5EFFF;
+    --text-2:  #B8A8CC;
+    --text-3:  #8A7AB0;
+
+    --shadow-glow: 0 0 0 4px rgba(232, 121, 249, 0.20);
+
+    --accent-gradient: linear-gradient(135deg, #E879F9, #22D3EE);
+    --accent-gradient-hover: linear-gradient(135deg, #F0ABFC, #67E8F9);
+    --accent-shadow: rgba(232, 121, 249, 0.35);
+    --accent-shadow-hover: rgba(232, 121, 249, 0.55);
+    --accent-text-gradient: linear-gradient(135deg, #E879F9, #22D3EE);
+}
