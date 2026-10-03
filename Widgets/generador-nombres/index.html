@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Nombres</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="ng-widget">
+
+        <div class="ng-header">
+            <div class="ng-titulo">
+                <i data-lucide="signature"></i>
+                <span>Nombres</span>
+            </div>
+        </div>
+
+        <div class="ng-chips" id="ngEstilos">
+            <button class="ng-chip active" data-estilo="latino">Latino</button>
+            <button class="ng-chip" data-estilo="japones">Japonés</button>
+            <button class="ng-chip" data-estilo="anglo">Anglo</button>
+            <button class="ng-chip" data-estilo="fantasia">Fantasía</button>
+        </div>
+
+        <div class="ng-chips ng-chips-genero" id="ngGeneros">
+            <button class="ng-chip ng-chip-sm" data-genero="masc">Masc</button>
+            <button class="ng-chip ng-chip-sm" data-genero="fem">Fem</button>
+            <button class="ng-chip ng-chip-sm active" data-genero="ambos">Ambos</button>
+        </div>
+
+        <div class="ng-zona">
+            <div class="ng-nombre-wrap">
+                <span class="ng-nombre" id="ngNombre">—</span>
+                <button class="ng-copy" id="ngCopyBtn" title="Copiar nombre">
+                    <i data-lucide="copy"></i>
+                </button>
+            </div>
+        </div>
+
+        <button class="ng-btn" id="ngBtnGenerar">
+            <i data-lucide="shuffle"></i>
+            <span>Generar otro</span>
+        </button>
+
+    </div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
