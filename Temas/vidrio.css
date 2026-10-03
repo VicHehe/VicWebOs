@@ -1,19 +1,19 @@
 /* ================================================
    Tema: Vidrio
-   Vidrio templado con reflejos especulares duros,
-   transparencias reales, filo luminoso en los
-   cantos y remaches en las esquinas.
+   Vidrio templado con transparencias reales,
+   reflejos especulares duros y filo blanco en
+   los cantos. Remaches en las esquinas.
+   Tema LIGHT — superficies clarísimas, texto oscuro.
 
-   FIXES v3:
-     #1 feColorMatrix → feDiffuseLighting (evita
-        el corte del tile en backgrounds repetidos)
-     #2 stitchTiles='stitch' para seamless
-     #3 transform: translateZ(0) en welcome y
-        sidebar (evita el bug de compositing de
-        Chrome con backdrop-filter)
+   FIX v4:
+     · Paleta azulada muy clara y limpia.
+     · --text oscuro con contraste ALTO.
+     · backdrop-filter + reflejos duros = sensación real
+       de vidrio, no solo "colores celestes".
    ================================================ */
 
 :root {
+    /* Acento azul vidrio */
     --violet-50:  #F0F7FC;
     --violet-100: #DAEBF5;
     --violet-200: #A8CBDF;
@@ -23,63 +23,64 @@
     --violet-600: #1B3E58;
     --violet-700: #0F283C;
 
-    --white:   #FFFFFF;
-    --bg:      #C4DCEA;
-    --bg-alt:  #B0CCE0;
-    --gray-50:  #E8F2F8;
-    --gray-100: #C4DCEA;
-    --gray-200: #A0B8CC;
-    --gray-300: #6E8AA4;
-    --gray-400: #4E6A84;
-    --gray-500: #344C62;
-    --gray-600: #1E3244;
-    --gray-700: #0F1E2C;
-    --gray-800: #061220;
-    --gray-900: #030814;
+    /* Superficies CLARAS */
+    --white:   #FFFFFF;   /* blanco puro, superficie de cards */
+    --bg:      #E8F2F8;   /* azul muy claro de fondo */
+    --bg-alt:  #D8EAF5;   /* sidebar, un poco más saturado */
+    --gray-50:  #F2F9FD;
+    --gray-100: #DEEEF7;
+    --gray-200: #B8D4E6;
+    --gray-300: #8AAEC8;
+    --gray-400: #5E88A8;
+    --gray-500: #3E6288;
+    --gray-600: #26456A;
+    --gray-700: #16304E;
+    --gray-800: #0A1E34;
+    --gray-900: #03101E;
 
-    --border:  #A0B8CC;
-    --text:    #061220;
-    --text-2:  #344C62;
-    --text-3:  #4E6A84;
+    --border:  #B8D4E6;
+    --text:    #0A1E34;   /* azul casi negro */
+    --text-2:  #26456A;
+    --text-3:  #3E6288;
 
-    --shadow-xs: 0 1px 2px rgba(10, 30, 50, 0.15);
-    --shadow-sm: 0 2px 4px rgba(10, 30, 50, 0.18);
-    --shadow-md: 0 6px 14px rgba(10, 30, 50, 0.22), 0 2px 4px rgba(10, 30, 50, 0.15);
-    --shadow-lg: 0 14px 34px rgba(10, 30, 50, 0.28), 0 4px 8px rgba(10, 30, 50, 0.15);
-    --shadow-xl: 0 24px 48px rgba(10, 30, 50, 0.35), 0 8px 16px rgba(10, 30, 50, 0.20);
-    --shadow-glow: 0 0 0 4px rgba(70, 120, 154, 0.25);
+    --shadow-xs: 0 1px 2px rgba(10, 30, 50, 0.08);
+    --shadow-sm: 0 2px 4px rgba(10, 30, 50, 0.10);
+    --shadow-md: 0 6px 14px rgba(10, 30, 50, 0.12);
+    --shadow-lg: 0 14px 34px rgba(10, 30, 50, 0.16);
+    --shadow-xl: 0 24px 48px rgba(10, 30, 50, 0.20);
+    --shadow-glow: 0 0 0 4px rgba(70, 120, 154, 0.20);
 
-    --accent-gradient: linear-gradient(135deg, #46789A, #0F283C);
-    --accent-gradient-hover: linear-gradient(135deg, #6FA3C0, #1B3E58);
-    --accent-shadow: rgba(43, 88, 120, 0.40);
-    --accent-shadow-hover: rgba(43, 88, 120, 0.60);
-    --accent-text-gradient: linear-gradient(135deg, #0F283C, #46789A);
+    --accent-gradient: linear-gradient(135deg, #46789A, #1B3E58);
+    --accent-gradient-hover: linear-gradient(135deg, #6FA3C0, #2B5878);
+    --accent-shadow: rgba(43, 88, 120, 0.35);
+    --accent-shadow-hover: rgba(43, 88, 120, 0.55);
+    --accent-text-gradient: linear-gradient(135deg, #0A1E34, #46789A);
 
     --r-sm: 4px;
     --r-md: 6px;
     --r-lg: 10px;
     --r-xl: 14px;
 
-    /* Rayo especular — banda diagonal dura, blanca pura */
-    --theme-shine: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='s1' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0%25' stop-color='%23FFFFFF' stop-opacity='0'/%3E%3Cstop offset='38%25' stop-color='%23FFFFFF' stop-opacity='0'/%3E%3Cstop offset='40%25' stop-color='%23FFFFFF' stop-opacity='0.85'/%3E%3Cstop offset='44%25' stop-color='%23FFFFFF' stop-opacity='1'/%3E%3Cstop offset='48%25' stop-color='%23FFFFFF' stop-opacity='0.85'/%3E%3Cstop offset='50%25' stop-color='%23FFFFFF' stop-opacity='0'/%3E%3Cstop offset='100%25' stop-color='%23FFFFFF' stop-opacity='0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='400' height='400' fill='url(%23s1)'/%3E%3C/svg%3E");
+    /* Rayo especular — raya blanca dura (vía dura, no gradiente suave) */
+    --theme-shine: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='s' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='38%25' stop-color='%23FFFFFF' stop-opacity='0'/%3E%3Cstop offset='40%25' stop-color='%23FFFFFF' stop-opacity='0.85'/%3E%3Cstop offset='44%25' stop-color='%23FFFFFF' stop-opacity='1'/%3E%3Cstop offset='48%25' stop-color='%23FFFFFF' stop-opacity='0.85'/%3E%3Cstop offset='50%25' stop-color='%23FFFFFF' stop-opacity='0'/%3E%3Cstop offset='100%25' stop-color='%23FFFFFF' stop-opacity='0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='400' height='400' fill='url(%23s)'/%3E%3C/svg%3E");
 
-    /* Grano vidrio — ahora con feDiffuseLighting */
-    --theme-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' seed='5' stitchTiles='stitch'/%3E%3CfeDiffuseLighting in='noise' lighting-color='%23DAEBF5' surfaceScale='0.8'%3E%3CfeDistantLight azimuth='135' elevation='70'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)' opacity='0.30'/%3E%3C/svg%3E");
+    /* Grano vidrio — muy sutil */
+    --theme-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' seed='5' stitchTiles='stitch'/%3E%3CfeDiffuseLighting in='noise' lighting-color='%23DAEBF5' surfaceScale='0.6'%3E%3CfeDistantLight azimuth='135' elevation='70'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)' opacity='0.20'/%3E%3C/svg%3E");
 
-    /* Remache — acero con brillo, para esquinas */
-    --theme-rivet: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cdefs%3E%3CradialGradient id='r' cx='0.35' cy='0.30'%3E%3Cstop offset='0%25' stop-color='%23FFFFFF'/%3E%3Cstop offset='50%25' stop-color='%23DAEBF5'/%3E%3Cstop offset='100%25' stop-color='%232B5878'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='12' cy='12' r='9' fill='url(%23r)'/%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%230F283C' stroke-width='0.8'/%3E%3Ccircle cx='12' cy='12' r='6' fill='none' stroke='%23FFFFFF' stroke-width='0.6' stroke-opacity='0.70'/%3E%3Ccircle cx='9' cy='9' r='2' fill='%23FFFFFF' fill-opacity='0.95'/%3E%3C/svg%3E");
+    /* Remache con brillo puntual */
+    --theme-rivet: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cdefs%3E%3CradialGradient id='r' cx='0.35' cy='0.30'%3E%3Cstop offset='0%25' stop-color='%23FFFFFF'/%3E%3Cstop offset='50%25' stop-color='%23DAEBF5'/%3E%3Cstop offset='100%25' stop-color='%232B5878'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='12' cy='12' r='9' fill='url(%23r)'/%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%230F283C' stroke-width='0.8'/%3E%3Ccircle cx='9' cy='9' r='2' fill='%23FFFFFF' fill-opacity='0.95'/%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   1. WELCOME — plancha de vidrio con FIX compositing
+   1. WELCOME — vidrio con doble reflejo y filo blanco
    ================================================================ */
 .welcome-placeholder {
     position: relative;
     background-image:
         var(--theme-grain),
         var(--theme-shine),
-        linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.10) 35%, rgba(43, 88, 120, 0.15) 100%),
-        linear-gradient(180deg, #DAEBF5 0%, #B0CCE0 50%, #6FA3C0 100%);
+        linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.10) 35%, rgba(43, 88, 120, 0.10) 100%),
+        linear-gradient(180deg, #E8F2F8 0%, #D8EAF5 50%, #B8D4E6 100%);
     background-size:
         200px 200px,
         400px 400px,
@@ -96,9 +97,6 @@
         no-repeat,
         no-repeat;
     background-color: var(--bg);
-    /* FIX: fuerza layer propio, aísla del backdrop-filter del sidebar */
-    transform: translateZ(0);
-    will-change: transform;
 }
 
 .welcome-placeholder::before {
@@ -111,9 +109,8 @@
     background: var(--theme-rivet) center/contain no-repeat;
     pointer-events: none;
     z-index: 0;
-    filter: drop-shadow(0 2px 3px rgba(10, 30, 50, 0.35));
+    filter: drop-shadow(0 2px 3px rgba(10, 30, 50, 0.30));
 }
-
 .welcome-placeholder::after {
     content: '';
     position: absolute;
@@ -124,7 +121,7 @@
     background: var(--theme-rivet) center/contain no-repeat;
     pointer-events: none;
     z-index: 0;
-    filter: drop-shadow(0 2px 3px rgba(10, 30, 50, 0.35));
+    filter: drop-shadow(0 2px 3px rgba(10, 30, 50, 0.30));
 }
 
 .welcome-hero,
@@ -133,7 +130,7 @@
 .welcome-glow {
     background: radial-gradient(circle at 30% 25%,
         rgba(255, 255, 255, 0.70) 0%,
-        rgba(70, 120, 154, 0.15) 45%,
+        rgba(70, 120, 154, 0.12) 45%,
         transparent 70%);
 }
 
@@ -146,7 +143,7 @@
         linear-gradient(180deg,
             rgba(255, 255, 255, 0.75) 0%,
             rgba(218, 235, 245, 0.60) 50%,
-            rgba(111, 163, 192, 0.55) 100%);
+            rgba(168, 203, 223, 0.55) 100%);
     background-size: 200px 200px, 100% 100%, 100% 100%;
     background-position: 0 0, top left, center;
     background-repeat: repeat, no-repeat, no-repeat;
@@ -156,10 +153,10 @@
     border-radius: 14px;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 1),
-        inset 0 -2px 6px rgba(43, 88, 120, 0.25),
+        inset 0 -2px 6px rgba(43, 88, 120, 0.20),
         inset 0 0 60px rgba(255, 255, 255, 0.30),
-        0 16px 40px rgba(10, 30, 50, 0.30),
-        0 0 0 1px rgba(111, 163, 192, 0.20);
+        0 16px 40px rgba(10, 30, 50, 0.20),
+        0 0 0 1px rgba(111, 163, 192, 0.15);
     max-width: 660px;
     margin-left: auto;
     margin-right: auto;
@@ -169,19 +166,14 @@
     content: '';
     position: absolute;
     top: 0;
-    left: 0;
-    right: 0;
+    left: 15%;
+    right: 15%;
     height: 2px;
-    background: linear-gradient(90deg,
-        transparent,
-        rgba(255, 255, 255, 1) 15%,
-        rgba(255, 255, 255, 1) 85%,
-        transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 1), transparent);
     pointer-events: none;
     z-index: 3;
     border-radius: 14px 14px 0 0;
 }
-
 .welcome-hero::after {
     content: '';
     position: absolute;
@@ -201,11 +193,10 @@
 .welcome-hero > * { position: relative; z-index: 1; }
 
 .welcome-hero h1 {
-    letter-spacing: 0.005em;
     color: #0F283C;
     text-shadow:
         0 1px 0 rgba(255, 255, 255, 1),
-        0 2px 6px rgba(10, 30, 50, 0.20);
+        0 2px 6px rgba(10, 30, 50, 0.15);
 }
 
 .welcome-icon-wrap {
@@ -220,8 +211,8 @@
     border-radius: 14px;
     box-shadow:
         inset 0 2px 4px rgba(255, 255, 255, 1),
-        inset 0 -3px 8px rgba(43, 88, 120, 0.35),
-        0 10px 24px rgba(10, 30, 50, 0.30),
+        inset 0 -3px 8px rgba(43, 88, 120, 0.30),
+        0 10px 24px rgba(10, 30, 50, 0.20),
         0 0 0 1px rgba(111, 163, 192, 0.30);
 }
 
@@ -242,19 +233,19 @@
     -webkit-backdrop-filter: blur(18px) saturate(170%);
     border-bottom: 1.5px solid rgba(255, 255, 255, 0.90);
     box-shadow:
-        inset 0 -1px 0 rgba(43, 88, 120, 0.20),
-        0 2px 6px rgba(10, 30, 50, 0.12);
+        inset 0 -1px 0 rgba(43, 88, 120, 0.15),
+        0 2px 6px rgba(10, 30, 50, 0.08);
 }
 
 /* ================================================================
-   3. SIDEBAR — vidrio esmerilado + FIX compositing
+   3. SIDEBAR
    ================================================================ */
 .sidebar {
     position: relative;
     background-image:
         var(--theme-grain),
         linear-gradient(90deg,
-            rgba(255, 255, 255, 0.55) 0%,
+            rgba(255, 255, 255, 0.60) 0%,
             rgba(176, 204, 224, 0.55) 100%);
     background-size: 200px 200px, 100% 100%;
     background-position: 0 0, center;
@@ -263,9 +254,7 @@
     -webkit-backdrop-filter: blur(14px) saturate(150%);
     border-right: 1.5px solid rgba(255, 255, 255, 0.90);
     overflow: hidden;
-    box-shadow: inset -1px 0 0 rgba(43, 88, 120, 0.15);
-    transform: translateZ(0);
-    will-change: transform;
+    box-shadow: inset -1px 0 0 rgba(43, 88, 120, 0.12);
 }
 .sidebar-comunidad,
 .sidebar-label,
@@ -274,29 +263,36 @@
 
 .nav-item {
     border-radius: 8px;
+    color: var(--text-2);
     transition: all 0.20s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .nav-item:hover {
     background: rgba(255, 255, 255, 0.55);
+    color: var(--text);
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.80);
 }
 .nav-item.active {
     background: linear-gradient(180deg,
         rgba(255, 255, 255, 0.95) 0%,
         rgba(218, 235, 245, 0.85) 100%);
+    color: var(--text);
     border-radius: 8px;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 1),
-        inset 0 -1px 0 rgba(43, 88, 120, 0.20),
+        inset 0 -1px 0 rgba(43, 88, 120, 0.15),
         inset 0 0 0 1px rgba(111, 163, 192, 0.40),
-        0 2px 6px rgba(10, 30, 50, 0.15);
+        0 2px 6px rgba(10, 30, 50, 0.10);
 }
 .nav-item.active::before {
     background: linear-gradient(180deg, #6FA3C0, #2B5878);
     width: 3px;
     height: 22px;
     border-radius: 0 3px 3px 0;
-    box-shadow: 0 0 8px rgba(70, 120, 154, 0.60);
+}
+.nav-item.active .nav-icon { color: var(--violet-500); }
+
+@media (max-width: 768px) {
+    .sidebar { position: fixed; }
 }
 
 /* ================================================================
@@ -307,8 +303,8 @@
     background-image:
         var(--theme-shine),
         linear-gradient(180deg,
-            rgba(255, 255, 255, 0.75) 0%,
-            rgba(218, 235, 245, 0.60) 100%);
+            rgba(255, 255, 255, 0.85) 0%,
+            rgba(218, 235, 245, 0.70) 100%);
     background-size: 100% 100%, 100% 100%;
     background-position: top left, center;
     background-repeat: no-repeat, no-repeat;
@@ -318,9 +314,9 @@
     border-radius: 12px;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 1),
-        inset 0 -2px 6px rgba(43, 88, 120, 0.20),
-        0 4px 12px rgba(10, 30, 50, 0.20),
-        0 0 0 1px rgba(111, 163, 192, 0.15);
+        inset 0 -2px 6px rgba(43, 88, 120, 0.15),
+        0 4px 12px rgba(10, 30, 50, 0.12),
+        0 0 0 1px rgba(111, 163, 192, 0.12);
     overflow: visible;
     transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -345,23 +341,20 @@
     border-color: rgba(255, 255, 255, 1);
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 1),
-        inset 0 -2px 6px rgba(43, 88, 120, 0.25),
-        0 14px 30px rgba(10, 30, 50, 0.28),
-        0 0 0 1px rgba(111, 163, 192, 0.35);
+        inset 0 -2px 6px rgba(43, 88, 120, 0.20),
+        0 14px 30px rgba(10, 30, 50, 0.18),
+        0 0 0 1px rgba(111, 163, 192, 0.30);
 }
 .acceso-icon-wrap {
     background: linear-gradient(135deg,
         rgba(255, 255, 255, 0.95) 0%,
-        rgba(168, 203, 223, 0.75) 100%);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+        rgba(168, 203, 223, 0.70) 100%);
     color: var(--violet-500);
     border: 1.5px solid rgba(255, 255, 255, 1);
     border-radius: 50%;
     box-shadow:
         inset 0 2px 3px rgba(255, 255, 255, 1),
-        inset 0 -2px 4px rgba(43, 88, 120, 0.25),
-        0 2px 6px rgba(10, 30, 50, 0.20);
+        inset 0 -2px 4px rgba(43, 88, 120, 0.20);
     transition: all 0.22s ease;
 }
 .acceso-item:hover .acceso-icon-wrap {
@@ -369,8 +362,8 @@
     color: #FFFFFF;
     border-color: rgba(255, 255, 255, 0.90);
     box-shadow:
-        0 0 0 3px rgba(111, 163, 192, 0.30),
-        0 4px 10px rgba(10, 30, 50, 0.30);
+        0 0 0 3px rgba(111, 163, 192, 0.25),
+        0 4px 10px rgba(10, 30, 50, 0.25);
 }
 
 /* ================================================================
@@ -381,14 +374,12 @@
     border-radius: 12px;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.95),
-        0 4px 12px rgba(10, 30, 50, 0.20);
+        0 4px 12px rgba(10, 30, 50, 0.12);
     transition: all 0.22s;
 }
 .widget-item:hover {
     border-color: rgba(255, 255, 255, 1);
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 1),
-        0 12px 28px rgba(10, 30, 50, 0.28);
+    box-shadow: 0 12px 28px rgba(10, 30, 50, 0.18);
 }
 
 /* ================================================================
@@ -402,6 +393,7 @@
     -webkit-backdrop-filter: blur(8px);
     border-color: rgba(255, 255, 255, 1);
     border-radius: 12px 12px 0 0;
+    color: var(--text);
     box-shadow:
         inset 0 -3px 0 var(--violet-300),
         inset 0 1px 0 rgba(255, 255, 255, 1);
@@ -419,7 +411,7 @@
         var(--theme-grain),
         var(--theme-shine),
         linear-gradient(180deg,
-            rgba(255, 255, 255, 0.90) 0%,
+            rgba(255, 255, 255, 0.92) 0%,
             rgba(218, 235, 245, 0.85) 100%);
     background-size: 200px 200px, 100% 100%, 100% 100%;
     background-position: 0 0, top left, center;
@@ -430,9 +422,9 @@
     border-radius: 16px;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 1),
-        inset 0 -2px 6px rgba(43, 88, 120, 0.20),
-        0 24px 48px rgba(10, 30, 50, 0.30),
-        0 0 0 1px rgba(111, 163, 192, 0.20);
+        inset 0 -2px 6px rgba(43, 88, 120, 0.15),
+        0 24px 48px rgba(10, 30, 50, 0.22),
+        0 0 0 1px rgba(111, 163, 192, 0.18);
 }
 .config-card::before,
 .modal-todas-card::before {
@@ -453,7 +445,7 @@
         10px calc(100% - 10px),
         calc(100% - 10px) calc(100% - 10px);
     background-repeat: no-repeat;
-    filter: drop-shadow(0 1px 1px rgba(10, 30, 50, 0.40));
+    filter: drop-shadow(0 1px 1px rgba(10, 30, 50, 0.30));
 }
 .config-card::after,
 .modal-todas-card::after {
@@ -471,7 +463,7 @@
 .modal-todas-header {
     background: linear-gradient(180deg,
         rgba(218, 235, 245, 0.90) 0%,
-        rgba(168, 203, 223, 0.75) 100%);
+        rgba(168, 203, 223, 0.70) 100%);
     border-bottom: 1.5px solid rgba(255, 255, 255, 0.95);
     position: relative;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95);
@@ -486,12 +478,12 @@
     border: 1.5px solid rgba(255, 255, 255, 0.65);
     color: #FFFFFF;
     font-weight: 700;
-    text-shadow: 0 1px 2px rgba(10, 30, 50, 0.50);
+    text-shadow: 0 1px 2px rgba(10, 30, 50, 0.45);
     box-shadow:
         inset 0 2px 0 rgba(255, 255, 255, 0.60),
-        inset 0 -2px 4px rgba(10, 30, 50, 0.50),
-        0 4px 12px rgba(10, 30, 50, 0.35),
-        0 0 0 1px rgba(111, 163, 192, 0.30);
+        inset 0 -2px 4px rgba(10, 30, 50, 0.45),
+        0 4px 12px rgba(10, 30, 50, 0.25),
+        0 0 0 1px rgba(111, 163, 192, 0.25);
     transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .btn-primario:hover {
@@ -500,9 +492,9 @@
     transform: translateY(-1px);
     box-shadow:
         inset 0 2px 0 rgba(255, 255, 255, 0.75),
-        inset 0 -2px 4px rgba(10, 30, 50, 0.50),
-        0 8px 20px rgba(10, 30, 50, 0.45),
-        0 0 0 3px rgba(111, 163, 192, 0.30);
+        inset 0 -2px 4px rgba(10, 30, 50, 0.45),
+        0 8px 20px rgba(10, 30, 50, 0.35),
+        0 0 0 3px rgba(111, 163, 192, 0.25);
 }
 
 /* ================================================================
@@ -511,24 +503,24 @@
 .config-field input,
 .config-field select,
 .config-select {
-    background: rgba(255, 255, 255, 0.75);
+    background: rgba(255, 255, 255, 0.80);
     border: 1.5px solid rgba(255, 255, 255, 0.95);
     color: var(--text);
     box-shadow:
-        inset 0 2px 4px rgba(10, 30, 50, 0.12),
-        inset 0 0 0 1px rgba(111, 163, 192, 0.15);
+        inset 0 2px 4px rgba(10, 30, 50, 0.08),
+        inset 0 0 0 1px rgba(111, 163, 192, 0.12);
 }
 .config-field input:focus,
 .config-field select:focus,
 .config-select:focus {
     border-color: rgba(111, 163, 192, 0.70);
     box-shadow:
-        inset 0 2px 4px rgba(10, 30, 50, 0.12),
-        0 0 0 3px rgba(111, 163, 192, 0.25);
+        inset 0 2px 4px rgba(10, 30, 50, 0.08),
+        0 0 0 3px rgba(111, 163, 192, 0.22);
 }
 
 /* ================================================================
-   10. AVATAR
+   10. AVATAR Y NOTIFICACIONES
    ================================================================ */
 .avatar-config {
     background: radial-gradient(circle at 30% 25%,
@@ -536,26 +528,26 @@
     border: 2px solid rgba(255, 255, 255, 1);
     box-shadow:
         inset 0 3px 4px rgba(255, 255, 255, 1),
-        inset 0 -3px 6px rgba(43, 88, 120, 0.40),
-        0 0 0 1px rgba(111, 163, 192, 0.40),
-        0 4px 12px rgba(10, 30, 50, 0.30);
+        inset 0 -3px 6px rgba(43, 88, 120, 0.35),
+        0 0 0 1px rgba(111, 163, 192, 0.35),
+        0 4px 12px rgba(10, 30, 50, 0.22);
 }
 .avatar-config:hover {
     transform: translateY(-1px) scale(1.05);
     box-shadow:
         inset 0 3px 4px rgba(255, 255, 255, 1),
-        inset 0 -3px 6px rgba(43, 88, 120, 0.45),
-        0 0 0 1px rgba(111, 163, 192, 0.55),
-        0 8px 20px rgba(10, 30, 50, 0.40);
+        inset 0 -3px 6px rgba(43, 88, 120, 0.40),
+        0 0 0 1px rgba(111, 163, 192, 0.50),
+        0 8px 20px rgba(10, 30, 50, 0.30);
 }
 
 .noti-btn.tiene-no-leidas {
-    background: rgba(111, 163, 192, 0.20);
+    background: rgba(111, 163, 192, 0.18);
     color: var(--violet-600);
 }
 .search-bar:focus-within {
     border-color: rgba(111, 163, 192, 0.70);
-    box-shadow: 0 0 0 3px rgba(111, 163, 192, 0.25);
+    box-shadow: 0 0 0 3px rgba(111, 163, 192, 0.22);
 }
 .search-bar:focus-within .search-icon { color: var(--violet-500); }
 
