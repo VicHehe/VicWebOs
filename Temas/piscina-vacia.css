@@ -1,0 +1,43 @@
+/* ================================================
+   Tema: Piscina Vacía
+   Azulejo blanco, agua detenida, luz de tarde
+   filtrándose desde arriba. Solo paleta.
+   ================================================ */
+
+:root {
+    --violet-50:  #EBF6F9;
+    --violet-100: #D5E9F0;
+    --violet-200: #B0D5E2;
+    --violet-300: #78B8CC;
+    --violet-400: #4DA6BC;
+    --violet-500: #2E8898;
+    --violet-600: #1F6E7C;
+    --violet-700: #155562;
+
+    --white:   #FFFFFF;
+    --bg:      #E8F3F7;
+    --bg-alt:  #D5E9F0;
+    --gray-50:  #F3F9FB;
+    --gray-100: #E5EFF3;
+    --gray-200: #D0DDE3;
+    --gray-300: #A8BCC4;
+    --gray-400: #7A9098;
+    --gray-500: #5C7280;
+    --gray-600: #425564;
+    --gray-700: #2E3E4A;
+    --gray-800: #1C2A34;
+    --gray-900: #0F1A22;
+
+    --border:  #C5D5DC;
+    --text:    #0F1A22;
+    --text-2:  #425564;
+    --text-3:  #5C7280;
+
+    --shadow-glow: 0 0 0 4px rgba(77, 166, 188, 0.18);
+
+    --accent-gradient: linear-gradient(135deg, #4DA6BC, #2E8898);
+    --accent-gradient-hover: linear-gradient(135deg, #78B8CC, #2E8898);
+    --accent-shadow: rgba(77, 166, 188, 0.30);
+    --accent-shadow-hover: rgba(77, 166, 188, 0.45);
+    --accent-text-gradient: linear-gradient(135deg, #0F1A22, #2E8898);
+}
