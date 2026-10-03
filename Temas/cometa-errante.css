@@ -59,6 +59,8 @@
 
 /* ================================================================
    1. WELCOME — Espacio profundo con cometa
+   NO se toca overflow: mantiene el overflow-y: auto del CSS base
+   para que el contenido pueda scrollear con normalidad.
    ================================================================ */
 .welcome-placeholder {
     position: relative;
@@ -74,11 +76,10 @@
         100% 100%,
         100% 100%;
     background-repeat: repeat, no-repeat, no-repeat, no-repeat;
-    background-attachment: fixed, scroll, scroll, scroll;
-    overflow: hidden;
+    background-attachment: scroll, scroll, scroll, scroll;
 }
 
-/* El cometa cruzando */
+/* El cometa cruzando (dentro de los límites, sin overflow) */
 .welcome-placeholder::before {
     content: '';
     position: absolute;
@@ -219,7 +220,6 @@
     pointer-events: none;
     background-image: var(--theme-estrellas);
     background-size: 300px 300px;
-    background-attachment: fixed;
     opacity: 0.55;
     z-index: 0;
 }
@@ -400,9 +400,9 @@
         0 0 0 3px rgba(34, 211, 238, 0.20);
 }
 
-/* ================================================
+/* ================================================================
    10. AVATAR Y NOTIFICACIONES
-   ================================================ */
+   ================================================================ */
 .avatar-config {
     background: linear-gradient(135deg, #22D3EE, #0A1420);
     border: 2px solid rgba(34, 211, 238, 0.40);
@@ -434,9 +434,9 @@
     color: var(--violet-500);
 }
 
-/* ================================================
+/* ================================================================
    11. prefers-reduced-motion
-   ================================================ */
+   ================================================================ */
 @media (prefers-reduced-motion: reduce) {
     .welcome-placeholder::before,
     .welcome-placeholder::after,
