@@ -1,0 +1,43 @@
+/* ================================================
+   Tema: Aurora Boreal
+   Cielo nocturno profundo con verde esmeralda
+   ondulando sobre violeta. Solo paleta.
+   ================================================ */
+
+:root {
+    --violet-50:  #0A1F1A;
+    --violet-100: #0E2A22;
+    --violet-200: #123A2E;
+    --violet-300: #34D399;
+    --violet-400: #6EE7B7;
+    --violet-500: #8B5CF6;
+    --violet-600: #7C3AED;
+    --violet-700: #6D28D9;
+
+    --white:   #0F2A35;
+    --bg:      #071820;
+    --bg-alt:  #0A2028;
+    --gray-50:  #0A2028;
+    --gray-100: #102A32;
+    --gray-200: #1A3A42;
+    --gray-300: #2A4F5A;
+    --gray-400: #4A6E78;
+    --gray-500: #7A9AA3;
+    --gray-600: #A8C0C8;
+    --gray-700: #C8DCE0;
+    --gray-800: #E0ECF0;
+    --gray-900: #F0F8FA;
+
+    --border:  #1A3A42;
+    --text:    #F0F8FA;
+    --text-2:  #A8C0C8;
+    --text-3:  #7A9AA3;
+
+    --shadow-glow: 0 0 0 4px rgba(16, 185, 129, 0.20);
+
+    --accent-gradient: linear-gradient(135deg, #10B981, #8B5CF6);
+    --accent-gradient-hover: linear-gradient(135deg, #34D399, #A78BFA);
+    --accent-shadow: rgba(16, 185, 129, 0.35);
+    --accent-shadow-hover: rgba(16, 185, 129, 0.55);
+    --accent-text-gradient: linear-gradient(135deg, #6EE7B7, #A78BFA);
+}
