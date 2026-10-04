@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>EvanParla</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="ep-widget">
+
+        <div class="ep-header">
+            <div class="ep-titulo">
+                <i data-lucide="volume-2"></i>
+                <span>EvanParla</span>
+            </div>
+            <span class="ep-status" id="epStatus" hidden>
+                <span class="ep-status-dot"></span>
+                <span class="ep-status-txt">Listo</span>
+            </span>
+            <button class="ep-btn-icon" id="epBtnConfig" title="Configuración de voz">
+                <i data-lucide="settings-2"></i>
+            </button>
+        </div>
+
+        <div class="ep-zona">
+            <textarea id="epTexto" class="ep-textarea" placeholder="Pegá o escribí el texto que querés escuchar..." spellcheck="false"></textarea>
+        </div>
+
+        <div class="ep-controles">
+            <button class="ep-btn ep-btn-play" id="epBtnPlay" title="Reproducir" disabled>
+                <i data-lucide="play"></i>
+            </button>
+            <button class="ep-btn" id="epBtnPause" title="Pausar" disabled>
+                <i data-lucide="pause"></i>
+            </button>
+            <button class="ep-btn" id="epBtnStop" title="Detener" disabled>
+                <i data-lucide="square"></i>
+            </button>
+            <div class="ep-contador" id="epContador">—</div>
+        </div>
+
+    </div>
+
+    <!-- MODAL: configuración de voz -->
+    <div class="ep-modal" id="epModal" hidden>
+        <div class="ep-modal-card">
+
+            <div class="ep-modal-header">
+                <h3>Configuración de voz</h3>
+                <button class="ep-modal-cerrar" id="epModalCerrar"><i data-lucide="x"></i></button>
+            </div>
+
+            <div class="ep-modal-body">
+
+                <div class="ep-field">
+                    <label class="ep-field-label">Voz</label>
+                    <select id="epVoz" class="ep-select"></select>
+                    <p class="ep-help" id="epVozHelp">—</p>
+                </div>
+
+                <div class="ep-field">
+                    <div class="ep-field-head">
+                        <label class="ep-field-label">Velocidad</label>
+                        <span class="ep-field-valor" id="epRateVal">1.0×</span>
+                    </div>
+                    <input type="range" id="epRate" class="ep-range" min="0.5" max="2" step="0.1" value="1">
+                </div>
+
+                <div class="ep-field">
+                    <div class="ep-field-head">
+                        <label class="ep-field-label">Tono</label>
+                        <span class="ep-field-valor" id="epPitchVal">1.0</span>
+                    </div>
+                    <input type="range" id="epPitch" class="ep-range" min="0" max="2" step="0.1" value="1">
+                </div>
+
+                <div class="ep-field">
+                    <div class="ep-field-head">
+                        <label class="ep-field-label">Volumen</label>
+                        <span class="ep-field-valor" id="epVolVal">100%</span>
+                    </div>
+                    <input type="range" id="epVol" class="ep-range" min="0" max="1" step="0.05" value="1">
+                </div>
+
+                <button class="ep-btn-test" id="epBtnTest">
+                    <i data-lucide="play"></i>
+                    Probar voz
+                </button>
+
+                <p class="ep-nota">
+                    <i data-lucide="info"></i>
+                    <span>Las voces disponibles dependen de tu navegador y sistema operativo. En Android suele haber pocas; en PC suelen ser varias.</span>
+                </p>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
