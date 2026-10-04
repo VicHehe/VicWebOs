@@ -1,37 +1,54 @@
 /* ================================================
    Widget: Generador de Contraseñas
-   Formulario de 3 campos + resultado + fuerza.
-   Sin persistencia. Colores semánticos solo en la
-   barra de fuerza (rojo/naranja/verde).
+   Si el contenido no cabe, el body del iframe scrollea.
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html, body { height: 100%; }
+
+/* La clave: permitir que el body scrollee cuando haga falta */
+html, body {
+    min-height: 100%;
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
 
 body {
     font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
     background: transparent;
     color: var(--text, #18181B);
     font-size: 13px;
-    overflow: hidden;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
 }
 
+/* Scrollbar fina y discreta */
+body::-webkit-scrollbar { width: 5px; }
+body::-webkit-scrollbar-track { background: transparent; }
+body::-webkit-scrollbar-thumb {
+    background: var(--gray-300, #D4D4DD);
+    border-radius: 999px;
+}
+body { scrollbar-width: thin; scrollbar-color: var(--gray-300, #D4D4DD) transparent; }
+
 [data-lucide] { width: 16px; height: 16px; stroke-width: 2; flex-shrink: 0; }
 
-/* ========== WIDGET ========== */
+/* ========== WIDGET ==========
+   min-height: 100% en vez de height: 100% + overflow visible
+   para que crezca lo necesario y el body scrollee. */
 .pg-widget {
     background: var(--white, #FFFFFF);
     border: 1px solid var(--border, #E8E8EE);
     border-radius: var(--r-lg, 16px);
     padding: 10px 12px;
     box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
-    height: 100%;
+    min-height: 100%;
     display: flex;
     flex-direction: column;
     gap: 6px;
-    overflow: hidden;
+    overflow: visible;
     transition: background 0.3s, color 0.3s, border-color 0.3s;
 }
 
@@ -76,7 +93,7 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    min-height: 28px;
+    min-height: 26px;
 }
 
 .pg-field label {
@@ -93,7 +110,7 @@ body {
 .pg-field input {
     flex: 1;
     min-width: 0;
-    padding: 6px 9px;
+    padding: 5px 9px;
     border: 1.5px solid var(--border, #E8E8EE);
     border-radius: 8px;
     font-family: inherit;
@@ -134,12 +151,12 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 7px 10px;
+    padding: 6px 10px;
     background: var(--violet-50, #F5F3FF);
     border: 1.5px solid var(--violet-200, #DDD6FE);
     border-radius: 10px;
     flex-shrink: 0;
-    min-height: 38px;
+    min-height: 36px;
     transition: all 0.15s;
 }
 
@@ -273,7 +290,8 @@ body {
     transition: all 0.15s;
     flex-shrink: 0;
     touch-action: manipulation;
-    margin-top: auto;
+    /* Sin margin-top:auto porque ahora el body scrollea */
+    margin-top: 2px;
 }
 .pg-btn [data-lucide] { width: 14px; height: 14px; }
 .pg-btn:hover:not(:disabled) {
@@ -288,19 +306,24 @@ body {
     cursor: not-allowed;
 }
 
-/* ========== RESPONSIVE ========== */
+/* ========== RESPONSIVE (achicar más para reducir scroll) ========== */
 @media (max-width: 260px) {
-    .pg-widget { padding: 9px 10px; gap: 5px; }
+    .pg-widget { padding: 8px 10px; gap: 5px; }
     .pg-titulo span { display: none; }
     .pg-titulo [data-lucide] { width: 14px; height: 14px; }
     .pg-field label { width: 46px; font-size: 9px; }
     .pg-field input { font-size: 11.5px; padding: 5px 7px; }
+    .pg-field { min-height: 24px; }
     .pg-resultado.lleno { font-size: 12.5px; }
+    .pg-resultado-wrap { min-height: 32px; padding: 5px 8px; }
     .pg-fuerza-texto { font-size: 9px; min-width: 50px; }
     .pg-btn { padding: 8px 12px; font-size: 12px; }
 }
 
-@media (max-height: 220px) {
-    .pg-widget { padding: 8px 10px; gap: 4px; }
-    .pg-header { padding-bottom: 3px; min-height: 16px; }
+@media (max-height: 260px) {
+    .pg-widget { gap: 4px; padding: 8px 10px; }
+    .pg-field { min-height: 22px; }
+    .pg-resultado-wrap { min-height: 30px; }
+    .pg-fuerza { min-height: 10px; }
+    .pg-btn { padding: 7px 12px; }
 }
