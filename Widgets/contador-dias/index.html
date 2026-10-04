@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Contador de Días</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="cd-widget">
+
+        <div class="cd-header">
+            <div class="cd-titulo">
+                <i data-lucide="calendar-range"></i>
+                <span>Contador de Días</span>
+            </div>
+            <button class="cd-btn-icon" id="cdBtnReset" title="Reiniciar a hoy">
+                <i data-lucide="rotate-ccw"></i>
+            </button>
+        </div>
+
+        <div class="cd-resultado">
+            <span class="cd-numero" id="cdNumero">0</span>
+            <span class="cd-unidad" id="cdUnidad">días</span>
+        </div>
+
+        <div class="cd-fechas">
+            <div class="cd-fecha-fila">
+                <i data-lucide="calendar-plus" class="cd-fecha-icono"></i>
+                <input type="date" id="cdDesde" class="cd-input">
+            </div>
+            <div class="cd-fecha-fila">
+                <i data-lucide="flag" class="cd-fecha-icono"></i>
+                <input type="date" id="cdHasta" class="cd-input">
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
