@@ -173,6 +173,17 @@ const WIDGETS_DISPONIBLES = [
     monedas: 60
 },
     {
+    id: 'palevan',
+    nombre: 'Palevan',
+    icono: 'palette',
+    ruta: 'Widgets/palevan/index.html',
+    descripcion: 'Subís una imagen y extraés sus colores dominantes. Tocá un color para copiar su código hex.',
+    categoria: 'Utilidades',
+    esBase: false,
+    espacio: 4,
+    monedas: 60
+},
+    {
     id: 'reloj',
     nombre: 'Reloj',
     icono: 'timer',
@@ -183,6 +194,7 @@ const WIDGETS_DISPONIBLES = [
     espacio: 2,
     monedas: 80
 },
+    
     {
         id: 'to-do-list',
         nombre: 'To-Do List',
