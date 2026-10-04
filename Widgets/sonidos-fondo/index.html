@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Sonidos de Fondo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="sf-widget" id="sfWidget">
+
+        <div class="sf-header">
+            <div class="sf-titulo">
+                <i data-lucide="cloud-rain-wind"></i>
+                <span>Sonidos de Fondo</span>
+            </div>
+        </div>
+
+        <div class="sf-presets" id="sfPresets">
+            <button class="sf-preset active" data-preset="lluvia">
+                <i data-lucide="cloud-rain"></i>
+                <span>Lluvia</span>
+            </button>
+            <button class="sf-preset" data-preset="olas">
+                <i data-lucide="waves"></i>
+                <span>Olas</span>
+            </button>
+            <button class="sf-preset" data-preset="tormenta">
+                <i data-lucide="cloud-lightning"></i>
+                <span>Tormenta</span>
+            </button>
+        </div>
+
+        <div class="sf-play-wrap">
+            <button class="sf-play-btn" id="sfBtnPlay" aria-label="Reproducir">
+                <i data-lucide="play"></i>
+            </button>
+            <div class="sf-status" id="sfStatus">Tocá para empezar</div>
+        </div>
+
+        <div class="sf-volumen">
+            <button class="sf-vol-icon" id="sfVolIcon" title="Silenciar">
+                <i data-lucide="volume-2"></i>
+            </button>
+            <input type="range" id="sfVol" min="0" max="1" step="0.01" value="0.6">
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
