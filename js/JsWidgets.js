@@ -232,7 +232,7 @@ const WIDGETS_DISPONIBLES = [
     nombre: 'Sonidos de Fondo',
     icono: 'cloud-rain-wind',
     ruta: 'Widgets/sonidos-fondo/index.html',
-    descripcion: 'Lluvia, olas y tormenta generadas en tiempo real con Web Audio API. Sin archivos externos, 100% sintético. Ideal para concentrarte.',
+    descripcion: 'Lluvia, olas y tormenta para escuchar de fondo mientras trabajás o descansás.',
     categoria: 'Entretenimiento',
     esBase: false,
     espacio: 4,
