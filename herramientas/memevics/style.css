@@ -1,0 +1,809 @@
+/* ================================================
+   Meme Sculptor — Creador de memes
+   Layout adaptativo:
+     · PC (≥900px):     canvas + panel lateral derecho
+     · Móvil (<900px):  canvas arriba + panel scrollable abajo
+   Compatible con todos los temas (var() + fallbacks).
+   ================================================ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+[hidden] { display: none !important; }
+
+html, body { height: 100%; overflow: hidden; }
+
+body {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg, #FBFBFD);
+    color: var(--text, #18181B);
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+    color-scheme: light dark;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
+}
+
+[data-lucide] { width: 18px; height: 18px; stroke-width: 2; flex-shrink: 0; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: var(--gray-200, #E8E8EE);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+/* ============================================================
+   APP
+   ============================================================ */
+.ms-app {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    overflow: hidden;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.ms-header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--white, #FFFFFF);
+    border-bottom: 1px solid var(--border, #E8E8EE);
+    min-height: 52px;
+    z-index: 20;
+}
+
+.ms-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+.ms-logo-mark {
+    width: 34px;
+    height: 34px;
+    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 4px 10px var(--accent-shadow, rgba(139,92,246,0.28));
+    flex-shrink: 0;
+}
+.ms-logo-mark [data-lucide] { width: 18px; height: 18px; stroke-width: 2.5; }
+
+.ms-logo-text { min-width: 0; }
+.ms-logo-text h1 {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: var(--accent-text-gradient, linear-gradient(135deg, #18181B, #7C3AED));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+    line-height: 1.15;
+}
+.ms-logo-text p {
+    font-size: 10.5px;
+    color: var(--gray-500, #71717A);
+    font-weight: 600;
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+}
+
+.ms-header-actions {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.ms-btn-icono {
+    width: 36px;
+    height: 36px;
+    background: var(--white, #FFFFFF);
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 10px;
+    cursor: pointer;
+    color: var(--gray-600, #52525B);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+.ms-btn-icono:hover {
+    background: var(--violet-50, #F5F3FF);
+    border-color: var(--violet-300, #C4B5FD);
+    color: var(--violet-600, #7C3AED);
+}
+.ms-btn-icono [data-lucide] { width: 16px; height: 16px; }
+
+.ms-btn-pri {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 14px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    touch-action: manipulation;
+    white-space: nowrap;
+    border: none;
+    flex-shrink: 0;
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: white;
+    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
+}
+.ms-btn-pri:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px var(--accent-shadow-hover, rgba(139,92,246,0.38));
+}
+.ms-btn-pri:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+.ms-btn-pri [data-lucide] { width: 14px; height: 14px; }
+
+/* ============================================================
+   BODY
+   ============================================================ */
+.ms-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* ============================================================
+   CANVAS ZONE
+   ============================================================ */
+.ms-canvas-zone {
+    flex: 1 1 50%;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: var(--bg-alt, #F5F5F8);
+    background-image:
+        radial-gradient(circle, var(--gray-300, #D4D4DD) 1px, transparent 1px);
+    background-size: 20px 20px;
+    overflow: hidden;
+    position: relative;
+}
+
+.ms-canvas-wrap {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#msCanvas {
+    display: block;
+    background: #FFFFFF;
+    border-radius: 8px;
+    box-shadow:
+        0 2px 8px rgba(0,0,0,0.15),
+        0 8px 32px rgba(0,0,0,0.18),
+        0 0 0 1px rgba(0,0,0,0.06);
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Empty state */
+.ms-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+    padding: 32px 20px;
+    background: var(--white, #FFFFFF);
+    border: 1.5px dashed var(--border, #E8E8EE);
+    border-radius: 20px;
+    max-width: 420px;
+    width: 100%;
+}
+.ms-empty-icon {
+    width: 68px;
+    height: 68px;
+    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 10px 24px var(--accent-shadow, rgba(139,92,246,0.28));
+    margin-bottom: 4px;
+}
+.ms-empty-icon [data-lucide] { width: 32px; height: 32px; stroke-width: 2; }
+.ms-empty h3 {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--gray-900, #18181B);
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+.ms-empty p {
+    font-size: 12.5px;
+    color: var(--gray-500, #71717A);
+    line-height: 1.5;
+    margin: 0;
+    max-width: 300px;
+}
+.ms-empty-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    width: 100%;
+    max-width: 320px;
+}
+.ms-empty-actions .ms-btn-sec,
+.ms-empty-actions .ms-btn-pri {
+    flex: 1;
+    justify-content: center;
+}
+
+/* Info sobre la imagen */
+.ms-canvas-info {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    background: var(--white, #FFFFFF);
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gray-600, #52525B);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    pointer-events: none;
+    max-width: calc(100% - 24px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    z-index: 5;
+}
+.ms-canvas-info [data-lucide] {
+    width: 12px;
+    height: 12px;
+    color: var(--violet-500, #8B5CF6);
+}
+
+/* ============================================================
+   PANEL
+   ============================================================ */
+.ms-panel {
+    flex: 0 0 auto;
+    max-height: 50%;
+    background: var(--white, #FFFFFF);
+    border-top: 1px solid var(--border, #E8E8EE);
+    padding: 14px 14px calc(14px + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.ms-seccion {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--gray-100, #F4F4F7);
+}
+.ms-seccion:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.ms-seccion h3 {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-500, #71717A);
+    margin: 0;
+}
+.ms-seccion h3 [data-lucide] {
+    width: 13px;
+    height: 13px;
+    color: var(--violet-500, #8B5CF6);
+}
+
+/* ============================================================
+   FIELDS
+   ============================================================ */
+.ms-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.ms-field label {
+    font-size: 11.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--gray-600, #52525B);
+}
+.ms-field input[type="text"] {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    background: var(--white, #FFFFFF);
+    color: var(--gray-900, #18181B);
+    outline: none;
+    transition: all 0.15s;
+}
+.ms-field input[type="text"]:focus {
+    border-color: var(--violet-400, #A78BFA);
+    box-shadow: 0 0 0 3px var(--shadow-glow, rgba(139,92,246,0.10));
+}
+.ms-field input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--gray-50, #FAFAFB);
+}
+
+/* ============================================================
+   SLIDERS
+   ============================================================ */
+.ms-slider {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.ms-slider label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gray-700, #3F3F46);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.ms-slider label span {
+    color: var(--violet-600, #7C3AED);
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+    background: var(--violet-50, #F5F3FF);
+    padding: 2px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    min-width: 40px;
+    text-align: center;
+}
+.ms-slider input[type="range"] {
+    width: 100%;
+    height: 6px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--gray-200, #E8E8EE);
+    border-radius: 999px;
+    outline: none;
+    cursor: pointer;
+}
+.ms-slider input[type="range"]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.ms-slider input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--violet-500, #8B5CF6);
+    border: 3px solid var(--white, #FFFFFF);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    cursor: pointer;
+}
+.ms-slider input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--violet-500, #8B5CF6);
+    border: 3px solid var(--white, #FFFFFF);
+    cursor: pointer;
+}
+
+/* ============================================================
+   COLORES
+   ============================================================ */
+.ms-color-row {
+    display: flex;
+    gap: 10px;
+}
+.ms-color-field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+}
+.ms-color-field label {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--gray-600, #52525B);
+}
+.ms-color-field input[type="color"] {
+    width: 100%;
+    height: 44px;
+    border: 2px solid var(--border, #E8E8EE);
+    border-radius: 10px;
+    padding: 3px;
+    cursor: pointer;
+    background: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+.ms-color-field input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+.ms-color-field input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 6px;
+}
+.ms-color-field input[type="color"]::-moz-color-swatch {
+    border: none;
+    border-radius: 6px;
+}
+.ms-color-field input[type="color"]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ============================================================
+   BOTONES
+   ============================================================ */
+.ms-row-botones {
+    display: flex;
+    gap: 8px;
+}
+
+.ms-btn-sec,
+.ms-btn-sec-full {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 12px;
+    background: var(--white, #FFFFFF);
+    color: var(--gray-700, #3F3F46);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.15s;
+    touch-action: manipulation;
+}
+.ms-btn-sec:hover:not(:disabled),
+.ms-btn-sec-full:hover:not(:disabled) {
+    background: var(--violet-50, #F5F3FF);
+    border-color: var(--violet-300, #C4B5FD);
+    color: var(--violet-700, #6D28D9);
+}
+.ms-btn-sec:disabled,
+.ms-btn-sec-full:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.ms-btn-sec [data-lucide],
+.ms-btn-sec-full [data-lucide] { width: 14px; height: 14px; }
+
+.ms-btn-full { flex: 1; min-width: 0; }
+.ms-btn-sec-full { width: 100%; }
+
+.ms-btn-sec-full.ms-btn-peligro {
+    color: #991B1B;
+    border-color: #FECACA;
+}
+.ms-btn-sec-full.ms-btn-peligro:hover:not(:disabled) {
+    background: #FEF2F2;
+    border-color: #FCA5A5;
+    color: #991B1B;
+}
+
+.ms-btn-sec-full.ms-btn-galeria {
+    background: var(--violet-50, #F5F3FF);
+    border-color: var(--violet-200, #DDD6FE);
+    color: var(--violet-700, #6D28D9);
+}
+.ms-btn-sec-full.ms-btn-galeria:hover:not(:disabled) {
+    background: var(--violet-100, #EDE9FE);
+    border-color: var(--violet-300, #C4B5FD);
+}
+
+/* ============================================================
+   MODALES
+   ============================================================ */
+.ms-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(24, 24, 27, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 200;
+    animation: msFade 0.15s ease;
+}
+@keyframes msFade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.ms-modal-card {
+    background: var(--white, #FFFFFF);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 440px;
+    max-height: 90dvh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.35);
+    animation: msZoom 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+}
+@keyframes msZoom {
+    from { opacity: 0; transform: scale(0.96) translateY(8px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.ms-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border, #E8E8EE);
+    background: var(--gray-50, #FAFAFB);
+    flex-shrink: 0;
+    gap: 8px;
+}
+.ms-modal-header h2 {
+    font-size: 15.5px;
+    font-weight: 800;
+    color: var(--gray-900, #18181B);
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0;
+    min-width: 0;
+}
+.ms-modal-header h2 [data-lucide] {
+    color: var(--violet-500, #8B5CF6);
+    width: 18px;
+    height: 18px;
+}
+.ms-modal-cerrar {
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: none;
+    padding: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--gray-500, #71717A);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+.ms-modal-cerrar:hover {
+    background: #FEE2E2;
+    color: #991B1B;
+}
+.ms-modal-cerrar [data-lucide] { width: 16px; height: 16px; }
+
+.ms-modal-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    overflow-y: auto;
+}
+
+.ms-modal-desc {
+    font-size: 13px;
+    color: var(--gray-600, #52525B);
+    line-height: 1.55;
+    margin: 0;
+}
+.ms-modal-sub {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--violet-700, #6D28D9);
+    background: var(--violet-50, #F5F3FF);
+    border: 1px solid var(--violet-200, #DDD6FE);
+    padding: 10px 12px;
+    border-radius: 10px;
+    margin: 0;
+    line-height: 1.5;
+}
+.ms-modal-sub [data-lucide] {
+    width: 14px;
+    height: 14px;
+    color: var(--violet-600, #7C3AED);
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.ms-ayuda-lista {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.ms-ayuda-lista li {
+    padding: 10px 12px;
+    background: var(--gray-50, #FAFAFB);
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: 10px;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--gray-700, #3F3F46);
+    font-weight: 500;
+}
+.ms-ayuda-lista li strong {
+    color: var(--violet-700, #6D28D9);
+    font-weight: 800;
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+.ms-toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--gray-900, #18181B);
+    color: white;
+    padding: 11px 22px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: 300;
+    max-width: calc(100% - 40px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.ms-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+.ms-toast.success { background: #065F46; }
+.ms-toast.error   { background: #991B1B; }
+.ms-toast.info    { background: var(--violet-700, #6D28D9); }
+
+/* ============================================================
+   RESPONSIVE — PC (≥900px)
+   ============================================================ */
+@media (min-width: 900px) {
+
+    .ms-app {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .ms-header {
+        border-radius: 14px;
+        padding: 10px 16px;
+        min-height: 60px;
+        border: 1.5px solid var(--border, #E8E8EE);
+        box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06));
+    }
+    .ms-logo-mark { width: 40px; height: 40px; border-radius: 12px; }
+    .ms-logo-mark [data-lucide] { width: 22px; height: 22px; }
+    .ms-logo-text h1 { font-size: 19px; }
+    .ms-logo-text p { font-size: 11.5px; max-width: none; }
+
+    .ms-body {
+        flex-direction: row;
+        gap: 12px;
+        min-height: 0;
+    }
+
+    .ms-canvas-zone {
+        flex: 1;
+        order: 1;
+        border-radius: 14px;
+        border: 1.5px solid var(--border, #E8E8EE);
+        box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06));
+    }
+
+    .ms-panel {
+        width: 320px;
+        flex-shrink: 0;
+        max-height: none;
+        border-top: none;
+        border-radius: 14px;
+        border: 1.5px solid var(--border, #E8E8EE);
+        box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06));
+        padding: 16px;
+        order: 2;
+    }
+
+    .ms-toast { bottom: 30px; }
+}
+
+/* ============================================================
+   RESPONSIVE — Móvil chico
+   ============================================================ */
+@media (max-width: 380px) {
+    .ms-logo-text p { display: none; }
+    .ms-logo-mark { width: 32px; height: 32px; }
+    .ms-logo-mark [data-lucide] { width: 16px; height: 16px; }
+    .ms-logo-text h1 { font-size: 14px; }
+
+    .ms-btn-icono { width: 34px; height: 34px; }
+    .ms-btn-icono [data-lucide] { width: 15px; height: 15px; }
+
+    .ms-panel { max-height: 55%; padding: 12px; }
+    .ms-empty { padding: 24px 16px; }
+    .ms-empty-icon { width: 56px; height: 56px; border-radius: 16px; }
+    .ms-empty-icon [data-lucide] { width: 26px; height: 26px; }
+    .ms-empty h3 { font-size: 15.5px; }
+    .ms-empty p { font-size: 12px; }
+}
+
+/* ============================================================
+   RESPONSIVE — Landscape móvil
+   ============================================================ */
+@media (max-height: 500px) and (orientation: landscape) {
+    .ms-header { min-height: 44px; padding: 6px 10px; }
+    .ms-logo-mark { width: 30px; height: 30px; }
+    .ms-logo-mark [data-lucide] { width: 15px; height: 15px; }
+
+    .ms-canvas-zone { flex: 1 1 60%; padding: 8px; }
+    .ms-panel { max-height: 40%; padding: 10px; }
+    .ms-field input[type="text"] { padding: 9px 12px; font-size: 14px; }
+}
