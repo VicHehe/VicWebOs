@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>FlipoVics</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/gif.js@0.2.0/dist/gif.js"></script>
+</head>
+<body>
+
+    <div class="fv-app" id="fvApp">
+
+        <header class="fv-header">
+            <div class="fv-logo">
+                <div class="fv-logo-mark"><i data-lucide="film"></i></div>
+                <div class="fv-logo-text">
+                    <h1>FlipoVics</h1>
+                    <p id="fvUserBadge">—</p>
+                </div>
+            </div>
+            <div class="fv-header-actions">
+                <button class="fv-btn-icono" id="btnDeshacer" title="Deshacer (Ctrl+Z)"><i data-lucide="undo-2"></i></button>
+                <button class="fv-btn-icono" id="btnRehacer" title="Rehacer (Ctrl+Y)"><i data-lucide="redo-2"></i></button>
+                <button class="fv-btn-icono" id="btnLimpiarFrame" title="Limpiar frame actual"><i data-lucide="trash-2"></i></button>
+                <button class="fv-btn-icono" id="btnAyuda" title="Atajos de teclado"><i data-lucide="help-circle"></i></button>
+                <button class="fv-btn-sec" id="btnGuardar" title="Guardar proyecto"><i data-lucide="save"></i><span>Guardar</span></button>
+                <button class="fv-btn-pri" id="btnExportar" title="Exportar animación"><i data-lucide="download"></i><span>Exportar</span></button>
+            </div>
+        </header>
+
+        <div class="fv-body">
+            <div class="fv-canvas-zone">
+                <div class="fv-canvas-wrap" id="fvCanvasWrap">
+                    <canvas id="fvCanvas" width="320" height="240"></canvas>
+                    <div class="fv-canvas-overlay" id="fvCanvasOverlay">
+                        <div class="fv-frame-badge" id="fvFrameBadge">1 / 1</div>
+                        <div class="fv-onion-badge" id="fvOnionBadge" hidden>
+                            <i data-lucide="layers"></i>
+                            <span id="fvOnionBadgeTxt">Onion ×1</span>
+                        </div>
+                        <div class="fv-rec-indicator" id="fvRecIndicator" hidden>
+                            <span class="fv-rec-dot"></span>
+                            <span>Reproduciendo</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="fv-panel" id="fvPanel">
+                <div class="fv-panel-header">
+                    <h2 id="fvPanelTitulo"><i data-lucide="palette"></i><span>Color</span></h2>
+                    <button class="fv-panel-cerrar" id="fvPanelCerrar" title="Cerrar"><i data-lucide="x"></i></button>
+                </div>
+
+                <div class="fv-panel-tabs">
+                    <button class="fv-panel-tab active" data-tab="paleta" title="Color"><i data-lucide="palette"></i></button>
+                    <button class="fv-panel-tab" data-tab="herramientas" title="Herramientas"><i data-lucide="brush"></i></button>
+                    <button class="fv-panel-tab" data-tab="ajustes" title="Ajustes"><i data-lucide="sliders-horizontal"></i></button>
+                </div>
+
+                <div class="fv-panel-content">
+
+                    <!-- ============ PALETA ============ -->
+                    <section class="fv-seccion activa" data-seccion="paleta">
+                        <h3><i data-lucide="palette"></i> Color activo</h3>
+                        <div class="fv-color-actual">
+                            <input type="color" id="colorPicker" value="#000000">
+                            <span class="fv-color-hex" id="colorHex">#000000</span>
+                        </div>
+
+                        <h3 style="margin-top:6px"><i data-lucide="swatch-book"></i> Paleta</h3>
+                        <div class="fv-paleta-grid" id="paletaGrid"></div>
+
+                        <h3 style="margin-top:6px"><i data-lucide="history"></i> Recientes</h3>
+                        <div class="fv-recientes" id="fvRecientes"></div>
+                    </section>
+
+                    <!-- ============ HERRAMIENTAS ============ -->
+                    <section class="fv-seccion" data-seccion="herramientas">
+                        <h3><i data-lucide="brush"></i> Herramientas</h3>
+                        <div class="fv-tools-grid">
+                            <button data-tool="lapiz" class="fv-tool-btn activo" title="Lápiz (B)"><i data-lucide="pencil"></i></button>
+                            <button data-tool="borrador" class="fv-tool-btn" title="Borrador (E)"><i data-lucide="eraser"></i></button>
+                            <button data-tool="linea" class="fv-tool-btn" title="Línea (L)"><i data-lucide="minus"></i></button>
+                            <button data-tool="rect" class="fv-tool-btn" title="Rectángulo (R)"><i data-lucide="square"></i></button>
+                            <button data-tool="elipse" class="fv-tool-btn" title="Elipse (O)"><i data-lucide="circle"></i></button>
+                            <button data-tool="relleno" class="fv-tool-btn" title="Relleno (G)"><i data-lucide="paint-bucket"></i></button>
+                            <button data-tool="pipeta" class="fv-tool-btn" title="Pipeta (I)"><i data-lucide="pipette"></i></button>
+                        </div>
+
+                        <h3 style="margin-top:8px"><i data-lucide="expand"></i> Tamaño de pincel</h3>
+                        <div class="fv-tamano-selector">
+                            <button data-size="1" class="fv-size-btn activo" title="1px">1</button>
+                            <button data-size="2" class="fv-size-btn" title="2px">2</button>
+                            <button data-size="3" class="fv-size-btn" title="3px">3</button>
+                            <button data-size="5" class="fv-size-btn" title="5px">5</button>
+                            <button data-size="8" class="fv-size-btn" title="8px">8</button>
+                        </div>
+                    </section>
+
+                    <!-- ============ AJUSTES ============ -->
+                    <section class="fv-seccion" data-seccion="ajustes">
+                        <h3><i data-lucide="film"></i> Animación</h3>
+                        <div class="fv-info-box">
+                            <div class="fv-info-linea">
+                                <span class="fv-info-label">Frames</span>
+                                <span class="fv-info-valor" id="infoFrames">1</span>
+                            </div>
+                            <div class="fv-info-linea">
+                                <span class="fv-info-label">Duración</span>
+                                <span class="fv-info-valor" id="infoDuracion">0.1 s</span>
+                            </div>
+                            <div class="fv-info-linea">
+                                <span class="fv-info-label">Tamaño</span>
+                                <span class="fv-info-valor" id="infoTamano">320×240</span>
+                            </div>
+                        </div>
+
+                        <h3 style="margin-top:8px"><i data-lucide="gauge"></i> Velocidad</h3>
+                        <div class="fv-slider">
+                            <label>FPS <span id="fpsValor">8</span></label>
+                            <input type="range" id="fpsSlider" min="1" max="30" value="8">
+                        </div>
+
+                        <h3 style="margin-top:8px"><i data-lucide="layers"></i> Onion Skin</h3>
+                        <label class="fv-toggle">
+                            <input type="checkbox" id="toggleOnion" checked>
+                            <span class="fv-toggle-mark"></span>
+                            <span>Ver frames anteriores</span>
+                        </label>
+                        <div class="fv-tamano-selector" style="margin-top:6px">
+                            <span class="fv-info-label" style="font-size:11px;margin-right:6px">Capas fantasma:</span>
+                            <button data-onion="1" class="fv-size-btn activo" title="1 frame">1</button>
+                            <button data-onion="2" class="fv-size-btn" title="2 frames">2</button>
+                            <button data-onion="3" class="fv-size-btn" title="3 frames">3</button>
+                        </div>
+
+                        <h3 style="margin-top:8px"><i data-lucide="eye"></i> Ayuda visual</h3>
+                        <label class="fv-toggle">
+                            <input type="checkbox" id="toggleGrid">
+                            <span class="fv-toggle-mark"></span>
+                            <span>Mostrar cuadrícula</span>
+                        </label>
+
+                        <h3 style="margin-top:8px"><i data-lucide="file-plus"></i> Acciones</h3>
+                        <button class="fv-btn-sec-full" id="btnNuevoProyecto">
+                            <i data-lucide="file-plus"></i> Nuevo proyecto
+                        </button>
+                        <button class="fv-btn-sec-full fv-btn-peligro" id="btnBorrarTodo">
+                            <i data-lucide="trash-2"></i> Borrar todo
+                        </button>
+                    </section>
+
+                </div>
+            </aside>
+        </div>
+
+        <div class="fv-bottom">
+            <div class="fv-playback-row">
+                <div class="fv-playback-controls">
+                    <button class="fv-play-btn" id="btnPrimerFrame" title="Primer frame (Home)"><i data-lucide="skip-back"></i></button>
+                    <button class="fv-play-btn" id="btnFrameAnterior" title="Frame anterior (←)"><i data-lucide="chevron-left"></i></button>
+                    <button class="fv-play-btn fv-play-btn-grande" id="btnPlay" title="Reproducir (Espacio)"><i data-lucide="play"></i></button>
+                    <button class="fv-play-btn" id="btnFrameSiguiente" title="Frame siguiente (→)"><i data-lucide="chevron-right"></i></button>
+                    <button class="fv-play-btn" id="btnUltimoFrame" title="Último frame (End)"><i data-lucide="skip-forward"></i></button>
+                </div>
+                <div class="fv-playback-info">
+                    <span class="fv-playback-fps" id="fvPlaybackFps">8 FPS</span>
+                    <span class="fv-playback-dot">·</span>
+                    <span class="fv-playback-frame" id="fvPlaybackFrame">Frame 1 / 1</span>
+                </div>
+                <div class="fv-playback-actions">
+                    <button class="fv-play-btn" id="btnToggleOnion" title="Onion skin (O)"><i data-lucide="layers"></i></button>
+                </div>
+            </div>
+
+            <div class="fv-frames-row">
+                <div class="fv-frames-actions">
+                    <button class="fv-frame-btn" id="btnFrameNuevo" title="Nuevo frame (N)"><i data-lucide="plus"></i></button>
+                    <button class="fv-frame-btn" id="btnFrameDuplicar" title="Duplicar frame (D)"><i data-lucide="copy"></i></button>
+                    <button class="fv-frame-btn fv-frame-btn-peligro" id="btnFrameEliminar" title="Eliminar frame (Supr)"><i data-lucide="trash-2"></i></button>
+                </div>
+                <div class="fv-frames-strip" id="fvFramesStrip"></div>
+            </div>
+        </div>
+
+        <nav class="fv-toolbar" id="fvToolbar">
+            <button class="fv-tool-nav activo" data-accion="lapiz" title="Lápiz">
+                <i data-lucide="pencil"></i><span>Lápiz</span>
+            </button>
+            <button class="fv-tool-nav" data-accion="borrador" title="Borrador">
+                <i data-lucide="eraser"></i><span>Borrar</span>
+            </button>
+            <button class="fv-tool-nav" data-accion="relleno" title="Relleno">
+                <i data-lucide="paint-bucket"></i><span>Relleno</span>
+            </button>
+            <button class="fv-tool-nav" data-accion="paleta" title="Paleta">
+                <i data-lucide="palette"></i><span>Paleta</span>
+            </button>
+            <button class="fv-tool-nav" data-accion="ajustes" title="Ajustes">
+                <i data-lucide="sliders-horizontal"></i><span>Ajustes</span>
+            </button>
+            <button class="fv-tool-nav" data-accion="deshacer" title="Deshacer">
+                <i data-lucide="undo-2"></i><span>Deshacer</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <!-- MODAL: EXPORTAR -->
+    <div class="fv-modal" id="modalExportar" hidden>
+        <div class="fv-modal-card">
+            <div class="fv-modal-header">
+                <h2><i data-lucide="download"></i> Exportar animación</h2>
+                <button class="fv-modal-cerrar" id="modalExportarCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="fv-modal-body">
+                <p class="fv-modal-desc">
+                    Elegí cómo querés sacar tu animación de FlipoVics.
+                </p>
+                <div class="fv-export-grid">
+                    <button class="fv-export-btn" id="btnExportGIF">
+                        <div class="fv-export-icon"><i data-lucide="film"></i></div>
+                        <div class="fv-export-info">
+                            <strong>Animated GIF</strong>
+                            <span>Compartible en cualquier lado · Puede tardar unos segundos</span>
+                        </div>
+                    </button>
+                    <button class="fv-export-btn" id="btnExportWebM">
+                        <div class="fv-export-icon"><i data-lucide="video"></i></div>
+                        <div class="fv-export-info">
+                            <strong>Video WebM</strong>
+                            <span>Graba la reproducción en tiempo real</span>
+                        </div>
+                    </button>
+                    <button class="fv-export-btn" id="btnExportPNG">
+                        <div class="fv-export-icon"><i data-lucide="image"></i></div>
+                        <div class="fv-export-info">
+                            <strong>Frame actual (PNG)</strong>
+                            <span>Solo el frame que estás viendo</span>
+                        </div>
+                    </button>
+                    <button class="fv-export-btn" id="btnExportGaleria">
+                        <div class="fv-export-icon"><i data-lucide="image-plus"></i></div>
+                        <div class="fv-export-info">
+                            <strong>Guardar en Galería</strong>
+                            <span>Sube el frame actual a tu galería de VicWebOs</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: EXPORTANDO -->
+    <div class="fv-modal" id="modalExportando" hidden>
+        <div class="fv-modal-card fv-modal-card-mini">
+            <div class="fv-exportando">
+                <div class="fv-exportando-spinner"></div>
+                <div class="fv-exportando-titulo" id="fvExportandoTitulo">Exportando...</div>
+                <div class="fv-exportando-sub" id="fvExportandoSub">Preparando frames</div>
+                <div class="fv-exportando-barra">
+                    <div class="fv-exportando-fill" id="fvExportandoFill"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: SESIÓN -->
+    <div class="fv-modal" id="modalSesion" hidden>
+        <div class="fv-modal-card">
+            <div class="fv-modal-header">
+                <h2><i data-lucide="folder-open"></i> Animación guardada</h2>
+            </div>
+            <div class="fv-modal-body">
+                <p class="fv-modal-desc">
+                    Tenés una animación guardada de la sesión anterior. ¿Querés continuar donde la dejaste?
+                </p>
+                <p class="fv-modal-sub" id="modalSesionFecha">—</p>
+            </div>
+            <div class="fv-modal-actions">
+                <button class="fv-btn-peligro" id="btnDescartarSesion"><i data-lucide="trash-2"></i> Descartar</button>
+                <button class="fv-btn-sec" id="btnNuevaSesion">Empezar de cero</button>
+                <button class="fv-btn-pri" id="btnContinuarSesion"><i data-lucide="play"></i> Continuar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: AYUDA -->
+    <div class="fv-modal" id="modalAyuda" hidden>
+        <div class="fv-modal-card">
+            <div class="fv-modal-header">
+                <h2><i data-lucide="help-circle"></i> Atajos de teclado</h2>
+                <button class="fv-modal-cerrar" id="modalAyudaCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="fv-modal-body">
+                <div class="fv-ayuda-grid">
+                    <kbd>B</kbd><span>Lápiz</span>
+                    <kbd>E</kbd><span>Borrador</span>
+                    <kbd>L</kbd><span>Línea</span>
+                    <kbd>R</kbd><span>Rectángulo</span>
+                    <kbd>O</kbd><span>Elipse / Onion skin</span>
+                    <kbd>G</kbd><span>Relleno</span>
+                    <kbd>I</kbd><span>Pipeta</span>
+                    <kbd>1-5</kbd><span>Tamaño de pincel</span>
+                    <kbd>Espacio</kbd><span>Reproducir / pausar</span>
+                    <kbd>← →</kbd><span>Frame anterior / siguiente</span>
+                    <kbd>Inicio / Fin</kbd><span>Primer / último frame</span>
+                    <kbd>N</kbd><span>Nuevo frame</span>
+                    <kbd>D</kbd><span>Duplicar frame</span>
+                    <kbd>Supr</kbd><span>Eliminar frame</span>
+                    <kbd>Ctrl+Z</kbd><span>Deshacer</span>
+                    <kbd>Ctrl+Y</kbd><span>Rehacer</span>
+                    <kbd>Ctrl+S</kbd><span>Guardar</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fv-toast" id="fvToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
