@@ -228,6 +228,17 @@ const WIDGETS_DISPONIBLES = [
     monedas: 85
 },
     {
+    id: 'sonidos-fondo',
+    nombre: 'Sonidos de Fondo',
+    icono: 'cloud-rain-wind',
+    ruta: 'Widgets/sonidos-fondo/index.html',
+    descripcion: 'Lluvia, olas y tormenta generadas en tiempo real con Web Audio API. Sin archivos externos, 100% sintético. Ideal para concentrarte.',
+    categoria: 'Entretenimiento',
+    esBase: false,
+    espacio: 4,
+    monedas: 85
+},
+    {
         id: 'radio',
         nombre: 'Radio',
         icono: 'radio',
