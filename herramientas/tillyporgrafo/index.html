@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>TillyPorgrafo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/opentype.js@1.3.4/dist/opentype.min.js"></script>
+</head>
+<body>
+
+    <div class="tp-app" id="tpApp">
+
+        <header class="tp-header">
+            <div class="tp-logo">
+                <div class="tp-logo-mark"><i data-lucide="type"></i></div>
+                <div class="tp-logo-text">
+                    <h1>TillyPorgrafo</h1>
+                    <p id="tpUserBadge">—</p>
+                </div>
+            </div>
+            <div class="tp-header-actions">
+                <button class="tp-btn-icono" id="btnAyuda" title="Ayuda y controles"><i data-lucide="help-circle"></i></button>
+                <button class="tp-btn-sec" id="btnGuardar" title="Guardar proyecto"><i data-lucide="save"></i><span>Guardar</span></button>
+                <button class="tp-btn-pri" id="btnExportar" title="Exportar fuente"><i data-lucide="download"></i><span>Exportar</span></button>
+            </div>
+        </header>
+
+        <div class="tp-body">
+            <div class="tp-canvas-zone" id="tpCanvasZone">
+                <div class="tp-canvas-wrap" id="tpCanvasWrap">
+                    <canvas id="tpCanvas" width="600" height="600"></canvas>
+                    <div class="tp-canvas-label" id="tpCanvasLabel">A</div>
+                </div>
+            </div>
+
+            <aside class="tp-panel" id="tpPanel">
+                <div class="tp-panel-header">
+                    <h2 id="tpPanelTitulo"><i data-lucide="pencil"></i><span>Herramientas</span></h2>
+                    <button class="tp-panel-cerrar" id="tpPanelCerrar" title="Cerrar"><i data-lucide="x"></i></button>
+                </div>
+
+                <div class="tp-panel-tabs">
+                    <button class="tp-panel-tab active" data-tab="herramientas" title="Herramientas"><i data-lucide="pencil"></i></button>
+                    <button class="tp-panel-tab" data-tab="letras" title="Letras"><i data-lucide="type"></i></button>
+                    <button class="tp-panel-tab" data-tab="ajustes" title="Ajustes"><i data-lucide="settings-2"></i></button>
+                </div>
+
+                <div class="tp-panel-content">
+
+                    <!-- ============ HERRAMIENTAS ============ -->
+                    <section class="tp-seccion activa" data-seccion="herramientas">
+                        <h3><i data-lucide="pencil"></i> Herramientas</h3>
+                        <div class="tp-tools-grid">
+                            <button data-tool="lapiz" class="tp-tool-btn activo" title="Lápiz"><i data-lucide="pencil"></i></button>
+                            <button data-tool="borrador" class="tp-tool-btn" title="Borrador"><i data-lucide="eraser"></i></button>
+                            <button data-tool="linea" class="tp-tool-btn" title="Línea"><i data-lucide="minus"></i></button>
+                            <button data-tool="rect" class="tp-tool-btn" title="Rectángulo"><i data-lucide="square"></i></button>
+                            <button data-tool="fill" class="tp-tool-btn" title="Relleno"><i data-lucide="paint-bucket"></i></button>
+                        </div>
+
+                        <h3 style="margin-top:8px"><i data-lucide="expand"></i> Tamaño de pincel</h3>
+                        <div class="tp-tamano-selector">
+                            <button data-size="1" class="tp-size-btn activo" title="1">1</button>
+                            <button data-size="2" class="tp-size-btn" title="2">2</button>
+                            <button data-size="3" class="tp-size-btn" title="3">3</button>
+                            <button data-size="4" class="tp-size-btn" title="4">4</button>
+                        </div>
+
+                        <h3 style="margin-top:8px"><i data-lucide="trash-2"></i> Acciones</h3>
+                        <button class="tp-btn-sec-full" id="btnLimpiarLetra">
+                            <i data-lucide="trash-2"></i> Limpiar letra actual
+                        </button>
+                    </section>
+
+                    <!-- ============ LETRAS ============ -->
+                    <section class="tp-seccion" data-seccion="letras">
+                        <h3><i data-lucide="type"></i> Letras <span class="tp-contador" id="tpContadorLetras">0 / 73</span></h3>
+
+                        <div class="tp-letra-grupo">
+                            <div class="tp-letra-grupo-titulo">Mayúsculas</div>
+                            <div class="tp-letra-grid" id="tpGridMayus"></div>
+                        </div>
+
+                        <div class="tp-letra-grupo">
+                            <div class="tp-letra-grupo-titulo">Minúsculas</div>
+                            <div class="tp-letra-grid" id="tpGridMinus"></div>
+                        </div>
+
+                        <div class="tp-letra-grupo">
+                            <div class="tp-letra-grupo-titulo">Números</div>
+                            <div class="tp-letra-grid" id="tpGridNums"></div>
+                        </div>
+
+                        <div class="tp-letra-grupo">
+                            <div class="tp-letra-grupo-titulo">Signos</div>
+                            <div class="tp-letra-grid tp-letra-grid-signos" id="tpGridSignos"></div>
+                        </div>
+                    </section>
+
+                    <!-- ============ AJUSTES ============ -->
+                    <section class="tp-seccion" data-seccion="ajustes">
+                        <h3><i data-lucide="settings-2"></i> Fuente</h3>
+                        <div class="tp-field">
+                            <label>Nombre de la fuente</label>
+                            <input type="text" id="tpFontName" placeholder="MiFuente" maxlength="40" value="MiFuente">
+                        </div>
+
+                        <h3 style="margin-top:8px"><i data-lucide="layout"></i> Guías de referencia</h3>
+                        <label class="tp-toggle">
+                            <input type="checkbox" id="toggleGuias" checked>
+                            <span class="tp-toggle-mark"></span>
+                            <span>Mostrar guías horizontales</span>
+                        </label>
+                        <label class="tp-toggle">
+                            <input type="checkbox" id="toggleCuadricula" checked>
+                            <span class="tp-toggle-mark"></span>
+                            <span>Mostrar cuadrícula</span>
+                        </label>
+
+                        <h3 style="margin-top:8px"><i data-lucide="eye"></i> Vista previa</h3>
+                        <div class="tp-field">
+                            <label>Texto de ejemplo</label>
+                            <input type="text" id="tpPreviewText" maxlength="80" value="Hola Mundo 123">
+                        </div>
+                        <button class="tp-btn-sec-full" id="btnRefrescarPreview">
+                            <i data-lucide="refresh-cw"></i> Actualizar vista previa
+                        </button>
+
+                        <div class="tp-preview-box">
+                            <div class="tp-preview-render" id="tpPreviewRender">Hola Mundo 123</div>
+                        </div>
+                    </section>
+
+                </div>
+            </aside>
+        </div>
+
+        <nav class="tp-toolbar" id="tpToolbar">
+            <button class="tp-tool-nav activo" data-accion="lapiz" title="Lápiz">
+                <i data-lucide="pencil"></i><span>Lápiz</span>
+            </button>
+            <button class="tp-tool-nav" data-accion="borrador" title="Borrador">
+                <i data-lucide="eraser"></i><span>Borrar</span>
+            </button>
+            <button class="tp-tool-nav" data-accion="fill" title="Relleno">
+                <i data-lucide="paint-bucket"></i><span>Relleno</span>
+            </button>
+            <button class="tp-tool-nav" data-accion="deshacer" title="Deshacer">
+                <i data-lucide="undo-2"></i><span>Deshacer</span>
+            </button>
+            <button class="tp-tool-nav" data-accion="rehacer" title="Rehacer">
+                <i data-lucide="redo-2"></i><span>Rehacer</span>
+            </button>
+            <button class="tp-tool-nav" data-accion="limpiar" title="Limpiar letra">
+                <i data-lucide="trash-2"></i><span>Limpiar</span>
+            </button>
+            <button class="tp-tool-nav" data-accion="letras" title="Letras">
+                <i data-lucide="type"></i><span>Letras</span>
+            </button>
+            <button class="tp-tool-nav" data-accion="ajustes" title="Ajustes">
+                <i data-lucide="settings-2"></i><span>Ajustes</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <!-- MODAL: SESIÓN -->
+    <div class="tp-modal" id="modalSesion" hidden>
+        <div class="tp-modal-card">
+            <div class="tp-modal-header">
+                <h2><i data-lucide="folder-open"></i> Proyecto guardado</h2>
+            </div>
+            <div class="tp-modal-body">
+                <p class="tp-modal-desc">Encontramos una fuente guardada de la sesión anterior. ¿Querés continuar donde la dejaste?</p>
+                <p class="tp-modal-sub" id="modalSesionFecha">—</p>
+            </div>
+            <div class="tp-modal-actions">
+                <button class="tp-btn-peligro" id="btnDescartarSesion"><i data-lucide="trash-2"></i> Descartar</button>
+                <button class="tp-btn-sec" id="btnNuevaSesion">Empezar de cero</button>
+                <button class="tp-btn-pri" id="btnContinuarSesion"><i data-lucide="play"></i> Continuar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: AYUDA -->
+    <div class="tp-modal" id="modalAyuda" hidden>
+        <div class="tp-modal-card">
+            <div class="tp-modal-header">
+                <h2><i data-lucide="help-circle"></i> Cómo usar TillyPorgrafo</h2>
+                <button class="tp-modal-cerrar" id="modalAyudaCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="tp-modal-body">
+                <p class="tp-modal-desc">Diseñá cada letra y exportá tu fuente como archivo <strong>TTF</strong> compatible con Word, Photoshop, Figma y navegadores.</p>
+
+                <h3 class="tp-ayuda-titulo"><i data-lucide="pencil"></i> Paso a paso</h3>
+                <ul class="tp-ayuda-lista">
+                    <li><strong>1.</strong> Elegí una letra en el panel "Letras"</li>
+                    <li><strong>2.</strong> Dibujala con el lápiz sobre el lienzo</li>
+                    <li><strong>3.</strong> Repetí para todas las letras que quieras incluir</li>
+                    <li><strong>4.</strong> Tocá "Exportar" y descargá el .ttf</li>
+                </ul>
+
+                <h3 class="tp-ayuda-titulo" style="margin-top:14px"><i data-lucide="ruler"></i> Las guías de referencia</h3>
+                <ul class="tp-ayuda-lista">
+                    <li><strong>Ascendente:</strong> arriba de letras altas (b, d, h, k, l)</li>
+                    <li><strong>Mayúscula:</strong> techo de las mayúsculas (A, B, C…)</li>
+                    <li><strong>x-height:</strong> techo de minúsculas normales (a, c, e…)</li>
+                    <li><strong>Base:</strong> donde se apoyan las letras</li>
+                    <li><strong>Descendente:</strong> abajo de letras con cola (g, p, q, y, j)</li>
+                </ul>
+
+                <h3 class="tp-ayuda-titulo" style="margin-top:14px"><i data-lucide="keyboard"></i> Atajos de teclado (PC)</h3>
+                <div class="tp-ayuda-grid">
+                    <kbd>B</kbd><span>Lápiz</span>
+                    <kbd>E</kbd><span>Borrador</span>
+                    <kbd>L</kbd><span>Línea</span>
+                    <kbd>R</kbd><span>Rectángulo</span>
+                    <kbd>G</kbd><span>Relleno</span>
+                    <kbd>1-4</kbd><span>Tamaño</span>
+                    <kbd>Ctrl+Z</kbd><span>Deshacer</span>
+                    <kbd>Ctrl+Y</kbd><span>Rehacer</span>
+                    <kbd>Ctrl+S</kbd><span>Guardar</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: EXPORTAR -->
+    <div class="tp-modal" id="modalExportar" hidden>
+        <div class="tp-modal-card">
+            <div class="tp-modal-header">
+                <h2><i data-lucide="download"></i> Exportar fuente</h2>
+                <button class="tp-modal-cerrar" id="modalExportarCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="tp-modal-body">
+                <p class="tp-modal-desc">Tu fuente incluirá todas las letras dibujadas. Se descargará como <strong>.ttf</strong> listo para instalar en cualquier dispositivo.</p>
+
+                <div class="tp-field">
+                    <label>Nombre de la fuente</label>
+                    <input type="text" id="tpExportName" maxlength="40" placeholder="MiFuente" value="MiFuente">
+                </div>
+
+                <div class="tp-export-info">
+                    <div class="tp-export-info-linea">
+                        <span>Letras diseñadas</span>
+                        <strong id="tpExportDibujadas">0</strong>
+                    </div>
+                    <div class="tp-export-info-linea">
+                        <span>Formato</span>
+                        <strong>TrueType (.ttf)</strong>
+                    </div>
+                    <div class="tp-export-info-linea">
+                        <span>Unidades por em</span>
+                        <strong>1000</strong>
+                    </div>
+                </div>
+
+                <div class="tp-export-warning" id="tpExportWarning" hidden>
+                    <i data-lucide="alert-triangle"></i>
+                    <span id="tpExportWarningTxt">Dibujá al menos una letra antes de exportar.</span>
+                </div>
+            </div>
+            <div class="tp-modal-actions">
+                <button class="tp-btn-sec" id="btnCancelarExport">Cancelar</button>
+                <button class="tp-btn-pri" id="btnConfirmarExport">
+                    <i data-lucide="download"></i> Descargar TTF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="tp-toast" id="tpToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
