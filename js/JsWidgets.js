@@ -162,6 +162,17 @@ const WIDGETS_DISPONIBLES = [
         monedas: 60
     },
     {
+    id: 'evanparla',
+    nombre: 'EvanParla',
+    icono: 'volume-2',
+    ruta: 'Widgets/evanparla/index.html',
+    descripcion: 'Pegás texto y lo lee en voz alta. Ideal para escuchar recetas mientras cocinás, o cualquier artículo sin mirar la pantalla.',
+    categoria: 'Utilidades',
+    esBase: false,
+    espacio: 4,
+    monedas: 60
+},
+    {
     id: 'reloj',
     nombre: 'Reloj',
     icono: 'timer',
