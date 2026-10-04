@@ -429,6 +429,17 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 12,
         monedas: 0
     },
+    {
+    id: 'delantedelmuro',
+    nombre: 'Delante del muro',
+    icono: 'book-user',
+    ruta: 'herramientas/delantedelmuro/index.html',
+    descripcion: 'Dejá un mensaje en el muro de tus amigos. Escribí, likear y comentá. Simple y directo.',
+    categoria: 'Social',
+    esBase: false,
+    espacio: 2,
+    monedas: 20
+},
         {
         id: 'confesionario',
         nombre: 'El Confesionario',
