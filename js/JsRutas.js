@@ -86,6 +86,17 @@ const RUTAS_HERRAMIENTAS = [
     // ============================================================
     //  CREATIVIDAD
     // ============================================================
+    {
+    id: 'memevics',
+    nombre: 'Meme Sculptor',
+    icono: 'laugh',
+    ruta: 'herramientas/memevics/index.html',
+    descripcion: 'Creá memes en segundos. Elegí imagen de tu galería o subí una, escribí los textos y exportá a PNG o Galería.',
+    categoria: 'Creatividad',
+    esBase: false,
+    espacio: 4,
+    monedas: 20
+},
         {
         id: 'piano',
         nombre: 'Piano Virtual',
