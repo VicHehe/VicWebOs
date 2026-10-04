@@ -1,18 +1,17 @@
 /* ================================================
    Widget: Generador de Contraseñas
-   Si el contenido no cabe, el body del iframe scrollea.
+   Scroll correcto: html 100% fijo, body scrollea.
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* La clave: permitir que el body scrollee cuando haga falta */
-html, body {
-    min-height: 100%;
-    height: auto;
-    overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
+/* -------- CLAVE DEL SCROLL --------
+   html: 100% fijo (viewport del iframe).
+   body: 100% fijo + overflow-y: auto.
+   El widget con min-height: 100% crece y dispara
+   el scroll del body.                                    */
+html {
+    height: 100%;
 }
 
 body {
@@ -20,24 +19,34 @@ body {
     background: transparent;
     color: var(--text, #18181B);
     font-size: 13px;
+
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-300, #D4D4DD) transparent;
 }
 
-/* Scrollbar fina y discreta */
-body::-webkit-scrollbar { width: 5px; }
+body::-webkit-scrollbar { width: 5px; height: 5px; }
 body::-webkit-scrollbar-track { background: transparent; }
 body::-webkit-scrollbar-thumb {
     background: var(--gray-300, #D4D4DD);
     border-radius: 999px;
 }
-body { scrollbar-width: thin; scrollbar-color: var(--gray-300, #D4D4DD) transparent; }
+body::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-400, #A1A1AD);
+}
 
 [data-lucide] { width: 16px; height: 16px; stroke-width: 2; flex-shrink: 0; }
 
 /* ========== WIDGET ==========
-   min-height: 100% en vez de height: 100% + overflow visible
-   para que crezca lo necesario y el body scrollee. */
+   min-height: 100% (no height) → llena cuando hay poco
+   contenido y crece cuando hay mucho. Sin overflow. */
 .pg-widget {
     background: var(--white, #FFFFFF);
     border: 1px solid var(--border, #E8E8EE);
@@ -48,7 +57,6 @@ body { scrollbar-width: thin; scrollbar-color: var(--gray-300, #D4D4DD) transpar
     display: flex;
     flex-direction: column;
     gap: 6px;
-    overflow: visible;
     transition: background 0.3s, color 0.3s, border-color 0.3s;
 }
 
@@ -290,7 +298,6 @@ body { scrollbar-width: thin; scrollbar-color: var(--gray-300, #D4D4DD) transpar
     transition: all 0.15s;
     flex-shrink: 0;
     touch-action: manipulation;
-    /* Sin margin-top:auto porque ahora el body scrollea */
     margin-top: 2px;
 }
 .pg-btn [data-lucide] { width: 14px; height: 14px; }
@@ -306,7 +313,7 @@ body { scrollbar-width: thin; scrollbar-color: var(--gray-300, #D4D4DD) transpar
     cursor: not-allowed;
 }
 
-/* ========== RESPONSIVE (achicar más para reducir scroll) ========== */
+/* ========== RESPONSIVE ========== */
 @media (max-width: 260px) {
     .pg-widget { padding: 8px 10px; gap: 5px; }
     .pg-titulo span { display: none; }
