@@ -341,59 +341,65 @@ body {
     overflow: hidden;
 }
 
+/* ========== HEADER (compacto) ========== */
 .pl-modal-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 14px;
+    padding: clamp(6px, 2.5vw, 10px) clamp(10px, 3.5vw, 14px);
     border-bottom: 1px solid var(--border, #E8E8EE);
     background: var(--gray-50, #FAFAFB);
     flex-shrink: 0;
-    gap: 8px;
+    gap: 6px;
 }
 .pl-modal-header h3 {
-    font-size: 13.5px;
+    font-size: clamp(11.5px, 3.2vw, 13.5px);
     font-weight: 800;
     color: var(--gray-900, #18181B);
     margin: 0;
     letter-spacing: -0.01em;
+    line-height: 1.2;
 }
 .pl-modal-cerrar {
     background: none;
     border: none;
-    padding: 4px;
+    padding: clamp(2px, 1vw, 4px);
     border-radius: 6px;
     cursor: pointer;
     color: var(--gray-500, #71717A);
     display: flex;
     align-items: center;
     transition: all 0.15s;
+    flex-shrink: 0;
 }
 .pl-modal-cerrar:hover {
     background: #FEE2E2;
     color: #991B1B;
 }
-.pl-modal-cerrar [data-lucide] { width: 14px; height: 14px; }
+.pl-modal-cerrar [data-lucide] {
+    width: clamp(12px, 3.5vw, 14px);
+    height: clamp(12px, 3.5vw, 14px);
+}
 
-/* Tabs */
+/* ========== TABS (compactas) ========== */
 .pl-tabs {
     display: flex;
     background: var(--gray-50, #FAFAFB);
     border-bottom: 1px solid var(--border, #E8E8EE);
-    padding: 0 6px;
+    padding: 0 clamp(4px, 1.5vw, 6px);
     gap: 2px;
     flex-shrink: 0;
 }
 .pl-tab {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    padding: 8px 10px;
+    gap: clamp(4px, 1.5vw, 5px);
+    padding: clamp(6px, 2vw, 8px) clamp(8px, 2.5vw, 10px);
     background: none;
     border: none;
     border-bottom: 2px solid transparent;
     font-family: inherit;
-    font-size: 11.5px;
+    font-size: clamp(10.5px, 2.9vw, 11.5px);
     font-weight: 700;
     color: var(--gray-500, #71717A);
     cursor: pointer;
@@ -401,7 +407,10 @@ body {
     margin-bottom: -1px;
     white-space: nowrap;
 }
-.pl-tab [data-lucide] { width: 12px; height: 12px; }
+.pl-tab [data-lucide] {
+    width: clamp(11px, 3vw, 12px);
+    height: clamp(11px, 3vw, 12px);
+}
 .pl-tab:hover { color: var(--gray-900, #18181B); }
 .pl-tab.active {
     color: var(--violet-700, #6D28D9);
@@ -410,7 +419,7 @@ body {
 .pl-tab.active [data-lucide] { color: var(--violet-600, #7C3AED); }
 
 /* ============================================================
-   PANELS — scrollbar oculta, contenido centrado vía flex
+   PANELS — sin scrollbar, contenido centrado
    ============================================================ */
 .pl-panel {
     display: none;
@@ -419,31 +428,29 @@ body {
     flex-direction: column;
     overflow-y: auto;
     overflow-x: hidden;
-    /* Ocultar scrollbar por completo (se sigue pudiendo scrollear) */
     scrollbar-width: none;
     -ms-overflow-style: none;
 }
 .pl-panel.active { display: flex; }
 .pl-panel::-webkit-scrollbar { display: none; width: 0; height: 0; }
 
-/* Paneles con contenido centrado verticalmente */
 .pl-panel[data-panel="archivo"],
 .pl-panel[data-panel="galeria"] {
     justify-content: center;
-    padding: 14px;
+    padding: clamp(8px, 3vw, 14px);
 }
 
-/* ========== TAB ARCHIVO ========== */
+/* ========== FILE LABEL (compacto) ========== */
 .pl-file-label {
     margin: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 5px;
-    padding: 22px 16px;
+    gap: clamp(3px, 1.2vw, 5px);
+    padding: clamp(12px, 4vw, 22px) clamp(10px, 3.5vw, 16px);
     border: 2px dashed var(--border, #E8E8EE);
-    border-radius: 12px;
+    border-radius: clamp(9px, 2.8vw, 12px);
     cursor: pointer;
     transition: all 0.15s;
     background: var(--white, #FFFFFF);
@@ -456,32 +463,33 @@ body {
     background: var(--violet-50, #F5F3FF);
 }
 .pl-file-label [data-lucide] {
-    width: 26px;
-    height: 26px;
+    width: clamp(20px, 6vw, 26px);
+    height: clamp(20px, 6vw, 26px);
     color: var(--violet-500, #8B5CF6);
     margin-bottom: 2px;
 }
 .pl-file-label span {
-    font-size: 13px;
+    font-size: clamp(11.5px, 3.4vw, 13px);
     font-weight: 800;
     color: var(--gray-900, #18181B);
+    line-height: 1.2;
 }
 .pl-file-label small {
-    font-size: 10.5px;
+    font-size: clamp(9.5px, 2.7vw, 10.5px);
     color: var(--gray-500, #71717A);
     font-weight: 600;
-    line-height: 1.4;
+    line-height: 1.35;
 }
 
-/* ========== TAB GALERÍA ========== */
+/* ========== GALERÍA (compacta) ========== */
 .pl-galeria-wrap {
     margin: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    padding: 22px 16px;
+    gap: clamp(6px, 2vw, 10px);
+    padding: clamp(12px, 4vw, 22px) clamp(10px, 3.5vw, 16px);
     text-align: center;
     max-width: 100%;
     box-sizing: border-box;
@@ -489,20 +497,23 @@ body {
 .pl-btn-galeria {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    padding: 11px 20px;
+    gap: clamp(5px, 1.8vw, 7px);
+    padding: clamp(8px, 2.6vw, 11px) clamp(14px, 4.5vw, 20px);
     border: none;
-    border-radius: 10px;
+    border-radius: clamp(8px, 2.5vw, 10px);
     background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
     color: white;
     font-family: inherit;
-    font-size: 13px;
+    font-size: clamp(11.5px, 3.3vw, 13px);
     font-weight: 800;
     cursor: pointer;
     box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
     transition: all 0.15s;
 }
-.pl-btn-galeria [data-lucide] { width: 14px; height: 14px; }
+.pl-btn-galeria [data-lucide] {
+    width: clamp(12px, 3.5vw, 14px);
+    height: clamp(12px, 3.5vw, 14px);
+}
 .pl-btn-galeria:hover:not(:disabled) {
     transform: translateY(-1px);
     box-shadow: 0 6px 16px var(--accent-shadow-hover, rgba(139,92,246,0.38));
@@ -515,42 +526,54 @@ body {
 }
 
 .pl-help {
-    font-size: 11px;
+    font-size: clamp(10px, 2.8vw, 11px);
     font-weight: 600;
     color: var(--gray-500, #71717A);
-    line-height: 1.45;
+    line-height: 1.4;
     margin: 0;
     max-width: 240px;
 }
 
-/* ========== NOTA AL PIE ========== */
+/* ========== NOTA AL PIE (compacta) ========== */
 .pl-nota {
     display: flex;
     align-items: flex-start;
-    gap: 7px;
-    padding: 9px 12px;
-    margin: 0 12px 12px;
+    gap: clamp(5px, 1.8vw, 7px);
+    padding: clamp(7px, 2.2vw, 9px) clamp(9px, 3vw, 12px);
+    margin: 0 clamp(8px, 3vw, 12px) clamp(8px, 3vw, 12px);
     background: var(--violet-50, #F5F3FF);
     border: 1px solid var(--violet-200, #DDD6FE);
-    border-radius: 10px;
-    font-size: 10.5px;
+    border-radius: clamp(8px, 2.5vw, 10px);
+    font-size: clamp(9.5px, 2.7vw, 10.5px);
     font-weight: 600;
     color: var(--violet-700, #6D28D9);
-    line-height: 1.45;
+    line-height: 1.4;
     flex-shrink: 0;
 }
 .pl-nota [data-lucide] {
-    width: 13px;
-    height: 13px;
+    width: clamp(11px, 3.2vw, 13px);
+    height: clamp(11px, 3.2vw, 13px);
     color: var(--violet-600, #7C3AED);
     flex-shrink: 0;
     margin-top: 1px;
 }
 
-/* ========== COMPACTO ========== */
+/* ========== COMPACTO EXTRA ========== */
 @media (max-width: 220px) {
     .pl-titulo span { display: none; }
     .pl-titulo { gap: 0; }
     .pl-swatches { grid-template-columns: repeat(auto-fill, minmax(54px, 1fr)); gap: 4px; }
     .pl-swatch-hex { font-size: 9px; }
+}
+
+/* ========== ULTRA COMPACTO (iframe muy bajito) ========== */
+@media (max-height: 240px) {
+    .pl-file-label { padding: 10px 12px; gap: 2px; }
+    .pl-file-label small { display: none; }
+    .pl-file-label [data-lucide] { width: 18px; height: 18px; }
+    .pl-nota { font-size: 9px; padding: 5px 8px; }
+    .pl-nota span { display: none; }
+    .pl-nota { justify-content: center; }
+    .pl-modal-header h3 { font-size: 11px; }
+    .pl-tab { padding: 5px 8px; font-size: 10px; }
 }
