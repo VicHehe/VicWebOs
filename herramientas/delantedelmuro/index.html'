@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Delante del muro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="dm-container">
+
+        <header class="dm-header">
+            <div class="dm-logo">
+                <div class="dm-logo-mark">
+                    <i data-lucide="book-user"></i>
+                </div>
+                <div class="dm-logo-text">
+                    <h1>Delante del muro</h1>
+                    <p id="dmUserBadge">—</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="dm-tabs">
+            <button class="dm-tab active" data-tab="mi-muro">
+                <i data-lucide="home"></i>
+                <span>Mi muro</span>
+            </button>
+            <button class="dm-tab" data-tab="explorar">
+                <i data-lucide="compass"></i>
+                <span>Explorar</span>
+            </button>
+        </div>
+
+        <div class="dm-muro-header" id="dmMuroHeader" hidden>
+            <button class="dm-back-btn" id="dmBackBtn" title="Volver">
+                <i data-lucide="arrow-left"></i>
+            </button>
+            <div class="dm-muro-info" id="dmMuroInfo"></div>
+        </div>
+
+        <main class="dm-main" id="dmMain">
+            <div class="dm-feed" id="dmFeed"></div>
+
+            <div class="dm-empty" id="dmEmpty" hidden>
+                <div class="dm-empty-icon"><i data-lucide="message-circle"></i></div>
+                <h3 id="dmEmptyTitulo">Tu muro está vacío</h3>
+                <p id="dmEmptyDesc">Escribí algo para que tus amigos lo vean.</p>
+            </div>
+        </main>
+
+        <button class="dm-fab" id="dmFabNuevo" title="Publicar en el muro">
+            <i data-lucide="plus"></i>
+        </button>
+
+    </div>
+
+    <!-- MODAL PUBLICAR -->
+    <div class="dm-modal" id="dmModalPublicar" hidden>
+        <div class="dm-modal-card">
+            <div class="dm-modal-header">
+                <h2>
+                    <i data-lucide="pen-line"></i>
+                    <span id="dmPublicarTitulo">Escribir en el muro</span>
+                </h2>
+                <button class="dm-modal-cerrar" id="dmPublicarCerrar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="dm-modal-body">
+                <div class="dm-field">
+                    <textarea id="dmPublicarTexto" rows="4" maxlength="280"
+                        placeholder="Escribí algo..."></textarea>
+                    <div class="dm-contador" id="dmPublicarContador">0 / 280</div>
+                </div>
+                <div id="dmPublicarMensaje" class="dm-modal-mensaje"></div>
+            </div>
+            <div class="dm-modal-actions">
+                <button class="dm-btn-sec" id="dmPublicarCancelar">Cancelar</button>
+                <button class="dm-btn-pri" id="dmPublicarGuardar">
+                    <i data-lucide="check"></i>
+                    <span>Publicar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL COMENTARIOS -->
+    <div class="dm-modal" id="dmModalComentarios" hidden>
+        <div class="dm-modal-card dm-modal-card-grande">
+            <div class="dm-modal-header">
+                <h2>
+                    <i data-lucide="message-circle"></i>
+                    <span>Comentarios</span>
+                </h2>
+                <button class="dm-modal-cerrar" id="dmComentariosCerrar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="dm-comentarios-body">
+                <div id="dmComentariosLista" class="dm-comentarios-lista"></div>
+                <div class="dm-comentario-input-wrap">
+                    <input type="text" id="dmComentarioInput" maxlength="200"
+                        placeholder="Escribí un comentario...">
+                    <button class="dm-btn-enviar" id="dmComentarioEnviar" disabled>
+                        <i data-lucide="send"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dm-toast" id="dmToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
