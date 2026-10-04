@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>Sill3Dy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+    <div class="s3d-app" id="s3dApp">
+
+        <header class="s3d-header">
+            <div class="s3d-logo">
+                <div class="s3d-logo-mark"><i data-lucide="box"></i></div>
+                <div class="s3d-logo-text">
+                    <h1>Sill3Dy</h1>
+                    <p id="s3dUserBadge">—</p>
+                </div>
+            </div>
+            <div class="s3d-header-actions">
+                <button class="s3d-btn-icono" id="btnNuevoProyecto" title="Nuevo modelo"><i data-lucide="file-plus"></i></button>
+                <button class="s3d-btn-icono" id="btnDeshacer" title="Deshacer (Ctrl+Z)"><i data-lucide="undo-2"></i></button>
+                <button class="s3d-btn-icono" id="btnRehacer" title="Rehacer (Ctrl+Y)"><i data-lucide="redo-2"></i></button>
+                <button class="s3d-btn-sec" id="btnGuardarProyecto" title="Guardar"><i data-lucide="save"></i><span>Guardar</span></button>
+                <button class="s3d-btn-pri" id="btnExportar" title="Exportar"><i data-lucide="download"></i><span>Exportar</span></button>
+            </div>
+        </header>
+
+        <div class="s3d-body">
+            <div class="s3d-viewport" id="s3dViewport">
+                <div class="s3d-vp-info" id="vpInfo">0 voxeles</div>
+
+                <div class="s3d-mirror-indicator" id="mirrorIndicator" hidden>
+                    <i data-lucide="flip-horizontal"></i>
+                    <span id="mirrorTxt">Simetría</span>
+                </div>
+
+                <div class="s3d-zoom-controls">
+                    <button class="s3d-ctrl-btn" id="viewTop" title="Vista superior"><i data-lucide="arrow-down-to-line"></i></button>
+                    <button class="s3d-ctrl-btn" id="viewFront" title="Vista frontal"><i data-lucide="square"></i></button>
+                    <button class="s3d-ctrl-btn" id="viewReset" title="Vista isométrica"><i data-lucide="target"></i></button>
+                    <button class="s3d-ctrl-btn" id="zoomFit" title="Ajustar"><i data-lucide="maximize-2"></i></button>
+                    <span id="zoomNivel">100%</span>
+                    <button class="s3d-ctrl-btn" id="zoomOut" title="Alejar"><i data-lucide="minus"></i></button>
+                    <button class="s3d-ctrl-btn" id="zoomIn" title="Acercar"><i data-lucide="plus"></i></button>
+                    <button class="s3d-ctrl-btn activo" id="btnGrid" title="Cuadrícula (H)"><i data-lucide="layout-grid"></i></button>
+                </div>
+            </div>
+
+            <aside class="s3d-panel" id="s3dPanel">
+                <div class="s3d-panel-header">
+                    <h2 id="s3dPanelTitulo"><i data-lucide="palette"></i><span>Paleta</span></h2>
+                    <button class="s3d-panel-cerrar" id="s3dPanelCerrar" title="Cerrar"><i data-lucide="x"></i></button>
+                </div>
+
+                <div class="s3d-panel-tabs">
+                    <button class="s3d-panel-tab active" data-tab="paleta" title="Paleta"><i data-lucide="palette"></i></button>
+                    <button class="s3d-panel-tab" data-tab="herramientas" title="Herramientas"><i data-lucide="brush"></i></button>
+                    <button class="s3d-panel-tab" data-tab="modelo" title="Modelo"><i data-lucide="box"></i></button>
+                </div>
+
+                <div class="s3d-panel-content">
+
+                    <!-- ============ PALETA ============ -->
+                    <section class="s3d-seccion activa" data-seccion="paleta">
+                        <h3><i data-lucide="palette"></i> Color activo</h3>
+                        <div class="s3d-color-actual">
+                            <input type="color" id="colorPicker" value="#FFFFFF">
+                            <span class="s3d-color-hex" id="colorHex">#FFFFFF</span>
+                        </div>
+
+                        <h3 style="margin-top:6px"><i data-lucide="swatch-book"></i> Paleta PICO-8</h3>
+                        <div class="s3d-paleta-grid" id="paletaGrid"></div>
+                        <div class="s3d-paleta-info">16 colores · PICO-8 clásico</div>
+                    </section>
+
+                    <!-- ============ HERRAMIENTAS ============ -->
+                    <section class="s3d-seccion" data-seccion="herramientas">
+                        <h3><i data-lucide="brush"></i> Herramientas</h3>
+                        <div class="s3d-tools-grid">
+                            <button data-tool="lapiz" class="s3d-tool-btn activo" title="Añadir (B)">
+                                <i data-lucide="pencil"></i>
+                            </button>
+                            <button data-tool="borrar" class="s3d-tool-btn" title="Borrar (E)">
+                                <i data-lucide="eraser"></i>
+                            </button>
+                            <button data-tool="pintar" class="s3d-tool-btn" title="Pintar (P)">
+                                <i data-lucide="paint-bucket"></i>
+                            </button>
+                            <button data-tool="pipeta" class="s3d-tool-btn" title="Pipeta (I)">
+                                <i data-lucide="pipette"></i>
+                            </button>
+                        </div>
+
+                        <h3 style="margin-top:8px"><i data-lucide="expand"></i> Tamaño de pincel</h3>
+                        <div class="s3d-tamano-selector">
+                            <button data-size="1" class="s3d-size-btn activo">1</button>
+                            <button data-size="2" class="s3d-size-btn">2</button>
+                            <button data-size="3" class="s3d-size-btn">3</button>
+                        </div>
+
+                        <h3 style="margin-top:8px"><i data-lucide="flip-horizontal"></i> Simetría</h3>
+                        <div class="s3d-tamano-selector">
+                            <button class="s3d-size-btn" id="btnMirrorX" title="Simetría en X">X</button>
+                            <button class="s3d-size-btn" id="btnMirrorY" title="Simetría en Y">Y</button>
+                            <button class="s3d-size-btn" id="btnMirrorZ" title="Simetría en Z">Z</button>
+                        </div>
+                        <p class="s3d-seccion-ayuda">
+                            Duplica cada trazo reflejándolo. Ideal para crear criaturas o naves.
+                        </p>
+                    </section>
+
+                    <!-- ============ MODELO ============ -->
+                    <section class="s3d-seccion" data-seccion="modelo">
+                        <h3><i data-lucide="box"></i> Modelo actual</h3>
+                        <div class="s3d-info-box">
+                            <div class="s3d-info-linea">
+                                <span class="s3d-info-label">Voxeles</span>
+                                <span class="s3d-info-valor" id="infoVoxeles">0</span>
+                            </div>
+                            <div class="s3d-info-linea">
+                                <span class="s3d-info-label">Tamaño</span>
+                                <span class="s3d-info-valor" id="infoTamano">32×32×32</span>
+                            </div>
+                        </div>
+
+                        <button class="s3d-btn-sec-full" id="btnNuevoDesdePanel">
+                            <i data-lucide="file-plus"></i> Nuevo modelo
+                        </button>
+                        <button class="s3d-btn-sec-full s3d-btn-peligro" id="btnLimpiarTodo">
+                            <i data-lucide="trash-2"></i> Limpiar todo
+                        </button>
+
+                        <h3 style="margin-top:8px"><i data-lucide="eye"></i> Vista</h3>
+                        <label class="s3d-toggle">
+                            <input type="checkbox" id="toggleGrid" checked>
+                            <span class="s3d-toggle-mark"></span>
+                            <span>Cuadrícula del suelo</span>
+                        </label>
+                        <label class="s3d-toggle">
+                            <input type="checkbox" id="toggleAxes" checked>
+                            <span class="s3d-toggle-mark"></span>
+                            <span>Ejes X / Y / Z</span>
+                        </label>
+                        <label class="s3d-toggle">
+                            <input type="checkbox" id="toggleWireframe">
+                            <span class="s3d-toggle-mark"></span>
+                            <span>Modo wireframe</span>
+                        </label>
+                    </section>
+
+                </div>
+            </aside>
+        </div>
+
+        <nav class="s3d-toolbar" id="s3dToolbar">
+            <button class="s3d-tool-nav activo" data-accion="lapiz" title="Añadir">
+                <i data-lucide="pencil"></i><span>Añadir</span>
+            </button>
+            <button class="s3d-tool-nav" data-accion="borrar" title="Borrar">
+                <i data-lucide="eraser"></i><span>Borrar</span>
+            </button>
+            <button class="s3d-tool-nav" data-accion="pintar" title="Pintar">
+                <i data-lucide="paint-bucket"></i><span>Pintar</span>
+            </button>
+            <button class="s3d-tool-nav" data-accion="pipeta" title="Pipeta">
+                <i data-lucide="pipette"></i><span>Pipeta</span>
+            </button>
+            <button class="s3d-tool-nav" data-accion="paleta" title="Paleta">
+                <i data-lucide="palette"></i><span>Paleta</span>
+            </button>
+            <button class="s3d-tool-nav" data-accion="modelo" title="Modelo">
+                <i data-lucide="box"></i><span>Modelo</span>
+            </button>
+            <button class="s3d-tool-nav" data-accion="deshacer" title="Deshacer">
+                <i data-lucide="undo-2"></i><span>Deshacer</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <!-- MODAL: NUEVO MODELO -->
+    <div class="s3d-modal" id="modalNuevo" hidden>
+        <div class="s3d-modal-card">
+            <div class="s3d-modal-header">
+                <h2><i data-lucide="box"></i> Nuevo modelo</h2>
+                <button class="s3d-modal-cerrar" id="modalNuevoCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="s3d-modal-body">
+                <div class="s3d-field">
+                    <label>Tamaño del cubo</label>
+                    <div class="s3d-presets-grid">
+                        <button class="s3d-preset-btn" data-size="16">16³</button>
+                        <button class="s3d-preset-btn" data-size="24">24³</button>
+                        <button class="s3d-preset-btn activo" data-size="32">32³</button>
+                        <button class="s3d-preset-btn" data-size="48">48³</button>
+                        <button class="s3d-preset-btn" data-size="64">64³</button>
+                    </div>
+                </div>
+                <div class="s3d-field">
+                    <label>Personalizado (8–64)</label>
+                    <div class="s3d-custom-size-row">
+                        <input type="number" id="customSize" min="8" max="64" placeholder="32">
+                        <button class="s3d-btn-sec" id="btnCustomSize">Usar</button>
+                    </div>
+                </div>
+                <p class="s3d-modal-warning">
+                    <i data-lucide="alert-triangle"></i>
+                    Se perderá el modelo actual si no lo guardaste.
+                </p>
+            </div>
+            <div class="s3d-modal-actions">
+                <button class="s3d-btn-sec" id="btnCancelarNuevo">Cancelar</button>
+                <button class="s3d-btn-pri" id="btnConfirmarNuevo"><i data-lucide="check"></i> Crear</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: EXPORTAR -->
+    <div class="s3d-modal" id="modalExportar" hidden>
+        <div class="s3d-modal-card">
+            <div class="s3d-modal-header">
+                <h2><i data-lucide="download"></i> Exportar</h2>
+                <button class="s3d-modal-cerrar" id="modalExportarCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="s3d-modal-body">
+                <p class="s3d-modal-desc">
+                    Exportá tu modelo como archivo <strong>OBJ</strong> (abrilo en Blender, Sketchfab, etc.) o como <strong>imagen PNG</strong> del viewport actual.
+                </p>
+                <div class="s3d-export-grid">
+                    <button class="s3d-export-btn" id="btnExportOBJ">
+                        <div class="s3d-export-icon"><i data-lucide="file-box"></i></div>
+                        <div class="s3d-export-info">
+                            <strong>Modelo OBJ</strong>
+                            <span>Malla 3D con colores</span>
+                        </div>
+                    </button>
+                    <button class="s3d-export-btn" id="btnExportPNG">
+                        <div class="s3d-export-icon"><i data-lucide="image"></i></div>
+                        <div class="s3d-export-info">
+                            <strong>Captura PNG</strong>
+                            <span>Vista actual del modelo</span>
+                        </div>
+                    </button>
+                    <button class="s3d-export-btn" id="btnSaveGaleria">
+                        <div class="s3d-export-icon"><i data-lucide="image-plus"></i></div>
+                        <div class="s3d-export-info">
+                            <strong>Guardar en Galería</strong>
+                            <span>Se sube a tu galería de VicWebOs</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: GUARDAR EN GALERÍA -->
+    <div class="s3d-modal" id="modalGaleria" hidden>
+        <div class="s3d-modal-card">
+            <div class="s3d-modal-header">
+                <h2><i data-lucide="image-plus"></i> Guardar en Galería</h2>
+                <button class="s3d-modal-cerrar" id="modalGaleriaCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="s3d-modal-body">
+                <div class="s3d-field">
+                    <label>Título</label>
+                    <input type="text" id="inputTitulo" placeholder="Mi voxel..." maxlength="60">
+                </div>
+                <div class="s3d-mini-preview" id="miniPreview"></div>
+            </div>
+            <div class="s3d-modal-actions">
+                <button class="s3d-btn-sec" id="btnCancelarGaleria">Cancelar</button>
+                <button class="s3d-btn-pri" id="btnConfirmarGaleria"><i data-lucide="save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: SESIÓN -->
+    <div class="s3d-modal" id="modalSesion" hidden>
+        <div class="s3d-modal-card">
+            <div class="s3d-modal-header">
+                <h2><i data-lucide="folder-open"></i> Proyecto guardado</h2>
+            </div>
+            <div class="s3d-modal-body">
+                <p class="s3d-modal-desc">
+                    Tenés un modelo guardado de la sesión anterior. ¿Querés continuar donde lo dejaste?
+                </p>
+                <p class="s3d-modal-sub" id="modalSesionFecha">—</p>
+            </div>
+            <div class="s3d-modal-actions">
+                <button class="s3d-btn-peligro" id="btnDescartarSesion"><i data-lucide="trash-2"></i> Descartar</button>
+                <button class="s3d-btn-sec" id="btnNuevaSesion">Empezar de cero</button>
+                <button class="s3d-btn-pri" id="btnContinuarSesion"><i data-lucide="play"></i> Continuar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="s3d-toast" id="s3dToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
