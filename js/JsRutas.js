@@ -109,6 +109,17 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 90
     },
     {
+    id: 'flipovics',
+    nombre: 'FlipoVics',
+    icono: 'film',
+    ruta: 'herramientas/flipovics/index.html',
+    descripcion: 'Mini Flipnote Studio: animá cuadro a cuadro con onion skin, loop en vivo y export a GIF o WebM.',
+    categoria: 'Creatividad',
+    esBase: false,
+    espacio: 6,
+    monedas: 110
+},
+    {
         id: 'pixevan',
         nombre: 'PixEvan',
         icono: 'grid-2x2',                 // ← CAMBIO: era grid-3x3 (chocaba con tres-en-raya)
