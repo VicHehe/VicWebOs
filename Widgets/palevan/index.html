@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Palevan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="pl-widget">
+
+        <div class="pl-header">
+            <div class="pl-titulo">
+                <i data-lucide="palette"></i>
+                <span>Palevan</span>
+            </div>
+            <button class="pl-btn-icon" id="plBtnCargar" title="Cargar imagen">
+                <i data-lucide="image-plus"></i>
+            </button>
+        </div>
+
+        <div class="pl-preview" id="plPreview" hidden>
+            <div class="pl-thumb-wrap">
+                <img id="plThumb" alt="">
+            </div>
+            <div class="pl-k-select">
+                <label for="plKSelect">Colores</label>
+                <select id="plKSelect">
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6" selected>6</option>
+                    <option value="8">8</option>
+                    <option value="10">10</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="pl-zona" id="plZona">
+            <div class="pl-vacio">
+                <div class="pl-vacio-icono">
+                    <i data-lucide="palette"></i>
+                </div>
+                <p>Extraé los colores dominantes de una imagen</p>
+                <button class="pl-btn-cargar" id="plBtnCargarVacio">
+                    <i data-lucide="image-plus"></i>
+                    Cargar imagen
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL: elegir fuente -->
+    <div class="pl-modal" id="plModal" hidden>
+        <div class="pl-modal-card">
+
+            <div class="pl-modal-header">
+                <h3>Cargar imagen</h3>
+                <button class="pl-modal-cerrar" id="plModalCerrar"><i data-lucide="x"></i></button>
+            </div>
+
+            <div class="pl-tabs">
+                <button class="pl-tab active" data-tab="archivo">
+                    <i data-lucide="file-up"></i>
+                    <span>Archivo</span>
+                </button>
+                <button class="pl-tab" data-tab="galeria">
+                    <i data-lucide="images"></i>
+                    <span>Mi galería</span>
+                </button>
+            </div>
+
+            <div class="pl-panel active" data-panel="archivo">
+                <label class="pl-file-label" for="plFileInput">
+                    <i data-lucide="file-up"></i>
+                    <span>Subir una imagen</span>
+                    <small>La imagen no se guarda en ningún lado</small>
+                </label>
+                <input type="file" id="plFileInput" accept="image/*" hidden>
+            </div>
+
+            <div class="pl-panel" data-panel="galeria">
+                <div class="pl-galeria-wrap">
+                    <button class="pl-btn-galeria" id="plBtnGaleria">
+                        <i data-lucide="images"></i>
+                        Abrir mi galería
+                    </button>
+                    <p class="pl-help" id="plGaleriaHelp">
+                        Elegí una imagen de tu galería de VicWebOs.
+                    </p>
+                </div>
+            </div>
+
+            <p class="pl-nota">
+                <i data-lucide="shield-check"></i>
+                <span>La imagen solo se procesa en tu navegador. No se sube ni se guarda.</span>
+            </p>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
