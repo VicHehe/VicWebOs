@@ -1,7 +1,8 @@
 // ============================================================
-//  FlipoVics — Mini Flipnote Studio
+//  FlipoVics — Animación cuadro a cuadro
 //  ------------------------------------------------------------
-//  · Canvas fijo 320×240 (aspecto 4:3, resolución Flipnote DSi)
+//  · Canvas fijo 320×240 (aspecto 4:3, resolución clásica de
+//    consola portátil)
 //  · Cada frame es un canvas offscreen con transparencia
 //  · Onion skin: dibuja N frames previos al 25% de opacidad
 //  · Motor de dibujo pixel-perfect (Bresenham + fillRect)
@@ -27,7 +28,7 @@ const ALTO = 240;
 const MAX_UNDO = 30;
 const DEFAULT_FPS = 8;
 
-// Paleta estilo Flipnote
+// Paleta genérica (sin referencias a marcas)
 const PALETA_DEFAULT = [
     '#000000', '#FFFFFF',
     '#FF0000', '#FF9900', '#FFE600',
@@ -176,15 +177,6 @@ function claveProyecto() {
 // ============================================================
 //  HELPERS
 // ============================================================
-function escapar(s) {
-    return String(s || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-}
-
 function formatearDuracion(seg) {
     if (seg < 1) return `${(seg * 1000).toFixed(0)} ms`;
     if (seg < 60) return `${seg.toFixed(1)} s`;
@@ -431,17 +423,14 @@ function floodFill(x0, y0, colorHex) {
     const b0 = data[idx0 + 2];
     const a0 = data[idx0 + 3];
 
-    // Nuevo color RGBA
     const h = colorHex.replace('#', '');
     const rn = parseInt(h.slice(0, 2), 16);
     const gn = parseInt(h.slice(2, 4), 16);
     const bn = parseInt(h.slice(4, 6), 16);
     const an = 255;
 
-    // Si el color es igual, salir
     if (r0 === rn && g0 === gn && b0 === bn && a0 === an) return;
 
-    // Tolerancia para no pintar de más
     const tol = 20;
 
     const coincide = (i) => {
@@ -532,8 +521,8 @@ function rehacer() {
 }
 
 function actualizarBotonesUndoRedo() {
-    const d = document.getElementById('btnDeshacer');
-    const r = document.getElementById('btnRehacer');
+    const d = document.getElementById('btnDeshacerMobile');
+    const r = document.getElementById('btnRehacerMobile');
     if (d) d.disabled = state.undoStack.length === 0;
     if (r) r.disabled = state.redoStack.length === 0;
 }
@@ -560,13 +549,11 @@ function onPointerDown(e) {
 
     const { x, y } = coordsCanvas(e.clientX, e.clientY);
 
-    // Pipeta (no necesita snapshot)
     if (state.herramienta === 'pipeta') {
         pipeta(x, y);
         return;
     }
 
-    // Relleno (necesita snapshot para undo)
     if (state.herramienta === 'relleno') {
         guardarSnapshot();
         floodFill(x, y, state.color);
@@ -575,7 +562,6 @@ function onPointerDown(e) {
         return;
     }
 
-    // Formas: línea, rect, elipse
     if (state.herramienta === 'linea' || state.herramienta === 'rect' || state.herramienta === 'elipse') {
         guardarSnapshot();
         state.formaStart = { x, y };
@@ -585,7 +571,6 @@ function onPointerDown(e) {
         return;
     }
 
-    // Lápiz / Borrador
     guardarSnapshot();
     state.dibujando = true;
     ultimoPunto = { x, y };
@@ -607,7 +592,6 @@ function onPointerMove(e) {
     const esBorrador = state.herramienta === 'borrador';
 
     if (state.herramienta === 'linea' || state.herramienta === 'rect' || state.herramienta === 'elipse') {
-        // Restaurar snapshot previo y dibujar preview
         if (snapshotFormaPrevia) {
             ctx.putImageData(snapshotFormaPrevia, 0, 0);
         }
@@ -623,9 +607,7 @@ function onPointerMove(e) {
         return;
     }
 
-    // Lápiz / Borrador: línea continua desde el último punto
     if (ultimoPunto) {
-        // Coalesced events para tablets
         let eventos = [e];
         if (e.getCoalescedEvents) {
             const c = e.getCoalescedEvents();
@@ -674,7 +656,7 @@ function reproducir() {
     state.playing = true;
     state.playFrameIdx = 0;
     actualizarBotonPlay();
-    mostrarIndicadorRec(true);
+    marcarPlayback(true);
 
     const tick = () => {
         if (!state.playing) return;
@@ -694,7 +676,7 @@ function detenerReproduccion() {
         state.playTimer = null;
     }
     actualizarBotonPlay();
-    mostrarIndicadorRec(false);
+    marcarPlayback(false);
     redibujarCanvas();
     actualizarInfoFrame();
     actualizarStripSeleccion();
@@ -710,22 +692,43 @@ function actualizarBotonPlay() {
     if (!btn) return;
     if (state.playing) {
         btn.innerHTML = '<i data-lucide="pause"></i>';
-        btn.title = 'Pausar (Espacio)';
+        btn.title = 'Pausar';
     } else {
         btn.innerHTML = '<i data-lucide="play"></i>';
-        btn.title = 'Reproducir (Espacio)';
+        btn.title = 'Reproducir';
     }
     if (window.lucide) window.lucide.createIcons();
 }
 
-function mostrarIndicadorRec(mostrar) {
-    const el = document.getElementById('fvRecIndicator');
-    if (el) el.hidden = !mostrar;
+// Cambia el texto de la barra de info según esté reproduciendo o no.
+// NO se superpone sobre el canvas. Es solo una etiqueta en la barra inferior.
+function marcarPlayback(activo) {
+    const info = document.getElementById('fvPlaybackInfo');
+    if (info) info.classList.toggle('reproduciendo', activo);
 }
 
 function actualizarInfoReproduccion() {
-    const el = document.getElementById('fvPlaybackFrame');
-    if (el) el.textContent = `Frame ${state.playFrameIdx + 1} / ${state.frames.length}`;
+    const frameEl = document.getElementById('fvPlaybackFrame');
+    const fpsEl = document.getElementById('fvPlaybackFps');
+    const info = document.getElementById('fvPlaybackInfo');
+    if (!frameEl) return;
+
+    if (state.playing) {
+        // Mostrar "▶ Reproduciendo" en vez del número de frame
+        if (info && !info.querySelector('.fv-playback-play-icon')) {
+            // Insertamos un puntito pulsante ANTES del texto
+            const dot = document.createElement('span');
+            dot.className = 'fv-playback-play-icon';
+            info.insertBefore(dot, info.firstChild);
+        }
+        frameEl.textContent = `Reproduciendo · Frame ${state.playFrameIdx + 1} / ${state.frames.length}`;
+        if (fpsEl) fpsEl.textContent = `${state.fps} FPS`;
+    } else {
+        const dot = info?.querySelector('.fv-playback-play-icon');
+        if (dot) dot.remove();
+        frameEl.textContent = `Frame ${state.frameActivo + 1} / ${state.frames.length}`;
+        if (fpsEl) fpsEl.textContent = `${state.fps} FPS`;
+    }
 }
 
 // ============================================================
@@ -756,7 +759,6 @@ function renderizarStrip() {
         item.addEventListener('click', () => irAFrame(i));
         strip.appendChild(item);
 
-        // Render del thumbnail
         renderizarThumbnailEnCanvas(thumbCanvas, frame);
     });
 
@@ -784,7 +786,6 @@ function actualizarStripSeleccion() {
     items.forEach((item, i) => {
         item.classList.toggle('activo', i === state.frameActivo);
     });
-    // Scroll al frame activo
     const actual = items[state.frameActivo];
     if (actual) {
         actual.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
@@ -834,7 +835,6 @@ function setColor(hex) {
     if (picker) picker.value = state.color;
     if (hexEl) hexEl.textContent = state.color;
 
-    // Marcar en paleta
     document.querySelectorAll('.fv-paleta-grid .fv-color-btn').forEach(b => {
         b.classList.toggle('seleccionado', b.dataset.color === state.color);
     });
@@ -989,7 +989,6 @@ async function exportarGIF() {
     await new Promise(r => setTimeout(r, 80));
 
     try {
-        // Worker desde blob URL para esquivar CORS
         let workerUrl = 'https://unpkg.com/gif.js@0.2.0/dist/gif.worker.js';
         try {
             const res = await fetch(workerUrl);
@@ -1010,7 +1009,6 @@ async function exportarGIF() {
 
         const delay = Math.round(1000 / state.fps);
 
-        // Composite cada frame sobre fondo blanco
         for (let i = 0; i < state.frames.length; i++) {
             const tmp = document.createElement('canvas');
             tmp.width = ANCHO;
@@ -1058,7 +1056,6 @@ async function exportarWebM() {
     await new Promise(r => setTimeout(r, 80));
 
     try {
-        // Canvas temporal para grabar
         const recCanvas = document.createElement('canvas');
         recCanvas.width = ANCHO;
         recCanvas.height = ALTO;
@@ -1098,7 +1095,6 @@ async function exportarWebM() {
 
         mediaRecorder.start();
 
-        // Grabar un ciclo completo + un poco más para asegurar
         const duracionTotal = (state.frames.length / state.fps) * 1000 + 200;
 
         const startTime = performance.now();
@@ -1314,6 +1310,8 @@ function inicializarUIMovil() {
                 return;
             }
             if (a === 'deshacer') { deshacer(); return; }
+            if (a === 'rehacer') { rehacer(); return; }
+            if (a === 'limpiarFrame') { limpiarFrame(); return; }
             if (a === 'paleta' || a === 'ajustes') abrirPanel(a);
         });
     });
@@ -1324,9 +1322,6 @@ function inicializarUIMovil() {
 // ============================================================
 function wireUI() {
     // Header
-    document.getElementById('btnDeshacer')?.addEventListener('click', deshacer);
-    document.getElementById('btnRehacer')?.addEventListener('click', rehacer);
-    document.getElementById('btnLimpiarFrame')?.addEventListener('click', limpiarFrame);
     document.getElementById('btnAyuda')?.addEventListener('click', () => {
         document.getElementById('modalAyuda').hidden = false;
         if (window.lucide) window.lucide.createIcons();
@@ -1383,7 +1378,6 @@ function wireUI() {
         if (fpsValor) fpsValor.textContent = state.fps;
         actualizarInfoFrame();
         if (state.playing) {
-            // Reiniciar timer con nuevo FPS
             clearTimeout(state.playTimer);
             const tick = () => {
                 if (!state.playing) return;
@@ -1474,12 +1468,11 @@ function wireUI() {
 }
 
 // ============================================================
-//  TECLADO
+//  TECLADO (opcional, solo PC)
 // ============================================================
 document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
-    // Ctrl combos
     if (e.ctrlKey || e.metaKey) {
         const k = e.key.toLowerCase();
         if (k === 'z' && !e.shiftKey) { e.preventDefault(); deshacer(); return; }
@@ -1490,7 +1483,6 @@ document.addEventListener('keydown', (e) => {
 
     const k = e.key.toLowerCase();
 
-    // Atajos de reproducción y navegación
     if (e.key === ' ') { e.preventDefault(); togglePlay(); return; }
     if (e.key === 'ArrowLeft') { e.preventDefault(); irAFrameAnterior(); return; }
     if (e.key === 'ArrowRight') { e.preventDefault(); irAFrameSiguiente(); return; }
@@ -1498,22 +1490,19 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'End') { e.preventDefault(); irAUltimoFrame(); return; }
     if (e.key === 'Delete') { e.preventDefault(); eliminarFrame(); return; }
 
-    // Herramientas
     const shortcuts = { b: 'lapiz', e: 'borrador', l: 'linea', r: 'rect', o: 'elipse', g: 'relleno', i: 'pipeta' };
     if (shortcuts[k]) { activarHerramienta(shortcuts[k]); return; }
 
-    // Tamaños
     if (k === '1') { setTamano(1); return; }
     if (k === '2') { setTamano(2); return; }
-    if (k === '3') { setTamano(3); return; }
-    if (k === '4') { setTamano(5); return; }
-    if (k === '5') { setTamano(8); return; }
+    if (k === '3') { setTamano(4); return; }
+    if (k === '4') { setTamano(8); return; }
+    if (k === '5') { setTamano(16); return; }
+    if (k === '6') { setTamano(32); return; }
 
-    // Acciones
     if (k === 'n') { agregarFrame(); return; }
     if (k === 'd') { duplicarFrame(); return; }
 
-    // Onion con shift+O (porque O ya es elipse)
     if (e.shiftKey && k === 'o') { toggleOnion(); return; }
 });
 
@@ -1542,21 +1531,17 @@ async function inicializar() {
     const badge = document.getElementById('fvUserBadge');
     if (badge) badge.textContent = `@${usuarioActual.codigo} · ${usuarioActual.nombre}`;
 
-    // Canvas visible
     visibleCanvas = document.getElementById('fvCanvas');
     visibleCtx = visibleCanvas.getContext('2d');
     visibleCtx.imageSmoothingEnabled = false;
 
-    // Paleta
     renderizarPaleta();
     setColor('#000000');
     renderizarRecientes();
 
-    // Ajustar tamaño inicial del canvas
     setTimeout(ajustarTamanoCanvas, 50);
     setTimeout(ajustarTamanoCanvas, 300);
 
-    // Cargar proyecto
     let proyectoCargado = false;
     try {
         const guardado = await cargarProyectoLocal();
@@ -1579,7 +1564,6 @@ async function inicializar() {
         state.frameActivo = 0;
     }
 
-    // UI
     inicializarUIMovil();
     wireUI();
     activarHerramienta('lapiz');
@@ -1588,11 +1572,9 @@ async function inicializar() {
 
     renderizarTodo();
 
-    // Botón onion activo por defecto
     const btnOnion = document.getElementById('btnToggleOnion');
     if (btnOnion) btnOnion.classList.add('activo');
 
-    // Guardar al salir
     window.addEventListener('pagehide', () => {
         if (usuarioActual && state.frames.length > 0) {
             const framesData = state.frames.map(f => {
@@ -1613,10 +1595,9 @@ async function inicializar() {
 
     if (window.lucide) window.lucide.createIcons();
 
-    // Hint
     if (!localStorage.getItem(HINT_KEY)) {
         setTimeout(() => {
-            toast('1 dedo dibuja · Espacio = reproducir', 'info');
+            toast('1 dedo dibuja · Todo se hace con botones', 'info');
             try { localStorage.setItem(HINT_KEY, '1'); } catch (e) {}
         }, 900);
     }
