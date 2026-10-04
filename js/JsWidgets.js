@@ -39,6 +39,17 @@ const WIDGETS_DISPONIBLES = [
         monedas: 0
     },
     {
+    id: 'contador-dias',
+    nombre: 'Contador de Días',
+    icono: 'calendar-range',
+    ruta: 'Widgets/contador-dias/index.html',
+    descripcion: 'Elegís 2 fechas y calcula los días exactos entre ellas. Ideal para aniversarios, proyectos o eventos.',
+    categoria: 'Gratuitas',
+    esBase: false,
+    espacio: 2,
+    monedas: 0
+},
+    {
         id: 'bubble-image',
         nombre: 'Imagen Burbuja',
         icono: 'circle',
