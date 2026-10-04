@@ -12,6 +12,14 @@
 //  · Persistencia: IndexedDB (1 proyecto por usuario).
 //  · Export: OBJ con colores, PNG del viewport, Galería.
 //  · Tema heredado del shell (var(--...)).
+//
+//  VERSION 1.1 — fixes:
+//    · Ejes anclados a la esquina del grid (antes flotaban).
+//    · Cámara inicial más lejos y mirando al workspace.
+//    · Zoom de rueda más rápido (25% por paso).
+//    · Pan: click medio + Shift+click derecho.
+//    · Sensibilidad de pan mejorada.
+//    · Modal de controles la primera vez.
 // ============================================================
 
 'use strict';
@@ -25,7 +33,7 @@ const IDB_VERSION = 1;
 const IDB_STORE = 'proyectos';
 const DEFAULT_SIZE = 32;
 const MAX_UNDO = 30;
-const LONG_PRESS_MS = 400;
+const HINT_KEY = 's3d_hint_visto';
 
 // Paleta PICO-8 (coherente con PixEvan)
 const PALETA_DEFAULT = [
@@ -56,22 +64,18 @@ const state = {
     size: DEFAULT_SIZE,
     voxels: new Uint32Array(DEFAULT_SIZE * DEFAULT_SIZE * DEFAULT_SIZE),
 
-    // Herramienta
     tool: 'lapiz',
     color: '#FFFFFF',
     brushSize: 1,
     mirrorX: false, mirrorY: false, mirrorZ: false,
 
-    // Vista
     showGrid: true,
     showAxes: true,
     wireframe: false,
 
-    // Cámara (spherical coords alrededor de `target`)
-    orbit: { theta: Math.PI / 4, phi: Math.PI / 3, radius: DEFAULT_SIZE * 2.2 },
+    orbit: { theta: Math.PI / 4, phi: Math.PI / 2.8, radius: DEFAULT_SIZE * 3.2 },
     target: { x: 0, y: 0, z: 0 },
 
-    // Undo
     undoStack: [],
     redoStack: []
 };
@@ -194,7 +198,6 @@ function claveProyecto() {
 
 // ============================================================
 //  COLOR — empaquetado RGBA en Uint32
-//  Layout: [ 0xFF | R | G | B ]  (big-endian visual, little-endian interno)
 // ============================================================
 function packColor(hex) {
     const h = hex.replace('#', '');
@@ -310,7 +313,7 @@ function initThree() {
     d2.position.set(-1.2, -0.6, -1);
     scene.add(d2);
 
-    // Ghost cursor: cubo wireframe que se mueve con el mouse
+    // Ghost cursor: cubo wireframe
     const ghostGeo = new THREE.BoxGeometry(1.02, 1.02, 1.02);
     const ghostMat = new THREE.MeshBasicMaterial({
         color: 0xFFFFFF,
@@ -331,11 +334,11 @@ function initThree() {
     gridHelper.material.transparent = true;
     scene.add(gridHelper);
 
-    // Axes helper
-    axesHelper = new THREE.AxesHelper(state.size / 2);
+    // Axes helper — anclado a la esquina del grid
+    axesHelper = new THREE.AxesHelper(state.size / 4);
+    axesHelper.position.set(-state.size / 2, -state.size / 2, -state.size / 2);
     scene.add(axesHelper);
 
-    // Render on demand
     window.addEventListener('resize', onWindowResize);
 
     updateCamera();
@@ -403,7 +406,6 @@ function rebuildMesh() {
                     const ny = y + face.n[1];
                     const nz = z + face.n[2];
 
-                    // ¿Hay vecino ocupado?
                     if (nx >= 0 && nx < S && ny >= 0 && ny < S && nz >= 0 && nz < S) {
                         if (voxels[nx + ny * S + nz * S * S]) continue;
                     }
@@ -468,7 +470,6 @@ function updateInfoPanel() {
 
 // ============================================================
 //  RAYCAST DDA (Amanatides & Woo)
-//  Devuelve: { hit, voxel:{x,y,z}, newVoxel:{x,y,z}, normal:{x,y,z} }
 // ============================================================
 function raycastVoxel(origin, dir) {
     const S = state.size;
@@ -532,7 +533,6 @@ function raycastVoxel(origin, dir) {
             z += stepZ; tMaxZ += tDeltaZ; lastAxis = 2;
         }
 
-        // Early exit: fuera del cubo por mucho
         const far = 5000;
         if (tMaxX > far && tMaxY > far && tMaxZ > far) break;
         if (x < -2 && stepX < 0) break;
@@ -562,9 +562,10 @@ function raycastAt(clientX, clientY) {
     const hit = raycastVoxel(ray.origin, ray.direction);
     if (hit.hit) return hit;
 
-    // Fallback: intersectar con el plano del suelo (y = -S/2)
+    // Fallback: plano del suelo (y = -S/2)
     const S = state.size;
     const planeY = -S / 2;
+    if (Math.abs(ray.direction.y) < 1e-6) return null;
     const t = (planeY - ray.origin.y) / ray.direction.y;
     if (t > 0 && t < 8000) {
         const px = ray.origin.x + ray.direction.x * t;
@@ -597,7 +598,6 @@ function updateGhost(clientX, clientY) {
     if (state.tool === 'lapiz') {
         gx = ray.newVoxel.x; gy = ray.newVoxel.y; gz = ray.newVoxel.z;
     } else {
-        // borrar / pintar → apuntar al voxel existente
         if (!ray.voxel) { ghost.visible = false; requestRender(); return; }
         gx = ray.voxel.x; gy = ray.voxel.y; gz = ray.voxel.z;
     }
@@ -611,7 +611,6 @@ function updateGhost(clientX, clientY) {
 
     const size = state.brushSize;
     ghost.scale.set(size, size, size);
-    // Centrar el ghost en el bloque (el "hit" apunta a la esquina inferior)
     const off = (size - 1) / 2;
     ghost.position.set(
         gx + 0.5 + off - S / 2,
@@ -738,9 +737,11 @@ function onPointerDown(e) {
     const el = getEl();
     if (!el) return;
 
-    // ¿Es sobre los controles flotantes? Ignorar
+    // ¿Es sobre los paneles flotantes? Ignorar
     const target = e.target;
-    if (target && target.closest && target.closest('.s3d-zoom-controls, .s3d-vp-info, .s3d-mirror-indicator')) return;
+    if (target && target.closest && target.closest(
+        '.s3d-view-panel, .s3d-zoom-panel, .s3d-vp-info, .s3d-mirror-indicator, .s3d-hint'
+    )) return;
 
     e.preventDefault();
     try { el.setPointerCapture(e.pointerId); } catch (_) {}
@@ -749,9 +750,7 @@ function onPointerDown(e) {
 
     // --- GESTOS MÓVILES 2 DEDOS ---
     if (e.pointerType === 'touch' && pointers.size === 2) {
-        // Cancelar cualquier trazo en curso
         if (gestureMode === 'sculpt' && actionStarted) {
-            // "Deshacer" el stroke que estaba en progreso
             doUndo();
             actionStarted = false;
         }
@@ -776,11 +775,12 @@ function onPointerDown(e) {
 
     // --- DESKTOP: mouse ---
     if (e.pointerType === 'mouse') {
+        // Botón derecho, medio, o Shift+izq → cámara
         if (e.button === 2 || e.button === 1) {
-            // Botón derecho o medio → cámara
             gestureMode = 'camera';
             hideGhost();
-            const esPan = (e.button === 1);
+            // CAMBIO: click medio siempre pan · Shift+click derecho también pan
+            const esPan = (e.button === 1) || e.shiftKey;
             orbitStart = {
                 theta: state.orbit.theta,
                 phi: state.orbit.phi,
@@ -795,8 +795,8 @@ function onPointerDown(e) {
             return;
         }
         if (e.button === 0) {
-            // Alt/Shift+click = cámara
-            if (e.altKey || e.shiftKey) {
+            // Alt+click izq = rotar (compatibilidad)
+            if (e.altKey) {
                 gestureMode = 'camera';
                 hideGhost();
                 orbitStart = {
@@ -806,7 +806,7 @@ function onPointerDown(e) {
                     tx: state.target.x,
                     ty: state.target.y,
                     tz: state.target.z,
-                    pan: e.shiftKey,
+                    pan: false,
                     mx: e.clientX,
                     my: e.clientY
                 };
@@ -835,7 +835,6 @@ function onPointerDown(e) {
 function onPointerMove(e) {
     const el = getEl();
     if (!el || !pointers.has(e.pointerId)) {
-        // Actualizar ghost con mouse suelto
         if (e.pointerType === 'mouse') updateGhost(e.clientX, e.clientY);
         return;
     }
@@ -848,7 +847,6 @@ function onPointerMove(e) {
         const dist = getPointerDist();
         const angle = getPointerAngle();
 
-        // Pan: desplazar el target en el plano de la cámara
         const dMx = centro.x - panStart.mx;
         const dMy = centro.y - panStart.my;
         if (Math.abs(dMx) + Math.abs(dMy) > 0.5) {
@@ -857,7 +855,6 @@ function onPointerMove(e) {
             panStart.my = centro.y;
         }
 
-        // Zoom: ratio de distancia
         if (pinch2Start.dist > 0) {
             const ratio = dist / pinch2Start.dist;
             if (Math.abs(1 - ratio) > 0.03) {
@@ -867,10 +864,8 @@ function onPointerMove(e) {
             }
         }
 
-        // Rotación: cambio de ángulo
         let dAngle = angle - pinch2Start.angle;
         if (Math.abs(dAngle) > 0.02) {
-            // Normalizar a [-π, π]
             while (dAngle > Math.PI) dAngle -= Math.PI * 2;
             while (dAngle < -Math.PI) dAngle += Math.PI * 2;
             state.orbit.theta -= dAngle * 1.2;
@@ -905,7 +900,7 @@ function onPointerMove(e) {
         return;
     }
 
-    // --- HOVER (mouse suelto) ---
+    // --- HOVER ---
     if (e.pointerType === 'mouse') {
         updateGhost(e.clientX, e.clientY);
     }
@@ -927,23 +922,21 @@ function onPointerUp(e) {
             orbitStart = null;
             pinch2Start = null;
         } else if (pointers.size === 1 && e.pointerType === 'touch') {
-            // Quedó 1 dedo. No reanudar escultura (fue gesto de cámara).
             gestureMode = null;
         }
     } else if (wasGesture === 'sculpt' && pointers.size > 0) {
-        // Todavía hay dedos pero ya no es gesture=sculpt
         gestureMode = null;
     }
 }
 
 function panCamera(dx, dy) {
-    // Mover el target en el plano de la cámara
     const right = new THREE.Vector3();
     const up = new THREE.Vector3();
     const forward = new THREE.Vector3();
     camera.matrixWorld.extractBasis(right, up, forward);
 
-    const scale = state.orbit.radius * 0.0018;
+    // CAMBIO: sensibilidad subida de 0.0018 a 0.0028
+    const scale = state.orbit.radius * 0.0028;
     state.target.x -= right.x * dx * scale - up.x * dy * scale;
     state.target.y -= right.y * dx * scale - up.y * dy * scale;
     state.target.z -= right.z * dx * scale - up.z * dy * scale;
@@ -958,7 +951,8 @@ function setupWheel() {
     if (!el) return;
     el.addEventListener('wheel', (e) => {
         e.preventDefault();
-        const factor = e.deltaY > 0 ? 1.1 : (1 / 1.1);
+        // CAMBIO: 25% por muesca en vez de 10%
+        const factor = e.deltaY > 0 ? 1.25 : (1 / 1.25);
         state.orbit.radius = Math.max(4, Math.min(500, state.orbit.radius * factor));
         updateCamera();
     }, { passive: false });
@@ -1055,14 +1049,6 @@ function toggleGrid() {
     requestRender();
 }
 
-function toggleAxes() {
-    state.showAxes = !state.showAxes;
-    if (axesHelper) axesHelper.visible = state.showAxes;
-    const chk = document.getElementById('toggleAxes');
-    if (chk) chk.checked = state.showAxes;
-    requestRender();
-}
-
 function toggleWireframe() {
     state.wireframe = !state.wireframe;
     if (mesh) mesh.material.wireframe = state.wireframe;
@@ -1072,23 +1058,23 @@ function toggleWireframe() {
 }
 
 function vistaFit() {
-    state.orbit.radius = state.size * 2.2;
-    state.target = { x: 0, y: 0, z: 0 };
+    state.orbit.radius = state.size * 3.2;
+    state.target = { x: 0, y: -state.size / 8, z: 0 };
     updateCamera();
 }
 
 function vistaReset() {
     state.orbit.theta = Math.PI / 4;
-    state.orbit.phi = Math.PI / 3;
-    state.orbit.radius = state.size * 2.2;
-    state.target = { x: 0, y: 0, z: 0 };
+    state.orbit.phi = Math.PI / 2.8;
+    state.orbit.radius = state.size * 3.2;
+    state.target = { x: 0, y: -state.size / 8, z: 0 };
     updateCamera();
 }
 
 function vistaTop() {
     state.orbit.theta = 0;
     state.orbit.phi = 0.05;
-    state.orbit.radius = state.size * 2;
+    state.orbit.radius = state.size * 2.4;
     state.target = { x: 0, y: 0, z: 0 };
     updateCamera();
 }
@@ -1096,25 +1082,15 @@ function vistaTop() {
 function vistaFront() {
     state.orbit.theta = 0;
     state.orbit.phi = Math.PI / 2;
-    state.orbit.radius = state.size * 2;
+    state.orbit.radius = state.size * 2.4;
     state.target = { x: 0, y: 0, z: 0 };
     updateCamera();
 }
 
 // ============================================================
-//  PROYECTO
+//  HELPERS DE ESCENA (grid + axes)
 // ============================================================
-function crearProyecto(size) {
-    state.size = size;
-    state.voxels = new Uint32Array(size * size * size);
-    state.undoStack = [];
-    state.redoStack = [];
-    state.orbit.radius = size * 2.2;
-    state.orbit.theta = Math.PI / 4;
-    state.orbit.phi = Math.PI / 3;
-    state.target = { x: 0, y: 0, z: 0 };
-
-    // Rebuild helpers
+function rebuildSceneHelpers(size) {
     if (gridHelper) {
         scene.remove(gridHelper);
         gridHelper.geometry.dispose();
@@ -1132,10 +1108,28 @@ function crearProyecto(size) {
         axesHelper.geometry.dispose();
         axesHelper.material.dispose();
     }
-    axesHelper = new THREE.AxesHelper(size / 2);
+    axesHelper = new THREE.AxesHelper(size / 4);
+    axesHelper.position.set(-size / 2, -size / 2, -size / 2);
     axesHelper.visible = state.showAxes;
     scene.add(axesHelper);
+}
 
+// ============================================================
+//  PROYECTO
+// ============================================================
+function crearProyecto(size) {
+    state.size = size;
+    state.voxels = new Uint32Array(size * size * size);
+    state.undoStack = [];
+    state.redoStack = [];
+
+    // Cámara inicial: más lejos y mirando un poco hacia abajo
+    state.orbit.radius = size * 3.2;
+    state.orbit.theta = Math.PI / 4;
+    state.orbit.phi = Math.PI / 2.8;
+    state.target = { x: 0, y: -size / 8, z: 0 };
+
+    rebuildSceneHelpers(size);
     updateCamera();
     markMeshDirty();
     updateUndoButtons();
@@ -1168,29 +1162,8 @@ function cargarProyectoDesdeData(data) {
     const size = data.size || DEFAULT_SIZE;
     state.size = size;
 
-    // Reconstruir helpers de escena primero
-    if (gridHelper) {
-        scene.remove(gridHelper);
-        gridHelper.geometry.dispose();
-        gridHelper.material.dispose();
-    }
-    gridHelper = new THREE.GridHelper(size, size, 0x666666, 0xAAAAAA);
-    gridHelper.position.y = -size / 2;
-    gridHelper.material.opacity = 0.55;
-    gridHelper.material.transparent = true;
-    gridHelper.visible = state.showGrid;
-    scene.add(gridHelper);
+    rebuildSceneHelpers(size);
 
-    if (axesHelper) {
-        scene.remove(axesHelper);
-        axesHelper.geometry.dispose();
-        axesHelper.material.dispose();
-    }
-    axesHelper = new THREE.AxesHelper(size / 2);
-    axesHelper.visible = state.showAxes;
-    scene.add(axesHelper);
-
-    // Cargar voxels
     if (data.voxels && data.voxels.length === size * size * size) {
         state.voxels = new Uint32Array(data.voxels);
     } else {
@@ -1199,10 +1172,12 @@ function cargarProyectoDesdeData(data) {
 
     state.undoStack = [];
     state.redoStack = [];
-    state.orbit.radius = size * 2.2;
+
+    // Cámara inicial: más lejos y mirando un poco hacia abajo
+    state.orbit.radius = size * 3.2;
     state.orbit.theta = Math.PI / 4;
-    state.orbit.phi = Math.PI / 3;
-    state.target = { x: 0, y: 0, z: 0 };
+    state.orbit.phi = Math.PI / 2.8;
+    state.target = { x: 0, y: -size / 8, z: 0 };
 
     updateCamera();
     markMeshDirty();
@@ -1263,7 +1238,6 @@ function exportarOBJ() {
 }
 
 function exportarPNG() {
-    // Asegurar un frame fresco
     renderer.render(scene, camera);
     const dataURL = renderer.domElement.toDataURL('image/png');
     const a = document.createElement('a');
@@ -1392,7 +1366,6 @@ function inicializarUIMovil() {
 //  WIRING DE UI
 // ============================================================
 function wireUI() {
-    // Header
     document.getElementById('btnNuevoProyecto')?.addEventListener('click', () => {
         document.getElementById('modalNuevo').hidden = false;
         if (window.lucide) window.lucide.createIcons();
@@ -1405,13 +1378,13 @@ function wireUI() {
         if (window.lucide) window.lucide.createIcons();
     });
 
-    // Zoom controls
+    // Zoom
     document.getElementById('zoomIn')?.addEventListener('click', () => {
-        state.orbit.radius = Math.max(4, state.orbit.radius / 1.2);
+        state.orbit.radius = Math.max(4, state.orbit.radius / 1.25);
         updateCamera();
     });
     document.getElementById('zoomOut')?.addEventListener('click', () => {
-        state.orbit.radius = Math.min(500, state.orbit.radius * 1.2);
+        state.orbit.radius = Math.min(500, state.orbit.radius * 1.25);
         updateCamera();
     });
     document.getElementById('zoomFit')?.addEventListener('click', vistaFit);
@@ -1457,7 +1430,7 @@ function wireUI() {
         updateMirrorIndicator();
     });
 
-    // Modelo tab
+    // Modelo
     document.getElementById('btnNuevoDesdePanel')?.addEventListener('click', () => {
         document.getElementById('modalNuevo').hidden = false;
         if (window.lucide) window.lucide.createIcons();
@@ -1520,7 +1493,6 @@ function wireUI() {
     document.getElementById('btnExportOBJ')?.addEventListener('click', exportarOBJ);
     document.getElementById('btnExportPNG')?.addEventListener('click', exportarPNG);
     document.getElementById('btnSaveGaleria')?.addEventListener('click', () => {
-        // Preview
         renderer.render(scene, camera);
         const dataURL = renderer.domElement.toDataURL('image/png');
         const mini = document.getElementById('miniPreview');
@@ -1553,7 +1525,7 @@ function wireUI() {
     });
     document.getElementById('btnConfirmarGaleria')?.addEventListener('click', guardarEnGaleria);
 
-    // Cerrar modales clickeando fondo
+    // Cerrar modales con click fondo
     ['modalNuevo', 'modalExportar', 'modalGaleria'].forEach(id => {
         const m = document.getElementById(id);
         if (!m) return;
@@ -1569,6 +1541,18 @@ function wireUI() {
             const m = document.getElementById(id);
             if (m && !m.hidden) { m.hidden = true; }
         });
+    });
+
+    // Hint
+    const hintEl = document.getElementById('s3dHint');
+    const btnCerrarHint = document.getElementById('s3dHintCerrar');
+    if (hintEl && !localStorage.getItem(HINT_KEY)) {
+        hintEl.hidden = false;
+        if (window.lucide) window.lucide.createIcons();
+    }
+    btnCerrarHint?.addEventListener('click', () => {
+        hintEl.hidden = true;
+        try { localStorage.setItem(HINT_KEY, '1'); } catch (e) {}
     });
 }
 
@@ -1608,10 +1592,8 @@ async function inicializar() {
     const badge = document.getElementById('s3dUserBadge');
     if (badge) badge.textContent = `@${usuarioActual.codigo} · ${usuarioActual.nombre}`;
 
-    // Three.js
     if (!initThree()) return;
 
-    // Pointer events
     const el = getEl();
     el.addEventListener('pointerdown', onPointerDown, { passive: false });
     el.addEventListener('pointermove', onPointerMove, { passive: false });
@@ -1644,17 +1626,14 @@ async function inicializar() {
         crearProyecto(DEFAULT_SIZE);
     }
 
-    // Palette
     renderPaleta();
     setColor('#FFFFFF');
 
-    // UI
     inicializarUIMovil();
     wireUI();
     updateUndoButtons();
     updateMirrorIndicator();
 
-    // Guardar al salir
     window.addEventListener('pagehide', () => {
         if (usuarioActual && state.voxels) {
             idbSet(claveProyecto(), {
@@ -1668,7 +1647,6 @@ async function inicializar() {
 
     if (window.lucide) window.lucide.createIcons();
 
-    // Hint inicial
     setTimeout(() => {
         toast('1 dedo = esculpir · 2 dedos = mover cámara', 'info');
     }, 800);
