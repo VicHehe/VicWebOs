@@ -1,16 +1,16 @@
 // ============================================================
-//  Widget: Generador de Nombres v3
+//  Widget: Generador de Nombres (v4 — Lista Curada)
 //  ------------------------------------------------------------
-//  Motor: Markov de caracteres con bigramas (orden 2).
-//  Aprende qué letra sigue a cada par de letras viendo nombres
-//  reales. Genera secuencias que respetan la fonotáctica natural
-//  sin reglas duras.
+//  En lugar de sintetizar, elige al azar de un banco curado de
+//  ~600 nombres reales organizados por estilo y género.
 //
-//  Este enfoque es el que usan librerías como markov-namegen
-//  y fantasy-name-generator. Produce nombres como "Nicolás",
-//  "Cassie", "Haruko" con naturalidad.
+//  Estilos:
+//    latino   → nombres hispanos (Chile, México, Arg, España)
+//    japones  → nombres japoneses romanizados
+//    anglo    → nombres anglosajones
+//    fantasia → nombres de fantasía literaria
 //
-//  SIN persistencia.
+//  SIN persistencia. Evita repetir el nombre anterior.
 // ============================================================
 
 'use strict';
@@ -18,224 +18,139 @@
 const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 
 // ============================================================
-//  SET DE ENTRENAMIENTO
-//  ------------------------------------------------------------
-//  Nombres reales por estilo. Cuantos más, mejor. El modelo
-//  aprende transiciones de bigramas de estos ejemplos.
+//  BANCO DE NOMBRES
 // ============================================================
-const NOMBRES_ENTRENAMIENTO = {
-    latino: [
-        'nicolas','nicol','amaro','antonio','jose','juan','manuel','francisco',
-        'luis','javier','miguel','angel','carlos','jesus','david','pedro',
-        'alejandro','fernando','sergio','ricardo','eduardo','roberto','daniel',
-        'pablo','andres','adrian','diego','rafael','gonzalo','tomas','martin',
-        'agustin','felipe','ignacio','matias','sebastian','cristobal','ramiro',
-        'mauricio','rodrigo','fabricio','leonardo','marcelo','octavio','santiago',
-        'benjamin','joaquin','maximiliano','lucas','mateo','vicente','renato',
-        'bruno','alonso','bastian','emilio','hector','victor','oscar','hugo',
-        'valentina','camila','isidora','josefa','florencia','martina','catalina',
-        'antonia','javiera','emilia','sofia','lucia','maria','carmen','paula',
-        'andrea','daniela','gabriela','valeria','fernanda','constanza','trinidad',
-        'magdalena','rosario','esperanza','soledad','amparo','dolores','pilar',
-        'beatriz','elena','irene','lorena','marcela','patricia','veronica',
-        'alejandra','carolina','cecilia','claudia','gloria','silvia','teresa'
-    ],
-    japones: [
-        'haruko','kasumi','tomoe','ryu','ryuu','haruki','takeshi','kenta',
-        'yuki','sakura','aiko','kenji','hiroshi','takumi','daisuke','yumi',
-        'akira','naomi','keiko','michiko','yoko','hana','ren','sora','hikari',
-        'kaito','riku','sota','yuto','daiki','ryota','kazuya','shinji','yuto',
-        'asuka','mio','saki','mei','yuna','hina','rin','kaede','tsubaki',
-        'ayame','fuyuko','hotaru','kaoru','midori','natsuki','sakiko','ayumi',
-        'chiyo','fumiko','harumi','junko','kumiko','masako','noriko','reiko',
-        'satomi','tomoko','wakana','yoshiko','ichiro','jiro','katsuo','ryosuke'
-    ],
-    anglo: [
-        'jimmy','tommy','andy','charlie','bobby','danny','eddie','freddy',
-        'harry','jack','jake','james','john','kevin','luke','mark','mike',
-        'nick','paul','peter','rick','rob','sam','steve','tim','tom','will',
-        'cassie','rosie','maggie','ellie','katie','lily','lucy','molly',
-        'nancy','penny','polly','sally','sophie','annie','betty','daisy',
-        'emily','grace','hannah','isabel','jane','kelly','laura','megan',
-        'oliver','noah','liam','ethan','mason','logan','jacob','william',
-        'mia','ava','emma','olivia','sophia','chloe','zoe','ruby','ivy'
-    ],
-    fantasia: [
-        'aelin','aelric','bran','cass','dorian','elara','fen','garrick',
-        'hale','iris','jax','kael','lyra','mira','nox','orion','pax',
-        'quinn','raven','sable','thane','ulric','vesper','wren','xander',
-        'yara','zephyr','alric','briar','cedric','draven','faelan',
-        'gideon','harlow','imre','jarek','kiran','lorcan','maeve','niamh',
-        'orla','peregrine','rowan','seraphina','tarian','vanya','ashlin',
-        'cassia','dorian','edric','faelan','gwyn','hale','isolde','joran'
-    ]
+const NOMBRES = {
+
+    // --------------------------------------------------------
+    //  LATINO
+    // --------------------------------------------------------
+    latino: {
+        masc: [
+            'Nicolás','Nicol','Amaro','Antonio','José','Juan','Manuel','Francisco',
+            'Luis','Javier','Miguel','Ángel','Carlos','Jesús','David','Pedro',
+            'Alejandro','Fernando','Sergio','Ricardo','Eduardo','Roberto','Daniel',
+            'Pablo','Andrés','Adrián','Diego','Rafael','Gonzalo','Tomás','Martín',
+            'Agustín','Felipe','Ignacio','Matías','Sebastián','Cristóbal','Ramiro',
+            'Mauricio','Rodrigo','Fabricio','Leonardo','Marcelo','Octavio','Santiago',
+            'Benjamín','Joaquín','Maximiliano','Lucas','Mateo','Vicente','Renato',
+            'Bruno','Alonso','Bastián','Emilio','Héctor','Víctor','Óscar','Hugo',
+            'Iván','Álvaro','Arturo','Enrique','Alberto','Ramón','Salvador','Julio',
+            'César','Raúl','Félix','Rubén','Esteban','Gaspar','Baltazar','Facundo',
+            'Lautaro','Thiago','Bautista','Santino','Dante','Franco','Valentino',
+            'Lorenzo','Ezequiel','Federico','Nahuel','Iñaki','Aitor','Unai','Gael',
+            'Axel','Damián','Julián','Simón','Elías','Gabriel','Samuel','Adolfo',
+            'Rogelio','Efraín','Ismael','Aníbal','Eugenio','Bernardo','Fermín',
+            'Leandro','Alfonso','Gustavo','Osvaldo','Hernán','Mario','Pedro'
+        ],
+        fem: [
+            'Valentina','Camila','Isidora','Josefa','Florencia','Martina','Catalina',
+            'Antonia','Javiera','Emilia','Sofía','Lucía','María','Carmen','Paula',
+            'Andrea','Daniela','Gabriela','Valeria','Fernanda','Constanza','Trinidad',
+            'Magdalena','Rosario','Esperanza','Soledad','Amparo','Dolores','Pilar',
+            'Beatriz','Elena','Irene','Lorena','Marcela','Patricia','Verónica',
+            'Alejandra','Carolina','Cecilia','Claudia','Gloria','Silvia','Teresa',
+            'Isabel','Ana','Marta','Sara','Julia','Clara','Ángela','Rosa','Leticia',
+            'Mónica','Natalia','Amanda','Renata','Agustina','Julieta','Antonella',
+            'Guadalupe','Ximena','Regina','Delfina','Malena','Micaela','Bianca',
+            'Oriana','Alondra','Aitana','Cayetana','Jimena','Luisa','Manuela',
+            'Ramona','Rita','Ofelia','Margarita','Inés','Alma','Ainhoa','Nahia',
+            'Zoe','Emma','Olivia','Chloe','Mia','Paloma','Violeta','Aurora',
+            'Ámbar','Luna','Estrella','Perla','Abril','Milagros','Trinidad',
+            'Consuelo','Dominga','Fresia','Aylin','Antü','Rayén','Küyen','Millaray'
+        ]
+    },
+
+    // --------------------------------------------------------
+    //  JAPONÉS
+    // --------------------------------------------------------
+    japones: {
+        masc: [
+            'Haruki','Takeshi','Kenta','Yuki','Kenji','Hiroshi','Takumi','Daisuke',
+            'Akira','Ren','Kaito','Riku','Sota','Yuto','Daiki','Ryota','Kazuya',
+            'Shinji','Ryu','Ryuu','Ryosuke','Ichiro','Jiro','Katsuo','Satoshi',
+            'Masaru','Toshiro','Kazuki','Haruto','Ryo','Makoto','Hikaru','Isamu',
+            'Ryusei','Yuma','Hayato','Itsuki','Minato','Asahi','Sora','Hinata',
+            'Kanata','Aoto','Tsubasa','Kai','Renjiro','Kazuma','Keisuke','Kiyoshi',
+            'Masato','Noboru','Osamu','Riku','Saburo','Shigeru','Shiro','Tadashi',
+            'Takao','Tetsuya','Tomoya','Yasuo','Yuuto','Yuu','Kaoru','Naoki'
+        ],
+        fem: [
+            'Haruko','Kasumi','Tomoe','Sakura','Aiko','Yumi','Naomi','Keiko',
+            'Michiko','Yoko','Hana','Hikari','Asuka','Mio','Saki','Mei','Yuna',
+            'Hina','Rin','Kaede','Tsubaki','Ayame','Fuyuko','Hotaru','Kaoru',
+            'Midori','Natsuki','Sakiko','Ayumi','Chiyo','Fumiko','Harumi','Junko',
+            'Kumiko','Masako','Noriko','Reiko','Satomi','Tomoko','Wakana','Yoshiko',
+            'Aoi','Akari','Aya','Chiaki','Emi','Kaori','Kira','Kokoro','Kotone',
+            'Mai','Mami','Megumi','Momoko','Nanami','Riko','Rina','Saya','Shinobu',
+            'Suzume','Yui','Yuka','Yuzuki','Himari','Ichika','Miu','Sakurako'
+        ]
+    },
+
+    // --------------------------------------------------------
+    //  ANGLO
+    // --------------------------------------------------------
+    anglo: {
+        masc: [
+            'Jimmy','Tommy','Andy','Charlie','Bobby','Danny','Eddie','Freddy',
+            'Harry','Jack','Jake','James','John','Kevin','Luke','Mark','Mike',
+            'Nick','Paul','Peter','Rick','Rob','Sam','Steve','Tim','Tom','Will',
+            'Oliver','Noah','Liam','Ethan','Mason','Logan','Jacob','William',
+            'Henry','Alexander','Benjamin','Daniel','Matthew','Joseph','David',
+            'Jackson','Sebastian','Aiden','Owen','Samuel','Ryan','Nathan','Caleb',
+            'Christian','Hunter','Jonathan','Aaron','Thomas','Charles','Christopher',
+            'Andrew','Joshua','Adam','Dylan','Eric','Frank','Gary','Gregory','Ian',
+            'Jeremy','Justin','Keith','Larry','Nathaniel','Patrick','Randy',
+            'Scott','Shawn','Tyler','Victor','Walter','Zachary','Austin','Blake'
+        ],
+        fem: [
+            'Cassie','Rosie','Maggie','Ellie','Katie','Lily','Lucy','Molly',
+            'Nancy','Penny','Polly','Sally','Sophie','Annie','Betty','Daisy',
+            'Emily','Grace','Hannah','Isabel','Jane','Kelly','Laura','Megan',
+            'Mia','Ava','Emma','Olivia','Sophia','Chloe','Zoe','Ruby','Ivy',
+            'Ella','Charlotte','Amelia','Harper','Evelyn','Abigail','Scarlett',
+            'Victoria','Madison','Luna','Penelope','Riley','Layla','Lillian',
+            'Nora','Hazel','Violet','Aurora','Savannah','Audrey','Brooklyn',
+            'Bella','Claire','Skylar','Paisley','Everly','Anna','Caroline',
+            'Kennedy','Sarah','Alice','Eva','Naomi','Stella','Natalie','Julia'
+        ]
+    },
+
+    // --------------------------------------------------------
+    //  FANTASÍA
+    // --------------------------------------------------------
+    fantasia: {
+        masc: [
+            'Aelin','Aelric','Bran','Cass','Dorian','Fen','Garrick','Hale',
+            'Jax','Kael','Nox','Orion','Pax','Quinn','Raven','Sable','Thane',
+            'Ulric','Vesper','Wren','Xander','Zephyr','Alric','Briar','Cedric',
+            'Draven','Faelan','Gideon','Harlow','Imre','Jarek','Kiran','Lorcan',
+            'Peregrine','Rowan','Tarian','Vanya','Ashlin','Edric','Joran',
+            'Kaelen','Faelar','Thalion','Vaelor','Kaelan','Ardan','Caelan',
+            'Lucan','Roan','Sylas','Theron','Castor','Damon','Evander','Fenris',
+            'Grendel','Haldir','Isildur','Kaldur','Leoric','Mordred','Nero',
+            'Oberon','Perseus','Tristan','Uther','Valen','Wystan','Zorander'
+        ],
+        fem: [
+            'Elara','Iris','Lyra','Mira','Yara','Maeve','Niamh','Orla',
+            'Seraphina','Cassia','Gwyn','Isolde','Aelin','Ashlin','Briar',
+            'Caelia','Dara','Elowen','Faelyn','Gwen','Hala','Ilaria','Juno',
+            'Kira','Liora','Maren','Nyx','Ophelia','Petra','Quinn','Rhea',
+            'Sera','Tessa','Una','Vespera','Wynne','Xena','Yvaine','Zara',
+            'Aeliana','Aeris','Calista','Delphine','Eluned','Freya','Galadriel',
+            'Helia','Ilyana','Kaia','Luna','Maelis','Nerys','Oona','Persephone',
+            'Rowena','Selene','Theia','Uma','Vala','Wren','Yael','Zinnia',
+            'Arielle','Bellatrix','Celestine','Dahlia','Evanthe','Fiora'
+        ]
+    }
 };
-
-// ============================================================
-//  CONSTRUCCIÓN DEL MODELO DE MARKOV
-//  ------------------------------------------------------------
-//  Padding: "__" al inicio y "_" al final de cada nombre.
-//  Mapa: bigrama (2 chars) → { siguienteChar: peso }
-// ============================================================
-const PAD_INICIO = '__';
-const PAD_FIN    = '_';
-
-function construirModelo(nombres) {
-    const modelo = {};
-
-    for (const nombre of nombres) {
-        const n = nombre.toLowerCase();
-        const secuencia = PAD_INICIO + n + PAD_FIN;
-
-        // Recorremos la secuencia en ventanas de 3: (a, b) → c
-        for (let i = 0; i < secuencia.length - 2; i++) {
-            const bigrama = secuencia[i] + secuencia[i + 1];
-            const siguiente = secuencia[i + 2];
-            if (!modelo[bigrama]) modelo[bigrama] = {};
-            modelo[bigrama][siguiente] = (modelo[bigrama][siguiente] || 0) + 1;
-        }
-    }
-    return modelo;
-}
-
-// ============================================================
-//  GENERACIÓN CON TEMPERATURA
-//  ------------------------------------------------------------
-//  La temperatura controla la variedad:
-//    0.5 → conservador (muy parecido a los nombres reales)
-//    1.0 → balance
-//    1.5 → caótico (más inventivo pero más feo a veces)
-// ============================================================
-const TEMPERATURA = 0.85;
-
-function elegirSiguiente(opciones, temperatura = TEMPERATURA) {
-    const entradas = Object.entries(opciones);
-    if (entradas.length === 0) return null;
-
-    // Aplicar temperatura a los pesos
-    const pesos = entradas.map(([, c]) => Math.pow(c, 1 / temperatura));
-    const total = pesos.reduce((a, b) => a + b, 0);
-    let r = Math.random() * total;
-
-    for (let i = 0; i < entradas.length; i++) {
-        r -= pesos[i];
-        if (r <= 0) return entradas[i][0];
-    }
-    return entradas[entradas.length - 1][0];
-}
-
-function generarConModelo(modelo, maxLen = 12) {
-    let resultado = '';
-    let contexto = PAD_INICIO;
-
-    for (let i = 0; i < maxLen; i++) {
-        const opciones = modelo[contexto];
-        if (!opciones) break;
-
-        const sig = elegirSiguiente(opciones);
-        if (!sig || sig === PAD_FIN) break;
-
-        resultado += sig;
-
-        // Actualizar contexto: últimos 2 caracteres
-        contexto = (contexto + sig).slice(-2);
-    }
-
-    return resultado;
-}
-
-// ============================================================
-//  VALIDACIÓN POST-GENERACIÓN
-//  ------------------------------------------------------------
-//  Filtros finales para descartar nombres feos o inválidos.
-// ============================================================
-function esNombreValido(nombre) {
-    const n = String(nombre).toLowerCase();
-
-    // Longitud razonable
-    if (n.length < 3) return false;
-    if (n.length > 11) return false;
-
-    // Debe tener al menos una vocal
-    if (!/[aeiouáéíóú]/.test(n)) return false;
-
-    // No empezar con consonante duplicada rara
-    if (/^(.)\1/.test(n)) return false;
-
-    // 3+ vocales iguales
-    if (/([aeiou])\1{2,}/.test(n)) return false;
-
-    // 3+ consonantes iguales
-    if (/([bcdfghjklmnpqrstvwxyz])\1{2,}/.test(n)) return false;
-
-    // 4+ consonantes seguidas
-    if (/[bcdfghjklmnpqrstvwxyz]{4,}/.test(n)) return false;
-
-    // No terminar en 3+ consonantes
-    if (/[bcdfghjklmnpqrstvwxyz]{3,}$/.test(n)) return false;
-
-    // Terminación muy rara: no termina en vocal ni en consonante común
-    if (!/[aeiounrsldáéíóú]$/.test(n)) return false;
-
-    // Clusters imposibles al inicio (bl+tr, pr+dr, etc.)
-    if (/^(bl|br|cl|cr|dr|fl|fr|gl|gr|pl|pr|tr){2}/.test(n)) return false;
-
-    return true;
-}
-
-// ============================================================
-//  AJUSTE DE GÉNERO
-//  ------------------------------------------------------------
-//  Ajusta la terminación según el sesgo pedido.
-// ============================================================
-function ajustarGenero(nombre, genero) {
-    if (genero === 'ambos' || !nombre) return nombre;
-    const n = nombre.toLowerCase();
-
-    if (genero === 'fem') {
-        // Terminar en -a si no termina ya en vocal femenina
-        if (!/[aei]$/.test(n)) {
-            return n.replace(/[ou]$/, 'a') + (!/[aeiou]$/.test(n) ? 'a' : '');
-        }
-    }
-    if (genero === 'masc') {
-        // Terminar en -o si termina en -a
-        if (/a$/.test(n) && n.length > 3) {
-            return n.slice(0, -1) + 'o';
-        }
-    }
-    return nombre;
-}
-
-// ============================================================
-//  GENERADOR PRINCIPAL
-// ============================================================
-function generarNombre(estiloId, genero, intento = 0) {
-    const nombres = NOMBRES_ENTRENAMIENTO[estiloId] || NOMBRES_ENTRENAMIENTO.latino;
-    const modelo = construirModelo(nombres);
-
-    const intentosMax = 30;
-    for (let i = 0; i < intentosMax; i++) {
-        let nombre = generarConModelo(modelo, 11);
-        if (!nombre) continue;
-
-        nombre = ajustarGenero(nombre, genero);
-
-        if (esNombreValido(nombre)) {
-            return nombre.charAt(0).toUpperCase() + nombre.slice(1).toLowerCase();
-        }
-    }
-
-    // Fallback de emergencia
-    const base = nombres[Math.floor(Math.random() * nombres.length)];
-    return base.charAt(0).toUpperCase() + base.slice(1).toLowerCase();
-}
 
 // ============================================================
 //  ESTADO
 // ============================================================
 let estiloActual = 'latino';
 let generoActual = 'ambos';
+let ultimoNombre = '';
 
 // ============================================================
 //  TEMA
@@ -269,12 +184,37 @@ window.addEventListener('message', (e) => {
 });
 
 // ============================================================
+//  ELECCIÓN DEL NOMBRE
+// ============================================================
+function elegirNombre(estilo, genero) {
+    const banco = NOMBRES[estilo] || NOMBRES.latino;
+
+    let lista;
+    if (genero === 'masc')      lista = banco.masc;
+    else if (genero === 'fem')  lista = banco.fem;
+    else                        lista = [...banco.masc, ...banco.fem];
+
+    if (!lista || lista.length === 0) return '—';
+
+    // Evitar repetir el mismo nombre dos veces seguidas
+    let nombre = lista[Math.floor(Math.random() * lista.length)];
+    let intentos = 0;
+    while (nombre === ultimoNombre && lista.length > 1 && intentos < 5) {
+        nombre = lista[Math.floor(Math.random() * lista.length)];
+        intentos++;
+    }
+    ultimoNombre = nombre;
+    return nombre;
+}
+
+// ============================================================
 //  UI
 // ============================================================
 function nuevoNombre() {
     const el = document.getElementById('ngNombre');
     if (!el) return;
-    const nombre = generarNombre(estiloActual, generoActual);
+
+    const nombre = elegirNombre(estiloActual, generoActual);
     el.textContent = nombre;
     el.classList.remove('pop');
     void el.offsetWidth;
@@ -282,7 +222,7 @@ function nuevoNombre() {
 }
 
 function seleccionarEstilo(id) {
-    if (!NOMBRES_ENTRENAMIENTO[id]) return;
+    if (!NOMBRES[id]) return;
     estiloActual = id;
     document.querySelectorAll('#ngEstilos .ng-chip').forEach(c => {
         c.classList.toggle('active', c.dataset.estilo === id);
@@ -306,6 +246,7 @@ async function copiarNombre() {
     const el = document.getElementById('ngNombre');
     const btn = document.getElementById('ngCopyBtn');
     if (!el || !btn) return;
+
     const texto = el.textContent.trim();
     if (!texto || texto === '—') return;
 
@@ -348,14 +289,18 @@ async function copiarNombre() {
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
     aplicarTemaDelPadre();
+
     document.querySelectorAll('#ngEstilos .ng-chip').forEach(btn => {
         btn.addEventListener('click', () => seleccionarEstilo(btn.dataset.estilo));
     });
     document.querySelectorAll('#ngGeneros .ng-chip').forEach(btn => {
         btn.addEventListener('click', () => seleccionarGenero(btn.dataset.genero));
     });
+
     document.getElementById('ngBtnGenerar')?.addEventListener('click', nuevoNombre);
     document.getElementById('ngCopyBtn')?.addEventListener('click', copiarNombre);
+
     nuevoNombre();
+
     if (window.lucide) window.lucide.createIcons();
 });
