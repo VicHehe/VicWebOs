@@ -486,4 +486,747 @@ body {
     -webkit-appearance: none;
     appearance: none;
 }
-#colorPicker::-webkit-color-swatch-wrapper { padding
+#colorPicker::-webkit-color-swatch-wrapper { padding: 0; }
+#colorPicker::-webkit-color-swatch { border: none; border-radius: 50%; }
+#colorPicker::-moz-color-swatch { border: none; border-radius: 50%; }
+
+.s3d-color-hex {
+    flex: 1;
+    font-family: 'SF Mono', Monaco, Consolas, monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gray-700, #3F3F46);
+    background: var(--gray-50, #FAFAFB);
+    padding: 9px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border, #E8E8EE);
+    letter-spacing: 0.04em;
+    text-align: center;
+}
+
+/* ============================================================
+   PALETA
+   ============================================================ */
+.s3d-paleta-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 5px;
+    padding: 8px;
+    background: var(--gray-50, #FAFAFB);
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: 12px;
+}
+.s3d-color-btn {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.1s;
+    padding: 0;
+    touch-action: manipulation;
+}
+.s3d-color-btn:hover { transform: scale(1.15); }
+.s3d-color-btn.seleccionado {
+    border-color: var(--violet-500, #8B5CF6);
+    box-shadow:
+        0 0 0 2px var(--white, #FFFFFF),
+        0 0 0 3.5px var(--violet-500, #8B5CF6);
+}
+.s3d-paleta-info {
+    font-size: 10.5px;
+    color: var(--gray-500, #71717A);
+    text-align: center;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+/* ============================================================
+   HERRAMIENTAS
+   ============================================================ */
+.s3d-tools-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+}
+.s3d-tool-btn {
+    aspect-ratio: 1;
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 12px;
+    background: var(--white, #FFFFFF);
+    color: var(--gray-600, #52525B);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    touch-action: manipulation;
+}
+.s3d-tool-btn:hover {
+    background: var(--violet-50, #F5F3FF);
+    border-color: var(--violet-300, #C4B5FD);
+}
+.s3d-tool-btn.activo {
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 10px var(--accent-shadow, rgba(139,92,246,0.28));
+}
+.s3d-tool-btn [data-lucide] { width: 20px; height: 20px; }
+
+.s3d-tamano-selector {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.s3d-size-btn {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 10px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border, #E8E8EE);
+    background: var(--white, #FFFFFF);
+    color: var(--gray-600, #52525B);
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    touch-action: manipulation;
+}
+.s3d-size-btn:hover { background: var(--violet-50, #F5F3FF); }
+.s3d-size-btn.activo {
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 2px 8px var(--accent-shadow, rgba(139,92,246,0.28));
+}
+
+/* ============================================================
+   MODELO — info + acciones
+   ============================================================ */
+.s3d-info-box {
+    background: var(--gray-50, #FAFAFB);
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.s3d-info-linea {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    font-size: 12.5px;
+}
+.s3d-info-label {
+    color: var(--gray-500, #71717A);
+    font-weight: 700;
+}
+.s3d-info-valor {
+    color: var(--gray-900, #18181B);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.s3d-btn-sec-full {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 12px;
+    background: var(--white, #FFFFFF);
+    color: var(--gray-700, #3F3F46);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.15s;
+    width: 100%;
+    touch-action: manipulation;
+}
+.s3d-btn-sec-full:hover {
+    background: var(--violet-50, #F5F3FF);
+    border-color: var(--violet-300, #C4B5FD);
+    color: var(--violet-700, #6D28D9);
+}
+.s3d-btn-sec-full.s3d-btn-peligro {
+    color: #991B1B;
+    border-color: #FECACA;
+}
+.s3d-btn-sec-full.s3d-btn-peligro:hover {
+    background: #FEF2F2;
+    border-color: #FCA5A5;
+    color: #991B1B;
+}
+.s3d-btn-sec-full [data-lucide] { width: 14px; height: 14px; }
+
+/* Toggles */
+.s3d-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--white, #FFFFFF);
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 12px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--gray-700, #3F3F46);
+}
+.s3d-toggle:hover {
+    border-color: var(--violet-300, #C4B5FD);
+    background: var(--violet-50, #F5F3FF);
+}
+.s3d-toggle input { display: none; }
+.s3d-toggle-mark {
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+    border: 2px solid var(--border, #E8E8EE);
+    background: var(--white, #FFFFFF);
+    flex-shrink: 0;
+    transition: all 0.15s;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 12px 12px;
+}
+.s3d-toggle input:checked + .s3d-toggle-mark {
+    background-color: var(--violet-500, #8B5CF6);
+    border-color: var(--violet-500, #8B5CF6);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   TOOLBAR INFERIOR (solo móvil)
+   ============================================================ */
+.s3d-toolbar {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: stretch;
+    gap: 2px;
+    padding: 6px 4px 8px;
+    background: var(--white, #FFFFFF);
+    border-top: 1px solid var(--border, #E8E8EE);
+    z-index: 15;
+    min-height: 68px;
+    padding-bottom: max(8px, env(safe-area-inset-bottom, 8px));
+}
+
+.s3d-tool-nav {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 6px 2px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    color: var(--gray-600, #52525B);
+    cursor: pointer;
+    transition: all 0.15s;
+    touch-action: manipulation;
+}
+.s3d-tool-nav [data-lucide] { width: 20px; height: 20px; stroke-width: 2; }
+.s3d-tool-nav span {
+    font-size: 9.5px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+.s3d-tool-nav:hover,
+.s3d-tool-nav:active {
+    background: var(--violet-50, #F5F3FF);
+    color: var(--violet-600, #7C3AED);
+}
+.s3d-tool-nav.activo {
+    background: var(--violet-100, #EDE9FE);
+    color: var(--violet-700, #6D28D9);
+}
+
+/* ============================================================
+   MODALES
+   ============================================================ */
+.s3d-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(24, 24, 27, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 100;
+    animation: s3dFade 0.15s ease;
+}
+@keyframes s3dFade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.s3d-modal-card {
+    background: var(--white, #FFFFFF);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 460px;
+    max-height: 90dvh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.35);
+    animation: s3dZoom 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+}
+@keyframes s3dZoom {
+    from { opacity: 0; transform: scale(0.96) translateY(8px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.s3d-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border, #E8E8EE);
+    background: var(--gray-50, #FAFAFB);
+    flex-shrink: 0;
+    gap: 8px;
+}
+.s3d-modal-header h2 {
+    font-size: 15.5px;
+    font-weight: 800;
+    color: var(--gray-900, #18181B);
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0;
+    min-width: 0;
+}
+.s3d-modal-header h2 [data-lucide] {
+    color: var(--violet-500, #8B5CF6);
+    width: 18px;
+    height: 18px;
+}
+.s3d-modal-cerrar {
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: none;
+    padding: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--gray-500, #71717A);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+.s3d-modal-cerrar:hover {
+    background: #FEE2E2;
+    color: #991B1B;
+}
+.s3d-modal-cerrar [data-lucide] { width: 16px; height: 16px; }
+
+.s3d-modal-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    overflow-y: auto;
+}
+
+.s3d-modal-desc {
+    font-size: 13px;
+    color: var(--gray-600, #52525B);
+    line-height: 1.55;
+    margin: 0;
+}
+.s3d-modal-desc strong {
+    color: var(--violet-700, #6D28D9);
+    font-weight: 800;
+}
+.s3d-modal-sub {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--gray-500, #71717A);
+    background: var(--gray-50, #FAFAFB);
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border, #E8E8EE);
+    margin: 0;
+}
+.s3d-modal-warning {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #92400E;
+    background: #FFFBEB;
+    border: 1px solid #FDE68A;
+    padding: 9px 12px;
+    border-radius: 10px;
+    margin: 0;
+}
+.s3d-modal-warning [data-lucide] {
+    width: 14px;
+    height: 14px;
+    color: #D97706;
+    flex-shrink: 0;
+}
+
+.s3d-modal-actions {
+    display: flex;
+    gap: 8px;
+    padding: 14px 20px;
+    border-top: 1px solid var(--border, #E8E8EE);
+    background: var(--gray-50, #FAFAFB);
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+.s3d-modal-actions .s3d-btn-sec,
+.s3d-modal-actions .s3d-btn-pri,
+.s3d-modal-actions .s3d-btn-peligro {
+    display: inline-flex;
+    flex: 1;
+    min-width: 100px;
+    justify-content: center;
+    border-radius: 11px;
+    padding: 11px 16px;
+    font-size: 13px;
+}
+
+.s3d-btn-peligro {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    background: #FEF2F2;
+    border: 1.5px solid #FECACA;
+    color: #991B1B;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    touch-action: manipulation;
+}
+.s3d-btn-peligro:hover { background: #FEE2E2; }
+.s3d-btn-peligro [data-lucide] { width: 14px; height: 14px; }
+
+/* ============================================================
+   FIELDS
+   ============================================================ */
+.s3d-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.s3d-field label {
+    font-size: 11.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--gray-600, #52525B);
+}
+.s3d-field input[type="text"],
+.s3d-field input[type="number"] {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    background: var(--white, #FFFFFF);
+    color: var(--gray-900, #18181B);
+    outline: none;
+    transition: all 0.15s;
+    color-scheme: light dark;
+}
+.s3d-field input:focus {
+    border-color: var(--violet-400, #A78BFA);
+    box-shadow: 0 0 0 3px var(--shadow-glow, rgba(139,92,246,0.10));
+}
+
+/* ============================================================
+   PRESETS
+   ============================================================ */
+.s3d-presets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 6px;
+}
+.s3d-preset-btn {
+    padding: 10px 6px;
+    border: 1.5px solid var(--border, #E8E8EE);
+    background: var(--white, #FFFFFF);
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 12.5px;
+    color: var(--gray-600, #52525B);
+    cursor: pointer;
+    transition: all 0.15s;
+    touch-action: manipulation;
+}
+.s3d-preset-btn:hover {
+    background: var(--violet-50, #F5F3FF);
+    border-color: var(--violet-300, #C4B5FD);
+}
+.s3d-preset-btn.activo {
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 10px var(--accent-shadow, rgba(139,92,246,0.28));
+}
+
+.s3d-custom-size-row {
+    display: flex;
+    gap: 8px;
+}
+
+/* ============================================================
+   EXPORTAR
+   ============================================================ */
+.s3d-export-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.s3d-export-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--white, #FFFFFF);
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    text-align: left;
+    width: 100%;
+}
+.s3d-export-btn:hover {
+    border-color: var(--violet-400, #A78BFA);
+    background: var(--violet-50, #F5F3FF);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.15));
+}
+.s3d-export-icon {
+    width: 44px;
+    height: 44px;
+    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 4px 10px var(--accent-shadow, rgba(139,92,246,0.28));
+    flex-shrink: 0;
+}
+.s3d-export-icon [data-lucide] { width: 22px; height: 22px; stroke-width: 2.25; }
+.s3d-export-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+.s3d-export-info strong {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--gray-900, #18181B);
+    letter-spacing: -0.01em;
+}
+.s3d-export-info span {
+    font-size: 11.5px;
+    color: var(--gray-500, #71717A);
+    font-weight: 600;
+}
+
+/* ============================================================
+   MINI PREVIEW
+   ============================================================ */
+.s3d-mini-preview {
+    background: var(--gray-50, #FAFAFB);
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: 12px;
+    padding: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100px;
+    max-height: 240px;
+    overflow: hidden;
+}
+.s3d-mini-preview img {
+    max-width: 100%;
+    max-height: 220px;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+.s3d-toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--gray-900, #18181B);
+    color: white;
+    padding: 11px 22px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: 200;
+    max-width: calc(100% - 40px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.s3d-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+.s3d-toast.success { background: #065F46; }
+.s3d-toast.error   { background: #991B1B; }
+.s3d-toast.info    { background: var(--violet-700, #6D28D9); }
+
+/* ============================================================
+   RESPONSIVE — PC (≥900px)
+   ============================================================ */
+@media (min-width: 900px) {
+
+    .s3d-app {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .s3d-header {
+        border-radius: 14px;
+        padding: 10px 16px;
+        min-height: 60px;
+        border: 1.5px solid var(--border, #E8E8EE);
+        box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06));
+    }
+    .s3d-logo-mark { width: 40px; height: 40px; border-radius: 12px; }
+    .s3d-logo-mark [data-lucide] { width: 22px; height: 22px; }
+    .s3d-logo-text h1 { font-size: 19px; }
+    .s3d-logo-text p { font-size: 11.5px; max-width: none; }
+
+    .s3d-btn-sec,
+    .s3d-btn-pri { display: inline-flex; }
+
+    .s3d-toolbar { display: none; }
+
+    .s3d-panel {
+        position: relative;
+        left: auto;
+        right: auto;
+        bottom: auto;
+        width: 300px;
+        flex-shrink: 0;
+        max-height: none;
+        height: auto;
+        align-self: stretch;
+        transform: none;
+        visibility: visible;
+        border-radius: 14px;
+        border: 1.5px solid var(--border, #E8E8EE);
+        box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06));
+        padding-bottom: 0;
+        order: 2;
+    }
+    .s3d-panel.abierto::before { display: none; }
+    .s3d-panel-header { display: none; }
+    .s3d-panel-header::before { display: none; }
+    .s3d-panel-tabs { display: none; }
+
+    .s3d-panel-content {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding: 16px;
+        height: 100%;
+        overflow-y: auto;
+    }
+    .s3d-seccion {
+        display: flex;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--gray-100, #F4F4F7);
+    }
+    .s3d-seccion:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .s3d-body {
+        flex-direction: row;
+        gap: 12px;
+        min-height: 0;
+    }
+    .s3d-viewport {
+        order: 1;
+        border-radius: 14px;
+        border: 1.5px solid var(--border, #E8E8EE);
+        box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06));
+        overflow: hidden;
+    }
+
+    .s3d-toast { bottom: 30px; }
+}
+
+/* ============================================================
+   RESPONSIVE — Móvil chico
+   ============================================================ */
+@media (max-width: 380px) {
+    .s3d-logo-text p { display: none; }
+    .s3d-logo-mark { width: 32px; height: 32px; }
+    .s3d-logo-mark [data-lucide] { width: 16px; height: 16px; }
+    .s3d-logo-text h1 { font-size: 14px; }
+
+    .s3d-btn-icono { width: 34px; height: 34px; }
+    .s3d-btn-icono [data-lucide] { width: 15px; height: 15px; }
+
+    .s3d-tool-nav [data-lucide] { width: 18px; height: 18px; }
+    .s3d-tool-nav span { font-size: 9px; }
+
+    .s3d-panel { max-height: 68dvh; }
+    .s3d-panel-tab [data-lucide] { width: 16px; height: 16px; }
+}
+
+/* ============================================================
+   RESPONSIVE — Landscape móvil
+   ============================================================ */
+@media (max-height: 500px) and (orientation: landscape) {
+    .s3d-panel { max-height: 85dvh; }
+    .s3d-header { min-height: 44px; padding: 6px 10px; }
+    .s3d-logo-mark { width: 30px; height: 30px; }
+    .s3d-logo-mark [data-lucide] { width: 15px; height: 15px; }
+    .s3d-toolbar { min-height: 56px; padding: 4px 4px 6px; }
+    .s3d-tool-nav [data-lucide] { width: 18px; height: 18px; }
+    .s3d-tool-nav span { display: none; }
+}
