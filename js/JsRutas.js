@@ -130,6 +130,17 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 10,
         monedas: 220
     },
+    {
+    id: 'sill3dy',
+    nombre: 'Sill3Dy',
+    icono: 'box',
+    ruta: 'herramientas/sill3dy/index.html',
+    descripcion: 'Escultor de voxels en 3D. Modelá con cubos, pintá con paletas y exportá como OBJ o PNG.',
+    categoria: 'Creatividad',
+    esBase: false,
+    espacio: 10,
+    monedas: 240
+},
 
     // ============================================================
     //  HERRAMIENTAS PRÁCTICAS
