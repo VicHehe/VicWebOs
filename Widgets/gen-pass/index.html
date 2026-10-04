@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Generador de Contraseñas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="pg-widget">
+
+        <div class="pg-header">
+            <div class="pg-titulo">
+                <i data-lucide="key-round"></i>
+                <span>Contraseñas</span>
+            </div>
+        </div>
+
+        <div class="pg-form">
+            <div class="pg-field">
+                <label for="pgNombre">Nombre</label>
+                <input type="text" id="pgNombre" placeholder="Nicolas" maxlength="30" autocomplete="off" spellcheck="false">
+            </div>
+            <div class="pg-field">
+                <label for="pgFecha">Fecha</label>
+                <input type="date" id="pgFecha">
+            </div>
+            <div class="pg-field">
+                <label for="pgPalabra">Palabra</label>
+                <input type="text" id="pgPalabra" placeholder="gato, playa..." maxlength="20" autocomplete="off" spellcheck="false">
+            </div>
+        </div>
+
+        <div class="pg-resultado-wrap">
+            <div class="pg-resultado" id="pgResultado">···</div>
+            <button class="pg-copy" id="pgCopyBtn" title="Copiar contraseña" disabled aria-label="Copiar contraseña">
+                <i data-lucide="copy"></i>
+            </button>
+        </div>
+
+        <div class="pg-fuerza">
+            <div class="pg-fuerza-barra">
+                <div class="pg-fuerza-fill" id="pgFuerzaFill"></div>
+            </div>
+            <span class="pg-fuerza-texto" id="pgFuerzaTexto">—</span>
+        </div>
+
+        <button class="pg-btn" id="pgBtnGenerar" disabled>
+            <i data-lucide="sparkles"></i>
+            <span>Generar</span>
+        </button>
+
+    </div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
