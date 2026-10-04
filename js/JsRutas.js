@@ -97,6 +97,17 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 4,
         monedas: 40
     },
+    {
+    id: 'tillyporgrafo',
+    nombre: 'TillyPorgrafo',
+    icono: 'type',
+    ruta: 'herramientas/tillyporgrafo/index.html',
+    descripcion: 'Diseñá tu propia fuente letra por letra. Guías tipográficas, vista previa en vivo y export a TTF instalable.',
+    categoria: 'Creatividad',
+    esBase: false,
+    espacio: 6,
+    monedas: 65
+},
         {
         id: 'ocs',
         nombre: 'Mis OCs',
