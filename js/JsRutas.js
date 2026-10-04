@@ -113,7 +113,7 @@ const RUTAS_HERRAMIENTAS = [
     nombre: 'FlipoVics',
     icono: 'film',
     ruta: 'herramientas/flipovics/index.html',
-    descripcion: 'Mini Flipnote Studio: animá cuadro a cuadro con onion skin, loop en vivo y export a GIF o WebM.',
+    descripcion: 'Animá tus dibujos cuadro a cuadro. Onion skin para ver los frames previos, loop en vivo y export a GIF o WebM animado.',
     categoria: 'Creatividad',
     esBase: false,
     espacio: 6,
