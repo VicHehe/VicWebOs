@@ -1,8 +1,8 @@
 /* ================================================
-   FlipoVics — Mini Flipnote Studio
+   FlipoVics — Animación cuadro a cuadro
    Layout adaptativo:
      · PC (≥900px):     canvas + panel lateral derecho
-     · Móvil (<900px):  canvas full + panel deslizable + toolbar
+     · Móvil (<900px):  canvas full + panel deslizable + toolbar táctil
    Compatible con todos los temas (var() + fallbacks).
    ================================================ */
 
@@ -108,10 +108,7 @@ body {
     gap: 4px;
     align-items: center;
     flex-shrink: 0;
-    overflow-x: auto;
-    scrollbar-width: none;
 }
-.fv-header-actions::-webkit-scrollbar { display: none; }
 
 .fv-btn-icono {
     width: 36px;
@@ -129,12 +126,11 @@ body {
     flex-shrink: 0;
     touch-action: manipulation;
 }
-.fv-btn-icono:hover:not(:disabled) {
+.fv-btn-icono:hover {
     background: var(--violet-50, #F5F3FF);
     border-color: var(--violet-300, #C4B5FD);
     color: var(--violet-600, #7C3AED);
 }
-.fv-btn-icono:disabled { opacity: 0.35; cursor: not-allowed; }
 .fv-btn-icono [data-lucide] { width: 16px; height: 16px; }
 
 .fv-btn-sec,
@@ -159,7 +155,7 @@ body {
     border: 1.5px solid var(--border, #E8E8EE);
     color: var(--gray-700, #3F3F46);
 }
-.fv-btn-sec:hover:not(:disabled) {
+.fv-btn-sec:hover {
     background: var(--violet-50, #F5F3FF);
     border-color: var(--violet-300, #C4B5FD);
     color: var(--violet-700, #6D28D9);
@@ -169,7 +165,7 @@ body {
     color: white;
     box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
 }
-.fv-btn-pri:hover:not(:disabled) {
+.fv-btn-pri:hover {
     transform: translateY(-1px);
     box-shadow: 0 6px 16px var(--accent-shadow-hover, rgba(139,92,246,0.38));
 }
@@ -271,45 +267,6 @@ body {
     color: var(--violet-700, #6D28D9);
 }
 .fv-onion-badge [data-lucide] { width: 13px; height: 13px; }
-
-.fv-rec-indicator {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    background: rgba(24, 24, 27, 0.85);
-    border-radius: 999px;
-    color: white;
-    font-size: 12px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    pointer-events: none;
-    animation: fvRecIn 0.2s ease;
-}
-@keyframes fvRecIn {
-    from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
-    to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-}
-
-.fv-rec-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #EF4444;
-    animation: fvRecPulse 1s ease-in-out infinite;
-}
-@keyframes fvRecPulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50%      { opacity: 0.5; transform: scale(0.85); }
-}
 
 /* ============================================================
    PANEL LATERAL / DESLIZABLE
@@ -858,13 +815,35 @@ body {
     min-width: 0;
     flex: 1;
     justify-content: center;
+    transition: color 0.2s;
+}
+.fv-playback-info.reproduciendo {
+    color: #DC2626;
+    font-weight: 800;
 }
 .fv-playback-fps { color: var(--violet-600, #7C3AED); }
+.fv-playback-info.reproduciendo .fv-playback-fps {
+    color: #DC2626;
+}
 .fv-playback-dot { color: var(--gray-300, #D4D4DD); }
 .fv-playback-frame {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+/* Puntito pulsante que aparece durante la reproducción */
+.fv-playback-play-icon {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #DC2626;
+    flex-shrink: 0;
+    animation: fvPlayPulse 1s ease-in-out infinite;
+}
+@keyframes fvPlayPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.4; transform: scale(0.75); }
 }
 
 .fv-playback-actions {
@@ -981,44 +960,47 @@ body {
 }
 
 /* ============================================================
-   TOOLBAR (solo móvil)
+   TOOLBAR (solo móvil) — más grande, más clara, más obvia
    ============================================================ */
 .fv-toolbar {
     flex-shrink: 0;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: stretch;
     gap: 2px;
-    padding: 6px 4px 8px;
+    padding: 6px 6px 8px;
     padding-bottom: max(8px, env(safe-area-inset-bottom, 8px));
     background: var(--white, #FFFFFF);
     border-top: 1px solid var(--border, #E8E8EE);
     z-index: 20;
-    min-height: 68px;
+    min-height: 72px;
+    overflow-x: auto;
+    scrollbar-width: none;
 }
+.fv-toolbar::-webkit-scrollbar { display: none; }
 
 .fv-tool-nav {
-    flex: 1;
-    min-width: 0;
+    flex: 1 0 auto;
+    min-width: 44px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 3px;
-    padding: 6px 2px;
+    padding: 6px 4px;
     background: transparent;
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
     font-family: inherit;
     color: var(--gray-600, #52525B);
     cursor: pointer;
     transition: all 0.15s;
     touch-action: manipulation;
 }
-.fv-tool-nav [data-lucide] { width: 20px; height: 20px; stroke-width: 2; }
+.fv-tool-nav [data-lucide] { width: 22px; height: 22px; stroke-width: 2; }
 .fv-tool-nav span {
-    font-size: 9.5px;
-    font-weight: 700;
+    font-size: 10px;
+    font-weight: 800;
     line-height: 1;
     white-space: nowrap;
     overflow: hidden;
@@ -1033,6 +1015,11 @@ body {
 .fv-tool-nav.activo {
     background: var(--violet-100, #EDE9FE);
     color: var(--violet-700, #6D28D9);
+    box-shadow: inset 0 0 0 1.5px var(--violet-300, #C4B5FD);
+}
+.fv-tool-nav:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
 }
 
 /* ============================================================
@@ -1134,6 +1121,10 @@ body {
     color: var(--gray-600, #52525B);
     line-height: 1.55;
     margin: 0;
+}
+.fv-modal-desc strong {
+    color: var(--violet-700, #6D28D9);
+    font-weight: 800;
 }
 .fv-modal-sub {
     font-size: 11.5px;
@@ -1297,6 +1288,46 @@ body {
 /* ============================================================
    AYUDA
    ============================================================ */
+.fv-ayuda-titulo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--violet-700, #6D28D9);
+    margin: 0 0 6px;
+}
+.fv-ayuda-titulo [data-lucide] {
+    width: 14px;
+    height: 14px;
+    color: var(--violet-500, #8B5CF6);
+}
+
+.fv-ayuda-lista {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.fv-ayuda-lista li {
+    padding: 10px 12px;
+    background: var(--gray-50, #FAFAFB);
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: 10px;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--gray-700, #3F3F46);
+    font-weight: 500;
+}
+.fv-ayuda-lista li strong {
+    color: var(--violet-700, #6D28D9);
+    font-weight: 800;
+}
+
 .fv-ayuda-grid {
     display: grid;
     grid-template-columns: auto 1fr;
@@ -1457,8 +1488,9 @@ body {
     .fv-btn-icono { width: 34px; height: 34px; }
     .fv-btn-icono [data-lucide] { width: 15px; height: 15px; }
 
-    .fv-tool-nav [data-lucide] { width: 18px; height: 18px; }
+    .fv-tool-nav [data-lucide] { width: 20px; height: 20px; }
     .fv-tool-nav span { font-size: 9px; }
+    .fv-tool-nav { min-width: 40px; padding: 5px 2px; }
 
     .fv-panel { max-height: 72dvh; }
     .fv-panel-tab [data-lucide] { width: 16px; height: 16px; }
