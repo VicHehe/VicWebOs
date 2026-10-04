@@ -172,7 +172,11 @@ body {
     font-weight: 700;
 }
 
-/* ========== MAIN ========== */
+/* ========== MAIN ==========
+   Padding de 8px arriba/abajo + 6px a los lados para que las
+   tarjetas puedan hacer hover con translateY sin recortarse
+   contra el borde del contenedor (que tiene overflow-y: auto).
+   ============================================================ */
 .dm-main {
     flex: 1;
     min-height: 0;
@@ -180,7 +184,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    padding-right: 4px;
+    padding: 8px 6px;
     -webkit-overflow-scrolling: touch;
 }
 
@@ -317,8 +321,10 @@ body {
 .dm-user-card:hover {
     border-color: var(--violet-300, #C4B5FD);
     background: var(--violet-50, #F5F3FF);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
+    transform: translateY(-2px);
+    box-shadow:
+        0 8px 20px var(--accent-shadow, rgba(139,92,246,0.18)),
+        var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
 }
 .dm-user-avatar {
     width: 44px;
