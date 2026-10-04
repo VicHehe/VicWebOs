@@ -335,6 +335,7 @@ body {
     background: var(--white, #FFFFFF);
     width: 100%;
     height: 100%;
+    max-height: 100dvh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -408,19 +409,33 @@ body {
 }
 .pl-tab.active [data-lucide] { color: var(--violet-600, #7C3AED); }
 
-/* Panels */
+/* ============================================================
+   PANELS — scrollbar oculta, contenido centrado vía flex
+   ============================================================ */
 .pl-panel {
     display: none;
     flex: 1;
     min-height: 0;
     flex-direction: column;
     overflow-y: auto;
+    overflow-x: hidden;
+    /* Ocultar scrollbar por completo (se sigue pudiendo scrollear) */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 .pl-panel.active { display: flex; }
+.pl-panel::-webkit-scrollbar { display: none; width: 0; height: 0; }
+
+/* Paneles con contenido centrado verticalmente */
+.pl-panel[data-panel="archivo"],
+.pl-panel[data-panel="galeria"] {
+    justify-content: center;
+    padding: 14px;
+}
 
 /* ========== TAB ARCHIVO ========== */
 .pl-file-label {
-    margin: auto 14px;
+    margin: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -433,6 +448,8 @@ body {
     transition: all 0.15s;
     background: var(--white, #FFFFFF);
     text-align: center;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 .pl-file-label:hover {
     border-color: var(--violet-400, #A78BFA);
@@ -458,7 +475,7 @@ body {
 
 /* ========== TAB GALERÍA ========== */
 .pl-galeria-wrap {
-    margin: auto 14px;
+    margin: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -466,6 +483,8 @@ body {
     gap: 10px;
     padding: 22px 16px;
     text-align: center;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 .pl-btn-galeria {
     display: inline-flex;
