@@ -1,0 +1,306 @@
+/* ================================================
+   Widget: Generador de Contraseñas
+   Formulario de 3 campos + resultado + fuerza.
+   Sin persistencia. Colores semánticos solo en la
+   barra de fuerza (rojo/naranja/verde).
+   ================================================ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: transparent;
+    color: var(--text, #18181B);
+    font-size: 13px;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+[data-lucide] { width: 16px; height: 16px; stroke-width: 2; flex-shrink: 0; }
+
+/* ========== WIDGET ========== */
+.pg-widget {
+    background: var(--white, #FFFFFF);
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: var(--r-lg, 16px);
+    padding: 10px 12px;
+    box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow: hidden;
+    transition: background 0.3s, color 0.3s, border-color 0.3s;
+}
+
+/* ========== HEADER ========== */
+.pg-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--gray-100, #F4F4F7);
+    flex-shrink: 0;
+    min-height: 20px;
+}
+
+.pg-titulo {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-500, #71717A);
+    line-height: 1;
+}
+.pg-titulo [data-lucide] {
+    color: var(--violet-500, #8B5CF6);
+    width: 13px;
+    height: 13px;
+}
+
+/* ========== FORM ========== */
+.pg-form {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.pg-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 28px;
+}
+
+.pg-field label {
+    width: 56px;
+    flex-shrink: 0;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--gray-500, #71717A);
+    line-height: 1;
+}
+
+.pg-field input {
+    flex: 1;
+    min-width: 0;
+    padding: 6px 9px;
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray-900, #18181B);
+    background: var(--gray-50, #FAFAFB);
+    outline: none;
+    transition: all 0.15s;
+    -webkit-appearance: none;
+    appearance: none;
+}
+.pg-field input::placeholder {
+    color: var(--gray-400, #A1A1AD);
+    font-weight: 500;
+}
+.pg-field input:focus {
+    border-color: var(--violet-400, #A78BFA);
+    background: var(--white, #FFFFFF);
+    box-shadow: 0 0 0 3px var(--shadow-glow, rgba(139,92,246,0.10));
+}
+.pg-field input[type="date"] {
+    font-family: inherit;
+    color: var(--gray-900, #18181B);
+    cursor: pointer;
+}
+.pg-field input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0.5;
+    cursor: pointer;
+    filter: var(--calendar-filter, none);
+}
+.pg-field input[type="date"]:focus::-webkit-calendar-picker-indicator {
+    opacity: 1;
+}
+
+/* ========== RESULTADO ========== */
+.pg-resultado-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 10px;
+    background: var(--violet-50, #F5F3FF);
+    border: 1.5px solid var(--violet-200, #DDD6FE);
+    border-radius: 10px;
+    flex-shrink: 0;
+    min-height: 38px;
+    transition: all 0.15s;
+}
+
+.pg-resultado {
+    flex: 1;
+    min-width: 0;
+    font-family: 'JetBrains Mono', 'SF Mono', Monaco, Consolas, monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--violet-800, #5B21B6);
+    letter-spacing: 0.02em;
+    word-break: break-all;
+    overflow-wrap: anywhere;
+    line-height: 1.25;
+    text-align: center;
+    transition: color 0.15s;
+}
+
+.pg-resultado.lleno {
+    font-size: 14px;
+    letter-spacing: 0.03em;
+    animation: pgPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes pgPop {
+    0%   { transform: scale(0.92); opacity: 0; }
+    55%  { transform: scale(1.04); opacity: 1; }
+    100% { transform: scale(1); }
+}
+
+.pg-resultado.vacio {
+    color: var(--gray-400, #A1A1AD);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0;
+}
+
+.pg-copy {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--violet-200, #DDD6FE);
+    border-radius: 7px;
+    background: var(--white, #FFFFFF);
+    color: var(--violet-600, #7C3AED);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: all 0.15s;
+}
+.pg-copy:hover:not(:disabled) {
+    background: var(--violet-100, #EDE9FE);
+    border-color: var(--violet-400, #A78BFA);
+}
+.pg-copy:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+.pg-copy.ok {
+    background: #ECFDF5;
+    border-color: #A7F3D0;
+    color: #059669;
+}
+.pg-copy [data-lucide] { width: 12px; height: 12px; }
+
+/* ========== FUERZA ========== */
+.pg-fuerza {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    min-height: 14px;
+}
+
+.pg-fuerza-barra {
+    flex: 1;
+    height: 5px;
+    background: var(--gray-100, #F4F4F7);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.pg-fuerza-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    background: transparent;
+    transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), background 0.25s;
+}
+.pg-fuerza-fill.debil       { background: linear-gradient(90deg, #F87171, #EF4444); }
+.pg-fuerza-fill.aceptable   { background: linear-gradient(90deg, #FBBF24, #F59E0B); }
+.pg-fuerza-fill.fuerte      { background: linear-gradient(90deg, #34D399, #10B981); }
+.pg-fuerza-fill.muy-fuerte  { background: linear-gradient(90deg, #10B981, #059669); }
+
+.pg-fuerza-texto {
+    font-size: 9.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--gray-400, #A1A1AD);
+    min-width: 58px;
+    text-align: right;
+    line-height: 1;
+    transition: color 0.2s;
+}
+.pg-fuerza-texto.debil      { color: #DC2626; }
+.pg-fuerza-texto.aceptable  { color: #D97706; }
+.pg-fuerza-texto.fuerte     { color: #059669; }
+.pg-fuerza-texto.muy-fuerte { color: #047857; }
+
+/* ========== BOTÓN ========== */
+.pg-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 9px 14px;
+    border: none;
+    border-radius: var(--r-md, 12px);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 800;
+    cursor: pointer;
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: white;
+    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
+    transition: all 0.15s;
+    flex-shrink: 0;
+    touch-action: manipulation;
+    margin-top: auto;
+}
+.pg-btn [data-lucide] { width: 14px; height: 14px; }
+.pg-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px var(--accent-shadow-hover, rgba(139,92,246,0.38));
+}
+.pg-btn:active:not(:disabled) { transform: translateY(0); }
+.pg-btn:disabled {
+    background: var(--gray-200, #E8E8EE);
+    color: var(--gray-400, #A1A1AD);
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 260px) {
+    .pg-widget { padding: 9px 10px; gap: 5px; }
+    .pg-titulo span { display: none; }
+    .pg-titulo [data-lucide] { width: 14px; height: 14px; }
+    .pg-field label { width: 46px; font-size: 9px; }
+    .pg-field input { font-size: 11.5px; padding: 5px 7px; }
+    .pg-resultado.lleno { font-size: 12.5px; }
+    .pg-fuerza-texto { font-size: 9px; min-width: 50px; }
+    .pg-btn { padding: 8px 12px; font-size: 12px; }
+}
+
+@media (max-height: 220px) {
+    .pg-widget { padding: 8px 10px; gap: 4px; }
+    .pg-header { padding-bottom: 3px; min-height: 16px; }
+}
