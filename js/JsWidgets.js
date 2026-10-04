@@ -105,6 +105,17 @@ const WIDGETS_DISPONIBLES = [
         espacio: 4,
         monedas: 30
     },
+        {
+        id: 'gen-pass',
+        nombre: 'Generador de Contraseñas',
+        icono: 'key-round',
+        ruta: 'Widgets/gen-pass/index.html',
+        descripcion: 'Crea contraseñas fuertes a partir de tu nombre, una fecha y una palabra clave. Recordables y seguras.',
+        categoria: 'Utilidades',
+        esBase: false,
+        espacio: 2,
+        monedas: 15
+    },
 
     {
         id: 'reloj-mundial',
