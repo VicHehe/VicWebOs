@@ -41,15 +41,44 @@
                     <span id="mirrorTxt">Simetría</span>
                 </div>
 
-                <div class="s3d-zoom-controls">
+                <!-- Panel de vistas (arriba derecha) -->
+                <div class="s3d-view-panel">
                     <button class="s3d-ctrl-btn" id="viewTop" title="Vista superior"><i data-lucide="arrow-down-to-line"></i></button>
                     <button class="s3d-ctrl-btn" id="viewFront" title="Vista frontal"><i data-lucide="square"></i></button>
                     <button class="s3d-ctrl-btn" id="viewReset" title="Vista isométrica"><i data-lucide="target"></i></button>
+                    <button class="s3d-ctrl-btn activo" id="btnGrid" title="Cuadrícula"><i data-lucide="layout-grid"></i></button>
+                </div>
+
+                <!-- Panel de zoom (abajo derecha) -->
+                <div class="s3d-zoom-panel">
                     <button class="s3d-ctrl-btn" id="zoomFit" title="Ajustar"><i data-lucide="maximize-2"></i></button>
-                    <span id="zoomNivel">100%</span>
                     <button class="s3d-ctrl-btn" id="zoomOut" title="Alejar"><i data-lucide="minus"></i></button>
+                    <span id="zoomNivel">100%</span>
                     <button class="s3d-ctrl-btn" id="zoomIn" title="Acercar"><i data-lucide="plus"></i></button>
-                    <button class="s3d-ctrl-btn activo" id="btnGrid" title="Cuadrícula (H)"><i data-lucide="layout-grid"></i></button>
+                </div>
+
+                <!-- Hint de controles -->
+                <div class="s3d-hint" id="s3dHint" hidden>
+                    <div class="s3d-hint-titulo">
+                        <i data-lucide="mouse-pointer-2"></i>
+                        Controles de cámara
+                    </div>
+                    <div class="s3d-hint-grid">
+                        <kbd>Click izq</kbd><span>Esculpir</span>
+                        <kbd>Click der</kbd><span>Rotar</span>
+                        <kbd>Click medio</kbd><span>Mover (pan)</span>
+                        <kbd>Shift + Click izq/der</kbd><span>Mover (pan)</span>
+                        <kbd>Alt + Click izq</kbd><span>Rotar</span>
+                        <kbd>Rueda del mouse</kbd><span>Zoom</span>
+                    </div>
+                    <div class="s3d-hint-mobile">
+                        <div><kbd>1 dedo</kbd><span>Esculpir</span></div>
+                        <div><kbd>2 dedos</kbd><span>Rotar + zoom + mover</span></div>
+                    </div>
+                    <button class="s3d-hint-btn" id="s3dHintCerrar">
+                        <i data-lucide="check"></i>
+                        Entendido
+                    </button>
                 </div>
             </div>
 
