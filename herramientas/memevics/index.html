@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>Meme Sculptor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="ms-app" id="msApp">
+
+        <header class="ms-header">
+            <div class="ms-logo">
+                <div class="ms-logo-mark"><i data-lucide="laugh"></i></div>
+                <div class="ms-logo-text">
+                    <h1>Meme Sculptor</h1>
+                    <p id="msUserBadge">—</p>
+                </div>
+            </div>
+            <div class="ms-header-actions">
+                <button class="ms-btn-icono" id="btnAyuda" title="Ayuda"><i data-lucide="help-circle"></i></button>
+                <button class="ms-btn-pri" id="btnExportarHeader" title="Exportar meme" disabled>
+                    <i data-lucide="download"></i><span>Exportar</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="ms-body">
+
+            <div class="ms-canvas-zone">
+                <div class="ms-canvas-wrap" id="msCanvasWrap">
+                    <canvas id="msCanvas" width="800" height="600" hidden></canvas>
+
+                    <div class="ms-empty" id="msEmpty">
+                        <div class="ms-empty-icon"><i data-lucide="image-plus"></i></div>
+                        <h3>Elegí una imagen</h3>
+                        <p>Podés sacarla de tu Galería o subir una desde tu dispositivo.</p>
+                        <div class="ms-empty-actions">
+                            <button class="ms-btn-sec" id="msEmptyGaleria">
+                                <i data-lucide="images"></i> Galería
+                            </button>
+                            <button class="ms-btn-pri" id="msEmptySubir">
+                                <i data-lucide="upload"></i> Subir
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ms-canvas-info" id="msCanvasInfo" hidden>
+                        <i data-lucide="image"></i>
+                        <span id="msCanvasInfoTxt">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="ms-panel" id="msPanel">
+
+                <section class="ms-seccion">
+                    <h3><i data-lucide="image"></i> Imagen</h3>
+                    <div class="ms-row-botones">
+                        <button class="ms-btn-sec ms-btn-full" id="btnGaleria">
+                            <i data-lucide="images"></i> Galería
+                        </button>
+                        <button class="ms-btn-sec ms-btn-full" id="btnSubir">
+                            <i data-lucide="upload"></i> Subir
+                        </button>
+                    </div>
+                    <button class="ms-btn-sec-full ms-btn-peligro" id="btnQuitarImagen" disabled>
+                        <i data-lucide="trash-2"></i> Quitar imagen
+                    </button>
+                </section>
+
+                <section class="ms-seccion">
+                    <h3><i data-lucide="type"></i> Texto</h3>
+
+                    <div class="ms-field">
+                        <label>Texto superior</label>
+                        <input type="text" id="inputArriba" placeholder="Texto arriba..." maxlength="120" disabled>
+                    </div>
+
+                    <div class="ms-field">
+                        <label>Texto inferior</label>
+                        <input type="text" id="inputAbajo" placeholder="Texto abajo..." maxlength="120" disabled>
+                    </div>
+
+                    <div class="ms-slider">
+                        <label>Tamaño <span id="tamanoValor">60</span></label>
+                        <input type="range" id="sliderTamano" min="20" max="200" value="60" disabled>
+                    </div>
+                </section>
+
+                <section class="ms-seccion">
+                    <h3><i data-lucide="palette"></i> Estilo</h3>
+
+                    <div class="ms-color-row">
+                        <div class="ms-color-field">
+                            <label>Relleno</label>
+                            <input type="color" id="colorTexto" value="#FFFFFF" disabled>
+                        </div>
+                        <div class="ms-color-field">
+                            <label>Borde</label>
+                            <input type="color" id="colorBorde" value="#000000" disabled>
+                        </div>
+                    </div>
+
+                    <div class="ms-slider">
+                        <label>Grosor del borde <span id="grosorValor">6</span></label>
+                        <input type="range" id="sliderGrosor" min="0" max="20" value="6" disabled>
+                    </div>
+                </section>
+
+                <section class="ms-seccion">
+                    <h3><i data-lucide="download"></i> Exportar</h3>
+                    <button class="ms-btn-sec-full" id="btnDescargarPNG" disabled>
+                        <i data-lucide="download"></i> Descargar PNG
+                    </button>
+                    <button class="ms-btn-sec-full ms-btn-galeria" id="btnGuardarGaleria" disabled>
+                        <i data-lucide="image-plus"></i> Guardar en Galería
+                    </button>
+                </section>
+
+            </aside>
+
+        </div>
+
+    </div>
+
+    <!-- Input file oculto -->
+    <input type="file" id="inputFile" accept="image/*" hidden>
+
+    <!-- MODAL AYUDA -->
+    <div class="ms-modal" id="modalAyuda" hidden>
+        <div class="ms-modal-card">
+            <div class="ms-modal-header">
+                <h2><i data-lucide="help-circle"></i> Cómo usar Meme Sculptor</h2>
+                <button class="ms-modal-cerrar" id="modalAyudaCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="ms-modal-body">
+                <p class="ms-modal-desc">
+                    Tres pasos y listo. Nada más.
+                </p>
+                <ul class="ms-ayuda-lista">
+                    <li><strong>1.</strong> Elegí una imagen de tu Galería o subí una.</li>
+                    <li><strong>2.</strong> Escribí el texto de arriba y el de abajo.</li>
+                    <li><strong>3.</strong> Exportá a PNG o guardá en tu Galería.</li>
+                </ul>
+                <p class="ms-modal-sub">
+                    <i data-lucide="info"></i>
+                    Tu imagen no se guarda. Solo se exporta si lo pedís.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="ms-toast" id="msToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
