@@ -242,10 +242,12 @@ body {
 }
 .s3d-mirror-indicator [data-lucide] { width: 13px; height: 13px; }
 
-.s3d-zoom-controls {
+/* ============================================================
+   PANELES FLOTANTES (view + zoom)
+   ============================================================ */
+.s3d-view-panel,
+.s3d-zoom-panel {
     position: absolute;
-    bottom: 12px;
-    right: 12px;
     display: flex;
     gap: 3px;
     background: var(--white, #FFFFFF);
@@ -255,6 +257,17 @@ body {
     box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.08));
     align-items: center;
     z-index: 10;
+    flex-shrink: 0;
+}
+
+.s3d-view-panel {
+    top: 12px;
+    right: 12px;
+}
+
+.s3d-zoom-panel {
+    bottom: 12px;
+    right: 12px;
 }
 
 .s3d-ctrl-btn {
@@ -291,6 +304,115 @@ body {
     text-align: center;
     font-variant-numeric: tabular-nums;
     user-select: none;
+}
+
+/* ============================================================
+   HINT DE CONTROLES
+   ============================================================ */
+.s3d-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--white, #FFFFFF);
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 16px;
+    padding: 18px 22px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.22);
+    z-index: 100;
+    max-width: 92%;
+    width: 360px;
+    animation: s3dHintIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.s3d-hint[hidden] { display: none !important; }
+
+@keyframes s3dHintIn {
+    from { opacity: 0; transform: translate(-50%, -45%) scale(0.95); }
+    to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.s3d-hint-titulo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--violet-700, #6D28D9);
+    margin-bottom: 12px;
+}
+.s3d-hint-titulo [data-lucide] { width: 15px; height: 15px; }
+
+.s3d-hint-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 7px 12px;
+    align-items: center;
+    margin-bottom: 14px;
+}
+.s3d-hint-grid kbd {
+    display: inline-block;
+    padding: 3px 8px;
+    background: var(--gray-100, #F4F4F7);
+    border: 1px solid var(--border, #E8E8EE);
+    border-bottom-width: 2px;
+    border-radius: 6px;
+    font-family: 'SF Mono', Monaco, Consolas, monospace;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--gray-700, #3F3F46);
+    white-space: nowrap;
+    justify-self: start;
+}
+.s3d-hint-grid span {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--gray-700, #3F3F46);
+}
+
+.s3d-hint-mobile {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+.s3d-hint-mobile > div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--gray-700, #3F3F46);
+}
+
+.s3d-hint-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    width: 100%;
+    padding: 11px 16px;
+    border: none;
+    border-radius: 11px;
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: white;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
+    transition: all 0.15s;
+}
+.s3d-hint-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px var(--accent-shadow-hover, rgba(139,92,246,0.38));
+}
+.s3d-hint-btn [data-lucide] { width: 15px; height: 15px; }
+
+@media (hover: none) and (pointer: coarse) {
+    .s3d-hint-grid { display: none; }
+    .s3d-hint-mobile { display: flex; }
 }
 
 /* ============================================================
@@ -604,7 +726,7 @@ body {
 }
 
 /* ============================================================
-   MODELO — info + acciones
+   MODELO
    ============================================================ */
 .s3d-info-box {
     background: var(--gray-50, #FAFAFB);
@@ -773,7 +895,7 @@ body {
     align-items: center;
     justify-content: center;
     padding: 20px;
-    z-index: 100;
+    z-index: 200;
     animation: s3dFade 0.15s ease;
 }
 @keyframes s3dFade {
@@ -1101,7 +1223,7 @@ body {
     opacity: 0;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     pointer-events: none;
-    z-index: 200;
+    z-index: 300;
     max-width: calc(100% - 40px);
     white-space: nowrap;
     overflow: hidden;
