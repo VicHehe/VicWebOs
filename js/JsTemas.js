@@ -993,6 +993,24 @@ const TEMAS_DISPONIBLES = [
     //  Las cuatro caras del año: cada una con patrón SVG,
     //  animaciones en vivo y decoración por sección.
     // ============================================================
+        {
+        id: 'invierno',
+        nombre: 'Invierno',
+        icono: 'snowflake',
+        descripcion: 'Noche de nieve con ventana empañada y chimenea encendida: copos en parallax de 2 capas, escarcha trepando por el header y @property animado que hace latir toda la interfaz como una fogonera real.',
+        categoria: 'Estaciones',
+        ruta: 'Temas/invierno.css',
+        espacio: 4,
+        monedas: 35,
+        colores: {
+            '--violet-100': '#DBEAFE',
+            '--violet-300': '#93C5FD',
+            '--violet-500': '#3B82F6',
+            '--bg':         '#F4F8FD',
+            '--bg-alt':     '#E8F0F9',
+            '--white':      '#FFFFFF'
+        }
+    },
     {
         id: 'primavera',
         nombre: 'Primavera',
@@ -1001,7 +1019,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Estaciones',
         ruta: 'Temas/primavera.css',
         espacio: 4,
-        monedas: 35,
+        monedas: 40,
         colores: {
             '--violet-100': '#DCFCE7',
             '--violet-300': '#86EFAC',
@@ -1019,7 +1037,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Estaciones',
         ruta: 'Temas/verano.css',
         espacio: 4,
-        monedas: 40,
+        monedas: 45,
         colores: {
             '--violet-100': '#FEF3C7',
             '--violet-300': '#FCD34D',
@@ -1037,7 +1055,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Estaciones',
         ruta: 'Temas/otono.css',
         espacio: 4,
-        monedas: 40,
+        monedas: 45,
         colores: {
             '--violet-100': '#FAECD4',
             '--violet-300': '#E8B87A',
@@ -1047,24 +1065,7 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFDFA'
         }
     },
-    {
-        id: 'invierno',
-        nombre: 'Invierno',
-        icono: 'snowflake',
-        descripcion: 'Noche de nieve con ventana empañada y chimenea encendida: copos en parallax de 2 capas, escarcha trepando por el header y @property animado que hace latir toda la interfaz como una fogonera real.',
-        categoria: 'Estaciones',
-        ruta: 'Temas/invierno.css',
-        espacio: 4,
-        monedas: 45,
-        colores: {
-            '--violet-100': '#DBEAFE',
-            '--violet-300': '#93C5FD',
-            '--violet-500': '#3B82F6',
-            '--bg':         '#F4F8FD',
-            '--bg-alt':     '#E8F0F9',
-            '--white':      '#FFFFFF'
-        }
-    },
+
     
     // ============================================================
     //  3D — Efectos de perspectiva y profundidad real
