@@ -988,6 +988,85 @@ const TEMAS_DISPONIBLES = [
     },
 
     // ============================================================
+    //  ESTACIONES — Primavera, Verano, Otoño e Invierno
+    //  Costo total de la categoría: 158
+    //  Las cuatro caras del año: cada una con patrón SVG,
+    //  animaciones en vivo y decoración por sección.
+    // ============================================================
+    {
+        id: 'primavera',
+        nombre: 'Primavera',
+        icono: 'flower-2',
+        descripcion: 'Todo lo que crece en un mismo lugar: pétalos que eclosionan en el hero, hojas brotando del header, campo de flores en el lobby y mariposas cruzando la pantalla.',
+        categoria: 'Estaciones',
+        ruta: 'Temas/primavera.css',
+        espacio: 4,
+        monedas: 35,
+        colores: {
+            '--violet-100': '#DCFCE7',
+            '--violet-300': '#86EFAC',
+            '--violet-500': '#22C55E',
+            '--bg':         '#FAFEF8',
+            '--bg-alt':     '#F1FAEC',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
+        id: 'verano',
+        nombre: 'Verano',
+        icono: 'sun',
+        descripcion: 'Playa al mediodía: sol que respira, palmeras meciéndose con la brisa, olas animadas bajo el header y arena salpicada de conchitas.',
+        categoria: 'Estaciones',
+        ruta: 'Temas/verano.css',
+        espacio: 4,
+        monedas: 38,
+        colores: {
+            '--violet-100': '#FEF3C7',
+            '--violet-300': '#FCD34D',
+            '--violet-500': '#F59E0B',
+            '--bg':         '#FFFCF4',
+            '--bg-alt':     '#FFF6E3',
+            '--white':      '#FFFFFF'
+        }
+    },
+    {
+        id: 'otono',
+        nombre: 'Otoño',
+        icono: 'leaf',
+        descripcion: 'Cae la tarde entre hojas que giran: arces cayendo con rotación real sobre el lobby, brasas de fogón respirando al fondo y cielo ámbar-terracota sobre madera.',
+        categoria: 'Estaciones',
+        ruta: 'Temas/otono.css',
+        espacio: 4,
+        monedas: 40,
+        colores: {
+            '--violet-100': '#FAECD4',
+            '--violet-300': '#E8B87A',
+            '--violet-500': '#C96A2B',
+            '--bg':         '#FBF4E9',
+            '--bg-alt':     '#F4E8D6',
+            '--white':      '#FFFDFA'
+        }
+    },
+    {
+        id: 'invierno',
+        nombre: 'Invierno',
+        icono: 'snowflake',
+        descripcion: 'Noche de nieve con ventana empañada y chimenea encendida: copos en parallax de 2 capas, escarcha trepando por el header y @property animado que hace latir toda la interfaz como una fogonera real.',
+        categoria: 'Estaciones',
+        ruta: 'Temas/invierno.css',
+        espacio: 4,
+        monedas: 45,
+        colores: {
+            '--violet-100': '#DBEAFE',
+            '--violet-300': '#93C5FD',
+            '--violet-500': '#3B82F6',
+            '--bg':         '#F4F8FD',
+            '--bg-alt':     '#E8F0F9',
+            '--white':      '#FFFFFF'
+        }
+    },
+    
+    // ============================================================
     //  3D — Efectos de perspectiva y profundidad real
     //  Costo total de la categoría: 200
     //  Uso de transform-style: preserve-3d, perspective() y
