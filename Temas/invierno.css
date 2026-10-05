@@ -1,0 +1,594 @@
+/* ================================================
+   Tema: Invierno
+   Estaciones · 45 monedas
+
+   Noche de nieve con ventana empañada y chimenea
+   encendida. Copos cayendo en dos capas con parallax
+   real, escarcha trepando por el header, brasas que
+   crepitan detrás del ícono y aurora boreal respirando
+   al fondo del lobby. Azul hielo + plata + brasa ámbar
+   sobre gris noche.
+
+   El flagship de la categoría: usa @property para
+   animar un número (la intensidad de la brasa) que se
+   propaga a TODO el shell — glow del hero, halo del
+   ícono, barra de pestañas y modales laten al unísono,
+   como una fogonera real.
+
+   Capas (justifican el precio):
+     · @property --inv-brasa animado → latido global de luz cálida
+     · Nevada en 2 capas con velocidades distintas (parallax)
+     · Cristales de escarcha en header y esquinas de modales
+     · Ventana con contrapeso de aurora en el welcome
+     · Cards de vidrio esmerilado con escarcha que se derrite al hover
+     · Hielo azul profundo en sidebar con copos fijos
+   ================================================ */
+
+/* ------------------------------------------------------------
+   @property — registra la brasa como número interpolable.
+   Sin esto saltaría de 0 a 1 sin transición.
+   ------------------------------------------------------------ */
+@property --inv-brasa {
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 0;
+}
+
+:root {
+    /* La fogata del tema: cicla lento, como brasas reales */
+    --inv-brasa: 0;
+    animation: inv-fogon 7s ease-in-out infinite;
+}
+@keyframes inv-fogon {
+    0%, 100% { --inv-brasa: 0.15; }
+    30%      { --inv-brasa: 0.85; }
+    55%      { --inv-brasa: 0.35; }
+    75%      { --inv-brasa: 0.95; }
+}
+
+:root {
+    --violet-50:  #EFF6FF;
+    --violet-100: #DBEAFE;
+    --violet-200: #BFDBFE;
+    --violet-300: #93C5FD;
+    --violet-400: #60A5FA;
+    --violet-500: #3B82F6;
+    --violet-600: #2563EB;
+    --violet-700: #1D4ED8;
+
+    --white:   #FFFFFF;
+    --bg:      #F4F8FD;
+    --bg-alt:  #E8F0F9;
+    --gray-50:  #F7FAFE;
+    --gray-100: #EAF1F9;
+    --gray-200: #D6E2F0;
+    --gray-300: #B2C6DE;
+    --gray-400: #7E9BBE;
+    --gray-500: #52708F;
+    --gray-600: #3A5470;
+    --gray-700: #283B52;
+    --gray-800: #182636;
+    --gray-900: #0D1620;
+
+    --border:  #D6E2F0;
+    --text:    #182636;
+    --text-2:  #3A5470;
+    --text-3:  #52708F;
+
+    --shadow-xs: 0 1px 2px rgba(13, 22, 32, 0.06);
+    --shadow-sm: 0 1px 3px rgba(13, 22, 32, 0.08);
+    --shadow-md: 0 4px 12px rgba(13, 22, 32, 0.10);
+    --shadow-lg: 0 12px 32px rgba(13, 22, 32, 0.13);
+    --shadow-xl: 0 24px 48px rgba(13, 22, 32, 0.16);
+    --shadow-glow: 0 0 0 4px rgba(59, 130, 246, 0.16);
+
+    --accent-gradient: linear-gradient(135deg, #60A5FA, #FB923C);
+    --accent-gradient-hover: linear-gradient(135deg, #3B82F6, #F97316);
+    --accent-shadow: rgba(59, 130, 246, 0.30);
+    --accent-shadow-hover: rgba(251, 146, 60, 0.42);
+    --accent-text-gradient: linear-gradient(135deg, #1D4ED8, #EA580C);
+
+    /* ---- TEXTURAS ---- */
+
+    /* Copo detalle: seis brazos con ramitas */
+    --theme-copo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cg stroke='%23BFDBFE' stroke-width='2.4' stroke-linecap='round' fill='none' opacity='0.9'%3E%3Cpath d='M30,6 L30,54 M9.7,18 L50.3,42 M9.7,42 L50.3,18'/%3E%3Cpath d='M30,14 L24,8 M30,14 L36,8 M30,46 L24,52 M30,46 L36,52'/%3E%3Cpath d='M15.5,21.5 L10.5,24 M15.5,38.5 L10.5,36 M44.5,21.5 L49.5,24 M44.5,38.5 L49.5,36'/%3E%3C/g%3E%3Ccircle cx='30' cy='30' r='3.4' fill='%23DBEAFE'/%3E%3C/svg%3E");
+
+    /* Campo de nevazón: tile grande con puntos blancos suaves */
+    --theme-nieve: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Cg fill='%23FFFFFF'%3E%3Ccircle cx='24' cy='36' r='2.6' opacity='0.95'/%3E%3Ccircle cx='88' cy='70' r='1.8' opacity='0.8'/%3E%3Ccircle cx='150' cy='30' r='3' opacity='0.9'/%3E%3Ccircle cx='220' cy='64' r='1.6' opacity='0.7'/%3E%3Ccircle cx='300' cy='40' r='2.4' opacity='0.9'/%3E%3Ccircle cx='366' cy='84' r='1.8' opacity='0.75'/%3E%3Ccircle cx='52' cy='140' r='2' opacity='0.85'/%3E%3Ccircle cx='128' cy='168' r='3.2' opacity='0.9'/%3E%3Ccircle cx='204' cy='140' r='1.6' opacity='0.7'/%3E%3Ccircle cx='280' cy='172' r='2.2' opacity='0.85'/%3E%3Ccircle cx='352' cy='150' r='1.8' opacity='0.75'/%3E%3Ccircle cx='30' cy='240' r='2.8' opacity='0.9'/%3E%3Ccircle cx='104' cy='276' r='1.8' opacity='0.7'/%3E%3Ccircle cx='180' cy='250' r='2.4' opacity='0.85'/%3E%3Ccircle cx='256' cy='288' r='1.6' opacity='0.7'/%3E%3Ccircle cx='330' cy='256' r='3' opacity='0.9'/%3E%3Ccircle cx='390' cy='290' r='1.8' opacity='0.75'/%3E%3Ccircle cx='66' cy='350' r='2.2' opacity='0.85'/%3E%3Ccircle cx='146' cy='380' r='1.6' opacity='0.7'/%3E%3Ccircle cx='226' cy='356' r='2.8' opacity='0.9'/%3E%3Ccircle cx='306' cy='384' r='1.8' opacity='0.75'/%3E%3Ccircle cx='376' cy='352' r='2.4' opacity='0.85'/%3E%3C/g%3E%3Cg fill='%23BFDBFE'%3E%3Ccircle cx='60' cy='96' r='1.6' opacity='0.6'/%3E%3Ccircle cx='250' cy='106' r='1.4' opacity='0.55'/%3E%3Ccircle cx='160' cy='210' r='1.6' opacity='0.6'/%3E%3Ccircle cx='340' cy='210' r='1.4' opacity='0.5'/%3E%3Ccircle cx='110' cy='320' r='1.6' opacity='0.6'/%3E%3Ccircle cx='280' cy='330' r='1.4' opacity='0.55'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* Cristal de escarcha: dendrita de esquina */
+    --theme-escarcha: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cg stroke='%2393C5FD' stroke-width='1.6' stroke-linecap='round' fill='none' opacity='0.8'%3E%3Cpath d='M4,4 L60,60'/%3E%3Cpath d='M4,4 L44,14 M4,4 L14,44'/%3E%3Cpath d='M22,22 L34,14 M22,22 L14,34'/%3E%3Cpath d='M42,42 L58,36 M42,42 L36,58'/%3E%3Cpath d='M60,60 L84,64 M60,60 L64,84'/%3E%3Cpath d='M80,80 L102,84 M80,80 L84,102'/%3E%3Cpath d='M100,100 L118,104 M100,100 L104,118'/%3E%3C/g%3E%3Cg fill='%23DBEAFE' opacity='0.9'%3E%3Ccircle cx='60' cy='60' r='2.4'/%3E%3Ccircle cx='22' cy='22' r='1.8'/%3E%3Ccircle cx='100' cy='100' r='2'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ================================================================
+   1. WELCOME — ventisca nocturna con aurora
+   ================================================================ */
+.welcome-placeholder {
+    position: relative;
+    background-image:
+        var(--theme-nieve),
+        radial-gradient(ellipse at top left, rgba(147, 197, 253, 0.16) 0%, transparent 45%),
+        radial-gradient(ellipse at bottom right, rgba(125, 211, 252, 0.12) 0%, transparent 50%),
+        linear-gradient(180deg, #F4F8FD 0%, #E8F0F9 100%);
+    background-size: 400px 400px, auto, auto, auto;
+    background-repeat: repeat, no-repeat, no-repeat, no-repeat;
+    animation: inv-neve-lenta 48s linear infinite;
+}
+@keyframes inv-neve-lenta {
+    0%   { background-position: 0 -400px, 0 0, 0 0, 0 0; }
+    100% { background-position: 60px 0, 0 0, 0 0, 0 0; }
+}
+
+/* Aurora boreal que respira al fondo */
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+        radial-gradient(ellipse 70% 30% at 30% 12%, rgba(110, 231, 183, 0.16) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 26% at 72% 8%,  rgba(147, 197, 253, 0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 22% at 50% 18%, rgba(196, 181, 253, 0.12) 0%, transparent 70%);
+    animation: inv-aurora 14s ease-in-out infinite alternate;
+}
+@keyframes inv-aurora {
+    0%   { opacity: 0.55; transform: translateX(-14px) skewX(-2deg); }
+    100% { opacity: 1;    transform: translateX(14px)  skewX(2deg); }
+}
+
+/* Capa de copos grandes: caen con vaivén (parallax cercano) */
+.welcome-placeholder::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background-image:
+        var(--theme-copo),
+        var(--theme-copo),
+        var(--theme-copo);
+    background-size: 34px 34px, 22px 22px, 28px 28px;
+    background-repeat: no-repeat;
+    animation: inv-copos-cerca 11s linear infinite;
+    filter: drop-shadow(0 2px 3px rgba(82, 112, 143, 0.30));
+}
+@keyframes inv-copos-cerca {
+    0%   {
+        background-position: 12% -12%, 68% -25%, 40% -40%;
+        opacity: 0;
+    }
+    8%   { opacity: 0.9; }
+    30%  { background-position: 18% 25%, 62% 30%, 36% 35%; }
+    60%  { background-position: 10% 58%, 70% 62%, 44% 66%; }
+    90%  { background-position: 16% 92%, 64% 90%, 38% 96%; opacity: 0.9; }
+    100% {
+        background-position: 14% 108%, 66% 106%, 40% 112%;
+        opacity: 0;
+    }
+}
+
+.welcome-hero,
+.welcome-section {
+    position: relative;
+    z-index: 2;
+}
+
+.welcome-glow {
+    background: radial-gradient(
+        circle,
+        rgba(251, 146, 60, calc(0.10 + var(--inv-brasa) * 0.14)) 0%,
+        rgba(147, 197, 253, 0.14) 45%,
+        transparent 70%
+    );
+}
+
+/* Hero = ventana empañada: vidrio esmerilado + vaho cálido de la brasa */
+.welcome-hero {
+    position: relative;
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.80) 0%,
+        rgba(234, 241, 249, 0.86) 100%
+    );
+    border: 1.5px solid #BFDBFE;
+    border-radius: 22px;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow:
+        0 10px 28px rgba(13, 22, 32, 0.12),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.7),
+        inset 0 0 60px rgba(251, 146, 60, calc(var(--inv-brasa) * 0.10));
+}
+
+/* Escarcha trepando por las esquinas interiores del hero */
+.welcome-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 90px;
+    height: 90px;
+    background: var(--theme-escarcha) top left/contain no-repeat;
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 1;
+}
+.welcome-hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 70px;
+    height: 70px;
+    background: var(--theme-escarcha) bottom right/contain no-repeat;
+    transform: rotate(180deg);
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Ícono: farol de brasa. Su halo late con --inv-brasa */
+.welcome-icon-wrap {
+    position: relative;
+    z-index: 2;
+    background: linear-gradient(135deg, #60A5FA, #FB923C);
+    box-shadow:
+        0 12px 28px rgba(59, 130, 246, 0.35),
+        0 4px 8px rgba(251, 146, 60, calc(0.20 + var(--inv-brasa) * 0.25)),
+        0 0 0 6px rgba(255, 255, 255, 0.92),
+        0 0 calc(18px + var(--inv-brasa) * 34px) rgba(251, 146, 60, calc(0.18 + var(--inv-brasa) * 0.35));
+}
+
+/* Copo solitario grande girando junto al título */
+.welcome-icon-wrap::before {
+    content: '';
+    position: absolute;
+    top: -26px;
+    right: -34px;
+    width: 40px;
+    height: 40px;
+    background: var(--theme-copo) center/contain no-repeat;
+    opacity: 0.85;
+    pointer-events: none;
+    animation: inv-giro-copo 16s linear infinite;
+    filter: drop-shadow(0 2px 4px rgba(82, 112, 143, 0.35));
+}
+@keyframes inv-giro-copo {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ================================================================
+   2. HEADER — borde de carámbanos sutiles
+   ================================================================ */
+.app-header {
+    position: relative;
+    background: linear-gradient(180deg, #FFFFFF 0%, #F7FAFE 100%);
+    border-bottom: 1.5px solid #D6E2F0;
+}
+
+/* Línea de hielo iluminada por la fogata, pulsa con la brasa */
+.app-header::before {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 10%;
+    right: 10%;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent,
+        rgba(147, 197, 253, 0.9),
+        rgba(251, 191, 36, calc(0.35 + var(--inv-brasa) * 0.5)),
+        rgba(147, 197, 253, 0.9),
+        transparent);
+    box-shadow: 0 0 calc(6px + var(--inv-brasa) * 10px) rgba(147, 197, 253, 0.55);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Cristales de escarcha en las esquinas del header */
+.app-header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 64px;
+    height: 64px;
+    background: var(--theme-escarcha) top right/contain no-repeat;
+    transform: scaleX(-1);
+    opacity: 0.45;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* ================================================================
+   3. SIDEBAR — glaciar azul con copos fijos
+   ================================================================ */
+.sidebar {
+    position: relative;
+    background-image:
+        var(--theme-copo),
+        var(--theme-copo),
+        linear-gradient(180deg, #EAF1F9 0%, #DCE8F5 100%);
+    background-size: 30px 30px, 20px 20px, auto;
+    background-position: 78% 12%, 18% 68%, 0 0;
+    background-repeat: no-repeat, no-repeat, no-repeat;
+    border-right: 1.5px solid #BFDBFE;
+}
+.sidebar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+        radial-gradient(ellipse 80% 30% at 50% 0%, rgba(191, 219, 254, 0.45) 0%, transparent 70%),
+        linear-gradient(180deg, transparent 60%, rgba(147, 197, 253, 0.14) 100%);
+}
+.sidebar-comunidad,
+.sidebar-label,
+.sidebar-nav,
+.sidebar-mobile-header {
+    position: relative;
+    z-index: 1;
+}
+
+.nav-item.active::before {
+    background: linear-gradient(180deg, #60A5FA, #93C5FD);
+    width: 4px;
+    border-radius: 0 4px 4px 0;
+    box-shadow: 0 0 8px rgba(96, 165, 250, 0.6);
+}
+.nav-item.active::after {
+    content: '';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 9px;
+    height: 9px;
+    background: #60A5FA;
+    clip-path: polygon(50% 0%, 63% 37%, 100% 50%, 63% 63%, 50% 100%, 37% 63%, 0% 50%, 37% 37%);
+    filter: drop-shadow(0 0 4px rgba(96, 165, 250, 0.7));
+}
+
+@media (max-width: 768px) {
+    .sidebar { position: fixed; }
+}
+
+/* ================================================================
+   4. ACCESOS RÁPIDOS — vidrio esmerilado con escarcha
+   ================================================================ */
+.acceso-item {
+    position: relative;
+    background: linear-gradient(155deg, rgba(255, 255, 255, 0.92) 0%, rgba(234, 241, 249, 0.92) 100%);
+    border: 1.5px solid #BFDBFE;
+    border-radius: 18px;
+    box-shadow:
+        0 4px 14px rgba(13, 22, 32, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.85),
+        inset 0 0 24px rgba(191, 219, 254, 0.25);
+    overflow: hidden;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Escarcha en la esquina que "se derrite" (aparece) al hover */
+.acceso-item::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 54px;
+    height: 54px;
+    background: var(--theme-escarcha) top right/contain no-repeat;
+    transform: scaleX(-1);
+    opacity: 0;
+    transform-origin: top right;
+    transition:
+        opacity 0.3s,
+        transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+    z-index: 3;
+}
+.acceso-item:hover::before {
+    opacity: 0.8;
+    transform: scaleX(-1) scale(1.1) rotate(-6deg);
+}
+
+/* Copo que rueda por el borde inferior al hover */
+.acceso-item::after {
+    content: '';
+    position: absolute;
+    bottom: 6px;
+    left: -20px;
+    width: 14px;
+    height: 14px;
+    background: var(--theme-copo) center/contain no-repeat;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 3;
+    filter: drop-shadow(0 1px 2px rgba(82, 112, 143, 0.35));
+}
+.acceso-item:hover::after {
+    opacity: 0.9;
+    animation: inv-copo-rueda 2.6s linear infinite;
+}
+@keyframes inv-copo-rueda {
+    0%   { left: -20px; transform: rotate(0deg); }
+    100% { left: calc(100% + 20px); transform: rotate(360deg); }
+}
+
+.acceso-item:hover {
+    border-color: #93C5FD;
+    transform: translateY(-3px);
+    box-shadow:
+        0 14px 26px rgba(59, 130, 246, 0.20),
+        0 4px 10px rgba(251, 146, 60, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.acceso-icon-wrap {
+    background: linear-gradient(135deg, #EFF6FF, #DBEAFE);
+    border: 1.5px solid #BFDBFE;
+    color: var(--violet-600);
+    box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.75);
+    transition: all 0.22s;
+}
+.acceso-item:hover .acceso-icon-wrap {
+    background: var(--accent-gradient);
+    border-color: #93C5FD;
+    color: white;
+    box-shadow:
+        inset 0 0 0 3px rgba(255, 255, 255, 0.9),
+        0 8px 20px rgba(59, 130, 246, 0.40);
+    transform: scale(1.08);
+}
+
+/* ================================================================
+   5. WIDGETS — bloques de hielo pulido
+   ================================================================ */
+.widget-item {
+    border: 1.5px solid #BFDBFE;
+    border-radius: 18px;
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.94) 0%, rgba(234, 241, 249, 0.94) 100%);
+    box-shadow:
+        0 8px 20px rgba(13, 22, 32, 0.09),
+        inset 0 1px 0 rgba(255, 255, 255, 0.7),
+        inset 0 0 30px rgba(191, 219, 254, 0.20);
+    transition: all 0.22s;
+}
+.widget-item:hover {
+    border-color: #93C5FD;
+    box-shadow:
+        0 12px 28px rgba(59, 130, 246, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* ================================================================
+   6. PESTAÑAS — filo de hielo con reflejo de fogata
+   ================================================================ */
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 12px;
+    right: 12px;
+    height: 3px;
+    background: linear-gradient(90deg,
+        #93C5FD 0%,
+        #DBEAFE 40%,
+        rgba(251, 146, 60, calc(0.5 + var(--inv-brasa) * 0.5)) 65%,
+        #60A5FA 100%);
+    border-radius: 3px 3px 0 0;
+    box-shadow: 0 0 calc(6px + var(--inv-brasa) * 8px) rgba(147, 197, 253, 0.5);
+    pointer-events: none;
+}
+
+/* ================================================================
+   7. MODALES — cristalera tallada
+   ================================================================ */
+.config-card,
+.modal-todas-card {
+    position: relative;
+    overflow: hidden;
+    border: 1.5px solid #BFDBFE;
+    border-radius: 20px;
+    background: linear-gradient(180deg, #FFFFFF 0%, #F7FAFE 100%);
+    box-shadow:
+        0 24px 48px rgba(13, 22, 32, 0.18),
+        0 4px 12px rgba(59, 130, 246, 0.10);
+}
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #60A5FA, #DBEAFE, #93C5FD, #FB923C, #60A5FA);
+    pointer-events: none;
+    z-index: 3;
+}
+/* Dendritas de escarcha en ambas esquinas superiores */
+.config-card::after,
+.modal-todas-card::after {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 84px;
+    height: 84px;
+    background: var(--theme-escarcha) top right/contain no-repeat;
+    transform: scaleX(-1);
+    opacity: 0.40;
+    pointer-events: none;
+    z-index: 4;
+}
+
+.config-header,
+.modal-todas-header {
+    background: linear-gradient(180deg, #F7FAFE 0%, #EAF1F9 100%);
+}
+
+/* ================================================================
+   8. BOTÓN PRIMARIO
+   ================================================================ */
+.btn-primario {
+    box-shadow:
+        0 4px 12px rgba(59, 130, 246, 0.32),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+.btn-primario:hover {
+    box-shadow:
+        0 8px 20px rgba(59, 130, 246, 0.45),
+        0 0 0 3px rgba(147, 197, 253, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.30);
+}
+
+/* ================================================================
+   9. AVATAR Y NOTIFICACIONES
+   ================================================================ */
+.avatar-config {
+    background: linear-gradient(135deg, #60A5FA, #DBEAFE);
+    border: 2px solid var(--white);
+    box-shadow:
+        var(--shadow-sm),
+        0 0 0 1px var(--border),
+        0 0 0 3px rgba(147, 197, 253, 0.30);
+}
+.avatar-config:hover {
+    transform: translateY(-1px) scale(1.05);
+    box-shadow:
+        0 6px 16px rgba(59, 130, 246, 0.45),
+        0 0 0 1px #93C5FD;
+}
+
+.noti-btn.tiene-no-leidas {
+    background: #DBEAFE;
+    color: #2563EB;
+}
+
+.search-bar:focus-within {
+    border-color: #93C5FD;
+    box-shadow: var(--shadow-glow);
+}
+
+/* ================================================================
+   10. prefers-reduced-motion
+   — Se apagan los movimientos, pero la brasa puede seguir
+     latiendo suave porque es señal de calidez, no de motion.
+   ================================================================ */
+@media (prefers-reduced-motion: reduce) {
+    :root          { animation: none !important; --inv-brasa: 0.4; }
+    .welcome-placeholder,
+    .welcome-placeholder::before,
+    .welcome-placeholder::after,
+    .welcome-icon-wrap::before,
+    .acceso-item:hover::after {
+        animation: none !important;
+    }
+    .welcome-placeholder::after { background-position: 12% 30%, 68% 55%, 40% 80%; opacity: 0.8; }
+    .welcome-placeholder::before { opacity: 0.8; }
+}

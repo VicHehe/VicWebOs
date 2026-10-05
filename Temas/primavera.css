@@ -1,0 +1,497 @@
+/* ================================================
+   Tema: Primavera
+   Estaciones · 35 monedas
+
+   Todo lo que crece en un mismo lugar: pétalos que
+   eclosionan en el hero, hojas brotando del header,
+   campo de flores en el lobby y mariposas cruzando
+   la pantalla. Verde brote + rosa cerezo + amarillo
+   polen sobre crema luminosa.
+
+   Capas (justifican el precio):
+     · SVG pattern de flores + hojas en welcome y sidebar
+     · Eclosión de pétalos en el ícono del hero (::before)
+     · Hojas brotando del header con sway infinito
+     · Mariposas cruzando el lobby (2 trayectorias)
+     · Cards con forma de hoja + flor esquinera al hover
+     · Gradiente de jardín vivo en tabs y modales
+   ================================================ */
+
+:root {
+    --violet-50:  #F0FDF4;
+    --violet-100: #DCFCE7;
+    --violet-200: #BBF7D0;
+    --violet-300: #86EFAC;
+    --violet-400: #4ADE80;
+    --violet-500: #22C55E;
+    --violet-600: #16A34A;
+    --violet-700: #15803D;
+
+    --white:   #FFFFFF;
+    --bg:      #FAFEF8;
+    --bg-alt:  #F1FAEC;
+    --gray-50:  #F5FBF2;
+    --gray-100: #EAF6E4;
+    --gray-200: #D5EBCC;
+    --gray-300: #B4D9A6;
+    --gray-400: #7FB87A;
+    --gray-500: #4E8F52;
+    --gray-600: #366B3E;
+    --gray-700: #274F2E;
+    --gray-800: #1B3721;
+    --gray-900: #122617;
+
+    --border:  #D5EBCC;
+    --text:    #1B3721;
+    --text-2:  #366B3E;
+    --text-3:  #4E8F52;
+
+    --shadow-xs: 0 1px 2px rgba(27, 55, 33, 0.05);
+    --shadow-sm: 0 1px 3px rgba(27, 55, 33, 0.07);
+    --shadow-md: 0 4px 12px rgba(27, 55, 33, 0.09);
+    --shadow-lg: 0 12px 32px rgba(27, 55, 33, 0.11);
+    --shadow-xl: 0 24px 48px rgba(27, 55, 33, 0.14);
+    --shadow-glow: 0 0 0 4px rgba(34, 197, 94, 0.14);
+
+    --accent-gradient: linear-gradient(135deg, #4ADE80, #F472B6);
+    --accent-gradient-hover: linear-gradient(135deg, #22C55E, #EC4899);
+    --accent-shadow: rgba(34, 197, 94, 0.30);
+    --accent-shadow-hover: rgba(236, 72, 153, 0.40);
+    --accent-text-gradient: linear-gradient(135deg, #15803D, #DB2777);
+
+    /* ---- TEXTURAS ---- */
+
+    /* Flor de cerezo: 5 pétalos rosados, centro dorado */
+    --theme-flor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg transform='translate(50,50)'%3E%3Cellipse cx='0' cy='-22' rx='10' ry='19' fill='%23F9A8D4' opacity='0.85'/%3E%3Cellipse cx='0' cy='-22' rx='10' ry='19' fill='%23FBCFE8' opacity='0.85' transform='rotate(72)'/%3E%3Cellipse cx='0' cy='-22' rx='10' ry='19' fill='%23F9A8D4' opacity='0.85' transform='rotate(144)'/%3E%3Cellipse cx='0' cy='-22' rx='10' ry='19' fill='%23FBCFE8' opacity='0.85' transform='rotate(216)'/%3E%3Cellipse cx='0' cy='-22' rx='10' ry='19' fill='%23F9A8D4' opacity='0.85' transform='rotate(288)'/%3E%3Ccircle r='6' fill='%23FDE047'/%3E%3Ccircle r='2.5' fill='%23F59E0B'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* Hoja brote: nervadura clara */
+    --theme-hoja: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 60'%3E%3Cpath d='M20,2 C34,16 37,36 20,57 C3,36 6,16 20,2 Z' fill='%2386EFAC' opacity='0.8'/%3E%3Cpath d='M20,10 L20,52' stroke='%2315803D' stroke-width='0.9' fill='none' opacity='0.55'/%3E%3Cpath d='M20,22 L27,28 M20,22 L13,28 M20,34 L27,40 M20,34 L13,40' stroke='%2315803D' stroke-width='0.6' fill='none' opacity='0.45'/%3E%3C/svg%3E");
+
+    /* Mariposa: dos alas rosas, cuerpo fino */
+    --theme-mariposa: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 40'%3E%3Cellipse cx='18' cy='14' rx='14' ry='11' fill='%23F9A8D4' opacity='0.85'/%3E%3Cellipse cx='42' cy='14' rx='14' ry='11' fill='%23F9A8D4' opacity='0.85'/%3E%3Cellipse cx='20' cy='28' rx='9' ry='8' fill='%23FBCFE8' opacity='0.8'/%3E%3Cellipse cx='40' cy='28' rx='9' ry='8' fill='%23FBCFE8' opacity='0.8'/%3E%3Crect x='28.5' y='6' width='3' height='28' rx='1.5' fill='%23BE185D' opacity='0.7'/%3E%3Cpath d='M30,6 L26,0 M30,6 L34,0' stroke='%23BE185D' stroke-width='1' opacity='0.6'/%3E%3C/svg%3E");
+
+    /* Campo floral: tile repetible con flores, hojas y botones de polen */
+    --theme-campo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'%3E%3Cg transform='translate(40 45) scale(0.5)'%3E%3Cellipse cx='0' cy='-22' rx='10' ry='19' fill='%23F9A8D4' opacity='0.5'/%3E%3Cellipse cx='0' cy='-22' rx='10' ry='19' fill='%23F9A8D4' opacity='0.5' transform='rotate(72)'/%3E%3Cellipse cx='0' cy='-22' rx='10' ry='19' fill='%23F9A8D4' opacity='0.5' transform='rotate(144)'/%3E%3Cellipse cx='0' cy='-22' rx='10' ry='19' fill='%23F9A8D4' opacity='0.5' transform='rotate(216)'/%3E%3Cellipse cx='0' cy='-22' rx='10' ry='19' fill='%23F9A8D4' opacity='0.5' transform='rotate(288)'/%3E%3Ccircle r='4' fill='%23FDE047' opacity='0.7'/%3E%3C/g%3E%3Cg transform='translate(170 90) scale(0.38) rotate(20)'%3E%3Cellipse cx='0' cy='-22' rx='10' ry='19' fill='%2386EFAC' opacity='0.55'/%3E%3Cellipse cx='0' cy='-22' rx='10' ry='19' fill='%2386EFAC' opacity='0.55' transform='rotate(72)'/%3E%3Cellipse cx='0' cy='-22' rx='10' ry='19' fill='%2386EFAC' opacity='0.55' transform='rotate(144)'/%3E%3Cellipse cx='0' cy='-22' rx='10' ry='19' fill='%2386EFAC' opacity='0.55' transform='rotate(216)'/%3E%3Cellipse cx='0' cy='-22' rx='10' ry='19' fill='%2386EFAC' opacity='0.55' transform='rotate(288)'/%3E%3Ccircle r='4' fill='%23F9A8D4' opacity='0.7'/%3E%3C/g%3E%3Cg transform='translate(95 180) scale(0.45) rotate(-15)'%3E%3Cellipse cx='0' cy='-22' rx='10' ry='19' fill='%23FDE047' opacity='0.45'/%3E%3Cellipse cx='0' cy='-22' rx='10' ry='19' fill='%23FDE047' opacity='0.45' transform='rotate(72)'/%3E%3Cellipse cx='0' cy='-22' rx='10' ry='19' fill='%23FDE047' opacity='0.45' transform='rotate(144)'/%3E%3Cellipse cx='0' cy='-22' rx='10' ry='19' fill='%23FDE047' opacity='0.45' transform='rotate(216)'/%3E%3Cellipse cx='0' cy='-22' rx='10' ry='19' fill='%23FDE047' opacity='0.45' transform='rotate(288)'/%3E%3Ccircle r='4' fill='%23EC4899' opacity='0.6'/%3E%3C/g%3E%3Cpath d='M200,190 C210,180 214,168 212,156 C202,164 196,176 200,190 Z' fill='%234ADE80' opacity='0.4'/%3E%3Cpath d='M20,140 C30,130 34,118 32,106 C22,114 16,126 20,140 Z' fill='%2386EFAC' opacity='0.45'/%3E%3Ccircle cx='130' cy='60' r='3' fill='%23F472B6' opacity='0.4'/%3E%3Ccircle cx='225' cy='30' r='2.5' fill='%23FDE047' opacity='0.45'/%3E%3Ccircle cx='60' cy='215' r='2.5' fill='%23F472B6' opacity='0.4'/%3E%3Ccircle cx='150' cy='130' r='2' fill='%234ADE80' opacity='0.4'/%3E%3C/svg%3E");
+}
+
+/* ================================================================
+   1. WELCOME — jardín con mariposas
+   ================================================================ */
+.welcome-placeholder {
+    position: relative;
+    background-image:
+        var(--theme-campo),
+        radial-gradient(ellipse at top left,    rgba(217, 249, 157, 0.35) 0%, transparent 45%),
+        radial-gradient(ellipse at bottom right,rgba(252, 231, 243, 0.40) 0%, transparent 50%),
+        linear-gradient(180deg, #FAFEF8 0%, #F1FAEC 100%);
+    background-size: 240px 240px, auto, auto, auto;
+    background-repeat: repeat, no-repeat, no-repeat, no-repeat;
+    animation: prim-campo-brisa 60s linear infinite;
+}
+@keyframes prim-campo-brisa {
+    0%   { background-position: 0 0, 0 0, 0 0, 0 0; }
+    100% { background-position: 240px 0, 0 0, 0 0, 0 0; }
+}
+
+/* Mariposa 1: cruza de izquierda a derecha con vaivén */
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background: var(--theme-mariposa) no-repeat;
+    background-size: 46px 30px;
+    animation: prim-mariposa-a 18s ease-in-out infinite;
+    filter: drop-shadow(0 3px 5px rgba(190, 24, 93, 0.25));
+}
+@keyframes prim-mariposa-a {
+    0%   { background-position: -60px 70%; opacity: 0; }
+    8%   { opacity: 0.9; }
+    25%  { background-position: 25% 30%; }
+    45%  { background-position: 45% 60%; }
+    65%  { background-position: 65% 25%; }
+    85%  { background-position: 88% 50%; opacity: 0.9; }
+    100% { background-position: calc(100% + 60px) 35%; opacity: 0; }
+}
+
+/* Mariposa 2: sentido contrario, más chica y tardía */
+.welcome-placeholder::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background: var(--theme-mariposa) no-repeat;
+    background-size: 32px 21px;
+    animation: prim-mariposa-b 22s ease-in-out infinite 7s;
+    transform: scaleX(-1);
+    filter: drop-shadow(0 3px 5px rgba(190, 24, 93, 0.20));
+}
+@keyframes prim-mariposa-b {
+    0%   { background-position: calc(100% + 40px) 20%; opacity: 0; }
+    10%  { opacity: 0.75; }
+    30%  { background-position: 70% 55%; }
+    55%  { background-position: 45% 20%; }
+    80%  { background-position: 18% 45%; opacity: 0.75; }
+    100% { background-position: -40px 30%; opacity: 0; }
+}
+
+.welcome-hero,
+.welcome-section {
+    position: relative;
+    z-index: 2;
+}
+
+.welcome-glow {
+    background: radial-gradient(
+        circle,
+        rgba(134, 239, 172, 0.22) 0%,
+        rgba(249, 168, 212, 0.12) 40%,
+        transparent 68%
+    );
+}
+
+.welcome-hero {
+    background: rgba(255, 255, 255, 0.82);
+    border: 1.5px solid #BBF7D0;
+    border-radius: 26px;
+    box-shadow:
+        0 10px 28px rgba(27, 55, 33, 0.10),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+}
+
+/* Corola de pétalos que eclosiona detrás del ícono */
+.welcome-icon-wrap {
+    position: relative;
+    background: linear-gradient(135deg, #4ADE80, #F472B6);
+    box-shadow:
+        0 12px 28px rgba(34, 197, 94, 0.35),
+        0 4px 8px rgba(236, 72, 153, 0.25),
+        0 0 0 6px rgba(255, 255, 255, 0.9),
+        0 0 0 8px rgba(190, 242, 100, 0.35);
+}
+.welcome-icon-wrap::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 130px;
+    height: 130px;
+    transform: translate(-50%, -50%);
+    background: var(--theme-flor) center/contain no-repeat;
+    opacity: 0.55;
+    pointer-events: none;
+    z-index: -1;
+    animation: prim-eclosion 9s ease-in-out infinite;
+    filter: drop-shadow(0 4px 10px rgba(236, 72, 153, 0.30));
+}
+@keyframes prim-eclosion {
+    0%, 100% { transform: translate(-50%, -50%) scale(0.92) rotate(0deg); }
+    50%      { transform: translate(-50%, -50%) scale(1.06) rotate(18deg); }
+}
+
+/* ================================================================
+   2. HEADER — hojas brotando del borde inferior
+   ================================================================ */
+.app-header {
+    position: relative;
+    background: linear-gradient(180deg, #FFFFFF 0%, #F5FBF2 100%);
+    border-bottom: 1.5px solid #D5EBCC;
+}
+
+.app-header::before {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: 38%;
+    width: 24px;
+    height: 34px;
+    background: var(--theme-hoja) center/contain no-repeat;
+    transform-origin: 50% 100%;
+    pointer-events: none;
+    z-index: 1;
+    animation: prim-brote-sway 5.5s ease-in-out infinite;
+    filter: drop-shadow(0 3px 4px rgba(21, 128, 61, 0.25));
+}
+.app-header::after {
+    content: '';
+    position: absolute;
+    bottom: -17px;
+    right: 70px;
+    width: 19px;
+    height: 27px;
+    background: var(--theme-hoja) center/contain no-repeat;
+    transform-origin: 50% 100%;
+    pointer-events: none;
+    z-index: 1;
+    animation: prim-brote-sway 6.5s ease-in-out infinite 1.6s;
+    filter: drop-shadow(0 3px 4px rgba(21, 128, 61, 0.22));
+}
+@keyframes prim-brote-sway {
+    0%, 100% { transform: rotate(-7deg) translateY(0); }
+    50%      { transform: rotate(7deg) translateY(-2px); }
+}
+
+/* ================================================================
+   3. SIDEBAR — jardín vertical con campo floral tenue
+   ================================================================ */
+.sidebar {
+    position: relative;
+    background-image:
+        var(--theme-campo),
+        linear-gradient(180deg, #F0FDF4 0%, #E7F7E0 100%);
+    background-size: 200px 200px, auto;
+    background-position: 0 0, 0 0;
+    background-repeat: repeat, no-repeat;
+    border-right: 1.5px solid #BBF7D0;
+}
+.sidebar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background: rgba(240, 253, 244, 0.55);
+}
+.sidebar-comunidad,
+.sidebar-label,
+.sidebar-nav,
+.sidebar-mobile-header {
+    position: relative;
+    z-index: 1;
+}
+
+.nav-item.active::before {
+    background: linear-gradient(180deg, #4ADE80, #EC4899);
+    width: 4px;
+    border-radius: 0 4px 4px 0;
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.45);
+}
+.nav-item.active::after {
+    content: '';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    background: #F472B6;
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 2px rgba(249, 168, 212, 0.5),
+        0 0 8px rgba(236, 72, 153, 0.55);
+}
+
+@media (max-width: 768px) {
+    .sidebar { position: fixed; }
+}
+
+/* ================================================================
+   4. ACCESOS RÁPIDOS — cards con forma de hoja
+   ================================================================ */
+.acceso-item {
+    position: relative;
+    background: linear-gradient(145deg, #FFFFFF 0%, #F0FDF4 100%);
+    border: 1.5px solid #BBF7D0;
+    border-radius: 26px 8px 26px 8px;
+    box-shadow:
+        0 4px 12px rgba(22, 163, 74, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    overflow: visible;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Flor que asoma al hover */
+.acceso-item::after {
+    content: '';
+    position: absolute;
+    top: -16px;
+    right: -16px;
+    width: 40px;
+    height: 40px;
+    background: var(--theme-flor) center/contain no-repeat;
+    opacity: 0;
+    transform: scale(0.3) rotate(-30deg);
+    transition:
+        opacity 0.28s,
+        transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+    z-index: 3;
+    filter: drop-shadow(0 3px 6px rgba(190, 24, 93, 0.30));
+}
+.acceso-item:hover::after {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+}
+
+.acceso-item:hover {
+    border-color: #F9A8D4;
+    transform: translateY(-4px) rotate(-0.5deg);
+    box-shadow:
+        0 16px 28px rgba(236, 72, 153, 0.22),
+        0 6px 12px rgba(22, 163, 74, 0.14),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.acceso-icon-wrap {
+    background: linear-gradient(135deg, #DCFCE7, #F0FDF4);
+    border: 1.5px solid #BBF7D0;
+    color: var(--violet-600);
+    box-shadow:
+        inset 0 0 0 3px rgba(255, 255, 255, 0.7),
+        inset 0 0 0 4px rgba(249, 168, 212, 0.25);
+    transition: all 0.22s;
+}
+.acceso-item:hover .acceso-icon-wrap {
+    background: var(--accent-gradient);
+    border-color: #F9A8D4;
+    color: white;
+    box-shadow:
+        inset 0 0 0 3px rgba(255, 255, 255, 0.9),
+        0 8px 20px rgba(236, 72, 153, 0.40);
+    transform: scale(1.08) rotate(-4deg);
+}
+
+/* ================================================================
+   5. WIDGETS
+   ================================================================ */
+.widget-item {
+    border: 1.5px solid #BBF7D0;
+    border-radius: 26px 8px 26px 8px;
+    background: linear-gradient(160deg, #FFFFFF 0%, #F5FBF2 100%);
+    box-shadow:
+        0 8px 20px rgba(22, 163, 74, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    transition: all 0.22s;
+}
+.widget-item:hover {
+    border-color: #F9A8D4;
+    box-shadow:
+        0 12px 28px rgba(236, 72, 153, 0.18),
+        0 4px 10px rgba(22, 163, 74, 0.14);
+}
+
+/* ================================================================
+   6. PESTAÑAS — arcoíris de jardín
+   ================================================================ */
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 12px;
+    right: 12px;
+    height: 3px;
+    background: linear-gradient(90deg,
+        #4ADE80 0%,
+        #FDE047 30%,
+        #F9A8D4 60%,
+        #22C55E 100%);
+    border-radius: 3px 3px 0 0;
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.30);
+    pointer-events: none;
+}
+
+/* ================================================================
+   7. MODALES — marco de enredadera + flor esquinera
+   ================================================================ */
+.config-card,
+.modal-todas-card {
+    position: relative;
+    overflow: hidden;
+    border: 1.5px solid #BBF7D0;
+    border-radius: 20px;
+    box-shadow:
+        0 24px 48px rgba(27, 55, 33, 0.16),
+        0 4px 12px rgba(236, 72, 153, 0.10);
+}
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #4ADE80, #FDE047, #F9A8D4, #EC4899, #4ADE80);
+    pointer-events: none;
+    z-index: 3;
+}
+.config-card::after,
+.modal-todas-card::after {
+    content: '';
+    position: absolute;
+    top: -16px;
+    right: -16px;
+    width: 74px;
+    height: 74px;
+    background: var(--theme-flor) center/contain no-repeat;
+    opacity: 0.30;
+    pointer-events: none;
+    z-index: 4;
+    filter: drop-shadow(0 3px 6px rgba(190, 24, 93, 0.20));
+}
+
+.config-header,
+.modal-todas-header {
+    background: linear-gradient(180deg, #F0FDF4 0%, #E7F7E0 100%);
+}
+
+/* ================================================================
+   8. BOTÓN PRIMARIO
+   ================================================================ */
+.btn-primario {
+    box-shadow:
+        0 4px 12px rgba(34, 197, 94, 0.30),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+.btn-primario:hover {
+    box-shadow:
+        0 8px 20px rgba(236, 72, 153, 0.40),
+        0 0 0 3px rgba(190, 242, 100, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.30);
+}
+
+/* ================================================================
+   9. AVATAR Y NOTIFICACIONES
+   ================================================================ */
+.avatar-config {
+    background: linear-gradient(135deg, #4ADE80, #F472B6);
+    border: 2px solid var(--white);
+    box-shadow:
+        var(--shadow-sm),
+        0 0 0 1px var(--border),
+        0 0 0 3px rgba(249, 168, 212, 0.25);
+}
+.avatar-config:hover {
+    transform: translateY(-1px) scale(1.05);
+    box-shadow:
+        0 6px 16px rgba(236, 72, 153, 0.40),
+        0 0 0 1px #F9A8D4;
+}
+
+.noti-btn.tiene-no-leidas {
+    background: #FCE7F3;
+    color: #DB2777;
+}
+
+.search-bar:focus-within {
+    border-color: #86EFAC;
+    box-shadow: var(--shadow-glow);
+}
+
+/* ================================================================
+   10. prefers-reduced-motion
+   ================================================================ */
+@media (prefers-reduced-motion: reduce) {
+    .welcome-placeholder,
+    .welcome-placeholder::before,
+    .welcome-placeholder::after,
+    .welcome-icon-wrap::before,
+    .app-header::before,
+    .app-header::after {
+        animation: none !important;
+    }
+    .welcome-placeholder::before { background-position: 30% 40%; opacity: 0.7; }
+    .welcome-placeholder::after  { background-position: 70% 25%; opacity: 0.5; }
+}
