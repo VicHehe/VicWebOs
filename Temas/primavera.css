@@ -191,6 +191,16 @@
     50%      { transform: translate(-50%, -50%) scale(1.06) rotate(18deg); }
 }
 
+
+/* ------------------------------------------------------------
+   FIX — restaurar el tamaño del hero de presentación.
+   Libro y Wuu le dan cuerpo con padding generoso; sin esto
+   el bloque "Buenas tardes..." queda achicado.
+   ------------------------------------------------------------ */
+.welcome-hero {
+    padding: 3.5rem 2.5rem;
+}
+
 /* ================================================================
    2. HEADER — hojas brotando del borde inferior
    ================================================================ */
