@@ -1,0 +1,497 @@
+/* ================================================
+   Tema: Verano
+   Estaciones · 38 monedas
+
+   Playa al mediodía: sol que respira, palmeras
+   meciéndose con la brisa, olas animadas en el
+   header y arena salpicada de conchitas. Amarillo
+   sol + turquesa mar + coral sobre blanco arena.
+
+   Capas (justifican el precio):
+     · SVG pattern de conchas + estrellas de mar en lobby/sidebar
+     · Sol radial que late detrás del ícono del hero
+     · Palmeras gemelas cruzando el borde inferior del header
+     · Franja de olas animadas bajo el header (scroll infinito)
+     · Cards con forma de toalla de playa (rayas + sombra arena)
+     · Arena flotando a la deriva en el welcome
+   ================================================ */
+
+:root {
+    --violet-50:  #FEF9E7;
+    --violet-100: #FEF3C7;
+    --violet-200: #FDE68A;
+    --violet-300: #FCD34D;
+    --violet-400: #FBBF24;
+    --violet-500: #F59E0B;
+    --violet-600: #D97706;
+    --violet-700: #B45309;
+
+    --white:   #FFFFFF;
+    --bg:      #FFFCF4;
+    --bg-alt:  #FFF6E3;
+    --gray-50:  #FFFBF0;
+    --gray-100: #FDF2DA;
+    --gray-200: #F7E3B8;
+    --gray-300: #EAC98A;
+    --gray-400: #D3A25A;
+    --gray-500: #A97A3C;
+    --gray-600: #7D5A2C;
+    --gray-700: #5C421F;
+    --gray-800: #3E2C14;
+    --gray-900: #261B0C;
+
+    --border:  #F7E3B8;
+    --text:    #3E2C14;
+    --text-2:  #7D5A2C;
+    --text-3:  #A97A3C;
+
+    --shadow-xs: 0 1px 2px rgba(62, 44, 20, 0.05);
+    --shadow-sm: 0 1px 3px rgba(62, 44, 20, 0.07);
+    --shadow-md: 0 4px 12px rgba(62, 44, 20, 0.09);
+    --shadow-lg: 0 12px 32px rgba(62, 44, 20, 0.12);
+    --shadow-xl: 0 24px 48px rgba(62, 44, 20, 0.15);
+    --shadow-glow: 0 0 0 4px rgba(245, 158, 11, 0.16);
+
+    --accent-gradient: linear-gradient(135deg, #FBBF24, #06B6D4);
+    --accent-gradient-hover: linear-gradient(135deg, #F59E0B, #0891B2);
+    --accent-shadow: rgba(245, 158, 11, 0.32);
+    --accent-shadow-hover: rgba(6, 182, 212, 0.42);
+    --accent-text-gradient: linear-gradient(135deg, #B45309, #0891B2);
+
+    /* ---- TEXTURAS ---- */
+
+    /* Conchita abanico */
+    --theme-concha: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 50'%3E%3Cpath d='M30,46 C10,40 4,22 8,10 L30,4 L52,10 C56,22 50,40 30,46 Z' fill='%23FDE68A' opacity='0.75'/%3E%3Cpath d='M30,44 L30,6 M30,44 L16,12 M30,44 L44,12 M30,44 L9,22 M30,44 L51,22' stroke='%23D97706' stroke-width='0.8' opacity='0.5' fill='none'/%3E%3Cpath d='M12,14 Q30,4 48,14' stroke='%23F97316' stroke-width='1.2' fill='none' opacity='0.4'/%3E%3C/svg%3E");
+
+    /* Estrella de mar coral */
+    --theme-estrella-mar: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cpath d='M30,4 L37,22 L56,22 L41,34 L47,53 L30,41 L13,53 L19,34 L4,22 L23,22 Z' fill='%23FB7185' opacity='0.7'/%3E%3Ccircle cx='30' cy='30' r='3' fill='%23FEE2E2' opacity='0.8'/%3E%3C/svg%3E");
+
+    /* Palmera: tronco curvo + 5 hojas */
+    --theme-palmera: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 160'%3E%3Cpath d='M58,158 C56,120 54,90 62,62' stroke='%23A16207' stroke-width='7' fill='none' stroke-linecap='round'/%3E%3Cpath d='M58,158 C56,120 54,90 62,62' stroke='%23CA8A04' stroke-width='4' fill='none' stroke-linecap='round'/%3E%3Cg transform='translate(62 60)'%3E%3Cpath d='M0,0 C-24,-14 -46,-10 -56,4 C-40,-2 -20,-2 0,4 Z' fill='%2316A34A' opacity='0.85'/%3E%3Cpath d='M0,0 C24,-14 46,-10 56,4 C40,-2 20,-2 0,4 Z' fill='%2315803D' opacity='0.85'/%3E%3Cpath d='M0,0 C-16,-26 -36,-34 -52,-30 C-34,-24 -16,-14 -2,-2 Z' fill='%2322C55E' opacity='0.8'/%3E%3Cpath d='M0,0 C16,-26 36,-34 52,-30 C34,-24 16,-14 2,-2 Z' fill='%2316A34A' opacity='0.8'/%3E%3Cpath d='M0,0 C-4,-28 2,-42 12,-48 C6,-32 4,-16 2,-2 Z' fill='%234ADE80' opacity='0.85'/%3E%3Ccircle cx='-6' cy='6' r='4' fill='%23854D0E'/%3E%3Ccircle cx='6' cy='8' r='4' fill='%23713F12'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* Ola: cresta con espuma */
+    --theme-ola: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 24' preserveAspectRatio='none'%3E%3Cpath d='M0,16 Q15,4 30,16 T60,16 T90,16 T120,16 L120,24 L0,24 Z' fill='%2322D3EE' opacity='0.55'/%3E%3Cpath d='M0,19 Q15,9 30,19 T60,19 T90,19 T120,19' stroke='%23FFFFFF' stroke-width='2' fill='none' opacity='0.8'/%3E%3C/svg%3E");
+
+    /* Tile playero: conchas, estrellas y granos */
+    --theme-playa: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'%3E%3Cg transform='translate(45 50) scale(0.5) rotate(-12)'%3E%3Cpath d='M30,46 C10,40 4,22 8,10 L30,4 L52,10 C56,22 50,40 30,46 Z' fill='%23FCD34D' opacity='0.5'/%3E%3Cpath d='M30,44 L30,6 M30,44 L16,12 M30,44 L44,12' stroke='%23D97706' stroke-width='1.4' opacity='0.4' fill='none'/%3E%3C/g%3E%3Cg transform='translate(170 90) scale(0.42) rotate(24)'%3E%3Cpath d='M30,4 L37,22 L56,22 L41,34 L47,53 L30,41 L13,53 L19,34 L4,22 L23,22 Z' fill='%23FB7185' opacity='0.45'/%3E%3C/g%3E%3Cg transform='translate(90 185) scale(0.38) rotate(8)'%3E%3Cpath d='M30,46 C10,40 4,22 8,10 L30,4 L52,10 C56,22 50,40 30,46 Z' fill='%23FDE68A' opacity='0.55'/%3E%3C/g%3E%3Cg transform='translate(205 195) scale(0.3) rotate(-20)'%3E%3Cpath d='M30,4 L37,22 L56,22 L41,34 L47,53 L30,41 L13,53 L19,34 L4,22 L23,22 Z' fill='%23F97316' opacity='0.4'/%3E%3C/g%3E%3Ccircle cx='130' cy='40' r='2.4' fill='%23F59E0B' opacity='0.4'/%3E%3Ccircle cx='20' cy='130' r='2' fill='%2322D3EE' opacity='0.35'/%3E%3Ccircle cx='150' cy='140' r='2.2' fill='%23FB7185' opacity='0.35'/%3E%3Ccircle cx='225' cy='60' r='1.8' fill='%23F59E0B' opacity='0.4'/%3E%3C/svg%3E");
+}
+
+/* ================================================================
+   1. WELCOME — arena playera con sol respirando
+   ================================================================ */
+.welcome-placeholder {
+    position: relative;
+    background-image:
+        var(--theme-playa),
+        radial-gradient(ellipse at top, rgba(253, 224, 71, 0.28) 0%, transparent 45%),
+        radial-gradient(ellipse at bottom, rgba(165, 243, 252, 0.22) 0%, transparent 50%),
+        linear-gradient(180deg, #FFFCF4 0%, #FFF6E3 100%);
+    background-size: 240px 240px, auto, auto, auto;
+    background-repeat: repeat, no-repeat, no-repeat, no-repeat;
+    animation: vera-arena-deriva 70s linear infinite;
+}
+@keyframes vera-arena-deriva {
+    0%   { background-position: 0 0, 0 0, 0 0, 0 0; }
+    100% { background-position: -240px 120px, 0 0, 0 0, 0 0; }
+}
+
+.welcome-hero,
+.welcome-section {
+    position: relative;
+    z-index: 2;
+}
+
+.welcome-glow {
+    background: radial-gradient(
+        circle,
+        rgba(251, 191, 36, 0.28) 0%,
+        rgba(253, 224, 71, 0.12) 40%,
+        transparent 68%
+    );
+}
+
+.welcome-hero {
+    background: rgba(255, 253, 247, 0.88);
+    border: 1.5px solid #FDE68A;
+    border-radius: 24px;
+    box-shadow:
+        0 10px 28px rgba(62, 44, 20, 0.10),
+        inset 0 0 40px rgba(253, 224, 71, 0.10);
+}
+
+/* Sol radiante detrás del ícono: corona con destellos */
+.welcome-icon-wrap {
+    position: relative;
+    background: linear-gradient(135deg, #FBBF24, #FB7185);
+    box-shadow:
+        0 12px 28px rgba(245, 158, 11, 0.45),
+        0 4px 8px rgba(251, 113, 133, 0.25),
+        0 0 0 6px rgba(255, 255, 255, 0.92),
+        0 0 0 9px rgba(253, 224, 71, 0.35);
+    animation: vera-sol-late 4.5s ease-in-out infinite;
+}
+@keyframes vera-sol-late {
+    0%, 100% {
+        box-shadow:
+            0 12px 28px rgba(245, 158, 11, 0.45),
+            0 4px 8px rgba(251, 113, 133, 0.25),
+            0 0 0 6px rgba(255, 255, 255, 0.92),
+            0 0 0 9px rgba(253, 224, 71, 0.35);
+    }
+    50% {
+        box-shadow:
+            0 12px 32px rgba(245, 158, 11, 0.60),
+            0 4px 8px rgba(251, 113, 133, 0.30),
+            0 0 0 6px rgba(255, 255, 255, 0.92),
+            0 0 0 13px rgba(253, 224, 71, 0.22),
+            0 0 44px rgba(251, 191, 36, 0.45);
+    }
+}
+
+/* Rayos de sol girando lento alrededor del ícono */
+.welcome-icon-wrap::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 140px;
+    height: 140px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: repeating-conic-gradient(
+        from 0deg,
+        rgba(251, 191, 36, 0.22) 0deg 8deg,
+        transparent 8deg 30deg
+    );
+    -webkit-mask: radial-gradient(circle, transparent 46px, #000 48px, #000 68px, transparent 70px);
+    mask: radial-gradient(circle, transparent 46px, #000 48px, #000 68px, transparent 70px);
+    pointer-events: none;
+    z-index: -1;
+    animation: vera-rayos 40s linear infinite;
+}
+@keyframes vera-rayos {
+    0%   { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ================================================================
+   2. HEADER — palmeras + franja de olas animadas
+   ================================================================ */
+.app-header {
+    position: relative;
+    background: linear-gradient(180deg, #FFFFFF 0%, #FFFBF0 100%);
+    border-bottom: 1.5px solid #FDE68A;
+}
+
+/* Olas que corren por debajo del header */
+.app-header::before {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    left: 0;
+    right: 0;
+    height: 24px;
+    background: var(--theme-ola) repeat-x;
+    background-size: 120px 24px;
+    pointer-events: none;
+    z-index: 1;
+    animation: vera-olas 7s linear infinite;
+}
+@keyframes vera-olas {
+    0%   { background-position: 0 0; }
+    100% { background-position: 240px 0; }
+}
+
+/* Palmera asomando desde la esquina derecha */
+.app-header::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    right: 34px;
+    width: 52px;
+    height: 70px;
+    background: var(--theme-palmera) center/contain no-repeat;
+    transform-origin: 50% 100%;
+    pointer-events: none;
+    z-index: 2;
+    animation: vera-brisa 6s ease-in-out infinite;
+    filter: drop-shadow(0 4px 6px rgba(62, 44, 20, 0.20));
+}
+@keyframes vera-brisa {
+    0%, 100% { transform: rotate(-4deg); }
+    50%      { transform: rotate(4deg); }
+}
+
+/* Segunda palmera, más chica, al otro lado (en tabs de sesión si existe) */
+.sidebar {
+    position: relative;
+    background-image:
+        var(--theme-playa),
+        linear-gradient(180deg, #FFFBF0 0%, #FDF2DA 100%);
+    background-size: 210px 210px, auto;
+    background-position: 0 0, 0 0;
+    background-repeat: repeat, no-repeat;
+    border-right: 1.5px solid #FDE68A;
+}
+.sidebar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background: rgba(255, 251, 240, 0.55);
+}
+.sidebar::after {
+    content: '';
+    position: absolute;
+    bottom: 14px;
+    left: 10%;
+    width: 40px;
+    height: 54px;
+    background: var(--theme-palmera) center/contain no-repeat;
+    transform-origin: 50% 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+    animation: vera-brisa 7.5s ease-in-out infinite 1s;
+}
+.sidebar-comunidad,
+.sidebar-label,
+.sidebar-nav,
+.sidebar-mobile-header {
+    position: relative;
+    z-index: 1;
+}
+
+.nav-item.active::before {
+    background: linear-gradient(180deg, #FBBF24, #06B6D4);
+    width: 4px;
+    border-radius: 0 4px 4px 0;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+}
+.nav-item.active::after {
+    content: '';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 9px;
+    height: 9px;
+    background: #06B6D4;
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    filter: drop-shadow(0 0 4px rgba(6, 182, 212, 0.6));
+}
+
+@media (max-width: 768px) {
+    .sidebar { position: fixed; }
+}
+
+/* ================================================================
+   4. ACCESOS RÁPIDOS — toallas de playa rayadas
+   ================================================================ */
+.acceso-item {
+    position: relative;
+    background:
+        repeating-linear-gradient(
+            -45deg,
+            #FFFFFF 0px, #FFFFFF 14px,
+            #FEF3C7 14px, #FEF3C7 22px,
+            #CCFBF1 22px, #CCFBF1 30px
+        );
+    border: 1.5px solid #FDE68A;
+    border-radius: 14px;
+    box-shadow:
+        0 4px 12px rgba(62, 44, 20, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    overflow: visible;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Flecos de la toalla aparecen al hover */
+.acceso-item::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 12%;
+    right: 12%;
+    height: 8px;
+    background: repeating-linear-gradient(
+        90deg,
+        #F59E0B 0px, #F59E0B 2px,
+        transparent 2px, transparent 7px
+    );
+    opacity: 0;
+    transform: scaleY(0.3);
+    transform-origin: top;
+    transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+    z-index: 3;
+}
+.acceso-item:hover::after {
+    opacity: 0.85;
+    transform: scaleY(1);
+}
+
+.acceso-item:hover {
+    border-color: #22D3EE;
+    transform: translateY(-4px) rotate(0.4deg);
+    box-shadow:
+        0 16px 28px rgba(6, 182, 212, 0.22),
+        0 6px 12px rgba(245, 158, 11, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.acceso-icon-wrap {
+    background: linear-gradient(135deg, #FEF3C7, #CFFAFE);
+    border: 1.5px solid #FDE68A;
+    color: var(--violet-600);
+    box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.75);
+    transition: all 0.22s;
+}
+.acceso-item:hover .acceso-icon-wrap {
+    background: var(--accent-gradient);
+    border-color: #22D3EE;
+    color: white;
+    box-shadow:
+        inset 0 0 0 3px rgba(255, 255, 255, 0.9),
+        0 8px 20px rgba(6, 182, 212, 0.40);
+    transform: scale(1.08) rotate(4deg);
+}
+
+/* ================================================================
+   5. WIDGETS — carpeta de playa
+   ================================================================ */
+.widget-item {
+    border: 1.5px solid #FDE68A;
+    border-radius: 16px;
+    background: linear-gradient(165deg, #FFFFFF 0%, #FFF9EA 60%, #ECFEFF 100%);
+    box-shadow:
+        0 8px 20px rgba(62, 44, 20, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    transition: all 0.22s;
+}
+.widget-item:hover {
+    border-color: #22D3EE;
+    box-shadow:
+        0 12px 28px rgba(6, 182, 212, 0.18),
+        0 4px 10px rgba(245, 158, 11, 0.15);
+}
+
+/* ================================================================
+   6. PESTAÑAS — horizonte sol-mar
+   ================================================================ */
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 12px;
+    right: 12px;
+    height: 3px;
+    background: linear-gradient(90deg, #FBBF24 0%, #FB7185 45%, #22D3EE 100%);
+    border-radius: 3px 3px 0 0;
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
+    pointer-events: none;
+}
+
+/* ================================================================
+   7. MODALES — marco playero + conchita esquinera
+   ================================================================ */
+.config-card,
+.modal-todas-card {
+    position: relative;
+    overflow: hidden;
+    border: 1.5px solid #FDE68A;
+    border-radius: 20px;
+    box-shadow:
+        0 24px 48px rgba(62, 44, 20, 0.16),
+        0 4px 12px rgba(245, 158, 11, 0.10);
+}
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #FBBF24, #FB7185, #22D3EE, #4ADE80, #FBBF24);
+    pointer-events: none;
+    z-index: 3;
+}
+.config-card::after,
+.modal-todas-card::after {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    right: -10px;
+    width: 70px;
+    height: 58px;
+    background: var(--theme-concha) center/contain no-repeat;
+    opacity: 0.35;
+    pointer-events: none;
+    z-index: 4;
+    filter: drop-shadow(0 3px 6px rgba(217, 119, 6, 0.25));
+}
+
+.config-header,
+.modal-todas-header {
+    background: linear-gradient(180deg, #FFFBF0 0%, #FDF2DA 100%);
+}
+
+/* ================================================================
+   8. BOTÓN PRIMARIO
+   ================================================================ */
+.btn-primario {
+    box-shadow:
+        0 4px 12px rgba(245, 158, 11, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+.btn-primario:hover {
+    box-shadow:
+        0 8px 20px rgba(6, 182, 212, 0.40),
+        0 0 0 3px rgba(253, 224, 71, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.30);
+}
+
+/* ================================================================
+   9. AVATAR Y NOTIFICACIONES
+   ================================================================ */
+.avatar-config {
+    background: linear-gradient(135deg, #FBBF24, #06B6D4);
+    border: 2px solid var(--white);
+    box-shadow:
+        var(--shadow-sm),
+        0 0 0 1px var(--border),
+        0 0 0 3px rgba(251, 191, 36, 0.25);
+}
+.avatar-config:hover {
+    transform: translateY(-1px) scale(1.05);
+    box-shadow:
+        0 6px 16px rgba(6, 182, 212, 0.40),
+        0 0 0 1px #22D3EE;
+}
+
+.noti-btn.tiene-no-leidas {
+    background: #FEF3C7;
+    color: #D97706;
+}
+
+.search-bar:focus-within {
+    border-color: #FBBF24;
+    box-shadow: var(--shadow-glow);
+}
+
+/* ================================================================
+   10. prefers-reduced-motion
+   ================================================================ */
+@media (prefers-reduced-motion: reduce) {
+    .welcome-placeholder,
+    .welcome-icon-wrap,
+    .welcome-icon-wrap::before,
+    .app-header::before,
+    .app-header::after,
+    .sidebar::after {
+        animation: none !important;
+    }
+    .app-header::before { opacity: 0.7; }
+}
