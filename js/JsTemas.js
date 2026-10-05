@@ -1019,7 +1019,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Estaciones',
         ruta: 'Temas/verano.css',
         espacio: 4,
-        monedas: 38,
+        monedas: 40,
         colores: {
             '--violet-100': '#FEF3C7',
             '--violet-300': '#FCD34D',
