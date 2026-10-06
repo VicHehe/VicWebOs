@@ -1,12 +1,10 @@
 // ============================================================
 //  Widget: SillyGif
-//  Sube UN gif (máx. 2 MB) directamente en el widget y lo reproduce.
-//  Solo 1 GIF por usuario: subir uno nuevo REEMPLAZA al anterior
-//  (misma ruta), así la BD nunca acumula gifs.
+//  Sube UN gif (máx. 2 MB) y lo reproduce.
+//  Sube DIRECTO a GitHub (Contents API), sin pasar por ConfigBD.
+//  1 GIF por usuario: misma ruta → subir otro lo REEMPLAZA.
 //
-//  Persistencia POR USUARIO en (BD GitHub vía ConfigBD):
-//      app/silly-gif/{codigo}silly-gif.gif   ← el archivo
-//      app/silly-gif/{codigo}silly-gif.json  ← metadatos
+//      app/silly-gif/{codigo}silly-gif.gif
 // ============================================================
 
 'use strict';
@@ -15,12 +13,11 @@ const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const CARPETA      = 'app/silly-gif/';
 const MAX_BYTES    = 2 * 1024 * 1024;   // 2 MB
 
-let gifMeta   = null;   // { nombre, tamano, actualizado } o null
-let urlActual = null;   // blob URL mostrándose ahora
-let ocupado   = false;
+let urlActual    = null;    // blob URL del gif mostrado (null = no hay)
+let errorCarga   = false;
+let ocupado      = false;
 
 const API = () => window.parent.__vicwebos || null;
-const BD  = () => window.parent.ConfigBD   || null;
 
 // ------------------------------------------------------------
 //  Tema
@@ -54,16 +51,112 @@ window.addEventListener('message', (e) => {
 });
 
 // ------------------------------------------------------------
-//  Rutas por usuario
+//  Ruta por usuario
 // ------------------------------------------------------------
-function codigoUsuario() {
+function rutaGif() {
     const api = API();
     if (!api) return null;
     const cuenta = api.obtenerCuenta();
-    return (cuenta && cuenta.codigo) ? cuenta.codigo : null;
+    if (!cuenta || !cuenta.codigo) return null;
+    return `${CARPETA}${cuenta.codigo}silly-gif.gif`;
 }
-function rutaGif()  { const c = codigoUsuario(); return c ? `${CARPETA}${c}silly-gif.gif`  : null; }
-function rutaMeta() { const c = codigoUsuario(); return c ? `${CARPETA}${c}silly-gif.json` : null; }
+
+// ------------------------------------------------------------
+//  GitHub directo (sin ConfigBD)
+//  Solo lee token/owner/repo de la comunidad activa.
+// ------------------------------------------------------------
+function configGitHub() {
+    const fn = window.parent.cargarConfigBD;
+    const c = (typeof fn === 'function') ? fn() : null;
+    if (!c || !c.githubToken || !c.githubOwner || !c.githubRepo) return null;
+    return c;
+}
+
+function ghUrl(c, ruta) {
+    const p = ruta.split('/').map(encodeURIComponent).join('/');
+    return `https://api.github.com/repos/${c.githubOwner}/${c.githubRepo}/contents/${p}`;
+}
+
+function ghHeaders(c, extra = {}) {
+    return {
+        'Authorization': `Bearer ${c.githubToken}`,
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        ...extra
+    };
+}
+
+const esperar = (ms) => new Promise(r => setTimeout(r, ms));
+
+// sha actual del archivo (null si no existe). SIN caché del navegador.
+// Se usa el media type "object" porque funciona también con archivos > 1 MB.
+async function ghObtenerSha(c, ruta) {
+    const res = await fetch(ghUrl(c, ruta), {
+        headers: ghHeaders(c, { 'Accept': 'application/vnd.github.object+json' }),
+        cache: 'no-store'
+    });
+    if (res.status === 404) return null;
+    if (!res.ok) throw new Error(`No se pudo consultar GitHub (${res.status}).`);
+    const data = await res.json();
+    return data.sha || null;
+}
+
+function archivoABase64(file) {
+    return new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload  = () => resolve(String(r.result).split(',')[1]);
+        r.onerror = () => reject(new Error('No se pudo leer el archivo.'));
+        r.readAsDataURL(file);
+    });
+}
+
+async function ghSubir(c, ruta, file) {
+    const content = await archivoABase64(file);
+
+    for (let intento = 1; intento <= 3; intento++) {
+        const sha = await ghObtenerSha(c, ruta);   // fresco en cada intento
+        const res = await fetch(ghUrl(c, ruta), {
+            method: 'PUT',
+            headers: ghHeaders(c, { 'Content-Type': 'application/json' }),
+            body: JSON.stringify({
+                message: 'SillyGif: subir gif',
+                content,
+                ...(sha ? { sha } : {})
+            })
+        });
+        if (res.ok) return;
+
+        const err = await res.json().catch(() => ({}));
+        const conflicto = res.status === 409 || res.status === 422;
+        if (conflicto && intento < 3) { await esperar(400 * intento); continue; }
+        throw new Error(err.message || `Error subiendo el GIF (${res.status}).`);
+    }
+}
+
+async function ghLeerBlob(c, ruta) {
+    const res = await fetch(ghUrl(c, ruta), {
+        headers: ghHeaders(c, { 'Accept': 'application/vnd.github.raw' }),
+        cache: 'no-store'
+    });
+    if (res.status === 404) return null;
+    if (!res.ok) throw new Error(`No se pudo leer el GIF (${res.status}).`);
+    const blob = await res.blob();
+    return new Blob([blob], { type: 'image/gif' });
+}
+
+async function ghBorrar(c, ruta) {
+    const sha = await ghObtenerSha(c, ruta);
+    if (!sha) return;   // ya no existía
+    const res = await fetch(ghUrl(c, ruta), {
+        method: 'DELETE',
+        headers: ghHeaders(c, { 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ message: 'SillyGif: borrar gif', sha })
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || `No se pudo borrar el GIF (${res.status}).`);
+    }
+}
 
 // ------------------------------------------------------------
 //  Utilidades
@@ -87,8 +180,7 @@ function liberarURL() {
     if (urlActual) { URL.revokeObjectURL(urlActual); urlActual = null; }
 }
 
-// Verifica que realmente sea un GIF (cabecera GIF87a / GIF89a),
-// no solo que la extensión diga .gif
+// Verifica la cabecera real (GIF87a / GIF89a), no solo la extensión
 async function esGifReal(file) {
     try {
         const buf = new Uint8Array(await file.slice(0, 6).arrayBuffer());
@@ -97,7 +189,6 @@ async function esGifReal(file) {
     } catch (e) { return false; }
 }
 
-// Devuelve un mensaje de error o null si el archivo es válido
 async function validar(file) {
     if (!file) return 'No se seleccionó ningún archivo.';
     if (file.size === 0) return 'El archivo está vacío.';
@@ -109,29 +200,21 @@ async function validar(file) {
 }
 
 // ------------------------------------------------------------
-//  Cargar metadatos
+//  Cargar el gif guardado (si hay)
 // ------------------------------------------------------------
 async function cargar() {
-    const bd = BD();
-    const ruta = rutaMeta();
-    if (!bd || !ruta) return;
+    errorCarga = false;
+    const c = configGitHub();
+    const ruta = rutaGif();
+    if (!c || !ruta) return;   // sin conexión → se muestra vacío
     try {
-        const data = await bd.leerArchivo(ruta);
-        gifMeta = (data && data.tiene) ? data : null;
-    } catch (e) { gifMeta = null; }
-}
-
-async function guardarMeta(meta) {
-    const bd = BD();
-    const ruta = rutaMeta();
-    if (!bd || !ruta) throw new Error('Sin conexión con la base de datos.');
-    await bd.escribirArchivo(ruta, {
-        version: 1,
-        tiene: !!meta,
-        nombre: meta ? meta.nombre : null,
-        tamano: meta ? meta.tamano : null,
-        actualizado: new Date().toISOString()
-    });
+        const blob = await ghLeerBlob(c, ruta);
+        liberarURL();
+        if (blob) urlActual = URL.createObjectURL(blob);
+    } catch (e) {
+        console.warn('[SillyGif] No se pudo cargar:', e);
+        errorCarga = true;
+    }
 }
 
 // ------------------------------------------------------------
@@ -151,58 +234,47 @@ async function subirGif(file) {
     const error = await validar(file);
     if (error) { mostrarError(error); return; }
 
-    const bd = BD();
+    const c = configGitHub();
     const ruta = rutaGif();
-    if (!bd || !ruta) { mostrarError('No se pudo conectar con tu cuenta.'); return; }
-    if (typeof bd.estaConectado === 'function' && !bd.estaConectado()) {
-        mostrarError('Conecta una comunidad primero.');
-        return;
-    }
+    if (!ruta) { mostrarError('No se pudo identificar tu cuenta.'); return; }
+    if (!c)    { mostrarError('Conecta una comunidad primero.'); return; }
 
     ocupado = true;
     renderSubiendo();
 
     try {
-        // Misma ruta SIEMPRE → reemplaza el gif anterior (1 por usuario)
-        await bd.subirArchivo(ruta, file);
-
-        const meta = { nombre: file.name, tamano: file.size };
-        await guardarMeta(meta);
-        gifMeta = meta;
-
-        // Mostramos el archivo local: ahorra volver a descargarlo
+        await ghSubir(c, ruta, file);   // misma ruta → reemplaza el anterior
         liberarURL();
-        urlActual = URL.createObjectURL(file);
+        urlActual = URL.createObjectURL(file);   // sin volver a descargar
+        errorCarga = false;
     } catch (e) {
         console.warn('[SillyGif] Error subiendo:', e);
         mostrarError(e && e.message ? e.message : 'No se pudo subir el GIF.');
     } finally {
         ocupado = false;
-        await render();
+        render();
     }
 }
 
 async function borrarGif() {
-    if (ocupado || !gifMeta) return;
+    if (ocupado || !urlActual) return;
     if (!confirm('¿Borrar tu GIF?')) return;
 
-    const bd = BD();
+    const c = configGitHub();
     const ruta = rutaGif();
-    if (!bd || !ruta) return;
+    if (!c || !ruta) return;
 
     ocupado = true;
     mostrarError(null);
     try {
-        await bd.eliminarArchivo(ruta);
-        await guardarMeta(null);
-        gifMeta = null;
+        await ghBorrar(c, ruta);
         liberarURL();
     } catch (e) {
         console.warn('[SillyGif] Error borrando:', e);
         mostrarError(e && e.message ? e.message : 'No se pudo borrar el GIF.');
     } finally {
         ocupado = false;
-        await render();
+        render();
     }
 }
 
@@ -210,9 +282,8 @@ async function borrarGif() {
 //  Render
 // ------------------------------------------------------------
 function renderSubiendo() {
-    const zona = document.getElementById('sgZona');
     document.getElementById('sgAcciones').hidden = true;
-    zona.innerHTML = `
+    document.getElementById('sgZona').innerHTML = `
         <div class="sg-empty">
             <div class="sg-spinner"></div>
             <p>Subiendo GIF...</p>
@@ -220,13 +291,39 @@ function renderSubiendo() {
     `;
 }
 
-async function render() {
+function renderCargando() {
+    document.getElementById('sgAcciones').hidden = true;
+    document.getElementById('sgZona').innerHTML = `<div class="sg-cargando"></div>`;
+}
+
+function render() {
     const zona = document.getElementById('sgZona');
     const acciones = document.getElementById('sgAcciones');
     if (!zona) return;
 
+    // --- Error al cargar ---
+    if (errorCarga) {
+        acciones.hidden = true;
+        zona.innerHTML = `
+            <div class="sg-empty">
+                <p>No se pudo cargar el GIF.</p>
+                <button class="sg-btn" id="sgBtnReintentar">
+                    <i data-lucide="refresh-cw"></i>
+                    Reintentar
+                </button>
+            </div>
+        `;
+        if (window.lucide) window.lucide.createIcons();
+        document.getElementById('sgBtnReintentar')?.addEventListener('click', async () => {
+            renderCargando();
+            await cargar();
+            render();
+        });
+        return;
+    }
+
     // --- Sin gif ---
-    if (!gifMeta) {
+    if (!urlActual) {
         acciones.hidden = true;
         zona.innerHTML = `
             <div class="sg-empty sg-drop" id="sgDrop">
@@ -248,40 +345,14 @@ async function render() {
 
     // --- Con gif ---
     acciones.hidden = false;
-
-    // Si no tenemos la URL en memoria (ej. recarga), descargarlo de la BD
-    if (!urlActual) {
-        zona.innerHTML = `<div class="sg-cargando"></div>`;
-        try {
-            const bd = BD();
-            const url = await bd.leerArchivoBinarioComoURL(rutaGif());
-            if (!url) throw new Error('sin url');
-            urlActual = url;
-        } catch (e) {
-            console.warn('[SillyGif] No se pudo cargar el gif:', e);
-            zona.innerHTML = `
-                <div class="sg-empty">
-                    <p>No se pudo cargar el GIF.</p>
-                    <button class="sg-btn" id="sgBtnReintentar">
-                        <i data-lucide="refresh-cw"></i>
-                        Reintentar
-                    </button>
-                </div>
-            `;
-            if (window.lucide) window.lucide.createIcons();
-            document.getElementById('sgBtnReintentar')?.addEventListener('click', render);
-            return;
-        }
-    }
-
     zona.innerHTML = `<img class="sg-gif" id="sgGif" alt="GIF">`;
     document.getElementById('sgGif').src = urlActual;
-    // OJO: no revocamos el blob al cargar (se revoca al cambiar/borrar),
+    // No se revoca el blob al cargar: se revoca al cambiar/borrar,
     // para que el GIF siga animándose sin problemas.
 }
 
 // ------------------------------------------------------------
-//  Drag & drop (solo cuando no hay gif)
+//  Drag & drop
 // ------------------------------------------------------------
 function iniciarDragDrop() {
     const zona = document.getElementById('sgZona');
@@ -313,8 +384,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     iniciarDragDrop();
 
+    renderCargando();
     await cargar();
-    await render();
+    render();
 
     if (window.lucide) window.lucide.createIcons();
 });
