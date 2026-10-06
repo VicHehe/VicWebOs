@@ -71,6 +71,17 @@ const WIDGETS_DISPONIBLES = [
         espacio: 2,
         monedas: 5
     },
+    {
+id: 'silly-gif',
+nombre: 'SillyGif',
+icono: 'film',
+ruta: 'Widgets/silly-gif/index.html',
+descripcion: 'Sube un GIF animado (máx. 2 MB) y decora tu escritorio. Solo 1 a la vez.',
+categoria: 'Personalización',
+esBase: false,
+espacio: 2,
+monedas: 10
+},
         {
         id: 'cara-cruz',
         nombre: 'Cara o Cruz',
