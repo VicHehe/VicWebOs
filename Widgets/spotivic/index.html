@@ -19,40 +19,72 @@
                 <span>Spotivic</span>
                 <span class="sv-contador" id="svContador">0/4</span>
             </div>
-            <button class="sv-icon-btn" id="svBtnAgregar" title="Añadir canciones">
-                <i data-lucide="plus"></i>
+            <button class="sv-icon-btn" id="svBtnConfig" title="Mis canciones">
+                <i data-lucide="settings-2"></i>
             </button>
         </div>
 
-        <div class="sv-player">
-            <div class="sv-disco" id="svDisco"><i data-lucide="music-2"></i></div>
-            <div class="sv-info">
-                <div class="sv-nombre" id="svNombre">Nada sonando</div>
-                <div class="sv-sub" id="svSub">Sube tus canciones MP3</div>
+        <!-- ESTADO VACÍO -->
+        <div class="sv-vacio" id="svVacio" hidden>
+            <div class="sv-vacio-icono"><i data-lucide="music"></i></div>
+            <p>Aún no tienes canciones</p>
+            <button class="sv-btn" id="svBtnVacioAnadir">
+                <i data-lucide="upload"></i>
+                Añadir MP3
+            </button>
+            <small>Hasta 4 canciones</small>
+        </div>
+
+        <!-- REPRODUCTOR -->
+        <div class="sv-cuerpo" id="svCuerpo" hidden>
+            <div class="sv-player">
+                <div class="sv-disco" id="svDisco"></div>
+                <div class="sv-info">
+                    <div class="sv-nombre" id="svNombre">Nada sonando</div>
+                    <div class="sv-sub" id="svSub">Elige una canción</div>
+                </div>
             </div>
-        </div>
 
-        <div class="sv-progreso">
-            <span id="svTActual">0:00</span>
-            <input type="range" class="sv-range" id="svSeek" min="0" max="1000" value="0" step="1">
-            <span id="svTTotal">0:00</span>
-        </div>
-
-        <div class="sv-controles">
-            <button class="sv-ctrl" id="svBtnRepetir" title="Repetir esta canción"><i data-lucide="repeat-1"></i></button>
-            <button class="sv-ctrl" id="svBtnPrev" title="Anterior"><i data-lucide="skip-back"></i></button>
-            <button class="sv-ctrl sv-ctrl-play" id="svBtnPlay" title="Reproducir / Pausa"><i data-lucide="play"></i></button>
-            <button class="sv-ctrl" id="svBtnNext" title="Siguiente"><i data-lucide="skip-forward"></i></button>
-            <div class="sv-vol">
-                <button class="sv-ctrl" id="svBtnMute" title="Silenciar"><i data-lucide="volume-2"></i></button>
-                <input type="range" class="sv-range sv-range-vol" id="svVol" min="0" max="100" value="80">
+            <div class="sv-progreso">
+                <span id="svTActual">0:00</span>
+                <input type="range" class="sv-range" id="svSeek" min="0" max="1000" value="0" step="1">
+                <span id="svTTotal">0:00</span>
             </div>
-        </div>
 
-        <div class="sv-lista" id="svLista"></div>
-        <div class="sv-msg" id="svMsg" hidden></div>
+            <div class="sv-controles">
+                <button class="sv-ctrl" id="svBtnRepetir" title="Repetir esta canción"><i data-lucide="repeat-1"></i></button>
+                <button class="sv-ctrl" id="svBtnPrev" title="Anterior"><i data-lucide="skip-back"></i></button>
+                <button class="sv-ctrl sv-ctrl-play" id="svBtnPlay" title="Reproducir / Pausa"><i data-lucide="play"></i></button>
+                <button class="sv-ctrl" id="svBtnNext" title="Siguiente"><i data-lucide="skip-forward"></i></button>
+                <div class="sv-vol">
+                    <button class="sv-ctrl" id="svBtnMute" title="Silenciar"><i data-lucide="volume-2"></i></button>
+                    <input type="range" class="sv-range sv-range-vol" id="svVol" min="0" max="100" value="80">
+                </div>
+            </div>
+
+            <div class="sv-puntos" id="svPuntos"></div>
+        </div>
     </div>
 
+    <!-- MODAL: Mis canciones (pantalla completa) -->
+    <div class="sv-modal" id="svModal" hidden>
+        <div class="sv-modal-header">
+            <h3>Mis canciones <span class="sv-contador" id="svModalContador">0/4</span></h3>
+            <button class="sv-icon-btn" id="svModalCerrar" title="Cerrar"><i data-lucide="x"></i></button>
+        </div>
+
+        <div class="sv-modal-lista" id="svModalLista"></div>
+
+        <div class="sv-modal-footer">
+            <button class="sv-btn sv-btn-full" id="svBtnAnadirModal">
+                <i data-lucide="upload"></i>
+                Añadir MP3
+            </button>
+            <small>Solo MP3 · máx. 20 MB por canción · se guardan en este navegador</small>
+        </div>
+    </div>
+
+    <div class="sv-msg" id="svMsg" hidden></div>
     <input type="file" id="svInput" accept=".mp3,audio/mpeg" multiple hidden>
 
     <script src="script.js"></script>
