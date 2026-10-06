@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analizador de Texto</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+    <div class="at-widget">
+        <div class="at-header">
+            <div class="at-titulo">
+                <i data-lucide="bar-chart-3"></i>
+                <span>Analizador</span>
+            </div>
+        </div>
+        
+        <textarea id="atInput" class="at-input" placeholder="Escribe o pega tu texto aquí..."></textarea>
+        
+        <div class="at-stats">
+            <div class="at-stat">
+                <span class="at-stat-val" id="atPalabras">0</span>
+                <span class="at-stat-label">Palabras</span>
+            </div>
+            <div class="at-stat">
+                <span class="at-stat-val" id="atChars">0</span>
+                <span class="at-stat-label">Caracteres</span>
+            </div>
+            <div class="at-stat">
+                <span class="at-stat-val" id="atCharsNoSpace">0</span>
+                <span class="at-stat-label">Sin espacios</span>
+            </div>
+            <div class="at-stat">
+                <span class="at-stat-val" id="atTiempo">0s</span>
+                <span class="at-stat-label">Lectura est.</span>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
