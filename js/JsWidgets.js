@@ -49,6 +49,17 @@ const WIDGETS_DISPONIBLES = [
     espacio: 2,
     monedas: 0
 },
+        {
+        id: 'viclima',
+        nombre: 'Viclima',
+        icono: 'cloud-sun',
+        ruta: 'Widgets/viclima/index.html',
+        descripcion: 'Clima completo de hoy y pronóstico de 7 días con próximas horas. Versión extendida del clima del header.',
+        categoria: 'Gratuitas',
+        esBase: false,
+        espacio: 2,
+        monedas: 0
+    },
     {
         id: 'bubble-image',
         nombre: 'Imagen Burbuja',
