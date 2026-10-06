@@ -13,11 +13,20 @@ body {
     -webkit-font-smoothing: antialiased;
     color-scheme: light dark;
     -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
 }
 [data-lucide] { width: 18px; height: 18px; stroke-width: 2; flex-shrink: 0; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: var(--gray-200, #E8E8EE);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
 
 /* ========== LAYOUT ========== */
-.mq-container {
+.mq-app {
     height: 100%;
     height: 100dvh;
     max-width: 800px;
@@ -65,6 +74,7 @@ body {
     font-size: 13px; font-weight: 800; color: #92400E;
 }
 .mq-racha-badge [data-lucide] { width: 16px; height: 16px; color: #D97706; }
+.mq-racha-label { font-size: 11px; font-weight: 700; opacity: 0.8; }
 
 /* ========== ALERTA RACHA ========== */
 .mq-alerta-racha {
@@ -73,7 +83,13 @@ body {
     background: #FEF2F2; border: 1.5px solid #FECACA; border-radius: 14px;
     color: #991B1B;
 }
-.mq-alerta-racha [data-lucide] { width: 24px; height: 24px; color: #DC2626; flex-shrink: 0; }
+.mq-alerta-icono {
+    width: 36px; height: 36px;
+    background: #FEE2E2; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: #DC2626; flex-shrink: 0;
+}
+.mq-alerta-icono [data-lucide] { width: 18px; height: 18px; stroke-width: 2.5; }
 .mq-alerta-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .mq-alerta-info strong { font-size: 13.5px; font-weight: 800; }
 .mq-alerta-info span { font-size: 12px; font-weight: 600; opacity: 0.9; }
@@ -87,14 +103,20 @@ body {
 }
 .mq-btn-salvar:hover { transform: translateY(-1px); background: #B91C1C; }
 
-/* ========== DASHBOARD ========== */
+/* ========== VISTAS ========== */
 .mq-view { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 14px; overflow: hidden; }
 .mq-view.active { display: flex; animation: mqFadeIn 0.25s ease; }
 @keyframes mqFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-.mq-seccion-titulo h2 { font-size: 16px; font-weight: 800; color: var(--gray-900, #18181B); margin-bottom: 4px; }
+.mq-seccion-titulo { flex-shrink: 0; }
+.mq-seccion-titulo h2 {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 16px; font-weight: 800; color: var(--gray-900, #18181B); margin-bottom: 4px;
+}
+.mq-seccion-titulo h2 [data-lucide] { width: 18px; height: 18px; color: var(--violet-500, #8B5CF6); }
 .mq-seccion-titulo p { font-size: 12.5px; color: var(--gray-500, #71717A); font-weight: 600; }
 
+/* ========== GRID DE MODOS ========== */
 .mq-grid {
     flex: 1; overflow-y: auto;
     display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -129,6 +151,7 @@ body {
     display: flex; align-items: center; justify-content: center;
     color: white; flex-shrink: 0;
 }
+.mq-card-icono [data-lucide] { width: 18px; height: 18px; stroke-width: 2.25; }
 .mq-card-info { flex: 1; min-width: 0; }
 .mq-card-nombre { font-size: 13.5px; font-weight: 800; color: var(--gray-900, #18181B); }
 .mq-card-desc { font-size: 11.5px; color: var(--gray-500, #71717A); font-weight: 600; margin-top: 2px; }
@@ -148,14 +171,21 @@ body {
     width: 36px; height: 36px; background: var(--gray-100, #F4F4F7);
     border: none; border-radius: 10px; cursor: pointer;
     color: var(--gray-600, #52525B); display: flex; align-items: center; justify-content: center;
-    transition: all 0.15s;
+    transition: all 0.15s; flex-shrink: 0;
 }
 .mq-btn-icono:hover { background: #FEE2E2; color: #991B1B; }
-.mq-progreso { flex: 1; text-align: center; font-size: 14px; font-weight: 800; color: var(--gray-700, #3F3F46); }
+.mq-progreso {
+    flex: 1; text-align: center;
+    font-size: 14px; font-weight: 800; color: var(--gray-700, #3F3F46);
+    font-variant-numeric: tabular-nums;
+}
+.mq-progreso-sep { color: var(--gray-400, #A1A1AD); margin: 0 2px; }
+
 .mq-timer-wrap {
     display: flex; align-items: center; gap: 8px;
     background: var(--gray-100, #F4F4F7); padding: 6px 12px; border-radius: 999px;
 }
+.mq-timer-wrap [data-lucide] { width: 14px; height: 14px; color: #EF4444; }
 .mq-timer-bar {
     width: 60px; height: 6px; background: var(--gray-300, #D4D4DD);
     border-radius: 999px; overflow: hidden;
@@ -164,7 +194,6 @@ body {
     height: 100%; width: 100%; background: #EF4444;
     transition: width 0.1s linear;
 }
-.mq-timer-wrap [data-lucide] { width: 14px; height: 14px; color: #EF4444; }
 .mq-timer-wrap span { font-size: 12px; font-weight: 800; color: #991B1B; font-variant-numeric: tabular-nums; }
 
 .mq-pregunta-box {
@@ -174,6 +203,7 @@ body {
 .mq-pregunta-box h3 {
     font-size: 32px; font-weight: 900; color: var(--gray-900, #18181B);
     text-align: center; letter-spacing: -0.02em;
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .mq-opciones-grid {
@@ -182,7 +212,8 @@ body {
 .mq-opcion-btn {
     padding: 18px; border: 2px solid var(--border, #E8E8EE);
     border-radius: 14px; background: var(--white, #FFFFFF);
-    font-family: inherit; font-size: 22px; font-weight: 900;
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 22px; font-weight: 900;
     color: var(--gray-900, #18181B); cursor: pointer;
     transition: all 0.15s; touch-action: manipulation;
 }
@@ -236,8 +267,38 @@ body {
 .mq-btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     padding: 12px 24px; border: none; border-radius: 12px;
-    font-family: inherit; font-size: 14px; font-weight: 800; cursor: pointer;
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 14px; font-weight: 800; cursor: pointer;
     transition: all 0.15s; touch-action: manipulation; width: 100%; max-width: 320px;
 }
 .mq-btn-primario {
-    background: var(--accent-gradient-hover
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: white; box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
+}
+.mq-btn-primario:hover { transform: translateY(-1px); box-shadow: 0 6px 16px var(--accent-shadow-hover, rgba(139,92,246,0.38)); }
+
+/* ========== TOAST ========== */
+.mq-toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px);
+    background: var(--gray-900, #18181B); color: white;
+    padding: 11px 22px; border-radius: 999px; font-size: 13px; font-weight: 700;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.25); opacity: 0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none; z-index: 300; max-width: calc(100% - 40px); white-space: nowrap;
+}
+.mq-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.mq-toast.success { background: #065F46; }
+.mq-toast.error   { background: #991B1B; }
+.mq-toast.info    { background: var(--violet-700, #6D28D9); }
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 640px) {
+    .mq-app { padding: 14px 14px 10px; gap: 12px; }
+    .mq-logo-mark { width: 36px; height: 36px; }
+    .mq-logo-mark [data-lucide] { width: 19px; height: 19px; }
+    .mq-logo-text h1 { font-size: 17px; }
+    .mq-grid { grid-template-columns: 1fr; }
+    .mq-pregunta-box h3 { font-size: 26px; }
+    .mq-opciones-grid { grid-template-columns: 1fr; gap: 8px; }
+    .mq-opcion-btn { padding: 16px; font-size: 20px; }
+}
