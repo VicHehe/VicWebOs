@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SillyGif</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Spotivic</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -11,28 +11,81 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
-    <div class="sg-widget">
-        <div class="sg-header">
-            <div class="sg-titulo">
-                <i data-lucide="film"></i>
-                <span>SillyGif</span>
+    <div class="sv-widget">
+
+        <div class="sv-header">
+            <div class="sv-titulo">
+                <i data-lucide="music"></i>
+                <span>Spotivic</span>
+                <span class="sv-contador" id="svContador">0/4</span>
             </div>
-            <div class="sg-acciones" id="sgAcciones" hidden>
-                <button class="sg-icon-btn" id="sgBtnCambiar" title="Cambiar GIF">
-                    <i data-lucide="refresh-cw"></i>
-                </button>
-                <button class="sg-icon-btn sg-icon-danger" id="sgBtnQuitar" title="Borrar GIF">
-                    <i data-lucide="trash-2"></i>
-                </button>
-            </div>
+            <button class="sv-icon-btn" id="svBtnConfig" title="Mis canciones">
+                <i data-lucide="settings-2"></i>
+            </button>
         </div>
 
-        <div class="sg-zona" id="sgZona"></div>
-        <div class="sg-error" id="sgError" hidden></div>
+        <!-- ESTADO VACÍO -->
+        <div class="sv-vacio" id="svVacio" hidden>
+            <div class="sv-vacio-icono"><i data-lucide="music"></i></div>
+            <p>Aún no tienes canciones</p>
+            <button class="sv-btn" id="svBtnVacioAnadir">
+                <i data-lucide="upload"></i>
+                Añadir MP3
+            </button>
+            <small>Hasta 4 canciones</small>
+        </div>
+
+        <!-- REPRODUCTOR -->
+        <div class="sv-cuerpo" id="svCuerpo" hidden>
+            <div class="sv-player">
+                <div class="sv-disco" id="svDisco"></div>
+                <div class="sv-info">
+                    <div class="sv-nombre" id="svNombre">Nada sonando</div>
+                    <div class="sv-sub" id="svSub">Elige una canción</div>
+                </div>
+            </div>
+
+            <div class="sv-progreso">
+                <span id="svTActual">0:00</span>
+                <input type="range" class="sv-range" id="svSeek" min="0" max="1000" value="0" step="1">
+                <span id="svTTotal">0:00</span>
+            </div>
+
+            <div class="sv-controles">
+                <button class="sv-ctrl" id="svBtnRepetir" title="Repetir esta canción"><i data-lucide="repeat-1"></i></button>
+                <button class="sv-ctrl" id="svBtnPrev" title="Anterior"><i data-lucide="skip-back"></i></button>
+                <button class="sv-ctrl sv-ctrl-play" id="svBtnPlay" title="Reproducir / Pausa"><i data-lucide="play"></i></button>
+                <button class="sv-ctrl" id="svBtnNext" title="Siguiente"><i data-lucide="skip-forward"></i></button>
+                <div class="sv-vol">
+                    <button class="sv-ctrl" id="svBtnMute" title="Silenciar"><i data-lucide="volume-2"></i></button>
+                    <input type="range" class="sv-range sv-range-vol" id="svVol" min="0" max="100" value="80">
+                </div>
+            </div>
+
+            <div class="sv-puntos" id="svPuntos"></div>
+        </div>
     </div>
 
-    <!-- Input oculto: solo GIF -->
-    <input type="file" id="sgInput" accept="image/gif" hidden>
+    <!-- MODAL: Mis canciones (pantalla completa) -->
+    <div class="sv-modal" id="svModal" hidden>
+        <div class="sv-modal-header">
+            <h3>Mis canciones <span class="sv-contador" id="svModalContador">0/4</span></h3>
+            <button class="sv-icon-btn" id="svModalCerrar" title="Cerrar"><i data-lucide="x"></i></button>
+        </div>
+
+        <div class="sv-modal-lista" id="svModalLista"></div>
+
+        <div class="sv-modal-footer">
+            <button class="sv-btn sv-btn-full" id="svBtnAnadirModal">
+                <i data-lucide="upload"></i>
+                Añadir MP3
+            </button>
+            <small>Solo MP3 · máx. 20 MB por canción · se guardan en este navegador</small>
+        </div>
+    </div>
+
+    <div class="sv-msg" id="svMsg" hidden></div>
+    <input type="file" id="svInput" accept=".mp3,audio/mpeg" multiple hidden>
 
     <script src="script.js"></script>
     <script>lucide.createIcons();</script>
