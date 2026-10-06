@@ -1037,7 +1037,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Estaciones',
         ruta: 'Temas/verano.css',
         espacio: 4,
-        monedas: 45,
+        monedas: 50,
         colores: {
             '--violet-100': '#FEF3C7',
             '--violet-300': '#FCD34D',
@@ -1055,7 +1055,7 @@ const TEMAS_DISPONIBLES = [
         categoria: 'Estaciones',
         ruta: 'Temas/otono.css',
         espacio: 4,
-        monedas: 45,
+        monedas: 50,
         colores: {
             '--violet-100': '#FAECD4',
             '--violet-300': '#E8B87A',
