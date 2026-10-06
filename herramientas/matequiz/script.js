@@ -3,14 +3,14 @@ const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const ARCHIVO_BASE = 'app/matequiz/';
 
 const MODOS = {
-    sencillaz_base:       { nombre: "Sencillaz", desc: "Sumas y restas", ops: ['+', '-'], compleja: false, express: false, monedas: 5 },
-    sencillaz_express:    { nombre: "Sencillaz Express", desc: "Sumas y restas rápidas", ops: ['+', '-'], compleja: false, express: true, monedas: 10 },
-    intermedias_base:     { nombre: "Intermedias", desc: "Multiplicaciones y divisiones", ops: ['*', '/'], compleja: false, express: false, monedas: 10 },
-    intermedias_express:  { nombre: "Intermedias Express", desc: "Mult/Div rápidas", ops: ['*', '/'], compleja: false, express: true, monedas: 15 },
-    mixta_sencilla_base:  { nombre: "Mixta Sencilla", desc: "Las 4 operaciones (simples)", ops: ['+', '-', '*', '/'], compleja: false, express: false, monedas: 15 },
-    mixta_sencilla_express:{ nombre: "Mixta Sencilla Express", desc: "Las 4 operaciones rápidas", ops: ['+', '-', '*', '/'], compleja: false, express: true, monedas: 20 },
-    mixta_compleja_base:  { nombre: "Mixta Compleja", desc: "Operaciones combinadas", ops: ['+', '-', '*', '/'], compleja: true, express: false, monedas: 20 },
-    mixta_compleja_express:{ nombre: "Mixta Compleja Express", desc: "Combinadas rápidas", ops: ['+', '-', '*', '/'], compleja: true, express: true, monedas: 25 }
+    sencillaz_base:        { nombre: "Sencillaz",            desc: "Sumas y restas",              ops: ['+', '-'], compleja: false, express: false, monedas: 5  },
+    sencillaz_express:     { nombre: "Sencillaz Express",     desc: "Sumas y restas rápidas",      ops: ['+', '-'], compleja: false, express: true,  monedas: 10 },
+    intermedias_base:      { nombre: "Intermedias",           desc: "Multiplicaciones y divisiones", ops: ['*', '/'], compleja: false, express: false, monedas: 10 },
+    intermedias_express:   { nombre: "Intermedias Express",   desc: "Mult/Div rápidas",            ops: ['*', '/'], compleja: false, express: true,  monedas: 15 },
+    mixta_sencilla_base:   { nombre: "Mixta Sencilla",        desc: "Las 4 operaciones (simples)", ops: ['+', '-', '*', '/'], compleja: false, express: false, monedas: 15 },
+    mixta_sencilla_express:{ nombre: "Mixta Sencilla Express",desc: "Las 4 operaciones rápidas",   ops: ['+', '-', '*', '/'], compleja: false, express: true,  monedas: 20 },
+    mixta_compleja_base:   { nombre: "Mixta Compleja",        desc: "Operaciones combinadas",      ops: ['+', '-', '*', '/'], compleja: true,  express: false, monedas: 20 },
+    mixta_compleja_express:{ nombre: "Mixta Compleja Express",desc: "Combinadas rápidas",          ops: ['+', '-', '*', '/'], compleja: true,  express: true,  monedas: 25 }
 };
 
 let usuarioActual = null;
@@ -32,7 +32,19 @@ function aplicarTemaDelPadre() {
     try {
         const rootPadre = window.parent.document.documentElement;
         const stylePadre = getComputedStyle(rootPadre);
-        const vars = ['--violet-50','--violet-100','--violet-200','--violet-300','--violet-400','--violet-500','--violet-600','--violet-700','--white','--bg','--bg-alt','--gray-50','--gray-100','--gray-200','--gray-300','--gray-400','--gray-500','--gray-600','--gray-700','--gray-800','--gray-900','--border','--text','--text-2','--text-3','--shadow-xs','--shadow-sm','--shadow-md','--shadow-lg','--shadow-xl','--accent-gradient','--accent-gradient-hover','--accent-shadow','--accent-shadow-hover','--accent-text-gradient','--r-sm','--r-md','--r-lg','--r-xl','--r-full'];
+        const vars = [
+            '--violet-50','--violet-100','--violet-200','--violet-300',
+            '--violet-400','--violet-500','--violet-600','--violet-700',
+            '--white','--bg','--bg-alt',
+            '--gray-50','--gray-100','--gray-200','--gray-300','--gray-400',
+            '--gray-500','--gray-600','--gray-700','--gray-800','--gray-900',
+            '--border','--text','--text-2','--text-3',
+            '--shadow-xs','--shadow-sm','--shadow-md','--shadow-lg','--shadow-xl',
+            '--accent-gradient','--accent-gradient-hover',
+            '--accent-shadow','--accent-shadow-hover',
+            '--accent-text-gradient',
+            '--r-sm','--r-md','--r-lg','--r-xl','--r-full'
+        ];
         vars.forEach(v => {
             const val = stylePadre.getPropertyValue(v).trim();
             if (val) document.documentElement.style.setProperty(v, val);
@@ -108,77 +120,111 @@ function procesarRacha() {
     const hoy = hoyStr();
     const ayer = ayerStr();
     const ultimo = datosUsuario.racha.ultimo_juego;
-
-    if (!ultimo) return; // Primera vez
-
+    if (!ultimo) return;
     if (ultimo < ayer && !datosUsuario.racha.congelada) {
-        // Racha rota
         datosUsuario.racha.dias = 0;
         datosUsuario.racha.ultimo_juego = null;
-    } else if (ultimo === ayer) {
-        // Racha intacta, lista para sumar hoy
-    } else if (ultimo === hoy) {
-        // Ya jugó hoy, racha segura
     }
 }
 
 // ============================================================
 //  GENERADOR DE PREGUNTAS
+//  Reglas:
+//   - Operandos SIEMPRE positivos (números base > 0)
+//   - Solo el RESULTADO puede ser negativo (ej: 3 - 7 = -4)
+//   - Divisiones siempre exactas (se generan al revés)
+//   - Distractores cercanos al resultado real
 // ============================================================
+function randInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 function generarPregunta(modo) {
-    const op = modo.ops[Math.floor(Math.random() * modo.ops.length)];
-    let a, b, c, respuesta, texto;
-
     if (modo.compleja) {
-        // Para garantizar enteros, usamos +, -, * en combinaciones de 2 pasos
-        const ops2 = ['+', '-', '*'];
-        const op1 = ops2[Math.floor(Math.random() * ops2.length)];
-        const op2 = ops2[Math.floor(Math.random() * ops2.length)];
-        a = Math.floor(Math.random() * 10) + 1;
-        b = Math.floor(Math.random() * 10) + 1;
-        c = Math.floor(Math.random() * 10) + 1;
-        
-        let res1 = (op1 === '*') ? (a * b) : (op1 === '+' ? (a + b) : (a - b));
-        respuesta = (op2 === '*') ? (res1 * c) : (op2 === '+' ? (res1 + c) : (res1 - c));
-        texto = `${a} ${op1 === '*' ? '×' : op1} ${b} ${op2 === '*' ? '×' : op2} ${c}`;
+        return generarCompleja();
+    }
+    const op = modo.ops[randInt(0, modo.ops.length - 1)];
+    switch (op) {
+        case '+': return generarSuma();
+        case '-': return generarResta();
+        case '*': return generarMultiplicacion();
+        case '/': return generarDivision();
+    }
+}
+
+function generarSuma() {
+    const a = randInt(1, 20);
+    const b = randInt(1, 20);
+    return crearPregunta(`${a} + ${b}`, a + b);
+}
+
+function generarResta() {
+    // Operandos positivos, resultado puede ser negativo
+    const a = randInt(1, 40);
+    const b = randInt(1, 40);
+    return crearPregunta(`${a} − ${b}`, a - b);
+}
+
+function generarMultiplicacion() {
+    const a = randInt(2, 12);
+    const b = randInt(2, 12);
+    return crearPregunta(`${a} × ${b}`, a * b);
+}
+
+function generarDivision() {
+    // División exacta: elijo resultado y divisor, calculo dividendo
+    const resultado = randInt(2, 12);
+    const divisor = randInt(2, 12);
+    const dividendo = resultado * divisor;
+    return crearPregunta(`${dividendo} ÷ ${divisor}`, resultado);
+}
+
+function generarCompleja() {
+    // 3 operandos positivos, 2 operaciones de +, -, * (sin división para mantener enteros)
+    const ops2 = ['+', '-', '*'];
+    const op1 = ops2[randInt(0, ops2.length - 1)];
+    const op2 = ops2[randInt(0, ops2.length - 1)];
+    const a = randInt(1, 10);
+    const b = randInt(1, 10);
+    const c = randInt(1, 10);
+    
+    // Calcular respetando precedencia: * antes que + y -
+    let respuesta;
+    if (op1 === '*' && op2 === '*') {
+        respuesta = a * b * c;
+    } else if (op1 === '*') {
+        // a * b op2 c
+        const parcial = a * b;
+        respuesta = op2 === '+' ? parcial + c : parcial - c;
+    } else if (op2 === '*') {
+        // a op1 (b * c)
+        const parcial = b * c;
+        respuesta = op1 === '+' ? a + parcial : a - parcial;
     } else {
-        if (op === '+') {
-            a = Math.floor(Math.random() * 20) + 1;
-            b = Math.floor(Math.random() * 20) + 1;
-            respuesta = a + b;
-            texto = `${a} + ${b}`;
-        } else if (op === '-') {
-            a = Math.floor(Math.random() * 40) - 20; // -20 a 20
-            b = Math.floor(Math.random() * 40) - 20;
-            respuesta = a - b;
-            texto = `${a} - ${b}`;
-        } else if (op === '*') {
-            a = Math.floor(Math.random() * 12) + 2;
-            b = Math.floor(Math.random() * 12) + 2;
-            respuesta = a * b;
-            texto = `${a} × ${b}`;
-        } else if (op === '/') {
-            b = Math.floor(Math.random() * 12) + 2;
-            respuesta = Math.floor(Math.random() * 12) + 2;
-            a = b * respuesta; // Garantiza división exacta
-            texto = `${a} ÷ ${b}`;
-        }
+        // Sin multiplicación, izquierda a derecha
+        const parcial = op1 === '+' ? a + b : a - b;
+        respuesta = op2 === '+' ? parcial + c : parcial - c;
     }
+    
+    const op1Str = op1 === '*' ? '×' : op1;
+    const op2Str = op2 === '*' ? '×' : op2;
+    return crearPregunta(`${a} ${op1Str} ${b} ${op2Str} ${c}`, respuesta);
+}
 
-    // Generar distractores inteligentes
-    let opciones = new Set();
-    opciones.add(respuesta);
-    while (opciones.size < 4) {
-        let offset = Math.floor(Math.random() * 5) + 1; // 1 a 5
-        let sign = Math.random() > 0.5 ? 1 : -1;
-        let distractor = respuesta + (offset * sign);
-        if (distractor !== respuesta) opciones.add(distractor);
+function crearPregunta(texto, respuesta) {
+    // Generar 3 distractores cercanos
+    const distractores = new Set();
+    distractores.add(respuesta);
+    
+    while (distractores.size < 4) {
+        const offset = randInt(1, 5);
+        const sign = Math.random() > 0.5 ? 1 : -1;
+        const distractor = respuesta + (offset * sign);
+        if (distractor !== respuesta) distractores.add(distractor);
     }
-
-    let arr = Array.from(opciones);
-    arr.sort(() => Math.random() - 0.5);
-
-    return { texto, respuesta, opciones: arr };
+    
+    const opciones = Array.from(distractores).sort(() => Math.random() - 0.5);
+    return { texto, respuesta, opciones };
 }
 
 // ============================================================
@@ -191,20 +237,16 @@ function mostrarVista(id) {
     });
     const vista = document.getElementById(id);
     vista.hidden = false;
-    // Pequeño delay para que la animación CSS funcione
     setTimeout(() => vista.classList.add('active'), 10);
 }
 
 function renderDashboard() {
     const hoy = hoyStr();
-    
-    // Reset diario
     if (datosUsuario.jugado_hoy.fecha !== hoy) {
         datosUsuario.jugado_hoy = { fecha: hoy, modos_completados: [] };
         guardarDatos();
     }
 
-    // Alerta de racha
     const alerta = document.getElementById('mqAlertaRacha');
     if (datosUsuario.racha.dias > 0 && datosUsuario.racha.ultimo_juego && datosUsuario.racha.ultimo_juego < ayerStr()) {
         alerta.hidden = false;
@@ -218,15 +260,18 @@ function renderDashboard() {
     grid.innerHTML = '';
 
     const colores = {
-        sencillaz: 'linear-gradient(135deg, #10B981, #059669)',
-        intermedias: 'linear-gradient(135deg, #3B82F6, #1D4ED8)',
-        mixta_sencilla: 'linear-gradient(135deg, #F59E0B, #B45309)',
-        mixta_compleja: 'linear-gradient(135deg, #EF4444, #B91C1C)'
+        sencillaz:       'linear-gradient(135deg, #10B981, #059669)',
+        intermedias:     'linear-gradient(135deg, #3B82F6, #1D4ED8)',
+        mixta_sencilla:  'linear-gradient(135deg, #F59E0B, #B45309)',
+        mixta_compleja:  'linear-gradient(135deg, #EF4444, #B91C1C)'
     };
 
     for (const [key, modo] of Object.entries(MODOS)) {
         const bloqueado = datosUsuario.jugado_hoy.modos_completados.includes(key);
-        const prefix = key.includes('compleja') ? 'mixta_compleja' : (key.includes('sencilla') ? 'mixta_sencilla' : (key.includes('intermedias') ? 'intermedias' : 'sencillaz'));
+        const prefix = key.includes('compleja') ? 'mixta_compleja' 
+                     : key.includes('sencilla') ? 'mixta_sencilla' 
+                     : key.includes('intermedias') ? 'intermedias' 
+                     : 'sencillaz';
         
         const div = document.createElement('div');
         div.className = 'mq-card' + (bloqueado ? ' bloqueada' : '');
@@ -264,16 +309,12 @@ function iniciarJuego(modoId) {
     }
     indicePregunta = 0;
     respuestasCorrectas = 0;
-    
     mostrarVista('mqJuego');
     mostrarPregunta();
 }
 
 function mostrarPregunta() {
-    if (indicePregunta >= 10) {
-        finalizarJuego();
-        return;
-    }
+    if (indicePregunta >= 10) { finalizarJuego(); return; }
 
     const p = preguntas[indicePregunta];
     document.getElementById('mqPreguntaActual').textContent = indicePregunta + 1;
@@ -289,7 +330,6 @@ function mostrarPregunta() {
         grid.appendChild(btn);
     });
 
-    // Timer Express
     const timerWrap = document.getElementById('mqTimerWrap');
     if (modoActual.express) {
         timerWrap.hidden = false;
@@ -301,14 +341,13 @@ function mostrarPregunta() {
             actualizarTimerUI();
             if (tiempoRestante <= 0) {
                 clearInterval(timerInterval);
-                responder(null, null); // Tiempo agotado = incorrecto
+                responder(null, null);
             }
         }, 100);
     } else {
         timerWrap.hidden = true;
         clearInterval(timerInterval);
     }
-
     if (window.lucide) window.lucide.createIcons();
 }
 
@@ -321,8 +360,6 @@ function actualizarTimerUI() {
 
 function responder(opcionElegida, btnElement) {
     clearInterval(timerInterval);
-    
-    // Deshabilitar todos los botones
     const botones = document.querySelectorAll('.mq-opcion-btn');
     botones.forEach(b => b.disabled = true);
 
@@ -334,34 +371,24 @@ function responder(opcionElegida, btnElement) {
         if (btnElement) btnElement.classList.add('correcto');
     } else {
         if (btnElement) btnElement.classList.add('incorrecto');
-        // Mostrar cuál era la correcta
         botones.forEach(b => {
             if (parseInt(b.textContent) === p.respuesta) b.classList.add('correcto');
         });
     }
-
-    setTimeout(() => {
-        indicePregunta++;
-        mostrarPregunta();
-    }, 800);
+    setTimeout(() => { indicePregunta++; mostrarPregunta(); }, 800);
 }
 
 async function finalizarJuego() {
     clearInterval(timerInterval);
-    
-    // Registrar modo como jugado hoy (win o lose)
     if (!datosUsuario.jugado_hoy.modos_completados.includes(modoActual.id)) {
         datosUsuario.jugado_hoy.modos_completados.push(modoActual.id);
     }
 
-    // Actualizar racha (siempre suma, win o lose)
     const hoy = hoyStr();
     if (datosUsuario.racha.ultimo_juego !== hoy) {
         datosUsuario.racha.dias += 1;
         datosUsuario.racha.ultimo_juego = hoy;
         datosUsuario.racha.congelada = false;
-        
-        // Bonus 30 días
         if (datosUsuario.racha.dias > 0 && datosUsuario.racha.dias % 30 === 0) {
             datosUsuario.total_monedas_ganadas += 50;
             await API().canjear('gift', 'matequiz', 'Bonus racha 30 días', 50);
@@ -369,10 +396,8 @@ async function finalizarJuego() {
         }
     }
 
-    // Determinar recompensa (>= 7 aciertos para considerar "aprobado" y ganar monedas)
     let monedasGanadas = 0;
-    let esExito = respuestasCorrectas >= 7;
-    
+    const esExito = respuestasCorrectas >= 7;
     if (esExito) {
         monedasGanadas = modoActual.monedas;
         datosUsuario.total_monedas_ganadas += monedasGanadas;
@@ -380,10 +405,8 @@ async function finalizarJuego() {
             await API().canjear('coins', 'matequiz', `Ronda ${modoActual.nombre}`, monedasGanadas);
         }
     }
-
     await guardarDatos();
 
-    // Renderizar resultado
     document.getElementById('mqResultadoIcono').className = 'mq-resultado-icono ' + (esExito ? 'exito' : 'fallo');
     document.getElementById('mqResultadoIcono').innerHTML = `<i data-lucide="${esExito ? 'trophy' : 'heart-crack'}"></i>`;
     document.getElementById('mqResultadoTitulo').textContent = esExito ? '¡Excelente!' : '¡Sigue practicando!';
@@ -404,7 +427,7 @@ async function salvarRacha() {
     if (!api) return;
     try {
         await api.gastoBoleta('heart-handshake', 'matequiz', 'Salvar racha', 5);
-        datosUsuario.racha.ultimo_juego = ayerStr(); // Truco: hacer creer al sistema que jugó ayer para que hoy sume
+        datosUsuario.racha.ultimo_juego = ayerStr();
         datosUsuario.racha.congelada = false;
         await guardarDatos();
         toast('¡Racha salvada!', 'success');
@@ -421,29 +444,22 @@ async function inicializar() {
     aplicarTemaDelPadre();
     const api = API();
     if (!api) { alert('MateQuiz necesita estar dentro de VicWebOs.'); return; }
-    
     usuarioActual = api.obtenerCuenta?.();
     if (!usuarioActual) { alert('Necesitas iniciar sesión para usar MateQuiz.'); return; }
-    
     document.getElementById('mqUserBadge').textContent = `@${usuarioActual.codigo} · ${usuarioActual.nombre}`;
-    
     await cargarDatos();
     renderDashboard();
 
-    // Eventos
     document.getElementById('mqBtnSalirJuego').addEventListener('click', () => {
         clearInterval(timerInterval);
         mostrarVista('mqDashboard');
         renderDashboard();
     });
-    
     document.getElementById('mqBtnVolverInicio').addEventListener('click', () => {
         mostrarVista('mqDashboard');
         renderDashboard();
     });
-
     document.getElementById('mqBtnSalvarRacha').addEventListener('click', salvarRacha);
-
     if (window.lucide) window.lucide.createIcons();
 }
 
