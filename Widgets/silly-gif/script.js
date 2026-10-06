@@ -16,7 +16,7 @@ const ARCHIVO_BASE = 'app/silly-gif/';
 const MAX_TAMANO = 2 * 1024 * 1024; // 2 MB
 let usuarioActual = null;
 let urlActual = null; // blob URL activa (para revocar)
-let gifEliminadoLocalmente = false; // ← NUEVO: flag local para evitar re-lectura
+let gifEliminadoLocalmente = false; // flag local para evitar re-lectura
 const API = () => window.parent.__vicwebos || null;
 const BD  = () => window.parent.ConfigBD || null;
 // ============================================================
@@ -131,7 +131,7 @@ const nombreEl = document.getElementById('sgNombre');
 const tamanoEl = document.getElementById('sgTamano');
 if (!zona) return;
 liberarUrlAnterior();
-// ← NUEVO: Si fue eliminado localmente, mostrar empty state sin leer de GitHub
+// Si fue eliminado localmente, mostrar empty state sin leer de GitHub
 if (gifEliminadoLocalmente) {
 if (acciones) acciones.hidden = true;
 if (footer) footer.hidden = true;
@@ -248,7 +248,7 @@ tamano: file.size,
 tipo: file.type,
 subida: new Date().toISOString()
 });
-// ← NUEVO: Resetear flag local
+// Resetear flag local
 gifEliminadoLocalmente = false;
 await render();
 } catch (e) {
@@ -260,7 +260,7 @@ await render();
 async function quitarGif() {
 if (!confirm('¿Quitar el GIF decorativo?')) return;
 const zona = document.getElementById('sgZona');
-// ← NUEVO: Marcar como eliminado localmente PRIMERO
+// Marcar como eliminado localmente PRIMERO
 gifEliminadoLocalmente = true;
 // Mostrar estado vacío inmediatamente (sin esperar a GitHub)
 zona.innerHTML = `
@@ -284,7 +284,7 @@ if (window.lucide) window.lucide.createIcons();
 document.getElementById('sgBtnSubirEmpty')?.addEventListener('click', abrirSelector);
 // Liberar URL del blob
 liberarUrlAnterior();
-// ← NUEVO: Borrar en segundo plano (fire-and-forget)
+// Borrar en segundo plano (fire-and-forget)
 try {
 await borrarBinario();
 await borrarMetadata();
