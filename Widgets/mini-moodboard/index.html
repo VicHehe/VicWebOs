@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Moodboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+    <div class="mb-widget" id="mbWidget">
+        <!-- HEADER -->
+        <div class="mb-header">
+            <div class="mb-titulo">
+                <i data-lucide="layout-grid"></i>
+                <span>Moodboard</span>
+            </div>
+            <div class="mb-acciones">
+                <button class="mb-icon-btn" id="mbBtnEditar" title="Editar slots">
+                    <i data-lucide="pencil"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- GRID 2x2 -->
+        <div class="mb-grid" id="mbGrid">
+            <div class="mb-slot vacio" data-idx="0">
+                <i data-lucide="plus"></i>
+                <span>Añadir</span>
+            </div>
+            <div class="mb-slot vacio" data-idx="1">
+                <i data-lucide="plus"></i>
+                <span>Añadir</span>
+            </div>
+            <div class="mb-slot vacio" data-idx="2">
+                <i data-lucide="plus"></i>
+                <span>Añadir</span>
+            </div>
+            <div class="mb-slot vacio" data-idx="3">
+                <i data-lucide="plus"></i>
+                <span>Añadir</span>
+            </div>
+        </div>
+
+        <!-- MODAL DE EDICIÓN -->
+        <div class="mb-modal" id="mbModal" hidden>
+            <div class="mb-modal-card">
+                <div class="mb-modal-header">
+                    <h3 id="mbModalTitulo">Editar Moodboard</h3>
+                    <button class="mb-modal-cerrar" id="mbModalCerrar">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
+                <div class="mb-modal-body" id="mbModalBody">
+                    <!-- Se genera dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
