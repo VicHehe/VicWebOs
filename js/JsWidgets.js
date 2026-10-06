@@ -16,6 +16,10 @@
 // ============================================================
 
 const WIDGETS_DISPONIBLES = [
+
+    // ========================================================
+    //  GRATUITAS
+    // ========================================================
     {
         id: 'mi-estado',
         nombre: 'Mi Estado',
@@ -39,17 +43,17 @@ const WIDGETS_DISPONIBLES = [
         monedas: 0
     },
     {
-    id: 'contador-dias',
-    nombre: 'Contador de Días',
-    icono: 'calendar-range',
-    ruta: 'Widgets/contador-dias/index.html',
-    descripcion: 'Elegís 2 fechas y calcula los días exactos entre ellas. Ideal para aniversarios, proyectos o eventos.',
-    categoria: 'Gratuitas',
-    esBase: false,
-    espacio: 2,
-    monedas: 0
-},
-        {
+        id: 'contador-dias',
+        nombre: 'Contador de Días',
+        icono: 'calendar-range',
+        ruta: 'Widgets/contador-dias/index.html',
+        descripcion: 'Elegís 2 fechas y calcula los días exactos entre ellas. Ideal para aniversarios, proyectos o eventos.',
+        categoria: 'Gratuitas',
+        esBase: false,
+        espacio: 2,
+        monedas: 0
+    },
+    {
         id: 'viclima',
         nombre: 'Viclima',
         icono: 'cloud-sun',
@@ -60,6 +64,10 @@ const WIDGETS_DISPONIBLES = [
         espacio: 2,
         monedas: 0
     },
+
+    // ========================================================
+    //  PERSONALIZACIÓN
+    // ========================================================
     {
         id: 'bubble-image',
         nombre: 'Imagen Burbuja',
@@ -72,17 +80,65 @@ const WIDGETS_DISPONIBLES = [
         monedas: 5
     },
     {
-id: 'silly-gif',
-nombre: 'SillyGif',
-icono: 'film',
-ruta: 'Widgets/silly-gif/index.html',
-descripcion: 'Sube un GIF animado (máx. 2 MB) y decora tu escritorio. Solo 1 a la vez.',
-categoria: 'Personalización',
-esBase: false,
-espacio: 2,
-monedas: 10
-},
-        {
+        id: 'silly-gif',
+        nombre: 'SillyGif',
+        icono: 'film',
+        ruta: 'Widgets/silly-gif/index.html',
+        descripcion: 'Sube un GIF animado (máx. 2 MB) y decora tu escritorio. Solo 1 a la vez.',
+        categoria: 'Personalización',
+        esBase: false,
+        espacio: 2,
+        monedas: 10
+    },
+    {
+        id: 'mini-moodboard',
+        nombre: 'Mini Moodboard',
+        icono: 'layout-grid',
+        ruta: 'Widgets/mini-moodboard/index.html',
+        descripcion: 'Collage 2x2 con 4 imágenes de tu galería. Siempre visibles, sin carrusel.',
+        categoria: 'Personalización',
+        esBase: false,
+        espacio: 2,
+        monedas: 25
+    },
+    {
+        id: 'diapositivas',
+        nombre: 'Diapositivas',
+        icono: 'presentation',
+        ruta: 'Widgets/diapositivas/index.html',
+        descripcion: 'Carrusel de hasta 4 imágenes de tu galería. Manual o automático.',
+        categoria: 'Personalización',
+        esBase: false,
+        espacio: 4,
+        monedas: 30
+    },
+    {
+        id: 'pizarra',
+        nombre: 'Pizarra',
+        icono: 'paintbrush-2',
+        ruta: 'Widgets/pizarra/index.html',
+        descripcion: 'Un lienzo rápido para dibujar. Tu dibujo se guarda en la nube y persiste entre dispositivos.',
+        categoria: 'Personalización',
+        esBase: false,
+        espacio: 4,
+        monedas: 60
+    },
+    {
+        id: 'sonidos-fondo',
+        nombre: 'Sonidos de Fondo',
+        icono: 'cloud-rain-wind',
+        ruta: 'Widgets/sonidos-fondo/index.html',
+        descripcion: 'Lluvia, olas y tormenta para escuchar de fondo mientras trabajás o descansás.',
+        categoria: 'Personalización',
+        esBase: false,
+        espacio: 4,
+        monedas: 85
+    },
+
+    // ========================================================
+    //  AZAR
+    // ========================================================
+    {
         id: 'cara-cruz',
         nombre: 'Cara o Cruz',
         icono: 'circle-dollar-sign',
@@ -104,7 +160,7 @@ monedas: 10
         espacio: 2,
         monedas: 15
     },
-            {
+    {
         id: 'generador-nombres',
         nombre: 'Generador de Nombres',
         icono: 'signature',
@@ -126,51 +182,22 @@ monedas: 10
         espacio: 4,
         monedas: 25
     },
-{
-    id: 'mini-moodboard',
-    nombre: 'Mini Moodboard',
-    icono: 'layout-grid',
-    ruta: 'Widgets/mini-moodboard/index.html',
-    descripcion: 'Collage 2x2 con 4 imágenes de tu galería. Siempre visibles, sin carrusel.',
-    categoria: 'Personalización',
-    esBase: false,
-    espacio: 2,       // Mantiene el espacio 4 para que la cuadrícula 2x2 se vea bien y no apretada
-    monedas: 25       // Ajustado: más barato que Diapositivas por ser técnicamente más simple
-},
+
+    // ========================================================
+    //  UTILIDADES
+    // ========================================================
     {
-        id: 'diapositivas',
-        nombre: 'Diapositivas',
-        icono: 'presentation',
-        ruta: 'Widgets/diapositivas/index.html',
-        descripcion: 'Carrusel de hasta 4 imágenes de tu galería. Manual o automático.',
-        categoria: 'Personalización',
+        id: 'metronomo',
+        nombre: 'Metrónomo',
+        icono: 'metronome',
+        ruta: 'Widgets/metronomo/index.html',
+        descripcion: 'Metrónomo simple con animación visual y sonido. Ajusta los BPM y mantén el ritmo.',
+        categoria: 'Utilidades',
         esBase: false,
-        espacio: 4,
-        monedas: 30
+        espacio: 2,
+        monedas: 15
     },
     {
-    id: 'pizarra',
-    nombre: 'Pizarra',
-    icono: 'paintbrush-2',
-    ruta: 'Widgets/pizarra/index.html',
-    descripcion: 'Un lienzo rápido para dibujar. Tu dibujo se guarda en la nube y persiste entre dispositivos.',
-    categoria: 'Personalización',
-    esBase: false,
-    espacio: 4,
-    monedas: 60
-    },
-    {
-    id: 'metronomo',
-    nombre: 'Metrónomo',
-    icono: 'metronome',
-    ruta: 'Widgets/metronomo/index.html',
-    descripcion: 'Metrónomo simple con animación visual y sonido. Ajusta los BPM y mantén el ritmo.',
-    categoria: 'Utilidades',
-    esBase: false,
-    espacio: 2,
-    monedas: 15
-},
-        {
         id: 'gen-pass',
         nombre: 'Generador de Contraseñas',
         icono: 'key-round',
@@ -182,16 +209,16 @@ monedas: 10
         monedas: 15
     },
     {
-    id: 'analizador-texto',
-    nombre: 'Analizador de Texto',
-    icono: 'bar-chart-3',
-    ruta: 'Widgets/analizador-texto/index.html',
-    descripcion: 'Pega un texto y obtén al instante: palabras, caracteres, líneas y tiempo estimado de lectura.',
-    categoria: 'Utilidades',
-    esBase: false,
-    espacio: 2,
-    monedas: 30
-},
+        id: 'analizador-texto',
+        nombre: 'Analizador de Texto',
+        icono: 'bar-chart-3',
+        ruta: 'Widgets/analizador-texto/index.html',
+        descripcion: 'Pega un texto y obtén al instante: palabras, caracteres, líneas y tiempo estimado de lectura.',
+        categoria: 'Utilidades',
+        esBase: false,
+        espacio: 2,
+        monedas: 30
+    },
     {
         id: 'reloj-mundial',
         nombre: 'Reloj Mundial',
@@ -204,15 +231,15 @@ monedas: 10
         monedas: 40
     },
     {
-    id: 'pomodoro',
-    nombre: 'Pomodoro',
-    icono: 'target',
-    ruta: 'Widgets/pomodoro/index.html',
-    descripcion: 'Técnica Pomodoro (25 min enfoque / 5 min descanso). Gestiona tus ciclos de trabajo.',
-    categoria: 'Utilidades',
-    esBase: false,
-    espacio: 2,
-    monedas: 40
+        id: 'pomodoro',
+        nombre: 'Pomodoro',
+        icono: 'target',
+        ruta: 'Widgets/pomodoro/index.html',
+        descripcion: 'Técnica Pomodoro (25 min enfoque / 5 min descanso). Gestiona tus ciclos de trabajo.',
+        categoria: 'Utilidades',
+        esBase: false,
+        espacio: 2,
+        monedas: 40
     },
     {
         id: 'lector',
@@ -226,50 +253,38 @@ monedas: 10
         monedas: 40
     },
     {
-        id: 'mascota',
-        nombre: 'Mascota',
-        icono: 'paw-print',
-        ruta: 'Widgets/mascota/index.html',
-        descripcion: 'Cuida a tu gato o perro. Racha diaria = ingreso pasivo creciente.',
-        categoria: 'Entretenimiento',
+        id: 'evanparla',
+        nombre: 'EvanParla',
+        icono: 'volume-2',
+        ruta: 'Widgets/evanparla/index.html',
+        descripcion: 'Pegás texto y lo lee en voz alta. Ideal para escuchar recetas mientras cocinás, o cualquier artículo sin mirar la pantalla.',
+        categoria: 'Utilidades',
         esBase: false,
         espacio: 4,
         monedas: 60
     },
     {
-    id: 'evanparla',
-    nombre: 'EvanParla',
-    icono: 'volume-2',
-    ruta: 'Widgets/evanparla/index.html',
-    descripcion: 'Pegás texto y lo lee en voz alta. Ideal para escuchar recetas mientras cocinás, o cualquier artículo sin mirar la pantalla.',
-    categoria: 'Utilidades',
-    esBase: false,
-    espacio: 4,
-    monedas: 60
-},
+        id: 'palevan',
+        nombre: 'Palevan',
+        icono: 'palette',
+        ruta: 'Widgets/palevan/index.html',
+        descripcion: 'Subís una imagen y extraés sus colores dominantes. Tocá un color para copiar su código hex.',
+        categoria: 'Utilidades',
+        esBase: false,
+        espacio: 4,
+        monedas: 60
+    },
     {
-    id: 'palevan',
-    nombre: 'Palevan',
-    icono: 'palette',
-    ruta: 'Widgets/palevan/index.html',
-    descripcion: 'Subís una imagen y extraés sus colores dominantes. Tocá un color para copiar su código hex.',
-    categoria: 'Utilidades',
-    esBase: false,
-    espacio: 4,
-    monedas: 60
-},
-    {
-    id: 'reloj',
-    nombre: 'Reloj',
-    icono: 'timer',
-    ruta: 'Widgets/reloj/index.html',
-    descripcion: 'Cronómetro con vueltas y temporizador con presets. Simple, rápido, sin guardar nada.',
-    categoria: 'Utilidades',
-    esBase: false,
-    espacio: 2,
-    monedas: 80
-},
-    
+        id: 'reloj',
+        nombre: 'Reloj',
+        icono: 'timer',
+        ruta: 'Widgets/reloj/index.html',
+        descripcion: 'Cronómetro con vueltas y temporizador con presets. Simple, rápido, sin guardar nada.',
+        categoria: 'Utilidades',
+        esBase: false,
+        espacio: 2,
+        monedas: 80
+    },
     {
         id: 'to-do-list',
         nombre: 'To-Do List',
@@ -303,28 +318,43 @@ monedas: 10
         espacio: 4,
         monedas: 100
     },
+
+    // ========================================================
+    //  ENTRETENIMIENTO
+    // ========================================================
     {
-    id: 'ajedrez-puzzle',
-    nombre: 'Ajedrez',
-    icono: 'crown',
-    ruta: 'Widgets/ajedrez-puzzle/index.html',
-    descripcion: 'Juega ajedrez contra la IA. Si ganás, +250 monedas (una vez cada 24h).',
-    categoria: 'Entretenimiento',
-    esBase: false,
-    espacio: 4,
-    monedas: 85
-},
+        id: 'mascota',
+        nombre: 'Mascota',
+        icono: 'paw-print',
+        ruta: 'Widgets/mascota/index.html',
+        descripcion: 'Cuida a tu gato o perro. Racha diaria = ingreso pasivo creciente.',
+        categoria: 'Entretenimiento',
+        esBase: false,
+        espacio: 4,
+        monedas: 60
+    },
     {
-    id: 'sonidos-fondo',
-    nombre: 'Sonidos de Fondo',
-    icono: 'cloud-rain-wind',
-    ruta: 'Widgets/sonidos-fondo/index.html',
-    descripcion: 'Lluvia, olas y tormenta para escuchar de fondo mientras trabajás o descansás.',
-    categoria: 'Entretenimiento',
-    esBase: false,
-    espacio: 4,
-    monedas: 85
-},
+        id: 'ajedrez-puzzle',
+        nombre: 'Ajedrez',
+        icono: 'crown',
+        ruta: 'Widgets/ajedrez-puzzle/index.html',
+        descripcion: 'Juega ajedrez contra la IA. Si ganás, +250 monedas (una vez cada 24h).',
+        categoria: 'Entretenimiento',
+        esBase: false,
+        espacio: 4,
+        monedas: 85
+    },
+    {
+        id: 'spotivic',
+        nombre: 'Spotivic',
+        icono: 'music',
+        ruta: 'Widgets/spotivic/index.html',
+        descripcion: 'Mini reproductor de música. Sube hasta 4 canciones MP3 y escúchalas cuando quieras.',
+        categoria: 'Entretenimiento',
+        esBase: false,
+        espacio: 4,
+        monedas: 110
+    },
     {
         id: 'radio',
         nombre: 'Radio',
