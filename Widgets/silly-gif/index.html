@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SillyGif</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="sg-widget">
+<div class="sg-header">
+<div class="sg-titulo">
+<i data-lucide="film"></i>
+<span>SillyGif</span>
+</div>
+<div class="sg-acciones" id="sgAcciones" hidden>
+<button class="sg-icon-btn" id="sgBtnCambiar" title="Cambiar GIF">
+<i data-lucide="refresh-cw"></i>
+</button>
+<button class="sg-icon-btn sg-icon-danger" id="sgBtnQuitar" title="Quitar GIF">
+<i data-lucide="x"></i>
+</button>
+</div>
+</div>
+<div class="sg-zona" id="sgZona"></div>
+<div class="sg-footer" id="sgFooter" hidden>
+<span class="sg-nombre" id="sgNombre"></span>
+<span class="sg-tamano" id="sgTamano"></span>
+</div>
+</div>
+<!-- Input oculto para seleccionar archivo -->
+<input type="file" id="sgFileInput" accept="image/gif" hidden>
+<script src="script.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>
