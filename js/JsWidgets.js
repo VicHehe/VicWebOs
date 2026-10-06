@@ -127,6 +127,17 @@ const WIDGETS_DISPONIBLES = [
         espacio: 4,
         monedas: 30
     },
+    {
+    id: 'pizarra',
+    nombre: 'Pizarra',
+    icono: 'paintbrush-2',
+    ruta: 'Widgets/pizarra/index.html',
+    descripcion: 'Un lienzo rápido para dibujar. Tu dibujo se guarda en la nube y persiste entre dispositivos.',
+    categoria: 'Personalización',
+    esBase: false,
+    espacio: 4,
+    monedas: 60
+    },
         {
         id: 'gen-pass',
         nombre: 'Generador de Contraseñas',
