@@ -193,16 +193,16 @@
     border-bottom: 1.5px solid #FDE68A;
 }
 
-/* Olas que corren por debajo del header */
+/* Olas que corren pegadas al borde inferior del header */
 .app-header::before {
     content: '';
     position: absolute;
-    bottom: -12px;
+    bottom: -6px;
     left: 0;
     right: 0;
-    height: 24px;
+    height: 16px;
     background: var(--theme-ola) repeat-x;
-    background-size: 120px 24px;
+    background-size: 120px 16px;
     pointer-events: none;
     z-index: 1;
     animation: vera-olas 7s linear infinite;
