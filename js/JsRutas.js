@@ -508,7 +508,7 @@ const RUTAS_HERRAMIENTAS = [
      categoria: 'Educación',
      esBase: false,
      espacio: 6,
-     monedas: 15
+     monedas: 35
  }
 
 
