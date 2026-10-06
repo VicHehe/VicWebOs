@@ -133,8 +133,9 @@ liberarUrlAnterior();
 const meta = await cargarMetadata();
 // Sin GIF → empty state
 if (!meta) {
-acciones.hidden = true;
-footer.hidden = true;
+// Ocultar acciones y footer cuando no hay GIF
+if (acciones) acciones.hidden = true;
+if (footer) footer.hidden = true;
 zona.innerHTML = `
 <div class="sg-empty">
 <div class="sg-empty-icon">
@@ -152,9 +153,9 @@ if (window.lucide) window.lucide.createIcons();
 document.getElementById('sgBtnSubirEmpty')?.addEventListener('click', abrirSelector);
 return;
 }
-// Con GIF
-acciones.hidden = false;
-footer.hidden = false;
+// Con GIF → mostrar acciones
+if (acciones) acciones.hidden = false;
+if (footer) footer.hidden = false;
 nombreEl.textContent = meta.nombre || 'GIF';
 tamanoEl.textContent = formatearTamano(meta.tamano || 0);
 // Mostrar spinner mientras carga
