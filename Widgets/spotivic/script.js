@@ -2,6 +2,7 @@
 //  Widget: Spotivic
 //  Mini reproductor de música: hasta 4 canciones MP3.
 //  Persistencia: IndexedDB (local, por usuario). NO usa GitHub.
+//  Las canciones se añaden/borran desde el modal (engranaje).
 // ============================================================
 
 'use strict';
@@ -351,8 +352,8 @@ function alternarMute() {
     renderControles();
 }
 
-audio.addEventListener('play',  () => { renderControles(); renderLista(); renderInfo(); });
-audio.addEventListener('pause', () => { renderControles(); renderLista(); renderInfo(); });
+audio.addEventListener('play',  () => { renderControles(); renderPuntos(); renderInfo(); });
+audio.addEventListener('pause', () => { renderControles(); renderPuntos(); renderInfo(); });
 audio.addEventListener('ended', () => { if (!ajustes.repetir) saltar(1); });
 audio.addEventListener('timeupdate',     actualizarProgreso);
 audio.addEventListener('loadedmetadata', actualizarProgreso);
@@ -393,36 +394,64 @@ function renderInfo() {
     disco.classList.toggle('girando', !!p && !audio.paused);
 }
 
-function renderLista() {
-    const lista = document.getElementById('svLista');
+function renderPuntos() {
+    const cont = document.getElementById('svPuntos');
     const sonando = actual >= 0 && !audio.paused;
     let html = '';
+    for (let i = 0; i < MAX_PISTAS; i++) {
+        const p = pistas[i];
+        if (!p) {
+            html += `<button class="sv-punto sv-punto-vacio" data-vacio="${i}" title="Espacio libre">
+                        <i data-lucide="plus"></i></button>`;
+            continue;
+        }
+        const act = i === actual;
+        const contenido = (act && sonando)
+            ? `<span class="sv-eq"><i></i><i></i><i></i></span>`
+            : String(i + 1);
+        html += `<button class="sv-punto${act ? ' actual' : ''}" data-punto="${i}"
+                    title="${escapar(p.nombre)}">${contenido}</button>`;
+    }
+    cont.innerHTML = html;
+    if (window.lucide) window.lucide.createIcons();
+}
 
+// ---------- Modal "Mis canciones" ----------
+function modalAbierto() {
+    return !document.getElementById('svModal').hidden;
+}
+function abrirModal()  { document.getElementById('svModal').hidden = false; renderModal(); }
+function cerrarModal() { document.getElementById('svModal').hidden = true; }
+
+function renderModal() {
+    const cont = document.getElementById('svModalLista');
+    let html = '';
     for (let i = 0; i < MAX_PISTAS; i++) {
         const p = pistas[i];
         if (!p) {
             html += `
-                <button class="sv-fila sv-fila-vacia" data-add="${i}">
-                    <span class="sv-fila-num"><i data-lucide="plus"></i></span>
-                    <span class="sv-fila-nombre">Añadir canción</span>
+                <button class="sv-mrow sv-mrow-vacia" data-add="${i}">
+                    <span class="sv-mnum"><i data-lucide="plus"></i></span>
+                    <span class="sv-mtexto"><b>Espacio libre</b><small>Toca para subir un MP3</small></span>
                 </button>`;
             continue;
         }
-        const esActual = i === actual;
-        const indicador = (esActual && sonando)
-            ? `<span class="sv-eq"><i></i><i></i><i></i></span>`
-            : (esActual ? `<i data-lucide="pause"></i>` : `<span>${i + 1}</span>`);
         html += `
-            <div class="sv-fila ${esActual ? 'sv-fila-actual' : ''}" data-play="${i}">
-                <span class="sv-fila-num">${indicador}</span>
-                <span class="sv-fila-nombre" title="${escapar(p.nombre)}">${escapar(p.nombre)}</span>
-                <span class="sv-fila-dur">${formatearTiempo(p.duracion)}</span>
-                <button class="sv-fila-borrar" data-del="${i}" title="Borrar canción">
+            <div class="sv-mrow">
+                <span class="sv-mnum">${i + 1}</span>
+                <span class="sv-mtexto">
+                    <b title="${escapar(p.nombre)}">${escapar(p.nombre)}</b>
+                    <small>${formatearTiempo(p.duracion)} · ${formatearTamano(p.tamano)}</small>
+                </span>
+                <button class="sv-mdel" data-del="${i}" title="Borrar canción">
                     <i data-lucide="trash-2"></i>
                 </button>
             </div>`;
     }
-    lista.innerHTML = html;
+    cont.innerHTML = html;
+    const n = slotsLlenos().length;
+    document.getElementById('svModalContador').textContent = `${n}/${MAX_PISTAS}`;
+    document.getElementById('svBtnAnadirModal').disabled = slotsLibres().length === 0;
     if (window.lucide) window.lucide.createIcons();
 }
 
@@ -447,12 +476,16 @@ function actualizarProgreso() {
 }
 
 function render() {
-    document.getElementById('svContador').textContent = `${slotsLlenos().length}/${MAX_PISTAS}`;
-    document.getElementById('svBtnAgregar').disabled = slotsLibres().length === 0;
+    const n = slotsLlenos().length;
+    document.getElementById('svContador').textContent = `${n}/${MAX_PISTAS}`;
+    document.getElementById('svVacio').hidden  = n > 0;
+    document.getElementById('svCuerpo').hidden = n === 0;
     renderInfo();
-    renderLista();
+    renderPuntos();
     renderControles();
     actualizarProgreso();
+    if (modalAbierto()) renderModal();
+    if (window.lucide) window.lucide.createIcons();
 }
 
 // ============================================================
@@ -465,7 +498,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     catch (e) { usuarioActual = null; }
 
     // Botones
-    document.getElementById('svBtnAgregar').addEventListener('click', () => abrirSelector());
+    document.getElementById('svBtnConfig').addEventListener('click', abrirModal);
+    document.getElementById('svModalCerrar').addEventListener('click', cerrarModal);
+    document.getElementById('svBtnAnadirModal').addEventListener('click', () => abrirSelector());
+    document.getElementById('svBtnVacioAnadir').addEventListener('click', () => abrirSelector());
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modalAbierto()) cerrarModal(); });
+
     document.getElementById('svBtnPlay').addEventListener('click', alternarPlay);
     document.getElementById('svBtnPrev').addEventListener('click', () => saltar(-1));
     document.getElementById('svBtnNext').addEventListener('click', () => saltar(1));
@@ -477,14 +515,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         anadirArchivos(Array.from(e.target.files || []));
     });
 
-    // Lista (delegación de eventos)
-    document.getElementById('svLista').addEventListener('click', (e) => {
+    // Puntos de canciones (pantalla principal)
+    document.getElementById('svPuntos').addEventListener('click', (e) => {
+        const pu = e.target.closest('[data-punto]');
+        if (pu) { reproducir(Number(pu.dataset.punto)); return; }
+        if (e.target.closest('[data-vacio]')) abrirModal();
+    });
+
+    // Lista del modal (añadir / borrar)
+    document.getElementById('svModalLista').addEventListener('click', (e) => {
         const del = e.target.closest('[data-del]');
-        if (del) { e.stopPropagation(); borrarPista(Number(del.dataset.del)); return; }
+        if (del) { borrarPista(Number(del.dataset.del)); return; }
         const add = e.target.closest('[data-add]');
-        if (add) { abrirSelector(Number(add.dataset.add)); return; }
-        const play = e.target.closest('[data-play]');
-        if (play) reproducir(Number(play.dataset.play));
+        if (add) abrirSelector(Number(add.dataset.add));
     });
 
     // Barra de progreso
