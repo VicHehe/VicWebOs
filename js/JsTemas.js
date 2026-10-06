@@ -987,17 +987,19 @@ const TEMAS_DISPONIBLES = [
         }
     },
 
-    // ============================================================
+       // ============================================================
     //  ESTACIONES — Primavera, Verano, Otoño e Invierno
-    //  Costo total de la categoría: 158
+    //  Costo total de la categoría: 175
     //  Las cuatro caras del año: cada una con patrón SVG,
     //  animaciones en vivo y decoración por sección.
+    //  Progresión interna por temperatura:
+    //    frío (35) → floración (40) → calor (50) → caída (50).
     // ============================================================
-        {
+    {
         id: 'invierno',
         nombre: 'Invierno',
         icono: 'snowflake',
-        descripcion: 'Noche de nieve con ventana empañada y chimenea encendida: copos en parallax de 2 capas, escarcha trepando por el header y @property animado que hace latir toda la interfaz como una fogonera real.',
+        descripcion: 'Noche de nieve y chimenea encendida. Copos en parallax, escarcha en el header y brasa cálida al fondo.',
         categoria: 'Estaciones',
         ruta: 'Temas/invierno.css',
         espacio: 4,
@@ -1015,7 +1017,7 @@ const TEMAS_DISPONIBLES = [
         id: 'primavera',
         nombre: 'Primavera',
         icono: 'flower-2',
-        descripcion: 'Todo lo que crece en un mismo lugar: pétalos que eclosionan en el hero, hojas brotando del header, campo de flores en el lobby y mariposas cruzando la pantalla.',
+        descripcion: 'Todo florece a la vez: pétalos en el hero, hojas nuevas en el header y mariposas cruzando la pantalla.',
         categoria: 'Estaciones',
         ruta: 'Temas/primavera.css',
         espacio: 4,
@@ -1033,7 +1035,7 @@ const TEMAS_DISPONIBLES = [
         id: 'verano',
         nombre: 'Verano',
         icono: 'sun',
-        descripcion: 'Playa al mediodía: sol que respira, palmeras meciéndose con la brisa, olas animadas bajo el header y arena salpicada de conchitas.',
+        descripcion: 'Playa al mediodía. Sol que respira, palmeras con brisa y olas animadas bajo el header.',
         categoria: 'Estaciones',
         ruta: 'Temas/verano.css',
         espacio: 4,
@@ -1051,7 +1053,7 @@ const TEMAS_DISPONIBLES = [
         id: 'otono',
         nombre: 'Otoño',
         icono: 'leaf',
-        descripcion: 'Cae la tarde entre hojas que giran: arces cayendo con rotación real sobre el lobby, brasas de fogón respirando al fondo y cielo ámbar-terracota sobre madera.',
+        descripcion: 'Hojas que giran al caer, brasa de fogón al fondo y cielo ámbar sobre madera. La tarde se acuesta despacio.',
         categoria: 'Estaciones',
         ruta: 'Temas/otono.css',
         espacio: 4,
@@ -1065,6 +1067,7 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFDFA'
         }
     },
+
 
     
     // ============================================================
