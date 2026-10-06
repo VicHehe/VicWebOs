@@ -1,0 +1,94 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: transparent;
+    color: var(--text, #18181B);
+    font-size: 13px;
+    overflow: hidden;
+}
+[data-lucide] { width: 16px; height: 16px; stroke-width: 2; flex-shrink: 0; }
+
+.at-widget {
+    background: var(--white, #FFFFFF);
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: var(--r-lg, 16px);
+    padding: 12px 14px;
+    box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: hidden;
+}
+
+.at-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--gray-100, #F4F4F7);
+    flex-shrink: 0;
+}
+.at-titulo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-500, #71717A);
+}
+.at-titulo [data-lucide] { color: var(--violet-500, #8B5CF6); width: 13px; height: 13px; }
+
+.at-input {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: var(--r-md, 12px);
+    padding: 10px;
+    font-family: inherit;
+    font-size: 12.5px;
+    color: var(--gray-800, #27272A);
+    background: var(--gray-50, #FAFAFB);
+    resize: none;
+    outline: none;
+    transition: border-color 0.15s, background 0.15s;
+}
+.at-input:focus {
+    border-color: var(--violet-400, #A78BFA);
+    background: var(--white, #FFFFFF);
+}
+.at-input::placeholder { color: var(--gray-400, #A1A1AD); }
+
+.at-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    flex-shrink: 0;
+}
+.at-stat {
+    background: var(--violet-50, #F5F3FF);
+    border: 1px solid var(--violet-100, #EDE9FE);
+    border-radius: var(--r-sm, 8px);
+    padding: 8px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.at-stat-val {
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--violet-700, #6D28D9);
+    font-variant-numeric: tabular-nums;
+}
+.at-stat-label {
+    font-size: 9.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--violet-500, #8B5CF6);
+}
