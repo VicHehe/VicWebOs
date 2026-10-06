@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+    <div class="pm-widget" id="pmWidget">
+        <!-- HEADER -->
+        <div class="pm-header">
+            <div class="pm-titulo">
+                <i data-lucide="target"></i>
+                <span>Pomodoro</span>
+            </div>
+            <div class="pm-fase-badge" id="pmFaseBadge">
+                <i data-lucide="brain-circuit" id="pmFaseIcono"></i>
+                <span id="pmFaseTexto">Enfoque</span>
+            </div>
+        </div>
+
+        <!-- DISPLAY Y CICLOS -->
+        <div class="pm-display">
+            <div class="pm-tiempo" id="pmTiempo">25:00</div>
+            <div class="pm-ciclos" id="pmCiclos">
+                <div class="pm-dot"></div>
+                <div class="pm-dot"></div>
+                <div class="pm-dot"></div>
+                <div class="pm-dot"></div>
+            </div>
+        </div>
+
+        <!-- CONTROLES -->
+        <div class="pm-controles">
+            <button class="pm-btn" id="pmBtnReset" title="Reiniciar fase">
+                <i data-lucide="rotate-ccw"></i>
+            </button>
+            <button class="pm-btn pm-btn-primario" id="pmBtnPlay" title="Iniciar">
+                <i data-lucide="play"></i>
+            </button>
+            <button class="pm-btn" id="pmBtnSkip" title="Saltar fase">
+                <i data-lucide="skip-forward"></i>
+            </button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
