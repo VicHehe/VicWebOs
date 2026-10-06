@@ -16,6 +16,7 @@ const ARCHIVO_BASE = 'app/silly-gif/';
 const MAX_TAMANO = 2 * 1024 * 1024; // 2 MB
 let usuarioActual = null;
 let urlActual = null; // blob URL activa (para revocar)
+let gifEliminadoLocalmente = false; // ← NUEVO: flag local para evitar re-lectura
 const API = () => window.parent.__vicwebos || null;
 const BD  = () => window.parent.ConfigBD || null;
 // ============================================================
@@ -130,10 +131,30 @@ const nombreEl = document.getElementById('sgNombre');
 const tamanoEl = document.getElementById('sgTamano');
 if (!zona) return;
 liberarUrlAnterior();
+// ← NUEVO: Si fue eliminado localmente, mostrar empty state sin leer de GitHub
+if (gifEliminadoLocalmente) {
+if (acciones) acciones.hidden = true;
+if (footer) footer.hidden = true;
+zona.innerHTML = `
+<div class="sg-empty">
+<div class="sg-empty-icon">
+<i data-lucide="film"></i>
+</div>
+<p>Sin GIF decorativo</p>
+<small>Máx. 2 MB · Solo 1 a la vez</small>
+<button class="sg-btn" id="sgBtnSubirEmpty">
+<i data-lucide="upload"></i>
+Subir GIF
+</button>
+</div>
+`;
+if (window.lucide) window.lucide.createIcons();
+document.getElementById('sgBtnSubirEmpty')?.addEventListener('click', abrirSelector);
+return;
+}
 const meta = await cargarMetadata();
 // Sin GIF → empty state
 if (!meta) {
-// Ocultar acciones y footer cuando no hay GIF
 if (acciones) acciones.hidden = true;
 if (footer) footer.hidden = true;
 zona.innerHTML = `
@@ -227,6 +248,8 @@ tamano: file.size,
 tipo: file.type,
 subida: new Date().toISOString()
 });
+// ← NUEVO: Resetear flag local
+gifEliminadoLocalmente = false;
 await render();
 } catch (e) {
 console.warn('[SillyGif] Error subiendo:', e);
@@ -237,19 +260,37 @@ await render();
 async function quitarGif() {
 if (!confirm('¿Quitar el GIF decorativo?')) return;
 const zona = document.getElementById('sgZona');
+// ← NUEVO: Marcar como eliminado localmente PRIMERO
+gifEliminadoLocalmente = true;
+// Mostrar estado vacío inmediatamente (sin esperar a GitHub)
 zona.innerHTML = `
-<div class="sg-cargando">
-<div class="sg-spinner"></div>
-<span>Quitando...</span>
+<div class="sg-empty">
+<div class="sg-empty-icon">
+<i data-lucide="film"></i>
+</div>
+<p>Sin GIF decorativo</p>
+<small>Máx. 2 MB · Solo 1 a la vez</small>
+<button class="sg-btn" id="sgBtnSubirEmpty">
+<i data-lucide="upload"></i>
+Subir GIF
+</button>
 </div>
 `;
+const acciones = document.getElementById('sgAcciones');
+const footer = document.getElementById('sgFooter');
+if (acciones) acciones.hidden = true;
+if (footer) footer.hidden = true;
+if (window.lucide) window.lucide.createIcons();
+document.getElementById('sgBtnSubirEmpty')?.addEventListener('click', abrirSelector);
+// Liberar URL del blob
+liberarUrlAnterior();
+// ← NUEVO: Borrar en segundo plano (fire-and-forget)
 try {
 await borrarBinario();
 await borrarMetadata();
 } catch (e) {
 console.warn('[SillyGif] Error quitando:', e);
 }
-await render();
 }
 // ============================================================
 //  INIT
