@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MateQuiz</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="mq-container">
+        <!-- HEADER -->
+        <header class="mq-header">
+            <div class="mq-logo">
+                <div class="mq-logo-mark"><i data-lucide="brain"></i></div>
+                <div class="mq-logo-text">
+                    <h1>MateQuiz</h1>
+                    <p id="mqUserBadge">—</p>
+                </div>
+            </div>
+            <div class="mq-racha-badge" id="mqRachaBadge">
+                <i data-lucide="flame"></i>
+                <span id="mqRachaDias">0</span> días
+            </div>
+        </header>
+
+        <!-- VISTA: DASHBOARD -->
+        <main id="mqDashboard" class="mq-view active">
+            <div class="mq-alerta-racha" id="mqAlertaRacha" hidden>
+                <i data-lucide="alert-triangle"></i>
+                <div class="mq-alerta-info">
+                    <strong>¡Tu racha está en peligro!</strong>
+                    <span>No has jugado desde hace unos días. ¿Quieres salvarla?</span>
+                </div>
+                <button class="mq-btn mq-btn-salvar" id="mqBtnSalvarRacha">
+                    <i data-lucide="heart-handshake"></i> Salvar (5 OS)
+                </button>
+            </div>
+
+            <div class="mq-seccion-titulo">
+                <h2>Modos de juego</h2>
+                <p>10 preguntas por sesión. Juega 1 vez al día por modo.</p>
+            </div>
+
+            <div class="mq-grid" id="mqGridModos">
+                <!-- Se llena con JS -->
+            </div>
+        </main>
+
+        <!-- VISTA: JUEGO -->
+        <main id="mqJuego" class="mq-view" hidden>
+            <div class="mq-juego-header">
+                <button class="mq-btn-icono" id="mqBtnSalirJuego" title="Salir"><i data-lucide="x"></i></button>
+                <div class="mq-progreso">
+                    <span id="mqPreguntaActual">1</span> / 10
+                </div>
+                <div class="mq-timer-wrap" id="mqTimerWrap" hidden>
+                    <div class="mq-timer-bar" id="mqTimerBar"></div>
+                    <span id="mqTimerTexto">5.0s</span>
+                </div>
+            </div>
+
+            <div class="mq-pregunta-box">
+                <h3 id="mqPreguntaTexto">¿Cuánto es 5 + 3?</h3>
+            </div>
+
+            <div class="mq-opciones-grid" id="mqOpcionesGrid">
+                <!-- 4 botones de opción -->
+            </div>
+        </main>
+
+        <!-- VISTA: RESULTADO -->
+        <main id="mqResultado" class="mq-view" hidden>
+            <div class="mq-resultado-card">
+                <div class="mq-resultado-icono" id="mqResultadoIcono">
+                    <i data-lucide="trophy"></i>
+                </div>
+                <h2 id="mqResultadoTitulo">¡Bien hecho!</h2>
+                <p id="mqResultadoDesc">Acertaste 8 de 10 preguntas.</p>
+                
+                <div class="mq-resultado-stats">
+                    <div class="mq-stat">
+                        <span>Monedas ganadas</span>
+                        <strong id="mqMonedasGanadas">+15</strong>
+                    </div>
+                    <div class="mq-stat">
+                        <span>Racha actual</span>
+                        <strong id="mqRachaFinal">5 días</strong>
+                    </div>
+                </div>
+
+                <button class="mq-btn mq-btn-primario" id="mqBtnVolverInicio">
+                    <i data-lucide="home"></i> Volver al inicio
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- TOAST -->
+    <div id="mqToast" class="mq-toast"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
