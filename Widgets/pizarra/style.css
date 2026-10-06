@@ -1,0 +1,180 @@
+/* ================================================
+Widget: Pizarra (Mini Canvas)
+Lienzo interactivo con persistencia en GitHub.
+================================================ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: transparent;
+    color: var(--text, #18181B);
+    font-size: 13px;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+}
+[data-lucide] { width: 16px; height: 16px; stroke-width: 2; flex-shrink: 0; }
+
+/* ========== WIDGET ========== */
+.pz-widget {
+    background: var(--white, #FFFFFF);
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: var(--r-lg, 16px);
+    padding: 12px 14px;
+    box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: hidden;
+    transition: background 0.3s, border-color 0.3s;
+    position: relative;
+}
+
+/* ========== HEADER ========== */
+.pz-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--gray-100, #F4F4F7);
+    flex-shrink: 0;
+}
+.pz-titulo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-500, #71717A);
+}
+.pz-titulo [data-lucide] {
+    color: var(--violet-500, #8B5CF6);
+    width: 13px;
+    height: 13px;
+}
+.pz-acciones {
+    display: flex;
+    gap: 4px;
+}
+
+/* ========== BOTONES ICONO ========== */
+.pz-icon-btn {
+    background: none;
+    border: 1px solid var(--border, #E8E8EE);
+    border-radius: 7px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--gray-500, #71717A);
+    transition: all 0.15s;
+    padding: 0;
+}
+.pz-icon-btn:hover {
+    background: var(--violet-50, #F5F3FF);
+    border-color: var(--violet-300, #C4B5FD);
+    color: var(--violet-600, #7C3AED);
+}
+.pz-icon-btn:active { transform: scale(0.92); }
+.pz-icon-btn [data-lucide] { width: 13px; height: 13px; }
+
+.pz-icon-btn-primary {
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    border-color: transparent;
+    color: white;
+}
+.pz-icon-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px var(--accent-shadow, rgba(139,92,246,0.28));
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: white;
+}
+
+/* ========== CANVAS WRAP ========== */
+.pz-canvas-wrap {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    background: var(--gray-50, #FAFAFB);
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: crosshair;
+    touch-action: none; /* Evita scroll al dibujar en móvil */
+}
+
+#pzCanvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+}
+
+/* Estado vacío (placeholder) */
+.pz-empty-state {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--gray-300, #D4D4DD);
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+.pz-empty-state [data-lucide] {
+    width: 32px;
+    height: 32px;
+    stroke-width: 1.5;
+}
+.pz-empty-state span {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+.pz-widget.has-drawing .pz-empty-state {
+    opacity: 0;
+}
+
+/* ========== TOAST DE FEEDBACK ========== */
+.pz-toast {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--gray-900, #18181B);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 10;
+}
+.pz-toast [data-lucide] {
+    width: 14px;
+    height: 14px;
+    color: #10B981;
+}
+.pz-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 260px) {
+    .pz-widget { padding: 10px 12px; gap: 8px; }
+    .pz-icon-btn { width: 26px; height: 26px; }
+}
