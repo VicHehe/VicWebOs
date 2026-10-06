@@ -159,7 +159,17 @@ const WIDGETS_DISPONIBLES = [
         espacio: 2,
         monedas: 15
     },
-
+    {
+    id: 'analizador-texto',
+    nombre: 'Analizador de Texto',
+    icono: 'bar-chart-3',
+    ruta: 'Widgets/analizador-texto/index.html',
+    descripcion: 'Pega un texto y obtén al instante: palabras, caracteres, líneas y tiempo estimado de lectura.',
+    categoria: 'Utilidades',
+    esBase: false,
+    espacio: 2,
+    monedas: 20
+},
     {
         id: 'reloj-mundial',
         nombre: 'Reloj Mundial',
