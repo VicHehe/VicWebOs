@@ -151,6 +151,17 @@ const WIDGETS_DISPONIBLES = [
         monedas: 40
     },
     {
+    id: 'pomodoro',
+    nombre: 'Pomodoro',
+    icono: 'target',
+    ruta: 'Widgets/pomodoro/index.html',
+    descripcion: 'Técnica Pomodoro (25 min enfoque / 5 min descanso). Gestiona tus ciclos de trabajo.',
+    categoria: 'Utilidades',
+    esBase: false,
+    espacio: 2,
+    monedas: 40
+    },
+    {
         id: 'lector',
         nombre: 'Lector',
         icono: 'book-open-text',
