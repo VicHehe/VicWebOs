@@ -148,6 +148,17 @@ const WIDGETS_DISPONIBLES = [
     espacio: 4,
     monedas: 60
     },
+    {
+    id: 'metronomo',
+    nombre: 'Metrónomo',
+    icono: 'metronome',
+    ruta: 'Widgets/metronomo/index.html',
+    descripcion: 'Metrónomo simple con animación visual y sonido. Ajusta los BPM y mantén el ritmo.',
+    categoria: 'Utilidades',
+    esBase: false,
+    espacio: 2,
+    monedas: 15
+},
         {
         id: 'gen-pass',
         nombre: 'Generador de Contraseñas',
