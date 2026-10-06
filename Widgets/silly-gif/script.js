@@ -1,38 +1,27 @@
 // ============================================================
-//  Widget: Spotivic
-//  Mini reproductor de música: hasta 4 canciones MP3.
-//  Persistencia: IndexedDB (local, por usuario). NO usa GitHub.
-//  Las canciones se añaden/borran desde el modal (engranaje).
+//  Widget: SillyGif
+//  Sube UN gif (máx. 2 MB) y lo reproduce.
+//  Sube DIRECTO a GitHub (Contents API), sin pasar por ConfigBD.
+//  1 GIF por usuario: misma ruta → subir otro lo REEMPLAZA.
+//
+//      app/silly-gif/{codigo}silly-gif.gif
 // ============================================================
 
 'use strict';
 
 const MENSAJE_TEMA = 'vicwebos_tema_cambio';
-const IDB_NAME     = 'SpotivicWidgetDB';
-const IDB_VERSION  = 1;
-const IDB_STORE    = 'canciones';
-const MAX_PISTAS   = 4;
-const MAX_BYTES    = 20 * 1024 * 1024;   // 20 MB por canción
+const CARPETA      = 'app/silly-gif/';
+const MAX_BYTES    = 2 * 1024 * 1024;   // 2 MB
 
-let usuarioActual = null;
-let pistas   = new Array(MAX_PISTAS).fill(null);  // {nombre, tamano, duracion, blob}
-let actual   = -1;        // slot sonando / seleccionado
-let urlActual = null;     // blob URL del audio cargado
-let ocupado  = false;
-let arrastrandoSeek = false;
-let ajustes  = { volumen: 0.8, repetir: false };
+let urlActual    = null;    // blob URL del gif mostrado (null = no hay)
+let errorCarga   = false;
+let ocupado      = false;
 
-const audio = new Audio();
-audio.preload = 'auto';
+const API = () => window.parent.__vicwebos || null;
 
-const API = () => {
-    try { return (window.parent && window.parent.__vicwebos) || null; }
-    catch (e) { return null; }
-};
-
-// ============================================================
-//  TEMA
-// ============================================================
+// ------------------------------------------------------------
+//  Tema
+// ------------------------------------------------------------
 function aplicarTemaDelPadre() {
     try {
         const rootPadre = window.parent.document.documentElement;
@@ -61,511 +50,345 @@ window.addEventListener('message', (e) => {
     if (e.data && e.data.type === MENSAJE_TEMA) aplicarTemaDelPadre();
 });
 
-// ============================================================
-//  INDEXEDDB
-// ============================================================
-function abrirIDB() {
+// ------------------------------------------------------------
+//  Ruta por usuario
+// ------------------------------------------------------------
+function rutaGif() {
+    const api = API();
+    if (!api) return null;
+    const cuenta = api.obtenerCuenta();
+    if (!cuenta || !cuenta.codigo) return null;
+    return `${CARPETA}${cuenta.codigo}silly-gif.gif`;
+}
+
+// ------------------------------------------------------------
+//  GitHub directo (sin ConfigBD)
+//  Solo lee token/owner/repo de la comunidad activa.
+// ------------------------------------------------------------
+function configGitHub() {
+    const fn = window.parent.cargarConfigBD;
+    const c = (typeof fn === 'function') ? fn() : null;
+    if (!c || !c.githubToken || !c.githubOwner || !c.githubRepo) return null;
+    return c;
+}
+
+function ghUrl(c, ruta) {
+    const p = ruta.split('/').map(encodeURIComponent).join('/');
+    return `https://api.github.com/repos/${c.githubOwner}/${c.githubRepo}/contents/${p}`;
+}
+
+function ghHeaders(c, extra = {}) {
+    return {
+        'Authorization': `Bearer ${c.githubToken}`,
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        ...extra
+    };
+}
+
+const esperar = (ms) => new Promise(r => setTimeout(r, ms));
+
+// sha actual del archivo (null si no existe). SIN caché del navegador.
+// Se usa el media type "object" porque funciona también con archivos > 1 MB.
+async function ghObtenerSha(c, ruta) {
+    const res = await fetch(ghUrl(c, ruta), {
+        headers: ghHeaders(c, { 'Accept': 'application/vnd.github.object+json' }),
+        cache: 'no-store'
+    });
+    if (res.status === 404) return null;
+    if (!res.ok) throw new Error(`No se pudo consultar GitHub (${res.status}).`);
+    const data = await res.json();
+    return data.sha || null;
+}
+
+function archivoABase64(file) {
     return new Promise((resolve, reject) => {
-        const req = indexedDB.open(IDB_NAME, IDB_VERSION);
-        req.onupgradeneeded = (e) => {
-            const db = e.target.result;
-            if (!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
-        };
-        req.onsuccess = (e) => resolve(e.target.result);
-        req.onerror   = (e) => reject(e.target.error);
+        const r = new FileReader();
+        r.onload  = () => resolve(String(r.result).split(',')[1]);
+        r.onerror = () => reject(new Error('No se pudo leer el archivo.'));
+        r.readAsDataURL(file);
     });
 }
 
-async function idbGet(key) {
-    try {
-        const db = await abrirIDB();
-        return await new Promise((resolve, reject) => {
-            const req = db.transaction(IDB_STORE, 'readonly').objectStore(IDB_STORE).get(key);
-            req.onsuccess = () => resolve(req.result);
-            req.onerror   = (e) => reject(e.target.error);
+async function ghSubir(c, ruta, file) {
+    const content = await archivoABase64(file);
+
+    for (let intento = 1; intento <= 3; intento++) {
+        const sha = await ghObtenerSha(c, ruta);   // fresco en cada intento
+        const res = await fetch(ghUrl(c, ruta), {
+            method: 'PUT',
+            headers: ghHeaders(c, { 'Content-Type': 'application/json' }),
+            body: JSON.stringify({
+                message: 'SillyGif: subir gif',
+                content,
+                ...(sha ? { sha } : {})
+            })
         });
-    } catch (e) { return null; }
-}
+        if (res.ok) return;
 
-// Las escrituras SÍ lanzan error (ej. cuota llena) para avisar al usuario
-async function idbSet(key, value) {
-    const db = await abrirIDB();
-    return await new Promise((resolve, reject) => {
-        const tx = db.transaction(IDB_STORE, 'readwrite');
-        tx.objectStore(IDB_STORE).put(value, key);
-        tx.oncomplete = () => resolve();
-        tx.onerror    = (e) => reject(e.target.error);
-        tx.onabort    = (e) => reject(e.target.error || new Error('Escritura cancelada.'));
-    });
-}
-
-async function idbDelete(key) {
-    const db = await abrirIDB();
-    return await new Promise((resolve, reject) => {
-        const tx = db.transaction(IDB_STORE, 'readwrite');
-        tx.objectStore(IDB_STORE).delete(key);
-        tx.oncomplete = () => resolve();
-        tx.onerror    = (e) => reject(e.target.error);
-    });
-}
-
-function codigo() {
-    return (usuarioActual && usuarioActual.codigo) ? usuarioActual.codigo : 'invitado';
-}
-const clavePista   = (slot) => `sv_${codigo()}_${slot}`;
-const claveAjustes = ()     => `sv_${codigo()}_ajustes`;
-
-async function cargarTodo() {
-    for (let i = 0; i < MAX_PISTAS; i++) {
-        const d = await idbGet(clavePista(i));
-        if (d && d.blob) {
-            pistas[i] = {
-                nombre:   d.nombre || 'Canción',
-                tamano:   d.tamano || d.blob.size || 0,
-                duracion: d.duracion || 0,
-                blob:     d.blob
-            };
-        }
-    }
-    const aj = await idbGet(claveAjustes());
-    if (aj && typeof aj === 'object') {
-        if (typeof aj.volumen === 'number') ajustes.volumen = Math.min(1, Math.max(0, aj.volumen));
-        ajustes.repetir = !!aj.repetir;
+        const err = await res.json().catch(() => ({}));
+        const conflicto = res.status === 409 || res.status === 422;
+        if (conflicto && intento < 3) { await esperar(400 * intento); continue; }
+        throw new Error(err.message || `Error subiendo el GIF (${res.status}).`);
     }
 }
 
-function guardarAjustes() {
-    idbSet(claveAjustes(), { ...ajustes }).catch(() => {});
+async function ghLeerBlob(c, ruta) {
+    const res = await fetch(ghUrl(c, ruta), {
+        headers: ghHeaders(c, { 'Accept': 'application/vnd.github.raw' }),
+        cache: 'no-store'
+    });
+    if (res.status === 404) return null;
+    if (!res.ok) throw new Error(`No se pudo leer el GIF (${res.status}).`);
+    const blob = await res.blob();
+    return new Blob([blob], { type: 'image/gif' });
 }
 
-// ============================================================
-//  UTILIDADES
-// ============================================================
-function escapar(s) {
-    return String(s).replace(/[&<>"']/g, c => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    }[c]));
+async function ghBorrar(c, ruta) {
+    const sha = await ghObtenerSha(c, ruta);
+    if (!sha) return;   // ya no existía
+    const res = await fetch(ghUrl(c, ruta), {
+        method: 'DELETE',
+        headers: ghHeaders(c, { 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ message: 'SillyGif: borrar gif', sha })
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || `No se pudo borrar el GIF (${res.status}).`);
+    }
 }
 
-function formatearTiempo(seg) {
-    if (!isFinite(seg) || seg < 0) seg = 0;
-    const m = Math.floor(seg / 60);
-    const s = Math.floor(seg % 60);
-    return `${m}:${String(s).padStart(2, '0')}`;
-}
-
+// ------------------------------------------------------------
+//  Utilidades
+// ------------------------------------------------------------
 function formatearTamano(bytes) {
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + ' KB';
-    return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+    return (bytes / 1024 / 1024).toFixed(2) + ' MB';
 }
 
-function nombreLimpio(nombreArchivo) {
-    return nombreArchivo.replace(/\.mp3$/i, '').replace(/[_]+/g, ' ').trim() || 'Canción';
-}
-
-function mostrarMensaje(msg) {
-    const el = document.getElementById('svMsg');
+function mostrarError(msg) {
+    const el = document.getElementById('sgError');
     if (!el) return;
     if (!msg) { el.hidden = true; el.textContent = ''; return; }
     el.textContent = msg;
     el.hidden = false;
-    clearTimeout(mostrarMensaje._t);
-    mostrarMensaje._t = setTimeout(() => { el.hidden = true; }, 5000);
+    clearTimeout(mostrarError._t);
+    mostrarError._t = setTimeout(() => { el.hidden = true; }, 5000);
 }
 
 function liberarURL() {
     if (urlActual) { URL.revokeObjectURL(urlActual); urlActual = null; }
 }
 
-function leerDuracion(blob) {
-    return new Promise((resolve) => {
-        const a = new Audio();
-        const u = URL.createObjectURL(blob);
-        const fin = (v) => { URL.revokeObjectURL(u); resolve(v); };
-        a.preload = 'metadata';
-        a.onloadedmetadata = () => fin(isFinite(a.duration) ? a.duration : 0);
-        a.onerror = () => fin(null);   // null = no es un audio válido
-        a.src = u;
-    });
+// Verifica la cabecera real (GIF87a / GIF89a), no solo la extensión
+async function esGifReal(file) {
+    try {
+        const buf = new Uint8Array(await file.slice(0, 6).arrayBuffer());
+        const cab = String.fromCharCode(...buf);
+        return cab === 'GIF87a' || cab === 'GIF89a';
+    } catch (e) { return false; }
 }
 
-function validar(file) {
+async function validar(file) {
     if (!file) return 'No se seleccionó ningún archivo.';
-    const esMp3 = /\.mp3$/i.test(file.name) || file.type === 'audio/mpeg';
-    if (!esMp3) return `"${file.name}" no es un MP3.`;
-    if (file.size === 0) return `"${file.name}" está vacío.`;
+    if (file.size === 0) return 'El archivo está vacío.';
     if (file.size > MAX_BYTES) {
-        return `"${file.name}" pesa ${formatearTamano(file.size)}. Máximo ${MAX_BYTES / 1024 / 1024} MB.`;
+        return `El GIF pesa ${formatearTamano(file.size)}. Máximo 2 MB.`;
     }
+    if (!(await esGifReal(file))) return 'Solo se permiten archivos GIF.';
     return null;
 }
 
-function slotsLlenos() {
-    return pistas.map((p, i) => p ? i : -1).filter(i => i >= 0);
-}
-function slotsLibres() {
-    return pistas.map((p, i) => p ? -1 : i).filter(i => i >= 0);
-}
-
-// ============================================================
-//  ACCIONES: AÑADIR / BORRAR
-// ============================================================
-let slotPendiente = null;
-
-function abrirSelector(slot) {
-    if (ocupado) return;
-    if (slotsLibres().length === 0) {
-        mostrarMensaje('Ya tienes 4 canciones. Borra una para añadir otra.');
-        return;
+// ------------------------------------------------------------
+//  Cargar el gif guardado (si hay)
+// ------------------------------------------------------------
+async function cargar() {
+    errorCarga = false;
+    const c = configGitHub();
+    const ruta = rutaGif();
+    if (!c || !ruta) return;   // sin conexión → se muestra vacío
+    try {
+        const blob = await ghLeerBlob(c, ruta);
+        liberarURL();
+        if (blob) urlActual = URL.createObjectURL(blob);
+    } catch (e) {
+        console.warn('[SillyGif] No se pudo cargar:', e);
+        errorCarga = true;
     }
-    slotPendiente = (typeof slot === 'number') ? slot : null;
-    const input = document.getElementById('svInput');
+}
+
+// ------------------------------------------------------------
+//  Acciones
+// ------------------------------------------------------------
+function abrirSelector() {
+    if (ocupado) return;
+    const input = document.getElementById('sgInput');
     input.value = '';
     input.click();
 }
 
-async function anadirArchivos(files) {
-    if (ocupado || !files.length) return;
-    mostrarMensaje(null);
+async function subirGif(file) {
+    if (ocupado) return;
+    mostrarError(null);
 
-    const libres = slotsLibres();
-    if (slotPendiente !== null && libres.includes(slotPendiente)) {
-        libres.splice(libres.indexOf(slotPendiente), 1);
-        libres.unshift(slotPendiente);
-    }
-    slotPendiente = null;
+    const error = await validar(file);
+    if (error) { mostrarError(error); return; }
+
+    const c = configGitHub();
+    const ruta = rutaGif();
+    if (!ruta) { mostrarError('No se pudo identificar tu cuenta.'); return; }
+    if (!c)    { mostrarError('Conecta una comunidad primero.'); return; }
 
     ocupado = true;
-    const errores = [];
-    let omitidos = 0;
-
-    for (const file of files) {
-        if (libres.length === 0) { omitidos++; continue; }
-
-        const err = validar(file);
-        if (err) { errores.push(err); continue; }
-
-        const duracion = await leerDuracion(file);
-        if (duracion === null) { errores.push(`"${file.name}" no se pudo leer como audio.`); continue; }
-
-        const slot = libres.shift();
-        const pista = {
-            nombre: nombreLimpio(file.name),
-            tamano: file.size,
-            duracion,
-            blob: file
-        };
-        try {
-            await idbSet(clavePista(slot), { ...pista, actualizado: new Date().toISOString() });
-            pistas[slot] = pista;
-            render();
-        } catch (e) {
-            console.warn('[Spotivic] Error guardando:', e);
-            libres.unshift(slot);
-            errores.push(`No se pudo guardar "${file.name}" (¿sin espacio en el navegador?).`);
-        }
-    }
-
-    ocupado = false;
-    if (omitidos) errores.push(`Solo caben ${MAX_PISTAS} canciones; ${omitidos} no se añadieron.`);
-    if (errores.length) mostrarMensaje(errores[0] + (errores.length > 1 ? ` (+${errores.length - 1} más)` : ''));
-    render();
-}
-
-async function borrarPista(slot) {
-    if (ocupado || !pistas[slot]) return;
-    if (!confirm(`¿Borrar "${pistas[slot].nombre}"?`)) return;
+    renderSubiendo();
 
     try {
-        await idbDelete(clavePista(slot));
+        await ghSubir(c, ruta, file);   // misma ruta → reemplaza el anterior
+        liberarURL();
+        urlActual = URL.createObjectURL(file);   // sin volver a descargar
+        errorCarga = false;
     } catch (e) {
-        mostrarMensaje('No se pudo borrar la canción.');
-        return;
+        console.warn('[SillyGif] Error subiendo:', e);
+        mostrarError(e && e.message ? e.message : 'No se pudo subir el GIF.');
+    } finally {
+        ocupado = false;
+        render();
     }
-    if (slot === actual) detener();
-    pistas[slot] = null;
-    render();
 }
 
-// ============================================================
-//  REPRODUCCIÓN
-// ============================================================
-function detener() {
-    audio.pause();
-    audio.removeAttribute('src');
-    audio.load();
-    liberarURL();
-    actual = -1;
-    actualizarProgreso();
-}
+async function borrarGif() {
+    if (ocupado || !urlActual) return;
+    if (!confirm('¿Borrar tu GIF?')) return;
 
-function reproducir(slot, reiniciar = false) {
-    const p = pistas[slot];
-    if (!p) return;
+    const c = configGitHub();
+    const ruta = rutaGif();
+    if (!c || !ruta) return;
 
-    // Mismo tema: reiniciar (si viene de "siguiente") o alternar play/pausa
-    if (slot === actual && urlActual) {
-        if (reiniciar) { audio.currentTime = 0; audio.play().catch(() => {}); }
-        else if (audio.paused) audio.play().catch(() => {});
-        else audio.pause();
-        return;
+    ocupado = true;
+    mostrarError(null);
+    try {
+        await ghBorrar(c, ruta);
+        liberarURL();
+    } catch (e) {
+        console.warn('[SillyGif] Error borrando:', e);
+        mostrarError(e && e.message ? e.message : 'No se pudo borrar el GIF.');
+    } finally {
+        ocupado = false;
+        render();
     }
-
-    liberarURL();
-    urlActual = URL.createObjectURL(p.blob);
-    audio.src = urlActual;
-    actual = slot;
-    audio.loop = ajustes.repetir;
-    audio.play().catch((e) => {
-        console.warn('[Spotivic] No se pudo reproducir:', e);
-        mostrarMensaje('No se pudo reproducir esta canción.');
-    });
-    render();
 }
 
-function alternarPlay() {
-    if (actual < 0) {
-        const llenos = slotsLlenos();
-        if (llenos.length) reproducir(llenos[0]);
-        return;
-    }
-    if (audio.paused) audio.play().catch(() => {}); else audio.pause();
+// ------------------------------------------------------------
+//  Render
+// ------------------------------------------------------------
+function renderSubiendo() {
+    document.getElementById('sgAcciones').hidden = true;
+    document.getElementById('sgZona').innerHTML = `
+        <div class="sg-empty">
+            <div class="sg-spinner"></div>
+            <p>Subiendo GIF...</p>
+        </div>
+    `;
 }
 
-function saltar(dir) {
-    const llenos = slotsLlenos();
-    if (!llenos.length) return;
-    const idx = llenos.indexOf(actual);
-    const sig = idx < 0 ? 0 : (idx + dir + llenos.length) % llenos.length;
-    reproducir(llenos[sig], true);
-}
-
-function alternarRepetir() {
-    ajustes.repetir = !ajustes.repetir;
-    audio.loop = ajustes.repetir;
-    guardarAjustes();
-    renderControles();
-}
-
-function alternarMute() {
-    audio.muted = !audio.muted;
-    renderControles();
-}
-
-audio.addEventListener('play',  () => { renderControles(); renderPuntos(); renderInfo(); });
-audio.addEventListener('pause', () => { renderControles(); renderPuntos(); renderInfo(); });
-audio.addEventListener('ended', () => { if (!ajustes.repetir) saltar(1); });
-audio.addEventListener('timeupdate',     actualizarProgreso);
-audio.addEventListener('loadedmetadata', actualizarProgreso);
-audio.addEventListener('error', () => {
-    if (!audio.getAttribute('src')) return;
-    mostrarMensaje('Error al reproducir el audio.');
-});
-
-// ============================================================
-//  RENDER
-// ============================================================
-function setIcono(btn, nombre) {
-    if (!btn) return;
-    btn.innerHTML = `<i data-lucide="${nombre}"></i>`;
-}
-
-function renderControles() {
-    const sonando = actual >= 0 && !audio.paused;
-    setIcono(document.getElementById('svBtnPlay'), sonando ? 'pause' : 'play');
-    setIcono(document.getElementById('svBtnMute'),
-        (audio.muted || audio.volume === 0) ? 'volume-x' : 'volume-2');
-    document.getElementById('svBtnRepetir').classList.toggle('activo', ajustes.repetir);
-    if (window.lucide) window.lucide.createIcons();
-}
-
-function renderInfo() {
-    const nombre = document.getElementById('svNombre');
-    const sub    = document.getElementById('svSub');
-    const disco  = document.getElementById('svDisco');
-    const p = pistas[actual];
-    if (p) {
-        nombre.textContent = p.nombre;
-        sub.textContent = audio.paused ? 'En pausa' : 'Reproduciendo';
-    } else {
-        nombre.textContent = 'Nada sonando';
-        sub.textContent = slotsLlenos().length ? 'Elige una canción' : 'Sube tus canciones MP3';
-    }
-    disco.classList.toggle('girando', !!p && !audio.paused);
-}
-
-function renderPuntos() {
-    const cont = document.getElementById('svPuntos');
-    const sonando = actual >= 0 && !audio.paused;
-    let html = '';
-    for (let i = 0; i < MAX_PISTAS; i++) {
-        const p = pistas[i];
-        if (!p) {
-            html += `<button class="sv-punto sv-punto-vacio" data-vacio="${i}" title="Espacio libre">
-                        <i data-lucide="plus"></i></button>`;
-            continue;
-        }
-        const act = i === actual;
-        const contenido = (act && sonando)
-            ? `<span class="sv-eq"><i></i><i></i><i></i></span>`
-            : String(i + 1);
-        html += `<button class="sv-punto${act ? ' actual' : ''}" data-punto="${i}"
-                    title="${escapar(p.nombre)}">${contenido}</button>`;
-    }
-    cont.innerHTML = html;
-    if (window.lucide) window.lucide.createIcons();
-}
-
-// ---------- Modal "Mis canciones" ----------
-function modalAbierto() {
-    return !document.getElementById('svModal').hidden;
-}
-function abrirModal()  { document.getElementById('svModal').hidden = false; renderModal(); }
-function cerrarModal() { document.getElementById('svModal').hidden = true; }
-
-function renderModal() {
-    const cont = document.getElementById('svModalLista');
-    let html = '';
-    for (let i = 0; i < MAX_PISTAS; i++) {
-        const p = pistas[i];
-        if (!p) {
-            html += `
-                <button class="sv-mrow sv-mrow-vacia" data-add="${i}">
-                    <span class="sv-mnum"><i data-lucide="plus"></i></span>
-                    <span class="sv-mtexto"><b>Espacio libre</b><small>Toca para subir un MP3</small></span>
-                </button>`;
-            continue;
-        }
-        html += `
-            <div class="sv-mrow">
-                <span class="sv-mnum">${i + 1}</span>
-                <span class="sv-mtexto">
-                    <b title="${escapar(p.nombre)}">${escapar(p.nombre)}</b>
-                    <small>${formatearTiempo(p.duracion)} · ${formatearTamano(p.tamano)}</small>
-                </span>
-                <button class="sv-mdel" data-del="${i}" title="Borrar canción">
-                    <i data-lucide="trash-2"></i>
-                </button>
-            </div>`;
-    }
-    cont.innerHTML = html;
-    const n = slotsLlenos().length;
-    document.getElementById('svModalContador').textContent = `${n}/${MAX_PISTAS}`;
-    document.getElementById('svBtnAnadirModal').disabled = slotsLibres().length === 0;
-    if (window.lucide) window.lucide.createIcons();
-}
-
-function actualizarProgreso() {
-    const seek = document.getElementById('svSeek');
-    const tAct = document.getElementById('svTActual');
-    const tTot = document.getElementById('svTTotal');
-    if (!seek) return;
-
-    const dur = (actual >= 0 && isFinite(audio.duration) && audio.duration > 0)
-        ? audio.duration
-        : (pistas[actual] ? pistas[actual].duracion : 0);
-    const pos = actual >= 0 ? audio.currentTime : 0;
-
-    tTot.textContent = formatearTiempo(dur);
-    if (!arrastrandoSeek) {
-        tAct.textContent = formatearTiempo(pos);
-        const pct = dur > 0 ? (pos / dur) * 1000 : 0;
-        seek.value = pct;
-        seek.style.setProperty('--pct', (pct / 10) + '%');
-    }
+function renderCargando() {
+    document.getElementById('sgAcciones').hidden = true;
+    document.getElementById('sgZona').innerHTML = `<div class="sg-cargando"></div>`;
 }
 
 function render() {
-    const n = slotsLlenos().length;
-    document.getElementById('svContador').textContent = `${n}/${MAX_PISTAS}`;
-    document.getElementById('svVacio').hidden  = n > 0;
-    document.getElementById('svCuerpo').hidden = n === 0;
-    renderInfo();
-    renderPuntos();
-    renderControles();
-    actualizarProgreso();
-    if (modalAbierto()) renderModal();
-    if (window.lucide) window.lucide.createIcons();
+    const zona = document.getElementById('sgZona');
+    const acciones = document.getElementById('sgAcciones');
+    if (!zona) return;
+
+    // --- Error al cargar ---
+    if (errorCarga) {
+        acciones.hidden = true;
+        zona.innerHTML = `
+            <div class="sg-empty">
+                <p>No se pudo cargar el GIF.</p>
+                <button class="sg-btn" id="sgBtnReintentar">
+                    <i data-lucide="refresh-cw"></i>
+                    Reintentar
+                </button>
+            </div>
+        `;
+        if (window.lucide) window.lucide.createIcons();
+        document.getElementById('sgBtnReintentar')?.addEventListener('click', async () => {
+            renderCargando();
+            await cargar();
+            render();
+        });
+        return;
+    }
+
+    // --- Sin gif ---
+    if (!urlActual) {
+        acciones.hidden = true;
+        zona.innerHTML = `
+            <div class="sg-empty sg-drop" id="sgDrop">
+                <div class="sg-empty-icon">
+                    <i data-lucide="film"></i>
+                </div>
+                <p>Sube un GIF o arrástralo aquí</p>
+                <button class="sg-btn" id="sgBtnSubir">
+                    <i data-lucide="upload"></i>
+                    Subir GIF
+                </button>
+                <small>Máx. 2 MB · 1 GIF por cuenta</small>
+            </div>
+        `;
+        if (window.lucide) window.lucide.createIcons();
+        document.getElementById('sgBtnSubir')?.addEventListener('click', abrirSelector);
+        return;
+    }
+
+    // --- Con gif ---
+    acciones.hidden = false;
+    zona.innerHTML = `<img class="sg-gif" id="sgGif" alt="GIF">`;
+    document.getElementById('sgGif').src = urlActual;
+    // No se revoca el blob al cargar: se revoca al cambiar/borrar,
+    // para que el GIF siga animándose sin problemas.
 }
 
-// ============================================================
-//  INIT
-// ============================================================
+// ------------------------------------------------------------
+//  Drag & drop
+// ------------------------------------------------------------
+function iniciarDragDrop() {
+    const zona = document.getElementById('sgZona');
+    ['dragenter', 'dragover'].forEach(ev => zona.addEventListener(ev, (e) => {
+        e.preventDefault();
+        if (!ocupado) zona.classList.add('sg-arrastrando');
+    }));
+    ['dragleave', 'drop'].forEach(ev => zona.addEventListener(ev, (e) => {
+        e.preventDefault();
+        zona.classList.remove('sg-arrastrando');
+    }));
+    zona.addEventListener('drop', (e) => {
+        const file = e.dataTransfer?.files?.[0];
+        if (file) subirGif(file);
+    });
+}
+
+// ------------------------------------------------------------
+//  Init
+// ------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', async () => {
     aplicarTemaDelPadre();
-    const api = API();
-    try { usuarioActual = api && api.obtenerCuenta ? api.obtenerCuenta() : null; }
-    catch (e) { usuarioActual = null; }
 
-    // Botones
-    document.getElementById('svBtnConfig').addEventListener('click', abrirModal);
-    document.getElementById('svModalCerrar').addEventListener('click', cerrarModal);
-    document.getElementById('svBtnAnadirModal').addEventListener('click', () => abrirSelector());
-    document.getElementById('svBtnVacioAnadir').addEventListener('click', () => abrirSelector());
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modalAbierto()) cerrarModal(); });
-
-    document.getElementById('svBtnPlay').addEventListener('click', alternarPlay);
-    document.getElementById('svBtnPrev').addEventListener('click', () => saltar(-1));
-    document.getElementById('svBtnNext').addEventListener('click', () => saltar(1));
-    document.getElementById('svBtnRepetir').addEventListener('click', alternarRepetir);
-    document.getElementById('svBtnMute').addEventListener('click', alternarMute);
-
-    // Input de archivos
-    document.getElementById('svInput').addEventListener('change', (e) => {
-        anadirArchivos(Array.from(e.target.files || []));
+    document.getElementById('sgBtnCambiar')?.addEventListener('click', abrirSelector);
+    document.getElementById('sgBtnQuitar')?.addEventListener('click', borrarGif);
+    document.getElementById('sgInput')?.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (file) subirGif(file);
     });
+    iniciarDragDrop();
 
-    // Puntos de canciones (pantalla principal)
-    document.getElementById('svPuntos').addEventListener('click', (e) => {
-        const pu = e.target.closest('[data-punto]');
-        if (pu) { reproducir(Number(pu.dataset.punto)); return; }
-        if (e.target.closest('[data-vacio]')) abrirModal();
-    });
-
-    // Lista del modal (añadir / borrar)
-    document.getElementById('svModalLista').addEventListener('click', (e) => {
-        const del = e.target.closest('[data-del]');
-        if (del) { borrarPista(Number(del.dataset.del)); return; }
-        const add = e.target.closest('[data-add]');
-        if (add) abrirSelector(Number(add.dataset.add));
-    });
-
-    // Barra de progreso
-    const seek = document.getElementById('svSeek');
-    seek.addEventListener('input', () => {
-        arrastrandoSeek = true;
-        const dur = isFinite(audio.duration) ? audio.duration : 0;
-        const t = (seek.value / 1000) * dur;
-        document.getElementById('svTActual').textContent = formatearTiempo(t);
-        seek.style.setProperty('--pct', (seek.value / 10) + '%');
-    });
-    seek.addEventListener('change', () => {
-        if (actual >= 0 && isFinite(audio.duration)) {
-            audio.currentTime = (seek.value / 1000) * audio.duration;
-        }
-        arrastrandoSeek = false;
-    });
-
-    // Volumen
-    const vol = document.getElementById('svVol');
-    vol.addEventListener('input', () => {
-        audio.volume = vol.value / 100;
-        audio.muted = false;
-        ajustes.volumen = audio.volume;
-        vol.style.setProperty('--pct', vol.value + '%');
-        renderControles();
-    });
-    vol.addEventListener('change', guardarAjustes);
-
-    await cargarTodo();
-
-    audio.volume = ajustes.volumen;
-    audio.loop = ajustes.repetir;
-    vol.value = Math.round(ajustes.volumen * 100);
-    vol.style.setProperty('--pct', vol.value + '%');
-
+    renderCargando();
+    await cargar();
     render();
+
     if (window.lucide) window.lucide.createIcons();
 });
 
-window.addEventListener('beforeunload', () => { audio.pause(); liberarURL(); });
+window.addEventListener('beforeunload', liberarURL);
