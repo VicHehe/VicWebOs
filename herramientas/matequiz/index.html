@@ -8,7 +8,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
-    <div class="mq-container">
+    <div class="mq-app">
         <!-- HEADER -->
         <header class="mq-header">
             <div class="mq-logo">
@@ -20,14 +20,15 @@
             </div>
             <div class="mq-racha-badge" id="mqRachaBadge">
                 <i data-lucide="flame"></i>
-                <span id="mqRachaDias">0</span> días
+                <span id="mqRachaDias">0</span>
+                <span class="mq-racha-label">días</span>
             </div>
         </header>
 
         <!-- VISTA: DASHBOARD -->
         <main id="mqDashboard" class="mq-view active">
             <div class="mq-alerta-racha" id="mqAlertaRacha" hidden>
-                <i data-lucide="alert-triangle"></i>
+                <div class="mq-alerta-icono"><i data-lucide="alert-triangle"></i></div>
                 <div class="mq-alerta-info">
                     <strong>¡Tu racha está en peligro!</strong>
                     <span>No has jugado desde hace unos días. ¿Quieres salvarla?</span>
@@ -38,7 +39,7 @@
             </div>
 
             <div class="mq-seccion-titulo">
-                <h2>Modos de juego</h2>
+                <h2><i data-lucide="gamepad-2"></i> Modos de juego</h2>
                 <p>10 preguntas por sesión. Juega 1 vez al día por modo.</p>
             </div>
 
@@ -52,10 +53,13 @@
             <div class="mq-juego-header">
                 <button class="mq-btn-icono" id="mqBtnSalirJuego" title="Salir"><i data-lucide="x"></i></button>
                 <div class="mq-progreso">
-                    <span id="mqPreguntaActual">1</span> / 10
+                    <span id="mqPreguntaActual">1</span>
+                    <span class="mq-progreso-sep">/</span>
+                    <span>10</span>
                 </div>
                 <div class="mq-timer-wrap" id="mqTimerWrap" hidden>
-                    <div class="mq-timer-bar" id="mqTimerBar"></div>
+                    <i data-lucide="timer"></i>
+                    <div class="mq-timer-bar"><div class="mq-timer-bar-fill" id="mqTimerBar"></div></div>
                     <span id="mqTimerTexto">5.0s</span>
                 </div>
             </div>
