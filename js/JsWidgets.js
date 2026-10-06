@@ -115,7 +115,17 @@ const WIDGETS_DISPONIBLES = [
         espacio: 4,
         monedas: 25
     },
-
+{
+    id: 'mini-moodboard',
+    nombre: 'Mini Moodboard',
+    icono: 'layout-grid',
+    ruta: 'Widgets/mini-moodboard/index.html',
+    descripcion: 'Collage 2x2 con 4 imágenes de tu galería. Siempre visibles, sin carrusel.',
+    categoria: 'Personalización',
+    esBase: false,
+    espacio: 2,       // Mantiene el espacio 4 para que la cuadrícula 2x2 se vea bien y no apretada
+    monedas: 25       // Ajustado: más barato que Diapositivas por ser técnicamente más simple
+},
     {
         id: 'diapositivas',
         nombre: 'Diapositivas',
