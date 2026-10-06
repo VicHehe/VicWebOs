@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizarra</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+    <div class="pz-widget" id="pzWidget">
+        <!-- HEADER -->
+        <div class="pz-header">
+            <div class="pz-titulo">
+                <i data-lucide="paintbrush-2"></i>
+                <span>Pizarra</span>
+            </div>
+            <div class="pz-acciones">
+                <button class="pz-icon-btn" id="pzBtnRecargar" title="Recargar desde la nube">
+                    <i data-lucide="refresh-cw"></i>
+                </button>
+                <button class="pz-icon-btn" id="pzBtnLimpiar" title="Borrar todo">
+                    <i data-lucide="trash-2"></i>
+                </button>
+                <button class="pz-icon-btn pz-icon-btn-primary" id="pzBtnGuardar" title="Guardar en la nube">
+                    <i data-lucide="save"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- CANVAS -->
+        <div class="pz-canvas-wrap" id="pzCanvasWrap">
+            <canvas id="pzCanvas"></canvas>
+            <div class="pz-empty-state" id="pzEmptyState">
+                <i data-lucide="pencil-line"></i>
+                <span>Dibuja algo...</span>
+            </div>
+        </div>
+        
+        <!-- TOAST DE FEEDBACK -->
+        <div class="pz-toast" id="pzToast">
+            <i data-lucide="check-circle-2"></i>
+            <span id="pzToastText">Guardado</span>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
