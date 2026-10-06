@@ -179,7 +179,7 @@ const WIDGETS_DISPONIBLES = [
     categoria: 'Utilidades',
     esBase: false,
     espacio: 2,
-    monedas: 20
+    monedas: 30
 },
     {
         id: 'reloj-mundial',
