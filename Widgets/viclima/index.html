@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Viclima</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="vl-widget">
+        <div class="vl-header">
+            <div class="vl-titulo">
+                <i data-lucide="cloud-sun"></i>
+                <span>Viclima</span>
+                <span class="vl-loc" id="vlLoc" hidden></span>
+            </div>
+            <button class="vl-refresh" id="vlRefresh" title="Actualizar">
+                <i data-lucide="refresh-cw"></i>
+            </button>
+        </div>
+
+        <div class="vl-zona" id="vlZona">
+            <div class="vl-estado">
+                <div class="vl-spinner"></div>
+                <p>Buscando tu ubicación...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
