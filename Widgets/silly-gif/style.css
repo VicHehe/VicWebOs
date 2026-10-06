@@ -17,12 +17,12 @@ overflow: hidden;
 background: var(--white, #FFFFFF);
 border: 1px solid var(--border, #E8E8EE);
 border-radius: var(--r-lg, 16px);
-padding: 12px 14px;
+padding: 14px 16px;
 box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
 height: 100%;
 display: flex;
 flex-direction: column;
-gap: 8px;
+gap: 10px;
 overflow: hidden;
 transition: background 0.3s, color 0.3s, border-color 0.3s;
 }
@@ -32,10 +32,10 @@ display: flex;
 align-items: center;
 justify-content: space-between;
 gap: 8px;
-padding-bottom: 6px;
+padding-bottom: 8px;
 border-bottom: 1px solid var(--gray-100, #F4F4F7);
 flex-shrink: 0;
-min-height: 24px;
+min-height: 26px;
 }
 .sg-titulo {
 display: flex;
@@ -126,15 +126,15 @@ display: flex;
 flex-direction: column;
 align-items: center;
 justify-content: center;
-gap: 10px;
+gap: 12px;
 text-align: center;
-padding: 12px;
+padding: 16px;
 width: 100%;
 color: var(--gray-500, #71717A);
 }
 .sg-empty-icon {
-width: 48px;
-height: 48px;
+width: 52px;
+height: 52px;
 background: var(--violet-50, #F5F3FF);
 border-radius: 50%;
 display: flex;
@@ -142,16 +142,16 @@ align-items: center;
 justify-content: center;
 color: var(--violet-500, #8B5CF6);
 }
-.sg-empty-icon [data-lucide] { width: 22px; height: 22px; stroke-width: 1.75; }
+.sg-empty-icon [data-lucide] { width: 24px; height: 24px; stroke-width: 1.75; }
 .sg-empty p {
-font-size: 12px;
+font-size: 12.5px;
 font-weight: 600;
 line-height: 1.4;
 margin: 0;
 max-width: 180px;
 }
 .sg-empty small {
-font-size: 10px;
+font-size: 10.5px;
 color: var(--gray-400, #A1A1AD);
 font-weight: 600;
 }
@@ -160,7 +160,7 @@ display: inline-flex;
 align-items: center;
 justify-content: center;
 gap: 6px;
-padding: 8px 14px;
+padding: 9px 16px;
 border: none;
 border-radius: var(--r-md, 12px);
 font-family: inherit;
@@ -185,10 +185,10 @@ display: flex;
 align-items: center;
 justify-content: space-between;
 gap: 8px;
-padding-top: 6px;
+padding-top: 8px;
 border-top: 1px solid var(--gray-100, #F4F4F7);
 flex-shrink: 0;
-min-height: 18px;
+min-height: 20px;
 }
 .sg-nombre {
 font-size: 10.5px;
