@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metrónomo</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+    <div class="mt-widget" id="mtWidget">
+        <div class="mt-header">
+            <div class="mt-titulo">
+                <i data-lucide="metronome"></i>
+                <span>Metrónomo</span>
+            </div>
+        </div>
+
+        <div class="mt-display">
+            <div class="mt-pendulo" id="mtPendulo"></div>
+            <div class="mt-bpm-wrap">
+                <span class="mt-bpm-val" id="mtBpmVal">120</span>
+                <span class="mt-bpm-label">BPM</span>
+            </div>
+        </div>
+
+        <div class="mt-controles">
+            <button class="mt-btn-sec" id="mtMenos" title="Bajar BPM">
+                <i data-lucide="minus"></i>
+            </button>
+            <button class="mt-btn-pri" id="mtPlay" title="Iniciar">
+                <i data-lucide="play"></i>
+            </button>
+            <button class="mt-btn-sec" id="mtMas" title="Subir BPM">
+                <i data-lucide="plus"></i>
+            </button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
