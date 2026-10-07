@@ -1,0 +1,447 @@
+/* ================================================
+   Tema: Bizzaras Desventuras
+   Manga de aventuras a todo color: halftone, rayos
+   giratorios, aura que late, sombras duras de panel
+   y onomatopeyas que tiemblan. Flagship.
+   Sin nombres ni colores exactos de marcas.
+
+   Guiños traducidos a CSS:
+     · Poses dramáticas     → cards que se inclinan
+     · Aura                 → hero que pulsa
+     · Ráfaga de líneas     → rayos cónicos girando
+     · Onomatopeyas         → katakana temblando
+     · Trama de puntos      → halftone en capas
+     · Viñeta de manga      → bordes negros + sombra dura
+   ================================================ */
+
+@property --bz-angle {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+}
+
+:root {
+    --violet-50:  #1A0B3A;
+    --violet-100: #2A1259;
+    --violet-200: #44218A;
+    --violet-300: #F0ABFC;
+    --violet-400: #E879F9;
+    --violet-500: #D946EF;
+    --violet-600: #A21CAF;
+    --violet-700: #701A75;
+
+    --white:   #1E1148;
+    --bg:      #120A2E;
+    --bg-alt:  #1B0F42;
+    --gray-50:  #1B0F42;
+    --gray-100: #251556;
+    --gray-200: #33206F;
+    --gray-300: #4A3290;
+    --gray-400: #7A66B8;
+    --gray-500: #A898DA;
+    --gray-600: #C9BEEF;
+    --gray-700: #E2DAFA;
+    --gray-800: #F3EEFF;
+    --gray-900: #FFFFFF;
+
+    --border:  #33206F;
+    --text:    #FFFFFF;
+    --text-2:  #C9BEEF;
+    --text-3:  #A898DA;
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.50);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.60);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.55);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.65);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.75);
+    --shadow-glow: 0 0 0 3px rgba(217, 70, 239, 0.30);
+
+    --accent-gradient: linear-gradient(135deg, #D946EF, #701A75);
+    --accent-gradient-hover: linear-gradient(135deg, #E879F9, #A21CAF);
+    --accent-shadow: rgba(217, 70, 239, 0.40);
+    --accent-shadow-hover: rgba(217, 70, 239, 0.60);
+    --accent-text-gradient: linear-gradient(135deg, #FFFFFF, #F0ABFC);
+
+    --bz-gold: #FACC15;
+    --bz-cyan: #22D3EE;
+    --bz-ink:  #07031A;
+
+    /* Trama de puntos (halftone) */
+    --theme-halftone: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='4' cy='4' r='1.6' fill='%23D946EF' fill-opacity='.35'/%3E%3Ccircle cx='12' cy='12' r='1.6' fill='%23D946EF' fill-opacity='.35'/%3E%3C/svg%3E");
+
+    /* Destello de cuatro puntas */
+    --theme-sparkle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M20 2 L24 16 L38 20 L24 24 L20 38 L16 24 L2 20 L16 16 Z' fill='%23FACC15'/%3E%3C/svg%3E");
+
+    /* Líneas de velocidad */
+    --theme-speed: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath d='M0 40 L200 34 M0 90 L200 82 M0 150 L200 144 M0 190 L200 186' stroke='%2322D3EE' stroke-opacity='.20' stroke-width='2'/%3E%3C/svg%3E");
+
+    --r-sm: 3px;
+    --r-md: 5px;
+    --r-lg: 6px;
+    --r-xl: 8px;
+}
+
+/* ================================================================
+   1. HEADER — franja multicolor que corre + trama
+   ================================================================ */
+.app-header {
+    position: relative;
+    isolation: isolate;
+    background: linear-gradient(90deg, #1E1148, #2A1259 50%, #1E1148);
+    border-bottom: 3px solid var(--bz-ink);
+}
+.app-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--theme-halftone) 0 0 / 12px 12px;
+    opacity: 0.55;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(90deg, #000, transparent 45%);
+    mask-image: linear-gradient(90deg, #000, transparent 45%);
+}
+.app-header::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -3px;
+    height: 3px;
+    background: linear-gradient(90deg, #D946EF, #FACC15, #22D3EE, #D946EF);
+    background-size: 300% 100%;
+    animation: bz-bar 6s linear infinite;
+    pointer-events: none;
+}
+@keyframes bz-bar { to { background-position: -300% 0; } }
+
+.logo-mark {
+    background: linear-gradient(135deg, #FACC15, #D946EF);
+    border: 2px solid var(--bz-ink);
+    box-shadow: 3px 3px 0 var(--bz-ink), 0 0 14px rgba(217, 70, 239, 0.55);
+    transform: rotate(-6deg);
+}
+
+/* ================================================================
+   2. WELCOME — rayos giratorios + halftone + destellos
+   ================================================================ */
+.welcome-placeholder {
+    position: relative;
+    background:
+        var(--theme-sparkle) 8% 14% / 26px 26px no-repeat,
+        var(--theme-sparkle) 90% 22% / 20px 20px no-repeat,
+        var(--theme-sparkle) 14% 74% / 18px 18px no-repeat,
+        var(--theme-sparkle) 84% 82% / 24px 24px no-repeat,
+        radial-gradient(circle at 50% 34%, rgba(250, 204, 21, 0.10), transparent 45%),
+        var(--theme-halftone) 0 0 / 16px 16px,
+        linear-gradient(160deg, #120A2E 0%, #1F0F4F 55%, #2A0F52 100%);
+}
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: repeating-conic-gradient(
+        from var(--bz-angle) at 50% 34%,
+        rgba(217, 70, 239, 0.20) 0deg 5deg,
+        transparent 5deg 15deg
+    );
+    -webkit-mask-image: radial-gradient(ellipse at 50% 34%, #000 0%, transparent 75%);
+    mask-image: radial-gradient(ellipse at 50% 34%, #000 0%, transparent 75%);
+    animation: bz-spin 48s linear infinite;
+}
+@keyframes bz-spin { to { --bz-angle: 360deg; } }
+
+.welcome-placeholder::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: var(--theme-speed) 0 0 / 200px 200px repeat;
+    opacity: 0.8;
+    animation: bz-drift 14s linear infinite;
+}
+@keyframes bz-drift { to { background-position: 200px 0; } }
+
+.welcome-glow {
+    background: radial-gradient(circle at 50% 40%,
+        rgba(217, 70, 239, 0.28) 0%,
+        rgba(34, 211, 238, 0.10) 42%,
+        transparent 70%);
+}
+
+.welcome-hero,
+.welcome-section { position: relative; z-index: 2; }
+
+/* Hero = viñeta de manga con aura que late */
+.welcome-hero {
+    isolation: isolate;
+    overflow: visible;
+    padding: 32px 28px;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+    background: linear-gradient(135deg, rgba(42, 18, 89, 0.95), rgba(18, 10, 46, 0.97));
+    border: 3px solid var(--bz-ink);
+    border-radius: 6px;
+    box-shadow:
+        0 0 0 2px var(--bz-gold),
+        8px 8px 0 var(--violet-500),
+        0 0 40px rgba(217, 70, 239, 0.30);
+    animation: bz-aura 3.2s ease-in-out infinite;
+}
+@keyframes bz-aura {
+    0%, 100% { box-shadow: 0 0 0 2px var(--bz-gold), 8px 8px 0 var(--violet-500), 0 0 40px rgba(217, 70, 239, 0.30); }
+    50%      { box-shadow: 0 0 0 2px var(--bz-gold), 8px 8px 0 var(--violet-400), 0 0 84px rgba(34, 211, 238, 0.50); }
+}
+.welcome-hero::before {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 45%;
+    height: 62%;
+    z-index: -1;
+    background: var(--theme-halftone) 0 0 / 10px 10px;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(135deg, transparent 40%, #000);
+    mask-image: linear-gradient(135deg, transparent 40%, #000);
+}
+/* Onomatopeya que tiembla */
+.welcome-hero::after {
+    content: 'ゴゴゴ';
+    position: absolute;
+    top: -24px;
+    right: 14px;
+    z-index: 3;
+    font: 900 30px/1 'Nunito', sans-serif;
+    letter-spacing: 0.04em;
+    color: var(--bz-gold);
+    -webkit-text-stroke: 2px var(--bz-ink);
+    paint-order: stroke fill;
+    text-shadow: 3px 3px 0 var(--violet-600);
+    transform: rotate(-7deg) skewX(-8deg);
+    pointer-events: none;
+    animation: bz-tremble 0.4s steps(2) infinite;
+}
+@keyframes bz-tremble {
+    0%   { translate: 0 0; }
+    50%  { translate: 1.5px -1px; }
+    100% { translate: -1px 1px; }
+}
+
+.welcome-icon-wrap {
+    background: linear-gradient(135deg, #FACC15, #D946EF);
+    border: 3px solid var(--bz-ink);
+    border-radius: 14px;
+    box-shadow: 4px 4px 0 var(--bz-ink), 0 0 0 2px var(--bz-gold), 0 0 28px rgba(217, 70, 239, 0.6);
+}
+.welcome-hero h1 {
+    filter: drop-shadow(3px 3px 0 var(--bz-ink));
+    letter-spacing: 0.01em;
+}
+
+/* ================================================================
+   3. SECCIONES — paneles con sombra dura
+   ================================================================ */
+.welcome-section {
+    background: rgba(30, 17, 72, 0.85);
+    border: 2px solid var(--bz-ink);
+    border-radius: 4px;
+    padding: 18px 20px;
+    box-shadow: 5px 5px 0 rgba(217, 70, 239, 0.50);
+}
+.welcome-section-header h2 {
+    color: var(--bz-gold);
+    font-style: italic;
+    letter-spacing: 0.04em;
+    filter: drop-shadow(2px 2px 0 var(--bz-ink));
+}
+
+/* ================================================================
+   4. SIDEBAR + NAV
+   ================================================================ */
+.sidebar {
+    background: linear-gradient(180deg, #160B38, #0E0724);
+    border-right: 3px solid var(--bz-ink);
+    box-shadow: 4px 0 0 rgba(217, 70, 239, 0.45);
+}
+.sidebar-mobile-header {
+    background: #160B38;
+    border-bottom: 3px solid var(--bz-ink);
+}
+.sidebar-comunidad {
+    border: 2px solid var(--bz-ink);
+    border-radius: 4px;
+    background: rgba(217, 70, 239, 0.10);
+    box-shadow: 3px 3px 0 rgba(217, 70, 239, 0.40);
+}
+.sidebar-comunidad:hover {
+    transform: translate(-1px, -2px);
+    box-shadow: 5px 5px 0 var(--bz-gold);
+}
+.nav-item {
+    position: relative;
+    border-radius: 4px;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+.nav-item:hover { background: rgba(217, 70, 239, 0.16); }
+.nav-item.active {
+    background: linear-gradient(135deg, #D946EF, #701A75);
+    color: #FFFFFF;
+    border: 2px solid var(--bz-ink);
+    box-shadow: 3px 3px 0 var(--bz-gold);
+}
+.nav-item.active .nav-icon { color: #FFFFFF; }
+.nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 50%;
+    width: 8px;
+    height: 62%;
+    translate: 0 -50%;
+    background: var(--bz-gold);
+    clip-path: polygon(0 0, 100% 20%, 100% 80%, 0 100%);
+}
+
+/* ================================================================
+   5. ACCESOS — la card POSA al pasar el mouse
+   ================================================================ */
+.acceso-item {
+    position: relative;
+    overflow: visible;
+    background: linear-gradient(160deg, rgba(42, 18, 89, 0.92), rgba(24, 12, 58, 0.96));
+    border: 2px solid var(--bz-ink);
+    border-radius: 4px;
+    box-shadow: 4px 4px 0 rgba(217, 70, 239, 0.45);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.acceso-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--theme-halftone) 0 0 / 10px 10px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(135deg, transparent 50%, #000);
+    mask-image: linear-gradient(135deg, transparent 50%, #000);
+}
+.acceso-item:hover::before { opacity: 0.85; }
+.acceso-item::after {
+    content: 'ド';
+    position: absolute;
+    top: -12px;
+    right: -6px;
+    font: 900 22px/1 'Nunito', sans-serif;
+    color: var(--bz-gold);
+    -webkit-text-stroke: 1.5px var(--bz-ink);
+    paint-order: stroke fill;
+    transform: scale(0) rotate(-14deg);
+    transition: transform 0.18s cubic-bezier(0.3, 1.8, 0.5, 1);
+    pointer-events: none;
+}
+.acceso-item:hover::after { transform: scale(1) rotate(-14deg); }
+.acceso-item:hover {
+    transform: translate(-2px, -4px) rotate(-1deg);
+    box-shadow: 7px 8px 0 var(--bz-gold), 0 0 24px rgba(217, 70, 239, 0.50);
+}
+.acceso-icon-wrap {
+    background: linear-gradient(135deg, #D946EF, #701A75);
+    border: 2px solid var(--bz-ink);
+    box-shadow: 2px 2px 0 var(--bz-gold);
+    transition: transform 0.18s ease;
+}
+.acceso-item:hover .acceso-icon-wrap { transform: rotate(-10deg) skewX(-6deg) scale(1.06); }
+
+.widget-item {
+    position: relative;
+    background: linear-gradient(160deg, rgba(42, 18, 89, 0.92), rgba(24, 12, 58, 0.96));
+    border: 2px solid var(--bz-ink);
+    border-radius: 4px;
+    box-shadow: 4px 4px 0 rgba(34, 211, 238, 0.35);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.widget-item:hover {
+    transform: translate(-2px, -3px);
+    box-shadow: 6px 7px 0 var(--bz-cyan);
+}
+
+/* ================================================================
+   6. TABS, MODALES, BOTONES, EXTRAS
+   ================================================================ */
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10px;
+    right: 10px;
+    height: 3px;
+    background: linear-gradient(90deg, #D946EF, #FACC15, #22D3EE);
+    pointer-events: none;
+}
+.tab-item.active [data-lucide] { color: var(--bz-gold); }
+
+.config-card,
+.modal-todas-card {
+    position: relative;
+    overflow: hidden;
+    border: 3px solid var(--bz-ink);
+    border-radius: 6px;
+    box-shadow: 8px 8px 0 rgba(217, 70, 239, 0.55), 0 24px 48px rgba(0, 0, 0, 0.7);
+}
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 40%;
+    height: 90px;
+    background: var(--theme-halftone) 0 0 / 10px 10px;
+    pointer-events: none;
+    opacity: 0.8;
+    -webkit-mask-image: linear-gradient(225deg, #000, transparent 70%);
+    mask-image: linear-gradient(225deg, #000, transparent 70%);
+}
+.config-header,
+.modal-todas-header { border-bottom: 3px solid var(--bz-ink); }
+
+.btn-primario {
+    background: linear-gradient(135deg, #D946EF, #701A75);
+    color: #FFFFFF;
+    border: 2px solid var(--bz-ink);
+    box-shadow: 3px 3px 0 var(--bz-gold);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.btn-primario:hover {
+    transform: translate(-1px, -2px);
+    box-shadow: 5px 5px 0 var(--bz-gold), 0 0 18px rgba(217, 70, 239, 0.6);
+}
+.btn-primario:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--bz-gold);
+}
+
+.config-select { border: 2px solid var(--bz-ink); border-radius: 4px; }
+.config-select:focus { border-color: var(--bz-cyan); box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.30); }
+.search-bar:focus-within { border-color: var(--bz-cyan); box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.28); }
+.search-bar:focus-within .search-icon { color: var(--bz-cyan); }
+.noti-btn.tiene-no-leidas { color: var(--bz-gold); filter: drop-shadow(0 0 6px rgba(250, 204, 21, 0.7)); }
+.avatar-config { box-shadow: 0 0 0 2px var(--bz-ink), 0 0 0 4px var(--bz-gold); }
+
+@media (max-width: 768px) {
+    .welcome-hero { padding: 26px 18px; }
+    .welcome-hero::after { font-size: 22px; top: -18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .app-header::after,
+    .welcome-placeholder::before,
+    .welcome-placeholder::after,
+    .welcome-hero,
+    .welcome-hero::after { animation: none !important; }
+}
