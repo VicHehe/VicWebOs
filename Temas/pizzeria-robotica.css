@@ -1,18 +1,8 @@
 /* ================================================
    Tema: Pizzería Robótica
-   Pizzería de barrio a las 3 a. m. Cámaras de
-   seguridad, luces que parpadean, manteles a
-   cuadros y algo que te mira desde la oscuridad.
+   La cámara no se apaga. Sigue grabando.
    Referencia viva (animada). Sin nombres ni
    colores exactos de marcas.
-
-   Guiños traducidos a CSS:
-     · Cámara de seguridad → HUD "REC" + visor
-     · Corte de luz        → parpadeo irregular del hero
-     · Ojos en la sombra   → ojos que asoman y parpadean
-     · Mantel a cuadros    → franjas de ajedrez
-     · Moño del animatrónico → marca del nav activo
-     · Fiesta abandonada   → confeti tenue
    ================================================ */
 
 :root {
@@ -60,10 +50,10 @@
     --pz-red:   #DC2626;
     --pz-cream: #F3E9E2;
 
-    /* Estática de señal */
+    /* Estática de señal (ruido continuo) */
     --theme-static: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
 
-    /* Esquinas de visor de cámara (se estira a todo el recuadro) */
+    /* Esquinas de visor (se estira a todo el recuadro) */
     --theme-viewfinder: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M3 12 V3 H12 M88 3 H97 V12 M97 88 V97 H88 M12 97 H3 V88' fill='none' stroke='%23FFF6EC' stroke-opacity='.45' stroke-width='2' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
 
     /* Confeti de fiesta abandonada */
@@ -72,10 +62,52 @@
     /* Ojos brillantes en la oscuridad */
     --theme-eyes: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 24'%3E%3Ccircle cx='14' cy='12' r='9' fill='%23140C0D' stroke='%23E0A526' stroke-opacity='.5'/%3E%3Ccircle cx='14' cy='12' r='3' fill='%23FFF6EC'/%3E%3Ccircle cx='46' cy='12' r='9' fill='%23140C0D' stroke='%23E0A526' stroke-opacity='.5'/%3E%3Ccircle cx='46' cy='12' r='3' fill='%23FFF6EC'/%3E%3C/svg%3E");
 
+    /* Líneas de escaneo horizontales (CRT) */
+    --theme-scanlines: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.22) 0 1px,
+        transparent 1px 3px
+    );
+
     --r-sm: 6px;
     --r-md: 10px;
     --r-lg: 14px;
     --r-xl: 18px;
+}
+
+/* ================================================================
+   LAYER GLOBAL — la cámara nunca se apaga
+   Las scanlines, el ruido y el viñeteo cubren toda la app.
+   ================================================================ */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    background:
+        var(--theme-scanlines),
+        radial-gradient(ellipse at center, transparent 50%, rgba(0, 0, 0, 0.55) 100%);
+    mix-blend-mode: multiply;
+    opacity: 0.55;
+}
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    pointer-events: none;
+    background: var(--theme-static) 0 0 / 160px 160px;
+    opacity: 0.06;
+    mix-blend-mode: overlay;
+    animation: pz-global-static 0.4s steps(5) infinite;
+}
+@keyframes pz-global-static {
+    0%   { background-position: 0 0; }
+    25%  { background-position: -40px 24px; }
+    50%  { background-position: 30px -50px; }
+    75%  { background-position: -20px -10px; }
+    100% { background-position: 0 0; }
 }
 
 /* ================================================================
@@ -97,6 +129,28 @@
     opacity: 0.85;
     pointer-events: none;
 }
+/* HUD persistente en la esquina superior izquierda */
+.app-header::before {
+    content: '● REC  CAM-01  03:42:17';
+    position: fixed;
+    top: 70px;
+    left: 18px;
+    z-index: 9997;
+    font: 700 11px/1 ui-monospace, Menlo, Consolas, monospace;
+    letter-spacing: 0.14em;
+    color: var(--pz-cream);
+    text-shadow: 0 0 6px rgba(255, 246, 236, 0.6);
+    pointer-events: none;
+    animation: pz-rec-broken 2.3s steps(1) infinite;
+}
+@keyframes pz-rec-broken {
+    0%, 48%   { opacity: 1; }
+    49%, 51%  { opacity: 0; }
+    52%, 88%  { opacity: 1; }
+    89%, 92%  { opacity: 0.15; }
+    93%, 100% { opacity: 1; }
+}
+
 .logo-mark {
     position: relative;
     overflow: visible;
@@ -135,32 +189,25 @@
     z-index: 1;
     pointer-events: none;
     background:
-        var(--theme-viewfinder) center / 100% 100% no-repeat,
-        radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.55) 100%),
-        repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.18) 0 1px, transparent 1px 3px),
-        var(--theme-static) 0 0 / 160px 160px;
-    opacity: 0.55;
+        var(--theme-viewfinder) center / 100% 100% no-repeat;
+    opacity: 0.7;
+}
+.welcome-placeholder::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: var(--theme-static) 0 0 / 160px 160px;
+    opacity: 0.35;
     animation: pz-static 0.5s steps(4) infinite;
 }
 @keyframes pz-static {
-    0%   { background-position: center, center, 0 0, 0 0; }
-    25%  { background-position: center, center, 0 0, -40px 24px; }
-    50%  { background-position: center, center, 0 0, 30px -50px; }
-    75%  { background-position: center, center, 0 0, -20px -10px; }
-    100% { background-position: center, center, 0 0, 0 0; }
-}
-.welcome-placeholder::after {
-    content: '● REC   CAM 01';
-    position: absolute;
-    top: 14px;
-    left: 18px;
-    z-index: 3;
-    font: 700 11px/1 ui-monospace, Menlo, Consolas, monospace;
-    letter-spacing: 0.14em;
-    color: var(--pz-cream);
-    text-shadow: 0 0 6px rgba(255, 246, 236, 0.5);
-    pointer-events: none;
-    animation: pz-rec 1.4s steps(1) infinite;
+    0%   { background-position: 0 0; }
+    25%  { background-position: -40px 24px; }
+    50%  { background-position: 30px -50px; }
+    75%  { background-position: -20px -10px; }
+    100% { background-position: 0 0; }
 }
 .welcome-glow {
     background: radial-gradient(circle at 50% 40%, rgba(224, 165, 38, 0.16), transparent 65%);
@@ -191,6 +238,16 @@
     91% { filter: brightness(1); }
     94% { filter: brightness(0.6); }
     95% { filter: brightness(1.15); }
+}
+/* Visor interno del hero (marco de cámara roto) */
+.welcome-hero > .welcome-hero-frame {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: var(--theme-viewfinder) center / 100% 100% no-repeat;
+    opacity: 0.55;
+    border-radius: 6px;
+    z-index: 3;
 }
 .welcome-hero::before {
     content: '';
@@ -258,10 +315,21 @@
    3. SIDEBAR + NAV — moño en el item activo
    ================================================================ */
 .sidebar {
+    position: relative;
     background:
         conic-gradient(#3B1010 25%, #2A1B1D 0 50%, #3B1010 0 75%, #2A1B1D 0) right top / 12px 12px repeat-y,
         linear-gradient(180deg, #140C0D, #0B0708);
     border-right: 1px solid #3F2A2C;
+}
+.sidebar::after {
+    content: 'CAM-02';
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font: 600 9px/1 ui-monospace, Menlo, Consolas, monospace;
+    letter-spacing: 0.12em;
+    color: rgba(255, 246, 236, 0.35);
+    pointer-events: none;
 }
 .sidebar-mobile-header {
     background: #140C0D;
@@ -299,7 +367,7 @@
 }
 
 /* ================================================================
-   4. ACCESOS — cámara que cambia de canal al pasar
+   4. ACCESOS — cada tarjeta es una cámara en la red
    ================================================================ */
 .acceso-item {
     position: relative;
@@ -308,6 +376,17 @@
     border-radius: 10px;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.60);
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+/* Visor siempre presente, tenue, como cámara en standby */
+.acceso-item::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    background: var(--theme-viewfinder) center / 100% 100% no-repeat;
+    opacity: 0.18;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+    z-index: 1;
 }
 .acceso-item::after {
     content: '';
@@ -321,30 +400,25 @@
     border-radius: 0 0 3px 3px;
     pointer-events: none;
 }
-.acceso-item::before {
-    content: '';
-    position: absolute;
-    inset: 6px;
-    background: var(--theme-viewfinder) center / 100% 100% no-repeat;
-    opacity: 0;
-    transition: opacity 0.15s ease;
-    pointer-events: none;
-}
 .acceso-item:hover {
     border-color: #E0A526;
     box-shadow: 0 8px 22px rgba(0, 0, 0, 0.70), 0 0 22px rgba(224, 165, 38, 0.22);
     animation: pz-glitch 0.28s steps(2) 1;
 }
-.acceso-item:hover::before { opacity: 0.9; }
+.acceso-item:hover::before { opacity: 0.85; }
 @keyframes pz-glitch {
     0%   { transform: translateX(-2px); filter: hue-rotate(0deg); }
     50%  { transform: translateX(2px);  filter: hue-rotate(30deg); }
     100% { transform: translateX(0);    filter: hue-rotate(0deg); }
 }
 .acceso-icon-wrap {
+    position: relative;
+    z-index: 2;
     background: linear-gradient(135deg, #C98A2E, #6B4510);
     box-shadow: 0 0 14px rgba(224, 165, 38, 0.30);
 }
+.acceso-item > *:not(::before):not(::after) { position: relative; z-index: 2; }
+
 .widget-item {
     position: relative;
     background: linear-gradient(180deg, #1C1214, #140C0D);
@@ -352,7 +426,17 @@
     border-radius: 10px;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.60);
 }
+.widget-item::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    background: var(--theme-viewfinder) center / 100% 100% no-repeat;
+    opacity: 0.14;
+    pointer-events: none;
+    z-index: 1;
+}
 .widget-item:hover { border-color: #E0A526; }
+.widget-item:hover::before { opacity: 0.6; }
 
 /* ================================================================
    5. TABS, MODALES, BOTONES, EXTRAS
@@ -393,14 +477,18 @@
         0 24px 48px rgba(0, 0, 0, 0.85),
         0 0 40px rgba(224, 165, 38, 0.10);
 }
+/* Visor de cámara roto sobre modales y cards */
 .config-card::before,
 .modal-todas-card::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 3px);
+    background:
+        var(--theme-viewfinder) center / 100% 100% no-repeat,
+        var(--theme-scanlines);
+    opacity: 0.45;
     pointer-events: none;
-    z-index: 0;
+    z-index: 1;
 }
 .config-card::after,
 .modal-todas-card::after {
@@ -436,19 +524,58 @@
 }
 .avatar-config { box-shadow: 0 0 0 2px #0B0708, 0 0 0 4px rgba(224, 165, 38, 0.55); }
 
+/* HUD persistente inferior-derecho: la cámara sigue grabando */
+body .welcome-placeholder:last-of-type,
+.config-card,
+.modal-todas-card { position: relative; }
+.config-card > *,
+.modal-todas-card > * { position: relative; z-index: 2; }
+
+/* Timestamp flotante que persiste hasta el final */
+.app-footer::before,
+main::after {
+    content: '◉ LIVE  ·  03:42:17 AM  ·  SYSTEM OK';
+    position: fixed;
+    bottom: 14px;
+    right: 18px;
+    z-index: 9997;
+    font: 600 10px/1 ui-monospace, Menlo, Consolas, monospace;
+    letter-spacing: 0.14em;
+    color: rgba(255, 246, 236, 0.55);
+    text-shadow: 0 0 5px rgba(224, 165, 38, 0.4);
+    pointer-events: none;
+    padding: 6px 10px;
+    border: 1px solid rgba(224, 165, 38, 0.25);
+    border-radius: 4px;
+    background: rgba(11, 7, 8, 0.7);
+    backdrop-filter: blur(2px);
+    animation: pz-timestamp 3.8s steps(1) infinite;
+}
+@keyframes pz-timestamp {
+    0%, 72%  { opacity: 1; }
+    73%, 75% { opacity: 0.2; }
+    76%, 100% { opacity: 1; }
+}
+
 @media (max-width: 768px) {
     .welcome-hero { padding: 26px 18px; }
-    .welcome-placeholder::after { font-size: 9px; left: 10px; top: 10px; }
+    .app-header::before { font-size: 9px; left: 10px; top: 60px; }
+    body .welcome-placeholder:last-of-type::after,
+    main::after { font-size: 8px; right: 10px; bottom: 10px; padding: 4px 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
     .logo-mark::after,
-    .welcome-placeholder::before,
     .welcome-placeholder::after,
     .welcome-hero,
     .welcome-hero::after,
     .acceso-item:hover,
     .tab-item.active::after,
-    .noti-btn.tiene-no-leidas { animation: none !important; }
+    .noti-btn.tiene-no-leidas,
+    body::after,
+    .app-header::before,
+    main::after { animation: none !important; }
     .welcome-hero::after { opacity: 0 !important; }
+    body::before { opacity: 0.25 !important; }
+    body::after  { opacity: 0.03 !important; }
 }
