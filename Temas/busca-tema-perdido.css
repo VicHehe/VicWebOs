@@ -1,0 +1,396 @@
+/* ================================================
+   Tema: En busca del tema perdido
+   Pergamino de explorador, cuero curtido y latón
+   dorado. Mapa con ruta punteada y una X roja.
+   Artesanal: marcos cosidos, remaches y brújula.
+   Sin nombres ni colores exactos de marcas.
+
+   Guiños traducidos a CSS:
+     · Mapa del tesoro   → ruta punteada + X roja
+     · Cuaderno de campo → papel con fibra y bordes quemados
+     · Cuero y costuras  → sidebar y correa del header
+     · Brújula           → medallón que oscila
+     · Reliquia          → latón dorado en iconos
+   ================================================ */
+
+:root {
+    --violet-50:  #F7EEDA;
+    --violet-100: #EBD9B4;
+    --violet-200: #E0C48F;
+    --violet-300: #D0A965;
+    --violet-400: #B9863F;
+    --violet-500: #9A5A1E;
+    --violet-600: #7A4416;
+    --violet-700: #5C3210;
+
+    --white:   #FBF3DE;
+    --bg:      #F1E4C8;
+    --bg-alt:  #E8D6B0;
+    --gray-50:  #F6ECD4;
+    --gray-100: #EDDDBB;
+    --gray-200: #DCC598;
+    --gray-300: #C2A670;
+    --gray-400: #967A4A;
+    --gray-500: #705A35;
+    --gray-600: #523F25;
+    --gray-700: #3B2B18;
+    --gray-800: #2A1E10;
+    --gray-900: #1A1209;
+
+    --border:  #D4BA85;
+    --text:    #2A1E10;
+    --text-2:  #523F25;
+    --text-3:  #705A35;
+
+    --shadow-xs: 0 1px 2px rgba(74, 44, 18, 0.10);
+    --shadow-sm: 0 1px 3px rgba(74, 44, 18, 0.14);
+    --shadow-md: 0 4px 12px rgba(74, 44, 18, 0.16);
+    --shadow-lg: 0 12px 32px rgba(74, 44, 18, 0.22);
+    --shadow-xl: 0 24px 48px rgba(74, 44, 18, 0.28);
+    --shadow-glow: 0 0 0 4px rgba(185, 134, 63, 0.25);
+
+    --accent-gradient: linear-gradient(135deg, #B8702A, #6B3A14);
+    --accent-gradient-hover: linear-gradient(135deg, #C98A3E, #7A4416);
+    --accent-shadow: rgba(122, 68, 22, 0.32);
+    --accent-shadow-hover: rgba(122, 68, 22, 0.48);
+    --accent-text-gradient: linear-gradient(135deg, #2A1E10, #9A5A1E);
+
+    --ij-leather: #4A2C12;
+    --ij-leather-dark: #2A1809;
+    --ij-gold: #D4A017;
+    --ij-red: #B91C1C;
+
+    /* Fibra de papel */
+    --theme-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .22 0 0 0 0 .08 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+
+    /* Ruta punteada con X roja */
+    --theme-route: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 160'%3E%3Cpath d='M10 130 C90 40 160 150 240 90 S380 20 450 80 S540 120 575 60' fill='none' stroke='%23B91C1C' stroke-width='3' stroke-dasharray='9 8' stroke-linecap='round' stroke-opacity='.65'/%3E%3Cpath d='M562 48 L588 72 M588 48 L562 72' stroke='%23B91C1C' stroke-width='6' stroke-linecap='round' stroke-opacity='.8'/%3E%3C/svg%3E");
+
+    /* Brújula */
+    --theme-compass: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='44' fill='none' stroke='%234A2C12' stroke-width='3' stroke-opacity='.55'/%3E%3Ccircle cx='50' cy='50' r='36' fill='none' stroke='%234A2C12' stroke-width='1.5' stroke-dasharray='2 4' stroke-opacity='.55'/%3E%3Cpath d='M50 10 L57 50 L50 44 L43 50 Z' fill='%23B91C1C' fill-opacity='.7'/%3E%3Cpath d='M50 90 L43 50 L50 56 L57 50 Z' fill='%234A2C12' fill-opacity='.55'/%3E%3C/svg%3E");
+
+    /* X roja pequeña (marca en el mapa) */
+    --theme-x: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3 3 L17 17 M17 3 L3 17' stroke='%23B91C1C' stroke-width='3.5' stroke-linecap='round'/%3E%3C/svg%3E");
+
+    --r-sm: 4px;
+    --r-md: 6px;
+    --r-lg: 8px;
+    --r-xl: 10px;
+}
+
+/* ================================================================
+   1. HEADER — pergamino con correa de cuero cosida
+   ================================================================ */
+.app-header {
+    position: relative;
+    background: var(--theme-paper), #FBF3DE;
+    border-bottom: none;
+    box-shadow:
+        0 3px 0 var(--ij-leather),
+        0 5px 0 var(--ij-gold),
+        0 10px 18px rgba(74, 44, 18, 0.25);
+}
+.app-header::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 4px;
+    height: 0;
+    border-top: 1px dashed rgba(122, 68, 22, 0.50);
+    pointer-events: none;
+}
+.logo-mark {
+    background: radial-gradient(circle at 35% 30%, #F3D27A, #D4A017 45%, #8A5F10);
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px var(--ij-leather), 0 3px 8px rgba(74, 44, 18, 0.4);
+}
+.logo-mark [data-lucide],
+.logo-mark svg { color: #3B2412; stroke: #3B2412; }
+
+/* ================================================================
+   2. WELCOME — mapa con bordes quemados, ruta y brújula
+   ================================================================ */
+.welcome-placeholder {
+    position: relative;
+    background:
+        radial-gradient(ellipse at center, transparent 55%, rgba(92, 50, 16, 0.32) 100%),
+        var(--theme-paper),
+        linear-gradient(180deg, #F1E4C8, #E8D6B0);
+}
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 34%;
+    z-index: 0;
+    pointer-events: none;
+    background: var(--theme-route) center bottom / 100% 100% no-repeat;
+    opacity: 0.75;
+}
+.welcome-placeholder::after {
+    content: '';
+    position: absolute;
+    top: 18px;
+    right: 24px;
+    width: 120px;
+    height: 120px;
+    z-index: 0;
+    pointer-events: none;
+    background: var(--theme-compass) center / contain no-repeat;
+    opacity: 0.55;
+}
+.welcome-glow {
+    background: radial-gradient(circle at 50% 40%, rgba(212, 160, 23, 0.20), transparent 65%);
+}
+
+.welcome-hero,
+.welcome-section { position: relative; z-index: 2; }
+
+/* Hero = hoja de mapa con remaches de latón */
+.welcome-hero {
+    isolation: isolate;
+    padding: 34px 30px;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+    background: var(--theme-paper), linear-gradient(180deg, #FBF3DE, #F1E4C8);
+    border: 2px solid var(--ij-leather);
+    border-radius: 3px;
+    box-shadow:
+        inset 0 0 0 5px #FBF3DE,
+        inset 0 0 0 6px rgba(74, 44, 18, 0.55),
+        0 14px 28px rgba(74, 44, 18, 0.28),
+        0 2px 0 var(--ij-gold);
+}
+.welcome-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 14px 14px, #D4A017 0 3px, #7A4416 3px 4.5px, transparent 5px),
+        radial-gradient(circle at calc(100% - 14px) 14px, #D4A017 0 3px, #7A4416 3px 4.5px, transparent 5px),
+        radial-gradient(circle at 14px calc(100% - 14px), #D4A017 0 3px, #7A4416 3px 4.5px, transparent 5px),
+        radial-gradient(circle at calc(100% - 14px) calc(100% - 14px), #D4A017 0 3px, #7A4416 3px 4.5px, transparent 5px);
+}
+.welcome-hero::after {
+    content: '';
+    position: absolute;
+    bottom: 12px;
+    right: 44px;
+    width: 18px;
+    height: 18px;
+    background: var(--theme-x) center / contain no-repeat;
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* Medallón de latón que oscila como aguja */
+.welcome-icon-wrap {
+    background: radial-gradient(circle at 35% 30%, #F3D27A, #D4A017 45%, #8A5F10);
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 3px var(--ij-leather),
+        0 0 0 5px var(--ij-gold),
+        0 10px 20px rgba(74, 44, 18, 0.40);
+    animation: ij-swing 7s ease-in-out infinite;
+}
+.welcome-icon-wrap [data-lucide],
+.welcome-icon-wrap svg { color: #3B2412; stroke: #3B2412; }
+@keyframes ij-swing {
+    0%, 100% { transform: rotate(-7deg); }
+    50%      { transform: rotate(7deg); }
+}
+.welcome-hero h1 { text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5); }
+
+/* ================================================================
+   3. SECCIONES — páginas del cuaderno
+   ================================================================ */
+.welcome-section {
+    background: var(--theme-paper), #FBF3DE;
+    border: 1px solid #C2A670;
+    border-left: 4px solid var(--ij-leather);
+    border-radius: 3px;
+    padding: 18px 20px;
+    box-shadow: 0 2px 0 #C2A670, 0 8px 16px rgba(74, 44, 18, 0.14);
+}
+.welcome-section::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 22px;
+    height: 22px;
+    background: linear-gradient(225deg, #E8D6B0 50%, #C2A670 50%);
+    box-shadow: -2px 2px 4px rgba(74, 44, 18, 0.18);
+    pointer-events: none;
+}
+.welcome-section-header h2 { color: var(--ij-leather); letter-spacing: 0.02em; }
+
+/* ================================================================
+   4. SIDEBAR — cuero curtido con costura de hilo dorado
+   ================================================================ */
+.sidebar {
+    background:
+        repeating-linear-gradient(180deg, rgba(212, 160, 23, 0.6) 0 8px, transparent 8px 14px) right 6px top 0 / 2px 100% no-repeat,
+        var(--theme-paper),
+        linear-gradient(180deg, #4A2C12, #33200D);
+    border-right: 3px solid var(--ij-leather-dark);
+    box-shadow: inset -2px 0 0 rgba(212, 160, 23, 0.35);
+}
+.sidebar-mobile-header {
+    background: #33200D;
+    border-bottom: 2px solid var(--ij-leather-dark);
+}
+.sidebar-label { color: #C9A66B; }
+.sidebar-comunidad {
+    background: rgba(0, 0, 0, 0.18);
+    border: 1px dashed rgba(212, 160, 23, 0.55);
+    color: #E9D5AE;
+}
+.sidebar-comunidad:hover { background: rgba(212, 160, 23, 0.16); }
+.nav-item {
+    position: relative;
+    color: #E9D5AE;
+    border-radius: 4px;
+}
+.nav-item .nav-icon { color: #D9B26F; }
+.nav-item:hover { background: rgba(212, 160, 23, 0.16); }
+.nav-item.active {
+    background: linear-gradient(135deg, #E3B93C, #B8860B);
+    color: #2A1E10;
+    box-shadow: 0 2px 0 var(--ij-leather-dark), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+.nav-item.active .nav-icon { color: #2A1E10; }
+.nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    margin-top: -4px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #F3D27A, #8A5F10);
+    box-shadow: 0 0 0 1px var(--ij-leather-dark);
+}
+
+/* ================================================================
+   5. ACCESOS Y WIDGETS — fichas de pergamino con X al pasar
+   ================================================================ */
+.acceso-item {
+    position: relative;
+    background: var(--theme-paper), #FBF3DE;
+    border: 1px solid #C2A670;
+    border-radius: 6px;
+    box-shadow: 0 2px 0 #C2A670, 0 6px 14px rgba(74, 44, 18, 0.15);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.acceso-item::after {
+    content: '';
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    width: 14px;
+    height: 14px;
+    background: var(--theme-x) center / contain no-repeat;
+    opacity: 0;
+    transform: scale(0.5) rotate(-20deg);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    pointer-events: none;
+}
+.acceso-item:hover {
+    transform: translateY(-3px);
+    border-color: var(--ij-leather);
+    box-shadow: 0 4px 0 var(--ij-leather), 0 12px 20px rgba(74, 44, 18, 0.25);
+}
+.acceso-item:hover::after { opacity: 0.9; transform: scale(1) rotate(0deg); }
+.acceso-icon-wrap {
+    background: linear-gradient(135deg, #B8702A, #6B3A14);
+    border-radius: 12px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.30), 0 3px 6px rgba(74, 44, 18, 0.35);
+}
+.widget-item {
+    position: relative;
+    background: var(--theme-paper), #FBF3DE;
+    border: 1px solid #C2A670;
+    border-radius: 6px;
+    box-shadow: 0 2px 0 #C2A670, 0 6px 14px rgba(74, 44, 18, 0.14);
+}
+.widget-item:hover { border-color: var(--ij-leather); }
+
+/* ================================================================
+   6. TABS, MODALES, BOTONES, EXTRAS
+   ================================================================ */
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 12px;
+    right: 12px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #D4A017, #7A4416, #D4A017, transparent);
+    pointer-events: none;
+}
+.tab-item.active [data-lucide] { color: var(--violet-600); }
+
+.config-card,
+.modal-todas-card {
+    position: relative;
+    overflow: hidden;
+    background: var(--theme-paper), #FBF3DE;
+    border: 2px solid var(--ij-leather);
+    border-radius: 4px;
+    box-shadow:
+        0 0 0 4px #E8D6B0,
+        0 0 0 5px var(--ij-leather),
+        0 24px 48px rgba(42, 24, 9, 0.40);
+}
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px dashed rgba(122, 68, 22, 0.45);
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 0;
+}
+.config-header,
+.modal-todas-header { border-bottom: 2px solid var(--ij-leather); }
+
+.btn-primario {
+    background: linear-gradient(135deg, #B8702A, #6B3A14);
+    color: #FBF3DE;
+    border: 1px solid #3B2412;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 4px 0 #3B2412, 0 8px 14px rgba(74, 44, 18, 0.30);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.btn-primario:hover {
+    transform: translateY(-1px);
+    background: linear-gradient(135deg, #C98A3E, #7A4416);
+}
+.btn-primario:active {
+    transform: translateY(3px);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 1px 0 #3B2412;
+}
+.config-select { border: 1px solid #C2A670; background: #FBF3DE; }
+.config-select:focus { border-color: #B9863F; box-shadow: 0 0 0 3px rgba(185, 134, 63, 0.25); }
+.search-bar:focus-within { border-color: #B9863F; box-shadow: 0 0 0 3px rgba(185, 134, 63, 0.25); }
+.search-bar:focus-within .search-icon { color: var(--violet-600); }
+.noti-btn.tiene-no-leidas { color: var(--ij-red); }
+.avatar-config { box-shadow: 0 0 0 2px #FBF3DE, 0 0 0 4px var(--violet-600); }
+
+@media (max-width: 768px) {
+    .welcome-placeholder::after { width: 70px; height: 70px; top: 10px; right: 10px; }
+    .welcome-hero { padding: 26px 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .welcome-icon-wrap { animation: none !important; }
+}
