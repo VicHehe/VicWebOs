@@ -60,16 +60,20 @@
     --pz-red:   #DC2626;
     --pz-cream: #F3E9E2;
 
+    /* Altura de tu header: la cámara empieza justo debajo.
+       Si tu header mide otra cosa, cambia SOLO este número. */
+    --pz-header: 64px;
+
     /* Estática de señal */
     --theme-static: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
 
-    /* Estática suave (ya pre-atenuada, para la capa opaca) */
+    /* Estática suave (pre-atenuada para la capa opaca) */
     --theme-static-soft: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.28'/%3E%3C/svg%3E");
 
     /* Esquinas de visor de cámara (se estira a todo el recuadro) */
     --theme-viewfinder: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M3 12 V3 H12 M88 3 H97 V12 M97 88 V97 H88 M12 97 H3 V88' fill='none' stroke='%23FFF6EC' stroke-opacity='.45' stroke-width='2' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
 
-    /* Visor suave (pre-atenuado, para la capa opaca) */
+    /* Visor suave (pre-atenuado para la capa opaca) */
     --theme-viewfinder-soft: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M3 12 V3 H12 M88 3 H97 V12 M97 88 V97 H88 M12 97 H3 V88' fill='none' stroke='%23FFF6EC' stroke-opacity='.25' stroke-width='2' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
 
     /* Confeti de fiesta abandonada */
@@ -89,6 +93,7 @@
    ================================================================ */
 .app-header {
     position: relative;
+    z-index: 30;               /* por encima de la capa de cámara */
     background: var(--white);
     border-bottom: none;
 }
@@ -125,28 +130,22 @@
 @keyframes pz-rec { 0%, 55% { opacity: 1; } 56%, 100% { opacity: 0.1; } }
 
 /* ================================================================
-   2. WELCOME — sala de seguridad: estática, visor y HUD
-   La capa de cámara (::before) carga su propio fondo completo y
-   se estira hacia abajo sin corte: min-height garantiza que
-   llegue hasta el final aunque el contenido termine antes.
+   2. WELCOME — LA CÁMARA
+   La capa de cámara es FIXED: no pertenece a ninguna caja, así
+   que ningún contenedor puede recortarla. Ocupa toda la pantalla
+   (debajo del header) y acompaña el scroll hasta el final.
    ================================================================ */
 .welcome-placeholder {
     position: relative;
-    background:
-        radial-gradient(ellipse at 50% 0%, rgba(224, 165, 38, 0.12), transparent 55%),
-        var(--theme-confetti) 0 0 / 220px 220px,
-        linear-gradient(180deg, #0B0708, #140C0D);
 }
 .welcome-placeholder::before {
     content: '';
-    position: absolute;
+    position: fixed;            /* <- imposible que se corte */
+    top: var(--pz-header);
     left: 0;
     right: 0;
-    top: 0;
     bottom: 0;
-    min-height: 100vh;
-    min-height: 100dvh;   /* sigue hacia abajo hasta el final */
-    z-index: 1;
+    z-index: 0;
     pointer-events: none;
     background:
         var(--theme-viewfinder-soft) center / 100% 100% no-repeat,
@@ -275,6 +274,8 @@
    3. SIDEBAR + NAV — moño en el item activo
    ================================================================ */
 .sidebar {
+    position: relative;
+    z-index: 20;               /* por encima de la capa de cámara */
     background:
         conic-gradient(#3B1010 25%, #2A1B1D 0 50%, #3B1010 0 75%, #2A1B1D 0) right top / 12px 12px repeat-y,
         linear-gradient(180deg, #140C0D, #0B0708);
@@ -320,6 +321,7 @@
    ================================================================ */
 .acceso-item {
     position: relative;
+    z-index: 2;
     background: linear-gradient(180deg, #1C1214, #140C0D);
     border: 1px solid #3F2A2C;
     border-radius: 10px;
@@ -364,6 +366,7 @@
 }
 .widget-item {
     position: relative;
+    z-index: 2;
     background: linear-gradient(180deg, #1C1214, #140C0D);
     border: 1px solid #3F2A2C;
     border-radius: 10px;
@@ -403,6 +406,7 @@
 .modal-todas-card {
     position: relative;
     overflow: hidden;
+    z-index: 40;               /* modales por encima de la cámara */
     border: 1px solid #4A2C1A;
     border-radius: 8px;
     box-shadow:
@@ -454,6 +458,7 @@
 .avatar-config { box-shadow: 0 0 0 2px #0B0708, 0 0 0 4px rgba(224, 165, 38, 0.55); }
 
 @media (max-width: 768px) {
+    :root { --pz-header: 56px; }   /* header móvil más bajo */
     .welcome-hero { padding: 26px 18px; }
     .welcome-placeholder::after { font-size: 9px; left: 10px; top: 10px; }
 }
