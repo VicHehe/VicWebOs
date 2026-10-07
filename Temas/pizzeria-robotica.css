@@ -60,23 +60,11 @@
     --pz-red:   #DC2626;
     --pz-cream: #F3E9E2;
 
-    /* Geometría de la cámara: ajusta estos dos números a tu layout.
-       --pz-header: alto del header. --pz-side: ancho del sidebar. */
-    --pz-header: 64px;
-    --pz-side:   246px;
-    --pz-pad:    14px;   /* margen del marco respecto a los bordes */
-
     /* Estática de señal */
     --theme-static: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
 
-    /* Estática suave (pre-atenuada para la capa opaca) */
-    --theme-static-soft: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.20'/%3E%3C/svg%3E");
-
     /* Esquinas de visor de cámara (se estira a todo el recuadro) */
     --theme-viewfinder: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M3 12 V3 H12 M88 3 H97 V12 M97 88 V97 H88 M12 97 H3 V88' fill='none' stroke='%23FFF6EC' stroke-opacity='.45' stroke-width='2' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
-
-    /* Visor suave (pre-atenuado para la capa opaca) */
-    --theme-viewfinder-soft: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M3 12 V3 H12 M88 3 H97 V12 M97 88 V97 H88 M12 97 H3 V88' fill='none' stroke='%23FFF6EC' stroke-opacity='.28' stroke-width='2' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
 
     /* Confeti de fiesta abandonada */
     --theme-confetti: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 220'%3E%3Cg fill-opacity='.22'%3E%3Ccircle cx='20' cy='30' r='3' fill='%23E0A526'/%3E%3Crect x='90' y='20' width='6' height='6' fill='%23DC2626' transform='rotate(20 93 23)'/%3E%3Cpath d='M160 40 l5 9 h-10z' fill='%236D28D9'/%3E%3Ccircle cx='60' cy='110' r='2.5' fill='%23F3E9E2'/%3E%3Crect x='140' y='120' width='6' height='6' fill='%23E0A526' transform='rotate(-25 143 123)'/%3E%3Cpath d='M30 180 l5 9 h-10z' fill='%23DC2626'/%3E%3Ccircle cx='190' cy='170' r='3' fill='%236D28D9'/%3E%3Ccircle cx='110' cy='190' r='2' fill='%23E0A526'/%3E%3C/g%3E%3C/svg%3E");
@@ -95,7 +83,6 @@
    ================================================================ */
 .app-header {
     position: relative;
-    z-index: 30;
     background: var(--white);
     border-bottom: none;
 }
@@ -132,42 +119,35 @@
 @keyframes pz-rec { 0%, 55% { opacity: 1; } 56%, 100% { opacity: 0.1; } }
 
 /* ================================================================
-   2. WELCOME — LA CÁMARA
-   Capa fixed (imposible que se corte) pero ENMARCADA en la
-   columna de contenido: no flota en los bordes de la pantalla.
-   Fuera de la zona welcome solo lleva ruido, scanlines, viñeta
-   y fondo oscuro: sin glows ámbar tiñendo todo.
+   2. WELCOME — sala de seguridad: estática, visor y HUD
    ================================================================ */
 .welcome-placeholder {
     position: relative;
-    /* Confeti y luz cálida: solo en la zona welcome, como antes */
     background:
         radial-gradient(ellipse at 50% 0%, rgba(224, 165, 38, 0.12), transparent 55%),
-        var(--theme-confetti) 0 0 / 220px 220px;
+        var(--theme-confetti) 0 0 / 220px 220px,
+        linear-gradient(180deg, #0B0708, #140C0D);
 }
 .welcome-placeholder::before {
     content: '';
-    position: fixed;
-    top:    calc(var(--pz-header) + var(--pz-pad));
-    left:   calc(var(--pz-side)   + var(--pz-pad));
-    right:  var(--pz-pad);
-    bottom: var(--pz-pad);
-    z-index: 0;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
     pointer-events: none;
     background:
-        var(--theme-viewfinder-soft) center / 100% 100% no-repeat,
-        radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.42) 100%),
-        repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.10) 0 1px, transparent 1px 3px),
-        var(--theme-static-soft) 0 0 / 160px 160px,
-        linear-gradient(180deg, #0B0708, #140C0D);
+        var(--theme-viewfinder) center / 100% 100% no-repeat,
+        radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.55) 100%),
+        repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.18) 0 1px, transparent 1px 3px),
+        var(--theme-static) 0 0 / 160px 160px;
+    opacity: 0.55;
     animation: pz-static 0.5s steps(4) infinite;
 }
 @keyframes pz-static {
-    0%   { background-position: center, center, 0 0, 0 0, 0 0; }
-    25%  { background-position: center, center, 0 0, -40px 24px, 0 0; }
-    50%  { background-position: center, center, 0 0, 30px -50px, 0 0; }
-    75%  { background-position: center, center, 0 0, -20px -10px, 0 0; }
-    100% { background-position: center, center, 0 0, 0 0, 0 0; }
+    0%   { background-position: center, center, 0 0, 0 0; }
+    25%  { background-position: center, center, 0 0, -40px 24px; }
+    50%  { background-position: center, center, 0 0, 30px -50px; }
+    75%  { background-position: center, center, 0 0, -20px -10px; }
+    100% { background-position: center, center, 0 0, 0 0; }
 }
 .welcome-placeholder::after {
     content: '● REC   CAM 01';
@@ -278,8 +258,6 @@
    3. SIDEBAR + NAV — moño en el item activo
    ================================================================ */
 .sidebar {
-    position: relative;
-    z-index: 20;
     background:
         conic-gradient(#3B1010 25%, #2A1B1D 0 50%, #3B1010 0 75%, #2A1B1D 0) right top / 12px 12px repeat-y,
         linear-gradient(180deg, #140C0D, #0B0708);
@@ -325,7 +303,6 @@
    ================================================================ */
 .acceso-item {
     position: relative;
-    z-index: 2;
     background: linear-gradient(180deg, #1C1214, #140C0D);
     border: 1px solid #3F2A2C;
     border-radius: 10px;
@@ -370,7 +347,6 @@
 }
 .widget-item {
     position: relative;
-    z-index: 2;
     background: linear-gradient(180deg, #1C1214, #140C0D);
     border: 1px solid #3F2A2C;
     border-radius: 10px;
@@ -410,7 +386,6 @@
 .modal-todas-card {
     position: relative;
     overflow: hidden;
-    z-index: 40;
     border: 1px solid #4A2C1A;
     border-radius: 8px;
     box-shadow:
@@ -461,12 +436,58 @@
 }
 .avatar-config { box-shadow: 0 0 0 2px #0B0708, 0 0 0 4px rgba(224, 165, 38, 0.55); }
 
+/* ================================================================
+   6. FIX — LA CÁMARA SIGUE BAJANDO HASTA EL FINAL
+   Método tomado de tus propios temas del paquete:
+   · chiptune.css  → body::before fixed con scanlines de monitor.
+   · cuartos-traseros.css / runas.css → lo duro anclado al elemento,
+     al viewport solo va la textura suave del feed.
+   Así el feed NUNCA se corta (no depende de ninguna caja) y el
+   marco duro NO queda flotando sobre las cards al scrollear
+   (ese fue el error de la versión fixed).
+   ================================================================ */
+
+/* 6a. Feed del monitor: estática + scanlines tenues, fijas al
+       viewport. Como es "la pantalla del monitor", no tiene fin:
+       cubre siempre todo, también el espacio bajo el welcome. */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+        repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.10) 0 1px, transparent 1px 3px),
+        var(--theme-static) 0 0 / 160px 160px;
+    opacity: 0.30;
+    animation: pz-feed 0.5s steps(4) infinite;
+}
+@keyframes pz-feed {
+    0%   { background-position: 0 0, 0 0; }
+    25%  { background-position: 0 0, -40px 24px; }
+    50%  { background-position: 0 0, 30px -50px; }
+    75%  { background-position: 0 0, -20px -10px; }
+    100% { background-position: 0 0, 0 0; }
+}
+
+/* 6b. Cada bloque que queda FUERA del welcome (WIDGETS, etc.)
+       recibe su propio marco de visor: la red de cámaras sigue
+       bajando por la página, bloque por bloque, hasta el final.
+       Los bloques DENTRO del welcome no lo llevan (ya están
+       dentro del marco grande de CAM 01). */
+.welcome-section::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--theme-viewfinder) center / 100% 100% no-repeat;
+    opacity: 0.30;
+    pointer-events: none;
+}
+.welcome-placeholder .welcome-section::after {
+    content: none;
+}
+
 @media (max-width: 768px) {
-    :root {
-        --pz-header: 56px;
-        --pz-side:   0px;    /* sin sidebar visible */
-        --pz-pad:    10px;
-    }
     .welcome-hero { padding: 26px 18px; }
     .welcome-placeholder::after { font-size: 9px; left: 10px; top: 10px; }
 }
@@ -479,6 +500,8 @@
     .welcome-hero::after,
     .acceso-item:hover,
     .tab-item.active::after,
-    .noti-btn.tiene-no-leidas { animation: none !important; }
+    .noti-btn.tiene-no-leidas,
+    body::before { animation: none !important; }
     .welcome-hero::after { opacity: 0 !important; }
+    body::before { opacity: 0.15; }
 }
