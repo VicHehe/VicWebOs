@@ -13,6 +13,7 @@
      · Mantel a cuadros    → franjas de ajedrez
      · Moño del animatrónico → marca del nav activo
      · Fiesta abandonada   → confeti tenue
+     · Señal que se pierde → fundido de la cámara al fondo
    ================================================ */
 
 :root {
@@ -124,6 +125,15 @@
 .welcome-placeholder {
     position: relative;
     background:
+        /* FIX FUNDO #2 — la sala se disuelve en el color del body:
+           esta capa superior derrite confeti y gradiente antes del
+           borde inferior, para que no exista costura de tono. */
+        linear-gradient(180deg,
+            transparent 0%,
+            transparent 62%,
+            rgba(11, 7, 8, 0.55) 82%,
+            rgba(11, 7, 8, 0.90) 94%,
+            #0B0708 100%),
         radial-gradient(ellipse at 50% 0%, rgba(224, 165, 38, 0.12), transparent 55%),
         var(--theme-confetti) 0 0 / 220px 220px,
         linear-gradient(180deg, #0B0708, #140C0D);
@@ -141,6 +151,21 @@
         var(--theme-static) 0 0 / 160px 160px;
     opacity: 0.55;
     animation: pz-static 0.5s steps(4) infinite;
+    /* FIX FUNDO #1 — la señal se pierde hacia abajo:
+       la máscara desvanece estática, scanlines y visor antes de
+       llegar al borde. El corte duro deja de existir. */
+    -webkit-mask-image: linear-gradient(180deg,
+        #000 0%,
+        #000 58%,
+        rgba(0, 0, 0, 0.72) 74%,
+        rgba(0, 0, 0, 0.35) 88%,
+        transparent 100%);
+    mask-image: linear-gradient(180deg,
+        #000 0%,
+        #000 58%,
+        rgba(0, 0, 0, 0.72) 74%,
+        rgba(0, 0, 0, 0.35) 88%,
+        transparent 100%);
 }
 @keyframes pz-static {
     0%   { background-position: center, center, 0 0, 0 0; }
@@ -436,57 +461,6 @@
 }
 .avatar-config { box-shadow: 0 0 0 2px #0B0708, 0 0 0 4px rgba(224, 165, 38, 0.55); }
 
-/* ================================================================
-   6. FIX — LA CÁMARA SIGUE BAJANDO HASTA EL FINAL
-   Método tomado de tus propios temas del paquete:
-   · chiptune.css  → body::before fixed con scanlines de monitor.
-   · cuartos-traseros.css / runas.css → lo duro anclado al elemento,
-     al viewport solo va la textura suave del feed.
-   Así el feed NUNCA se corta (no depende de ninguna caja) y el
-   marco duro NO queda flotando sobre las cards al scrollear
-   (ese fue el error de la versión fixed).
-   ================================================================ */
-
-/* 6a. Feed del monitor: estática + scanlines tenues, fijas al
-       viewport. Como es "la pantalla del monitor", no tiene fin:
-       cubre siempre todo, también el espacio bajo el welcome. */
-body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    background:
-        repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.10) 0 1px, transparent 1px 3px),
-        var(--theme-static) 0 0 / 160px 160px;
-    opacity: 0.30;
-    animation: pz-feed 0.5s steps(4) infinite;
-}
-@keyframes pz-feed {
-    0%   { background-position: 0 0, 0 0; }
-    25%  { background-position: 0 0, -40px 24px; }
-    50%  { background-position: 0 0, 30px -50px; }
-    75%  { background-position: 0 0, -20px -10px; }
-    100% { background-position: 0 0, 0 0; }
-}
-
-/* 6b. Cada bloque que queda FUERA del welcome (WIDGETS, etc.)
-       recibe su propio marco de visor: la red de cámaras sigue
-       bajando por la página, bloque por bloque, hasta el final.
-       Los bloques DENTRO del welcome no lo llevan (ya están
-       dentro del marco grande de CAM 01). */
-.welcome-section::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--theme-viewfinder) center / 100% 100% no-repeat;
-    opacity: 0.30;
-    pointer-events: none;
-}
-.welcome-placeholder .welcome-section::after {
-    content: none;
-}
-
 @media (max-width: 768px) {
     .welcome-hero { padding: 26px 18px; }
     .welcome-placeholder::after { font-size: 9px; left: 10px; top: 10px; }
@@ -500,8 +474,6 @@ body::before {
     .welcome-hero::after,
     .acceso-item:hover,
     .tab-item.active::after,
-    .noti-btn.tiene-no-leidas,
-    body::before { animation: none !important; }
+    .noti-btn.tiene-no-leidas { animation: none !important; }
     .welcome-hero::after { opacity: 0 !important; }
-    body::before { opacity: 0.15; }
 }
