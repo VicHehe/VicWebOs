@@ -1,0 +1,454 @@
+/* ================================================
+   Tema: Pizzería Robótica
+   Pizzería de barrio a las 3 a. m. Cámaras de
+   seguridad, luces que parpadean, manteles a
+   cuadros y algo que te mira desde la oscuridad.
+   Referencia viva (animada). Sin nombres ni
+   colores exactos de marcas.
+
+   Guiños traducidos a CSS:
+     · Cámara de seguridad → HUD "REC" + visor
+     · Corte de luz        → parpadeo irregular del hero
+     · Ojos en la sombra   → ojos que asoman y parpadean
+     · Mantel a cuadros    → franjas de ajedrez
+     · Moño del animatrónico → marca del nav activo
+     · Fiesta abandonada   → confeti tenue
+   ================================================ */
+
+:root {
+    --violet-50:  #1A0F08;
+    --violet-100: #2B1A12;
+    --violet-200: #4A2C1A;
+    --violet-300: #8A5A2B;
+    --violet-400: #C98A2E;
+    --violet-500: #E0A526;
+    --violet-600: #B9821A;
+    --violet-700: #8A5F10;
+
+    --white:   #1A1112;
+    --bg:      #0B0708;
+    --bg-alt:  #130C0D;
+    --gray-50:  #130C0D;
+    --gray-100: #1C1214;
+    --gray-200: #2A1B1D;
+    --gray-300: #3F2A2C;
+    --gray-400: #6E5659;
+    --gray-500: #A08A8C;
+    --gray-600: #C8B6B0;
+    --gray-700: #E3D5CC;
+    --gray-800: #F3E9E2;
+    --gray-900: #FFF6EC;
+
+    --border:  #2A1B1D;
+    --text:    #FFF6EC;
+    --text-2:  #C8B6B0;
+    --text-3:  #A08A8C;
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.60);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.70);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.65);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.75);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.85);
+    --shadow-glow: 0 0 0 3px rgba(224, 165, 38, 0.25);
+
+    --accent-gradient: linear-gradient(135deg, #E0A526, #8A5F10);
+    --accent-gradient-hover: linear-gradient(135deg, #F0B83A, #B9821A);
+    --accent-shadow: rgba(224, 165, 38, 0.32);
+    --accent-shadow-hover: rgba(224, 165, 38, 0.50);
+    --accent-text-gradient: linear-gradient(135deg, #FFF6EC, #E0A526);
+
+    --pz-red:   #DC2626;
+    --pz-cream: #F3E9E2;
+
+    /* Estática de señal */
+    --theme-static: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+
+    /* Esquinas de visor de cámara (se estira a todo el recuadro) */
+    --theme-viewfinder: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M3 12 V3 H12 M88 3 H97 V12 M97 88 V97 H88 M12 97 H3 V88' fill='none' stroke='%23FFF6EC' stroke-opacity='.45' stroke-width='2' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
+
+    /* Confeti de fiesta abandonada */
+    --theme-confetti: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 220'%3E%3Cg fill-opacity='.22'%3E%3Ccircle cx='20' cy='30' r='3' fill='%23E0A526'/%3E%3Crect x='90' y='20' width='6' height='6' fill='%23DC2626' transform='rotate(20 93 23)'/%3E%3Cpath d='M160 40 l5 9 h-10z' fill='%236D28D9'/%3E%3Ccircle cx='60' cy='110' r='2.5' fill='%23F3E9E2'/%3E%3Crect x='140' y='120' width='6' height='6' fill='%23E0A526' transform='rotate(-25 143 123)'/%3E%3Cpath d='M30 180 l5 9 h-10z' fill='%23DC2626'/%3E%3Ccircle cx='190' cy='170' r='3' fill='%236D28D9'/%3E%3Ccircle cx='110' cy='190' r='2' fill='%23E0A526'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* Ojos brillantes en la oscuridad */
+    --theme-eyes: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 24'%3E%3Ccircle cx='14' cy='12' r='9' fill='%23140C0D' stroke='%23E0A526' stroke-opacity='.5'/%3E%3Ccircle cx='14' cy='12' r='3' fill='%23FFF6EC'/%3E%3Ccircle cx='46' cy='12' r='9' fill='%23140C0D' stroke='%23E0A526' stroke-opacity='.5'/%3E%3Ccircle cx='46' cy='12' r='3' fill='%23FFF6EC'/%3E%3C/svg%3E");
+
+    --r-sm: 6px;
+    --r-md: 10px;
+    --r-lg: 14px;
+    --r-xl: 18px;
+}
+
+/* ================================================================
+   1. HEADER — mantel a cuadros + luz de REC en el logo
+   ================================================================ */
+.app-header {
+    position: relative;
+    background: var(--white);
+    border-bottom: none;
+}
+.app-header::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 6px;
+    background: conic-gradient(#7F1D1D 25%, #F3E9E2 0 50%, #7F1D1D 0 75%, #F3E9E2 0) 0 0 / 12px 12px;
+    opacity: 0.85;
+    pointer-events: none;
+}
+.logo-mark {
+    position: relative;
+    overflow: visible;
+    background: linear-gradient(135deg, #C98A2E, #6B4510);
+    box-shadow: 0 4px 14px rgba(224, 165, 38, 0.35);
+}
+.logo-mark::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--pz-red);
+    box-shadow: 0 0 8px var(--pz-red);
+    animation: pz-rec 1.4s steps(1) infinite;
+    pointer-events: none;
+}
+@keyframes pz-rec { 0%, 55% { opacity: 1; } 56%, 100% { opacity: 0.1; } }
+
+/* ================================================================
+   2. WELCOME — sala de seguridad: estática, visor y HUD
+   ================================================================ */
+.welcome-placeholder {
+    position: relative;
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(224, 165, 38, 0.12), transparent 55%),
+        var(--theme-confetti) 0 0 / 220px 220px,
+        linear-gradient(180deg, #0B0708, #140C0D);
+}
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+        var(--theme-viewfinder) center / 100% 100% no-repeat,
+        radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.55) 100%),
+        repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.18) 0 1px, transparent 1px 3px),
+        var(--theme-static) 0 0 / 160px 160px;
+    opacity: 0.55;
+    animation: pz-static 0.5s steps(4) infinite;
+}
+@keyframes pz-static {
+    0%   { background-position: center, center, 0 0, 0 0; }
+    25%  { background-position: center, center, 0 0, -40px 24px; }
+    50%  { background-position: center, center, 0 0, 30px -50px; }
+    75%  { background-position: center, center, 0 0, -20px -10px; }
+    100% { background-position: center, center, 0 0, 0 0; }
+}
+.welcome-placeholder::after {
+    content: '● REC   CAM 01';
+    position: absolute;
+    top: 14px;
+    left: 18px;
+    z-index: 3;
+    font: 700 11px/1 ui-monospace, Menlo, Consolas, monospace;
+    letter-spacing: 0.14em;
+    color: var(--pz-cream);
+    text-shadow: 0 0 6px rgba(255, 246, 236, 0.5);
+    pointer-events: none;
+    animation: pz-rec 1.4s steps(1) infinite;
+}
+.welcome-glow {
+    background: radial-gradient(circle at 50% 40%, rgba(224, 165, 38, 0.16), transparent 65%);
+}
+
+.welcome-hero,
+.welcome-section { position: relative; z-index: 2; }
+
+/* Hero con parpadeo de luz y ojos que asoman por arriba */
+.welcome-hero {
+    overflow: visible;
+    padding: 32px 28px;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+    background: linear-gradient(180deg, rgba(28, 18, 20, 0.94), rgba(11, 7, 8, 0.97));
+    border: 1px solid #4A2C1A;
+    border-radius: 6px;
+    box-shadow:
+        inset 0 0 0 1px rgba(224, 165, 38, 0.12),
+        0 20px 50px rgba(0, 0, 0, 0.85),
+        0 0 50px rgba(224, 165, 38, 0.08);
+    animation: pz-flicker 9s linear infinite;
+}
+@keyframes pz-flicker {
+    0%, 89%, 93%, 96%, 100% { filter: brightness(1); }
+    90% { filter: brightness(0.45); }
+    91% { filter: brightness(1); }
+    94% { filter: brightness(0.6); }
+    95% { filter: brightness(1.15); }
+}
+.welcome-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: conic-gradient(#7F1D1D 25%, #F3E9E2 0 50%, #7F1D1D 0 75%, #F3E9E2 0) 0 0 / 12px 12px;
+    opacity: 0.55;
+    border-radius: 6px 6px 0 0;
+    pointer-events: none;
+}
+.welcome-hero::after {
+    content: '';
+    position: absolute;
+    top: -32px;
+    left: 20px;
+    width: 60px;
+    height: 24px;
+    background: var(--theme-eyes) center / contain no-repeat;
+    filter: drop-shadow(0 0 6px rgba(255, 246, 236, 0.8));
+    opacity: 0;
+    pointer-events: none;
+    animation: pz-eyes 11s linear infinite;
+}
+@keyframes pz-eyes {
+    0%, 58%  { opacity: 0; transform: translateY(8px) scaleY(1); }
+    62%      { opacity: 1; transform: translateY(0) scaleY(1); }
+    66%      { opacity: 1; transform: translateY(0) scaleY(0.1); }
+    68%      { opacity: 1; transform: translateY(0) scaleY(1); }
+    76%      { opacity: 1; transform: translateY(0) scaleY(1); }
+    78%, 100% { opacity: 0; transform: translateY(8px) scaleY(1); }
+}
+
+.welcome-icon-wrap {
+    background: linear-gradient(135deg, #C98A2E, #6B4510);
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px #0B0708, 0 0 0 4px rgba(224, 165, 38, 0.5), 0 0 34px rgba(224, 165, 38, 0.35);
+}
+.welcome-hero h1 { text-shadow: 0 0 18px rgba(224, 165, 38, 0.35); }
+
+.welcome-section {
+    background: rgba(28, 18, 20, 0.75);
+    border: 1px solid #3F2A2C;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+}
+.welcome-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 12px;
+    right: 12px;
+    height: 5px;
+    background: conic-gradient(#7F1D1D 25%, #F3E9E2 0 50%, #7F1D1D 0 75%, #F3E9E2 0) 0 0 / 10px 10px;
+    opacity: 0.45;
+    border-radius: 0 0 3px 3px;
+    pointer-events: none;
+}
+.welcome-section-header h2 { letter-spacing: 0.03em; }
+
+/* ================================================================
+   3. SIDEBAR + NAV — moño en el item activo
+   ================================================================ */
+.sidebar {
+    background:
+        conic-gradient(#3B1010 25%, #2A1B1D 0 50%, #3B1010 0 75%, #2A1B1D 0) right top / 12px 12px repeat-y,
+        linear-gradient(180deg, #140C0D, #0B0708);
+    border-right: 1px solid #3F2A2C;
+}
+.sidebar-mobile-header {
+    background: #140C0D;
+    border-bottom: 1px solid #3F2A2C;
+}
+.sidebar-comunidad {
+    background: rgba(224, 165, 38, 0.06);
+    border: 1px solid #4A2C1A;
+    border-radius: 8px;
+}
+.sidebar-comunidad:hover { border-color: #E0A526; }
+.nav-item {
+    position: relative;
+    border-radius: 8px;
+    transition: background 0.15s ease;
+}
+.nav-item:hover { background: rgba(224, 165, 38, 0.10); }
+.nav-item.active {
+    background: linear-gradient(135deg, #E0A526, #B9821A);
+    color: #1A0F08;
+    box-shadow: 0 4px 14px rgba(224, 165, 38, 0.30);
+}
+.nav-item.active .nav-icon { color: #1A0F08; }
+.nav-item.active::before {
+    content: '';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    width: 16px;
+    height: 11px;
+    margin-top: -5px;
+    background: #7F1D1D;
+    clip-path: polygon(0 0, 45% 50%, 0 100%, 100% 100%, 55% 50%, 100% 0);
+    pointer-events: none;
+}
+
+/* ================================================================
+   4. ACCESOS — cámara que cambia de canal al pasar
+   ================================================================ */
+.acceso-item {
+    position: relative;
+    background: linear-gradient(180deg, #1C1214, #140C0D);
+    border: 1px solid #3F2A2C;
+    border-radius: 10px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.60);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.acceso-item::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10px;
+    right: 10px;
+    height: 4px;
+    background: conic-gradient(#7F1D1D 25%, #F3E9E2 0 50%, #7F1D1D 0 75%, #F3E9E2 0) 0 0 / 8px 8px;
+    opacity: 0.50;
+    border-radius: 0 0 3px 3px;
+    pointer-events: none;
+}
+.acceso-item::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    background: var(--theme-viewfinder) center / 100% 100% no-repeat;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    pointer-events: none;
+}
+.acceso-item:hover {
+    border-color: #E0A526;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.70), 0 0 22px rgba(224, 165, 38, 0.22);
+    animation: pz-glitch 0.28s steps(2) 1;
+}
+.acceso-item:hover::before { opacity: 0.9; }
+@keyframes pz-glitch {
+    0%   { transform: translateX(-2px); filter: hue-rotate(0deg); }
+    50%  { transform: translateX(2px);  filter: hue-rotate(30deg); }
+    100% { transform: translateX(0);    filter: hue-rotate(0deg); }
+}
+.acceso-icon-wrap {
+    background: linear-gradient(135deg, #C98A2E, #6B4510);
+    box-shadow: 0 0 14px rgba(224, 165, 38, 0.30);
+}
+.widget-item {
+    position: relative;
+    background: linear-gradient(180deg, #1C1214, #140C0D);
+    border: 1px solid #3F2A2C;
+    border-radius: 10px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.60);
+}
+.widget-item:hover { border-color: #E0A526; }
+
+/* ================================================================
+   5. TABS, MODALES, BOTONES, EXTRAS
+   ================================================================ */
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 12px;
+    right: 12px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #DC2626, #E0A526, #DC2626, transparent);
+    pointer-events: none;
+}
+.tab-item.active::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--pz-red);
+    box-shadow: 0 0 6px var(--pz-red);
+    animation: pz-rec 1.4s steps(1) infinite;
+    pointer-events: none;
+}
+.tab-item.active [data-lucide] { color: var(--violet-400); }
+
+.config-card,
+.modal-todas-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #4A2C1A;
+    border-radius: 8px;
+    box-shadow:
+        inset 0 0 70px rgba(0, 0, 0, 0.55),
+        0 24px 48px rgba(0, 0, 0, 0.85),
+        0 0 40px rgba(224, 165, 38, 0.10);
+}
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 3px);
+    pointer-events: none;
+    z-index: 0;
+}
+.config-card::after,
+.modal-todas-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: conic-gradient(#7F1D1D 25%, #F3E9E2 0 50%, #7F1D1D 0 75%, #F3E9E2 0) 0 0 / 12px 12px;
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+.btn-primario {
+    background: linear-gradient(135deg, #E0A526, #B9821A);
+    color: #1A0F08;
+    font-weight: 800;
+    border: 1px solid #8A5F10;
+    box-shadow: 0 4px 14px rgba(224, 165, 38, 0.35);
+}
+.btn-primario:hover {
+    background: linear-gradient(135deg, #F0B83A, #C98A2E);
+    box-shadow: 0 6px 20px rgba(224, 165, 38, 0.50);
+}
+.config-select:focus { border-color: #E0A526; box-shadow: 0 0 0 3px rgba(224, 165, 38, 0.25); }
+.search-bar:focus-within { border-color: #E0A526; box-shadow: 0 0 0 3px rgba(224, 165, 38, 0.22); }
+.search-bar:focus-within .search-icon { color: #E0A526; }
+.noti-btn.tiene-no-leidas { color: #F87171; animation: pz-alarm 1.6s ease-in-out infinite; }
+@keyframes pz-alarm {
+    0%   { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.55); }
+    100% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+}
+.avatar-config { box-shadow: 0 0 0 2px #0B0708, 0 0 0 4px rgba(224, 165, 38, 0.55); }
+
+@media (max-width: 768px) {
+    .welcome-hero { padding: 26px 18px; }
+    .welcome-placeholder::after { font-size: 9px; left: 10px; top: 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .logo-mark::after,
+    .welcome-placeholder::before,
+    .welcome-placeholder::after,
+    .welcome-hero,
+    .welcome-hero::after,
+    .acceso-item:hover,
+    .tab-item.active::after,
+    .noti-btn.tiene-no-leidas { animation: none !important; }
+    .welcome-hero::after { opacity: 0 !important; }
+}
