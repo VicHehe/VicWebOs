@@ -1160,6 +1160,24 @@ const TEMAS_DISPONIBLES = [
     //  Referencias a la cultura contemporánea: entretenimiento,
     //  plataformas digitales, íconos pop y estéticas virales.
     // ============================================================
+        {
+        id: 'switch',
+        nombre: 'Switch',
+        icono: 'gamepad',
+        descripcion: 'Negro profundo con una mitad roja y otra azul. Mandos laterales con botones decorativos y el inicio convertido en pantalla. Sin animaciones, solo un acabado limpio.',
+        categoria: 'Cultura Pop',
+        ruta: 'Temas/switch.css',
+        espacio: 4,
+        monedas: 25,
+        colores: {
+            '--violet-100': '#10202B',
+            '--violet-300': '#38BDF8',
+            '--violet-500': '#F43F5E',
+            '--bg':         '#0A0A0C',
+            '--bg-alt':     '#111115',
+            '--white':      '#17171C'
+        }
+    },
     {
         id: 'dreams',
         nombre: 'Dreams and Hopes',
@@ -1212,6 +1230,24 @@ const TEMAS_DISPONIBLES = [
             '--bg':         '#FFF8F2',
             '--bg-alt':     '#FFEFE5',
             '--white':      '#FFFDFB'
+        }
+    },
+        {
+        id: 'pizzeria-robotica',
+        nombre: 'Pizzería Robótica',
+        icono: 'pizza',
+        descripcion: 'Una pizzería de barrio a las 3 a. m. Cámaras con REC, luces que parpadean, manteles a cuadros y unos ojos que asoman en la oscuridad. Este tema está vivo.',
+        categoria: 'Cultura Pop',
+        ruta: 'Temas/pizzeria-robotica.css',
+        espacio: 4,
+        monedas: 40,
+        colores: {
+            '--violet-100': '#2B1A12',
+            '--violet-300': '#8A5A2B',
+            '--violet-500': '#E0A526',
+            '--bg':         '#0B0708',
+            '--bg-alt':     '#130C0D',
+            '--white':      '#1A1112'
         }
     },
     {
@@ -1268,6 +1304,24 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFFFF'
         }
     },
+        {
+        id: 'busca-tema-perdido',
+        nombre: 'En busca del tema perdido',
+        icono: 'compass',
+        descripcion: 'Pergamino de explorador, cuero curtido y latón dorado. Mapa con ruta punteada y una X roja, remaches en cada marco y una brújula que oscila. Aventura artesanal.',
+        categoria: 'Cultura Pop',
+        ruta: 'Temas/busca-tema-perdido.css',
+        espacio: 4,
+        monedas: 45,
+        colores: {
+            '--violet-100': '#EBD9B4',
+            '--violet-300': '#D0A965',
+            '--violet-500': '#9A5A1E',
+            '--bg':         '#F1E4C8',
+            '--bg-alt':     '#E8D6B0',
+            '--white':      '#FBF3DE'
+        }
+    },
     {
         id: 'pop-owner',
         nombre: 'Pop Owner',
@@ -1284,6 +1338,24 @@ const TEMAS_DISPONIBLES = [
             '--bg':         '#0A0A0A',
             '--bg-alt':     '#0F0F0F',
             '--white':      '#141414'
+        }
+    },
+        {
+        id: 'bizzaras-desventuras',
+        nombre: 'Bizzaras Desventuras',
+        icono: 'drama',
+        descripcion: 'Manga a todo color: halftone, rayos giratorios y un aura que late alrededor del hero. Las cards posan al pasar el mouse y las onomatopeyas tiemblan. Flagship.',
+        categoria: 'Cultura Pop',
+        ruta: 'Temas/bizzaras-desventuras.css',
+        espacio: 4,
+        monedas: 50,
+        colores: {
+            '--violet-100': '#2A1259',
+            '--violet-300': '#F0ABFC',
+            '--violet-500': '#D946EF',
+            '--bg':         '#120A2E',
+            '--bg-alt':     '#1B0F42',
+            '--white':      '#1E1148'
         }
     },
     {
