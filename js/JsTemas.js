@@ -1232,24 +1232,6 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFDFB'
         }
     },
-        {
-        id: 'pizzeria-robotica',
-        nombre: 'Pizzería Robótica',
-        icono: 'pizza',
-        descripcion: 'Una pizzería de barrio a las 3 a. m. Cámaras con REC, luces que parpadean, manteles a cuadros y unos ojos que asoman en la oscuridad. Este tema está vivo.',
-        categoria: 'Cultura Pop',
-        ruta: 'Temas/pizzeria-robotica.css',
-        espacio: 4,
-        monedas: 40,
-        colores: {
-            '--violet-100': '#2B1A12',
-            '--violet-300': '#8A5A2B',
-            '--violet-500': '#E0A526',
-            '--bg':         '#0B0708',
-            '--bg-alt':     '#130C0D',
-            '--white':      '#1A1112'
-        }
-    },
     {
         id: 'charla',
         nombre: 'Charla',
@@ -1322,6 +1304,24 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FBF3DE'
         }
     },
+            {
+        id: 'bizzaras-desventuras',
+        nombre: 'Bizzaras Desventuras',
+        icono: 'drama',
+        descripcion: 'Manga a todo color: halftone, rayos giratorios y un aura que late alrededor del hero. Las cards posan al pasar el mouse y las onomatopeyas tiemblan. Flagship.',
+        categoria: 'Cultura Pop',
+        ruta: 'Temas/bizzaras-desventuras.css',
+        espacio: 4,
+        monedas: 45,
+        colores: {
+            '--violet-100': '#2A1259',
+            '--violet-300': '#F0ABFC',
+            '--violet-500': '#D946EF',
+            '--bg':         '#120A2E',
+            '--bg-alt':     '#1B0F42',
+            '--white':      '#1E1148'
+        }
+    },
     {
         id: 'pop-owner',
         nombre: 'Pop Owner',
@@ -1338,24 +1338,6 @@ const TEMAS_DISPONIBLES = [
             '--bg':         '#0A0A0A',
             '--bg-alt':     '#0F0F0F',
             '--white':      '#141414'
-        }
-    },
-        {
-        id: 'bizzaras-desventuras',
-        nombre: 'Bizzaras Desventuras',
-        icono: 'drama',
-        descripcion: 'Manga a todo color: halftone, rayos giratorios y un aura que late alrededor del hero. Las cards posan al pasar el mouse y las onomatopeyas tiemblan. Flagship.',
-        categoria: 'Cultura Pop',
-        ruta: 'Temas/bizzaras-desventuras.css',
-        espacio: 4,
-        monedas: 50,
-        colores: {
-            '--violet-100': '#2A1259',
-            '--violet-300': '#F0ABFC',
-            '--violet-500': '#D946EF',
-            '--bg':         '#120A2E',
-            '--bg-alt':     '#1B0F42',
-            '--white':      '#1E1148'
         }
     },
     {
@@ -1375,5 +1357,23 @@ const TEMAS_DISPONIBLES = [
             '--bg-alt':     '#0E0E16',
             '--white':      '#13131E'
         }
-    }
+    },
+            {
+        id: 'pizzeria-robotica',
+        nombre: 'Pizzería Robótica',
+        icono: 'pizza',
+        descripcion: 'Una pizzería de barrio a las 3 a. m. Cámaras con REC, luces que parpadean, manteles a cuadros y unos ojos que asoman en la oscuridad. Este tema está vivo.',
+        categoria: 'Cultura Pop',
+        ruta: 'Temas/pizzeria-robotica.css',
+        espacio: 4,
+        monedas: 50,
+        colores: {
+            '--violet-100': '#2B1A12',
+            '--violet-300': '#8A5A2B',
+            '--violet-500': '#E0A526',
+            '--bg':         '#0B0708',
+            '--bg-alt':     '#130C0D',
+            '--white':      '#1A1112'
+        }
+    },
 ];
