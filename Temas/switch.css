@@ -1,0 +1,345 @@
+/* ================================================
+   Tema: Switch
+   Negro profundo con una mitad roja y otra azul,
+   como una consola híbrida con sus mandos a los
+   lados. Botones decorativos en cada riel y el hero
+   convertido en pantalla. Sin animaciones.
+   Sin nombres ni colores exactos de marcas.
+
+   Guiños traducidos a CSS:
+     · Mandos laterales   → rieles rojo y azul
+     · Pantalla           → hero con bisel negro + reflejo
+     · Botones            → rombo de 4 + stick + menos/más
+     · Acentos alternados → iconos rojo/azul intercalados
+   ================================================ */
+
+:root {
+    --violet-50:  #1A0B10;
+    --violet-100: #10202B;
+    --violet-200: #243040;
+    --violet-300: #38BDF8;
+    --violet-400: #FB7185;
+    --violet-500: #F43F5E;
+    --violet-600: #E11D48;
+    --violet-700: #BE123C;
+
+    --white:   #17171C;
+    --bg:      #0A0A0C;
+    --bg-alt:  #111115;
+    --gray-50:  #111115;
+    --gray-100: #1A1A20;
+    --gray-200: #26262E;
+    --gray-300: #3A3A44;
+    --gray-400: #62626E;
+    --gray-500: #8E8E9A;
+    --gray-600: #B4B4C0;
+    --gray-700: #D2D2DC;
+    --gray-800: #EAEAF0;
+    --gray-900: #FFFFFF;
+
+    --border:  #26262E;
+    --text:    #FFFFFF;
+    --text-2:  #B4B4C0;
+    --text-3:  #8E8E9A;
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.60);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.70);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.65);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.75);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.85);
+    --shadow-glow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+
+    --accent-gradient: linear-gradient(90deg, #F43F5E, #38BDF8);
+    --accent-gradient-hover: linear-gradient(90deg, #FB7185, #7DD3FC);
+    --accent-shadow: rgba(56, 189, 248, 0.30);
+    --accent-shadow-hover: rgba(56, 189, 248, 0.45);
+    --accent-text-gradient: linear-gradient(90deg, #FB7185, #7DD3FC);
+
+    --sw-red:  #F43F5E;
+    --sw-red-dark: #BE123C;
+    --sw-blue: #38BDF8;
+    --sw-blue-dark: #0369A1;
+
+    /* Mando izquierdo: menos, stick, rombo de botones, captura */
+    --theme-sw-left: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 70 190'%3E%3Crect x='24' y='8' width='22' height='5' rx='2.5' fill='black' fill-opacity='.8'/%3E%3Ccircle cx='35' cy='50' r='16' fill='black' fill-opacity='.85'/%3E%3Ccircle cx='35' cy='50' r='10' fill='%2326262E'/%3E%3Cg fill='black' fill-opacity='.85'%3E%3Ccircle cx='35' cy='92' r='8'/%3E%3Ccircle cx='35' cy='132' r='8'/%3E%3Ccircle cx='15' cy='112' r='8'/%3E%3Ccircle cx='55' cy='112' r='8'/%3E%3C/g%3E%3Crect x='27' y='164' width='16' height='16' rx='3' fill='black' fill-opacity='.8'/%3E%3Crect x='31' y='168' width='8' height='8' rx='1.5' fill='%2326262E'/%3E%3C/svg%3E");
+
+    /* Mando derecho: más, rombo de botones, stick, inicio */
+    --theme-sw-right: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 70 190'%3E%3Cpath d='M35 3 v16 M27 11 h16' stroke='black' stroke-opacity='.8' stroke-width='5' stroke-linecap='round'/%3E%3Cg fill='black' fill-opacity='.85'%3E%3Ccircle cx='35' cy='48' r='8'/%3E%3Ccircle cx='35' cy='88' r='8'/%3E%3Ccircle cx='15' cy='68' r='8'/%3E%3Ccircle cx='55' cy='68' r='8'/%3E%3C/g%3E%3Ccircle cx='35' cy='130' r='16' fill='black' fill-opacity='.85'/%3E%3Ccircle cx='35' cy='130' r='10' fill='%2326262E'/%3E%3Ccircle cx='35' cy='170' r='9' fill='none' stroke='black' stroke-opacity='.8' stroke-width='3'/%3E%3Ccircle cx='35' cy='170' r='3' fill='black' fill-opacity='.8'/%3E%3C/svg%3E");
+
+    --r-sm: 8px;
+    --r-md: 12px;
+    --r-lg: 16px;
+    --r-xl: 22px;
+}
+
+/* ================================================================
+   1. HEADER — rieles de color a los lados + línea partida
+   ================================================================ */
+.app-header {
+    position: relative;
+    background: var(--white);
+    border-bottom: 1px solid #26262E;
+    box-shadow: inset 10px 0 0 var(--sw-red), inset -10px 0 0 var(--sw-blue);
+}
+.app-header::after {
+    content: '';
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: -1px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--sw-red) 50%, var(--sw-blue) 50%);
+    pointer-events: none;
+}
+.logo-mark {
+    background: linear-gradient(90deg, var(--sw-red) 50%, var(--sw-blue) 50%);
+    border-radius: 10px;
+    box-shadow: 0 0 0 2px #000, 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+/* ================================================================
+   2. WELCOME — mandos laterales y hero como pantalla
+   ================================================================ */
+.welcome-placeholder {
+    position: relative;
+    background:
+        radial-gradient(ellipse at 50% 30%, rgba(255, 255, 255, 0.04), transparent 55%),
+        #000000;
+}
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 14px;
+    bottom: 14px;
+    width: 96px;
+    z-index: 0;
+    pointer-events: none;
+    border-radius: 0 44px 44px 0;
+    background:
+        var(--theme-sw-left) center / 70px 190px no-repeat,
+        linear-gradient(90deg, #BE123C, #F43F5E);
+    box-shadow: inset -3px 0 0 rgba(0, 0, 0, 0.25), 6px 0 28px rgba(244, 63, 94, 0.28);
+}
+.welcome-placeholder::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 14px;
+    bottom: 14px;
+    width: 96px;
+    z-index: 0;
+    pointer-events: none;
+    border-radius: 44px 0 0 44px;
+    background:
+        var(--theme-sw-right) center / 70px 190px no-repeat,
+        linear-gradient(270deg, #0369A1, #38BDF8);
+    box-shadow: inset 3px 0 0 rgba(0, 0, 0, 0.25), -6px 0 28px rgba(56, 189, 248, 0.28);
+}
+.welcome-glow {
+    background: radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.06), transparent 65%);
+}
+
+.welcome-hero,
+.welcome-section { position: relative; z-index: 2; }
+
+/* Hero = pantalla con bisel negro y reflejo */
+.welcome-hero {
+    isolation: isolate;
+    padding: 34px 30px;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+    background: linear-gradient(160deg, #10131F, #07080F);
+    border: 7px solid #000000;
+    border-radius: 22px;
+    box-shadow:
+        0 0 0 2px #2A2A33,
+        0 18px 40px rgba(0, 0, 0, 0.80),
+        -24px 0 50px rgba(244, 63, 94, 0.10),
+        24px 0 50px rgba(56, 189, 248, 0.10);
+}
+.welcome-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: 14px;
+    background: linear-gradient(115deg, rgba(255, 255, 255, 0.07) 0 28%, transparent 28%);
+    pointer-events: none;
+}
+.welcome-hero::after {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    margin-left: -2px;
+    border-radius: 50%;
+    background: #2A2A33;
+    pointer-events: none;
+}
+.welcome-icon-wrap {
+    background: linear-gradient(90deg, var(--sw-red) 50%, var(--sw-blue) 50%);
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px #000, 0 0 0 5px #3A3A44, 0 10px 24px rgba(0, 0, 0, 0.6);
+}
+
+.welcome-section {
+    background: #0F0F14;
+    border: 1px solid #26262E;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+}
+.welcome-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 16px;
+    right: 16px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--sw-red) 50%, var(--sw-blue) 50%);
+    border-radius: 0 0 3px 3px;
+    pointer-events: none;
+}
+
+/* ================================================================
+   3. SIDEBAR + NAV
+   ================================================================ */
+.sidebar {
+    background: linear-gradient(180deg, #0E0E12, #09090B);
+    border-right: 1px solid #26262E;
+    box-shadow: inset -3px 0 0 var(--sw-red);
+}
+.sidebar-mobile-header {
+    background: #0E0E12;
+    border-bottom: 1px solid #26262E;
+}
+.sidebar-comunidad {
+    background: #14141A;
+    border: 1px solid #26262E;
+    border-radius: 12px;
+}
+.sidebar-comunidad:hover { border-color: var(--sw-blue); }
+.nav-item {
+    position: relative;
+    border-radius: 12px;
+}
+.nav-item:hover { background: rgba(255, 255, 255, 0.05); }
+.nav-item.active {
+    background: linear-gradient(90deg, rgba(244, 63, 94, 0.22), rgba(56, 189, 248, 0.14));
+    color: #FFFFFF;
+}
+.nav-item.active .nav-icon { color: var(--sw-blue); }
+.nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 18%;
+    bottom: 18%;
+    width: 4px;
+    border-radius: 0 3px 3px 0;
+    background: linear-gradient(180deg, var(--sw-red) 50%, var(--sw-blue) 50%);
+}
+
+/* ================================================================
+   4. ACCESOS Y WIDGETS — iconos alternando rojo y azul
+   ================================================================ */
+.acceso-item {
+    position: relative;
+    background: #14141A;
+    border: 1px solid #26262E;
+    border-radius: 18px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.55);
+}
+.acceso-item:hover {
+    border-color: var(--sw-blue);
+    box-shadow: 0 0 0 1px var(--sw-blue), 0 10px 24px rgba(56, 189, 248, 0.16);
+}
+.acceso-item:nth-child(even):hover {
+    border-color: var(--sw-red);
+    box-shadow: 0 0 0 1px var(--sw-red), 0 10px 24px rgba(244, 63, 94, 0.18);
+}
+.acceso-item:nth-child(odd)  .acceso-icon-wrap { background: linear-gradient(135deg, #F43F5E, #BE123C); }
+.acceso-item:nth-child(even) .acceso-icon-wrap { background: linear-gradient(135deg, #38BDF8, #0369A1); }
+.acceso-icon-wrap {
+    border-radius: 14px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+.widget-item {
+    position: relative;
+    background: #14141A;
+    border: 1px solid #26262E;
+    border-radius: 18px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.55);
+}
+.widget-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 16px;
+    right: 16px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--sw-red) 50%, var(--sw-blue) 50%);
+    border-radius: 0 0 3px 3px;
+    pointer-events: none;
+}
+
+/* ================================================================
+   5. TABS, MODALES, BOTONES, EXTRAS
+   ================================================================ */
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 12px;
+    right: 12px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--sw-red) 50%, var(--sw-blue) 50%);
+    border-radius: 0 0 3px 3px;
+    pointer-events: none;
+}
+.tab-item.active [data-lucide] { color: var(--sw-blue); }
+
+.config-card,
+.modal-todas-card {
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #26262E;
+    border-radius: 22px;
+    box-shadow:
+        inset 6px 0 0 var(--sw-red),
+        inset -6px 0 0 var(--sw-blue),
+        0 24px 48px rgba(0, 0, 0, 0.85);
+}
+.config-header,
+.modal-todas-header { border-bottom: 1px solid #26262E; }
+
+.btn-primario {
+    background: linear-gradient(90deg, #F43F5E, #38BDF8);
+    color: #FFFFFF;
+    border: 2px solid #000000;
+    border-radius: 999px;
+    box-shadow: 0 4px 14px rgba(56, 189, 248, 0.25);
+}
+.btn-primario:hover {
+    background: linear-gradient(90deg, #FB7185, #7DD3FC);
+}
+.config-select:focus { border-color: var(--sw-blue); box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25); }
+.search-bar:focus-within { border-color: var(--sw-blue); box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.22); }
+.search-bar:focus-within .search-icon { color: var(--sw-blue); }
+.noti-btn.tiene-no-leidas { color: var(--sw-red); }
+.avatar-config { box-shadow: 0 0 0 2px #000, 0 0 0 4px var(--sw-red); }
+
+@media (max-width: 768px) {
+    .welcome-placeholder::before,
+    .welcome-placeholder::after {
+        width: 30px;
+        background-image: none;
+    }
+    .welcome-placeholder::before { background: linear-gradient(90deg, #BE123C, #F43F5E); }
+    .welcome-placeholder::after  { background: linear-gradient(270deg, #0369A1, #38BDF8); }
+    .welcome-hero { padding: 26px 18px; border-width: 5px; }
+}
