@@ -1,5 +1,6 @@
 // ============================================================
-//  BugSillyCity v2 — Juego de cría con vista isométrica
+//  BugSillyCity v3 — Isométrico + tema dinámico
+//  FIX: los colores del canvas ahora se leen del tema del padre.
 // ============================================================
 
 'use strict';
@@ -18,7 +19,6 @@ const CREDITOS_INICIALES = 500;
 const TILE_W = 110;
 const TILE_H = 55;
 
-// Grid: 3 columnas × 2 filas
 const HABITAT_POSICIONES = [
     { col: 0, fila: 0 },
     { col: 1, fila: 0 },
@@ -28,7 +28,6 @@ const HABITAT_POSICIONES = [
     { col: 2, fila: 1 }
 ];
 
-// Layout de criaturas sobre la superficie del hábitat (u,v ∈ [-1,1])
 function layoutSlots(nivel) {
     switch (nivel) {
         case 1: return [[-0.4, 0], [0.4, 0]];
@@ -45,90 +44,54 @@ function tamanoCriaturaNivel(nivel) {
 
 // ==== CRIATURAS ====
 const CRIATURAS = {
-    escarabajo: {
-        id:'escarabajo', nombre:'Escarabajo', icono:'bug', simbolo:'circulo',
-        color:'#22C55E', colorOscuro:'#15803D',
-        rareza:'base', tier:1, osRate:3/24, creditsRate:1.5, precio:50,
-        breedTimeMs:0, hatchTimeMs:0,
-        descripcion:'Un bicho robusto y confiable. Perfecto para empezar.'
-    },
-    hormiga: {
-        id:'hormiga', nombre:'Hormiga', icono:'bug', simbolo:'triple',
-        color:'#A16207', colorOscuro:'#713F12',
-        rareza:'base', tier:1, osRate:3/24, creditsRate:1.5, precio:50,
-        breedTimeMs:0, hatchTimeMs:0,
-        descripcion:'Trabajadora incansable. Nunca se detiene.'
-    },
-    arana: {
-        id:'arana', nombre:'Araña', icono:'bug', simbolo:'estrella',
-        color:'#7C3AED', colorOscuro:'#5B21B6',
-        rareza:'base', tier:1, osRate:3/24, creditsRate:1.5, precio:50,
-        breedTimeMs:0, hatchTimeMs:0,
-        descripcion:'Tejedora de redes. Misteriosa y elegante.'
-    },
-    luciernaga: {
-        id:'luciernaga', nombre:'Luciérnaga', icono:'zap', simbolo:'rayo',
-        color:'#FCD34D', colorOscuro:'#B45309',
-        rareza:'intermedio', tier:2, osRate:5/24, creditsRate:3, precio:0,
-        breedTimeMs:30000, hatchTimeMs:15000,
-        descripcion:'Ilumina la noche. Vuela libre y brillante.'
-    },
-    mariposa: {
-        id:'mariposa', nombre:'Mariposa', icono:'feather', simbolo:'alas',
-        color:'#EC4899', colorOscuro:'#9D174D',
-        rareza:'intermedio', tier:2, osRate:5/24, creditsRate:3, precio:0,
-        breedTimeMs:30000, hatchTimeMs:15000,
-        descripcion:'Delicada y colorida. Un espectáculo al volar.'
-    },
-    libelula: {
-        id:'libelula', nombre:'Libélula', icono:'wind', simbolo:'cruz',
-        color:'#06B6D4', colorOscuro:'#0E7490',
-        rareza:'intermedio', tier:2, osRate:5/24, creditsRate:3, precio:0,
-        breedTimeMs:30000, hatchTimeMs:15000,
-        descripcion:'Rápida y ágil. Domina el aire.'
-    },
-    mariquita: {
-        id:'mariquita', nombre:'Mariquita', icono:'heart', simbolo:'corazon',
-        color:'#EF4444', colorOscuro:'#991B1B',
-        rareza:'avanzado', tier:3, osRate:8/24, creditsRate:6, precio:0,
-        breedTimeMs:60000, hatchTimeMs:30000,
-        descripcion:'Símbolo de buena suerte. Pequeña pero poderosa.'
-    },
-    polilla: {
-        id:'polilla', nombre:'Polilla', icono:'moon', simbolo:'luna',
-        color:'#6B7280', colorOscuro:'#374151',
-        rareza:'avanzado', tier:3, osRate:8/24, creditsRate:6, precio:0,
-        breedTimeMs:60000, hatchTimeMs:30000,
-        descripcion:'Atraída por la luz. Nocturna y enigmática.'
-    },
-    mantis: {
-        id:'mantis', nombre:'Mantis', icono:'swords', simbolo:'espada',
-        color:'#10B981', colorOscuro:'#047857',
-        rareza:'avanzado', tier:3, osRate:8/24, creditsRate:6, precio:0,
-        breedTimeMs:60000, hatchTimeMs:30000,
-        descripcion:'Cazadora letal. Paciente y precisa.'
-    },
-    escorpion: {
-        id:'escorpion', nombre:'Escorpión', icono:'shield', simbolo:'triangulo',
-        color:'#F97316', colorOscuro:'#9A3412',
-        rareza:'epico', tier:4, osRate:10/24, creditsRate:10, precio:0,
-        breedTimeMs:120000, hatchTimeMs:60000,
-        descripcion:'Su aguijón es temido por todos. Rey del desierto.'
-    },
-    ciempies: {
-        id:'ciempies', nombre:'Ciempiés', icono:'link', simbolo:'cadena',
-        color:'#84CC16', colorOscuro:'#4D7C0F',
-        rareza:'epico', tier:4, osRate:10/24, creditsRate:10, precio:0,
-        breedTimeMs:120000, hatchTimeMs:60000,
-        descripcion:'Mil patas, un solo objetivo. Imparable.'
-    },
-    escarabajo_dorado: {
-        id:'escarabajo_dorado', nombre:'Escarabajo Dorado', icono:'crown', simbolo:'corona',
-        color:'#EAB308', colorOscuro:'#A16207',
-        rareza:'legendario', tier:5, osRate:12/24, creditsRate:16, precio:0,
-        breedTimeMs:300000, hatchTimeMs:120000,
-        descripcion:'La criatura más rara de BugSillyCity. Solo los mejores criadores lo obtienen.'
-    }
+    escarabajo: { id:'escarabajo', nombre:'Escarabajo', icono:'bug', simbolo:'circulo',
+        color:'#22C55E', colorOscuro:'#15803D', rareza:'base', tier:1,
+        osRate:3/24, creditsRate:1.5, precio:50, breedTimeMs:0, hatchTimeMs:0,
+        descripcion:'Un bicho robusto y confiable. Perfecto para empezar.' },
+    hormiga: { id:'hormiga', nombre:'Hormiga', icono:'bug', simbolo:'triple',
+        color:'#A16207', colorOscuro:'#713F12', rareza:'base', tier:1,
+        osRate:3/24, creditsRate:1.5, precio:50, breedTimeMs:0, hatchTimeMs:0,
+        descripcion:'Trabajadora incansable. Nunca se detiene.' },
+    arana: { id:'arana', nombre:'Araña', icono:'bug', simbolo:'estrella',
+        color:'#7C3AED', colorOscuro:'#5B21B6', rareza:'base', tier:1,
+        osRate:3/24, creditsRate:1.5, precio:50, breedTimeMs:0, hatchTimeMs:0,
+        descripcion:'Tejedora de redes. Misteriosa y elegante.' },
+    luciernaga: { id:'luciernaga', nombre:'Luciérnaga', icono:'zap', simbolo:'rayo',
+        color:'#FCD34D', colorOscuro:'#B45309', rareza:'intermedio', tier:2,
+        osRate:5/24, creditsRate:3, precio:0, breedTimeMs:30000, hatchTimeMs:15000,
+        descripcion:'Ilumina la noche. Vuela libre y brillante.' },
+    mariposa: { id:'mariposa', nombre:'Mariposa', icono:'feather', simbolo:'alas',
+        color:'#EC4899', colorOscuro:'#9D174D', rareza:'intermedio', tier:2,
+        osRate:5/24, creditsRate:3, precio:0, breedTimeMs:30000, hatchTimeMs:15000,
+        descripcion:'Delicada y colorida. Un espectáculo al volar.' },
+    libelula: { id:'libelula', nombre:'Libélula', icono:'wind', simbolo:'cruz',
+        color:'#06B6D4', colorOscuro:'#0E7490', rareza:'intermedio', tier:2,
+        osRate:5/24, creditsRate:3, precio:0, breedTimeMs:30000, hatchTimeMs:15000,
+        descripcion:'Rápida y ágil. Domina el aire.' },
+    mariquita: { id:'mariquita', nombre:'Mariquita', icono:'heart', simbolo:'corazon',
+        color:'#EF4444', colorOscuro:'#991B1B', rareza:'avanzado', tier:3,
+        osRate:8/24, creditsRate:6, precio:0, breedTimeMs:60000, hatchTimeMs:30000,
+        descripcion:'Símbolo de buena suerte. Pequeña pero poderosa.' },
+    polilla: { id:'polilla', nombre:'Polilla', icono:'moon', simbolo:'luna',
+        color:'#6B7280', colorOscuro:'#374151', rareza:'avanzado', tier:3,
+        osRate:8/24, creditsRate:6, precio:0, breedTimeMs:60000, hatchTimeMs:30000,
+        descripcion:'Atraída por la luz. Nocturna y enigmática.' },
+    mantis: { id:'mantis', nombre:'Mantis', icono:'swords', simbolo:'espada',
+        color:'#10B981', colorOscuro:'#047857', rareza:'avanzado', tier:3,
+        osRate:8/24, creditsRate:6, precio:0, breedTimeMs:60000, hatchTimeMs:30000,
+        descripcion:'Cazadora letal. Paciente y precisa.' },
+    escorpion: { id:'escorpion', nombre:'Escorpión', icono:'shield', simbolo:'triangulo',
+        color:'#F97316', colorOscuro:'#9A3412', rareza:'epico', tier:4,
+        osRate:10/24, creditsRate:10, precio:0, breedTimeMs:120000, hatchTimeMs:60000,
+        descripcion:'Su aguijón es temido por todos. Rey del desierto.' },
+    ciempies: { id:'ciempies', nombre:'Ciempiés', icono:'link', simbolo:'cadena',
+        color:'#84CC16', colorOscuro:'#4D7C0F', rareza:'epico', tier:4,
+        osRate:10/24, creditsRate:10, precio:0, breedTimeMs:120000, hatchTimeMs:60000,
+        descripcion:'Mil patas, un solo objetivo. Imparable.' },
+    escarabajo_dorado: { id:'escarabajo_dorado', nombre:'Escarabajo Dorado', icono:'crown', simbolo:'corona',
+        color:'#EAB308', colorOscuro:'#A16207', rareza:'legendario', tier:5,
+        osRate:12/24, creditsRate:16, precio:0, breedTimeMs:300000, hatchTimeMs:120000,
+        descripcion:'La criatura más rara de BugSillyCity. Solo los mejores criadores lo obtienen.' }
 };
 
 const COMBINACIONES = {
@@ -166,8 +129,16 @@ let ultimoTick = 0;
 let canvas, ctx, wrapEl;
 let dpr = 1, anchoCSS = 0, altoCSS = 0;
 let originX = 0, originY = 0;
-let criaturasDibujadas = []; // hit test
+let criaturasDibujadas = [];
 let habitatSeleccionado = null;
+
+// ── FIX: colores del canvas se leen del tema (no hardcodeados) ──
+const colores = {
+    cesped:      '#F5F5F8',
+    cespedAlt:   '#FAFAFB',
+    cespedBorde: '#E8E8EE',
+    texto:       '#18181B'
+};
 
 const $ = (id) => document.getElementById(id);
 
@@ -185,8 +156,29 @@ function aplicarTemaDelPadre() {
         });
     } catch(e) {}
 }
+
+// ── FIX: leer variables del tema para el canvas ──
+function leerColoresDelTema() {
+    const cs = (name, fallback) => {
+        try {
+            const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+            return v || fallback;
+        } catch(e) { return fallback; }
+    };
+    colores.cesped      = cs('--bg-alt',   '#F5F5F8');
+    colores.cespedAlt   = cs('--gray-50',  '#FAFAFB');
+    colores.cespedBorde = cs('--border',   '#E8E8EE');
+    colores.texto       = cs('--text',     '#18181B');
+}
+
 window.addEventListener('message', (e) => {
-    if (e.data && e.data.type === MENSAJE_TEMA) aplicarTemaDelPadre();
+    if (e.data && e.data.type === MENSAJE_TEMA) {
+        aplicarTemaDelPadre();
+        setTimeout(() => {
+            leerColoresDelTema();
+            dibujar();
+        }, 60);
+    }
 });
 
 // ============================================================
@@ -233,14 +225,6 @@ function aclarar(hex, factor) {
     const nb = Math.min(255, Math.round(b + (255-b)*factor));
     return `rgb(${nr},${ng},${nb})`;
 }
-function oscurecer(hex, factor) {
-    const h = hex.replace('#','');
-    const r = parseInt(h.substr(0,2),16), g = parseInt(h.substr(2,2),16), b = parseInt(h.substr(4,2),16);
-    const nr = Math.round(r * (1-factor));
-    const ng = Math.round(g * (1-factor));
-    const nb = Math.round(b * (1-factor));
-    return `rgb(${nr},${ng},${nb})`;
-}
 
 // ============================================================
 //  ESTADO INICIAL / CARGA
@@ -273,7 +257,6 @@ async function cargarEstado() {
             if (typeof estado.osCosechadasHoy !== 'number') estado.osCosechadasHoy = 0;
             if (!Array.isArray(estado.descubiertas)) estado.descubiertas = [];
             if (!estado.ultimaResetFecha) estado.ultimaResetFecha = hoyLocal();
-            // Asignar posIndex si falta
             estado.habitats.forEach((h, i) => {
                 if (typeof h.posIndex !== 'number') h.posIndex = i;
             });
@@ -434,7 +417,6 @@ function comprarHabitat() {
     if (estado.habitats.length >= MAX_HABITATS) { toast('Máximo de hábitats alcanzado', 'error'); return; }
     const costo = HABITAT_CONFIG.costos[1];
     if (estado.creditos < costo) { toast('Te faltan créditos', 'error'); return; }
-    // Buscar posIndex libre
     const usados = new Set(estado.habitats.map(h => h.posIndex));
     let posIndex = 0;
     for (let i = 0; i < HABITAT_POSICIONES.length; i++) {
@@ -493,7 +475,7 @@ function comprarCriaturaBase(tipoId) {
 }
 
 // ============================================================
-//  CANVAS — ISOMÉTRICO
+//  CANVAS — ISOMÉTRICO (tema dinámico)
 // ============================================================
 function ajustarCanvas() {
     if (!canvas || !wrapEl) return;
@@ -511,7 +493,6 @@ function ajustarCanvas() {
 }
 
 function calcularOrigen() {
-    // Centro de la grilla 3x2 en coords de pantalla
     let sumX = 0, sumY = 0;
     HABITAT_POSICIONES.forEach(p => {
         sumX += (p.col - p.fila) * TILE_W / 2;
@@ -541,17 +522,10 @@ function screenToCell(px, py) {
 function dibujar() {
     if (!ctx || !canvas || !estado) return;
     ctx.clearRect(0, 0, anchoCSS, altoCSS);
-
-    // Fondo: cielo con gradiente sutil (ya está en CSS, pero por si las dudas)
-    // Dibujar grid base de celdas disponibles
     criaturasDibujadas = [];
 
-    // Dibujar celdas de suelo (toda la grilla 3x2)
-    HABITAT_POSICIONES.forEach(pos => {
-        dibujarSuelo(pos.col, pos.fila);
-    });
+    HABITAT_POSICIONES.forEach(pos => dibujarSuelo(pos.col, pos.fila));
 
-    // Ordenar hábitats por profundidad
     const habsSorted = estado.habitats.slice().sort((a, b) => {
         const pa = HABITAT_POSICIONES[a.posIndex] || HABITAT_POSICIONES[0];
         const pb = HABITAT_POSICIONES[b.posIndex] || HABITAT_POSICIONES[0];
@@ -562,6 +536,7 @@ function dibujar() {
     habsSorted.forEach(hab => dibujarHabitat(hab));
 }
 
+// ── FIX: tiles del suelo ahora usan colores del tema ──
 function dibujarSuelo(col, fila) {
     const { x, y } = proyCentroCelda(col, fila);
     const hw = TILE_W / 2, hh = TILE_H / 2;
@@ -573,11 +548,11 @@ function dibujarSuelo(col, fila) {
     ctx.lineTo(x - hw, y);
     ctx.closePath();
 
-    // Cesped alternado
+    // Alternar entre dos tonos del tema
     const alt = ((col + fila) % 2 === 0);
-    ctx.fillStyle = alt ? 'rgba(74, 222, 128, 0.55)' : 'rgba(34, 197, 94, 0.42)';
+    ctx.fillStyle = alt ? colores.cesped : colores.cespedAlt;
     ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+    ctx.strokeStyle = colores.cespedBorde;
     ctx.lineWidth = 1;
     ctx.stroke();
 }
@@ -589,9 +564,9 @@ function dibujarHabitat(hab) {
     const baseW = TILE_W * 0.85;
     const baseH = TILE_H * 0.85;
     const hw = baseW / 2, hh = baseH / 2;
-    const altura = 8 + hab.nivel * 8; // 16 a 40px
+    const altura = 8 + hab.nivel * 8;
 
-    // Sombra en el suelo
+    // Sombra
     ctx.save();
     ctx.globalAlpha = 0.22;
     ctx.fillStyle = '#000';
@@ -600,7 +575,6 @@ function dibujarHabitat(hab) {
     ctx.fill();
     ctx.restore();
 
-    // Color según nivel (más dorado/violeta al subir)
     const colorPorNivel = {
         1: { base:'#A78BFA', oscuro:'#7C3AED', top:'#C4B5FD' },
         2: { base:'#60A5FA', oscuro:'#2563EB', top:'#93C5FD' },
@@ -642,7 +616,7 @@ function dibujarHabitat(hab) {
     ctx.lineWidth = 1.2;
     ctx.stroke();
 
-    // Detalles: puntos en el frente (textura)
+    // Detalle: puntitos
     ctx.fillStyle = 'rgba(255,255,255,0.25)';
     for (let i = -2; i <= 2; i++) {
         ctx.beginPath();
@@ -650,11 +624,12 @@ function dibujarHabitat(hab) {
         ctx.fill();
     }
 
-    // Indicador de nivel (badge arriba)
+    // Badge de nivel
     const badgeY = y - altura - hh - 6;
     ctx.fillStyle = 'rgba(0,0,0,0.55)';
     ctx.beginPath();
-    ctx.roundRect(x - 22, badgeY - 8, 44, 16, 8);
+    if (ctx.roundRect) ctx.roundRect(x - 22, badgeY - 8, 44, 16, 8);
+    else ctx.rect(x - 22, badgeY - 8, 44, 16);
     ctx.fill();
     ctx.fillStyle = 'white';
     ctx.font = 'bold 10px Nunito, sans-serif';
@@ -662,7 +637,7 @@ function dibujarHabitat(hab) {
     ctx.textBaseline = 'middle';
     ctx.fillText('Nv.' + hab.nivel, x, badgeY);
 
-    // Dibujar criaturas sobre el techo
+    // Criaturas
     const maxSlots = HABITAT_CONFIG.slotsPorNivel[hab.nivel];
     const layout = layoutSlots(hab.nivel);
     const tam = tamanoCriaturaNivel(hab.nivel);
@@ -671,7 +646,6 @@ function dibujarHabitat(hab) {
     const topHw = hw * 0.85;
     const topHh = hh * 0.85;
 
-    // Glow si hay listos
     const hayListos = habitatTieneListos(hab);
     if (hayListos) {
         const pulse = (Math.sin(performance.now() / 400) + 1) / 2;
@@ -690,10 +664,9 @@ function dibujarHabitat(hab) {
         const [u, v] = layout[i] || [0, 0];
         const px = topX + u * topHw;
         const py = topY + v * topHh;
-        const slotIdx = i;
 
-        if (slotIdx < hab.slots.length) {
-            const criatura = criaturaPorId(hab.slots[slotIdx]);
+        if (i < hab.slots.length) {
+            const criatura = criaturaPorId(hab.slots[i]);
             if (criatura) {
                 const def = CRIATURAS[criatura.tipo];
                 const listo = criaturaLista(criatura);
@@ -705,7 +678,6 @@ function dibujarHabitat(hab) {
                 });
             }
         } else {
-            // Slot vacío
             dibujarSlotVacio(px, py, tam * 0.5);
         }
     }
@@ -719,14 +691,13 @@ function dibujarSlotVacio(cx, cy, r) {
     ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.moveTo(cx - 3, cy);
     ctx.lineTo(cx + 3, cy);
     ctx.moveTo(cx, cy - 3);
     ctx.lineTo(cx, cy + 3);
-    ctx.strokeStyle = 'rgba(255,255,255,0.7)';
-    ctx.lineWidth = 1.5;
     ctx.stroke();
 }
 
@@ -735,7 +706,6 @@ function dibujarCriatura(cx, cy, def, listo, size) {
     const ch = cw / 2;
     const cubeH = cw * 0.9;
 
-    // Sombra
     ctx.save();
     ctx.globalAlpha = 0.28;
     ctx.fillStyle = '#000';
@@ -744,7 +714,6 @@ function dibujarCriatura(cx, cy, def, listo, size) {
     ctx.fill();
     ctx.restore();
 
-    // Pared izquierda
     ctx.beginPath();
     ctx.moveTo(cx - cw, cy);
     ctx.lineTo(cx, cy + ch);
@@ -754,7 +723,6 @@ function dibujarCriatura(cx, cy, def, listo, size) {
     ctx.fillStyle = def.colorOscuro;
     ctx.fill();
 
-    // Pared derecha
     ctx.beginPath();
     ctx.moveTo(cx, cy + ch);
     ctx.lineTo(cx + cw, cy);
@@ -764,7 +732,6 @@ function dibujarCriatura(cx, cy, def, listo, size) {
     ctx.fillStyle = def.color;
     ctx.fill();
 
-    // Techo
     ctx.beginPath();
     ctx.moveTo(cx, cy - ch - cubeH);
     ctx.lineTo(cx + cw, cy - cubeH);
@@ -774,16 +741,13 @@ function dibujarCriatura(cx, cy, def, listo, size) {
     ctx.fillStyle = aclarar(def.color, 0.25);
     ctx.fill();
 
-    // Borde del techo
     ctx.strokeStyle = listo ? 'rgba(250,204,21,1)' : 'rgba(255,255,255,0.5)';
     ctx.lineWidth = listo ? 2 : 1;
     ctx.stroke();
 
-    // Símbolo
     const topCY = cy - cubeH;
     dibujarSimbolo(def.simbolo, cx, topCY, cw * 1.3);
 
-    // Indicador de listo (punto pulsante arriba)
     if (listo) {
         const pulse = (Math.sin(performance.now() / 300) + 1) / 2;
         ctx.fillStyle = `rgba(250, 204, 21, ${0.6 + pulse * 0.4})`;
@@ -808,35 +772,26 @@ function dibujarSimbolo(tipo, cx, cy, s) {
 
     switch (tipo) {
         case 'circulo':
-            ctx.beginPath();
-            ctx.arc(cx, cy, s * 0.3, 0, Math.PI * 2);
-            ctx.fill();
-            break;
+            ctx.beginPath(); ctx.arc(cx, cy, s * 0.3, 0, Math.PI * 2); ctx.fill(); break;
         case 'triple':
             ctx.beginPath();
             ctx.arc(cx - s * 0.3, cy, s * 0.11, 0, Math.PI * 2);
             ctx.arc(cx, cy, s * 0.11, 0, Math.PI * 2);
             ctx.arc(cx + s * 0.3, cy, s * 0.11, 0, Math.PI * 2);
-            ctx.fill();
-            break;
-        case 'estrella':
-            dibujarEstrella(cx, cy, s * 0.36, 5);
-            break;
+            ctx.fill(); break;
+        case 'estrella': dibujarEstrella(cx, cy, s * 0.36, 5); break;
         case 'triangulo':
             ctx.beginPath();
             ctx.moveTo(cx, cy - s * 0.34);
             ctx.lineTo(cx + s * 0.34, cy + s * 0.24);
             ctx.lineTo(cx - s * 0.34, cy + s * 0.24);
-            ctx.closePath();
-            ctx.fill();
-            break;
+            ctx.closePath(); ctx.fill(); break;
         case 'corazon':
             ctx.beginPath();
             ctx.moveTo(cx, cy + s * 0.32);
             ctx.bezierCurveTo(cx - s * 0.5, cy - s * 0.1, cx - s * 0.2, cy - s * 0.4, cx, cy - s * 0.15);
             ctx.bezierCurveTo(cx + s * 0.2, cy - s * 0.4, cx + s * 0.5, cy - s * 0.1, cx, cy + s * 0.32);
-            ctx.fill();
-            break;
+            ctx.fill(); break;
         case 'rayo':
             ctx.beginPath();
             ctx.moveTo(cx + s * 0.05, cy - s * 0.4);
@@ -845,46 +800,23 @@ function dibujarSimbolo(tipo, cx, cy, s) {
             ctx.lineTo(cx - s * 0.08, cy + s * 0.4);
             ctx.lineTo(cx + s * 0.2, cy - s * 0.02);
             ctx.lineTo(cx - s * 0.02, cy - s * 0.02);
-            ctx.closePath();
-            ctx.fill();
-            break;
+            ctx.closePath(); ctx.fill(); break;
         case 'cruz':
             ctx.beginPath();
-            ctx.moveTo(cx - s * 0.3, cy);
-            ctx.lineTo(cx + s * 0.3, cy);
-            ctx.moveTo(cx, cy - s * 0.3);
-            ctx.lineTo(cx, cy + s * 0.3);
-            ctx.stroke();
-            break;
+            ctx.moveTo(cx - s * 0.3, cy); ctx.lineTo(cx + s * 0.3, cy);
+            ctx.moveTo(cx, cy - s * 0.3); ctx.lineTo(cx, cy + s * 0.3);
+            ctx.stroke(); break;
         case 'luna':
-            ctx.beginPath();
-            ctx.arc(cx - s * 0.05, cy, s * 0.32, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.beginPath(); ctx.arc(cx - s * 0.05, cy, s * 0.32, 0, Math.PI * 2); ctx.fill();
             ctx.globalCompositeOperation = 'destination-out';
-            ctx.beginPath();
-            ctx.arc(cx + s * 0.13, cy - s * 0.08, s * 0.32, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.globalCompositeOperation = 'source-over';
-            break;
+            ctx.beginPath(); ctx.arc(cx + s * 0.13, cy - s * 0.08, s * 0.32, 0, Math.PI * 2); ctx.fill();
+            ctx.globalCompositeOperation = 'source-over'; break;
         case 'alas':
-            // Dos triángulos como alas de mariposa
             ctx.beginPath();
-            ctx.moveTo(cx - s * 0.05, cy);
-            ctx.lineTo(cx - s * 0.4, cy - s * 0.3);
-            ctx.lineTo(cx - s * 0.4, cy + s * 0.15);
-            ctx.closePath();
-            ctx.fill();
+            ctx.moveTo(cx - s * 0.05, cy); ctx.lineTo(cx - s * 0.4, cy - s * 0.3); ctx.lineTo(cx - s * 0.4, cy + s * 0.15); ctx.closePath(); ctx.fill();
             ctx.beginPath();
-            ctx.moveTo(cx + s * 0.05, cy);
-            ctx.lineTo(cx + s * 0.4, cy - s * 0.3);
-            ctx.lineTo(cx + s * 0.4, cy + s * 0.15);
-            ctx.closePath();
-            ctx.fill();
-            // Cuerpo
-            ctx.beginPath();
-            ctx.arc(cx, cy, s * 0.08, 0, Math.PI * 2);
-            ctx.fill();
-            break;
+            ctx.moveTo(cx + s * 0.05, cy); ctx.lineTo(cx + s * 0.4, cy - s * 0.3); ctx.lineTo(cx + s * 0.4, cy + s * 0.15); ctx.closePath(); ctx.fill();
+            ctx.beginPath(); ctx.arc(cx, cy, s * 0.08, 0, Math.PI * 2); ctx.fill(); break;
         case 'espada':
             ctx.beginPath();
             ctx.moveTo(cx, cy - s * 0.4);
@@ -894,9 +826,7 @@ function dibujarSimbolo(tipo, cx, cy, s) {
             ctx.lineTo(cx - s * 0.15, cy + s * 0.25);
             ctx.lineTo(cx - s * 0.3, cy + s * 0.15);
             ctx.lineTo(cx - s * 0.15, cy + s * 0.05);
-            ctx.closePath();
-            ctx.fill();
-            break;
+            ctx.closePath(); ctx.fill(); break;
         case 'cadena':
             ctx.beginPath();
             ctx.arc(cx, cy - s * 0.18, s * 0.16, 0, Math.PI * 2);
@@ -906,8 +836,7 @@ function dibujarSimbolo(tipo, cx, cy, s) {
             ctx.beginPath();
             ctx.arc(cx, cy - s * 0.18, s * 0.07, 0, Math.PI * 2);
             ctx.arc(cx, cy + s * 0.18, s * 0.07, 0, Math.PI * 2);
-            ctx.fill();
-            break;
+            ctx.fill(); break;
         case 'corona':
             ctx.beginPath();
             ctx.moveTo(cx - s * 0.38, cy + s * 0.18);
@@ -917,9 +846,7 @@ function dibujarSimbolo(tipo, cx, cy, s) {
             ctx.lineTo(cx + s * 0.15, cy + s * 0.02);
             ctx.lineTo(cx + s * 0.38, cy - s * 0.12);
             ctx.lineTo(cx + s * 0.38, cy + s * 0.18);
-            ctx.closePath();
-            ctx.fill();
-            break;
+            ctx.closePath(); ctx.fill(); break;
     }
     ctx.restore();
 }
@@ -946,7 +873,6 @@ function bindInput() {
         const px = clientX - rect.left;
         const py = clientY - rect.top;
 
-        // Buscar criatura clickeada (más cercana dentro del radio)
         let target = null;
         let minDist = Infinity;
         criaturasDibujadas.forEach(c => {
@@ -954,24 +880,15 @@ function bindInput() {
             const dist = Math.sqrt(dx*dx + dy*dy);
             if (dist < c.r && dist < minDist) { target = c; minDist = dist; }
         });
-        if (target) {
-            abrirModalCriatura(target.criaturaId);
-            return;
-        }
+        if (target) { abrirModalCriatura(target.criaturaId); return; }
 
-        // Si no, chequear si hizo click en un hábitat
         const celda = screenToCell(px, py);
         const hab = estado.habitats.find(h => {
             const p = HABITAT_POSICIONES[h.posIndex];
             return p && p.col === celda.col && p.fila === celda.fila;
         });
-        if (hab) {
-            habitatSeleccionado = hab;
-            abrirModalHabitat(hab.id);
-            return;
-        }
+        if (hab) { habitatSeleccionado = hab; abrirModalHabitat(hab.id); return; }
 
-        // Click fuera: deseleccionar
         habitatSeleccionado = null;
         dibujar();
     };
@@ -1077,7 +994,7 @@ function abrirModalHabitat(habId) {
 }
 
 // ============================================================
-//  MODAL SELECTOR (nido)
+//  MODAL SELECTOR
 // ============================================================
 function abrirSelectorCriatura(slotNum) {
     if (estado.nido) { toast('Ya hay una cría en curso', 'info'); return; }
@@ -1161,18 +1078,7 @@ function verificarNidoListo() {
 }
 
 // ============================================================
-//  MODAL CONFIRMACIÓN
-// ============================================================
-let confirmCallback = null;
-function mostrarConfirmacion(titulo, texto, callback) {
-    $('bcConfirmTitulo').textContent = titulo;
-    $('bcConfirmTexto').textContent = texto;
-    confirmCallback = callback;
-    $('bcModalConfirm').hidden = false;
-}
-
-// ============================================================
-//  UI HEADER / TABS / RENDER
+//  UI / TABS / RENDER
 // ============================================================
 function actualizarUI() {
     if (!estado) return;
@@ -1286,9 +1192,6 @@ function renderTienda() {
     if (window.lucide) window.lucide.createIcons();
 }
 
-// ============================================================
-//  TABS
-// ============================================================
 function cambiarTab(tabId) {
     document.querySelectorAll('.bc-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
     document.querySelectorAll('.bc-panel').forEach(p => p.classList.toggle('active', p.dataset.panel === tabId));
@@ -1324,6 +1227,8 @@ async function inicializar() {
     inicializado = true;
 
     aplicarTemaDelPadre();
+    leerColoresDelTema(); // ── FIX: leer colores del tema antes de dibujar
+
     const api = API();
     if (!api) { alert('BugSillyCity necesita estar dentro de VicWebOs.'); return; }
     usuarioActual = api.obtenerCuenta?.();
@@ -1334,14 +1239,12 @@ async function inicializar() {
     await cargarEstado();
     chequearResetDiario();
 
-    // Primer hábitat gratis
     if (estado.habitats.length === 0 && estado.criaturas.length === 0) {
         estado.habitats.push({ id: 'hab_inicial', nivel: 1, slots: [], posIndex: 4 });
         await guardarEstado();
         toast('¡Bienvenide! Te regalamos tu primer hábitat.', 'success');
     }
 
-    // Canvas
     canvas = $('bcCanvas');
     wrapEl = document.querySelector('.bc-canvas-wrap');
     ctx = canvas.getContext('2d');
@@ -1352,7 +1255,6 @@ async function inicializar() {
     renderGuarderia();
     renderTienda();
 
-    // Eventos
     document.querySelectorAll('.bc-tab').forEach(tab => {
         tab.addEventListener('click', () => cambiarTab(tab.dataset.tab));
     });
@@ -1374,14 +1276,10 @@ async function inicializar() {
         });
     });
 
-    // Canvas click
     bindInput();
-
-    // Ajustar canvas cuando el layout esté listo
     setTimeout(() => { ajustarCanvas(); }, 100);
     setTimeout(() => { ajustarCanvas(); }, 400);
 
-    // Loop
     if (rafId) cancelAnimationFrame(rafId);
     rafId = requestAnimationFrame(loop);
 
