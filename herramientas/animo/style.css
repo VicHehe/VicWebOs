@@ -159,6 +159,8 @@ body {
     height: 15px;
     color: var(--violet-500, #8B5CF6);
 }
+
+/* FIX 3: capitalizar solo la primera letra, no cada palabra */
 .mo-hoy-fecha {
     font-size: 11.5px;
     font-weight: 800;
@@ -168,8 +170,9 @@ body {
     padding: 3px 10px;
     border-radius: 999px;
     font-variant-numeric: tabular-nums;
-    text-transform: capitalize;
 }
+.mo-hoy-fecha::first-letter { text-transform: uppercase; }
+
 .mo-hoy-count {
     font-size: 12px;
     font-weight: 800;
@@ -237,7 +240,8 @@ body {
     color: var(--gray-500, #71717A);
     transition: all 0.18s;
 }
-.mo-animo-btn .mo-animo-icono [data-lucide] {
+.mo-animo-btn .mo-animo-icono [data-lucide],
+.mo-animo-btn .mo-animo-icono svg {
     width: 18px;
     height: 18px;
     stroke-width: 2.5;
@@ -256,15 +260,19 @@ body {
 
 .mo-animo-btn.seleccionado {
     border-width: 2px;
-    box-shadow: 0 4px 14px currentColor;
+    border-color: var(--mo-color, var(--violet-500, #8B5CF6));
+    box-shadow: 0 4px 14px var(--mo-color, var(--violet-500, #8B5CF6));
 }
 .mo-animo-btn.seleccionado::before { opacity: 0.14; }
+
+/* FIX 2: fondo del icono seleccionado con --mo-color (no currentColor) */
 .mo-animo-btn.seleccionado .mo-animo-icono {
-    background: currentColor;
+    background: var(--mo-color, var(--violet-500, #8B5CF6));
+    box-shadow: 0 4px 10px var(--mo-color, var(--violet-500, #8B5CF6));
     color: white;
-    box-shadow: 0 4px 10px currentColor;
 }
-.mo-animo-btn.seleccionado .mo-animo-icono [data-lucide] {
+.mo-animo-btn.seleccionado .mo-animo-icono [data-lucide],
+.mo-animo-btn.seleccionado .mo-animo-icono svg {
     color: white;
     stroke: white;
 }
@@ -278,7 +286,10 @@ body {
     padding: 10px 4px 8px;
 }
 .mo-grid-animos-sm .mo-animo-btn .mo-animo-icono { width: 26px; height: 26px; }
-.mo-grid-animos-sm .mo-animo-btn .mo-animo-icono [data-lucide] { width: 15px; height: 15px; }
+.mo-grid-animos-sm .mo-animo-btn .mo-animo-icono [data-lucide],
+.mo-grid-animos-sm .mo-animo-btn .mo-animo-icono svg {
+    width: 15px; height: 15px;
+}
 .mo-grid-animos-sm .mo-animo-btn .mo-animo-nombre { font-size: 10.5px; }
 
 /* ========== FIELD / TEXTAREA ========== */
@@ -470,11 +481,13 @@ body {
     flex-shrink: 0;
     transition: all 0.2s;
 }
-.mo-hoy-actual-icono [data-lucide] {
+.mo-hoy-actual-icono [data-lucide],
+.mo-hoy-actual-icono svg {
     width: 36px;
     height: 36px;
     stroke-width: 2.25;
     color: white;
+    stroke: white;
 }
 .mo-hoy-actual-info { flex: 1; min-width: 0; }
 .mo-hoy-actual-nombre {
@@ -568,7 +581,14 @@ body {
     color: white;
     flex-shrink: 0;
 }
-.mo-timeline-icono [data-lucide] { width: 16px; height: 16px; stroke-width: 2.5; }
+.mo-timeline-icono [data-lucide],
+.mo-timeline-icono svg {
+    width: 16px;
+    height: 16px;
+    stroke-width: 2.5;
+    color: white;
+    stroke: white;
+}
 .mo-timeline-info { flex: 1; min-width: 0; }
 .mo-timeline-nombre {
     font-size: 13.5px;
@@ -709,7 +729,9 @@ body {
     color: var(--violet-500, #8B5CF6);
 }
 
-/* Distribución */
+/* ============================================================
+   Distribución — FIX 1: display block en el fill
+   ============================================================ */
 .mo-distribucion {
     display: flex;
     flex-direction: column;
@@ -731,7 +753,14 @@ body {
     color: white;
     flex-shrink: 0;
 }
-.mo-dist-icono [data-lucide] { width: 14px; height: 14px; stroke-width: 2.5; }
+.mo-dist-icono [data-lucide],
+.mo-dist-icono svg {
+    width: 14px;
+    height: 14px;
+    stroke-width: 2.5;
+    color: white;
+    stroke: white;
+}
 .mo-dist-nombre {
     font-size: 12.5px;
     font-weight: 800;
@@ -740,17 +769,21 @@ body {
     flex-shrink: 0;
 }
 .mo-dist-barra-wrap {
+    display: block;              /* era un span inline */
     flex: 1;
     height: 8px;
     background: var(--gray-100, #F4F4F7);
     border-radius: 999px;
     overflow: hidden;
     min-width: 0;
+    position: relative;
 }
 .mo-dist-barra {
+    display: block;              /* FIX 1: clave para que respete width y height */
     height: 100%;
     border-radius: 999px;
     transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    min-width: 2px;
 }
 .mo-dist-pct {
     font-size: 12px;
@@ -1022,7 +1055,8 @@ body {
         border-radius: 10px;
     }
     .mo-animo-btn .mo-animo-icono { width: 26px; height: 26px; }
-    .mo-animo-btn .mo-animo-icono [data-lucide] { width: 15px; height: 15px; }
+    .mo-animo-btn .mo-animo-icono [data-lucide],
+    .mo-animo-btn .mo-animo-icono svg { width: 15px; height: 15px; }
     .mo-animo-btn .mo-animo-nombre { font-size: 10.5px; }
 
     .mo-kpis { grid-template-columns: repeat(2, 1fr); gap: 8px; }
@@ -1030,7 +1064,8 @@ body {
     .mo-kpi-valor { font-size: 18px; }
 
     .mo-hoy-actual-icono { width: 60px; height: 60px; }
-    .mo-hoy-actual-icono [data-lucide] { width: 30px; height: 30px; }
+    .mo-hoy-actual-icono [data-lucide],
+    .mo-hoy-actual-icono svg { width: 30px; height: 30px; }
     .mo-hoy-actual-nombre { font-size: 20px; }
 
     .mo-modal { padding: 12px; }
