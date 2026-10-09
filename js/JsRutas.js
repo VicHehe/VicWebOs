@@ -249,7 +249,7 @@ const RUTAS_HERRAMIENTAS = [
         categoria: 'Herramientas Prácticas',
         esBase: false,
         espacio: 6,
-        monedas: 20
+        monedas: 30
     },
         {
         id: 'calendario',
