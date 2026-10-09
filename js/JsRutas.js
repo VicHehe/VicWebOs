@@ -494,23 +494,5 @@ const RUTAS_HERRAMIENTAS = [
         esBase: false,
         espacio: 10,
         monedas: 250
-    },
-    
- // ============================================================
- //  EDUCACIÓN
- // ============================================================
- {
-     id: 'matequiz',
-     nombre: 'MateQuiz',
-     icono: 'brain',
-     ruta: 'herramientas/matequiz/index.html',
-     descripcion: 'Entrena tu mente con desafíos matemáticos diarios. Gana monedas y mantiene tu racha.',
-     categoria: 'Educación',
-     esBase: false,
-     espacio: 6,
-     monedas: 35
- }
-
-
-    
+    }    
 ];
