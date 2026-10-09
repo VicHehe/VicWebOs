@@ -241,6 +241,17 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 20
     },
         {
+        id: 'evrec',
+        nombre: 'EvRec',
+        icono: 'screen-share',
+        ruta: 'herramientas/EvRec/index.html',
+        descripcion: 'Grabá tu pantalla o tu cámara y descargá el video en MP4 o WebM. Modos premium: Streamer (pantalla + cámara flotante + micrófono) y Micrófono (solo cámara con audio).',
+        categoria: 'Herramientas Prácticas',
+        esBase: false,
+        espacio: 6,
+        monedas: 20
+    },
+        {
         id: 'calendario',
         nombre: 'VicsCal',
         icono: 'calendar-days',
