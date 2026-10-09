@@ -198,12 +198,6 @@ html, body {
     letter-spacing: -0.02em;
     margin-bottom: 4px;
 }
-.ev-seccion-sub {
-    font-size: 12.5px;
-    color: var(--gray-500, #71717A);
-    font-weight: 600;
-    line-height: 1.5;
-}
 
 .ev-modos {
     display: flex;
