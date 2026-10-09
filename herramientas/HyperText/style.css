@@ -1,0 +1,522 @@
+/* ================================================================
+   HyperText — Estilos
+   Compatible con VicWebOs (var() + fallbacks).
+   El terminal de log mantiene su estética oscura intencional
+   porque representa una consola.
+   ================================================================ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 14px;
+    background: var(--bg, #FBFBFD);
+    color: var(--text, #18181B);
+    -webkit-font-smoothing: antialiased;
+    color-scheme: light dark;
+    -webkit-tap-highlight-color: transparent;
+}
+
+[data-lucide] { width: 18px; height: 18px; stroke-width: 2; flex-shrink: 0; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: var(--gray-200, #E8E8EE);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+@keyframes htSpin { to { transform: rotate(360deg); } }
+@keyframes htSlideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============ LAYOUT ============ */
+.ht-app {
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg, #FBFBFD);
+}
+
+.ht-header {
+    flex-shrink: 0;
+    height: 60px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0 20px;
+    background: var(--white, #FFFFFF);
+    border-bottom: 1px solid var(--border, #E8E8EE);
+    z-index: 5;
+}
+.ht-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+.ht-header-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ht-header-info h1 {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: var(--accent-text-gradient, linear-gradient(135deg, #18181B, #7C3AED));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+}
+.ht-header-sub {
+    font-size: 11.5px;
+    color: var(--gray-500, #71717A);
+    font-weight: 600;
+}
+.ht-header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+.ht-logo-mark {
+    width: 42px;
+    height: 42px;
+    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFFFFF;
+    box-shadow: 0 8px 20px var(--accent-shadow, rgba(139,92,246,0.28));
+    flex-shrink: 0;
+}
+.ht-logo-mark [data-lucide] { width: 22px; height: 22px; stroke-width: 2.25; }
+
+.ht-user-badge {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: var(--gray-500, #71717A);
+    background: var(--gray-100, #F4F4F7);
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: -0.02em;
+}
+
+/* ============ BODY ============ */
+.ht-body-pad {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 28px 24px 40px;
+}
+.ht-container {
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+/* ============ CONFIG BAR ============ */
+.ht-config-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding: 14px 18px;
+    background: var(--white, #FFFFFF);
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 14px;
+    margin-bottom: 16px;
+}
+.ht-config-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--gray-700, #3F3F46);
+}
+.ht-config-label [data-lucide] {
+    width: 15px;
+    height: 15px;
+    color: var(--violet-600, #7C3AED);
+}
+.ht-select {
+    background: var(--gray-50, #FAFAFB);
+    color: var(--gray-900, #18181B);
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.15s;
+    color-scheme: light dark;
+}
+.ht-select:hover, .ht-select:focus {
+    border-color: var(--violet-400, #A78BFA);
+    background: var(--white, #FFFFFF);
+}
+
+/* ============ DROP ZONE ============ */
+.ht-drop-zone {
+    background: var(--white, #FFFFFF);
+    border: 2px dashed var(--border, #E8E8EE);
+    border-radius: 16px;
+    padding: 46px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+}
+.ht-drop-zone::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, var(--accent-shadow, rgba(139,92,246,0.15)), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.25s;
+    pointer-events: none;
+}
+.ht-drop-zone:hover,
+.ht-drop-zone.dragover {
+    border-color: var(--violet-400, #A78BFA);
+    background: var(--violet-50, #F5F3FF);
+    transform: translateY(-2px);
+}
+.ht-drop-zone:hover::before,
+.ht-drop-zone.dragover::before { opacity: 0.4; }
+.ht-drop-zone.processing {
+    pointer-events: none;
+    border-color: var(--violet-500, #8B5CF6);
+}
+.ht-drop-zone.hidden { display: none; }
+
+.ht-icon-wrap {
+    width: 62px;
+    height: 62px;
+    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFFFFF;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 8px 20px var(--accent-shadow, rgba(139,92,246,0.28));
+}
+.ht-icon-wrap [data-lucide] { width: 28px; height: 28px; stroke-width: 2; }
+
+.ht-drop-zone h3 {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--gray-900, #18181B);
+    letter-spacing: -0.01em;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.ht-drop-zone p {
+    color: var(--gray-500, #71717A);
+    font-size: 12.5px;
+    font-weight: 600;
+    z-index: 1;
+}
+.ht-file-input { display: none; }
+
+/* Spinner inline */
+.ht-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--violet-200, #DDD6FE);
+    border-top-color: var(--violet-500, #8B5CF6);
+    border-radius: 50%;
+    animation: htSpin 0.8s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* ============ FOLDER PANEL ============ */
+.ht-folder-panel {
+    background: var(--white, #FFFFFF);
+    border: 1.5px solid var(--border, #E8E8EE);
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 20px;
+    display: none;
+    animation: htSlideUp 0.3s ease-out;
+}
+.ht-folder-panel.active { display: block; }
+
+.ht-folder-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+}
+.ht-folder-panel-header h3 {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--gray-900, #18181B);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: -0.01em;
+}
+.ht-folder-panel-header h3 [data-lucide] {
+    width: 18px;
+    height: 18px;
+    color: var(--violet-600, #7C3AED);
+}
+
+.ht-folder-actions { display: flex; gap: 6px; }
+
+.ht-btn-small {
+    background: var(--gray-50, #FAFAFB);
+    border: 1.5px solid var(--border, #E8E8EE);
+    color: var(--gray-600, #52525B);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 11.5px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.15s;
+    touch-action: manipulation;
+}
+.ht-btn-small:hover {
+    border-color: var(--violet-400, #A78BFA);
+    color: var(--violet-700, #6D28D9);
+    background: var(--violet-50, #F5F3FF);
+}
+
+.ht-folder-list {
+    max-height: 260px;
+    overflow-y: auto;
+    margin-bottom: 16px;
+    padding-right: 4px;
+}
+
+.ht-folder-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    transition: background 0.15s;
+    cursor: pointer;
+}
+.ht-folder-item:hover { background: var(--violet-50, #F5F3FF); }
+.ht-folder-item input { display: none; }
+
+.ht-custom-checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border, #E8E8EE);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    background: var(--white, #FFFFFF);
+}
+.ht-folder-item input:checked + .ht-custom-checkbox {
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    border-color: var(--violet-500, #8B5CF6);
+    box-shadow: 0 2px 6px var(--accent-shadow, rgba(139,92,246,0.28));
+}
+.ht-folder-item input:checked + .ht-custom-checkbox::after {
+    content: '';
+    width: 5px;
+    height: 9px;
+    border: solid #FFFFFF;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    margin-bottom: 2px;
+}
+
+.ht-folder-name {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--gray-800, #27272A);
+    flex-grow: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.ht-folder-count {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--violet-700, #6D28D9);
+    background: var(--violet-50, #F5F3FF);
+    padding: 2px 9px;
+    border-radius: 999px;
+    flex-shrink: 0;
+}
+
+.ht-btn-primary {
+    width: 100%;
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: #FFFFFF;
+    border: none;
+    padding: 13px;
+    border-radius: 11px;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.15s;
+    box-shadow: 0 6px 18px var(--accent-shadow, rgba(139,92,246,0.28));
+    touch-action: manipulation;
+}
+.ht-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 26px var(--accent-shadow-hover, rgba(139,92,246,0.4));
+}
+.ht-btn-primary [data-lucide] { width: 16px; height: 16px; }
+
+/* ============ LOG TERMINAL ============ */
+/* Estética de consola: se mantiene oscura en cualquier tema */
+.ht-log-terminal {
+    background: #0E0A14;
+    border: 1px solid var(--violet-700, #6D28D9);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.55;
+    height: 240px;
+    overflow-y: auto;
+    margin-bottom: 18px;
+    display: none;
+    color: #E4E4E7;
+}
+.ht-log-terminal.active { display: block; }
+.ht-log-terminal::-webkit-scrollbar-thumb { background: var(--violet-700, #6D28D9); }
+
+.ht-log-entry {
+    margin-bottom: 4px;
+    display: flex;
+    gap: 10px;
+    word-break: break-word;
+}
+.ht-log-entry .ht-timestamp {
+    color: #6B5B7A;
+    min-width: 72px;
+    flex-shrink: 0;
+    font-size: 11px;
+}
+.ht-log-entry.ht-info { color: #E4E4E7; }
+.ht-log-entry.ht-success { color: #6EE7B7; }
+.ht-log-entry.ht-warning { color: #FCD34D; }
+.ht-log-entry.ht-error { color: #FCA5A5; }
+.ht-log-entry.ht-file { color: #C4B5FD; }
+
+/* ============ DOWNLOAD BTN ============ */
+.ht-download-btn {
+    width: 100%;
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: #FFFFFF;
+    border: none;
+    padding: 15px;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 14.5px;
+    font-weight: 800;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.15s;
+    box-shadow: 0 8px 24px var(--accent-shadow, rgba(139,92,246,0.32));
+    touch-action: manipulation;
+}
+.ht-download-btn.visible {
+    display: flex;
+    animation: htSlideUp 0.4s ease-out;
+}
+.ht-download-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px var(--accent-shadow-hover, rgba(139,92,246,0.45));
+}
+.ht-download-btn [data-lucide] { width: 18px; height: 18px; }
+
+/* ============ TOAST ============ */
+.ht-toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--gray-900, #18181B);
+    color: #FFFFFF;
+    padding: 11px 22px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: 3000;
+    max-width: calc(100% - 40px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.ht-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.ht-toast.success { background: #065F46; }
+.ht-toast.error   { background: #991B1B; }
+.ht-toast.info    { background: var(--violet-700, #6D28D9); }
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 640px) {
+    .ht-header { padding: 0 12px; height: 54px; min-height: 54px; }
+    .ht-header-sub { display: none; }
+    .ht-header-info h1 { font-size: 15px; }
+    .ht-logo-mark { width: 36px; height: 36px; border-radius: 10px; }
+    .ht-logo-mark [data-lucide] { width: 19px; height: 19px; }
+
+    .ht-body-pad { padding: 16px 14px 24px; }
+    .ht-config-bar { padding: 12px 14px; }
+    .ht-config-bar { flex-direction: column; align-items: stretch; }
+    .ht-select { width: 100%; }
+
+    .ht-drop-zone { padding: 34px 16px; }
+    .ht-icon-wrap { width: 52px; height: 52px; }
+    .ht-icon-wrap [data-lucide] { width: 24px; height: 24px; }
+    .ht-drop-zone h3 { font-size: 14.5px; }
+
+    .ht-folder-panel { padding: 16px; }
+    .ht-folder-panel-header { flex-direction: column; align-items: flex-start; }
+    .ht-folder-actions { width: 100%; }
+    .ht-btn-small { flex: 1; }
+
+    .ht-log-terminal { height: 200px; font-size: 11px; }
+    .ht-log-entry .ht-timestamp { min-width: 62px; font-size: 10px; }
+
+    .ht-download-btn { font-size: 13.5px; padding: 13px; }
+}
