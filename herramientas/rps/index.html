@@ -104,7 +104,11 @@
                 <span class="score-name">Tú</span>
                 <span class="score-value" id="myScore">0</span>
             </div>
-            <div class="score-vs">VS</div>
+            <div class="score-vs">
+                <span class="score-vs-line"></span>
+                <span class="score-vs-text">VS</span>
+                <span class="score-vs-line"></span>
+            </div>
             <div class="score-side score-rival">
                 <span class="score-name" id="rivalName">Rival</span>
                 <span class="score-value" id="rivalScore">0</span>
@@ -113,32 +117,41 @@
 
         <div class="arena" id="arena">
             <div class="card card-you" id="cardYou">
-                <div class="card-face card-back"><i data-lucide="help-circle"></i></div>
+                <div class="card-face card-back">
+                    <i data-lucide="help-circle"></i>
+                    <span class="card-check"><i data-lucide="check"></i></span>
+                </div>
                 <div class="card-face card-front" id="youFront"></div>
             </div>
 
             <div class="arena-center" id="arenaCenter"></div>
 
             <div class="card card-rival" id="cardRival">
-                <div class="card-face card-back"><i data-lucide="help-circle"></i></div>
+                <div class="card-face card-back">
+                    <i data-lucide="help-circle"></i>
+                    <span class="card-check"><i data-lucide="check"></i></span>
+                </div>
                 <div class="card-face card-front" id="rivalFront"></div>
             </div>
         </div>
 
-        <div class="status-text" id="statusText">Elegí tu jugada</div>
+        <div class="status-text" id="statusText">
+            <i data-lucide="hand-pointer"></i>
+            <span>Elegí tu jugada</span>
+        </div>
 
         <div class="choices" id="choices">
             <button class="choice-btn" data-choice="rock">
-                <span class="choice-emoji">🪨</span>
-                <small>Piedra</small>
+                <span class="choice-icon"><i data-lucide="gem"></i></span>
+                <span class="choice-label">Piedra</span>
             </button>
             <button class="choice-btn" data-choice="paper">
-                <span class="choice-emoji">📄</span>
-                <small>Papel</small>
+                <span class="choice-icon"><i data-lucide="file-text"></i></span>
+                <span class="choice-label">Papel</span>
             </button>
             <button class="choice-btn" data-choice="scissors">
-                <span class="choice-emoji">✂️</span>
-                <small>Tijera</small>
+                <span class="choice-icon"><i data-lucide="scissors"></i></span>
+                <span class="choice-label">Tijera</span>
             </button>
         </div>
 
