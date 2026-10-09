@@ -14,7 +14,14 @@
 
 <div class="bc-app">
 
-    <!-- ===== HEADER ===== -->
+    <!-- Fondo decorativo -->
+    <div class="bc-bg-decor" aria-hidden="true">
+        <span class="bc-blob bc-blob-1"></span>
+        <span class="bc-blob bc-blob-2"></span>
+        <span class="bc-blob bc-blob-3"></span>
+    </div>
+
+    <!-- ===== HEADER (HUD) ===== -->
     <header class="bc-header">
         <div class="bc-logo">
             <div class="bc-logo-mark"><i data-lucide="egg"></i></div>
@@ -25,11 +32,11 @@
         </div>
         <div class="bc-currencies">
             <div class="bc-currency bc-currency-credits" title="Créditos (moneda interna)">
-                <i data-lucide="coins"></i>
+                <span class="bc-currency-icono"><i data-lucide="coins"></i></span>
                 <span id="bcCreditos">0</span>
             </div>
             <div class="bc-currency bc-currency-os" title="Monedas OS cosechadas hoy">
-                <i data-lucide="landmark"></i>
+                <span class="bc-currency-icono"><i data-lucide="landmark"></i></span>
                 <span id="bcOSHoy">0</span>
                 <span class="bc-currency-max">/80</span>
             </div>
@@ -38,10 +45,22 @@
 
     <!-- ===== TABS ===== -->
     <nav class="bc-tabs">
-        <button class="bc-tab active" data-tab="habitats"><i data-lucide="layout-grid"></i><span>Hábitats</span></button>
-        <button class="bc-tab" data-tab="nido"><i data-lucide="heart"></i><span>Nido</span></button>
-        <button class="bc-tab" data-tab="guarderia"><i data-lucide="egg"></i><span>Guardería</span></button>
-        <button class="bc-tab" data-tab="tienda"><i data-lucide="store"></i><span>Tienda</span></button>
+        <button class="bc-tab active" data-tab="habitats">
+            <span class="bc-tab-icono"><i data-lucide="layout-grid"></i></span>
+            <span>Hábitats</span>
+        </button>
+        <button class="bc-tab" data-tab="nido">
+            <span class="bc-tab-icono"><i data-lucide="heart"></i></span>
+            <span>Nido</span>
+        </button>
+        <button class="bc-tab" data-tab="guarderia">
+            <span class="bc-tab-icono"><i data-lucide="egg"></i></span>
+            <span>Guardería</span>
+        </button>
+        <button class="bc-tab" data-tab="tienda">
+            <span class="bc-tab-icono"><i data-lucide="store"></i></span>
+            <span>Tienda</span>
+        </button>
     </nav>
 
     <!-- ===== CONTENIDO ===== -->
