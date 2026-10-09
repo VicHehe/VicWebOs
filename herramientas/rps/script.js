@@ -8,6 +8,7 @@
 //  · Sin persistencia, sin historial, sin chat.
 //  · Desconexión del rival: nadie gana.
 //  · Revancha rápida por mutuo acuerdo (solo modo real).
+//  · Iconos Lucide (gem / file-text / scissors), sin emojis.
 // ============================================================
 
 'use strict';
@@ -20,22 +21,29 @@ const PREFIJO_PEER = 'rps_';
 const MODOS = {
     real: {
         rondas: 3,
-        paraGanar: 2,      // primero en llegar a 2 victorias
+        paraGanar: 2,
         recompensa: 2,
         label: 'Ronda {n} de 3'
     },
     cpu: {
         rondas: 6,
-        paraGanar: null,   // no se corta antes: siempre 6 rondas
+        paraGanar: null,
         recompensa: 4,
         label: 'Ronda {n} de 6'
     }
 };
 
 const CHOICES = ['rock', 'paper', 'scissors'];
-const CHOICE_EMOJI = { rock: '🪨', paper: '📄', scissors: '✂️' };
-const BEATS = { rock: 'scissors', paper: 'rock', scissors: 'paper' };
+
+// Iconos Lucide por elección (sin emojis)
+const CHOICE_ICON = {
+    rock:     'gem',         // 🪨 → gema (piedra preciosa)
+    paper:    'file-text',   // 📄 → página
+    scissors: 'scissors'     // ✂️ → tijeras
+};
+
 const CHOICE_LABEL = { rock: 'Piedra', paper: 'Papel', scissors: 'Tijera' };
+const BEATS = { rock: 'scissors', paper: 'rock', scissors: 'paper' };
 
 // --- API ---
 const API = () => {
@@ -65,7 +73,7 @@ let iWantRematch = false;
 let rivalWantsRematch = false;
 let matchActive = false;
 
-let myPicksHistory = [];   // solo en memoria, para que la CPU "lea" patrones
+let myPicksHistory = [];
 
 // --- DOM ---
 const $ = (id) => document.getElementById(id);
@@ -153,6 +161,26 @@ function mostrarJoinStatus(texto, tipo) {
     joinStatus.style.display = texto ? 'block' : 'none';
 }
 
+// Convierte el contenido de una cara de carta a un icono Lucide
+function pintarIconoCard(el, choiceKey) {
+    if (!el) return;
+    const iconName = CHOICE_ICON[choiceKey];
+    if (!iconName) {
+        el.innerHTML = '';
+        return;
+    }
+    el.innerHTML = `<i data-lucide="${iconName}"></i>`;
+    if (window.lucide) window.lucide.createIcons();
+}
+
+// Pinta el status con un icono Lucide + texto
+function pintarStatus(iconName, texto, pulsing = false) {
+    if (!statusText) return;
+    statusText.innerHTML = `<i data-lucide="${iconName}"></i><span>${texto}</span>`;
+    statusText.classList.toggle('pulse', pulsing);
+    if (window.lucide) window.lucide.createIcons();
+}
+
 // ============================================================
 //  INIT
 // ============================================================
@@ -168,7 +196,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     roomInput.value = usuarioActual.codigo || 'rpsroom';
 
-    // Listeners de lobby
     document.querySelectorAll('.mode-card').forEach(btn => {
         btn.addEventListener('click', () => {
             const m = btn.dataset.mode;
@@ -177,11 +204,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Listeners de join
     $('btnBack').addEventListener('click', () => cambiarPantalla('lobby'));
     btnConnect.addEventListener('click', conectarConAmigo);
 
-    // Listeners de juego
     $('btnExit').addEventListener('click', salirDePartida);
     document.querySelectorAll('.choice-btn').forEach(btn => {
         btn.addEventListener('click', () => elegirJugada(btn.dataset.choice));
@@ -197,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ============================================================
-//  MODO CPU — gratis, 6 rondas, +4 monedas si ganás
+//  MODO CPU
 // ============================================================
 function iniciarModoCPU() {
     modo = 'cpu';
@@ -338,8 +363,7 @@ function manejarDesconexionRival() {
     myChoice = null;
 
     choicesEl.classList.add('disabled');
-    statusText.textContent = 'El rival se desconectó. Nadie gana.';
-    statusText.classList.remove('pulse');
+    pintarStatus('user-x', 'El rival se desconectó. Nadie gana.', false);
 
     actionsEl.hidden = false;
     btnRematch.hidden = true;
@@ -370,11 +394,10 @@ function iniciarPartida() {
     actionsEl.hidden = true;
     btnRematch.hidden = false;
 
-    // Reset cards
     cardYou.classList.remove('flip', 'winner', 'loser', 'tie', 'chosen');
     cardRival.classList.remove('flip', 'winner', 'loser', 'tie', 'chosen');
-    youFront.textContent = '';
-    rivalFront.textContent = '';
+    youFront.innerHTML = '';
+    rivalFront.innerHTML = '';
 
     actualizarLabelRonda();
     empezarRonda();
@@ -395,14 +418,13 @@ function empezarRonda() {
 
     cardYou.classList.remove('flip', 'winner', 'loser', 'tie', 'chosen');
     cardRival.classList.remove('flip', 'winner', 'loser', 'tie', 'chosen');
-    youFront.textContent = '';
-    rivalFront.textContent = '';
+    youFront.innerHTML = '';
+    rivalFront.innerHTML = '';
 
     choicesEl.classList.remove('disabled', 'hidden');
     document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
 
-    statusText.textContent = 'Elegí tu jugada';
-    statusText.classList.remove('pulse');
+    pintarStatus('hand-pointer', 'Elegí tu jugada', false);
 
     actualizarLabelRonda();
     if (window.lucide) window.lucide.createIcons();
@@ -432,8 +454,7 @@ function elegirJugada(choice) {
     }
 
     if (modo === 'cpu') {
-        statusText.textContent = 'La CPU está pensando…';
-        statusText.classList.add('pulse');
+        pintarStatus('cpu', 'La CPU está pensando…', true);
         setTimeout(() => {
             rivalChoice = cpuElegir();
             actualizarIndicadorRival();
@@ -449,16 +470,13 @@ function elegirJugada(choice) {
 function actualizarIndicadorRival() {
     if (!matchActive) return;
     if (myChoice && !rivalChoice) {
-        statusText.textContent = 'Esperando al rival…';
-        statusText.classList.add('pulse');
+        pintarStatus('hourglass', 'Esperando al rival…', true);
     } else if (myChoice && rivalChoice && !revealRunning) {
-        statusText.textContent = '¡Revelando!';
-        statusText.classList.remove('pulse');
+        pintarStatus('sparkles', '¡Revelando!', false);
     }
 }
 
 function cpuElegir() {
-    // 75% aleatorio, 25% intenta anticipar el patrón del jugador
     if (Math.random() < 0.25 && myPicksHistory.length >= 2) {
         const counts = { rock: 0, paper: 0, scissors: 0 };
         myPicksHistory.forEach(c => counts[c]++);
@@ -480,11 +498,11 @@ async function intentarRevelar() {
 
     revealRunning = true;
 
-    // Poblar las caras frontales
-    youFront.textContent = CHOICE_EMOJI[myChoice];
-    rivalFront.textContent = CHOICE_EMOJI[rivalChoice];
+    // Pintamos los iconos Lucide en las caras frontales
+    pintarIconoCard(youFront, myChoice);
+    pintarIconoCard(rivalFront, rivalChoice);
 
-    // Secuencia del contador
+    // Countdown
     arenaCenter.classList.add('active');
     const numeros = ['3', '2', '1'];
     for (const n of numeros) {
@@ -492,12 +510,11 @@ async function intentarRevelar() {
         await sleep(620);
     }
 
-    // ¡YA! + flash
     arenaCenter.innerHTML = `<div class="countdown-num go">¡YA!</div>`;
     flashBlanco();
     await sleep(340);
 
-    // Flip de las cartas
+    // Flip
     cardYou.classList.add('flip');
     cardRival.classList.add('flip');
     arenaCenter.classList.remove('active');
@@ -537,21 +554,19 @@ function aplicarResultadoUI(resultado) {
     if (resultado === 'tie') {
         cardYou.classList.add('tie');
         cardRival.classList.add('tie');
-        statusText.textContent = 'Empate';
-        statusText.classList.remove('pulse');
+        pintarStatus('equal', 'Empate', false);
         return;
     }
 
     if (resultado === 'win') {
         cardYou.classList.add('winner');
         cardRival.classList.add('loser');
-        statusText.textContent = '¡Ganaste la ronda!';
+        pintarStatus('trophy', '¡Ganaste la ronda!', false);
     } else {
         cardYou.classList.add('loser');
         cardRival.classList.add('winner');
-        statusText.textContent = 'Perdiste la ronda';
+        pintarStatus('x', 'Perdiste la ronda', false);
     }
-    statusText.classList.remove('pulse');
 }
 
 function aplicarPuntaje(resultado) {
@@ -570,10 +585,8 @@ function chequearFinDePartida() {
 
     let fin = false;
     if (cfg.paraGanar !== null) {
-        // Modo real: mejor de 3
         fin = myScore >= cfg.paraGanar || rivalScore >= cfg.paraGanar;
     } else {
-        // Modo CPU: 6 rondas exactas
         fin = currentRound >= cfg.rondas;
     }
 
@@ -598,11 +611,11 @@ async function mostrarFinDePartida() {
     }
 
     if (empate) {
-        statusText.textContent = 'Empate general. Nadie gana monedas.';
+        pintarStatus('equal', 'Empate general. Nadie gana monedas.', false);
     } else if (gane) {
-        statusText.textContent = modo === 'cpu' ? '¡Le ganaste a la CPU!' : '¡Ganaste la partida!';
+        pintarStatus('trophy', modo === 'cpu' ? '¡Le ganaste a la CPU!' : '¡Ganaste la partida!', false);
     } else {
-        statusText.textContent = modo === 'cpu' ? 'La CPU ganó esta vez' : 'El rival ganó la partida';
+        pintarStatus('x', modo === 'cpu' ? 'La CPU ganó esta vez' : 'El rival ganó la partida', false);
     }
 
     if (gane) otorgarRecompensa();
@@ -631,12 +644,10 @@ async function otorgarRecompensa() {
 // ============================================================
 function pedirRevancha() {
     if (modo === 'cpu') {
-        // CPU: reinicia directo (sigue siendo gratis)
         iniciarPartida();
         return;
     }
 
-    // Modo real: hay que confirmar con el rival
     iWantRematch = true;
     actualizarEstadoRematch();
     if (conn && conn.open) {
