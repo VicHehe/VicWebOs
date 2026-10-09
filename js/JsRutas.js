@@ -497,6 +497,17 @@ const RUTAS_HERRAMIENTAS = [
     //  CODIGO
     // ============================================================
         {
+        id: 'hypertext',
+        nombre: 'HyperText',
+        icono: 'file-archive',
+        ruta: 'herramientas/HyperText/index.html',
+        descripcion: 'Convertí proyectos completos (.zip) en archivos de texto optimizados para IAs. Seleccioná carpetas, ordená jerárquicamente y dividí en partes.',
+        categoria: 'Codigo',
+        esBase: false,
+        espacio: 2,
+        monedas: 5
+    },
+    {
         id: 'vicscode',
         nombre: 'VicsCode',
         icono: 'file-code',
