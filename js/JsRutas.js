@@ -507,6 +507,17 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 8,
         monedas: 230
     },
+    {
+        id: 'vicsjson',
+        nombre: 'VicsJSON',
+        icono: 'braces',
+        ruta: 'herramientas/vicsjson/index.html',
+        descripcion: 'Analizá, corregí y descargá JSON. Detecta errores con línea y columna, sugiere mejoras, repara automáticamente y muestra el árbol completo.',
+        categoria: 'Codigo',
+        esBase: false,
+        espacio: 4,
+        monedas: 55
+    },
 
 
     
