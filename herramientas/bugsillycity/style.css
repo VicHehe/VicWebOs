@@ -1,5 +1,5 @@
 /* ================================================================
-   BugSillyCity — Estilos v2 (canvas isométrico)
+   BugSillyCity — Estilos v3 (canvas isométrico + tema dinámico)
    ================================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -161,18 +161,25 @@ body {
     font-weight: 600; line-height: 1.45;
 }
 
-/* ========== CANVAS ========== */
+/* ========== CANVAS (ahora respeta el tema) ========== */
 .bc-canvas-wrap {
     flex: 1;
     min-height: 0;
     position: relative;
     border-radius: 16px;
     overflow: hidden;
-    background: linear-gradient(180deg, #BFDBFE 0%, #93C5FD 45%, #86EFAC 100%);
+    /* Antes: linear-gradient(180deg, #BFDBFE, #93C5FD, #86EFAC) hardcodeado.
+       Ahora: gradiente basado en las variables del tema del padre. */
+    background: linear-gradient(
+        180deg,
+        var(--bg-alt, #F5F5F8) 0%,
+        var(--bg, #FBFBFD) 60%,
+        var(--gray-50, #FAFAFB) 100%
+    );
     border: 1.5px solid var(--border, #E8E8EE);
     touch-action: none;
     cursor: pointer;
-    box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.06);
+    box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.04);
 }
 .bc-canvas-wrap canvas {
     display: block;
@@ -393,7 +400,7 @@ body {
 }
 .bc-huevo-btn [data-lucide] { width: 13px; height: 13px; }
 
-/* ========== TIENDA ========== */
+/* ========== TIENDA (FIX: textos ya no se cortan) ========== */
 .bc-tienda-seccion { margin-bottom: 20px; }
 .bc-tienda-seccion h3 {
     display: flex; align-items: center; gap: 6px;
@@ -406,7 +413,8 @@ body {
 
 .bc-tienda-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    /* Antes 170px, ahora 240px → menos columnas, más ancho por card */
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 8px;
 }
 .bc-tienda-card {
@@ -416,6 +424,7 @@ body {
     border: 1.5px solid var(--border, #E8E8EE);
     border-radius: 12px;
     transition: all 0.15s;
+    min-width: 0;
 }
 .bc-tienda-card:hover {
     border-color: var(--violet-300, #C4B5FD);
@@ -431,12 +440,18 @@ body {
 .bc-tienda-info { flex: 1; min-width: 0; }
 .bc-tienda-info strong {
     font-size: 13px; font-weight: 800; color: var(--gray-900, #18181B);
-    display: block; margin-bottom: 1px;
+    display: block; margin-bottom: 2px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
+/* FIX: antes tenía white-space:nowrap → ahora permite 2 líneas con clamp */
 .bc-tienda-info small {
     font-size: 10.5px; color: var(--gray-500, #71717A);
-    font-weight: 600; display: block;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-weight: 600; display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.3;
+    word-break: break-word;
 }
 .bc-tienda-btn {
     display: inline-flex; align-items: center; gap: 4px;
