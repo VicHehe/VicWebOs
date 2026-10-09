@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>EvRec</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<div class="ev-app">
+
+    <!-- ============ VISTA: INICIO ============ -->
+    <section class="ev-view" id="viewInicio">
+        <header class="ev-header">
+            <div class="ev-header-left">
+                <div class="ev-logo-mark"><i data-lucide="screen-share"></i></div>
+                <div class="ev-header-info">
+                    <h1>EvRec</h1>
+                    <span class="ev-header-sub">Grabá tu pantalla o tu cámara</span>
+                </div>
+            </div>
+            <div class="ev-header-right">
+                <div class="ev-user-badge" id="userBadge">—</div>
+            </div>
+        </header>
+
+        <div class="ev-body-pad">
+            <div class="ev-seccion">
+                <div class="ev-seccion-header">
+                    <h2>Elegí un modo</h2>
+                    <p class="ev-seccion-sub">El video queda en memoria hasta que lo descargues. No se guarda en el sistema.</p>
+                </div>
+
+                <div class="ev-modos" id="modosLista">
+
+                    <!-- Modo Base -->
+                    <div class="ev-modo-card" data-modo="base">
+                        <div class="ev-modo-icono"><i data-lucide="monitor"></i></div>
+                        <div class="ev-modo-info">
+                            <div class="ev-modo-header">
+                                <h3>Modo Base</h3>
+                                <span class="ev-modo-badge ev-badge-gratis">
+                                    <i data-lucide="gift"></i> Gratis
+                                </span>
+                            </div>
+                            <p class="ev-modo-desc">
+                                Graba tu pantalla completa. En PC elegís qué compartir; en Android se graba directo.
+                            </p>
+                            <ul class="ev-modo-features">
+                                <li class="ok"><i data-lucide="check"></i> Video de pantalla</li>
+                                <li class="no"><i data-lucide="x"></i> Sin micrófono</li>
+                                <li class="no"><i data-lucide="x"></i> Sin cámara</li>
+                            </ul>
+                        </div>
+                        <div class="ev-modo-cta">
+                            <i data-lucide="play"></i>
+                        </div>
+                    </div>
+
+                    <!-- Modo Streamer -->
+                    <div class="ev-modo-card" data-modo="streamer">
+                        <div class="ev-modo-icono"><i data-lucide="sparkles"></i></div>
+                        <div class="ev-modo-info">
+                            <div class="ev-modo-header">
+                                <h3>Modo Streamer</h3>
+                                <span class="ev-modo-badge ev-badge-precio" data-badge="streamer">
+                                    <i data-lucide="coins"></i> <span>10</span>
+                                </span>
+                            </div>
+                            <p class="ev-modo-desc">
+                                Grabá tu pantalla con tu cámara flotando en una esquina. Micrófono incluido.
+                            </p>
+                            <ul class="ev-modo-features">
+                                <li class="ok"><i data-lucide="check"></i> Video de pantalla</li>
+                                <li class="ok"><i data-lucide="check"></i> Cámara flotante (PiP)</li>
+                                <li class="ok"><i data-lucide="check"></i> Micrófono activo</li>
+                            </ul>
+                        </div>
+                        <div class="ev-modo-cta"><i data-lucide="lock"></i></div>
+                    </div>
+
+                    <!-- Modo Micrófono -->
+                    <div class="ev-modo-card" data-modo="microfono">
+                        <div class="ev-modo-icono"><i data-lucide="video"></i></div>
+                        <div class="ev-modo-info">
+                            <div class="ev-modo-header">
+                                <h3>Modo Micrófono</h3>
+                                <span class="ev-modo-badge ev-badge-precio" data-badge="microfono">
+                                    <i data-lucide="coins"></i> <span>5</span>
+                                </span>
+                            </div>
+                            <p class="ev-modo-desc">
+                                Solo tu cámara frontal o trasera con el micrófono activo. Ideal para videos tipo selfie.
+                            </p>
+                            <ul class="ev-modo-features">
+                                <li class="ok"><i data-lucide="check"></i> Solo cámara</li>
+                                <li class="ok"><i data-lucide="check"></i> Micrófono activo</li>
+                                <li class="no"><i data-lucide="x"></i> Sin pantalla</li>
+                            </ul>
+                        </div>
+                        <div class="ev-modo-cta"><i data-lucide="lock"></i></div>
+                    </div>
+
+                </div>
+
+                <div class="ev-info-box">
+                    <i data-lucide="info"></i>
+                    <div>
+                        <strong>Sobre las compras</strong>
+                        <p>Las funciones premium se desbloquean una sola vez y quedan permanentes en tu cuenta. Se pagan con las monedas del OS.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ VISTA: GRABANDO ============ -->
+    <section class="ev-view" id="viewGrabando" hidden>
+        <header class="ev-header ev-header-grabando">
+            <div class="ev-header-left">
+                <div class="ev-rec-dot" id="recDot"></div>
+                <div class="ev-header-info">
+                    <span class="ev-rec-label">Grabando</span>
+                    <span class="ev-header-sub" id="modoActualLabel">—</span>
+                </div>
+            </div>
+            <div class="ev-header-right">
+                <div class="ev-timer" id="timerDisplay">00:00</div>
+            </div>
+        </header>
+
+        <div class="ev-preview-wrap">
+            <video id="previewVideo" autoplay muted playsinline></video>
+            <div class="ev-preview-hint" id="previewHint" hidden>
+                <i data-lucide="loader-2" class="spin"></i>
+                <span>Preparando grabación…</span>
+            </div>
+            <div class="ev-preview-badge" id="previewBadge">
+                <i data-lucide="radio"></i>
+                <span>REC</span>
+            </div>
+        </div>
+
+        <div class="ev-controls">
+            <button class="ev-btn-control ev-btn-pause" id="btnPausar">
+                <i data-lucide="pause"></i>
+                <span id="btnPausarTxt">Pausar</span>
+            </button>
+            <button class="ev-btn-control ev-btn-stop" id="btnDetener">
+                <i data-lucide="square"></i>
+                <span>Detener</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- ============ VISTA: RESULTADO ============ -->
+    <section class="ev-view" id="viewResultado" hidden>
+        <header class="ev-header">
+            <div class="ev-header-left">
+                <div class="ev-logo-mark ev-logo-mark-sm"><i data-lucide="check-circle-2"></i></div>
+                <div class="ev-header-info">
+                    <h1>Grabación lista</h1>
+                    <span class="ev-header-sub">Revisá, descargá o descartá</span>
+                </div>
+            </div>
+            <div class="ev-header-right">
+                <button class="ev-btn-sec" id="btnRegrabar">
+                    <i data-lucide="rotate-ccw"></i>
+                    <span>Regrabar</span>
+                </button>
+                <button class="ev-btn-pri" id="btnDescargar">
+                    <i data-lucide="download"></i>
+                    <span>Descargar</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="ev-body-resultado">
+            <div class="ev-preview-wrap ev-preview-resultado">
+                <video id="resultVideo" controls playsinline></video>
+            </div>
+
+            <div class="ev-resultado-info">
+                <div class="ev-resultado-stat">
+                    <div class="ev-resultado-stat-icono"><i data-lucide="timer"></i></div>
+                    <div class="ev-resultado-stat-info">
+                        <span class="ev-resultado-stat-valor" id="resultDuracion">00:00</span>
+                        <span class="ev-resultado-stat-label">duración</span>
+                    </div>
+                </div>
+                <div class="ev-resultado-stat">
+                    <div class="ev-resultado-stat-icono"><i data-lucide="hard-drive"></i></div>
+                    <div class="ev-resultado-stat-info">
+                        <span class="ev-resultado-stat-valor" id="resultPeso">0 MB</span>
+                        <span class="ev-resultado-stat-label">tamaño</span>
+                    </div>
+                </div>
+                <div class="ev-resultado-stat">
+                    <div class="ev-resultado-stat-icono"><i data-lucide="file-video"></i></div>
+                    <div class="ev-resultado-stat-info">
+                        <span class="ev-resultado-stat-valor" id="resultFormato">—</span>
+                        <span class="ev-resultado-stat-label">formato</span>
+                    </div>
+                </div>
+                <div class="ev-resultado-stat">
+                    <div class="ev-resultado-stat-icono"><i data-lucide="film"></i></div>
+                    <div class="ev-resultado-stat-info">
+                        <span class="ev-resultado-stat-valor" id="resultModo">—</span>
+                        <span class="ev-resultado-stat-label">modo</span>
+                    </div>
+                </div>
+            </div>
+
+            <button class="ev-btn-descartar" id="btnDescartar">
+                <i data-lucide="trash-2"></i>
+                <span>Descartar grabación</span>
+            </button>
+        </div>
+    </section>
+
+</div>
+
+<!-- ============ MODAL: COMPRA ============ -->
+<div class="ev-modal" id="modalCompra" hidden>
+    <div class="ev-modal-card">
+        <div class="ev-modal-icono">
+            <i data-lucide="lock" id="compraIcono"></i>
+        </div>
+        <h3 id="compraTitulo">Función premium</h3>
+        <p id="compraDesc">¿Desbloquear esta función?</p>
+        <div class="ev-modal-precio">
+            <i data-lucide="coins"></i>
+            <span id="compraPrecio">0</span>
+        </div>
+        <div class="ev-modal-acciones">
+            <button class="ev-btn-sec" id="compraCancelar">Cancelar</button>
+            <button class="ev-btn-pri" id="compraConfirmar">
+                <i data-lucide="check"></i>
+                <span>Desbloquear</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============ MODAL: ERROR ============ -->
+<div class="ev-modal" id="modalError" hidden>
+    <div class="ev-modal-card">
+        <div class="ev-modal-icono ev-modal-icono-error">
+            <i data-lucide="alert-triangle"></i>
+        </div>
+        <h3 id="errorTitulo">No se pudo iniciar</h3>
+        <p id="errorDesc">—</p>
+        <div class="ev-modal-acciones">
+            <button class="ev-btn-pri" id="errorCerrar" style="flex:1;">
+                <i data-lucide="check"></i>
+                <span>Entendido</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="ev-toast" id="evToast"></div>
+
+<script src="script.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>
