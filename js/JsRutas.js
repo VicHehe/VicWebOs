@@ -24,11 +24,6 @@
 //  REGLA: cada app debe tener un icono ÚNICO en el catálogo.
 //  Si agregás una nueva, verificá que su icono no esté ya en uso.
 //
-//  ORDEN:
-//    1. Sistema primero (excepción a la regla alfabética).
-//    2. Resto de categorías alfabéticas.
-//    3. Dentro de cada categoría, precio de menor a mayor.
-//       Desempate por id alfabético.
 // ============================================================
 
 const RUTAS_HERRAMIENTAS = [
@@ -300,17 +295,7 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 6,
         monedas: 75
     },
-        {
-        id: 'vicscode',
-        nombre: 'VicsCode',
-        icono: 'file-code',
-        ruta: 'herramientas/vicscode/index.html',
-        descripcion: 'Editor de código para tus repositorios de GitHub. Monaco, multi-pestaña, commit directo.',
-        categoria: 'Herramientas Prácticas',
-        esBase: false,
-        espacio: 10,
-        monedas: 250
-    },
+
 
     // ============================================================
     //  JUEGOS
@@ -496,6 +481,23 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 10,
         monedas: 250
     },
+
+    // ============================================================
+    //  CODIGO
+    // ============================================================
+        {
+        id: 'vicscode',
+        nombre: 'VicsCode',
+        icono: 'file-code',
+        ruta: 'herramientas/vicscode/index.html',
+        descripcion: 'Editor de código para tus repositorios de GitHub. Monaco, multi-pestaña, commit directo.',
+        categoria: 'Codigo',
+        esBase: false,
+        espacio: 10,
+        monedas: 250
+    },
+
+
     
     // ============================================================
     //  BIENESTAR
