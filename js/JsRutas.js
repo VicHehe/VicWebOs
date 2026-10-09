@@ -508,6 +508,17 @@ const RUTAS_HERRAMIENTAS = [
         categoria: 'Bienestar',
         esBase: false,
         espacio: 4,
-        monedas: 40
+        monedas: 35
+    },
+        {
+        id: 'animo',
+        nombre: 'Ánimo',
+        icono: 'activity',
+        ruta: 'herramientas/animo/index.html',
+        descripcion: 'Registrá cómo te sentís a lo largo del día. Log de cambios, notas y análisis de patrones emocionales.',
+        categoria: 'Bienestar',
+        esBase: false,
+        espacio: 4,
+        monedas: 45
     },
 ];
