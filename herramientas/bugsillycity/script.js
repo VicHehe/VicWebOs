@@ -1,8 +1,6 @@
 // ============================================================
-//  BugSillyCity v4 — Isométrico + tema dinámico
-//  FIX 1: NaN en créditos → normalización de estado + defensivo
-//  FIX 2: no se podía añadir al nido → event delegation + skip
-//         criaturas con tipo inválido + try/catch
+//  BugSillyCity v5 — Isométrico + tema dinámico
+//  FIX: la selección del nido ya no se borra cada 400ms.
 // ============================================================
 
 'use strict';
@@ -231,12 +229,10 @@ function crearEstadoInicial() {
     };
 }
 
-// ── FIX: normalizar criaturas al cargar (evita NaN) ──
 function normalizarCriatura(c) {
     if (!c || typeof c !== 'object') return null;
     if (typeof c.id !== 'string' || !c.id) return null;
     if (typeof c.tipo !== 'string' || !CRIATURAS[c.tipo]) return null;
-    // ultimaCosecha: si no es número válido, usar ahora (así acumula desde 0)
     const uc = (typeof c.ultimaCosecha === 'number' && isFinite(c.ultimaCosecha) && c.ultimaCosecha > 0)
         ? c.ultimaCosecha
         : Date.now();
@@ -250,12 +246,11 @@ function normalizarCriatura(c) {
 
 function normalizarEstado() {
     if (!estado) return;
-    // Criaturas válidas
+
     estado.criaturas = (Array.isArray(estado.criaturas) ? estado.criaturas : [])
         .map(normalizarCriatura)
         .filter(Boolean);
 
-    // Hábitats: asegurar estructura + posIndex único + slots consistentes
     const usadosPos = new Set();
     estado.habitats = (Array.isArray(estado.habitats) ? estado.habitats : [])
         .map((h, i) => {
@@ -263,42 +258,32 @@ function normalizarEstado() {
             if (typeof h.id !== 'string' || !h.id) return null;
             if (typeof h.nivel !== 'number' || h.nivel < 1 || h.nivel > 4) h.nivel = 1;
             if (!Array.isArray(h.slots)) h.slots = [];
-            // posIndex único
             let pos = (typeof h.posIndex === 'number' && h.posIndex >= 0 && h.posIndex < HABITAT_POSICIONES.length)
                 ? h.posIndex : i % HABITAT_POSICIONES.length;
             while (usadosPos.has(pos)) pos = (pos + 1) % HABITAT_POSICIONES.length;
             usadosPos.add(pos);
             h.posIndex = pos;
-            // slots solo con ids existentes
             const idsValidos = new Set(estado.criaturas.map(c => c.id));
             h.slots = h.slots.filter(id => idsValidos.has(id));
-            // reasignar criaturas sin habitat
             return h;
         })
         .filter(Boolean);
 
-    // Criaturas sin habitat válido → asignar al primero con espacio
     estado.criaturas.forEach(c => {
         const habContenedor = estado.habitats.find(h => h.slots.includes(c.id));
         if (!habContenedor) {
             const hab = estado.habitats.find(h => h.slots.length < HABITAT_CONFIG.slotsPorNivel[h.nivel]);
-            if (hab) {
-                hab.slots.push(c.id);
-                c.habitatId = hab.id;
-            } else {
-                c.habitatId = null;
-            }
+            if (hab) { hab.slots.push(c.id); c.habitatId = hab.id; }
+            else c.habitatId = null;
         } else {
             c.habitatId = habContenedor.id;
         }
     });
 
-    // Huevos válidos
     estado.huevos = (Array.isArray(estado.huevos) ? estado.huevos : [])
         .filter(h => h && typeof h.id === 'string' && typeof h.tipo === 'string'
             && CRIATURAS[h.tipo] && typeof h.finMs === 'number');
 
-    // Nido válido
     if (estado.nido) {
         const n = estado.nido;
         const ok = n && typeof n.finMs === 'number' && typeof n.resultado === 'string'
@@ -308,12 +293,10 @@ function normalizarEstado() {
         if (!ok) estado.nido = null;
     }
 
-    // Números sanos
     if (typeof estado.creditos !== 'number' || !isFinite(estado.creditos)) estado.creditos = CREDITOS_INICIALES;
     if (typeof estado.osCosechadasHoy !== 'number' || !isFinite(estado.osCosechadasHoy)) estado.osCosechadasHoy = 0;
     if (!estado.ultimaResetFecha) estado.ultimaResetFecha = hoyLocal();
     if (!Array.isArray(estado.descubiertas)) estado.descubiertas = [];
-    // descubiertas solo válidas
     estado.descubiertas = estado.descubiertas.filter(t => CRIATURAS[t]);
 }
 
@@ -355,7 +338,6 @@ function chequearResetDiario() {
 // ============================================================
 function criaturaPorId(id) { return estado.criaturas.find(c => c.id === id) || null; }
 
-// ── FIX: calcularAcumulado defensivo (nunca devuelve NaN) ──
 function calcularAcumulado(criatura, ahora) {
     const def = CRIATURAS[criatura.tipo];
     if (!def) return { os:0, creditos:0 };
@@ -950,7 +932,7 @@ function abrirModalHabitat(habId) {
 }
 
 // ============================================================
-//  MODAL SELECTOR (NIDO) — FIX
+//  MODAL SELECTOR (NIDO)
 // ============================================================
 function abrirSelectorCriatura(slotNum) {
     try {
@@ -958,7 +940,6 @@ function abrirSelectorCriatura(slotNum) {
         const lista = $('bcModalSelectorLista');
         lista.innerHTML = '';
 
-        // ── FIX: filtrar criaturas válidas (tipo conocido) ──
         const criaturasValidas = estado.criaturas.filter(c => c && CRIATURAS[c.tipo]);
         if (criaturasValidas.length === 0) {
             lista.innerHTML = '<p style="text-align:center;color:var(--gray-500);padding:20px;">No tenés criaturas.</p>';
@@ -1062,15 +1043,18 @@ function actualizarUI() {
     $('bcOSHoy').textContent = Math.floor(estado.osCosechadasHoy || 0);
 }
 
+// ── FIX: la rama else respeta slots ya elegidos ──
 function renderNido() {
     const slot1 = $('bcNidoSlot1'), slot2 = $('bcNidoSlot2');
     const btnCriar = $('bcBtnCriar');
     const timerDiv = $('bcNidoTimer'), resultadoDiv = $('bcNidoResultado');
     if (!slot1 || !slot2) return;
-    slot1.classList.remove('lleno'); slot2.classList.remove('lleno');
-    slot1.style.background = ''; slot2.style.background = '';
 
     if (estado.nido && CRIATURAS[estado.nido.resultado]) {
+        // ── Hay cría en curso: pintar todo ──
+        slot1.classList.remove('lleno'); slot2.classList.remove('lleno');
+        slot1.style.background = ''; slot2.style.background = '';
+
         const def = CRIATURAS[estado.nido.resultado];
         const p1 = criaturaPorId(estado.nido.padre1);
         const p2 = criaturaPorId(estado.nido.padre2);
@@ -1096,13 +1080,26 @@ function renderNido() {
             $('bcNidoTimerFill').style.width = pct + '%';
         }
     } else {
-        slot1.innerHTML = '<i data-lucide="plus"></i><span>Elegir criatura</span>';
-        slot2.innerHTML = '<i data-lucide="plus"></i><span>Elegir criatura</span>';
-        slot1.dataset.criaturaId = ''; slot2.dataset.criaturaId = '';
-        btnCriar.disabled = true;
+        // ── Sin cría: solo inicializar slots VACÍOS (no pisar los elegidos) ──
+        if (!slot1.dataset.criaturaId) {
+            slot1.classList.remove('lleno');
+            slot1.style.background = '';
+            slot1.innerHTML = '<i data-lucide="plus"></i><span>Elegir criatura</span>';
+        }
+        if (!slot2.dataset.criaturaId) {
+            slot2.classList.remove('lleno');
+            slot2.style.background = '';
+            slot2.innerHTML = '<i data-lucide="plus"></i><span>Elegir criatura</span>';
+        }
+
+        const tieneAmbas = slot1.dataset.criaturaId && slot2.dataset.criaturaId;
+        btnCriar.disabled = !tieneAmbas;
         btnCriar.innerHTML = '<i data-lucide="heart"></i><span>Empezar cría</span>';
         timerDiv.hidden = true;
         resultadoDiv.hidden = true;
+
+        // Si ya hay dos criaturas elegidas, re-verificar compatibilidad
+        if (tieneAmbas) verificarNidoListo();
     }
     if (window.lucide) window.lucide.createIcons();
 }
@@ -1189,9 +1186,14 @@ function loop() {
         chequearResetDiario();
         if (estado) actualizarUI();
         const panelActivo = document.querySelector('.bc-panel.active')?.dataset.panel;
-        if (panelActivo === 'habitats') dibujar();
-        else if (panelActivo === 'nido') renderNido();
-        else if (panelActivo === 'guarderia') renderGuarderia();
+        if (panelActivo === 'habitats') {
+            dibujar();
+        } else if (panelActivo === 'nido' && estado.nido) {
+            // ── FIX: solo re-renderizar el Nido si hay cría activa ──
+            renderNido();
+        } else if (panelActivo === 'guarderia') {
+            renderGuarderia();
+        }
     }
     rafId = requestAnimationFrame(loop);
 }
@@ -1237,7 +1239,7 @@ async function inicializar() {
         tab.addEventListener('click', () => cambiarTab(tab.dataset.tab));
     });
 
-    // ── FIX: event delegation en el contenedor de slots del nido ──
+    // Event delegation en el contenedor de slots del nido
     const nidoSlots = $('bcNidoSlots');
     if (nidoSlots) {
         nidoSlots.addEventListener('click', (e) => {
