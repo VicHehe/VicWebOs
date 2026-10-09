@@ -496,6 +496,17 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 10,
         monedas: 250
     },
+        {
+        id: 'silly-ql',
+        nombre: 'Silly-QL',
+        icono: 'database',
+        ruta: 'herramientas/silly-ql/index.html',
+        descripcion: 'Workbench SQL: generá INSERTs pegando CSV, creá procedures y tablas rápido, y exportá todo en un ZIP. Proyectos guardados localmente.',
+        categoria: 'Codigo',
+        esBase: false,
+        espacio: 8,
+        monedas: 230
+    },
 
 
     
