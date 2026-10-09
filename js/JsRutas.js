@@ -494,5 +494,20 @@ const RUTAS_HERRAMIENTAS = [
         esBase: false,
         espacio: 10,
         monedas: 250
-    }    
+    },
+    
+    // ============================================================
+    //  BIENESTAR
+    // ============================================================
+    {
+        id: 'sueno',
+        nombre: 'Sueño',
+        icono: 'moon-star',
+        ruta: 'herramientas/sueno/index.html',
+        descripcion: 'Registrá cuándo te dormís y despertás. Analizá patrones, consistencia y cuánto te falta para tu objetivo.',
+        categoria: 'Bienestar',
+        esBase: false,
+        espacio: 4,
+        monedas: 40
+    },
 ];
