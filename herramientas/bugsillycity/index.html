@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>BugSillyCity</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<div class="bc-app">
+
+    <!-- ===== HEADER ===== -->
+    <header class="bc-header">
+        <div class="bc-logo">
+            <div class="bc-logo-mark"><i data-lucide="egg"></i></div>
+            <div class="bc-logo-text">
+                <h1>BugSillyCity</h1>
+                <p id="bcUserBadge">—</p>
+            </div>
+        </div>
+        <div class="bc-currencies">
+            <div class="bc-currency bc-currency-credits" title="Créditos (moneda interna)">
+                <i data-lucide="coins"></i>
+                <span id="bcCreditos">0</span>
+            </div>
+            <div class="bc-currency bc-currency-os" title="Monedas OS cosechadas hoy">
+                <i data-lucide="landmark"></i>
+                <span id="bcOSHoy">0</span>
+                <span class="bc-currency-max">/80</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== TABS ===== -->
+    <nav class="bc-tabs">
+        <button class="bc-tab active" data-tab="habitats"><i data-lucide="layout-grid"></i><span>Hábitats</span></button>
+        <button class="bc-tab" data-tab="nido"><i data-lucide="heart"></i><span>Nido</span></button>
+        <button class="bc-tab" data-tab="guarderia"><i data-lucide="egg"></i><span>Guardería</span></button>
+        <button class="bc-tab" data-tab="tienda"><i data-lucide="store"></i><span>Tienda</span></button>
+    </nav>
+
+    <!-- ===== CONTENIDO ===== -->
+    <main class="bc-main">
+
+        <!-- HÁBITATS -->
+        <section class="bc-panel active" data-panel="habitats">
+            <div id="bcHabitatGrid" class="bc-habitat-grid"></div>
+        </section>
+
+        <!-- NIDO -->
+        <section class="bc-panel" data-panel="nido">
+            <div class="bc-panel-header">
+                <h2><i data-lucide="heart"></i> Nido de cría</h2>
+                <p>Elegí dos criaturas para combinarlas. El resultado depende de la pareja.</p>
+            </div>
+
+            <div id="bcNidoSlots" class="bc-nido-slots">
+                <button class="bc-nido-slot" id="bcNidoSlot1" data-slot="1">
+                    <i data-lucide="plus"></i>
+                    <span>Elegir criatura</span>
+                </button>
+                <div class="bc-nido-heart"><i data-lucide="heart"></i></div>
+                <button class="bc-nido-slot" id="bcNidoSlot2" data-slot="2">
+                    <i data-lucide="plus"></i>
+                    <span>Elegir criatura</span>
+                </button>
+            </div>
+
+            <div id="bcNidoResultado" class="bc-nido-resultado" hidden>
+                <div class="bc-nido-resultado-icono" id="bcNidoResultIcono"><i data-lucide="egg"></i></div>
+                <div class="bc-nido-resultado-info">
+                    <strong id="bcNidoResultNombre">—</strong>
+                    <span id="bcNidoResultTiempo">—</span>
+                </div>
+            </div>
+
+            <div id="bcNidoTimer" class="bc-nido-timer" hidden>
+                <div class="bc-nido-timer-titulo"><i data-lucide="hourglass"></i> Criando…</div>
+                <div class="bc-nido-timer-valor" id="bcNidoTimerValor">—</div>
+                <div class="bc-nido-timer-barra"><div class="bc-nido-timer-fill" id="bcNidoTimerFill"></div></div>
+            </div>
+
+            <button class="bc-btn-primario" id="bcBtnCriar" disabled>
+                <i data-lucide="heart"></i>
+                <span>Empezar cría</span>
+            </button>
+
+            <div id="bcNidoMensaje" class="bc-status"></div>
+        </section>
+
+        <!-- GUARDERÍA -->
+        <section class="bc-panel" data-panel="guarderia">
+            <div class="bc-panel-header">
+                <h2><i data-lucide="egg"></i> Guardería</h2>
+                <p>Tus huevos eclosionan aquí. Poné a incubar y esperá.</p>
+            </div>
+            <div id="bcGuarderiaGrid" class="bc-guarderia-grid"></div>
+        </section>
+
+        <!-- TIENDA -->
+        <section class="bc-panel" data-panel="tienda">
+            <div class="bc-panel-header">
+                <h2><i data-lucide="store"></i> Tienda</h2>
+                <p>Comprá criaturas base y hábitats nuevos con créditos.</p>
+            </div>
+
+            <div class="bc-tienda-seccion">
+                <h3><i data-lucide="bug"></i> Criaturas base</h3>
+                <div id="bcTiendaCriaturas" class="bc-tienda-grid"></div>
+            </div>
+
+            <div class="bc-tienda-seccion">
+                <h3><i data-lucide="layout-grid"></i> Hábitats</h3>
+                <div id="bcTiendaHabitats" class="bc-tienda-grid"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ===== MODAL SELECTOR DE CRIATURA ===== -->
+    <div class="bc-modal" id="bcModalSelector" hidden>
+        <div class="bc-modal-card">
+            <div class="bc-modal-header">
+                <h3>Elegir criatura</h3>
+                <button class="bc-modal-cerrar" id="bcModalSelectorCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div id="bcModalSelectorLista" class="bc-modal-lista"></div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL DETALLE CRIATURA ===== -->
+    <div class="bc-modal" id="bcModalCriatura" hidden>
+        <div class="bc-modal-card">
+            <div class="bc-modal-header">
+                <h3 id="bcModalCriaturaNombre">—</h3>
+                <button class="bc-modal-cerrar" id="bcModalCriaturaCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div id="bcModalCriaturaCuerpo" class="bc-modal-cuerpo"></div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL CONFIRMACIÓN ===== -->
+    <div class="bc-modal" id="bcModalConfirm" hidden>
+        <div class="bc-modal-card bc-modal-card-sm">
+            <div class="bc-modal-header">
+                <h3 id="bcConfirmTitulo">Confirmar</h3>
+            </div>
+            <p id="bcConfirmTexto" class="bc-confirm-texto">—</p>
+            <div class="bc-confirm-acciones">
+                <button class="bc-btn-sec" id="bcConfirmNo">Cancelar</button>
+                <button class="bc-btn-primario" id="bcConfirmSi">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="bc-toast" id="bcToast"></div>
+
+<script src="script.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>
