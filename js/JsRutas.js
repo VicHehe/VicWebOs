@@ -410,6 +410,17 @@ const RUTAS_HERRAMIENTAS = [
     espacio: 10,
     monedas: 40
 },
+{
+    id: 'bugsillycity',
+    nombre: 'BugSillyCity',
+    icono: 'egg',
+    ruta: 'herramientas/bugsillycity/index.html',
+    descripcion: 'Criá bichos exóticos, mejora sus hábitats y cosechá Monedas OS. Combiná especies para descubrir 12 criaturas únicas.',
+    categoria: 'Juegos',
+    esBase: false,
+    espacio: 8,
+    monedas: 45
+},
 
 
     // ============================================================
