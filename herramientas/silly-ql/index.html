@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Silly-QL</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/editor/editor.main.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+</head>
+<body>
+
+<div class="sq-app">
+
+    <!-- ============ VISTA: LISTA DE PROYECTOS ============ -->
+    <section class="sq-view" id="viewProjects">
+        <header class="sq-header">
+            <div class="sq-header-left">
+                <div class="sq-logo-mark"><i data-lucide="database"></i></div>
+                <div class="sq-header-info">
+                    <h1>Silly-QL</h1>
+                    <span class="sq-header-sub">Workbench SQL — inserts, procedures y más</span>
+                </div>
+            </div>
+            <div class="sq-header-right">
+                <button class="sq-btn-pri" id="btnNuevoProyecto">
+                    <i data-lucide="plus"></i>
+                    <span>Nuevo proyecto</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="sq-body-pad">
+            <div class="sq-seccion">
+                <div class="sq-seccion-header">
+                    <h2>Tus proyectos</h2>
+                    <div class="sq-buscador">
+                        <i data-lucide="search"></i>
+                        <input type="text" id="inputBuscarProyecto" placeholder="Buscar proyectos...">
+                    </div>
+                </div>
+                <div id="proyectosLista" class="sq-proyectos-lista"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ VISTA: EDITOR ============ -->
+    <section class="sq-view sq-view-editor" id="viewEditor" hidden>
+
+        <header class="sq-header sq-header-editor">
+            <div class="sq-header-left">
+                <button class="sq-icon-btn" id="btnIrProyectos" title="Volver a proyectos">
+                    <i data-lucide="arrow-left"></i>
+                </button>
+                <div class="sq-logo-mark sq-logo-mark-sm"><i data-lucide="database"></i></div>
+                <div class="sq-project-info">
+                    <input type="text" class="sq-project-nombre-input" id="inputNombreProyecto"
+                           placeholder="Sin nombre" maxlength="80" spellcheck="false">
+                    <span class="sq-project-sub" id="subProyecto">—</span>
+                </div>
+            </div>
+            <div class="sq-header-right">
+                <button class="sq-btn-sec sq-btn-save" id="btnGuardar" disabled>
+                    <i data-lucide="save"></i>
+                    <span>Guardar</span>
+                    <span class="sq-dirty-badge" id="dirtyBadge" hidden></span>
+                </button>
+                <button class="sq-btn-pri" id="btnExportar">
+                    <i data-lucide="package"></i>
+                    <span>Exportar ZIP</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="sq-editor-toolbar">
+            <button class="sq-tool-btn" id="btnGenInsert">
+                <i data-lucide="table-2"></i>
+                <span>Generador INSERT</span>
+            </button>
+            <button class="sq-tool-btn" id="btnGenProcedure">
+                <i data-lucide="braces"></i>
+                <span>Generador Procedure</span>
+            </button>
+            <button class="sq-tool-btn" id="btnGenTable">
+                <i data-lucide="columns-3"></i>
+                <span>Generador Tabla</span>
+            </button>
+            <div class="sq-toolbar-spacer"></div>
+            <div class="sq-dialecto-selector">
+                <label><i data-lucide="server"></i> Dialecto:</label>
+                <select id="selectDialecto">
+                    <option value="mysql">MySQL</option>
+                    <option value="postgres">PostgreSQL</option>
+                    <option value="sqlserver">SQL Server</option>
+                    <option value="sqlite">SQLite</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="sq-editor-body">
+            <aside class="sq-sidebar">
+                <div class="sq-sidebar-header">
+                    <span>Objetos detectados</span>
+                    <button class="sq-icon-btn sq-icon-btn-sm" id="btnReescanear" title="Reescanear">
+                        <i data-lucide="refresh-cw"></i>
+                    </button>
+                </div>
+                <div class="sq-objetos" id="objetosLista">
+                    <div class="sq-vacio-mini">
+                        <i data-lucide="sparkles"></i>
+                        <span>Escribí SQL para ver objetos</span>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="sq-main">
+                <div class="sq-monaco" id="monacoContainer"></div>
+                <div class="sq-loader-monaco" id="monacoLoader">
+                    <i data-lucide="loader-2" class="spin"></i>
+                    <span>Cargando editor…</span>
+                </div>
+                <div class="sq-status-bar">
+                    <span id="statusCursor" class="sq-status-item">Ln 1, Col 1</span>
+                    <span id="statusDialecto" class="sq-status-item">MySQL</span>
+                    <span id="statusStats" class="sq-status-item">0 líneas · 0 KB</span>
+                </div>
+            </main>
+        </div>
+    </section>
+
+</div>
+
+<!-- ============ MODAL: NUEVO PROYECTO ============ -->
+<div class="sq-modal" id="modalNuevoProyecto" hidden>
+    <div class="sq-modal-card">
+        <div class="sq-modal-header">
+            <h2><i data-lucide="plus-circle"></i> Nuevo proyecto</h2>
+            <button class="sq-modal-cerrar" id="nuevoProyectoCerrar"><i data-lucide="x"></i></button>
+        </div>
+        <div class="sq-modal-body">
+            <div class="sq-field">
+                <label>Nombre del proyecto</label>
+                <input type="text" id="inputNuevoProyectoNombre" placeholder="Ej: Mi base de datos" maxlength="80" spellcheck="false">
+            </div>
+            <div class="sq-field">
+                <label>Dialecto por defecto</label>
+                <select id="selectNuevoProyectoDialecto">
+                    <option value="mysql">MySQL</option>
+                    <option value="postgres">PostgreSQL</option>
+                    <option value="sqlserver">SQL Server</option>
+                    <option value="sqlite">SQLite</option>
+                </select>
+            </div>
+        </div>
+        <div class="sq-modal-acciones">
+            <button class="sq-btn-sec" id="nuevoProyectoCancelar">Cancelar</button>
+            <button class="sq-btn-pri" id="nuevoProyectoConfirmar">
+                <i data-lucide="check"></i>
+                <span>Crear</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============ MODAL: GENERADOR INSERT ============ -->
+<div class="sq-modal" id="modalGenInsert" hidden>
+    <div class="sq-modal-card sq-modal-card-wide">
+        <div class="sq-modal-header">
+            <h2><i data-lucide="table-2"></i> Generador de INSERT</h2>
+            <button class="sq-modal-cerrar" id="genInsertCerrar"><i data-lucide="x"></i></button>
+        </div>
+        <div class="sq-modal-body">
+            <div class="sq-gen-grid">
+                <div class="sq-field">
+                    <label>Nombre de la tabla</label>
+                    <input type="text" id="genInsertTabla" placeholder="usuarios" spellcheck="false">
+                </div>
+                <div class="sq-field">
+                    <label>Dialecto de salida</label>
+                    <select id="genInsertDialecto">
+                        <option value="mysql">MySQL</option>
+                        <option value="postgres">PostgreSQL</option>
+                        <option value="sqlserver">SQL Server</option>
+                        <option value="sqlite">SQLite</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="sq-field">
+                <label>Datos (pegá CSV, TSV o pipe-separated)</label>
+                <textarea id="genInsertDatos" rows="6" spellcheck="false" placeholder="1,Ana,ana@mail.com,25&#10;2,Beto,beto@mail.com,30&#10;3,Carla,carla@mail.com,28"></textarea>
+            </div>
+
+            <div class="sq-gen-opciones">
+                <label class="sq-check">
+                    <input type="checkbox" id="genInsertHeader">
+                    <span>Primera fila es cabecera</span>
+                </label>
+                <label class="sq-check">
+                    <input type="checkbox" id="genInsertMulti" checked>
+                    <span>INSERT multi-fila</span>
+                </label>
+                <label class="sq-check">
+                    <input type="checkbox" id="genInsertIgnoreNull" checked>
+                    <span>Vacíos → NULL</span>
+                </label>
+            </div>
+
+            <div class="sq-field">
+                <label>Columnas (opcional, separadas por coma)</label>
+                <input type="text" id="genInsertColumnas" placeholder="id, nombre, email, edad" spellcheck="false">
+            </div>
+
+            <div class="sq-field">
+                <label>Vista previa</label>
+                <pre class="sq-preview" id="genInsertPreview">— Completá los campos para ver la vista previa —</pre>
+            </div>
+        </div>
+        <div class="sq-modal-acciones">
+            <button class="sq-btn-sec" id="genInsertCancelar">Cancelar</button>
+            <button class="sq-btn-sec" id="genInsertCopiar">
+                <i data-lucide="copy"></i> Copiar
+            </button>
+            <button class="sq-btn-pri" id="genInsertInsertar">
+                <i data-lucide="arrow-down-to-line"></i>
+                <span>Insertar en editor</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============ MODAL: GENERADOR PROCEDURE ============ -->
+<div class="sq-modal" id="modalGenProcedure" hidden>
+    <div class="sq-modal-card sq-modal-card-wide">
+        <div class="sq-modal-header">
+            <h2><i data-lucide="braces"></i> Generador de Procedure</h2>
+            <button class="sq-modal-cerrar" id="genProcCerrar"><i data-lucide="x"></i></button>
+        </div>
+        <div class="sq-modal-body">
+            <div class="sq-gen-grid">
+                <div class="sq-field">
+                    <label>Nombre del procedure</label>
+                    <input type="text" id="genProcNombre" placeholder="sp_obtener_usuarios" spellcheck="false">
+                </div>
+                <div class="sq-field">
+                    <label>Dialecto</label>
+                    <select id="genProcDialecto">
+                        <option value="mysql">MySQL</option>
+                        <option value="postgres">PostgreSQL</option>
+                        <option value="sqlserver">SQL Server</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="sq-field">
+                <label>Parámetros</label>
+                <div class="sq-params-lista" id="genProcParams"></div>
+                <button class="sq-btn-add" id="genProcAddParam">
+                    <i data-lucide="plus"></i> Añadir parámetro
+                </button>
+            </div>
+
+            <div class="sq-field">
+                <label>Cuerpo del procedure (SQL)</label>
+                <textarea id="genProcCuerpo" rows="6" spellcheck="false" placeholder="SELECT * FROM usuarios WHERE activo = 1;"></textarea>
+            </div>
+
+            <div class="sq-field">
+                <label>Vista previa</label>
+                <pre class="sq-preview" id="genProcPreview">— Completá los campos para ver la vista previa —</pre>
+            </div>
+        </div>
+        <div class="sq-modal-acciones">
+            <button class="sq-btn-sec" id="genProcCancelar">Cancelar</button>
+            <button class="sq-btn-sec" id="genProcCopiar">
+                <i data-lucide="copy"></i> Copiar
+            </button>
+            <button class="sq-btn-pri" id="genProcInsertar">
+                <i data-lucide="arrow-down-to-line"></i>
+                <span>Insertar en editor</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============ MODAL: GENERADOR TABLA ============ -->
+<div class="sq-modal" id="modalGenTable" hidden>
+    <div class="sq-modal-card sq-modal-card-wide">
+        <div class="sq-modal-header">
+            <h2><i data-lucide="columns-3"></i> Generador de Tabla</h2>
+            <button class="sq-modal-cerrar" id="genTableCerrar"><i data-lucide="x"></i></button>
+        </div>
+        <div class="sq-modal-body">
+            <div class="sq-gen-grid">
+                <div class="sq-field">
+                    <label>Nombre de la tabla</label>
+                    <input type="text" id="genTableNombre" placeholder="usuarios" spellcheck="false">
+                </div>
+                <div class="sq-field">
+                    <label>Dialecto</label>
+                    <select id="genTableDialecto">
+                        <option value="mysql">MySQL</option>
+                        <option value="postgres">PostgreSQL</option>
+                        <option value="sqlserver">SQL Server</option>
+                        <option value="sqlite">SQLite</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="sq-field">
+                <label>Columnas</label>
+                <div class="sq-columnas-lista" id="genTableColumnas"></div>
+                <button class="sq-btn-add" id="genTableAddCol">
+                    <i data-lucide="plus"></i> Añadir columna
+                </button>
+            </div>
+
+            <div class="sq-gen-opciones">
+                <label class="sq-check">
+                    <input type="checkbox" id="genTableIfNotExists" checked>
+                    <span>IF NOT EXISTS</span>
+                </label>
+                <label class="sq-check">
+                    <input type="checkbox" id="genTableDrop">
+                    <span>Incluir DROP TABLE antes</span>
+                </label>
+            </div>
+
+            <div class="sq-field">
+                <label>Vista previa</label>
+                <pre class="sq-preview" id="genTablePreview">— Completá los campos para ver la vista previa —</pre>
+            </div>
+        </div>
+        <div class="sq-modal-acciones">
+            <button class="sq-btn-sec" id="genTableCancelar">Cancelar</button>
+            <button class="sq-btn-sec" id="genTableCopiar">
+                <i data-lucide="copy"></i> Copiar
+            </button>
+            <button class="sq-btn-pri" id="genTableInsertar">
+                <i data-lucide="arrow-down-to-line"></i>
+                <span>Insertar en editor</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============ MODAL: CONFIRMAR ELIMINAR PROYECTO ============ -->
+<div class="sq-modal" id="modalEliminar" hidden>
+    <div class="sq-modal-card">
+        <div class="sq-modal-header">
+            <h2><i data-lucide="trash-2"></i> Eliminar proyecto</h2>
+            <button class="sq-modal-cerrar" id="eliminarCerrar"><i data-lucide="x"></i></button>
+        </div>
+        <div class="sq-modal-body">
+            <p class="sq-texto-modal" id="eliminarTexto">¿Eliminar este proyecto?</p>
+        </div>
+        <div class="sq-modal-acciones">
+            <button class="sq-btn-sec" id="eliminarCancelar">Cancelar</button>
+            <button class="sq-btn-danger" id="eliminarConfirmar">
+                <i data-lucide="trash-2"></i>
+                <span>Eliminar</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="sq-toast" id="sqToast"></div>
+
+<!-- ============ MONACO LOADER (AMD via CDN) ============ -->
+<script>
+  window.MonacoEnvironment = {
+    getWorkerUrl: function () {
+      return `data:text/javascript;charset=utf-8,${encodeURIComponent(`
+        self.MonacoEnvironment = {
+          baseUrl: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/'
+        };
+        importScripts('https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/base/worker/workerMain.js');
+      `)}`;
+    }
+  };
+
+  window.__monacoReady = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js';
+    s.onload = () => {
+      try {
+        require.config({
+          paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' }
+        });
+        require(['vs/editor/editor.main'], () => resolve(window.monaco));
+      } catch (e) { reject(e); }
+    };
+    s.onerror = () => reject(new Error('No se pudo cargar Monaco.'));
+    document.head.appendChild(s);
+  });
+</script>
+
+<script src="script.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>
