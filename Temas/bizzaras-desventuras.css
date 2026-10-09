@@ -72,8 +72,8 @@
     /* Destello de cuatro puntas */
     --theme-sparkle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M20 2 L24 16 L38 20 L24 24 L20 38 L16 24 L2 20 L16 16 Z' fill='%23FACC15'/%3E%3C/svg%3E");
 
-    /* Líneas de velocidad */
-    --theme-speed: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath d='M0 40 L200 34 M0 90 L200 82 M0 150 L200 144 M0 190 L200 186' stroke='%2322D3EE' stroke-opacity='.20' stroke-width='2'/%3E%3C/svg%3E");
+    /* Líneas de velocidad (tile continuo: cada trazo empieza y termina a la misma altura) */
+    --theme-speed: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' preserveAspectRatio='none'%3E%3Cg fill='none' stroke='%2322D3EE' stroke-opacity='.20' stroke-width='2'%3E%3Cpath d='M0 40 C66 34 134 46 200 40'/%3E%3Cpath d='M0 90 C66 84 134 96 200 90'/%3E%3Cpath d='M0 150 C66 144 134 156 200 150'/%3E%3Cpath d='M0 190 C66 186 134 194 200 190'/%3E%3C/g%3E%3C/svg%3E");
 
     --r-sm: 3px;
     --r-md: 5px;
