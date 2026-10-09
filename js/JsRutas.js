@@ -355,6 +355,17 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 4,
         monedas: 0
     },
+    {
+    id: 'rps',
+    nombre: 'Piedra Papel Tijera',
+    icono: 'scissors',
+    ruta: 'herramientas/rps/index.html',
+    descripcion: 'El clásico duelo de manos. Desafiá a un amigo por WebRTC (mejor de 3) o jugá 6 rondas contra la CPU. +2 monedas contra humanos, +4 contra la máquina.',
+    categoria: 'Juegos',
+    esBase: false,
+    espacio: 2,
+    monedas: 0
+},
         {
     id: 'caloluty',
     nombre: 'Caloluty',
