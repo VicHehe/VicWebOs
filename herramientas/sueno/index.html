@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Sueño</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="su-app">
+
+        <!-- HEADER -->
+        <header class="su-header">
+            <div class="su-logo">
+                <div class="su-logo-mark"><i data-lucide="moon-star"></i></div>
+                <div class="su-logo-text">
+                    <h1>Sueño</h1>
+                    <p id="suUserBadge">—</p>
+                </div>
+            </div>
+            <div class="su-header-actions">
+                <button class="su-btn-icono" id="btnConfig" title="Objetivo de sueño">
+                    <i data-lucide="settings-2"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- OBJETIVO -->
+        <div class="su-objetivo" id="suObjetivo">
+            <div class="su-objetivo-icono">
+                <i data-lucide="target"></i>
+            </div>
+            <div class="su-objetivo-info">
+                <div class="su-objetivo-label">Objetivo por noche</div>
+                <div class="su-objetivo-valor">
+                    <span id="suObjetivoHoras">8</span> h
+                </div>
+            </div>
+            <button class="su-objetivo-edit" id="btnEditarObjetivo" title="Editar objetivo">
+                <i data-lucide="pencil"></i>
+            </button>
+        </div>
+
+        <!-- FORMULARIO NUEVO REGISTRO -->
+        <section class="su-card su-card-form">
+            <div class="su-card-header">
+                <h2>
+                    <i data-lucide="plus-circle"></i>
+                    <span>Registrar noche</span>
+                </h2>
+            </div>
+
+            <div class="su-form">
+
+                <!-- Fecha de despertar -->
+                <div class="su-field">
+                    <label>Fecha de despertar</label>
+                    <div class="su-fecha-par">
+                        <select id="suFechaDia"></select>
+                        <select id="suFechaMes"></select>
+                        <select id="suFechaAnio"></select>
+                    </div>
+                </div>
+
+                <!-- Hora de dormir -->
+                <div class="su-field">
+                    <label><i data-lucide="moon"></i> Hora de dormir</label>
+                    <div class="su-hora-par">
+                        <select id="suDormirH"></select>
+                        <span class="su-hora-sep">:</span>
+                        <select id="suDormirM"></select>
+                    </div>
+                </div>
+
+                <!-- Hora de despertar -->
+                <div class="su-field">
+                    <label><i data-lucide="sun"></i> Hora de despertar</label>
+                    <div class="su-hora-par">
+                        <select id="suDespertarH"></select>
+                        <span class="su-hora-sep">:</span>
+                        <select id="suDespertarM"></select>
+                    </div>
+                </div>
+
+                <!-- Calidad -->
+                <div class="su-field">
+                    <label>Calidad del sueño (opcional)</label>
+                    <div class="su-calidad" id="suCalidad">
+                        <button type="button" class="su-cal-btn" data-val="1">1</button>
+                        <button type="button" class="su-cal-btn" data-val="2">2</button>
+                        <button type="button" class="su-cal-btn" data-val="3">3</button>
+                        <button type="button" class="su-cal-btn" data-val="4">4</button>
+                        <button type="button" class="su-cal-btn" data-val="5">5</button>
+                    </div>
+                    <p class="su-field-help">1 = muy mala · 5 = excelente</p>
+                </div>
+
+                <!-- Nota -->
+                <div class="su-field">
+                    <label>Nota (opcional)</label>
+                    <textarea id="suNota" rows="2" maxlength="200"
+                              placeholder="Ej: me desperté varias veces, café después de las 6pm..."></textarea>
+                </div>
+
+                <div id="suFormMsg" class="su-form-msg"></div>
+
+                <button class="su-btn-primario" id="btnGuardar">
+                    <i data-lucide="check"></i>
+                    <span>Guardar registro</span>
+                </button>
+
+            </div>
+        </section>
+
+        <!-- ANÁLISIS -->
+        <section class="su-card su-card-analisis" id="suAnalisis">
+
+            <!-- Estado vacío -->
+            <div class="su-vacio" id="suVacio" hidden>
+                <div class="su-vacio-icon">
+                    <i data-lucide="moon-star"></i>
+                </div>
+                <h3>Aún no hay registros</h3>
+                <p>Registrá tu primera noche y empezá a ver tus patrones de sueño.</p>
+            </div>
+
+            <!-- Contenido de análisis -->
+            <div id="suAnalisisContenido" hidden>
+
+                <!-- Bloque "cuánto te falta" -->
+                <div class="su-falta" id="suFalta">
+                    <div class="su-falta-icono" id="suFaltaIcono">
+                        <i data-lucide="info"></i>
+                    </div>
+                    <div class="su-falta-cuerpo">
+                        <div class="su-falta-titulo" id="suFaltaTitulo">—</div>
+                        <div class="su-falta-desc" id="suFaltaDesc">—</div>
+                    </div>
+                </div>
+
+                <!-- KPIs -->
+                <div class="su-kpis">
+                    <div class="su-kpi">
+                        <div class="su-kpi-label">Promedio</div>
+                        <div class="su-kpi-valor" id="suKpiPromedio">—</div>
+                        <div class="su-kpi-sub">horas por noche</div>
+                    </div>
+                    <div class="su-kpi">
+                        <div class="su-kpi-label">Últimas 7</div>
+                        <div class="su-kpi-valor" id="suKpiSemana">—</div>
+                        <div class="su-kpi-sub" id="suKpiSemanaSub">—</div>
+                    </div>
+                    <div class="su-kpi">
+                        <div class="su-kpi-label">Racha</div>
+                        <div class="su-kpi-valor" id="suKpiRacha">—</div>
+                        <div class="su-kpi-sub">noches cumpliendo</div>
+                    </div>
+                    <div class="su-kpi">
+                        <div class="su-kpi-label">Registros</div>
+                        <div class="su-kpi-valor" id="suKpiTotal">—</div>
+                        <div class="su-kpi-sub">noches guardadas</div>
+                    </div>
+                </div>
+
+                <!-- Gráfico últimas 14 noches -->
+                <div class="su-grafico-card">
+                    <div class="su-grafico-header">
+                        <h3><i data-lucide="bar-chart-3"></i> Últimas 14 noches</h3>
+                        <span class="su-grafico-leyenda">
+                            <span class="su-leyenda-linea"></span>
+                            objetivo
+                        </span>
+                    </div>
+                    <div class="su-grafico" id="suGrafico"></div>
+                </div>
+
+                <!-- Patrones deducibles -->
+                <div class="su-patrones">
+                    <div class="su-patron-grupo">
+                        <h3><i data-lucide="trending-up"></i> Mejores y peores</h3>
+                        <div class="su-patron-lista" id="suPatronDias"></div>
+                    </div>
+
+                    <div class="su-patron-grupo">
+                        <h3><i data-lucide="clock"></i> Horarios</h3>
+                        <div class="su-patron-lista" id="suPatronHorarios"></div>
+                    </div>
+
+                    <div class="su-patron-grupo">
+                        <h3><i data-lucide="activity"></i> Consistencia</h3>
+                        <div class="su-patron-lista" id="suPatronConsistencia"></div>
+                    </div>
+
+                    <div class="su-patron-grupo" id="suPatronCalidadWrap">
+                        <h3><i data-lucide="sparkles"></i> Calidad</h3>
+                        <div class="su-patron-lista" id="suPatronCalidad"></div>
+                    </div>
+                </div>
+
+                <!-- Historial -->
+                <div class="su-historial">
+                    <h3><i data-lucide="history"></i> Historial</h3>
+                    <div class="su-historial-lista" id="suHistorial"></div>
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+
+    <!-- MODAL OBJETIVO -->
+    <div class="su-modal" id="suModalObjetivo" hidden>
+        <div class="su-modal-card">
+            <div class="su-modal-header">
+                <h2><i data-lucide="target"></i> <span>Objetivo de sueño</span></h2>
+                <button class="su-modal-cerrar" id="suObjetivoCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="su-modal-body">
+                <p class="su-modal-desc">
+                    Elegí cuántas horas querés dormir por noche.
+                    La app usará este número para decirte cuánto te falta.
+                </p>
+                <div class="su-slider">
+                    <label>Horas objetivo <span id="suObjetivoSliderValor">8</span></label>
+                    <input type="range" id="suObjetivoSlider" min="4" max="12" step="0.5" value="8">
+                </div>
+            </div>
+            <div class="su-modal-actions">
+                <button class="su-btn-sec" id="suObjetivoCancelar">Cancelar</button>
+                <button class="su-btn-primario" id="suObjetivoGuardar">
+                    <i data-lucide="check"></i>
+                    <span>Guardar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CONFIRMAR ELIMINAR -->
+    <div class="su-modal" id="suModalEliminar" hidden>
+        <div class="su-modal-card">
+            <div class="su-modal-header">
+                <h2><i data-lucide="trash-2"></i> <span>Eliminar registro</span></h2>
+                <button class="su-modal-cerrar" id="suEliminarCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="su-modal-body">
+                <p class="su-modal-desc" id="suEliminarTexto">¿Eliminar este registro?</p>
+            </div>
+            <div class="su-modal-actions">
+                <button class="su-btn-sec" id="suEliminarCancelar">Cancelar</button>
+                <button class="su-btn-peligro" id="suEliminarConfirmar">
+                    <i data-lucide="trash-2"></i>
+                    <span>Eliminar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="su-toast" id="suToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
