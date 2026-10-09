@@ -11,7 +11,8 @@
 //    6  → app con contenido real (grid, estado, modales)
 //    8  → app compleja (polling, editor, picker, multi-vista)
 //    10 → app muy compleja (WebRTC, MediaRecorder, multi-vista)
-//
+//    12 → app muy compleja pero gratuitas
+
 //  ESCALA DE PRECIO (0 a 250):
 //    0     → base del SO (un SO lo trae por defecto)
 //    0     → juegos gratis (excepción: son la base económica)
