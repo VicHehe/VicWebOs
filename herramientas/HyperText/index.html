@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>HyperText</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+
+<div class="ht-app">
+
+    <header class="ht-header">
+        <div class="ht-header-left">
+            <div class="ht-logo-mark"><i data-lucide="file-archive"></i></div>
+            <div class="ht-header-info">
+                <h1>HyperText</h1>
+                <span class="ht-header-sub">Convertí proyectos en archivos para IA</span>
+            </div>
+        </div>
+        <div class="ht-header-right">
+            <div class="ht-user-badge" id="htUserBadge">—</div>
+        </div>
+    </header>
+
+    <div class="ht-body-pad">
+        <div class="ht-container">
+
+            <!-- Config -->
+            <div class="ht-config-bar">
+                <label class="ht-config-label">
+                    <i data-lucide="scissors"></i>
+                    <span>División inteligente</span>
+                </label>
+                <select id="splitMode" class="ht-select">
+                    <option value="1">Sin dividir (1 archivo .txt)</option>
+                    <option value="5">Dividir en 5 partes (.zip)</option>
+                    <option value="10">Dividir en 10 partes (.zip)</option>
+                    <option value="20">Dividir en 20 partes (.zip)</option>
+                </select>
+            </div>
+
+            <!-- Drop zone -->
+            <div class="ht-drop-zone" id="dropZone">
+                <div class="ht-icon-wrap">
+                    <i data-lucide="archive"></i>
+                </div>
+                <h3 id="dropTitle">Arrastrá tu archivo .ZIP aquí</h3>
+                <p id="dropSubtitle">o hacé clic para seleccionarlo</p>
+                <input type="file" class="ht-file-input" id="fileInput" accept=".zip">
+            </div>
+
+            <!-- Panel de carpetas -->
+            <div class="ht-folder-panel" id="folderPanel">
+                <div class="ht-folder-panel-header">
+                    <h3>
+                        <i data-lucide="folder-tree"></i>
+                        <span>¿Qué carpetas querés incluir?</span>
+                    </h3>
+                    <div class="ht-folder-actions">
+                        <button class="ht-btn-small" id="selectAllBtn">Seleccionar todo</button>
+                        <button class="ht-btn-small" id="deselectAllBtn">Deseleccionar todo</button>
+                    </div>
+                </div>
+                <div class="ht-folder-list" id="folderList"></div>
+                <button class="ht-btn-primary" id="confirmSelectionBtn">
+                    <i data-lucide="zap"></i>
+                    <span>Procesar selección</span>
+                </button>
+            </div>
+
+            <!-- Terminal de log -->
+            <div class="ht-log-terminal" id="logTerminal"></div>
+
+            <!-- Descarga -->
+            <button class="ht-download-btn" id="downloadBtn">
+                <i data-lucide="download"></i>
+                <span id="downloadText">Descargar resultado</span>
+            </button>
+
+        </div>
+    </div>
+
+</div>
+
+<div class="ht-toast" id="htToast"></div>
+
+<script src="script.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>
