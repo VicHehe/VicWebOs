@@ -1,6 +1,8 @@
 // ============================================================
-//  BugSillyCity v3 — Isométrico + tema dinámico
-//  FIX: los colores del canvas ahora se leen del tema del padre.
+//  BugSillyCity v4 — Isométrico + tema dinámico
+//  FIX 1: NaN en créditos → normalización de estado + defensivo
+//  FIX 2: no se podía añadir al nido → event delegation + skip
+//         criaturas con tipo inválido + try/catch
 // ============================================================
 
 'use strict';
@@ -20,12 +22,8 @@ const TILE_W = 110;
 const TILE_H = 55;
 
 const HABITAT_POSICIONES = [
-    { col: 0, fila: 0 },
-    { col: 1, fila: 0 },
-    { col: 2, fila: 0 },
-    { col: 0, fila: 1 },
-    { col: 1, fila: 1 },
-    { col: 2, fila: 1 }
+    { col: 0, fila: 0 }, { col: 1, fila: 0 }, { col: 2, fila: 0 },
+    { col: 0, fila: 1 }, { col: 1, fila: 1 }, { col: 2, fila: 1 }
 ];
 
 function layoutSlots(nivel) {
@@ -113,11 +111,9 @@ const HABITAT_CONFIG = {
     nombres: { 1:'Pequeño', 2:'Mediano', 3:'Grande', 4:'Colosal' }
 };
 
-// ==== API OS ====
 const API = () => { try { return (window.parent && window.parent.__vicwebos) || null; } catch(e) { return null; } };
 const BD  = () => { try { return (window.parent && window.parent.ConfigBD) || null; } catch(e) { return null; } };
 
-// ==== ESTADO ====
 let usuarioActual = null;
 let estado = null;
 let inicializado = false;
@@ -125,14 +121,12 @@ let toastTimer = null;
 let rafId = null;
 let ultimoTick = 0;
 
-// ==== CANVAS ====
 let canvas, ctx, wrapEl;
 let dpr = 1, anchoCSS = 0, altoCSS = 0;
 let originX = 0, originY = 0;
 let criaturasDibujadas = [];
 let habitatSeleccionado = null;
 
-// ── FIX: colores del canvas se leen del tema (no hardcodeados) ──
 const colores = {
     cesped:      '#F5F5F8',
     cespedAlt:   '#FAFAFB',
@@ -156,28 +150,20 @@ function aplicarTemaDelPadre() {
         });
     } catch(e) {}
 }
-
-// ── FIX: leer variables del tema para el canvas ──
 function leerColoresDelTema() {
     const cs = (name, fallback) => {
-        try {
-            const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-            return v || fallback;
-        } catch(e) { return fallback; }
+        try { return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback; }
+        catch(e) { return fallback; }
     };
     colores.cesped      = cs('--bg-alt',   '#F5F5F8');
     colores.cespedAlt   = cs('--gray-50',  '#FAFAFB');
     colores.cespedBorde = cs('--border',   '#E8E8EE');
     colores.texto       = cs('--text',     '#18181B');
 }
-
 window.addEventListener('message', (e) => {
     if (e.data && e.data.type === MENSAJE_TEMA) {
         aplicarTemaDelPadre();
-        setTimeout(() => {
-            leerColoresDelTema();
-            dibujar();
-        }, 60);
+        setTimeout(() => { leerColoresDelTema(); dibujar(); }, 60);
     }
 });
 
@@ -207,6 +193,7 @@ function formatearTiempo(ms) {
     return d + 'd ' + hh + 'h';
 }
 function formatearNumero(n) {
+    if (typeof n !== 'number' || isNaN(n)) return '0';
     return Number(n).toLocaleString('es-CL', { maximumFractionDigits: 0 });
 }
 function hoyLocal() {
@@ -227,11 +214,11 @@ function aclarar(hex, factor) {
 }
 
 // ============================================================
-//  ESTADO INICIAL / CARGA
+//  ESTADO INICIAL / CARGA / NORMALIZACIÓN
 // ============================================================
 function crearEstadoInicial() {
     return {
-        version: 2,
+        version: 3,
         creditos: CREDITOS_INICIALES,
         criaturas: [],
         habitats: [],
@@ -244,22 +231,100 @@ function crearEstadoInicial() {
     };
 }
 
+// ── FIX: normalizar criaturas al cargar (evita NaN) ──
+function normalizarCriatura(c) {
+    if (!c || typeof c !== 'object') return null;
+    if (typeof c.id !== 'string' || !c.id) return null;
+    if (typeof c.tipo !== 'string' || !CRIATURAS[c.tipo]) return null;
+    // ultimaCosecha: si no es número válido, usar ahora (así acumula desde 0)
+    const uc = (typeof c.ultimaCosecha === 'number' && isFinite(c.ultimaCosecha) && c.ultimaCosecha > 0)
+        ? c.ultimaCosecha
+        : Date.now();
+    return {
+        id: c.id,
+        tipo: c.tipo,
+        habitatId: typeof c.habitatId === 'string' ? c.habitatId : null,
+        ultimaCosecha: uc
+    };
+}
+
+function normalizarEstado() {
+    if (!estado) return;
+    // Criaturas válidas
+    estado.criaturas = (Array.isArray(estado.criaturas) ? estado.criaturas : [])
+        .map(normalizarCriatura)
+        .filter(Boolean);
+
+    // Hábitats: asegurar estructura + posIndex único + slots consistentes
+    const usadosPos = new Set();
+    estado.habitats = (Array.isArray(estado.habitats) ? estado.habitats : [])
+        .map((h, i) => {
+            if (!h || typeof h !== 'object') return null;
+            if (typeof h.id !== 'string' || !h.id) return null;
+            if (typeof h.nivel !== 'number' || h.nivel < 1 || h.nivel > 4) h.nivel = 1;
+            if (!Array.isArray(h.slots)) h.slots = [];
+            // posIndex único
+            let pos = (typeof h.posIndex === 'number' && h.posIndex >= 0 && h.posIndex < HABITAT_POSICIONES.length)
+                ? h.posIndex : i % HABITAT_POSICIONES.length;
+            while (usadosPos.has(pos)) pos = (pos + 1) % HABITAT_POSICIONES.length;
+            usadosPos.add(pos);
+            h.posIndex = pos;
+            // slots solo con ids existentes
+            const idsValidos = new Set(estado.criaturas.map(c => c.id));
+            h.slots = h.slots.filter(id => idsValidos.has(id));
+            // reasignar criaturas sin habitat
+            return h;
+        })
+        .filter(Boolean);
+
+    // Criaturas sin habitat válido → asignar al primero con espacio
+    estado.criaturas.forEach(c => {
+        const habContenedor = estado.habitats.find(h => h.slots.includes(c.id));
+        if (!habContenedor) {
+            const hab = estado.habitats.find(h => h.slots.length < HABITAT_CONFIG.slotsPorNivel[h.nivel]);
+            if (hab) {
+                hab.slots.push(c.id);
+                c.habitatId = hab.id;
+            } else {
+                c.habitatId = null;
+            }
+        } else {
+            c.habitatId = habContenedor.id;
+        }
+    });
+
+    // Huevos válidos
+    estado.huevos = (Array.isArray(estado.huevos) ? estado.huevos : [])
+        .filter(h => h && typeof h.id === 'string' && typeof h.tipo === 'string'
+            && CRIATURAS[h.tipo] && typeof h.finMs === 'number');
+
+    // Nido válido
+    if (estado.nido) {
+        const n = estado.nido;
+        const ok = n && typeof n.finMs === 'number' && typeof n.resultado === 'string'
+            && CRIATURAS[n.resultado]
+            && estado.criaturas.some(c => c.id === n.padre1)
+            && estado.criaturas.some(c => c.id === n.padre2);
+        if (!ok) estado.nido = null;
+    }
+
+    // Números sanos
+    if (typeof estado.creditos !== 'number' || !isFinite(estado.creditos)) estado.creditos = CREDITOS_INICIALES;
+    if (typeof estado.osCosechadasHoy !== 'number' || !isFinite(estado.osCosechadasHoy)) estado.osCosechadasHoy = 0;
+    if (!estado.ultimaResetFecha) estado.ultimaResetFecha = hoyLocal();
+    if (!Array.isArray(estado.descubiertas)) estado.descubiertas = [];
+    // descubiertas solo válidas
+    estado.descubiertas = estado.descubiertas.filter(t => CRIATURAS[t]);
+}
+
 async function cargarEstado() {
     const bd = BD(), ruta = rutaArchivo();
-    if (!bd || !ruta) return false;
+    if (!bd || !ruta) { estado = crearEstadoInicial(); return false; }
     try {
         const data = await bd.leerArchivo(ruta);
         if (data && typeof data === 'object' && Array.isArray(data.criaturas)) {
             estado = data;
-            if (!Array.isArray(estado.habitats)) estado.habitats = [];
-            if (!Array.isArray(estado.huevos)) estado.huevos = [];
-            if (typeof estado.creditos !== 'number') estado.creditos = CREDITOS_INICIALES;
-            if (typeof estado.osCosechadasHoy !== 'number') estado.osCosechadasHoy = 0;
-            if (!Array.isArray(estado.descubiertas)) estado.descubiertas = [];
-            if (!estado.ultimaResetFecha) estado.ultimaResetFecha = hoyLocal();
-            estado.habitats.forEach((h, i) => {
-                if (typeof h.posIndex !== 'number') h.posIndex = i;
-            });
+            normalizarEstado();
             return true;
         }
     } catch(e) { console.warn('[BugSillyCity] Error cargando:', e); }
@@ -290,13 +355,19 @@ function chequearResetDiario() {
 // ============================================================
 function criaturaPorId(id) { return estado.criaturas.find(c => c.id === id) || null; }
 
+// ── FIX: calcularAcumulado defensivo (nunca devuelve NaN) ──
 function calcularAcumulado(criatura, ahora) {
     const def = CRIATURAS[criatura.tipo];
     if (!def) return { os:0, creditos:0 };
-    const horas = (ahora - criatura.ultimaCosecha) / 3600000;
+    const uc = (typeof criatura.ultimaCosecha === 'number' && isFinite(criatura.ultimaCosecha))
+        ? criatura.ultimaCosecha : ahora;
+    let horas = (ahora - uc) / 3600000;
+    if (!isFinite(horas) || horas < 0) horas = 0;
+    const os = Math.min(horas, MAX_ACCUMULATION_HOURS) * (def.osRate || 0);
+    const cred = horas * (def.creditosRate || 0);
     return {
-        os: Math.min(horas, MAX_ACCUMULATION_HOURS) * def.osRate,
-        creditos: horas * def.creditosRate
+        os: isFinite(os) ? os : 0,
+        creditos: isFinite(cred) ? cred : 0
     };
 }
 function criaturaLista(c) { return calcularAcumulado(c, Date.now()).os >= 0.5; }
@@ -354,7 +425,7 @@ function iniciarCria() {
     if (!s1 || !s2) { $('bcNidoMensaje').textContent = 'Elegí dos criaturas.'; $('bcNidoMensaje').className = 'bc-status error'; return; }
     if (s1 === s2) { $('bcNidoMensaje').textContent = 'No podés criar una criatura consigo misma.'; $('bcNidoMensaje').className = 'bc-status error'; return; }
     const c1 = criaturaPorId(s1), c2 = criaturaPorId(s2);
-    if (!c1 || !c2) return;
+    if (!c1 || !c2) { $('bcNidoMensaje').textContent = 'Criatura no encontrada.'; $('bcNidoMensaje').className = 'bc-status error'; return; }
     const resultId = combinacionValida(c1.tipo, c2.tipo);
     if (!resultId) { $('bcNidoMensaje').textContent = 'Estas criaturas no son compatibles.'; $('bcNidoMensaje').className = 'bc-status error'; return; }
     const def = CRIATURAS[resultId];
@@ -367,6 +438,7 @@ function iniciarCria() {
 function recolectarHuevo() {
     if (!estado.nido) return;
     const def = CRIATURAS[estado.nido.resultado];
+    if (!def) { estado.nido = null; guardarEstado(); renderNido(); return; }
     estado.huevos.push({
         id: 'egg_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,6),
         tipo: estado.nido.resultado,
@@ -390,10 +462,7 @@ function eclosionarHuevo(eggId) {
     const huevo = estado.huevos[idx];
     if (Date.now() < huevo.finMs) { toast('Aún no está listo', 'info'); return; }
     if (estado.criaturas.length >= MAX_CRIATURAS) { toast('No tenés espacio para más criaturas', 'error'); return; }
-    const hab = estado.habitats.find(h => {
-        const max = HABITAT_CONFIG.slotsPorNivel[h.nivel];
-        return h.slots.length < max;
-    });
+    const hab = estado.habitats.find(h => h.slots.length < HABITAT_CONFIG.slotsPorNivel[h.nivel]);
     if (!hab) { toast('No hay hábitats con espacio. Comprá o mejorá uno.', 'error'); return; }
 
     const nueva = {
@@ -419,15 +488,11 @@ function comprarHabitat() {
     if (estado.creditos < costo) { toast('Te faltan créditos', 'error'); return; }
     const usados = new Set(estado.habitats.map(h => h.posIndex));
     let posIndex = 0;
-    for (let i = 0; i < HABITAT_POSICIONES.length; i++) {
-        if (!usados.has(i)) { posIndex = i; break; }
-    }
+    for (let i = 0; i < HABITAT_POSICIONES.length; i++) { if (!usados.has(i)) { posIndex = i; break; } }
     estado.creditos -= costo;
     estado.habitats.push({
         id: 'hab_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,6),
-        nivel: 1,
-        slots: [],
-        posIndex
+        nivel: 1, slots: [], posIndex
     });
     guardarEstado();
     actualizarUI();
@@ -461,9 +526,7 @@ function comprarCriaturaBase(tipoId) {
     estado.creditos -= def.precio;
     const nueva = {
         id: 'c_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,6),
-        tipo: tipoId,
-        habitatId: hab.id,
-        ultimaCosecha: Date.now()
+        tipo: tipoId, habitatId: hab.id, ultimaCosecha: Date.now()
     };
     estado.criaturas.push(nueva);
     hab.slots.push(nueva.id);
@@ -475,13 +538,12 @@ function comprarCriaturaBase(tipoId) {
 }
 
 // ============================================================
-//  CANVAS — ISOMÉTRICO (tema dinámico)
+//  CANVAS — ISOMÉTRICO
 // ============================================================
 function ajustarCanvas() {
     if (!canvas || !wrapEl) return;
     const rect = wrapEl.getBoundingClientRect();
-    anchoCSS = rect.width;
-    altoCSS = rect.height;
+    anchoCSS = rect.width; altoCSS = rect.height;
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = Math.round(anchoCSS * dpr);
     canvas.height = Math.round(altoCSS * dpr);
@@ -491,7 +553,6 @@ function ajustarCanvas() {
     calcularOrigen();
     dibujar();
 }
-
 function calcularOrigen() {
     let sumX = 0, sumY = 0;
     HABITAT_POSICIONES.forEach(p => {
@@ -503,14 +564,9 @@ function calcularOrigen() {
     originX = anchoCSS / 2 - cx;
     originY = altoCSS / 2 - cy + 20;
 }
-
 function proyCentroCelda(col, fila) {
-    return {
-        x: originX + (col - fila) * (TILE_W / 2),
-        y: originY + (col + fila) * (TILE_H / 2)
-    };
+    return { x: originX + (col - fila) * (TILE_W / 2), y: originY + (col + fila) * (TILE_H / 2) };
 }
-
 function screenToCell(px, py) {
     const rx = px - originX, ry = py - originY;
     const hw = TILE_W / 2, hh = TILE_H / 2;
@@ -523,9 +579,7 @@ function dibujar() {
     if (!ctx || !canvas || !estado) return;
     ctx.clearRect(0, 0, anchoCSS, altoCSS);
     criaturasDibujadas = [];
-
     HABITAT_POSICIONES.forEach(pos => dibujarSuelo(pos.col, pos.fila));
-
     const habsSorted = estado.habitats.slice().sort((a, b) => {
         const pa = HABITAT_POSICIONES[a.posIndex] || HABITAT_POSICIONES[0];
         const pb = HABITAT_POSICIONES[b.posIndex] || HABITAT_POSICIONES[0];
@@ -536,21 +590,13 @@ function dibujar() {
     habsSorted.forEach(hab => dibujarHabitat(hab));
 }
 
-// ── FIX: tiles del suelo ahora usan colores del tema ──
 function dibujarSuelo(col, fila) {
     const { x, y } = proyCentroCelda(col, fila);
     const hw = TILE_W / 2, hh = TILE_H / 2;
-
     ctx.beginPath();
-    ctx.moveTo(x, y - hh);
-    ctx.lineTo(x + hw, y);
-    ctx.lineTo(x, y + hh);
-    ctx.lineTo(x - hw, y);
+    ctx.moveTo(x, y - hh); ctx.lineTo(x + hw, y); ctx.lineTo(x, y + hh); ctx.lineTo(x - hw, y);
     ctx.closePath();
-
-    // Alternar entre dos tonos del tema
-    const alt = ((col + fila) % 2 === 0);
-    ctx.fillStyle = alt ? colores.cesped : colores.cespedAlt;
+    ctx.fillStyle = ((col + fila) % 2 === 0) ? colores.cesped : colores.cespedAlt;
     ctx.fill();
     ctx.strokeStyle = colores.cespedBorde;
     ctx.lineWidth = 1;
@@ -560,19 +606,13 @@ function dibujarSuelo(col, fila) {
 function dibujarHabitat(hab) {
     const pos = HABITAT_POSICIONES[hab.posIndex] || HABITAT_POSICIONES[0];
     const { x, y } = proyCentroCelda(pos.col, pos.fila);
-
-    const baseW = TILE_W * 0.85;
-    const baseH = TILE_H * 0.85;
+    const baseW = TILE_W * 0.85, baseH = TILE_H * 0.85;
     const hw = baseW / 2, hh = baseH / 2;
     const altura = 8 + hab.nivel * 8;
 
-    // Sombra
     ctx.save();
-    ctx.globalAlpha = 0.22;
-    ctx.fillStyle = '#000';
-    ctx.beginPath();
-    ctx.ellipse(x, y + 4, hw * 0.95, hh * 0.5, 0, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.globalAlpha = 0.22; ctx.fillStyle = '#000';
+    ctx.beginPath(); ctx.ellipse(x, y + 4, hw * 0.95, hh * 0.5, 0, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
 
     const colorPorNivel = {
@@ -583,68 +623,36 @@ function dibujarHabitat(hab) {
     };
     const col = colorPorNivel[hab.nivel] || colorPorNivel[1];
 
-    // Pared izquierda
     ctx.beginPath();
-    ctx.moveTo(x - hw, y);
-    ctx.lineTo(x, y + hh);
-    ctx.lineTo(x, y + hh - altura);
-    ctx.lineTo(x - hw, y - altura);
-    ctx.closePath();
-    ctx.fillStyle = col.oscuro;
-    ctx.fill();
+    ctx.moveTo(x - hw, y); ctx.lineTo(x, y + hh); ctx.lineTo(x, y + hh - altura); ctx.lineTo(x - hw, y - altura);
+    ctx.closePath(); ctx.fillStyle = col.oscuro; ctx.fill();
 
-    // Pared derecha
     ctx.beginPath();
-    ctx.moveTo(x, y + hh);
-    ctx.lineTo(x + hw, y);
-    ctx.lineTo(x + hw, y - altura);
-    ctx.lineTo(x, y + hh - altura);
-    ctx.closePath();
-    ctx.fillStyle = col.base;
-    ctx.fill();
+    ctx.moveTo(x, y + hh); ctx.lineTo(x + hw, y); ctx.lineTo(x + hw, y - altura); ctx.lineTo(x, y + hh - altura);
+    ctx.closePath(); ctx.fillStyle = col.base; ctx.fill();
 
-    // Techo
     ctx.beginPath();
-    ctx.moveTo(x, y - hh - altura);
-    ctx.lineTo(x + hw, y - altura);
-    ctx.lineTo(x, y + hh - altura);
-    ctx.lineTo(x - hw, y - altura);
-    ctx.closePath();
-    ctx.fillStyle = col.top;
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-    ctx.lineWidth = 1.2;
-    ctx.stroke();
+    ctx.moveTo(x, y - hh - altura); ctx.lineTo(x + hw, y - altura); ctx.lineTo(x, y + hh - altura); ctx.lineTo(x - hw, y - altura);
+    ctx.closePath(); ctx.fillStyle = col.top; ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 1.2; ctx.stroke();
 
-    // Detalle: puntitos
     ctx.fillStyle = 'rgba(255,255,255,0.25)';
-    for (let i = -2; i <= 2; i++) {
-        ctx.beginPath();
-        ctx.arc(x + 8, y - altura / 2 + i * 5, 1.5, 0, Math.PI * 2);
-        ctx.fill();
-    }
+    for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.arc(x + 8, y - altura / 2 + i * 5, 1.5, 0, Math.PI * 2); ctx.fill(); }
 
-    // Badge de nivel
     const badgeY = y - altura - hh - 6;
     ctx.fillStyle = 'rgba(0,0,0,0.55)';
     ctx.beginPath();
-    if (ctx.roundRect) ctx.roundRect(x - 22, badgeY - 8, 44, 16, 8);
-    else ctx.rect(x - 22, badgeY - 8, 44, 16);
+    if (ctx.roundRect) ctx.roundRect(x - 22, badgeY - 8, 44, 16, 8); else ctx.rect(x - 22, badgeY - 8, 44, 16);
     ctx.fill();
-    ctx.fillStyle = 'white';
-    ctx.font = 'bold 10px Nunito, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
+    ctx.fillStyle = 'white'; ctx.font = 'bold 10px Nunito, sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText('Nv.' + hab.nivel, x, badgeY);
 
-    // Criaturas
     const maxSlots = HABITAT_CONFIG.slotsPorNivel[hab.nivel];
     const layout = layoutSlots(hab.nivel);
     const tam = tamanoCriaturaNivel(hab.nivel);
-    const topX = x;
-    const topY = y - altura;
-    const topHw = hw * 0.85;
-    const topHh = hh * 0.85;
+    const topX = x, topY = y - altura;
+    const topHw = hw * 0.85, topHh = hh * 0.85;
 
     const hayListos = habitatTieneListos(hab);
     if (hayListos) {
@@ -652,30 +660,22 @@ function dibujarHabitat(hab) {
         ctx.strokeStyle = `rgba(250, 204, 21, ${0.4 + pulse * 0.4})`;
         ctx.lineWidth = 2.5;
         ctx.beginPath();
-        ctx.moveTo(x, y - hh - altura);
-        ctx.lineTo(x + hw, y - altura);
-        ctx.lineTo(x, y + hh - altura);
-        ctx.lineTo(x - hw, y - altura);
-        ctx.closePath();
-        ctx.stroke();
+        ctx.moveTo(x, y - hh - altura); ctx.lineTo(x + hw, y - altura); ctx.lineTo(x, y + hh - altura); ctx.lineTo(x - hw, y - altura);
+        ctx.closePath(); ctx.stroke();
     }
 
     for (let i = 0; i < maxSlots; i++) {
         const [u, v] = layout[i] || [0, 0];
         const px = topX + u * topHw;
         const py = topY + v * topHh;
-
         if (i < hab.slots.length) {
             const criatura = criaturaPorId(hab.slots[i]);
             if (criatura) {
                 const def = CRIATURAS[criatura.tipo];
+                if (!def) continue;
                 const listo = criaturaLista(criatura);
                 dibujarCriatura(px, py, def, listo, tam);
-                criaturasDibujadas.push({
-                    x: px, y: py - tam * 0.4,
-                    r: tam * 0.8,
-                    criaturaId: criatura.id
-                });
+                criaturasDibujadas.push({ x: px, y: py - tam * 0.4, r: tam * 0.8, criaturaId: criatura.id });
             }
         } else {
             dibujarSlotVacio(px, py, tam * 0.5);
@@ -685,79 +685,48 @@ function dibujarHabitat(hab) {
 
 function dibujarSlotVacio(cx, cy, r) {
     ctx.strokeStyle = 'rgba(255,255,255,0.5)';
-    ctx.setLineDash([3, 3]);
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.stroke();
+    ctx.setLineDash([3, 3]); ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
     ctx.setLineDash([]);
-    ctx.strokeStyle = 'rgba(255,255,255,0.7)';
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.moveTo(cx - 3, cy);
-    ctx.lineTo(cx + 3, cy);
-    ctx.moveTo(cx, cy - 3);
-    ctx.lineTo(cx, cy + 3);
+    ctx.moveTo(cx - 3, cy); ctx.lineTo(cx + 3, cy);
+    ctx.moveTo(cx, cy - 3); ctx.lineTo(cx, cy + 3);
     ctx.stroke();
 }
 
 function dibujarCriatura(cx, cy, def, listo, size) {
-    const cw = size / 2;
-    const ch = cw / 2;
-    const cubeH = cw * 0.9;
+    const cw = size / 2, ch = cw / 2, cubeH = cw * 0.9;
 
-    ctx.save();
-    ctx.globalAlpha = 0.28;
-    ctx.fillStyle = '#000';
-    ctx.beginPath();
-    ctx.ellipse(cx, cy + 2, cw * 1.05, ch * 0.7, 0, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.save(); ctx.globalAlpha = 0.28; ctx.fillStyle = '#000';
+    ctx.beginPath(); ctx.ellipse(cx, cy + 2, cw * 1.05, ch * 0.7, 0, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
 
     ctx.beginPath();
-    ctx.moveTo(cx - cw, cy);
-    ctx.lineTo(cx, cy + ch);
-    ctx.lineTo(cx, cy + ch - cubeH);
-    ctx.lineTo(cx - cw, cy - cubeH);
-    ctx.closePath();
-    ctx.fillStyle = def.colorOscuro;
-    ctx.fill();
+    ctx.moveTo(cx - cw, cy); ctx.lineTo(cx, cy + ch); ctx.lineTo(cx, cy + ch - cubeH); ctx.lineTo(cx - cw, cy - cubeH);
+    ctx.closePath(); ctx.fillStyle = def.colorOscuro; ctx.fill();
 
     ctx.beginPath();
-    ctx.moveTo(cx, cy + ch);
-    ctx.lineTo(cx + cw, cy);
-    ctx.lineTo(cx + cw, cy - cubeH);
-    ctx.lineTo(cx, cy + ch - cubeH);
-    ctx.closePath();
-    ctx.fillStyle = def.color;
-    ctx.fill();
+    ctx.moveTo(cx, cy + ch); ctx.lineTo(cx + cw, cy); ctx.lineTo(cx + cw, cy - cubeH); ctx.lineTo(cx, cy + ch - cubeH);
+    ctx.closePath(); ctx.fillStyle = def.color; ctx.fill();
 
     ctx.beginPath();
-    ctx.moveTo(cx, cy - ch - cubeH);
-    ctx.lineTo(cx + cw, cy - cubeH);
-    ctx.lineTo(cx, cy + ch - cubeH);
-    ctx.lineTo(cx - cw, cy - cubeH);
-    ctx.closePath();
-    ctx.fillStyle = aclarar(def.color, 0.25);
-    ctx.fill();
+    ctx.moveTo(cx, cy - ch - cubeH); ctx.lineTo(cx + cw, cy - cubeH); ctx.lineTo(cx, cy + ch - cubeH); ctx.lineTo(cx - cw, cy - cubeH);
+    ctx.closePath(); ctx.fillStyle = aclarar(def.color, 0.25); ctx.fill();
 
     ctx.strokeStyle = listo ? 'rgba(250,204,21,1)' : 'rgba(255,255,255,0.5)';
     ctx.lineWidth = listo ? 2 : 1;
     ctx.stroke();
 
-    const topCY = cy - cubeH;
-    dibujarSimbolo(def.simbolo, cx, topCY, cw * 1.3);
+    dibujarSimbolo(def.simbolo, cx, cy - cubeH, cw * 1.3);
 
     if (listo) {
         const pulse = (Math.sin(performance.now() / 300) + 1) / 2;
         ctx.fillStyle = `rgba(250, 204, 21, ${0.6 + pulse * 0.4})`;
-        ctx.beginPath();
-        ctx.arc(cx, cy - ch - cubeH - 8, 4, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(cx, cy - ch - cubeH - 8, 4, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = 'rgba(255,255,255,1)';
         ctx.font = 'bold 9px Nunito, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText('!', cx, cy - ch - cubeH - 8);
     }
 }
@@ -767,12 +736,9 @@ function dibujarSimbolo(tipo, cx, cy, s) {
     ctx.fillStyle = 'rgba(255,255,255,0.95)';
     ctx.strokeStyle = 'rgba(255,255,255,0.95)';
     ctx.lineWidth = Math.max(1.5, s * 0.14);
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
     switch (tipo) {
-        case 'circulo':
-            ctx.beginPath(); ctx.arc(cx, cy, s * 0.3, 0, Math.PI * 2); ctx.fill(); break;
+        case 'circulo': ctx.beginPath(); ctx.arc(cx, cy, s * 0.3, 0, Math.PI * 2); ctx.fill(); break;
         case 'triple':
             ctx.beginPath();
             ctx.arc(cx - s * 0.3, cy, s * 0.11, 0, Math.PI * 2);
@@ -782,9 +748,7 @@ function dibujarSimbolo(tipo, cx, cy, s) {
         case 'estrella': dibujarEstrella(cx, cy, s * 0.36, 5); break;
         case 'triangulo':
             ctx.beginPath();
-            ctx.moveTo(cx, cy - s * 0.34);
-            ctx.lineTo(cx + s * 0.34, cy + s * 0.24);
-            ctx.lineTo(cx - s * 0.34, cy + s * 0.24);
+            ctx.moveTo(cx, cy - s * 0.34); ctx.lineTo(cx + s * 0.34, cy + s * 0.24); ctx.lineTo(cx - s * 0.34, cy + s * 0.24);
             ctx.closePath(); ctx.fill(); break;
         case 'corazon':
             ctx.beginPath();
@@ -794,12 +758,9 @@ function dibujarSimbolo(tipo, cx, cy, s) {
             ctx.fill(); break;
         case 'rayo':
             ctx.beginPath();
-            ctx.moveTo(cx + s * 0.05, cy - s * 0.4);
-            ctx.lineTo(cx - s * 0.2, cy + s * 0.02);
-            ctx.lineTo(cx + s * 0.02, cy + s * 0.02);
-            ctx.lineTo(cx - s * 0.08, cy + s * 0.4);
-            ctx.lineTo(cx + s * 0.2, cy - s * 0.02);
-            ctx.lineTo(cx - s * 0.02, cy - s * 0.02);
+            ctx.moveTo(cx + s * 0.05, cy - s * 0.4); ctx.lineTo(cx - s * 0.2, cy + s * 0.02);
+            ctx.lineTo(cx + s * 0.02, cy + s * 0.02); ctx.lineTo(cx - s * 0.08, cy + s * 0.4);
+            ctx.lineTo(cx + s * 0.2, cy - s * 0.02); ctx.lineTo(cx - s * 0.02, cy - s * 0.02);
             ctx.closePath(); ctx.fill(); break;
         case 'cruz':
             ctx.beginPath();
@@ -812,21 +773,15 @@ function dibujarSimbolo(tipo, cx, cy, s) {
             ctx.beginPath(); ctx.arc(cx + s * 0.13, cy - s * 0.08, s * 0.32, 0, Math.PI * 2); ctx.fill();
             ctx.globalCompositeOperation = 'source-over'; break;
         case 'alas':
-            ctx.beginPath();
-            ctx.moveTo(cx - s * 0.05, cy); ctx.lineTo(cx - s * 0.4, cy - s * 0.3); ctx.lineTo(cx - s * 0.4, cy + s * 0.15); ctx.closePath(); ctx.fill();
-            ctx.beginPath();
-            ctx.moveTo(cx + s * 0.05, cy); ctx.lineTo(cx + s * 0.4, cy - s * 0.3); ctx.lineTo(cx + s * 0.4, cy + s * 0.15); ctx.closePath(); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(cx - s * 0.05, cy); ctx.lineTo(cx - s * 0.4, cy - s * 0.3); ctx.lineTo(cx - s * 0.4, cy + s * 0.15); ctx.closePath(); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(cx + s * 0.05, cy); ctx.lineTo(cx + s * 0.4, cy - s * 0.3); ctx.lineTo(cx + s * 0.4, cy + s * 0.15); ctx.closePath(); ctx.fill();
             ctx.beginPath(); ctx.arc(cx, cy, s * 0.08, 0, Math.PI * 2); ctx.fill(); break;
         case 'espada':
             ctx.beginPath();
-            ctx.moveTo(cx, cy - s * 0.4);
-            ctx.lineTo(cx + s * 0.15, cy + s * 0.05);
-            ctx.lineTo(cx + s * 0.3, cy + s * 0.15);
-            ctx.lineTo(cx + s * 0.15, cy + s * 0.25);
-            ctx.lineTo(cx - s * 0.15, cy + s * 0.25);
-            ctx.lineTo(cx - s * 0.3, cy + s * 0.15);
-            ctx.lineTo(cx - s * 0.15, cy + s * 0.05);
-            ctx.closePath(); ctx.fill(); break;
+            ctx.moveTo(cx, cy - s * 0.4); ctx.lineTo(cx + s * 0.15, cy + s * 0.05);
+            ctx.lineTo(cx + s * 0.3, cy + s * 0.15); ctx.lineTo(cx + s * 0.15, cy + s * 0.25);
+            ctx.lineTo(cx - s * 0.15, cy + s * 0.25); ctx.lineTo(cx - s * 0.3, cy + s * 0.15);
+            ctx.lineTo(cx - s * 0.15, cy + s * 0.05); ctx.closePath(); ctx.fill(); break;
         case 'cadena':
             ctx.beginPath();
             ctx.arc(cx, cy - s * 0.18, s * 0.16, 0, Math.PI * 2);
@@ -860,8 +815,7 @@ function dibujarEstrella(cx, cy, r, puntas) {
         const y = cy + Math.sin(ang) * rad;
         if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     }
-    ctx.closePath();
-    ctx.fill();
+    ctx.closePath(); ctx.fill();
 }
 
 // ============================================================
@@ -870,35 +824,26 @@ function dibujarEstrella(cx, cy, r, puntas) {
 function bindInput() {
     const manejar = (clientX, clientY) => {
         const rect = canvas.getBoundingClientRect();
-        const px = clientX - rect.left;
-        const py = clientY - rect.top;
-
-        let target = null;
-        let minDist = Infinity;
+        const px = clientX - rect.left, py = clientY - rect.top;
+        let target = null, minDist = Infinity;
         criaturasDibujadas.forEach(c => {
             const dx = px - c.x, dy = py - c.y;
             const dist = Math.sqrt(dx*dx + dy*dy);
             if (dist < c.r && dist < minDist) { target = c; minDist = dist; }
         });
         if (target) { abrirModalCriatura(target.criaturaId); return; }
-
         const celda = screenToCell(px, py);
         const hab = estado.habitats.find(h => {
             const p = HABITAT_POSICIONES[h.posIndex];
             return p && p.col === celda.col && p.fila === celda.fila;
         });
         if (hab) { habitatSeleccionado = hab; abrirModalHabitat(hab.id); return; }
-
         habitatSeleccionado = null;
         dibujar();
     };
-
     canvas.addEventListener('click', (e) => { e.preventDefault(); manejar(e.clientX, e.clientY); });
     canvas.addEventListener('touchstart', (e) => {
-        if (e.touches.length > 0) {
-            const t = e.touches[0];
-            manejar(t.clientX, t.clientY);
-        }
+        if (e.touches.length > 0) { const t = e.touches[0]; manejar(t.clientX, t.clientY); }
     }, { passive: true });
 }
 
@@ -906,129 +851,159 @@ function bindInput() {
 //  MODAL DETALLE CRIATURA
 // ============================================================
 function abrirModalCriatura(criaturaId) {
-    const criatura = criaturaPorId(criaturaId);
-    if (!criatura) return;
-    const def = CRIATURAS[criatura.tipo];
-    const acc = calcularAcumulado(criatura, Date.now());
-    $('bcModalCriaturaNombre').textContent = def.nombre;
+    try {
+        const criatura = criaturaPorId(criaturaId);
+        if (!criatura) return;
+        const def = CRIATURAS[criatura.tipo];
+        if (!def) return;
+        const acc = calcularAcumulado(criatura, Date.now());
+        $('bcModalCriaturaNombre').textContent = def.nombre;
 
-    const cuerpo = $('bcModalCriaturaCuerpo');
-    cuerpo.innerHTML = `
-        <div style="display:flex;flex-direction:column;gap:12px;">
-            <div style="display:flex;align-items:center;gap:12px;">
-                <div style="width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,${def.color},${def.colorOscuro});display:flex;align-items:center;justify-content:center;color:white;flex-shrink:0;">
-                    <i data-lucide="${def.icono}" style="width:28px;height:28px;"></i>
+        const cuerpo = $('bcModalCriaturaCuerpo');
+        cuerpo.innerHTML = `
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div style="width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,${def.color},${def.colorOscuro});display:flex;align-items:center;justify-content:center;color:white;flex-shrink:0;">
+                        <i data-lucide="${def.icono}" style="width:28px;height:28px;"></i>
+                    </div>
+                    <div>
+                        <div style="font-size:13px;font-weight:800;color:var(--gray-900);">${def.rareza.charAt(0).toUpperCase() + def.rareza.slice(1)} · Tier ${def.tier}</div>
+                        <div style="font-size:12px;color:var(--gray-500);font-weight:600;margin-top:2px;">${def.descripcion}</div>
+                    </div>
                 </div>
-                <div>
-                    <div style="font-size:13px;font-weight:800;color:var(--gray-900);">${def.rareza.charAt(0).toUpperCase() + def.rareza.slice(1)} · Tier ${def.tier}</div>
-                    <div style="font-size:12px;color:var(--gray-500);font-weight:600;margin-top:2px;">${def.descripcion}</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                    <div style="padding:10px 12px;background:var(--gray-50);border:1px solid var(--border);border-radius:10px;">
+                        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-500);margin-bottom:3px;">Acumulado</div>
+                        <div style="font-size:16px;font-weight:900;color:var(--violet-700);font-variant-numeric:tabular-nums;">${acc.os.toFixed(1)} OS</div>
+                    </div>
+                    <div style="padding:10px 12px;background:var(--gray-50);border:1px solid var(--border);border-radius:10px;">
+                        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-500);margin-bottom:3px;">Créditos</div>
+                        <div style="font-size:16px;font-weight:900;color:#D97706;font-variant-numeric:tabular-nums;">${acc.creditos.toFixed(1)}</div>
+                    </div>
                 </div>
+                <button class="bc-btn-primario" id="bcModalCosechar" ${acc.os < 0.5 ? 'disabled' : ''}>
+                    <i data-lucide="hand-coins"></i>
+                    <span>Cosechar ${acc.os.toFixed(1)} OS</span>
+                </button>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                <div style="padding:10px 12px;background:var(--gray-50);border:1px solid var(--border);border-radius:10px;">
-                    <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-500);margin-bottom:3px;">Acumulado</div>
-                    <div style="font-size:16px;font-weight:900;color:var(--violet-700);font-variant-numeric:tabular-nums;">${acc.os.toFixed(1)} OS</div>
-                </div>
-                <div style="padding:10px 12px;background:var(--gray-50);border:1px solid var(--border);border-radius:10px;">
-                    <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-500);margin-bottom:3px;">Créditos</div>
-                    <div style="font-size:16px;font-weight:900;color:#D97706;font-variant-numeric:tabular-nums;">${acc.creditos.toFixed(1)}</div>
-                </div>
-            </div>
-            <button class="bc-btn-primario" id="bcModalCosechar" ${acc.os < 0.5 ? 'disabled' : ''}>
-                <i data-lucide="hand-coins"></i>
-                <span>Cosechar ${acc.os.toFixed(1)} OS</span>
-            </button>
-        </div>
-    `;
-    $('bcModalCriatura').hidden = false;
-    if (window.lucide) window.lucide.createIcons();
-    $('bcModalCosechar')?.addEventListener('click', () => {
-        cosecharCriatura(criaturaId);
+        `;
+        $('bcModalCriatura').hidden = false;
+        if (window.lucide) window.lucide.createIcons();
+        $('bcModalCosechar')?.addEventListener('click', () => {
+            cosecharCriatura(criaturaId);
+            $('bcModalCriatura').hidden = true;
+        });
+    } catch (e) {
+        console.error('[BugSillyCity] Error modal criatura:', e);
         $('bcModalCriatura').hidden = true;
-    });
+    }
 }
 
 // ============================================================
 //  MODAL HÁBITAT
 // ============================================================
 function abrirModalHabitat(habId) {
-    const hab = estado.habitats.find(h => h.id === habId);
-    if (!hab) return;
-    const nombre = HABITAT_CONFIG.nombres[hab.nivel];
-    const max = HABITAT_CONFIG.slotsPorNivel[hab.nivel];
-    $('bcModalCriaturaNombre').textContent = 'Hábitat ' + nombre;
-    const cuerpo = $('bcModalCriaturaCuerpo');
-    const costoMejora = hab.nivel < HABITAT_CONFIG.nivelMax ? HABITAT_CONFIG.costos[hab.nivel + 1] : null;
-    const puede = costoMejora && estado.creditos >= costoMejora;
-    const listos = hab.slots.filter(id => { const c = criaturaPorId(id); return c && criaturaLista(c); }).length;
+    try {
+        const hab = estado.habitats.find(h => h.id === habId);
+        if (!hab) return;
+        const nombre = HABITAT_CONFIG.nombres[hab.nivel];
+        const max = HABITAT_CONFIG.slotsPorNivel[hab.nivel];
+        $('bcModalCriaturaNombre').textContent = 'Hábitat ' + nombre;
+        const cuerpo = $('bcModalCriaturaCuerpo');
+        const costoMejora = hab.nivel < HABITAT_CONFIG.nivelMax ? HABITAT_CONFIG.costos[hab.nivel + 1] : null;
+        const puede = costoMejora && estado.creditos >= costoMejora;
+        const listos = hab.slots.filter(id => { const c = criaturaPorId(id); return c && criaturaLista(c); }).length;
 
-    cuerpo.innerHTML = `
-        <div style="display:flex;flex-direction:column;gap:12px;">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                <div style="padding:10px 12px;background:var(--gray-50);border:1px solid var(--border);border-radius:10px;">
-                    <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-500);margin-bottom:3px;">Nivel</div>
-                    <div style="font-size:16px;font-weight:900;color:var(--violet-700);">${hab.nivel} / 4</div>
+        cuerpo.innerHTML = `
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                    <div style="padding:10px 12px;background:var(--gray-50);border:1px solid var(--border);border-radius:10px;">
+                        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-500);margin-bottom:3px;">Nivel</div>
+                        <div style="font-size:16px;font-weight:900;color:var(--violet-700);">${hab.nivel} / 4</div>
+                    </div>
+                    <div style="padding:10px 12px;background:var(--gray-50);border:1px solid var(--border);border-radius:10px;">
+                        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-500);margin-bottom:3px;">Ocupación</div>
+                        <div style="font-size:16px;font-weight:900;color:var(--violet-700);font-variant-numeric:tabular-nums;">${hab.slots.length} / ${max}</div>
+                    </div>
                 </div>
-                <div style="padding:10px 12px;background:var(--gray-50);border:1px solid var(--border);border-radius:10px;">
-                    <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-500);margin-bottom:3px;">Ocupación</div>
-                    <div style="font-size:16px;font-weight:900;color:var(--violet-700);font-variant-numeric:tabular-nums;">${hab.slots.length} / ${max}</div>
-                </div>
+                ${listos > 0 ? `<div style="padding:10px 12px;background:#FEF3C7;border:1px solid #FDE68A;border-radius:10px;font-size:12.5px;font-weight:700;color:#92400E;">¡${listos} criatura${listos>1?'s':''} lista${listos>1?'s':''} para cosechar!</div>` : ''}
+                ${costoMejora ? `
+                    <button class="bc-btn-primario" id="bcModalMejorar" ${puede ? '' : 'disabled'}>
+                        <i data-lucide="arrow-up-circle"></i>
+                        <span>Mejorar a Nv.${hab.nivel+1} · ${formatearNumero(costoMejora)} créditos</span>
+                    </button>
+                ` : `
+                    <div style="padding:10px 12px;background:#DCFCE7;border:1px solid #BBF7D0;border-radius:10px;font-size:12.5px;font-weight:700;color:#166534;text-align:center;">Nivel máximo alcanzado</div>
+                `}
             </div>
-            ${listos > 0 ? `<div style="padding:10px 12px;background:#FEF3C7;border:1px solid #FDE68A;border-radius:10px;font-size:12.5px;font-weight:700;color:#92400E;">¡${listos} criatura${listos>1?'s':''} lista${listos>1?'s':''} para cosechar!</div>` : ''}
-            ${costoMejora ? `
-                <button class="bc-btn-primario" id="bcModalMejorar" ${puede ? '' : 'disabled'}>
-                    <i data-lucide="arrow-up-circle"></i>
-                    <span>Mejorar a Nv.${hab.nivel+1} · ${formatearNumero(costoMejora)} créditos</span>
-                </button>
-            ` : `
-                <div style="padding:10px 12px;background:#DCFCE7;border:1px solid #BBF7D0;border-radius:10px;font-size:12.5px;font-weight:700;color:#166534;text-align:center;">Nivel máximo alcanzado</div>
-            `}
-        </div>
-    `;
-    $('bcModalCriatura').hidden = false;
-    if (window.lucide) window.lucide.createIcons();
-    $('bcModalMejorar')?.addEventListener('click', () => {
-        mejorarHabitat(habId);
+        `;
+        $('bcModalCriatura').hidden = false;
+        if (window.lucide) window.lucide.createIcons();
+        $('bcModalMejorar')?.addEventListener('click', () => {
+            mejorarHabitat(habId);
+            $('bcModalCriatura').hidden = true;
+        });
+    } catch (e) {
+        console.error('[BugSillyCity] Error modal hábitat:', e);
         $('bcModalCriatura').hidden = true;
-    });
+    }
 }
 
 // ============================================================
-//  MODAL SELECTOR
+//  MODAL SELECTOR (NIDO) — FIX
 // ============================================================
 function abrirSelectorCriatura(slotNum) {
-    if (estado.nido) { toast('Ya hay una cría en curso', 'info'); return; }
-    const lista = $('bcModalSelectorLista');
-    lista.innerHTML = '';
-    if (estado.criaturas.length === 0) {
-        lista.innerHTML = '<p style="text-align:center;color:var(--gray-500);padding:20px;">No tenés criaturas.</p>';
-        $('bcModalSelector').hidden = false;
-        return;
-    }
-    const otroSlot = slotNum === 1 ? 2 : 1;
-    const yaElegida = $('bcNidoSlot' + otroSlot).dataset.criaturaId;
-    estado.criaturas.forEach(c => {
-        if (c.id === yaElegida) return;
-        const def = CRIATURAS[c.tipo];
-        const item = document.createElement('button');
-        item.className = 'bc-modal-lista-item';
-        item.innerHTML = `
-            <div class="bc-modal-lista-icono" style="background:linear-gradient(135deg,${def.color},${def.colorOscuro})">
-                <i data-lucide="${def.icono}"></i>
-            </div>
-            <div class="bc-modal-lista-info">
-                <strong>${def.nombre}</strong>
-                <small>${def.rareza} · ${habitatDeCriatura(c.id)}</small>
-            </div>
-        `;
-        item.addEventListener('click', () => {
-            seleccionarParaNido(c.id, slotNum);
-            $('bcModalSelector').hidden = true;
+    try {
+        if (estado.nido) { toast('Ya hay una cría en curso', 'info'); return; }
+        const lista = $('bcModalSelectorLista');
+        lista.innerHTML = '';
+
+        // ── FIX: filtrar criaturas válidas (tipo conocido) ──
+        const criaturasValidas = estado.criaturas.filter(c => c && CRIATURAS[c.tipo]);
+        if (criaturasValidas.length === 0) {
+            lista.innerHTML = '<p style="text-align:center;color:var(--gray-500);padding:20px;">No tenés criaturas.</p>';
+            $('bcModalSelector').hidden = false;
+            if (window.lucide) window.lucide.createIcons();
+            return;
+        }
+
+        const otroSlot = slotNum === 1 ? 2 : 1;
+        const yaElegida = $('bcNidoSlot' + otroSlot).dataset.criaturaId || '';
+        let mostradas = 0;
+
+        criaturasValidas.forEach(c => {
+            if (c.id === yaElegida) return;
+            const def = CRIATURAS[c.tipo];
+            const item = document.createElement('button');
+            item.className = 'bc-modal-lista-item';
+            item.innerHTML = `
+                <div class="bc-modal-lista-icono" style="background:linear-gradient(135deg,${def.color},${def.colorOscuro})">
+                    <i data-lucide="${def.icono}"></i>
+                </div>
+                <div class="bc-modal-lista-info">
+                    <strong>${def.nombre}</strong>
+                    <small>${def.rareza} · ${habitatDeCriatura(c.id)}</small>
+                </div>
+            `;
+            item.addEventListener('click', () => {
+                seleccionarParaNido(c.id, slotNum);
+                $('bcModalSelector').hidden = true;
+            });
+            lista.appendChild(item);
+            mostradas++;
         });
-        lista.appendChild(item);
-    });
-    $('bcModalSelector').hidden = false;
-    if (window.lucide) window.lucide.createIcons();
+
+        if (mostradas === 0) {
+            lista.innerHTML = '<p style="text-align:center;color:var(--gray-500);padding:20px;">Ya no quedan criaturas para elegir.</p>';
+        }
+
+        $('bcModalSelector').hidden = false;
+        if (window.lucide) window.lucide.createIcons();
+    } catch (e) {
+        console.error('[BugSillyCity] Error abriendo selector:', e);
+        toast('Error al abrir el selector', 'error');
+        $('bcModalSelector').hidden = true;
+    }
 }
 
 function habitatDeCriatura(criaturaId) {
@@ -1042,6 +1017,7 @@ function seleccionarParaNido(criaturaId, slotNum) {
     const criatura = criaturaPorId(criaturaId);
     if (!criatura) return;
     const def = CRIATURAS[criatura.tipo];
+    if (!def) return;
     slot.dataset.criaturaId = criaturaId;
     slot.classList.add('lleno');
     slot.style.background = `linear-gradient(135deg, ${def.color}, ${def.colorOscuro})`;
@@ -1083,7 +1059,7 @@ function verificarNidoListo() {
 function actualizarUI() {
     if (!estado) return;
     $('bcCreditos').textContent = formatearNumero(Math.floor(estado.creditos));
-    $('bcOSHoy').textContent = Math.floor(estado.osCosechadasHoy);
+    $('bcOSHoy').textContent = Math.floor(estado.osCosechadasHoy || 0);
 }
 
 function renderNido() {
@@ -1094,12 +1070,12 @@ function renderNido() {
     slot1.classList.remove('lleno'); slot2.classList.remove('lleno');
     slot1.style.background = ''; slot2.style.background = '';
 
-    if (estado.nido) {
+    if (estado.nido && CRIATURAS[estado.nido.resultado]) {
         const def = CRIATURAS[estado.nido.resultado];
         const p1 = criaturaPorId(estado.nido.padre1);
         const p2 = criaturaPorId(estado.nido.padre2);
-        if (p1) { const d = CRIATURAS[p1.tipo]; slot1.classList.add('lleno'); slot1.style.background = `linear-gradient(135deg, ${d.color}, ${d.colorOscuro})`; slot1.innerHTML = `<i data-lucide="${d.icono}"></i><span>${d.nombre}</span>`; }
-        if (p2) { const d = CRIATURAS[p2.tipo]; slot2.classList.add('lleno'); slot2.style.background = `linear-gradient(135deg, ${d.color}, ${d.colorOscuro})`; slot2.innerHTML = `<i data-lucide="${d.icono}"></i><span>${d.nombre}</span>`; }
+        if (p1 && CRIATURAS[p1.tipo]) { const d = CRIATURAS[p1.tipo]; slot1.classList.add('lleno'); slot1.style.background = `linear-gradient(135deg, ${d.color}, ${d.colorOscuro})`; slot1.innerHTML = `<i data-lucide="${d.icono}"></i><span>${d.nombre}</span>`; }
+        if (p2 && CRIATURAS[p2.tipo]) { const d = CRIATURAS[p2.tipo]; slot2.classList.add('lleno'); slot2.style.background = `linear-gradient(135deg, ${d.color}, ${d.colorOscuro})`; slot2.innerHTML = `<i data-lucide="${d.icono}"></i><span>${d.nombre}</span>`; }
         btnCriar.disabled = true;
         btnCriar.innerHTML = '<i data-lucide="hourglass"></i><span>Criando…</span>';
         const restante = estado.nido.finMs - Date.now();
@@ -1115,7 +1091,7 @@ function renderNido() {
             timerDiv.hidden = false;
             resultadoDiv.hidden = true;
             $('bcNidoTimerValor').textContent = formatearTiempo(restante);
-            const total = def.breedTimeMs;
+            const total = def.breedTimeMs || 1;
             const pct = Math.max(0, Math.min(100, (1 - restante / total) * 100));
             $('bcNidoTimerFill').style.width = pct + '%';
         }
@@ -1142,6 +1118,7 @@ function renderGuarderia() {
     cont.innerHTML = '';
     estado.huevos.forEach(huevo => {
         const def = CRIATURAS[huevo.tipo];
+        if (!def) return;
         const restante = huevo.finMs - Date.now();
         const listo = restante <= 0;
         const card = document.createElement('div');
@@ -1227,7 +1204,7 @@ async function inicializar() {
     inicializado = true;
 
     aplicarTemaDelPadre();
-    leerColoresDelTema(); // ── FIX: leer colores del tema antes de dibujar
+    leerColoresDelTema();
 
     const api = API();
     if (!api) { alert('BugSillyCity necesita estar dentro de VicWebOs.'); return; }
@@ -1255,15 +1232,29 @@ async function inicializar() {
     renderGuarderia();
     renderTienda();
 
+    // Tabs
     document.querySelectorAll('.bc-tab').forEach(tab => {
         tab.addEventListener('click', () => cambiarTab(tab.dataset.tab));
     });
-    $('bcNidoSlot1').addEventListener('click', () => { if (!estado.nido) abrirSelectorCriatura(1); });
-    $('bcNidoSlot2').addEventListener('click', () => { if (!estado.nido) abrirSelectorCriatura(2); });
+
+    // ── FIX: event delegation en el contenedor de slots del nido ──
+    const nidoSlots = $('bcNidoSlots');
+    if (nidoSlots) {
+        nidoSlots.addEventListener('click', (e) => {
+            const slot = e.target.closest('.bc-nido-slot');
+            if (!slot) return;
+            if (estado.nido) return;
+            const slotNum = parseInt(slot.dataset.slot, 10);
+            if (slotNum === 1 || slotNum === 2) abrirSelectorCriatura(slotNum);
+        });
+    }
+
+    // Botón criar / recoger huevo
     $('bcBtnCriar').addEventListener('click', () => {
         if (estado.nido && Date.now() >= estado.nido.finMs) recolectarHuevo();
         else if (!estado.nido) iniciarCria();
     });
+
     $('bcModalSelectorCerrar').addEventListener('click', () => { $('bcModalSelector').hidden = true; });
     $('bcModalCriaturaCerrar').addEventListener('click', () => { $('bcModalCriatura').hidden = true; });
     $('bcConfirmNo').addEventListener('click', () => { $('bcModalConfirm').hidden = true; confirmCallback = null; });
