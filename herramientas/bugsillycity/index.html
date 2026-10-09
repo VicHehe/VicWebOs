@@ -14,14 +14,6 @@
 
 <div class="bc-app">
 
-    <!-- Fondo decorativo -->
-    <div class="bc-bg-decor" aria-hidden="true">
-        <span class="bc-blob bc-blob-1"></span>
-        <span class="bc-blob bc-blob-2"></span>
-        <span class="bc-blob bc-blob-3"></span>
-    </div>
-
-    <!-- ===== HEADER (HUD) ===== -->
     <header class="bc-header">
         <div class="bc-logo">
             <div class="bc-logo-mark"><i data-lucide="egg"></i></div>
@@ -31,47 +23,34 @@
             </div>
         </div>
         <div class="bc-currencies">
-            <div class="bc-currency bc-currency-credits" title="Créditos (moneda interna)">
-                <span class="bc-currency-icono"><i data-lucide="coins"></i></span>
+            <div class="bc-currency bc-currency-credits">
+                <i data-lucide="coins"></i>
                 <span id="bcCreditos">0</span>
             </div>
-            <div class="bc-currency bc-currency-os" title="Monedas OS cosechadas hoy">
-                <span class="bc-currency-icono"><i data-lucide="landmark"></i></span>
+            <div class="bc-currency bc-currency-os">
+                <i data-lucide="landmark"></i>
                 <span id="bcOSHoy">0</span>
                 <span class="bc-currency-max">/80</span>
             </div>
         </div>
     </header>
 
-    <!-- ===== TABS ===== -->
     <nav class="bc-tabs">
-        <button class="bc-tab active" data-tab="habitats">
-            <span class="bc-tab-icono"><i data-lucide="layout-grid"></i></span>
-            <span>Hábitats</span>
-        </button>
-        <button class="bc-tab" data-tab="nido">
-            <span class="bc-tab-icono"><i data-lucide="heart"></i></span>
-            <span>Nido</span>
-        </button>
-        <button class="bc-tab" data-tab="guarderia">
-            <span class="bc-tab-icono"><i data-lucide="egg"></i></span>
-            <span>Guardería</span>
-        </button>
-        <button class="bc-tab" data-tab="tienda">
-            <span class="bc-tab-icono"><i data-lucide="store"></i></span>
-            <span>Tienda</span>
-        </button>
+        <button class="bc-tab active" data-tab="habitats"><i data-lucide="layout-grid"></i><span>Hábitats</span></button>
+        <button class="bc-tab" data-tab="nido"><i data-lucide="heart"></i><span>Nido</span></button>
+        <button class="bc-tab" data-tab="guarderia"><i data-lucide="egg"></i><span>Guardería</span></button>
+        <button class="bc-tab" data-tab="tienda"><i data-lucide="store"></i><span>Tienda</span></button>
     </nav>
 
-    <!-- ===== CONTENIDO ===== -->
     <main class="bc-main">
 
-        <!-- HÁBITATS -->
         <section class="bc-panel active" data-panel="habitats">
-            <div id="bcHabitatGrid" class="bc-habitat-grid"></div>
+            <div class="bc-canvas-wrap" id="bcCanvasWrap">
+                <canvas id="bcHabitatCanvas"></canvas>
+                <div class="bc-canvas-hint" id="bcCanvasHint"></div>
+            </div>
         </section>
 
-        <!-- NIDO -->
         <section class="bc-panel" data-panel="nido">
             <div class="bc-panel-header">
                 <h2><i data-lucide="heart"></i> Nido de cría</h2>
@@ -112,7 +91,6 @@
             <div id="bcNidoMensaje" class="bc-status"></div>
         </section>
 
-        <!-- GUARDERÍA -->
         <section class="bc-panel" data-panel="guarderia">
             <div class="bc-panel-header">
                 <h2><i data-lucide="egg"></i> Guardería</h2>
@@ -121,7 +99,6 @@
             <div id="bcGuarderiaGrid" class="bc-guarderia-grid"></div>
         </section>
 
-        <!-- TIENDA -->
         <section class="bc-panel" data-panel="tienda">
             <div class="bc-panel-header">
                 <h2><i data-lucide="store"></i> Tienda</h2>
@@ -141,7 +118,6 @@
 
     </main>
 
-    <!-- ===== MODAL SELECTOR DE CRIATURA ===== -->
     <div class="bc-modal" id="bcModalSelector" hidden>
         <div class="bc-modal-card">
             <div class="bc-modal-header">
@@ -152,7 +128,6 @@
         </div>
     </div>
 
-    <!-- ===== MODAL DETALLE CRIATURA ===== -->
     <div class="bc-modal" id="bcModalCriatura" hidden>
         <div class="bc-modal-card">
             <div class="bc-modal-header">
@@ -163,7 +138,6 @@
         </div>
     </div>
 
-    <!-- ===== MODAL CONFIRMACIÓN ===== -->
     <div class="bc-modal" id="bcModalConfirm" hidden>
         <div class="bc-modal-card bc-modal-card-sm">
             <div class="bc-modal-header">
