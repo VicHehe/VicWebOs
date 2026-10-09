@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Ánimo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="mo-app">
+
+        <!-- HEADER -->
+        <header class="mo-header">
+            <div class="mo-logo">
+                <div class="mo-logo-mark"><i data-lucide="activity"></i></div>
+                <div class="mo-logo-text">
+                    <h1>Ánimo</h1>
+                    <p id="moUserBadge">—</p>
+                </div>
+            </div>
+            <div class="mo-header-actions">
+                <button class="mo-btn-icono" id="btnHoy" title="Ir a hoy">
+                    <i data-lucide="calendar-check"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="mo-body">
+
+            <!-- ===================== COLUMNA IZQUIERDA: SELECTOR ===================== -->
+            <aside class="mo-col-selector">
+
+                <div class="mo-card mo-card-selector">
+                    <div class="mo-card-header">
+                        <h2>
+                            <i data-lucide="sparkles"></i>
+                            <span>¿Cómo te sentís?</span>
+                        </h2>
+                        <span class="mo-hoy-fecha" id="moFechaHoy">—</span>
+                    </div>
+
+                    <div class="mo-grid-animos" id="moGridAnimos"></div>
+
+                    <div class="mo-field">
+                        <label>
+                            <i data-lucide="pencil"></i>
+                            <span>Nota (opcional)</span>
+                        </label>
+                        <textarea id="moNota" rows="3" maxlength="200"
+                                  placeholder="Ej: dormí mal, buen café, me llamó un amigo..."></textarea>
+                        <div class="mo-nota-contador">
+                            <span id="moNotaContador">0</span> / 200
+                        </div>
+                    </div>
+
+                    <div id="moMsg" class="mo-form-msg"></div>
+
+                    <button class="mo-btn-primario" id="moBtnGuardar" disabled>
+                        <i data-lucide="check"></i>
+                        <span id="moBtnGuardarTxt">Registrar cambio</span>
+                    </button>
+                </div>
+
+            </aside>
+
+            <!-- ===================== COLUMNA DERECHA: HOY + HISTORIAL + ANÁLISIS ===================== -->
+            <main class="mo-col-main">
+
+                <!-- HOY CARD -->
+                <section class="mo-card mo-card-hoy">
+                    <div class="mo-hoy-label">Tu ánimo actual</div>
+                    <div class="mo-hoy-cuerpo" id="moHoyCuerpo">
+                        <!-- render por JS -->
+                    </div>
+                </section>
+
+                <!-- TIMELINE DE HOY -->
+                <section class="mo-card">
+                    <div class="mo-card-header">
+                        <h2>
+                            <i data-lucide="history"></i>
+                            <span>Cambios de hoy</span>
+                        </h2>
+                        <span class="mo-hoy-count" id="moHoyCount">0</span>
+                    </div>
+                    <div class="mo-timeline" id="moTimeline">
+                        <!-- render por JS -->
+                    </div>
+                </section>
+
+                <!-- ANÁLISIS -->
+                <section class="mo-card" id="moAnalisisCard">
+                    <div class="mo-card-header">
+                        <h2>
+                            <i data-lucide="bar-chart-3"></i>
+                            <span>Análisis</span>
+                        </h2>
+                    </div>
+
+                    <div class="mo-vacio" id="moVacio" hidden>
+                        <div class="mo-vacio-icon">
+                            <i data-lucide="activity"></i>
+                        </div>
+                        <h3>Sin datos todavía</h3>
+                        <p>Registrá tu primer ánimo para empezar a ver patrones.</p>
+                    </div>
+
+                    <div id="moAnalisisContenido" hidden>
+
+                        <!-- KPIs -->
+                        <div class="mo-kpis">
+                            <div class="mo-kpi">
+                                <div class="mo-kpi-label">Promedio</div>
+                                <div class="mo-kpi-valor" id="moKpiPromedio">—</div>
+                                <div class="mo-kpi-sub">nivel 1–5</div>
+                            </div>
+                            <div class="mo-kpi">
+                                <div class="mo-kpi-label">Días</div>
+                                <div class="mo-kpi-valor" id="moKpiDias">—</div>
+                                <div class="mo-kpi-sub">con registro</div>
+                            </div>
+                            <div class="mo-kpi">
+                                <div class="mo-kpi-label">Cambios</div>
+                                <div class="mo-kpi-valor" id="moKpiCambios">—</div>
+                                <div class="mo-kpi-sub">totales</div>
+                            </div>
+                            <div class="mo-kpi">
+                                <div class="mo-kpi-label">Racha</div>
+                                <div class="mo-kpi-valor" id="moKpiRacha">—</div>
+                                <div class="mo-kpi-sub">días seguidos</div>
+                            </div>
+                        </div>
+
+                        <!-- Distribución de ánimos -->
+                        <div class="mo-bloque">
+                            <h3>
+                                <i data-lucide="pie-chart"></i>
+                                <span>Distribución de ánimos</span>
+                            </h3>
+                            <div class="mo-distribucion" id="moDistribucion"></div>
+                        </div>
+
+                        <!-- Mini calendario -->
+                        <div class="mo-bloque">
+                            <h3>
+                                <i data-lucide="calendar-days"></i>
+                                <span>Últimas 5 semanas</span>
+                            </h3>
+                            <div class="mo-mini-cal-dias-semana">
+                                <span>L</span><span>M</span><span>M</span>
+                                <span>J</span><span>V</span><span>S</span><span>D</span>
+                            </div>
+                            <div class="mo-mini-cal" id="moMiniCal"></div>
+                            <div class="mo-mini-cal-leyenda">
+                                <span>Mejor</span>
+                                <span class="mo-leyenda-swatch" id="moLeyendaMejor"></span>
+                                <span class="mo-leyenda-swatch" id="moLeyendaMedio"></span>
+                                <span class="mo-leyenda-swatch" id="moLeyendaPeor"></span>
+                                <span>Peor</span>
+                            </div>
+                        </div>
+
+                        <!-- Patrones -->
+                        <div class="mo-bloque">
+                            <h3>
+                                <i data-lucide="trending-up"></i>
+                                <span>Patrones</span>
+                            </h3>
+                            <div class="mo-patrones" id="moPatrones"></div>
+                        </div>
+
+                    </div>
+                </section>
+
+            </main>
+
+        </div>
+
+    </div>
+
+    <!-- ===================== MODAL EDITAR CAMBIO ===================== -->
+    <div class="mo-modal" id="moModalEditar" hidden>
+        <div class="mo-modal-card">
+            <div class="mo-modal-header">
+                <h2><i data-lucide="pencil"></i> <span>Editar cambio</span></h2>
+                <button class="mo-modal-cerrar" id="moEditarCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="mo-modal-body">
+                <div class="mo-field">
+                    <label>Ánimo</label>
+                    <div class="mo-grid-animos mo-grid-animos-sm" id="moGridAnimosEditar"></div>
+                </div>
+                <div class="mo-field">
+                    <label>Nota</label>
+                    <textarea id="moNotaEditar" rows="3" maxlength="200"
+                              placeholder="Nota opcional..."></textarea>
+                </div>
+                <div id="moEditarMsg" class="mo-form-msg"></div>
+            </div>
+            <div class="mo-modal-actions">
+                <button class="mo-btn-peligro" id="moEditarEliminar">
+                    <i data-lucide="trash-2"></i>
+                    <span>Eliminar</span>
+                </button>
+                <button class="mo-btn-sec" id="moEditarCancelar">Cancelar</button>
+                <button class="mo-btn-primario" id="moEditarGuardar">
+                    <i data-lucide="check"></i>
+                    <span>Guardar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== MODAL CONFIRMAR ELIMINAR ===================== -->
+    <div class="mo-modal" id="moModalEliminar" hidden>
+        <div class="mo-modal-card">
+            <div class="mo-modal-header">
+                <h2><i data-lucide="trash-2"></i> <span>Eliminar cambio</span></h2>
+                <button class="mo-modal-cerrar" id="moEliminarCerrar"><i data-lucide="x"></i></button>
+            </div>
+            <div class="mo-modal-body">
+                <p class="mo-modal-desc" id="moEliminarTexto">¿Eliminar este cambio?</p>
+            </div>
+            <div class="mo-modal-actions">
+                <button class="mo-btn-sec" id="moEliminarCancelar">Cancelar</button>
+                <button class="mo-btn-peligro" id="moEliminarConfirmar">
+                    <i data-lucide="trash-2"></i>
+                    <span>Eliminar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="mo-toast" id="moToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
