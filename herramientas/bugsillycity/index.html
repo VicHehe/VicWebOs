@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>BugSillyCity</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <script src="https://unpkg.com/lucide@latest"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>BugSillyCity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 
@@ -23,11 +23,11 @@
             </div>
         </div>
         <div class="bc-currencies">
-            <div class="bc-currency bc-currency-credits">
+            <div class="bc-currency bc-currency-credits" title="Créditos">
                 <i data-lucide="coins"></i>
                 <span id="bcCreditos">0</span>
             </div>
-            <div class="bc-currency bc-currency-os">
+            <div class="bc-currency bc-currency-os" title="OS cosechadas hoy">
                 <i data-lucide="landmark"></i>
                 <span id="bcOSHoy">0</span>
                 <span class="bc-currency-max">/80</span>
@@ -45,9 +45,12 @@
     <main class="bc-main">
 
         <section class="bc-panel active" data-panel="habitats">
-            <div class="bc-canvas-wrap" id="bcCanvasWrap">
-                <canvas id="bcHabitatCanvas"></canvas>
-                <div class="bc-canvas-hint" id="bcCanvasHint"></div>
+            <div class="bc-canvas-wrap">
+                <canvas id="bcCanvas"></canvas>
+                <div class="bc-canvas-hint" id="bcCanvasHint">
+                    <i data-lucide="hand-pointer"></i>
+                    <span>Tocá una criatura para cosechar</span>
+                </div>
             </div>
         </section>
 
@@ -94,7 +97,7 @@
         <section class="bc-panel" data-panel="guarderia">
             <div class="bc-panel-header">
                 <h2><i data-lucide="egg"></i> Guardería</h2>
-                <p>Tus huevos eclosionan aquí. Poné a incubar y esperá.</p>
+                <p>Tus huevos eclosionan acá. Ponelos a incubar y esperá.</p>
             </div>
             <div id="bcGuarderiaGrid" class="bc-guarderia-grid"></div>
         </section>
@@ -104,12 +107,10 @@
                 <h2><i data-lucide="store"></i> Tienda</h2>
                 <p>Comprá criaturas base y hábitats nuevos con créditos.</p>
             </div>
-
             <div class="bc-tienda-seccion">
                 <h3><i data-lucide="bug"></i> Criaturas base</h3>
                 <div id="bcTiendaCriaturas" class="bc-tienda-grid"></div>
             </div>
-
             <div class="bc-tienda-seccion">
                 <h3><i data-lucide="layout-grid"></i> Hábitats</h3>
                 <div id="bcTiendaHabitats" class="bc-tienda-grid"></div>
