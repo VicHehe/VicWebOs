@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>VicsJSON</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<div class="vj-app">
+
+    <header class="vj-header">
+        <div class="vj-header-left">
+            <div class="vj-logo-mark"><i data-lucide="braces"></i></div>
+            <div class="vj-header-info">
+                <h1>VicsJSON</h1>
+                <span class="vj-header-sub">Analizá, corregí y descargá tu JSON</span>
+            </div>
+        </div>
+        <div class="vj-header-right">
+            <input type="file" id="inputArchivo" accept=".json,application/json" hidden>
+            <button class="vj-btn-sec" id="btnCargar">
+                <i data-lucide="upload"></i>
+                <span>Cargar archivo</span>
+            </button>
+            <button class="vj-btn-pri" id="btnDescargar">
+                <i data-lucide="download"></i>
+                <span>Descargar</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="vj-toolbar">
+        <button class="vj-tool-btn" id="btnFormatear">
+            <i data-lucide="align-left"></i>
+            <span>Formatear</span>
+        </button>
+        <button class="vj-tool-btn" id="btnMinificar">
+            <i data-lucide="minimize-2"></i>
+            <span>Minificar</span>
+        </button>
+        <button class="vj-tool-btn" id="btnReparar">
+            <i data-lucide="wand-2"></i>
+            <span>Reparar</span>
+        </button>
+        <button class="vj-tool-btn" id="btnLimpiar">
+            <i data-lucide="eraser"></i>
+            <span>Limpiar</span>
+        </button>
+        <div class="vj-toolbar-spacer"></div>
+        <button class="vj-tool-btn" id="btnCopiar">
+            <i data-lucide="copy"></i>
+            <span>Copiar</span>
+        </button>
+        <div class="vj-indent-selector">
+            <label><i data-lucide="indent"></i> Indent:</label>
+            <select id="selectIndent">
+                <option value="2">2 espacios</option>
+                <option value="4">4 espacios</option>
+                <option value="\t">Tab</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="vj-body">
+        <main class="vj-editor-wrap">
+            <div class="vj-editor-header">
+                <div class="vj-editor-estado" id="estadoJSON">
+                    <span class="vj-dot vj-dot-vacio"></span>
+                    <span id="estadoTexto">Esperando JSON…</span>
+                </div>
+                <div class="vj-editor-stats" id="statsLinea">Ln 1, Col 1</div>
+            </div>
+            <textarea
+                id="editor"
+                class="vj-editor"
+                spellcheck="false"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                wrap="off"
+                placeholder='Pegá tu JSON acá, arrastrá un archivo, o empezá a escribir.&#10;&#10;{&#10;  "ejemplo": "hola mundo"&#10;}'></textarea>
+            <div class="vj-editor-footer">
+                <span id="footerStats">0 líneas · 0 B</span>
+                <span id="footerCursor">Ln 1, Col 1</span>
+            </div>
+        </main>
+
+        <aside class="vj-panel">
+            <div class="vj-panel-tabs">
+                <button class="vj-panel-tab active" data-tab="analisis">
+                    <i data-lucide="scan-search"></i>
+                    <span>Análisis</span>
+                    <span class="vj-badge" id="badgeErrores" hidden>0</span>
+                </button>
+                <button class="vj-panel-tab" data-tab="arbol">
+                    <i data-lucide="git-branch"></i>
+                    <span>Árbol</span>
+                </button>
+            </div>
+
+            <div class="vj-panel-content" id="panelAnalisis">
+                <div class="vj-panel-vacio" id="panelVacioAnalisis">
+                    <div class="vj-panel-vacio-icono"><i data-lucide="scan-search"></i></div>
+                    <p>Escribí o pegá JSON y acá vas a ver el análisis en vivo.</p>
+                </div>
+                <div id="panelAnalisisContenido" hidden></div>
+            </div>
+
+            <div class="vj-panel-content" id="panelArbol" hidden>
+                <div class="vj-panel-vacio" id="panelVacioArbol">
+                    <div class="vj-panel-vacio-icono"><i data-lucide="git-branch"></i></div>
+                    <p>Sin datos para mostrar.</p>
+                </div>
+                <div class="vj-arbol" id="arbolContenido" hidden></div>
+            </div>
+        </aside>
+    </div>
+
+</div>
+
+<div class="vj-toast" id="vjToast"></div>
+
+<script src="script.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>
