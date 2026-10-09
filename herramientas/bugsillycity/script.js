@@ -13,7 +13,7 @@ const ARCHIVO_BASE = 'app/bugsillycity/';
 
 const DAILY_OS_LIMIT = 80;
 const MAX_ACCUMULATION_HOURS = 12;
-const MAX_HABITATS = 6;
+const MAX_HABITATS = 9;
 const MAX_CRIATURAS = 40;
 const CREDITOS_INICIALES = 500;
 
