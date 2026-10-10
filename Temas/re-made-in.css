@@ -3,45 +3,44 @@
    Cultura Pop · 55 monedas · espacio 6
 
    La consola de 16 bits en su versión americana.
-   Cuerpo lavanda-gris, púrpura icónico en botones
-   y logo, LED azul que late. Cada detalle es un
-   guiño a la era dorada sin nombrar marcas.
+   Cuerpo lavanda-gris, púrpura en botones y logo,
+   y un destello ocasional en los bordes — como si
+   el sistema respirara de vez en cuando.
+   Sin movimiento de fondo. Sin pulsos constantes.
 
    Guiños traducidos a CSS:
      · Cuerpo de consola       → fondo lavanda-gris
      · Botones y logo púrpura  → acento principal
-     · LED de encendido        → pulso azul (@property)
+     · Destello de bordes      → flash ocasional
      · Ranura del cartucho     → marcos de hero/modales
      · Cruz direccional        → indicador de nav activo
-     · Cartucho                → decoración del hero
-     · Scanlines CRT           → overlay global
+     · Cartucho                → decoración estática
+     · Scanlines CRT           → overlay fijo
      · Dithering 4x4           → fondo pixelado
      · Estrellas               → lluvia al pasar el mouse
    ================================================ */
 
 /* ------------------------------------------------------------
-   @property — el LED late como NÚMERO interpolable.
-   Propaga su valor a glows y sombras del shell.
+   @property — número interpolable que sube y baja de vez
+   en cuando. Aplica un glow adicional a bordes y sombras
+   sin mover nada.
    ------------------------------------------------------------ */
-@property --console-led {
+@property --console-flash {
     syntax: '<number>';
     inherits: true;
-    initial-value: 0.5;
+    initial-value: 0;
 }
 
-@keyframes console-led-pulse {
-    0%, 100% { --console-led: 0.45; }
-    50%      { --console-led: 1; }
-}
-
-@keyframes console-scanline-drift {
-    from { background-position: 0 0; }
-    to   { background-position: 0 12px; }
-}
-
-@keyframes console-ring-spin {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
+/* Destellos irregulares — la mayor parte del tiempo en 0 */
+@keyframes console-border-shimmer {
+    0%, 38%, 100% { --console-flash: 0; }
+    40%           { --console-flash: 1; }
+    43%           { --console-flash: 0.15; }
+    46%           { --console-flash: 0.9; }
+    50%           { --console-flash: 0; }
+    72%           { --console-flash: 0; }
+    74%           { --console-flash: 0.75; }
+    78%           { --console-flash: 0; }
 }
 
 @keyframes console-star-drift {
@@ -49,15 +48,20 @@
     to   { background-position: 200px 0; }
 }
 
+@keyframes console-ring-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
 /* ------------------------------------------------------------
    :root — paleta, patrones y tokens
    ------------------------------------------------------------ */
 :root {
-    /* LED animado */
-    --console-led: 0.5;
-    animation: console-led-pulse 3.2s ease-in-out infinite;
+    /* Flash animado — sube y baja ocasionalmente */
+    --console-flash: 0;
+    animation: console-border-shimmer 14s linear infinite;
 
-    /* Púrpuras protagonistas (logo + botones) */
+    /* Púrpuras protagonistas */
     --violet-50:  #F0EDF5;
     --violet-100: #E0D8EC;
     --violet-200: #C8B8E0;
@@ -116,7 +120,7 @@
     /* Dithering 4x4 — pixelado sutil */
     --theme-dither: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 4'%3E%3Cg fill='%236B46A8' fill-opacity='0.08'%3E%3Crect x='0' y='0' width='1' height='1'/%3E%3Crect x='2' y='1' width='1' height='1'/%3E%3Crect x='1' y='2' width='1' height='1'/%3E%3Crect x='3' y='3' width='1' height='1'/%3E%3C/g%3E%3C/svg%3E");
 
-    /* Scanlines CRT horizontales */
+    /* Scanlines CRT horizontales — fijas */
     --theme-scanlines: repeating-linear-gradient(
         0deg,
         rgba(46, 31, 82, 0.04) 0 1px,
@@ -137,7 +141,7 @@
 }
 
 /* ================================================================
-   1. HEADER — cuerpo lavanda con franja púrpura y LED pulsante
+   1. HEADER — cuerpo lavanda con franja púrpura y LED fijo
    ================================================================ */
 .app-header {
     position: relative;
@@ -149,7 +153,7 @@
         0 2px 4px rgba(46, 31, 82, 0.08);
 }
 
-/* LED de encendido */
+/* LED de encendido — fijo, con un halo extra cuando hay destello */
 .app-header::after {
     content: '';
     position: absolute;
@@ -163,8 +167,8 @@
     box-shadow:
         0 0 0 1px rgba(46, 31, 82, 0.45),
         0 0 0 2px rgba(255, 255, 255, 0.7),
-        0 0 calc(4px + var(--console-led) * 12px) rgba(74, 144, 226, calc(0.4 + var(--console-led) * 0.5));
-    transition: box-shadow 0.08s linear;
+        0 0 calc(4px + var(--console-flash) * 14px) rgba(74, 144, 226, calc(0.45 + var(--console-flash) * 0.55));
+    transition: box-shadow 0.10s linear;
     pointer-events: none;
 }
 
@@ -191,7 +195,7 @@
 }
 
 /* ================================================================
-   2. WELCOME — piso pixelado con scanlines sutiles
+   2. WELCOME — piso pixelado, fondo quieto
    ================================================================ */
 .welcome-placeholder {
     position: relative;
@@ -209,16 +213,15 @@
         repeat,
         repeat,
         no-repeat, no-repeat, no-repeat;
-    animation: console-scanline-drift 12s linear infinite;
 }
 
 .welcome-glow {
     background: radial-gradient(
         circle at 50% 40%,
-        rgba(107, 70, 168, calc(0.08 + var(--console-led) * 0.08)) 0%,
+        rgba(107, 70, 168, calc(0.10 + var(--console-flash) * 0.12)) 0%,
         transparent 65%
     );
-    transition: background 0.08s linear;
+    transition: background 0.10s linear;
 }
 
 .welcome-hero,
@@ -227,7 +230,7 @@
     z-index: 2;
 }
 
-/* Hero — tarjeta limpia, sin anillos blancos ni sombras duras */
+/* Hero — tarjeta limpia; el borde brilla de vez en cuando */
 .welcome-hero {
     position: relative;
     padding: 42px 30px 36px;
@@ -238,11 +241,11 @@
     border-radius: 6px;
     box-shadow:
         0 8px 24px rgba(46, 31, 82, 0.12),
-        0 0 calc(var(--console-led) * 22px) rgba(107, 70, 168, calc(var(--console-led) * 0.20));
+        0 0 calc(var(--console-flash) * 26px) rgba(107, 70, 168, calc(var(--console-flash) * 0.55));
     max-width: 660px;
     margin-left: auto;
     margin-right: auto;
-    transition: box-shadow 0.08s linear;
+    transition: box-shadow 0.10s linear;
 }
 
 /* Ranura del cartucho — marca sutil dentro del marco */
@@ -264,7 +267,7 @@
     pointer-events: none;
 }
 
-/* Cartucho — decoración estática, sin balanceo */
+/* Cartucho — decoración estática */
 .welcome-hero::after {
     content: '';
     position: absolute;
@@ -287,8 +290,8 @@
 .welcome-hero h1 {
     text-shadow:
         0 1px 0 rgba(255, 255, 255, 0.6),
-        0 0 calc(var(--console-led) * 12px) rgba(107, 70, 168, calc(var(--console-led) * 0.16));
-    transition: text-shadow 0.08s linear;
+        0 0 calc(var(--console-flash) * 18px) rgba(107, 70, 168, calc(var(--console-flash) * 0.35));
+    transition: text-shadow 0.10s linear;
     letter-spacing: 0.005em;
 }
 
@@ -303,8 +306,8 @@
         0 0 0 3px #FFFFFF,
         0 0 0 4px rgba(107, 70, 168, 0.35),
         0 6px 14px rgba(46, 31, 82, 0.18),
-        0 0 calc(var(--console-led) * 16px) rgba(107, 70, 168, calc(var(--console-led) * 0.30));
-    transition: box-shadow 0.08s linear;
+        0 0 calc(var(--console-flash) * 22px) rgba(107, 70, 168, calc(var(--console-flash) * 0.50));
+    transition: box-shadow 0.10s linear;
 }
 .welcome-icon-wrap::after {
     content: '';
@@ -430,8 +433,8 @@
     width: 3px;
     border-radius: 0 3px 3px 0;
     background: var(--violet-500);
-    box-shadow: 0 0 calc(var(--console-led) * 6px) rgba(107, 70, 168, 0.40);
-    transition: box-shadow 0.08s linear;
+    box-shadow: 0 0 calc(4px + var(--console-flash) * 10px) rgba(107, 70, 168, calc(0.30 + var(--console-flash) * 0.45));
+    transition: box-shadow 0.10s linear;
 }
 .nav-item.active::after {
     content: '';
@@ -461,11 +464,12 @@
     border: 1px solid var(--violet-300);
     border-radius: 6px;
     box-shadow:
-        0 2px 6px rgba(46, 31, 82, 0.08);
+        0 2px 6px rgba(46, 31, 82, 0.08),
+        0 0 calc(var(--console-flash) * 14px) rgba(107, 70, 168, calc(var(--console-flash) * 0.35));
     overflow: hidden;
     transition:
         transform 0.18s ease,
-        box-shadow 0.08s linear,
+        box-shadow 0.10s linear,
         border-color 0.18s ease;
 }
 
@@ -515,7 +519,7 @@
     border-color: var(--violet-500);
     box-shadow:
         0 8px 20px rgba(46, 31, 82, 0.14),
-        0 0 calc(var(--console-led) * 14px) rgba(107, 70, 168, calc(var(--console-led) * 0.26));
+        0 0 calc(10px + var(--console-flash) * 18px) rgba(107, 70, 168, calc(0.20 + var(--console-flash) * 0.40));
 }
 
 .acceso-icon-wrap {
@@ -549,11 +553,12 @@
     border: 1px solid var(--violet-300);
     border-radius: 6px;
     box-shadow:
-        0 2px 6px rgba(46, 31, 82, 0.07);
+        0 2px 6px rgba(46, 31, 82, 0.07),
+        0 0 calc(var(--console-flash) * 12px) rgba(107, 70, 168, calc(var(--console-flash) * 0.32));
     overflow: hidden;
     transition:
         transform 0.18s ease,
-        box-shadow 0.08s linear,
+        box-shadow 0.10s linear,
         border-color 0.18s ease;
 }
 .widget-item::before {
@@ -577,7 +582,7 @@
     border-color: var(--violet-500);
     box-shadow:
         0 6px 16px rgba(46, 31, 82, 0.12),
-        0 0 calc(var(--console-led) * 12px) rgba(107, 70, 168, calc(var(--console-led) * 0.22));
+        0 0 calc(8px + var(--console-flash) * 16px) rgba(107, 70, 168, calc(0.18 + var(--console-flash) * 0.38));
 }
 
 /* ================================================================
@@ -608,9 +613,9 @@
         transparent
     );
     border-radius: 2px 2px 0 0;
-    box-shadow: 0 0 calc(var(--console-led) * 10px) rgba(107, 70, 168, calc(var(--console-led) * 0.40));
+    box-shadow: 0 0 calc(6px + var(--console-flash) * 14px) rgba(107, 70, 168, calc(0.30 + var(--console-flash) * 0.55));
     pointer-events: none;
-    transition: box-shadow 0.08s linear;
+    transition: box-shadow 0.10s linear;
 }
 .tab-item.active [data-lucide] {
     color: var(--violet-500);
@@ -631,8 +636,8 @@
     box-shadow:
         inset 0 0 0 3px rgba(107, 70, 168, 0.10),
         0 16px 40px rgba(46, 31, 82, 0.18),
-        0 0 calc(var(--console-led) * 24px) rgba(107, 70, 168, calc(var(--console-led) * 0.18));
-    transition: box-shadow 0.08s linear;
+        0 0 calc(var(--console-flash) * 32px) rgba(107, 70, 168, calc(var(--console-flash) * 0.42));
+    transition: box-shadow 0.10s linear;
 }
 .config-card::before,
 .modal-todas-card::before {
@@ -688,10 +693,10 @@
         inset 0 2px 0 rgba(255, 255, 255, 0.28),
         inset 0 -2px 0 rgba(0, 0, 0, 0.28),
         0 3px 8px rgba(46, 31, 82, 0.22),
-        0 0 calc(var(--console-led) * 12px) rgba(107, 70, 168, calc(var(--console-led) * 0.24));
+        0 0 calc(var(--console-flash) * 14px) rgba(107, 70, 168, calc(var(--console-flash) * 0.38));
     transition:
         transform 0.12s ease,
-        box-shadow 0.08s linear,
+        box-shadow 0.10s linear,
         background 0.15s ease;
 }
 .btn-primario::before {
@@ -729,7 +734,7 @@
         inset 0 2px 0 rgba(255, 255, 255, 0.35),
         inset 0 -2px 0 rgba(0, 0, 0, 0.28),
         0 5px 14px rgba(46, 31, 82, 0.28),
-        0 0 calc(var(--console-led) * 18px) rgba(107, 70, 168, calc(var(--console-led) * 0.38));
+        0 0 calc(10px + var(--console-flash) * 20px) rgba(107, 70, 168, calc(0.28 + var(--console-flash) * 0.40));
 }
 .btn-primario:active {
     transform: translateY(1px);
@@ -769,7 +774,9 @@
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.25),
         0 0 0 1px var(--violet-400),
-        0 0 0 3px rgba(107, 70, 168, 0.16);
+        0 0 0 3px rgba(107, 70, 168, 0.16),
+        0 0 calc(var(--console-flash) * 12px) rgba(107, 70, 168, calc(var(--console-flash) * 0.40));
+    transition: box-shadow 0.10s linear, transform 0.12s ease;
 }
 .avatar-config:hover {
     transform: translateY(-1px);
@@ -799,9 +806,8 @@
 @media (prefers-reduced-motion: reduce) {
     :root {
         animation: none !important;
-        --console-led: 0.75;
+        --console-flash: 0;
     }
-    .welcome-placeholder,
     .welcome-icon-wrap::after,
     .acceso-item::before,
     .widget-item::before,
