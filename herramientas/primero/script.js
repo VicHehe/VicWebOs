@@ -1,10 +1,10 @@
 // ============================================================
-//  Primero — clon de Uno con modo 1v1 P2P + CPU
+//  Primero — clon de Uno con lógica propia
 //  ------------------------------------------------------------
-//  · Usa uno-engine vía esm.sh (import dinámico, sin build)
-//  · Host: fuente de verdad, dueño del Game de uno-engine
-//  · Guest: solo renderiza snapshots del host
-//  · CPU: mismo flujo que host, sin red
+//  · Sin dependencias externas (excepto PeerJS para PvP)
+//  · Motor de cartas casero, simple y auditable
+//  · Host: fuente de verdad · Guest: solo renderiza snapshots
+//  · CPU: mismo motor, sin red
 //  · Recompensa: +35 (CPU) / +30 (PvP) monedas OS al ganar
 // ============================================================
 
@@ -13,10 +13,186 @@
 const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 const APP_ID = 'primero';
 const PREFIJO_PEER = 'primero_';
-const ENGINE_URL = 'https://esm.sh/uno-engine';
 
 const RECOMPENSA_CPU = 35;
 const RECOMPENSA_PVP = 30;
+
+// ============================================================
+//  MOTOR DE CARTAS
+//  ------------------------------------------------------------
+//  Carta: { color: 'red'|'blue'|'green'|'yellow'|'wild', value: string }
+//  value: '0'..'9' | 'skip' | 'reverse' | 'draw2' | 'wild' | 'wild4'
+// ============================================================
+const COLORES = ['red', 'blue', 'green', 'yellow'];
+
+function crearMazo() {
+    const mazo = [];
+    for (const color of COLORES) {
+        // Un 0 por color
+        mazo.push({ color, value: '0' });
+        // Dos de cada 1-9
+        for (let n = 1; n <= 9; n++) {
+            mazo.push({ color, value: String(n) });
+            mazo.push({ color, value: String(n) });
+        }
+        // Dos de cada acción por color
+        for (const acc of ['skip', 'reverse', 'draw2']) {
+            mazo.push({ color, value: acc });
+            mazo.push({ color, value: acc });
+        }
+    }
+    // 4 wild + 4 wild4
+    for (let i = 0; i < 4; i++) {
+        mazo.push({ color: 'wild', value: 'wild' });
+        mazo.push({ color: 'wild', value: 'wild4' });
+    }
+    return mazo;
+}
+
+function barajar(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
+function esWild(card) {
+    return card.color === 'wild' || card.value === 'wild' || card.value === 'wild4';
+}
+
+function puedeJugar(card, topCard, colorActual) {
+    if (!card || !topCard) return false;
+    if (esWild(card)) return true;
+    if (card.color === colorActual) return true;
+    if (card.value === topCard.value) return true;
+    return false;
+}
+
+class Partida {
+    constructor(nombres) {
+        // nombres: [nombre1, nombre2]
+        this.jugadores = nombres.map((n, i) => ({
+            id: i, nombre: n, mano: []
+        }));
+        this.turno = 0;               // índice del jugador actual
+        this.direccion = 1;           // 1 = normal, -1 = invertida
+        this.colorActual = null;      // color vigente
+        this.ganador = null;
+        this.descarte = [];
+        this.mazo = [];
+        this.empezar();
+    }
+
+    empezar() {
+        this.mazo = barajar(crearMazo());
+        // Repartir 7 a cada uno
+        for (let i = 0; i < 7; i++) {
+            for (const j of this.jugadores) j.mano.push(this.mazo.pop());
+        }
+        // Primera carta (no wild4)
+        let primera = this.mazo.pop();
+        while (primera.value === 'wild4') {
+            this.mazo.unshift(primera);
+            primera = this.mazo.pop();
+        }
+        this.descarte.push(primera);
+        this.colorActual = primera.color === 'wild' ? this.elegirColorAleatorio() : primera.color;
+
+        // Aplicar efecto de la primera carta
+        if (primera.value === 'skip') this.turno = (this.turno + 1) % 2;
+        if (primera.value === 'reverse') this.direccion *= -1;
+        if (primera.value === 'draw2') {
+            const victima = (this.turno + 1) % 2;
+            this.robar(this.jugadores[victima], 2);
+            this.turno = (this.turno + 1) % 2;
+        }
+        // Wild wild4 al inicio: turno normal (sin ataque)
+    }
+
+    elegirColorAleatorio() {
+        return COLORES[Math.floor(Math.random() * 4)];
+    }
+
+    get jugadorActual() { return this.jugadores[this.turno]; }
+    get topCard() { return this.descarte[this.descarte.length - 1]; }
+
+    robar(jugador, cantidad = 1) {
+        for (let i = 0; i < cantidad; i++) {
+            if (this.mazo.length === 0) {
+                // Reciclar descarte (excepto la última carta)
+                const ultima = this.descarte.pop();
+                this.mazo = barajar(this.descarte.map(c => ({ ...c })));
+                this.descarte = [ultima];
+            }
+            const c = this.mazo.pop();
+            if (c) jugador.mano.push(c);
+        }
+    }
+
+    // Devuelve { ok, motivo? }
+    jugar(jugador, cardIndex, colorElegido = null) {
+        if (this.ganador) return { ok: false, motivo: 'Partida terminada' };
+        if (jugador !== this.jugadorActual) return { ok: false, motivo: 'No es tu turno' };
+        const card = jugador.mano[cardIndex];
+        if (!card) return { ok: false, motivo: 'Carta inválida' };
+        if (!puedeJugar(card, this.topCard, this.colorActual)) {
+            return { ok: false, motivo: 'No es jugable' };
+        }
+
+        // Quitar de la mano y poner en descarte
+        jugador.mano.splice(cardIndex, 1);
+        this.descarte.push(card);
+
+        // Aplicar color actual
+        if (esWild(card)) {
+            this.colorActual = colorElegido || this.elegirColorAleatorio();
+        } else {
+            this.colorActual = card.color;
+        }
+
+        // ¿Ganó?
+        if (jugador.mano.length === 0) {
+            this.ganador = jugador;
+            return { ok: true, ganador: jugador };
+        }
+
+        // Aplicar efecto
+        const otro = (this.turno + 1) % 2;
+        switch (card.value) {
+            case 'skip':
+                // El siguiente pierde el turno (queda el mismo)
+                break;
+            case 'reverse':
+                // 1v1: reverse = mismo efecto que skip (el mismo jugador sigue)
+                break;
+            case 'draw2': {
+                this.robar(this.jugadores[otro], 2);
+                this.turno = otro;
+                // Saltar al siguiente (que es el jugador original)
+                this.turno = (this.turno + 1) % 2;
+                return { ok: true };
+            }
+            case 'wild4': {
+                this.robar(this.jugadores[otro], 4);
+                this.turno = otro;
+                this.turno = (this.turno + 1) % 2;
+                return { ok: true };
+            }
+        }
+
+        // Turno normal
+        this.turno = otro;
+        return { ok: true };
+    }
+
+    robarTurno(jugador) {
+        if (this.ganador) return;
+        if (jugador !== this.jugadorActual) return;
+        this.robar(jugador, 1);
+        this.turno = (this.turno + 1) % 2;
+    }
+}
 
 // ============================================================
 //  API del shell
@@ -48,7 +224,7 @@ function aplicarTemaDelPadre() {
             const val = sp.getPropertyValue(v).trim();
             if (val) document.documentElement.style.setProperty(v, val);
         });
-    } catch (e) { /* silencioso */ }
+    } catch (e) {}
 }
 window.addEventListener('message', e => {
     if (e.data && e.data.type === MENSAJE_TEMA) aplicarTemaDelPadre();
@@ -85,63 +261,23 @@ function mostrarJoinStatus(txt, tipo) {
     el.className = 'status-msg ' + (tipo || '');
 }
 
-// Normalizar valores que devuelve uno-engine
-function normValue(v) {
-    if (typeof v === 'number') return v;
-    if (typeof v !== 'string') return v;
-    return v.toLowerCase();
-}
-function normColor(c) {
-    if (typeof c !== 'string') return c;
-    return c.toLowerCase();
-}
-
-// Renderiza el contenido de una carta (HTML con iconos Lucide)
+// Renderiza el interior de una carta (número o icono)
 function renderCardInner(card) {
-    const val = normValue(card.value);
-    const color = normColor(card.color);
-
-    if (color === 'wild' || val === 'wild') {
-        return `<span class="card-value small">W</span>`;
+    if (!card) return '';
+    if (card.value === 'wild' || card.value === 'wild4') {
+        // Wild: círculo de 4 colores vía CSS, texto W
+        return `<span class="card-value small">${card.value === 'wild4' ? '+4' : 'W'}</span>`;
     }
-    if (val === 'wild_draw_four') {
-        return `<span class="card-value tiny">+4</span>`;
-    }
-    if (val === 'draw_two') return `<span class="card-value small">+2</span>`;
-    if (val === 'reverse')  return `<i data-lucide="arrow-left-right"></i>`;
-    if (val === 'skip')     return `<i data-lucide="ban"></i>`;
-    return `<span class="card-value">${val}</span>`;
+    if (card.value === 'draw2') return `<span class="card-value small">+2</span>`;
+    if (card.value === 'reverse')  return `<i data-lucide="arrow-left-right"></i>`;
+    if (card.value === 'skip')     return `<i data-lucide="ban"></i>`;
+    return `<span class="card-value">${card.value}</span>`;
 }
 
-// ¿Es jugable esta carta contra el top + color actual?
-function esJugable(card, topCard, currentColor) {
-    if (!card || !topCard) return false;
-    const c = normColor(card.color);
-    const v = normValue(card.value);
-    const tv = normValue(topCard.value);
-    const cc = normColor(currentColor);
-
-    // Wild siempre jugable (uno-engine valida el resto)
-    if (c === 'wild' || v === 'wild' || v === 'wild_draw_four') return true;
-
-    // Coincidir color
-    if (c === cc) return true;
-
-    // Coincidir valor (número con número, acción con acción)
-    if (typeof v === 'number' && typeof tv === 'number' && v === tv) return true;
-    if (typeof v === 'string' && v === tv) return true;
-
-    return false;
-}
-
-// Crea el elemento DOM de una carta
 function crearCardEl(card, opts = {}) {
     const el = document.createElement('div');
     el.className = 'card';
-    const color = normColor(card.color);
-    const val = normValue(card.value);
-    const esWild = color === 'wild' || val === 'wild' || val === 'wild_draw_four';
-    el.dataset.color = esWild ? 'wild' : color;
+    el.dataset.color = card.color === 'wild' ? 'wild' : card.color;
     el.innerHTML = renderCardInner(card);
 
     if (opts.corner) {
@@ -153,14 +289,12 @@ function crearCardEl(card, opts = {}) {
 }
 
 // ============================================================
-//  ESTADO GLOBAL
+//  ESTADO
 // ============================================================
-let UnoEngine = null;
 let usuarioActual = null;
-
 let modo = null;              // 'real' | 'cpu'
 let rol = null;               // 'host' | 'guest' | 'cpu'
-let game = null;              // instancia uno-engine (solo host/cpu)
+let partida = null;           // instancia Partida (host/cpu)
 let peer = null;
 let conn = null;
 let roomCode = '';
@@ -169,13 +303,6 @@ let esperandoCPU = false;
 let cartaSeleccionada = null;
 let matchOver = false;
 let ultimoEstadoJSON = '';
-
-// Carga perezosa del motor
-async function cargarEngine() {
-    if (UnoEngine) return UnoEngine;
-    UnoEngine = await import(ENGINE_URL);
-    return UnoEngine;
-}
 
 // ============================================================
 //  INIT
@@ -204,7 +331,6 @@ document.addEventListener('DOMContentLoaded', () => {
     $('btnBack').addEventListener('click', () => cambiarPantalla('Lobby'));
     $('btnConnect').addEventListener('click', conectarP2P);
     $('btnExit').addEventListener('click', salirPartida);
-
     $('deckPile').addEventListener('click', clickDeck);
 
     document.querySelectorAll('.color-opt').forEach(b => {
@@ -221,11 +347,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (modo === 'cpu') {
             iniciarModoCPU();
         } else if (rol === 'host') {
-            game = null;
+            partida = null;
             matchOver = false;
-            iniciarHost();
+            iniciarHost(rivalName);
         } else {
-            // Guest: sale al lobby para reconectar
             limpiarTodo();
             cambiarPantalla('Lobby');
         }
@@ -237,16 +362,11 @@ document.addEventListener('DOMContentLoaded', () => {
 // ============================================================
 //  MODO CPU
 // ============================================================
-async function iniciarModoCPU() {
+function iniciarModoCPU() {
     rol = 'cpu';
     rivalName = 'CPU';
-    try { await cargarEngine(); }
-    catch (e) {
-        toast('No se pudo cargar el motor de cartas', 'error');
-        return;
-    }
     matchOver = false;
-    startGame([usuarioActual.nombre || 'Tú', 'CPU']);
+    partida = new Partida([usuarioActual.nombre || 'Tú', 'CPU']);
     $('roomBadge').hidden = true;
     cambiarPantalla('Game');
     render();
@@ -256,7 +376,7 @@ async function iniciarModoCPU() {
 // ============================================================
 //  MODO P2P
 // ============================================================
-async function conectarP2P() {
+function conectarP2P() {
     roomCode = $('roomInput').value.trim().toUpperCase();
     if (!roomCode) {
         mostrarJoinStatus('Ingresá un código de sala', 'error');
@@ -271,9 +391,8 @@ async function conectarP2P() {
         ? PREFIJO_PEER + roomCode
         : PREFIJO_PEER + 'guest_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
 
-    try {
-        peer = new Peer(myPeerId, { debug: 0 });
-    } catch (e) {
+    try { peer = new Peer(myPeerId, { debug: 0 }); }
+    catch (e) {
         mostrarJoinStatus('Error al crear Peer: ' + e.message, 'error');
         $('btnConnect').disabled = false;
         return;
@@ -298,7 +417,6 @@ async function conectarP2P() {
 function onConnEntrante(c) {
     if (conn) { try { c.close(); } catch (e) {} return; }
     conn = c;
-
     conn.on('open', () => {
         conn.send({ type: 'hello', nombre: usuarioActual.nombre || 'Rival' });
     });
@@ -310,7 +428,6 @@ function onConnEntrante(c) {
 function conectarAlHost() {
     const hostId = PREFIJO_PEER + roomCode;
     conn = peer.connect(hostId, { reliable: true });
-
     conn.on('open', () => {
         conn.send({ type: 'hello', nombre: usuarioActual.nombre || 'Rival' });
         mostrarJoinStatus('¡Conectado!', 'success');
@@ -327,47 +444,44 @@ function conectarAlHost() {
 // ============================================================
 //  MENSAJES — HOST
 // ============================================================
-async function onDataHost(data) {
+function onDataHost(data) {
     if (!data || typeof data !== 'object') return;
 
     if (data.type === 'hello') {
         rivalName = data.nombre || 'Rival';
-        try { await cargarEngine(); }
-        catch (e) { toast('Error al cargar motor', 'error'); return; }
-
-        matchOver = false;
-        startGame([usuarioActual.nombre || 'Host', rivalName]);
-        $('roomBadge').hidden = false;
-        $('roomBadge').textContent = 'Sala: ' + roomCode;
-        cambiarPantalla('Game');
-        render();
-        enviarEstadoAGuest();
+        iniciarHost(rivalName);
         return;
     }
 
     if (data.type === 'play') {
-        if (matchOver || esMiTurno()) return;
-        try {
-            const player = game.currentPlayer;
-            const card = player.hand[data.cardIndex];
-            if (!card) { enviarEstadoAGuest(); return; }
-            const ok = player.play(card, data.chosenColor);
-            if (!ok) toast('Jugada rechazada', 'error');
-        } catch (e) { console.warn('Error play:', e); }
+        if (matchOver || !partida) return;
+        if (partida.jugadorActual !== partida.jugadores[1]) return;
+        const res = partida.jugar(partida.jugadores[1], data.cardIndex, data.chosenColor);
+        if (!res.ok) toast(res.motivo || 'Jugada inválida', 'error');
         render();
         enviarEstadoAGuest();
-        checkFinLocal();
+        if (partida.ganador) mostrarFin(partida.ganador === partida.jugadores[0]);
         return;
     }
 
     if (data.type === 'draw') {
-        if (matchOver || esMiTurno()) return;
-        try { game.currentPlayer.draw(); }
-        catch (e) { console.warn('Error draw:', e); }
+        if (matchOver || !partida) return;
+        if (partida.jugadorActual !== partida.jugadores[1]) return;
+        partida.robarTurno(partida.jugadores[1]);
         render();
         enviarEstadoAGuest();
         return;
     }
+}
+
+function iniciarHost(nombreRival) {
+    matchOver = false;
+    partida = new Partida([usuarioActual.nombre || 'Host', nombreRival || 'Rival']);
+    $('roomBadge').hidden = false;
+    $('roomBadge').textContent = 'Sala: ' + roomCode;
+    cambiarPantalla('Game');
+    render();
+    enviarEstadoAGuest();
 }
 
 // ============================================================
@@ -375,76 +489,50 @@ async function onDataHost(data) {
 // ============================================================
 function onDataGuest(data) {
     if (!data || typeof data !== 'object') return;
-    if (data.type === 'state') { renderDesdeSnapshot(data); return; }
-    if (data.type === 'error') { toast(data.msg || 'Error', 'error'); return; }
+    if (data.type === 'state') renderDesdeSnapshot(data);
 }
 
 // ============================================================
-//  ENGINE
+//  HELPERS DE TURNO
 // ============================================================
-function startGame(names) {
-    const { Game } = UnoEngine;
-    game = new Game(names);
-    if (typeof game.start === 'function') {
-        try { game.start(); } catch (e) { /* no-op */ }
-    }
-}
-
 function esMiTurno() {
-    if (!game || rol === 'guest') return false;
-    const miNombre = rol === 'cpu' ? (usuarioActual.nombre || 'Tú') : (usuarioActual.nombre || 'Host');
-    try { return game.currentPlayer?.name === miNombre; }
-    catch (e) { return false; }
+    if (!partida || rol === 'guest') return false;
+    return partida.jugadorActual === partida.jugadores[0];
 }
-
 function esTurnoCPU() {
-    if (rol !== 'cpu' || !game) return false;
-    try { return game.currentPlayer?.name === 'CPU'; }
-    catch (e) { return false; }
+    if (rol !== 'cpu' || !partida) return false;
+    return partida.jugadorActual === partida.jugadores[1];
 }
 
 // ============================================================
 //  SNAPSHOT
 // ============================================================
-function serializarCarta(card) {
-    if (!card) return null;
-    return { color: normColor(card.color), value: normValue(card.value) };
-}
+function serializarCarta(c) { return c ? { color: c.color, value: c.value } : null; }
 
 function construirSnapshot() {
-    if (!game) return null;
-    try {
-        const jugadores = game.players || [];
-        const hostPlayer = jugadores[0];
-        const guestPlayer = jugadores[1];
-        const discarded = game.discardedPile || [];
-        const topCard = discarded[discarded.length - 1] || null;
-        const currentPlayerName = game.currentPlayer?.name;
-        const miNombre = usuarioActual.nombre || 'Host';
-
-        return {
-            type: 'state',
-            myHand: (guestPlayer?.hand || []).map(serializarCarta),
-            oppCount: (hostPlayer?.hand || []).length,
-            topCard: serializarCarta(topCard),
-            currentColor: normColor(game.currentColor),
-            currentTurn: currentPlayerName === miNombre ? 'host' : 'guest',
-            drawPileCount: (game.drawPile || []).length,
-            winner: game.winner
-                ? (game.winner.name === miNombre ? 'host' : 'guest')
-                : null
-        };
-    } catch (e) {
-        console.warn('Error construyendo snapshot:', e);
-        return null;
-    }
+    if (!partida) return null;
+    const host = partida.jugadores[0];
+    const guest = partida.jugadores[1];
+    const turno = partida.jugadorActual === host ? 'host' : 'guest';
+    return {
+        type: 'state',
+        myHand: guest.mano.map(serializarCarta),
+        oppCount: host.mano.length,
+        topCard: serializarCarta(partida.topCard),
+        currentColor: partida.colorActual,
+        currentTurn: turno,
+        drawPileCount: partida.mazo.length,
+        winner: partida.ganador
+            ? (partida.ganador === host ? 'host' : 'guest')
+            : null
+    };
 }
 
 function enviarEstadoAGuest() {
     if (!conn || !conn.open) return;
     const snap = construirSnapshot();
     if (!snap) return;
-    try { conn.send(snap); } catch (e) { console.warn(e); }
+    try { conn.send(snap); } catch (e) {}
 }
 
 // ============================================================
@@ -452,46 +540,31 @@ function enviarEstadoAGuest() {
 // ============================================================
 function render() {
     if (rol === 'guest') return;
-    renderLocal();
-}
+    if (!partida) return;
 
-function renderLocal() {
-    if (!game) return;
-    const discarded = game.discardedPile || [];
-    const topCard = discarded[discarded.length - 1];
-    const currentColor = normColor(game.currentColor);
-    const currentPlayerName = game.currentPlayer?.name;
-    const miNombre = rol === 'cpu' ? (usuarioActual.nombre || 'Tú') : (usuarioActual.nombre || 'Host');
-    const miTurno = currentPlayerName === miNombre;
+    const topCard = partida.topCard;
+    const colorActual = partida.colorActual;
+    const miTurno = esMiTurno();
+    const oppPlayer = partida.jugadores[1];
+    const oppCount = oppPlayer.mano.length;
 
-    const oppPlayer = (game.players || [])[1];
-    const oppCount = (oppPlayer?.hand || []).length;
     $('oppCount').textContent = oppCount;
     $('rivalName').textContent = rol === 'cpu' ? 'CPU' : rivalName;
     $('oppCards').classList.toggle('alert', oppCount === 1);
 
     const colorEl = $('colorIndicator');
-    if (colorEl) {
-        if (currentColor && currentColor !== 'wild') {
-            colorEl.dataset.color = currentColor;
-        } else {
-            colorEl.dataset.color = 'wild';
-        }
-    }
+    if (colorEl) colorEl.dataset.color = colorActual || 'wild';
 
-    $('deckCount').textContent = (game.drawPile || []).length;
+    $('deckCount').textContent = partida.mazo.length;
 
     const discardEl = $('discardPile');
     discardEl.innerHTML = '';
-    if (topCard) {
-        discardEl.appendChild(crearCardEl(topCard, { corner: true }));
-    }
+    if (topCard) discardEl.appendChild(crearCardEl(topCard, { corner: true }));
 
-    // Status
     const statusBar = $('statusBar');
     const statusTxt = $('statusText');
     const statusIcon = $('statusIcon');
-    if (miTurno) {
+    if (miTurno && !matchOver) {
         statusBar.classList.add('mi-turno');
         statusBar.classList.remove('esperando');
         statusTxt.textContent = 'Tu turno';
@@ -503,11 +576,9 @@ function renderLocal() {
         if (statusIcon) statusIcon.setAttribute('data-lucide', 'hourglass');
     }
 
-    // Mi mano
     const myHand = $('myHand');
     myHand.innerHTML = '';
-    const myCards = (game.players?.[0]?.hand) || [];
-
+    const myCards = partida.jugadores[0].mano;
     if (myCards.length === 0) {
         const empty = document.createElement('div');
         empty.className = 'hand-empty';
@@ -516,7 +587,7 @@ function renderLocal() {
     } else {
         myCards.forEach((card, idx) => {
             const el = crearCardEl(card);
-            const jugable = miTurno && !matchOver && esJugable(card, topCard, currentColor);
+            const jugable = miTurno && !matchOver && puedeJugar(card, topCard, colorActual);
             el.classList.add(jugable ? 'jugable' : 'no-jugable');
             el.addEventListener('click', () => clickCarta(idx, jugable));
             myHand.appendChild(el);
@@ -529,7 +600,7 @@ function renderLocal() {
 }
 
 // ============================================================
-//  RENDER (guest, desde snapshot)
+//  RENDER (guest)
 // ============================================================
 function renderDesdeSnapshot(snap) {
     const json = JSON.stringify(snap);
@@ -541,23 +612,19 @@ function renderDesdeSnapshot(snap) {
     $('oppCards').classList.toggle('alert', snap.oppCount === 1);
 
     const colorEl = $('colorIndicator');
-    if (colorEl) {
-        colorEl.dataset.color = snap.currentColor === 'wild' ? 'wild' : snap.currentColor;
-    }
+    if (colorEl) colorEl.dataset.color = snap.currentColor || 'wild';
 
     $('deckCount').textContent = snap.drawPileCount;
 
     const discardEl = $('discardPile');
     discardEl.innerHTML = '';
-    if (snap.topCard) {
-        discardEl.appendChild(crearCardEl(snap.topCard, { corner: true }));
-    }
+    if (snap.topCard) discardEl.appendChild(crearCardEl(snap.topCard, { corner: true }));
 
-    const esMiTurno = snap.currentTurn === 'guest';
+    const esMiTurnoAhora = snap.currentTurn === 'guest';
     const statusBar = $('statusBar');
     const statusTxt = $('statusText');
     const statusIcon = $('statusIcon');
-    if (esMiTurno && !snap.winner) {
+    if (esMiTurnoAhora && !snap.winner) {
         statusBar.classList.add('mi-turno');
         statusBar.classList.remove('esperando');
         statusTxt.textContent = 'Tu turno';
@@ -579,14 +646,14 @@ function renderDesdeSnapshot(snap) {
     } else {
         (snap.myHand || []).forEach((card, idx) => {
             const el = crearCardEl(card);
-            const jugable = esMiTurno && !snap.winner && esJugable(card, snap.topCard, snap.currentColor);
+            const jugable = esMiTurnoAhora && !snap.winner && puedeJugar(card, snap.topCard, snap.currentColor);
             el.classList.add(jugable ? 'jugable' : 'no-jugable');
             el.addEventListener('click', () => clickCartaGuest(idx, jugable));
             myHand.appendChild(el);
         });
     }
 
-    $('deckPile').disabled = !esMiTurno || !!snap.winner;
+    $('deckPile').disabled = !esMiTurnoAhora || !!snap.winner;
 
     if (snap.winner) mostrarFin(snap.winner === 'guest');
 
@@ -597,14 +664,10 @@ function renderDesdeSnapshot(snap) {
 //  INTERACCIÓN
 // ============================================================
 function clickCarta(idx, jugable) {
-    if (!jugable || matchOver) return;
-    const card = game.players[0].hand[idx];
+    if (!jugable || matchOver || !partida) return;
+    const card = partida.jugadores[0].mano[idx];
     if (!card) return;
-    const color = normColor(card.color);
-    const val = normValue(card.value);
-    const esWild = color === 'wild' || val === 'wild' || val === 'wild_draw_four';
-
-    if (esWild) {
+    if (esWild(card)) {
         cartaSeleccionada = idx;
         $('modalColor').hidden = false;
         if (window.lucide) lucide.createIcons();
@@ -619,9 +682,7 @@ function clickCartaGuest(idx, jugable) {
     const snap = JSON.parse(ultimoEstadoJSON || '{}');
     const card = (snap.myHand || [])[idx];
     if (!card) return;
-    const esWild = card.color === 'wild' || card.value === 'wild' || card.value === 'wild_draw_four';
-
-    if (esWild) {
+    if (card.color === 'wild') {
         cartaSeleccionada = idx;
         $('modalColor').hidden = false;
         if (window.lucide) lucide.createIcons();
@@ -634,7 +695,6 @@ function elegirColor(color) {
     const idx = cartaSeleccionada;
     cartaSeleccionada = null;
     $('modalColor').hidden = true;
-
     if (idx === null || idx === undefined) return;
 
     if (rol === 'guest') {
@@ -645,26 +705,14 @@ function elegirColor(color) {
     jugarLocal(idx, color);
 }
 
-function jugarLocal(idx, chosenColor) {
-    if (!game) return;
-    try {
-        const player = game.currentPlayer;
-        const card = player.hand[idx];
-        if (!card) return;
-        const ok = player.play(card, chosenColor);
-        if (!ok) {
-            toast('Jugada no válida', 'error');
-            return;
-        }
-    } catch (e) {
-        console.warn('Error jugando carta:', e);
-        toast('Error al jugar carta', 'error');
-        return;
-    }
+function jugarLocal(idx, colorElegido) {
+    if (!partida) return;
+    const res = partida.jugar(partida.jugadores[0], idx, colorElegido);
+    if (!res.ok) { toast(res.motivo || 'Jugada inválida', 'error'); return; }
     render();
     if (rol === 'host') enviarEstadoAGuest();
-    checkFinLocal();
-    if (rol === 'cpu' && !matchOver) programarTurnoCPU();
+    if (partida.ganador) { mostrarFin(partida.ganador === partida.jugadores[0]); return; }
+    if (rol === 'cpu') programarTurnoCPU();
 }
 
 function clickDeck() {
@@ -676,12 +724,11 @@ function clickDeck() {
         conn.send({ type: 'draw' });
         return;
     }
-    if (!esMiTurno()) return;
-    try { game.currentPlayer.draw(); }
-    catch (e) { console.warn(e); }
+    if (!partida || !esMiTurno()) return;
+    partida.robarTurno(partida.jugadores[0]);
     render();
     if (rol === 'host') enviarEstadoAGuest();
-    if (rol === 'cpu' && !matchOver) programarTurnoCPU();
+    if (rol === 'cpu') programarTurnoCPU();
 }
 
 // ============================================================
@@ -692,64 +739,55 @@ function programarTurnoCPU() {
     esperandoCPU = true;
     setTimeout(() => {
         esperandoCPU = false;
-        if (rol !== 'cpu' || matchOver || !game) return;
+        if (rol !== 'cpu' || matchOver || !partida) return;
         if (!esTurnoCPU()) return;
         jugarTurnoCPU();
     }, 900);
 }
 
 function jugarTurnoCPU() {
-    if (!game || matchOver) return;
-    const player = game.currentPlayer;
-    const hand = player.hand || [];
-    const discarded = game.discardedPile || [];
-    const topCard = discarded[discarded.length - 1];
-    const currentColor = normColor(game.currentColor);
+    if (!partida || matchOver) return;
+    const cpu = partida.jugadores[1];
+    const topCard = partida.topCard;
+    const colorActual = partida.colorActual;
 
-    let elegida = null;
-    let wildEncontrada = null;
-
-    for (const c of hand) {
-        const cc = normColor(c.color);
-        const cv = normValue(c.value);
-        const esWild = cc === 'wild' || cv === 'wild' || cv === 'wild_draw_four';
-        if (esWild) { wildEncontrada = c; continue; }
-        if (esJugable(c, topCard, currentColor)) {
-            elegida = c;
-            if (typeof cv === 'string') break; // Prefiere acciones
+    // Buscar mejor: acción > número > wild
+    let accion = null, numero = null, wild = null;
+    for (const c of cpu.mano) {
+        if (!puedeJugar(c, topCard, colorActual)) continue;
+        if (c.color === 'wild') { wild = c; continue; }
+        if (typeof c.value === 'string' && c.value !== 'wild' && c.value !== 'wild4') {
+            if (!accion) accion = c;
+        } else {
+            if (!numero) numero = c;
         }
     }
 
-    if (elegida) {
-        try { player.play(elegida); } catch (e) { console.warn(e); }
-    } else if (wildEncontrada) {
-        const counts = { red: 0, blue: 0, green: 0, yellow: 0 };
-        hand.forEach(c => {
-            const cc = normColor(c.color);
-            if (counts[cc] !== undefined) counts[cc]++;
-        });
-        const colorElegido = Object.keys(counts).reduce((a, b) => counts[a] >= counts[b] ? a : b);
-        try { player.play(wildEncontrada, colorElegido); } catch (e) { console.warn(e); }
+    const cartaAJugar = accion || numero || wild;
+
+    if (cartaAJugar) {
+        const idx = cpu.mano.indexOf(cartaAJugar);
+        let colorElegido = null;
+        if (cartaAJugar.color === 'wild') {
+            const counts = { red: 0, blue: 0, green: 0, yellow: 0 };
+            cpu.mano.forEach(c => { if (counts[c.color] !== undefined) counts[c.color]++; });
+            colorElegido = Object.keys(counts).reduce((a, b) => counts[a] >= counts[b] ? a : b);
+        }
+        const res = partida.jugar(cpu, idx, colorElegido);
+        if (!res.ok) partida.robarTurno(cpu);
     } else {
-        try { player.draw(); } catch (e) { console.warn(e); }
+        partida.robarTurno(cpu);
     }
+
     render();
-    checkFinLocal();
-    if (rol === 'cpu' && !matchOver && esTurnoCPU()) programarTurnoCPU();
+    if (partida.ganador) { mostrarFin(partida.ganador === partida.jugadores[0]); return; }
+    if (esTurnoCPU()) programarTurnoCPU();
 }
 
 // ============================================================
 //  FIN DE PARTIDA
 // ============================================================
-function checkFinLocal() {
-    if (!game || !game.winner) return;
-    const miNombre = rol === 'cpu' ? (usuarioActual.nombre || 'Tú') : (usuarioActual.nombre || 'Host');
-    const gane = game.winner.name === miNombre;
-    if (rol === 'host') enviarEstadoAGuest();
-    mostrarFin(gane);
-}
-
-async function mostrarFin(gane) {
+function mostrarFin(gane) {
     if (matchOver && !$('modalFin').hidden) return;
     matchOver = true;
 
@@ -800,7 +838,7 @@ function onRivalDesconectado() {
 }
 
 function salirPartida() {
-    if (!matchOver && game && !game.winner) {
+    if (!matchOver && partida && !partida.ganador) {
         if (!confirm('¿Salir de la partida?')) return;
     }
     limpiarTodo();
@@ -812,7 +850,7 @@ function limpiarTodo() {
     try { if (peer) peer.destroy(); } catch (e) {}
     conn = null;
     peer = null;
-    game = null;
+    partida = null;
     matchOver = false;
     cartaSeleccionada = null;
     ultimoEstadoJSON = '';
