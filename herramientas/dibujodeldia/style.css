@@ -677,8 +677,18 @@ body {
     font-family: inherit;
     font-size: 12.5px;
     font-weight: 700;
-    color: var(--gray-800, #27272A);
+    color: var(--text, #18181B);
     cursor: pointer;
+    color-scheme: light dark;
+}
+
+/* FIX 3: forzar contraste legible en el dropdown nativo */
+.dd-tema-picker select option {
+    background: #FFFFFF;
+    color: #18181B;
+    font-weight: 600;
+    font-family: 'Nunito', sans-serif;
+    padding: 8px;
 }
 
 .dd-canvas-zone {
@@ -719,27 +729,38 @@ body {
     background: var(--white, #FFFFFF);
     border-top: 1px solid var(--border, #E8E8EE);
 }
+
+/* FIX 2: sin overflow ni max-height — el anillo de selección
+   nunca se corta. Con solo 6 colores no hace falta scroll. */
 .dd-paleta {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 10px;
     justify-content: center;
-    max-height: 80px;
-    overflow-y: auto;
+    padding: 6px 4px;
 }
+
 .dd-color-swatch {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     border: 2px solid var(--border, #E8E8EE);
     cursor: pointer;
-    transition: transform 0.15s;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
     padding: 0;
     flex-shrink: 0;
+    background-clip: padding-box;
 }
-.dd-color-swatch:hover { transform: scale(1.12); }
+.dd-color-swatch:hover {
+    transform: scale(1.12);
+}
 .dd-color-swatch.seleccionado {
-    box-shadow: 0 0 0 2px var(--white, #FFFFFF), 0 0 0 3.5px var(--violet-500, #8B5CF6);
+    transform: scale(1.1);
+    border-color: var(--white, #FFFFFF);
+    box-shadow:
+        0 0 0 2px var(--white, #FFFFFF),
+        0 0 0 4px var(--violet-500, #8B5CF6);
+    z-index: 1;
 }
 
 .dd-dibujar-acciones {
@@ -1083,8 +1104,8 @@ body {
 
     .dd-canvas-zone { padding: 10px; }
     .dd-paleta-wrap { padding: 8px 10px; }
-    .dd-paleta { gap: 5px; }
-    .dd-color-swatch { width: 24px; height: 24px; }
+    .dd-paleta { gap: 8px; }
+    .dd-color-swatch { width: 28px; height: 28px; }
 
     .dd-dibujar-acciones { padding: 8px 10px; gap: 6px; }
     .dd-btn-sec { padding: 9px 12px; font-size: 12px; }
