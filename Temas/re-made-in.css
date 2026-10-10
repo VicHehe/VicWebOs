@@ -1030,3 +1030,33 @@
     .welcome-section::after { opacity: 1; }
     .sidebar-comunidad::after { transform: rotate(-4deg); }
 }
+
+/* ================================================
+   Re-Made in · PARCHE v5 — Fix del sidebar
+   Se pega DESPUÉS del parche v4.
+   El grid 3D con position: fixed se veía a través
+   del sidebar. Le subimos el z-index para taparlo.
+   ================================================ */
+
+.sidebar {
+    position: relative;
+    z-index: 10;
+    isolation: isolate;
+}
+
+/* Aseguramos que el contenido interno del sidebar
+   también quede por encima del grid */
+.sidebar-comunidad,
+.sidebar-label,
+.sidebar-nav,
+.sidebar-mobile-header {
+    position: relative;
+    z-index: 2;
+}
+
+/* Y el header también, por si el grid llegara tan arriba */
+.app-header {
+    position: relative;
+    z-index: 10;
+    isolation: isolate;
+}
