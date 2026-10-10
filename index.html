@@ -157,7 +157,6 @@
         <div class="noti-panel" id="notiPanel"></div>
     </div>
 
-    <!-- ====== MODAL "VER TODAS" ====== -->
     <div id="modalTodas" class="modal-todas-overlay" style="display:none;">
         <div class="modal-todas-card">
             <div class="modal-todas-header">
@@ -171,7 +170,6 @@
         </div>
     </div>
 
-    <!-- ====== MODAL CONFIGURACIÓN ====== -->
     <div id="configOverlay" class="config-overlay" style="display:none;">
         <div class="config-card">
             <div class="config-header">
@@ -340,7 +338,6 @@
                         </div>
                     </section>
 
-                    <!-- ============ COMUNIDADES ============ -->
                     <section class="config-panel" data-panel="bd">
                         <div class="config-panel-header">
                             <h3>Comunidades</h3>
@@ -358,7 +355,6 @@
                             </button>
                         </div>
 
-                        <!-- ============ VISTA: MIS COMUNIDADES ============ -->
                         <div class="bd-vista active" data-bdvista="mias">
                             <div class="config-info-box">
                                 <i data-lucide="info"></i>
@@ -372,7 +368,6 @@
                                 Crear nueva comunidad
                             </button>
 
-                            <!-- Formulario (crear/editar) -->
                             <div id="bdFormulario" class="bd-formulario" style="display:none;">
                                 <div class="bd-formulario-header">
                                     <h4 id="bdFormularioTitulo">Nueva comunidad</h4>
@@ -381,7 +376,6 @@
                                     </button>
                                 </div>
 
-                                <!-- PASO 1: Nombre -->
                                 <div class="config-field">
                                     <label>1. Ponle un nombre a tu comunidad</label>
                                     <input type="text" id="bdNombreComunidad" placeholder="Ej: Mi pareja, Amigos del barrio..." maxlength="40">
@@ -398,7 +392,6 @@
                                     </button>
                                 </div>
 
-                                <!-- PASO 2: Método -->
                                 <div class="config-field">
                                     <label>2. ¿Cómo quieres autenticarte?</label>
                                     <div class="bd-metodo-opciones">
@@ -431,17 +424,14 @@
                                     </div>
                                 </div>
 
-                                <!-- Slot del wizard (para método sencillo) -->
                                 <div id="onboardingWizardSlot" style="display:none; margin-bottom: 20px;"></div>
 
-                                <!-- Token manual (para método seguro) -->
                                 <div class="config-field" id="bdTokenField" style="display:none;">
                                     <label>Pega tu token fine-grained</label>
                                     <input type="password" id="bdToken" placeholder="github_pat_..." autocomplete="off">
                                     <p class="config-help" id="bdTokenAyuda">Créalo en <code>github.com/settings/personal-access-tokens</code> con permisos <code>Contents: R/W</code> y <code>Administration: R/W</code>.</p>
                                 </div>
 
-                                <!-- Resumen -->
                                 <div class="bd-resumen" id="bdResumen" style="display:none;">
                                     <div class="bd-resumen-titulo">Estás creando:</div>
                                     <div class="bd-resumen-linea">
@@ -469,7 +459,6 @@
                             </div>
                         </div>
 
-                        <!-- ============ VISTA: UNIRME A UNA ============ -->
                         <div class="bd-vista" data-bdvista="unirme">
                             <div class="config-info-box">
                                 <i data-lucide="mail"></i>
@@ -507,7 +496,6 @@
                         </div>
                     </section>
 
-                    <!-- ============ BUENAS PRÁCTICAS ============ -->
                     <section class="config-panel" data-panel="practicas">
                         <div class="config-panel-header">
                             <h3>Buenas prácticas</h3>
@@ -574,7 +562,6 @@
                         </div>
                     </section>
 
-                    <!-- ============ CRÉDITOS ============ -->
                     <section class="config-panel" data-panel="creditos">
 
                         <div class="config-panel-header">
@@ -806,7 +793,6 @@
         </div>
     </div>
 
-    <!-- ====== MODAL LOGROS ====== -->
     <div id="logrosOverlay" class="logros-overlay">
         <div class="logros-card">
             <div class="logros-header">
@@ -822,7 +808,6 @@
         </div>
     </div>
 
-    <!-- ====== MODAL COMPARTIR COMUNIDAD ====== -->
     <div id="modalCompartir" class="compartir-overlay" style="display:none;">
         <div class="compartir-card">
             <div class="compartir-header">
