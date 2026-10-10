@@ -238,7 +238,7 @@ function toast(texto, tipo = 'info') {
     const el = document.getElementById('toast');
     if (!el) return;
     el.textContent = texto;
-    el.className = 'toast show ' + tipo;
+    el.className = 'pm-toast show ' + tipo;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
 }
@@ -257,8 +257,9 @@ function cambiarPantalla(n) {
 
 function mostrarJoinStatus(txt, tipo) {
     const el = $('joinStatus');
+    if (!el) return;
     el.textContent = txt || '';
-    el.className = 'status-msg ' + (tipo || '');
+    el.className = 'pm-status-msg ' + (tipo || '');
 }
 
 // Renderiza el interior de una carta (número o icono)
@@ -317,10 +318,17 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    const roomInp = $('roomInput');
-    roomInp.value = usuarioActual.codigo || 'primero';
+    // Badge del header
+    const badge = $('pmUserBadge');
+    if (badge) {
+        badge.textContent = `@${usuarioActual.codigo} · ${usuarioActual.nombre || ''}`;
+    }
 
-    document.querySelectorAll('.mode-card').forEach(btn => {
+    const roomInp = $('roomInput');
+    if (roomInp) roomInp.value = usuarioActual.codigo || 'primero';
+
+    // Botones del lobby (Contra amigo / Contra CPU)
+    document.querySelectorAll('.pm-mode-card').forEach(btn => {
         btn.addEventListener('click', () => {
             const m = btn.dataset.mode;
             if (m === 'real') { modo = 'real'; cambiarPantalla('Join'); }
@@ -328,21 +336,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    $('btnBack').addEventListener('click', () => cambiarPantalla('Lobby'));
-    $('btnConnect').addEventListener('click', conectarP2P);
-    $('btnExit').addEventListener('click', salirPartida);
-    $('deckPile').addEventListener('click', clickDeck);
+    $('btnBack')?.addEventListener('click', () => cambiarPantalla('Lobby'));
+    $('btnConnect')?.addEventListener('click', conectarP2P);
+    $('btnExit')?.addEventListener('click', salirPartida);
+    $('deckPile')?.addEventListener('click', clickDeck);
 
     document.querySelectorAll('.color-opt').forEach(b => {
         b.addEventListener('click', () => elegirColor(b.dataset.color));
     });
 
-    $('btnSalirMenu').addEventListener('click', () => {
+    $('btnSalirMenu')?.addEventListener('click', () => {
         $('modalFin').hidden = true;
         limpiarTodo();
         cambiarPantalla('Lobby');
     });
-    $('btnRevancha').addEventListener('click', () => {
+    $('btnRevancha')?.addEventListener('click', () => {
         $('modalFin').hidden = true;
         if (modo === 'cpu') {
             iniciarModoCPU();
@@ -367,7 +375,8 @@ function iniciarModoCPU() {
     rivalName = 'CPU';
     matchOver = false;
     partida = new Partida([usuarioActual.nombre || 'Tú', 'CPU']);
-    $('roomBadge').hidden = true;
+    const badge = $('roomBadge');
+    if (badge) badge.hidden = true;
     cambiarPantalla('Game');
     render();
     if (esTurnoCPU()) programarTurnoCPU();
@@ -477,8 +486,11 @@ function onDataHost(data) {
 function iniciarHost(nombreRival) {
     matchOver = false;
     partida = new Partida([usuarioActual.nombre || 'Host', nombreRival || 'Rival']);
-    $('roomBadge').hidden = false;
-    $('roomBadge').textContent = 'Sala: ' + roomCode;
+    const badge = $('roomBadge');
+    if (badge) {
+        badge.hidden = false;
+        badge.textContent = 'Sala: ' + roomCode;
+    }
     cambiarPantalla('Game');
     render();
     enviarEstadoAGuest();
@@ -855,13 +867,14 @@ function limpiarTodo() {
     cartaSeleccionada = null;
     ultimoEstadoJSON = '';
     esperandoCPU = false;
-    $('btnConnect').disabled = false;
+    const btnC = $('btnConnect');
+    if (btnC) btnC.disabled = false;
     mostrarJoinStatus('', '');
-    $('myHand').innerHTML = '';
-    $('discardPile').innerHTML = '';
-    $('roomBadge').hidden = true;
-    $('modalFin').hidden = true;
-    $('modalColor').hidden = true;
+    const h = $('myHand');      if (h) h.innerHTML = '';
+    const d = $('discardPile'); if (d) d.innerHTML = '';
+    const rb = $('roomBadge');  if (rb) rb.hidden = true;
+    const mf = $('modalFin');   if (mf) mf.hidden = true;
+    const mc = $('modalColor'); if (mc) mc.hidden = true;
 }
 
 window.addEventListener('beforeunload', () => {
