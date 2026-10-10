@@ -1,0 +1,910 @@
+/* ================================================
+   Tema: Silly Hamster
+   Cultura Pop · 55 monedas · espacio 6
+
+   Mundo pastel de criaturas pequeñas, ansiosas
+   pero valientes, con mejillas rosadas y mucho
+   corazón. Colores suaves, formas redondeadas
+   y un toque de caos adorable.
+
+   Guiños traducidos a CSS:
+     · Mejillas rosadas       → rubor que late (@property)
+     · Orejas de gato         → borde del header
+     · Orejas de conejo       → pestañas activas
+     · Carita                 → icono del hero
+     · Comida reconfortante   → patrón de fondo
+     · Temblor adorable       → wiggle suave del hero
+     · Amistad                → corazones flotando
+     · Estrellas              → lluvia al hover
+     · Formas redondeadas     → píldoras y bordes suaves
+   ================================================ */
+
+/* ------------------------------------------------------------
+   @property — el rubor de las mejillas sube y baja.
+   Las criaturas se sonrojan cuando están felices.
+   ------------------------------------------------------------ */
+@property --blush {
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 0.5;
+}
+
+@keyframes blush-pulse {
+    0%, 100% { --blush: 0.4; }
+    50%      { --blush: 1; }
+}
+
+@keyframes silly-bounce {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50%      { transform: translateY(-3px) scale(1.02); }
+}
+
+@keyframes silly-wiggle {
+    0%, 100% { transform: rotate(0deg); }
+    25%      { transform: rotate(-2deg); }
+    75%      { transform: rotate(2deg); }
+}
+
+@keyframes heart-float {
+    0%   { background-position: 10% 110%; opacity: 0; }
+    10%  { opacity: 0.9; }
+    90%  { opacity: 0.9; }
+    100% { background-position: 10% -10%; opacity: 0; }
+}
+
+@keyframes heart-float-b {
+    0%   { background-position: 80% 110%; opacity: 0; }
+    15%  { opacity: 0.7; }
+    85%  { opacity: 0.7; }
+    100% { background-position: 80% -10%; opacity: 0; }
+}
+
+@keyframes star-drift {
+    from { background-position: 0 0; }
+    to   { background-position: 160px 0; }
+}
+
+/* ------------------------------------------------------------
+   :root — paleta pastel
+   ------------------------------------------------------------ */
+:root {
+    /* Rubor animado — el corazón del tema */
+    --blush: 0.5;
+    animation: blush-pulse 3.8s ease-in-out infinite;
+
+    /* Rosa pastel (mejillas) */
+    --violet-50:  #FFF5F7;
+    --violet-100: #FFE4EC;
+    --violet-200: #FFC2D4;
+    --violet-300: #FFA3BC;
+    --violet-400: #FF8CA8;
+    --violet-500: #FF6B8A;
+    --violet-600: #E85570;
+    --violet-700: #C43D5A;
+
+    /* Cuerpo blanco cálido */
+    --white:   #FFFFFF;
+    --bg:      #FFF9F5;
+    --bg-alt:  #FFF2EC;
+    --gray-50:  #FFFDFB;
+    --gray-100: #FFF5F0;
+    --gray-200: #FFE8E0;
+    --gray-300: #F5D5CC;
+    --gray-400: #C9A8A0;
+    --gray-500: #9A7A74;
+    --gray-600: #6B5450;
+    --gray-700: #4A3634;
+    --gray-800: #2E1F1E;
+    --gray-900: #1A1212;
+
+    --border:  #FFE0D4;
+    --text:    #3D2828;
+    --text-2:  #6B5450;
+    --text-3:  #9A7A74;
+
+    /* Sombras suaves — flotando en una nube */
+    --shadow-xs: 0 1px 2px rgba(255, 107, 138, 0.05);
+    --shadow-sm: 0 2px 6px rgba(255, 107, 138, 0.08);
+    --shadow-md: 0 6px 16px rgba(255, 107, 138, 0.10);
+    --shadow-lg: 0 12px 32px rgba(255, 107, 138, 0.14);
+    --shadow-xl: 0 20px 48px rgba(255, 107, 138, 0.18);
+    --shadow-glow: 0 0 0 4px rgba(255, 194, 212, calc(0.3 + var(--blush) * 0.3));
+
+    --accent-gradient: linear-gradient(135deg, #FF8CA8 0%, #FF6B8A 100%);
+    --accent-gradient-hover: linear-gradient(135deg, #FFA3BC 0%, #FF8CA8 100%);
+    --accent-shadow: rgba(255, 107, 138, 0.30);
+    --accent-shadow-hover: rgba(255, 107, 138, 0.45);
+    --accent-text-gradient: linear-gradient(135deg, #C43D5A, #FF6B8A);
+
+    /* Celeste suave (orejas) */
+    --accent-blue: #7BABC4;
+    --accent-blue-light: #B8D4E3;
+
+    /* Amarillo cálido (orejas largas) */
+    --accent-yellow: #FFD93D;
+    --accent-yellow-light: #FFF0B3;
+
+    /* Formas ultrarredondeadas */
+    --r-sm: 10px;
+    --r-md: 16px;
+    --r-lg: 22px;
+    --r-xl: 30px;
+    --r-full: 999px;
+
+    /* ============================================================
+       PATRONES SVG
+       ============================================================ */
+
+    /* Carita — ojos grandes, mejillas rosadas */
+    --theme-face: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 50'%3E%3Cellipse cx='30' cy='28' rx='18' ry='16' fill='%23FFFFFF' stroke='%23C9A8A0' stroke-width='1.2'/%3E%3Ccircle cx='22' cy='26' r='4' fill='%232E1F1E'/%3E%3Ccircle cx='38' cy='26' r='4' fill='%232E1F1E'/%3E%3Ccircle cx='23.5' cy='24.5' r='1.3' fill='%23FFFFFF'/%3E%3Ccircle cx='39.5' cy='24.5' r='1.3' fill='%23FFFFFF'/%3E%3Ccircle cx='17' cy='33' r='4.5' fill='%23FFC2CA' opacity='0.75'/%3E%3Ccircle cx='43' cy='33' r='4.5' fill='%23FFC2CA' opacity='0.75'/%3E%3Cpath d='M27,35 Q30,38 33,35' stroke='%232E1F1E' stroke-width='1' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+
+    /* Corazón — amistad */
+    --theme-heart: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 36'%3E%3Cpath d='M20,34 C20,34 4,22 4,12 C4,6 8,2 13,2 C17,2 20,6 20,6 C20,6 23,2 27,2 C32,2 36,6 36,12 C36,22 20,34 20,34 Z' fill='%23FF8CA8' opacity='0.85'/%3E%3Cpath d='M13,8 C11,8 9,10 9,12' stroke='%23FFFFFF' stroke-width='1.5' fill='none' stroke-linecap='round' opacity='0.6'/%3E%3C/svg%3E");
+
+    /* Estrella — sueños */
+    --theme-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M20 4 L23 16 L36 18 L26 26 L29 38 L20 31 L11 38 L14 26 L4 18 L17 16 Z' fill='%23FFD93D' opacity='0.9'/%3E%3C/svg%3E");
+
+    /* Nube — cielo pastel */
+    --theme-cloud: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 40'%3E%3Cellipse cx='24' cy='28' rx='18' ry='12' fill='%23FFFFFF' opacity='0.85'/%3E%3Cellipse cx='44' cy='22' rx='22' ry='16' fill='%23FFFFFF' opacity='0.9'/%3E%3Cellipse cx='62' cy='28' rx='14' ry='10' fill='%23FFFFFF' opacity='0.85'/%3E%3C/svg%3E");
+
+    /* Estrellas para hover */
+    --theme-stars: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'%3E%3Cg fill='%23FF8CA8'%3E%3Cpath d='M20 8 L22 18 L32 20 L22 22 L20 32 L18 22 L8 20 L18 18 Z' opacity='0.8'/%3E%3Cpath d='M100 30 L101 37 L108 38 L101 39 L100 46 L99 39 L92 38 L99 37 Z' opacity='0.6'/%3E%3Cpath d='M50 100 L52 110 L62 112 L52 114 L50 124 L48 114 L38 112 L48 110 Z' opacity='0.85'/%3E%3Cpath d='M140 120 L141 127 L148 128 L141 129 L140 136 L139 129 L132 128 L139 127 Z' opacity='0.7'/%3E%3C/g%3E%3Cg fill='%23FFD93D'%3E%3Ccircle cx='70' cy='50' r='1.5'/%3E%3Ccircle cx='130' cy='70' r='1.3'/%3E%3Ccircle cx='30' cy='130' r='1.4'/%3E%3Ccircle cx='150' cy='40' r='1.2'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* Comida reconfortante */
+    --theme-food: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'%3E%3Cg transform='translate(40 50) scale(0.6)'%3E%3Cellipse cx='30' cy='30' rx='25' ry='22' fill='%23FFFFFF' stroke='%23C9A8A0' stroke-width='1.5'/%3E%3Cpath d='M8,30 Q30,10 52,30' stroke='%232E1F1E' stroke-width='1.5' fill='none'/%3E%3Ccircle cx='20' cy='25' r='2' fill='%232E1F1E'/%3E%3Ccircle cx='40' cy='25' r='2' fill='%232E1F1E'/%3E%3C/g%3E%3Cg transform='translate(160 80) scale(0.5)'%3E%3Cellipse cx='30' cy='35' rx='28' ry='20' fill='%23FFE4EC' stroke='%23FF8CA8' stroke-width='1.5'/%3E%3Cpath d='M10,35 Q30,15 50,35' stroke='%23C43D5A' stroke-width='2' fill='none'/%3E%3C/g%3E%3Cg transform='translate(80 180) scale(0.45)'%3E%3Crect x='5' y='15' width='50' height='35' rx='6' fill='%23FFD93D' stroke='%23C9A8A0' stroke-width='1.5'/%3E%3Ccircle cx='30' cy='32' r='8' fill='%23FFFFFF' opacity='0.6'/%3E%3C/g%3E%3Cg transform='translate(190 200) scale(0.35)'%3E%3Cpath d='M30,4 L37,22 L56,22 L41,34 L47,53 L30,41 L13,53 L19,34 L4,22 L23,22 Z' fill='%23FF8CA8' opacity='0.6'/%3E%3C/g%3E%3Ccircle cx='120' cy='120' r='3' fill='%23FFC2CA' opacity='0.5'/%3E%3Ccircle cx='50' cy='100' r='2.5' fill='%23FFD93D' opacity='0.5'/%3E%3Ccircle cx='200' cy='50' r='2' fill='%23FFC2CA' opacity='0.4'/%3E%3C/svg%3E");
+}
+
+/* ================================================================
+   1. HEADER — orejas de gato + mejillas rosadas
+   ================================================================ */
+.app-header {
+    position: relative;
+    background: linear-gradient(180deg, #FFFFFF 0%, #FFF5F0 100%);
+    border-bottom: none;
+    box-shadow:
+        inset 0 -3px 0 var(--violet-300),
+        inset 0 -5px 0 var(--violet-200),
+        0 2px 6px rgba(255, 107, 138, 0.10);
+}
+
+/* Orejas de gato — triángulos suaves en los bordes */
+.app-header::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 15%;
+    right: 15%;
+    height: 12px;
+    background:
+        radial-gradient(ellipse at 20% 100%, var(--accent-blue-light) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 100%, var(--accent-blue-light) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.7;
+}
+
+/* Mejillas rosadas en las esquinas del header */
+.app-header::after {
+    content: '';
+    position: absolute;
+    bottom: 6px;
+    left: 8px;
+    right: 8px;
+    height: 6px;
+    background:
+        radial-gradient(circle at 5% 50%, rgba(255, 194, 202, calc(0.5 + var(--blush) * 0.5)) 0 5px, transparent 6px),
+        radial-gradient(circle at 95% 50%, rgba(255, 194, 202, calc(0.5 + var(--blush) * 0.5)) 0 5px, transparent 6px);
+    pointer-events: none;
+    z-index: 2;
+    transition: background 0.10s linear;
+}
+
+/* Logo: carita redonda con mejillas */
+.logo-mark {
+    position: relative;
+    background: linear-gradient(135deg, #FFFFFF 0%, #FFF2EC 100%);
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 2px var(--violet-300),
+        0 0 0 4px #FFFFFF,
+        0 2px 8px rgba(255, 107, 138, 0.20),
+        0 0 calc(var(--blush) * 12px) rgba(255, 194, 202, calc(var(--blush) * 0.5));
+    transition: box-shadow 0.10s linear;
+}
+.logo-mark::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    margin: -5px 0 0 -5px;
+    border-radius: 50%;
+    background: var(--violet-400);
+    opacity: calc(0.3 + var(--blush) * 0.5);
+    pointer-events: none;
+    transition: opacity 0.10s linear;
+}
+
+/* ================================================================
+   2. WELCOME — cielo pastel con caritas y comida
+   ================================================================ */
+.welcome-placeholder {
+    position: relative;
+    background-image:
+        var(--theme-food),
+        var(--theme-cloud),
+        var(--theme-cloud),
+        var(--theme-face),
+        var(--theme-face),
+        radial-gradient(ellipse at top,    rgba(255, 194, 202, 0.20) 0%, transparent 55%),
+        radial-gradient(ellipse at bottom, rgba(123, 171, 196, 0.12) 0%, transparent 55%),
+        linear-gradient(180deg, #FFF9F5 0%, #FFF2EC 100%);
+    background-size:
+        240px 240px,
+        120px 60px, 90px 45px,
+        50px 42px, 38px 32px,
+        auto, auto, auto;
+    background-position:
+        0 0,
+        10% 15%, 70% 60%,
+        85% 20%, 15% 75%,
+        0 0, 0 0, 0 0;
+    background-repeat:
+        repeat,
+        no-repeat, no-repeat,
+        no-repeat, no-repeat,
+        no-repeat, no-repeat, no-repeat;
+}
+
+/* Corazones flotando hacia arriba */
+.welcome-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background: var(--theme-heart) no-repeat;
+    background-size: 28px 25px;
+    animation: heart-float 12s ease-in-out infinite;
+    filter: drop-shadow(0 2px 4px rgba(255, 107, 138, 0.25));
+}
+
+.welcome-placeholder::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background: var(--theme-heart) no-repeat;
+    background-size: 20px 18px;
+    animation: heart-float-b 15s ease-in-out infinite 5s;
+    filter: drop-shadow(0 2px 4px rgba(255, 107, 138, 0.20));
+}
+
+.welcome-glow {
+    background: radial-gradient(
+        circle at 50% 40%,
+        rgba(255, 194, 202, calc(0.12 + var(--blush) * 0.15)) 0%,
+        transparent 65%
+    );
+    transition: background 0.10s linear;
+}
+
+.welcome-hero,
+.welcome-section {
+    position: relative;
+    z-index: 2;
+}
+
+/* Hero — carita grande, bordes redondeados, temblor sutil */
+.welcome-hero {
+    position: relative;
+    padding: 42px 30px 36px;
+    background:
+        radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 249, 245, 0.95) 100%);
+    border: 2px solid var(--violet-200);
+    border-radius: var(--r-xl);
+    box-shadow:
+        0 8px 24px rgba(255, 107, 138, 0.12),
+        0 0 calc(var(--blush) * 24px) rgba(255, 194, 202, calc(var(--blush) * 0.4)),
+        inset 0 0 40px rgba(255, 194, 202, 0.10);
+    max-width: 660px;
+    margin-left: auto;
+    margin-right: auto;
+    animation: silly-wiggle 6s ease-in-out infinite;
+    transition: box-shadow 0.10s linear;
+}
+
+/* Orejas de gato arriba del hero */
+.welcome-hero::before {
+    content: '';
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 20px;
+    background:
+        radial-gradient(ellipse at 25% 100%, var(--accent-blue) 0 12px, transparent 13px),
+        radial-gradient(ellipse at 75% 100%, var(--accent-blue) 0 12px, transparent 13px);
+    pointer-events: none;
+    z-index: 3;
+    opacity: 0.8;
+}
+
+/* Mejillas rosadas grandes en el hero */
+.welcome-hero::after {
+    content: '';
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    height: 20px;
+    background:
+        radial-gradient(circle at 10% 50%, rgba(255, 194, 202, calc(0.6 + var(--blush) * 0.4)) 0 12px, transparent 13px),
+        radial-gradient(circle at 90% 50%, rgba(255, 194, 202, calc(0.6 + var(--blush) * 0.4)) 0 12px, transparent 13px);
+    pointer-events: none;
+    z-index: 3;
+    transition: background 0.10s linear;
+}
+
+.welcome-hero > * {
+    position: relative;
+    z-index: 1;
+}
+
+.welcome-hero h1 {
+    color: var(--text);
+    text-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.8),
+        0 0 calc(var(--blush) * 16px) rgba(255, 194, 202, calc(var(--blush) * 0.5));
+    transition: text-shadow 0.10s linear;
+    letter-spacing: 0.005em;
+}
+
+/* Icono — carita con mejillas que laten */
+.welcome-icon-wrap {
+    position: relative;
+    background: linear-gradient(135deg, #FFFFFF 0%, #FFF2EC 100%);
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 3px var(--violet-300),
+        0 0 0 5px #FFFFFF,
+        0 0 0 7px rgba(255, 194, 202, 0.40),
+        0 8px 20px rgba(255, 107, 138, 0.18),
+        0 0 calc(var(--blush) * 20px) rgba(255, 194, 202, calc(var(--blush) * 0.5));
+    animation: silly-bounce 3s ease-in-out infinite;
+    transition: box-shadow 0.10s linear;
+}
+.welcome-icon-wrap::after {
+    content: '';
+    position: absolute;
+    inset: -12px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 194, 202, 0.25) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: -1;
+    animation: blush-pulse 3.8s ease-in-out infinite;
+}
+
+/* ================================================================
+   3. SECCIONES — páginas de cuaderno con caritas
+   ================================================================ */
+.welcome-section {
+    position: relative;
+    background:
+        var(--theme-face),
+        linear-gradient(180deg, #FFFFFF 0%, #FFF5F0 100%);
+    background-size: 40px 34px, auto;
+    background-position: 16px 12px, 0 0;
+    background-repeat: no-repeat, no-repeat;
+    border: 1.5px solid var(--violet-200);
+    border-radius: var(--r-lg);
+    padding: 18px 20px;
+    box-shadow:
+        0 4px 12px rgba(255, 107, 138, 0.08),
+        inset 0 0 20px rgba(255, 194, 202, 0.06);
+}
+.welcome-section::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 60px;
+    right: 16px;
+    height: 1px;
+    background: repeating-linear-gradient(
+        90deg,
+        var(--violet-200) 0 4px,
+        transparent 4px 8px
+    );
+    opacity: 0.5;
+    pointer-events: none;
+}
+.welcome-section-header h2 {
+    color: var(--violet-700);
+    letter-spacing: 0.02em;
+}
+
+/* ================================================================
+   4. SIDEBAR — mundo pastel con personajes
+   ================================================================ */
+.sidebar {
+    position: relative;
+    background:
+        var(--theme-face),
+        var(--theme-heart),
+        linear-gradient(180deg, #FFF5F0 0%, #FFE8E0 100%);
+    background-size: 36px 30px, 24px 22px, auto;
+    background-position: 12px 20px, calc(100% - 12px) 60%, 0 0;
+    background-repeat: no-repeat, no-repeat, no-repeat;
+    border-right: 2px solid var(--violet-200);
+    overflow: hidden;
+}
+.sidebar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background: linear-gradient(180deg, rgba(255, 245, 240, 0.70) 0%, rgba(255, 232, 224, 0.85) 100%);
+}
+.sidebar-comunidad,
+.sidebar-label,
+.sidebar-nav,
+.sidebar-mobile-header {
+    position: relative;
+    z-index: 1;
+}
+.sidebar-mobile-header {
+    background: #FFF5F0;
+    border-bottom: 2px solid var(--violet-200);
+}
+.sidebar-comunidad {
+    background: linear-gradient(180deg, #FFFFFF 0%, #FFF9F5 100%);
+    border: 1.5px solid var(--violet-200);
+    border-radius: var(--r-md);
+    box-shadow: 0 2px 6px rgba(255, 107, 138, 0.06);
+}
+.sidebar-comunidad:hover {
+    border-color: var(--violet-400);
+    box-shadow:
+        0 2px 6px rgba(255, 107, 138, 0.10),
+        0 0 calc(var(--blush) * 12px) rgba(255, 194, 202, calc(var(--blush) * 0.4));
+    transition: box-shadow 0.10s linear;
+}
+
+/* Nav activo con forma de píldora */
+.nav-item {
+    position: relative;
+    border-radius: var(--r-full);
+    transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.nav-item:hover {
+    background: rgba(255, 194, 202, 0.20);
+}
+.nav-item.active {
+    background: linear-gradient(135deg, #FFFFFF 0%, #FFF2EC 100%);
+    color: var(--violet-600);
+    border: 2px solid var(--violet-300);
+    box-shadow:
+        0 2px 8px rgba(255, 107, 138, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+.nav-item.active .nav-icon {
+    color: var(--violet-500);
+}
+.nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 25%;
+    bottom: 25%;
+    width: 4px;
+    border-radius: 0 4px 4px 0;
+    background: linear-gradient(180deg, var(--violet-400), var(--violet-600));
+    box-shadow: 0 0 calc(var(--blush) * 8px) rgba(255, 107, 138, 0.50);
+    transition: box-shadow 0.10s linear;
+}
+.nav-item.active::after {
+    content: '';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    margin-top: -4px;
+    border-radius: 50%;
+    background: var(--violet-300);
+    box-shadow: 0 0 calc(var(--blush) * 6px) rgba(255, 194, 202, 0.6);
+    transition: box-shadow 0.10s linear;
+}
+
+@media (max-width: 768px) {
+    .sidebar { position: fixed; }
+}
+
+/* ================================================================
+   5. ACCESOS RÁPIDOS — tarjetas con caritas y estrellas al hover
+   ================================================================ */
+.acceso-item {
+    position: relative;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.9) 0%, transparent 50%),
+        linear-gradient(180deg, #FFFFFF 0%, #FFF9F5 100%);
+    border: 1.5px solid var(--violet-200);
+    border-radius: var(--r-lg);
+    box-shadow:
+        0 4px 12px rgba(255, 107, 138, 0.08),
+        inset 0 0 20px rgba(255, 194, 202, 0.06);
+    overflow: hidden;
+    transition:
+        transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.10s linear,
+        border-color 0.22s ease;
+}
+
+/* Estrellas deslizándose al hover */
+.acceso-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--theme-stars);
+    background-size: 160px 160px;
+    background-repeat: repeat;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 2;
+    transition: opacity 0.35s ease;
+}
+.acceso-item:hover::before {
+    opacity: 0.7;
+    animation: star-drift 2.2s linear infinite;
+}
+
+/* Estrella grande en la esquina al hover */
+.acceso-item::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    width: 16px;
+    height: 16px;
+    background: var(--theme-star) center / contain no-repeat;
+    opacity: 0;
+    transform: scale(0.4) rotate(-30deg);
+    transition:
+        opacity 0.28s ease,
+        transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+    z-index: 3;
+    filter: drop-shadow(0 0 5px rgba(255, 217, 61, 0.7));
+}
+.acceso-item:hover::after {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+}
+
+.acceso-item:hover {
+    transform: translateY(-4px);
+    border-color: var(--violet-400);
+    box-shadow:
+        0 10px 24px rgba(255, 107, 138, 0.16),
+        0 0 calc(var(--blush) * 16px) rgba(255, 194, 202, calc(var(--blush) * 0.5));
+}
+
+/* Icono con mejilla rosada */
+.acceso-icon-wrap {
+    background: linear-gradient(135deg, #FFF2EC 0%, #FFE8E0 100%);
+    color: var(--violet-500);
+    border: 1.5px solid var(--violet-200);
+    border-radius: 50%;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        0 2px 6px rgba(255, 107, 138, 0.10);
+    transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.acceso-item:hover .acceso-icon-wrap {
+    background: var(--accent-gradient);
+    color: #FFFFFF;
+    border-color: var(--violet-500);
+    box-shadow:
+        0 0 0 3px rgba(255, 194, 202, 0.30),
+        0 4px 12px rgba(255, 107, 138, 0.35);
+    transform: rotate(-6deg);
+}
+
+/* ================================================================
+   6. WIDGETS — mismo lenguaje + estrellas al hover
+   ================================================================ */
+.widget-item {
+    position: relative;
+    background:
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.8) 0%, transparent 50%),
+        linear-gradient(180deg, #FFFFFF 0%, #FFF9F5 100%);
+    border: 1.5px solid var(--violet-200);
+    border-radius: var(--r-lg);
+    box-shadow:
+        0 4px 12px rgba(255, 107, 138, 0.07),
+        inset 0 0 20px rgba(255, 194, 202, 0.05);
+    overflow: hidden;
+    transition:
+        transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.10s linear,
+        border-color 0.22s ease;
+}
+.widget-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--theme-stars);
+    background-size: 140px 140px;
+    background-repeat: repeat;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 2;
+    transition: opacity 0.35s ease;
+}
+.widget-item:hover::before {
+    opacity: 0.6;
+    animation: star-drift 2.2s linear infinite;
+}
+.widget-item:hover {
+    transform: translateY(-3px);
+    border-color: var(--violet-400);
+    box-shadow:
+        0 8px 20px rgba(255, 107, 138, 0.12),
+        0 0 calc(var(--blush) * 14px) rgba(255, 194, 202, calc(var(--blush) * 0.4));
+}
+
+/* ================================================================
+   7. PESTAÑAS — orejas largas en la activa
+   ================================================================ */
+.tab-item.active {
+    position: relative;
+    background: linear-gradient(180deg, #FFFFFF 0%, #FFF5F0 100%);
+    color: var(--violet-700);
+    border-color: var(--violet-300);
+    box-shadow:
+        inset 0 -2px 0 var(--violet-400),
+        0 0 0 1px var(--violet-200) inset;
+}
+/* Orejas largas */
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 32px;
+    height: 14px;
+    background:
+        radial-gradient(ellipse at 30% 100%, var(--accent-yellow-light) 0 6px, transparent 7px),
+        radial-gradient(ellipse at 70% 100%, var(--accent-yellow-light) 0 6px, transparent 7px);
+    pointer-events: none;
+    z-index: 3;
+    opacity: 0.85;
+}
+.tab-item.active::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10px;
+    right: 10px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--violet-400), var(--violet-500), var(--violet-400), transparent);
+    border-radius: 2px 2px 0 0;
+    box-shadow: 0 0 calc(var(--blush) * 12px) rgba(255, 107, 138, calc(var(--blush) * 0.5));
+    pointer-events: none;
+    transition: box-shadow 0.10s linear;
+}
+.tab-item.active [data-lucide] {
+    color: var(--violet-500);
+}
+
+/* ================================================================
+   8. MODALES — tarjeta con marco de caritas
+   ================================================================ */
+.config-card,
+.modal-todas-card {
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.95) 0%, transparent 60%),
+        linear-gradient(180deg, #FFFFFF 0%, #FFF5F0 100%);
+    border: 2px solid var(--violet-300);
+    border-radius: var(--r-xl);
+    box-shadow:
+        0 0 0 4px rgba(255, 194, 202, 0.20),
+        0 16px 40px rgba(255, 107, 138, 0.18),
+        0 0 calc(var(--blush) * 32px) rgba(255, 194, 202, calc(var(--blush) * 0.4));
+    transition: box-shadow 0.10s linear;
+}
+
+/* Carita en la esquina superior */
+.config-card::before,
+.modal-todas-card::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 44px;
+    height: 37px;
+    background: var(--theme-face) center / contain no-repeat;
+    opacity: 0.6;
+    pointer-events: none;
+    z-index: 3;
+    filter: drop-shadow(0 1px 2px rgba(255, 107, 138, 0.20));
+}
+
+/* Corazón en la esquina inferior */
+.config-card::after,
+.modal-todas-card::after {
+    content: '';
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    width: 20px;
+    height: 18px;
+    background: var(--theme-heart) center / contain no-repeat;
+    opacity: 0.45;
+    pointer-events: none;
+    z-index: 4;
+    filter: drop-shadow(0 0 4px rgba(255, 107, 138, 0.4));
+}
+
+.config-header,
+.modal-todas-header {
+    background: linear-gradient(180deg, #FFF5F0 0%, #FFE8E0 100%);
+    border-bottom: 2px solid var(--violet-300);
+}
+
+/* ================================================================
+   9. BOTÓN PRIMARIO — glossy suave con destellos
+   ================================================================ */
+.btn-primario {
+    position: relative;
+    overflow: hidden;
+    background: var(--accent-gradient);
+    color: #FFFFFF;
+    font-weight: 800;
+    border: 2px solid var(--violet-500);
+    border-radius: var(--r-full);
+    text-shadow: 0 1px 0 rgba(196, 61, 90, 0.40);
+    box-shadow:
+        inset 0 2px 0 rgba(255, 255, 255, 0.35),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.15),
+        0 4px 12px rgba(255, 107, 138, 0.35),
+        0 0 calc(var(--blush) * 16px) rgba(255, 194, 202, calc(var(--blush) * 0.5));
+    transition:
+        transform 0.12s ease,
+        box-shadow 0.10s linear,
+        background 0.15s ease;
+}
+.btn-primario::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    right: 4px;
+    height: 45%;
+    border-radius: var(--r-full) var(--r-full) 0 0;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 100%);
+    pointer-events: none;
+}
+/* Estrellas deslizándose al hover */
+.btn-primario::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--theme-stars);
+    background-size: 140px 140px;
+    background-repeat: repeat;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.30s ease;
+    mix-blend-mode: screen;
+}
+.btn-primario:hover::after {
+    opacity: 0.50;
+    animation: star-drift 1.8s linear infinite;
+}
+.btn-primario:hover {
+    background: var(--accent-gradient-hover);
+    transform: translateY(-2px);
+    box-shadow:
+        inset 0 2px 0 rgba(255, 255, 255, 0.45),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.15),
+        0 6px 18px rgba(255, 107, 138, 0.45),
+        0 0 calc(var(--blush) * 22px) rgba(255, 194, 202, calc(var(--blush) * 0.6));
+}
+.btn-primario:active {
+    transform: translateY(1px);
+    box-shadow:
+        inset 0 2px 0 rgba(255, 255, 255, 0.25),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.20),
+        0 2px 6px rgba(255, 107, 138, 0.25);
+}
+
+/* ================================================================
+   10. INPUTS — campos suaves y redondeados
+   ================================================================ */
+.config-field input,
+.config-field select,
+.config-select {
+    background: linear-gradient(180deg, #FFF9F5 0%, #FFFFFF 100%);
+    border: 1.5px solid var(--violet-200);
+    color: var(--text);
+    border-radius: var(--r-md);
+    box-shadow:
+        inset 0 1px 2px rgba(255, 107, 138, 0.06),
+        0 1px 3px rgba(255, 107, 138, 0.04);
+}
+.config-field input:focus,
+.config-field select:focus,
+.config-select:focus {
+    border-color: var(--violet-400);
+    box-shadow:
+        inset 0 1px 2px rgba(255, 107, 138, 0.06),
+        0 0 0 3px rgba(255, 194, 202, 0.25);
+}
+
+/* ================================================================
+   11. AVATAR Y NOTIFICACIONES
+   ================================================================ */
+.avatar-config {
+    background: linear-gradient(135deg, #FFFFFF 0%, #FFF2EC 100%);
+    border: 2px solid var(--violet-300);
+    box-shadow:
+        0 0 0 2px #FFFFFF,
+        0 0 0 4px rgba(255, 194, 202, calc(0.3 + var(--blush) * 0.4)),
+        0 4px 12px rgba(255, 107, 138, 0.15);
+    transition: box-shadow 0.10s linear, transform 0.12s ease;
+}
+.avatar-config:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 0 0 2px #FFFFFF,
+        0 0 0 4px rgba(255, 194, 202, calc(0.5 + var(--blush) * 0.5)),
+        0 6px 18px rgba(255, 107, 138, 0.25);
+}
+
+.noti-btn.tiene-no-leidas {
+    background: rgba(255, 194, 202, 0.20);
+    color: var(--violet-600);
+}
+
+.search-bar:focus-within {
+    border-color: var(--violet-400);
+    box-shadow:
+        var(--shadow-glow),
+        0 0 calc(var(--blush) * 12px) rgba(255, 194, 202, calc(var(--blush) * 0.4));
+}
+.search-bar:focus-within .search-icon {
+    color: var(--violet-500);
+}
+
+/* ================================================================
+   12. prefers-reduced-motion
+   ================================================================ */
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        animation: none !important;
+        --blush: 0.7;
+    }
+    .welcome-placeholder,
+    .welcome-placeholder::before,
+    .welcome-placeholder::after,
+    .welcome-hero,
+    .welcome-icon-wrap,
+    .welcome-icon-wrap::after,
+    .acceso-item::before,
+    .widget-item::before,
+    .btn-primario::after {
+        animation: none !important;
+        transition: none !important;
+    }
+    .welcome-placeholder::before { background-position: 10% 40%; opacity: 0.7; }
+    .welcome-placeholder::after  { background-position: 80% 60%; opacity: 0.5; }
+}
