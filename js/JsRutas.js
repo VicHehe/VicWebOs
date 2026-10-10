@@ -388,6 +388,17 @@ const RUTAS_HERRAMIENTAS = [
     espacio: 2,
     monedas: 20
 },
+        {
+        id: 'primero',
+        nombre: 'Primero',
+        icono: 'layers',
+        ruta: 'herramientas/primero/index.html',
+        descripcion: 'El clásico de cartas de colores. Combiná color o valor, usá +2, reverse y wild. 1v1 por WebRTC o contra la CPU.',
+        categoria: 'Juegos',
+        esBase: false,
+        espacio: 4,
+        monedas: 25
+    },
     {
         id: 'metrorun',
         nombre: 'The MetroRun',
