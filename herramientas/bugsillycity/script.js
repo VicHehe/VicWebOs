@@ -1,6 +1,6 @@
 // ============================================================
-//  BugSillyCity v5 — Isométrico + tema dinámico
-//  FIX: la selección del nido ya no se borra cada 400ms.
+//  BugSillyCity v6 — Isométrico + tema dinámico
+//  NUEVO: CREDITOS_MULTIPLICADOR = 3 (balance de créditos x3)
 // ============================================================
 
 'use strict';
@@ -14,6 +14,13 @@ const MAX_ACCUMULATION_HOURS = 12;
 const MAX_HABITATS = 6;
 const MAX_CRIATURAS = 40;
 const CREDITOS_INICIALES = 500;
+
+// ── NUEVO: multiplicador global de créditos ──
+//   1 = balance original
+//   2 = doble
+//   3 = triple  ← actual (54 créditos en 2h con 4 criaturas base)
+//   5 = x5
+const CREDITOS_MULTIPLICADOR = 3;
 
 // ==== CANVAS ====
 const TILE_W = 110;
@@ -118,6 +125,7 @@ let inicializado = false;
 let toastTimer = null;
 let rafId = null;
 let ultimoTick = 0;
+let confirmCallback = null;
 
 let canvas, ctx, wrapEl;
 let dpr = 1, anchoCSS = 0, altoCSS = 0;
@@ -346,7 +354,8 @@ function calcularAcumulado(criatura, ahora) {
     let horas = (ahora - uc) / 3600000;
     if (!isFinite(horas) || horas < 0) horas = 0;
     const os = Math.min(horas, MAX_ACCUMULATION_HOURS) * (def.osRate || 0);
-    const cred = horas * (def.creditosRate || 0);
+    // ── NUEVO: aplicar multiplicador de créditos ──
+    const cred = horas * (def.creditosRate || 0) * CREDITOS_MULTIPLICADOR;
     return {
         os: isFinite(os) ? os : 0,
         creditos: isFinite(cred) ? cred : 0
@@ -1043,7 +1052,6 @@ function actualizarUI() {
     $('bcOSHoy').textContent = Math.floor(estado.osCosechadasHoy || 0);
 }
 
-// ── FIX: la rama else respeta slots ya elegidos ──
 function renderNido() {
     const slot1 = $('bcNidoSlot1'), slot2 = $('bcNidoSlot2');
     const btnCriar = $('bcBtnCriar');
@@ -1051,7 +1059,6 @@ function renderNido() {
     if (!slot1 || !slot2) return;
 
     if (estado.nido && CRIATURAS[estado.nido.resultado]) {
-        // ── Hay cría en curso: pintar todo ──
         slot1.classList.remove('lleno'); slot2.classList.remove('lleno');
         slot1.style.background = ''; slot2.style.background = '';
 
@@ -1080,7 +1087,6 @@ function renderNido() {
             $('bcNidoTimerFill').style.width = pct + '%';
         }
     } else {
-        // ── Sin cría: solo inicializar slots VACÍOS (no pisar los elegidos) ──
         if (!slot1.dataset.criaturaId) {
             slot1.classList.remove('lleno');
             slot1.style.background = '';
@@ -1098,7 +1104,6 @@ function renderNido() {
         timerDiv.hidden = true;
         resultadoDiv.hidden = true;
 
-        // Si ya hay dos criaturas elegidas, re-verificar compatibilidad
         if (tieneAmbas) verificarNidoListo();
     }
     if (window.lucide) window.lucide.createIcons();
@@ -1189,7 +1194,6 @@ function loop() {
         if (panelActivo === 'habitats') {
             dibujar();
         } else if (panelActivo === 'nido' && estado.nido) {
-            // ── FIX: solo re-renderizar el Nido si hay cría activa ──
             renderNido();
         } else if (panelActivo === 'guarderia') {
             renderGuarderia();
@@ -1234,12 +1238,10 @@ async function inicializar() {
     renderGuarderia();
     renderTienda();
 
-    // Tabs
     document.querySelectorAll('.bc-tab').forEach(tab => {
         tab.addEventListener('click', () => cambiarTab(tab.dataset.tab));
     });
 
-    // Event delegation en el contenedor de slots del nido
     const nidoSlots = $('bcNidoSlots');
     if (nidoSlots) {
         nidoSlots.addEventListener('click', (e) => {
@@ -1251,7 +1253,6 @@ async function inicializar() {
         });
     }
 
-    // Botón criar / recoger huevo
     $('bcBtnCriar').addEventListener('click', () => {
         if (estado.nido && Date.now() >= estado.nido.finMs) recolectarHuevo();
         else if (!estado.nido) iniciarCria();
