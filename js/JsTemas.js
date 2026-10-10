@@ -1394,4 +1394,22 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#FFFFFF'
         }
     },
+        {
+        id: 'silly-hamster',
+        nombre: 'Silly Hamster',
+        icono: 'hamster',
+        descripcion: 'Criaturas pequeñas y ansiosas que enfrentan la vida con mejillas rosadas y mucho corazón. Cielo pastel, caritas flotando, comida reconfortante y amistad en cada esquina.',
+        categoria: 'Cultura Pop',
+        ruta: 'Temas/silly-hamster.css',
+        espacio: 6,
+        monedas: 55,
+        colores: {
+            '--violet-100': '#FFE4EC',
+            '--violet-300': '#FFA3BC',
+            '--violet-500': '#FF6B8A',
+            '--bg':         '#FFF9F5',
+            '--bg-alt':     '#FFF2EC',
+            '--white':      '#FFFFFF'
+        }
+    }
 ];
