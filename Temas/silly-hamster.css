@@ -2,293 +2,308 @@
    Tema: Silly Hamster
    Cultura Pop · 55 monedas · espacio 6
 
-   Mundo pastel de criaturas pequeñas, ansiosas
-   pero valientes, con mejillas rosadas y mucho
-   corazón. Colores suaves, formas redondeadas
-   y un toque de caos adorable.
+   Estética de manga 4-koma: contornos gruesos
+   marrón oscuro, criaturas redonditas con
+   extremidades minúsculas, mejillas con tres
+   rayitas rosadas, campo de pasto verde con
+   flores y cielo celeste con nubes suaves.
+   Simple, tierno y dibujado a mano.
 
    Guiños traducidos a CSS:
-     · Mejillas rosadas       → rubor que late (@property)
-     · Orejas de gato         → borde del header
-     · Orejas de conejo       → pestañas activas
-     · Carita                 → icono del hero
-     · Comida reconfortante   → patrón de fondo
-     · Temblor adorable       → wiggle suave del hero
-     · Amistad                → corazones flotando
-     · Estrellas              → lluvia al hover
-     · Formas redondeadas     → píldoras y bordes suaves
+     · Contorno grueso         → bordes marrón 2-3px
+     · Mejillas rayadas        → 3 líneas rosadas (@property)
+     · Carita redondita        → patrón de cara manga
+     · Campo de pasto          → verde con flores
+     · Cielo con nubes         → celeste pastel arriba
+     · Líneas de movimiento    → rayitas alrededor
+     · Destellos manga         → estrellitas de 4 puntas
+     · Formas redonditas       → radios moderados
    ================================================ */
 
 /* ------------------------------------------------------------
-   @property — el rubor de las mejillas sube y baja.
-   Las criaturas se sonrojan cuando están felices.
+   @property — el rubor de las mejillas late suavemente.
+   Las 3 rayitas rosadas suben y bajan de intensidad.
    ------------------------------------------------------------ */
 @property --blush {
     syntax: '<number>';
     inherits: true;
-    initial-value: 0.5;
+    initial-value: 0.6;
 }
 
 @keyframes blush-pulse {
-    0%, 100% { --blush: 0.4; }
+    0%, 100% { --blush: 0.5; }
     50%      { --blush: 1; }
 }
 
-@keyframes silly-bounce {
-    0%, 100% { transform: translateY(0) scale(1); }
-    50%      { transform: translateY(-3px) scale(1.02); }
+@keyframes silly-bob {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-4px); }
 }
 
-@keyframes silly-wiggle {
-    0%, 100% { transform: rotate(0deg); }
-    25%      { transform: rotate(-2deg); }
-    75%      { transform: rotate(2deg); }
+@keyframes silly-shake {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25%      { transform: translate(-1px, 0) rotate(-0.6deg); }
+    75%      { transform: translate(1px, 0) rotate(0.6deg); }
 }
 
-@keyframes heart-float {
-    0%   { background-position: 10% 110%; opacity: 0; }
-    10%  { opacity: 0.9; }
-    90%  { opacity: 0.9; }
-    100% { background-position: 10% -10%; opacity: 0; }
-}
-
-@keyframes heart-float-b {
-    0%   { background-position: 80% 110%; opacity: 0; }
-    15%  { opacity: 0.7; }
-    85%  { opacity: 0.7; }
-    100% { background-position: 80% -10%; opacity: 0; }
-}
-
-@keyframes star-drift {
+@keyframes sparkle-drift {
     from { background-position: 0 0; }
-    to   { background-position: 160px 0; }
+    to   { background-position: 140px 0; }
+}
+
+@keyframes flower-sway {
+    0%, 100% { transform: rotate(-3deg); }
+    50%      { transform: rotate(3deg); }
 }
 
 /* ------------------------------------------------------------
-   :root — paleta pastel
+   :root — paleta de campo y cielo
    ------------------------------------------------------------ */
 :root {
-    /* Rubor animado — el corazón del tema */
-    --blush: 0.5;
-    animation: blush-pulse 3.8s ease-in-out infinite;
+    /* Rubor animado */
+    --blush: 0.6;
+    animation: blush-pulse 4s ease-in-out infinite;
 
-    /* Rosa pastel (mejillas) */
-    --violet-50:  #FFF5F7;
-    --violet-100: #FFE4EC;
-    --violet-200: #FFC2D4;
-    --violet-300: #FFA3BC;
-    --violet-400: #FF8CA8;
-    --violet-500: #FF6B8A;
-    --violet-600: #E85570;
-    --violet-700: #C43D5A;
+    /* Rosa mejillas (3 rayitas) */
+    --violet-50:  #FFF0F3;
+    --violet-100: #FFDCE3;
+    --violet-200: #FFBCC8;
+    --violet-300: #FF9AAC;
+    --violet-400: #FF7A92;
+    --violet-500: #F55F7A;
+    --violet-600: #D84560;
+    --violet-700: #A62E44;
 
-    /* Cuerpo blanco cálido */
-    --white:   #FFFFFF;
-    --bg:      #FFF9F5;
-    --bg-alt:  #FFF2EC;
-    --gray-50:  #FFFDFB;
-    --gray-100: #FFF5F0;
-    --gray-200: #FFE8E0;
-    --gray-300: #F5D5CC;
-    --gray-400: #C9A8A0;
-    --gray-500: #9A7A74;
-    --gray-600: #6B5450;
-    --gray-700: #4A3634;
-    --gray-800: #2E1F1E;
-    --gray-900: #1A1212;
+    /* Papel manga — blanco hueso */
+    --white:   #FFFDF5;
+    --bg:      #F0F6E5;
+    --bg-alt:  #E4EFD2;
+    --gray-50:  #FAFBF2;
+    --gray-100: #EFF3E2;
+    --gray-200: #DDE5C8;
+    --gray-300: #B8C4A0;
+    --gray-400: #8B9880;
+    --gray-500: #6B5847;
+    --gray-600: #523F32;
+    --gray-700: #3A2B22;
+    --gray-800: #2A1E18;
+    --gray-900: #1A120E;
 
-    --border:  #FFE0D4;
-    --text:    #3D2828;
-    --text-2:  #6B5450;
-    --text-3:  #9A7A74;
+    --border:  #5D4037;
+    --text:    #3A2B22;
+    --text-2:  #6B5847;
+    --text-3:  #8B7A6B;
 
-    /* Sombras suaves — flotando en una nube */
-    --shadow-xs: 0 1px 2px rgba(255, 107, 138, 0.05);
-    --shadow-sm: 0 2px 6px rgba(255, 107, 138, 0.08);
-    --shadow-md: 0 6px 16px rgba(255, 107, 138, 0.10);
-    --shadow-lg: 0 12px 32px rgba(255, 107, 138, 0.14);
-    --shadow-xl: 0 20px 48px rgba(255, 107, 138, 0.18);
-    --shadow-glow: 0 0 0 4px rgba(255, 194, 212, calc(0.3 + var(--blush) * 0.3));
+    /* Sombras tipo papel apilado — sin blur, apiladas */
+    --shadow-xs: 2px 2px 0 #5D4037;
+    --shadow-sm: 3px 3px 0 #5D4037;
+    --shadow-md: 4px 4px 0 #5D4037;
+    --shadow-lg: 5px 5px 0 #5D4037;
+    --shadow-xl: 6px 6px 0 #5D4037;
+    --shadow-glow: 0 0 0 3px rgba(255, 154, 172, calc(0.3 + var(--blush) * 0.3));
 
-    --accent-gradient: linear-gradient(135deg, #FF8CA8 0%, #FF6B8A 100%);
-    --accent-gradient-hover: linear-gradient(135deg, #FFA3BC 0%, #FF8CA8 100%);
-    --accent-shadow: rgba(255, 107, 138, 0.30);
-    --accent-shadow-hover: rgba(255, 107, 138, 0.45);
-    --accent-text-gradient: linear-gradient(135deg, #C43D5A, #FF6B8A);
+    --accent-gradient: linear-gradient(135deg, #FF9AAC 0%, #F55F7A 100%);
+    --accent-gradient-hover: linear-gradient(135deg, #FFBCC8 0%, #FF7A92 100%);
+    --accent-shadow: rgba(93, 64, 55, 0.25);
+    --accent-shadow-hover: rgba(93, 64, 55, 0.40);
+    --accent-text-gradient: linear-gradient(135deg, #A62E44, #F55F7A);
 
-    /* Celeste suave (orejas) */
-    --accent-blue: #7BABC4;
-    --accent-blue-light: #B8D4E3;
+    /* Acentos del reparto */
+    --bow-blue:    #7FB5D9;    /* el moño azul del personaje principal */
+    --bow-blue-dark: #4A7A9E;
+    --ear-yellow:  #FFE066;    /* las orejas amarillas del conejito */
+    --ear-yellow-dark: #D4B230;
 
-    /* Amarillo cálido (orejas largas) */
-    --accent-yellow: #FFD93D;
-    --accent-yellow-light: #FFF0B3;
+    /* Paleta del campo */
+    --grass-light: #C5DDA0;
+    --grass-mid:   #A8CC80;
+    --grass-dark:  #8BB560;
+    --sky-light:   #D4ECFA;
+    --sky-mid:     #BAE1F5;
+    --sky-dark:    #9CCFE8;
+    --flower-pink: #FFB3C6;
+    --flower-yellow: #FFE066;
+    --flower-white: #FFFDF5;
 
-    /* Formas ultrarredondeadas */
-    --r-sm: 10px;
-    --r-md: 16px;
-    --r-lg: 22px;
-    --r-xl: 30px;
+    /* Radios moderados — estilo manga, no pastilla */
+    --r-sm: 6px;
+    --r-md: 10px;
+    --r-lg: 14px;
+    --r-xl: 20px;
     --r-full: 999px;
 
     /* ============================================================
        PATRONES SVG
        ============================================================ */
 
-    /* Carita — ojos grandes, mejillas rosadas */
-    --theme-face: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 50'%3E%3Cellipse cx='30' cy='28' rx='18' ry='16' fill='%23FFFFFF' stroke='%23C9A8A0' stroke-width='1.2'/%3E%3Ccircle cx='22' cy='26' r='4' fill='%232E1F1E'/%3E%3Ccircle cx='38' cy='26' r='4' fill='%232E1F1E'/%3E%3Ccircle cx='23.5' cy='24.5' r='1.3' fill='%23FFFFFF'/%3E%3Ccircle cx='39.5' cy='24.5' r='1.3' fill='%23FFFFFF'/%3E%3Ccircle cx='17' cy='33' r='4.5' fill='%23FFC2CA' opacity='0.75'/%3E%3Ccircle cx='43' cy='33' r='4.5' fill='%23FFC2CA' opacity='0.75'/%3E%3Cpath d='M27,35 Q30,38 33,35' stroke='%232E1F1E' stroke-width='1' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    /* Carita manga: contorno grueso, ojos punto, 3 rayitas rosadas */
+    --theme-face: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 54'%3E%3Cellipse cx='30' cy='28' rx='20' ry='18' fill='%23FFFDF5' stroke='%235D4037' stroke-width='2.4'/%3E%3Ccircle cx='22' cy='26' r='2.4' fill='%235D4037'/%3E%3Ccircle cx='38' cy='26' r='2.4' fill='%235D4037'/%3E%3Cpath d='M27,34 Q30,37 33,34' stroke='%235D4037' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3Cg stroke='%23FF7A92' stroke-width='1.6' stroke-linecap='round' opacity='0.85'%3E%3Cline x1='13' y1='31' x2='17' y2='29'/%3E%3Cline x1='13' y1='34' x2='17' y2='32'/%3E%3Cline x1='13' y1='37' x2='17' y2='35'/%3E%3Cline x1='43' y1='29' x2='47' y2='31'/%3E%3Cline x1='43' y1='32' x2='47' y2='34'/%3E%3Cline x1='43' y1='35' x2='47' y2='37'/%3E%3C/g%3E%3C/svg%3E");
 
-    /* Corazón — amistad */
-    --theme-heart: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 36'%3E%3Cpath d='M20,34 C20,34 4,22 4,12 C4,6 8,2 13,2 C17,2 20,6 20,6 C20,6 23,2 27,2 C32,2 36,6 36,12 C36,22 20,34 20,34 Z' fill='%23FF8CA8' opacity='0.85'/%3E%3Cpath d='M13,8 C11,8 9,10 9,12' stroke='%23FFFFFF' stroke-width='1.5' fill='none' stroke-linecap='round' opacity='0.6'/%3E%3C/svg%3E");
+    /* Cuerpito completo: redondo, bracitos nub, patitas */
+    --theme-body: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 90'%3E%3Cellipse cx='40' cy='50' rx='28' ry='30' fill='%23FFFDF5' stroke='%235D4037' stroke-width='2.6'/%3E%3Cellipse cx='14' cy='52' rx='6' ry='4' fill='%23FFFDF5' stroke='%235D4037' stroke-width='2.2'/%3E%3Cellipse cx='66' cy='52' rx='6' ry='4' fill='%23FFFDF5' stroke='%235D4037' stroke-width='2.2'/%3E%3Cellipse cx='30' cy='78' rx='5' ry='3.5' fill='%23FFFDF5' stroke='%235D4037' stroke-width='2.2'/%3E%3Cellipse cx='50' cy='78' rx='5' ry='3.5' fill='%23FFFDF5' stroke='%235D4037' stroke-width='2.2'/%3E%3Ccircle cx='32' cy='44' r='2.4' fill='%235D4037'/%3E%3Ccircle cx='48' cy='44' r='2.4' fill='%235D4037'/%3E%3Cpath d='M37,54 Q40,57 43,54' stroke='%235D4037' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3Cg stroke='%23FF7A92' stroke-width='1.6' stroke-linecap='round' opacity='0.85'%3E%3Cline x1='22' y1='49' x2='26' y2='47'/%3E%3Cline x1='22' y1='52' x2='26' y2='50'/%3E%3Cline x1='22' y1='55' x2='26' y2='53'/%3E%3Cline x1='54' y1='47' x2='58' y2='49'/%3E%3Cline x1='54' y1='50' x2='58' y2='52'/%3E%3Cline x1='54' y1='53' x2='58' y2='55'/%3E%3C/g%3E%3C/svg%3E");
 
-    /* Estrella — sueños */
-    --theme-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M20 4 L23 16 L36 18 L26 26 L29 38 L20 31 L11 38 L14 26 L4 18 L17 16 Z' fill='%23FFD93D' opacity='0.9'/%3E%3C/svg%3E");
+    /* Conito: orejas largas amarillas */
+    --theme-rabbit: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 100'%3E%3Cellipse cx='28' cy='18' rx='7' ry='16' fill='%23FFE066' stroke='%235D4037' stroke-width='2.4' transform='rotate(-12 28 18)'/%3E%3Cellipse cx='52' cy='18' rx='7' ry='16' fill='%23FFE066' stroke='%235D4037' stroke-width='2.4' transform='rotate(12 52 18)'/%3E%3Cellipse cx='28' cy='18' rx='3' ry='9' fill='%23FFB3C6' transform='rotate(-12 28 18)'/%3E%3Cellipse cx='52' cy='18' rx='3' ry='9' fill='%23FFB3C6' transform='rotate(12 52 18)'/%3E%3Cellipse cx='40' cy='58' rx='26' ry='28' fill='%23FFFDF5' stroke='%235D4037' stroke-width='2.6'/%3E%3Cellipse cx='18' cy='60' rx='5' ry='3.5' fill='%23FFFDF5' stroke='%235D4037' stroke-width='2.2'/%3E%3Cellipse cx='62' cy='60' rx='5' ry='3.5' fill='%23FFFDF5' stroke='%235D4037' stroke-width='2.2'/%3E%3Cellipse cx='32' cy='84' rx='4.5' ry='3' fill='%23FFFDF5' stroke='%235D4037' stroke-width='2.2'/%3E%3Cellipse cx='48' cy='84' rx='4.5' ry='3' fill='%23FFFDF5' stroke='%235D4037' stroke-width='2.2'/%3E%3Ccircle cx='32' cy='54' r='2.2' fill='%235D4037'/%3E%3Ccircle cx='48' cy='54' r='2.2' fill='%235D4037'/%3E%3Cpath d='M37,62 Q40,65 43,62' stroke='%235D4037' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3Cg stroke='%23FF7A92' stroke-width='1.6' stroke-linecap='round' opacity='0.85'%3E%3Cline x1='20' y1='59' x2='24' y2='57'/%3E%3Cline x1='20' y1='62' x2='24' y2='60'/%3E%3Cline x1='20' y1='65' x2='24' y2='63'/%3E%3Cline x1='56' y1='57' x2='60' y2='59'/%3E%3Cline x1='56' y1='60' x2='60' y2='62'/%3E%3Cline x1='56' y1='63' x2='60' y2='65'/%3E%3C/g%3E%3C/svg%3E");
 
-    /* Nube — cielo pastel */
-    --theme-cloud: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 40'%3E%3Cellipse cx='24' cy='28' rx='18' ry='12' fill='%23FFFFFF' opacity='0.85'/%3E%3Cellipse cx='44' cy='22' rx='22' ry='16' fill='%23FFFFFF' opacity='0.9'/%3E%3Cellipse cx='62' cy='28' rx='14' ry='10' fill='%23FFFFFF' opacity='0.85'/%3E%3C/svg%3E");
+    /* Bracito nub suelto */
+    --theme-paw: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 20'%3E%3Cellipse cx='12' cy='10' rx='10' ry='7' fill='%23FFFDF5' stroke='%235D4037' stroke-width='2.2'/%3E%3C/svg%3E");
 
-    /* Estrellas para hover */
-    --theme-stars: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'%3E%3Cg fill='%23FF8CA8'%3E%3Cpath d='M20 8 L22 18 L32 20 L22 22 L20 32 L18 22 L8 20 L18 18 Z' opacity='0.8'/%3E%3Cpath d='M100 30 L101 37 L108 38 L101 39 L100 46 L99 39 L92 38 L99 37 Z' opacity='0.6'/%3E%3Cpath d='M50 100 L52 110 L62 112 L52 114 L50 124 L48 114 L38 112 L48 110 Z' opacity='0.85'/%3E%3Cpath d='M140 120 L141 127 L148 128 L141 129 L140 136 L139 129 L132 128 L139 127 Z' opacity='0.7'/%3E%3C/g%3E%3Cg fill='%23FFD93D'%3E%3Ccircle cx='70' cy='50' r='1.5'/%3E%3Ccircle cx='130' cy='70' r='1.3'/%3E%3Ccircle cx='30' cy='130' r='1.4'/%3E%3Ccircle cx='150' cy='40' r='1.2'/%3E%3C/g%3E%3C/svg%3E");
+    /* Estrellita de 4 puntas con contorno */
+    --theme-sparkle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M20,4 Q22,16 34,20 Q22,24 20,36 Q18,24 6,20 Q18,16 20,4 Z' fill='%23FFE066' stroke='%235D4037' stroke-width='1.8'/%3E%3C/svg%3E");
 
-    /* Comida reconfortante */
-    --theme-food: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'%3E%3Cg transform='translate(40 50) scale(0.6)'%3E%3Cellipse cx='30' cy='30' rx='25' ry='22' fill='%23FFFFFF' stroke='%23C9A8A0' stroke-width='1.5'/%3E%3Cpath d='M8,30 Q30,10 52,30' stroke='%232E1F1E' stroke-width='1.5' fill='none'/%3E%3Ccircle cx='20' cy='25' r='2' fill='%232E1F1E'/%3E%3Ccircle cx='40' cy='25' r='2' fill='%232E1F1E'/%3E%3C/g%3E%3Cg transform='translate(160 80) scale(0.5)'%3E%3Cellipse cx='30' cy='35' rx='28' ry='20' fill='%23FFE4EC' stroke='%23FF8CA8' stroke-width='1.5'/%3E%3Cpath d='M10,35 Q30,15 50,35' stroke='%23C43D5A' stroke-width='2' fill='none'/%3E%3C/g%3E%3Cg transform='translate(80 180) scale(0.45)'%3E%3Crect x='5' y='15' width='50' height='35' rx='6' fill='%23FFD93D' stroke='%23C9A8A0' stroke-width='1.5'/%3E%3Ccircle cx='30' cy='32' r='8' fill='%23FFFFFF' opacity='0.6'/%3E%3C/g%3E%3Cg transform='translate(190 200) scale(0.35)'%3E%3Cpath d='M30,4 L37,22 L56,22 L41,34 L47,53 L30,41 L13,53 L19,34 L4,22 L23,22 Z' fill='%23FF8CA8' opacity='0.6'/%3E%3C/g%3E%3Ccircle cx='120' cy='120' r='3' fill='%23FFC2CA' opacity='0.5'/%3E%3Ccircle cx='50' cy='100' r='2.5' fill='%23FFD93D' opacity='0.5'/%3E%3Ccircle cx='200' cy='50' r='2' fill='%23FFC2CA' opacity='0.4'/%3E%3C/svg%3E");
+    /* Estrellita chica sin relleno (línea) */
+    --theme-sparkle-line: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12,3 Q13,10 20,12 Q13,14 12,21 Q11,14 4,12 Q11,10 12,3 Z' fill='none' stroke='%235D4037' stroke-width='1.6'/%3E%3C/svg%3E");
+
+    /* Florcita de 5 pétalos */
+    --theme-flower: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg stroke='%235D4037' stroke-width='1.8'%3E%3Ccircle cx='20' cy='8' r='5' fill='%23FFB3C6'/%3E%3Ccircle cx='31' cy='15' r='5' fill='%23FFB3C6'/%3E%3Ccircle cx='27' cy='28' r='5' fill='%23FFB3C6'/%3E%3Ccircle cx='13' cy='28' r='5' fill='%23FFB3C6'/%3E%3Ccircle cx='9' cy='15' r='5' fill='%23FFB3C6'/%3E%3Ccircle cx='20' cy='19' r='5' fill='%23FFE066'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* Matitas de pasto dibujadas */
+    --theme-grass: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 40'%3E%3Cg stroke='%235D4037' stroke-width='1.6' fill='none' stroke-linecap='round'%3E%3Cpath d='M12,38 Q10,26 14,18'/%3E%3Cpath d='M14,38 Q18,28 24,22'/%3E%3Cpath d='M20,38 Q22,30 28,26'/%3E%3Cpath d='M36,38 Q34,26 38,20'/%3E%3Cpath d='M40,38 Q44,28 50,24'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* Nube manga con contorno */
+    --theme-cloud: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 40'%3E%3Cpath d='M12,30 Q4,30 6,22 Q4,12 16,12 Q20,4 32,6 Q42,0 52,8 Q62,4 72,12 Q84,10 88,20 Q96,22 92,30 Q92,36 82,34 L18,34 Q10,34 12,30 Z' fill='%23FFFDF5' stroke='%235D4037' stroke-width='2'/%3E%3C/svg%3E");
+
+    /* Rayitas de movimiento (japanese motion lines) */
+    --theme-motion: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg stroke='%235D4037' stroke-width='1.4' fill='none' stroke-linecap='round' opacity='0.7'%3E%3Cpath d='M6,12 Q4,16 6,20'/%3E%3Cpath d='M12,8 Q10,16 12,24'/%3E%3Cpath d='M30,30 Q32,26 30,22'/%3E%3Cpath d='M24,34 Q26,26 24,18'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* Patch de pasto (tile grande) */
+    --theme-grass-tile: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'%3E%3Cg stroke='%235D4037' stroke-width='1.6' fill='none' stroke-linecap='round' opacity='0.55'%3E%3Cpath d='M30,60 Q28,50 32,42'/%3E%3Cpath d='M34,60 Q38,52 44,46'/%3E%3Cpath d='M40,60 Q42,52 48,48'/%3E%3Cpath d='M160,80 Q158,70 162,62'/%3E%3Cpath d='M164,80 Q168,72 174,66'/%3E%3Cpath d='M100,190 Q98,180 102,172'/%3E%3Cpath d='M104,190 Q108,182 114,176'/%3E%3Cpath d='M200,180 Q198,170 202,162'/%3E%3Cpath d='M204,180 Q208,172 214,166'/%3E%3C/g%3E%3Cg transform='translate(80 100)'%3E%3Cg stroke='%235D4037' stroke-width='1.4'%3E%3Ccircle cx='0' cy='-8' r='3.5' fill='%23FFB3C6'/%3E%3Ccircle cx='7.5' cy='-2.5' r='3.5' fill='%23FFB3C6'/%3E%3Ccircle cx='4.5' cy='6.5' r='3.5' fill='%23FFB3C6'/%3E%3Ccircle cx='-4.5' cy='6.5' r='3.5' fill='%23FFB3C6'/%3E%3Ccircle cx='-7.5' cy='-2.5' r='3.5' fill='%23FFB3C6'/%3E%3Ccircle cx='0' cy='0' r='3.5' fill='%23FFE066'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(190 170)'%3E%3Cg stroke='%235D4037' stroke-width='1.4'%3E%3Ccircle cx='0' cy='-6' r='3' fill='%23FFFDF5'/%3E%3Ccircle cx='5.5' cy='-1.5' r='3' fill='%23FFFDF5'/%3E%3Ccircle cx='3.5' cy='5' r='3' fill='%23FFFDF5'/%3E%3Ccircle cx='-3.5' cy='5' r='3' fill='%23FFFDF5'/%3E%3Ccircle cx='-5.5' cy='-1.5' r='3' fill='%23FFFDF5'/%3E%3Ccircle cx='0' cy='0' r='3' fill='%23FFE066'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   1. HEADER — orejas de gato + mejillas rosadas
+   1. HEADER — cielo celeste con nubes y contorno grueso
    ================================================================ */
 .app-header {
     position: relative;
-    background: linear-gradient(180deg, #FFFFFF 0%, #FFF5F0 100%);
-    border-bottom: none;
-    box-shadow:
-        inset 0 -3px 0 var(--violet-300),
-        inset 0 -5px 0 var(--violet-200),
-        0 2px 6px rgba(255, 107, 138, 0.10);
-}
-
-/* Orejas de gato — triángulos suaves en los bordes */
-.app-header::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 15%;
-    right: 15%;
-    height: 12px;
     background:
-        radial-gradient(ellipse at 20% 100%, var(--accent-blue-light) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 100%, var(--accent-blue-light) 0%, transparent 60%);
-    pointer-events: none;
-    z-index: 1;
-    opacity: 0.7;
+        var(--theme-cloud),
+        var(--theme-cloud),
+        linear-gradient(180deg, #D4ECFA 0%, #BAE1F5 100%);
+    background-size: 90px 36px, 60px 24px, auto;
+    background-position: 8% 30%, 82% 55%, 0 0;
+    background-repeat: no-repeat, no-repeat, no-repeat;
+    border-bottom: 3px solid #5D4037;
+    box-shadow:
+        0 3px 0 rgba(93, 64, 55, 0.15),
+        0 5px 10px rgba(93, 64, 55, 0.08);
 }
 
-/* Mejillas rosadas en las esquinas del header */
+/* Franja de pasto bajo el header */
 .app-header::after {
     content: '';
     position: absolute;
-    bottom: 6px;
-    left: 8px;
-    right: 8px;
-    height: 6px;
+    bottom: -12px;
+    left: 0;
+    right: 0;
+    height: 10px;
     background:
-        radial-gradient(circle at 5% 50%, rgba(255, 194, 202, calc(0.5 + var(--blush) * 0.5)) 0 5px, transparent 6px),
-        radial-gradient(circle at 95% 50%, rgba(255, 194, 202, calc(0.5 + var(--blush) * 0.5)) 0 5px, transparent 6px);
+        var(--theme-grass),
+        linear-gradient(180deg, var(--grass-mid) 0%, var(--grass-dark) 100%);
+    background-size: 60px 40px, auto;
+    background-position: 0 -22px, 0 0;
+    background-repeat: repeat-x, repeat;
+    border-bottom: 2px solid #5D4037;
     pointer-events: none;
-    z-index: 2;
-    transition: background 0.10s linear;
+    z-index: 1;
 }
 
-/* Logo: carita redonda con mejillas */
+/* Logo: carita manga con contorno grueso */
 .logo-mark {
     position: relative;
-    background: linear-gradient(135deg, #FFFFFF 0%, #FFF2EC 100%);
+    background: #FFFDF5;
+    border: 3px solid #5D4037;
     border-radius: 50%;
     box-shadow:
-        0 0 0 2px var(--violet-300),
-        0 0 0 4px #FFFFFF,
-        0 2px 8px rgba(255, 107, 138, 0.20),
-        0 0 calc(var(--blush) * 12px) rgba(255, 194, 202, calc(var(--blush) * 0.5));
+        0 3px 0 #5D4037,
+        0 0 calc(var(--blush) * 12px) rgba(255, 154, 172, calc(var(--blush) * 0.5));
     transition: box-shadow 0.10s linear;
-}
-.logo-mark::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 10px;
-    height: 10px;
-    margin: -5px 0 0 -5px;
-    border-radius: 50%;
-    background: var(--violet-400);
-    opacity: calc(0.3 + var(--blush) * 0.5);
-    pointer-events: none;
-    transition: opacity 0.10s linear;
 }
 
 /* ================================================================
-   2. WELCOME — cielo pastel con caritas y comida
+   2. WELCOME — cielo arriba, pasto abajo, con personajes
    ================================================================ */
 .welcome-placeholder {
     position: relative;
-    background-image:
-        var(--theme-food),
-        var(--theme-cloud),
-        var(--theme-cloud),
-        var(--theme-face),
-        var(--theme-face),
-        radial-gradient(ellipse at top,    rgba(255, 194, 202, 0.20) 0%, transparent 55%),
-        radial-gradient(ellipse at bottom, rgba(123, 171, 196, 0.12) 0%, transparent 55%),
-        linear-gradient(180deg, #FFF9F5 0%, #FFF2EC 100%);
-    background-size:
-        240px 240px,
-        120px 60px, 90px 45px,
-        50px 42px, 38px 32px,
-        auto, auto, auto;
-    background-position:
-        0 0,
-        10% 15%, 70% 60%,
-        85% 20%, 15% 75%,
-        0 0, 0 0, 0 0;
-    background-repeat:
-        repeat,
-        no-repeat, no-repeat,
-        no-repeat, no-repeat,
-        no-repeat, no-repeat, no-repeat;
+    background:
+        var(--theme-grass-tile) 0 0 / 240px 240px repeat,
+        linear-gradient(180deg,
+            var(--sky-light) 0%,
+            var(--sky-mid) 28%,
+            #E8F5E0 42%,
+            var(--grass-light) 55%,
+            var(--grass-mid) 100%);
+    background-position: 0 0, 0 0;
+    background-repeat: repeat, no-repeat;
 }
 
-/* Corazones flotando hacia arriba */
+/* Personajes dibujados dispersos en el pasto */
 .welcome-placeholder::before {
     content: '';
     position: absolute;
     inset: 0;
     pointer-events: none;
     z-index: 1;
-    background: var(--theme-heart) no-repeat;
-    background-size: 28px 25px;
-    animation: heart-float 12s ease-in-out infinite;
-    filter: drop-shadow(0 2px 4px rgba(255, 107, 138, 0.25));
+    background-image:
+        var(--theme-body),
+        var(--theme-rabbit),
+        var(--theme-face),
+        var(--theme-paw),
+        var(--theme-sparkle),
+        var(--theme-sparkle-line),
+        var(--theme-motion),
+        var(--theme-motion);
+    background-size:
+        62px 70px,
+        58px 72px,
+        48px 43px,
+        20px 17px,
+        28px 28px,
+        18px 18px,
+        40px 40px,
+        40px 40px;
+    background-position:
+        8% 88%,
+        88% 82%,
+        14% 40%,
+        76% 62%,
+        88% 38%,
+        22% 68%,
+        30% 92%,
+        72% 92%;
+    background-repeat: no-repeat;
 }
 
+/* Nubes flotando arriba */
 .welcome-placeholder::after {
     content: '';
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60%;
     pointer-events: none;
-    z-index: 1;
-    background: var(--theme-heart) no-repeat;
-    background-size: 20px 18px;
-    animation: heart-float-b 15s ease-in-out infinite 5s;
-    filter: drop-shadow(0 2px 4px rgba(255, 107, 138, 0.20));
+    z-index: 0;
+    background-image:
+        var(--theme-cloud),
+        var(--theme-cloud),
+        var(--theme-cloud);
+    background-size:
+        110px 44px,
+        80px 32px,
+        70px 28px;
+    background-position:
+        6% 12%,
+        48% 8%,
+        86% 22%;
+    background-repeat: no-repeat;
 }
 
 .welcome-glow {
     background: radial-gradient(
         circle at 50% 40%,
-        rgba(255, 194, 202, calc(0.12 + var(--blush) * 0.15)) 0%,
+        rgba(255, 230, 200, 0.20) 0%,
         transparent 65%
     );
-    transition: background 0.10s linear;
 }
 
 .welcome-hero,
@@ -297,53 +312,52 @@
     z-index: 2;
 }
 
-/* Hero — carita grande, bordes redondeados, temblor sutil */
+/* Hero — tarjeta manga con contorno grueso y sombra dura */
 .welcome-hero {
     position: relative;
     padding: 42px 30px 36px;
-    background:
-        radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 249, 245, 0.95) 100%);
-    border: 2px solid var(--violet-200);
-    border-radius: var(--r-xl);
+    background: #FFFDF5;
+    border: 3px solid #5D4037;
+    border-radius: var(--r-lg);
     box-shadow:
-        0 8px 24px rgba(255, 107, 138, 0.12),
-        0 0 calc(var(--blush) * 24px) rgba(255, 194, 202, calc(var(--blush) * 0.4)),
-        inset 0 0 40px rgba(255, 194, 202, 0.10);
+        5px 5px 0 #5D4037,
+        5px 5px 0 0 rgba(93, 64, 55, 0.10);
     max-width: 660px;
     margin-left: auto;
     margin-right: auto;
-    animation: silly-wiggle 6s ease-in-out infinite;
-    transition: box-shadow 0.10s linear;
+    animation: silly-shake 5s ease-in-out infinite;
 }
 
-/* Orejas de gato arriba del hero */
+/* Moño azul en la esquina del hero (detalle) */
 .welcome-hero::before {
     content: '';
     position: absolute;
-    top: -18px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
-    height: 20px;
+    top: -6px;
+    right: -6px;
+    width: 34px;
+    height: 34px;
     background:
-        radial-gradient(ellipse at 25% 100%, var(--accent-blue) 0 12px, transparent 13px),
-        radial-gradient(ellipse at 75% 100%, var(--accent-blue) 0 12px, transparent 13px);
+        radial-gradient(ellipse at 30% 50%, var(--bow-blue) 0 42%, transparent 44%),
+        radial-gradient(ellipse at 70% 50%, var(--bow-blue) 0 42%, transparent 44%),
+        radial-gradient(circle at 50% 50%, var(--bow-blue-dark) 0 18%, transparent 20%);
+    filter: drop-shadow(2px 2px 0 #5D4037);
     pointer-events: none;
     z-index: 3;
-    opacity: 0.8;
+    transform: rotate(-8deg);
 }
 
-/* Mejillas rosadas grandes en el hero */
+/* Mejillas con 3 rayitas rosadas grandes (como personaje real) */
 .welcome-hero::after {
     content: '';
     position: absolute;
-    bottom: 20px;
-    left: 20px;
-    right: 20px;
-    height: 20px;
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+    height: 30px;
     background:
-        radial-gradient(circle at 10% 50%, rgba(255, 194, 202, calc(0.6 + var(--blush) * 0.4)) 0 12px, transparent 13px),
-        radial-gradient(circle at 90% 50%, rgba(255, 194, 202, calc(0.6 + var(--blush) * 0.4)) 0 12px, transparent 13px);
+        linear-gradient(90deg, transparent 0 4%, transparent calc(96%) 100%),
+        radial-gradient(circle at 6% 50%, rgba(255, 154, 172, calc(0.5 + var(--blush) * 0.5)) 0 14px, transparent 15px),
+        radial-gradient(circle at 94% 50%, rgba(255, 154, 172, calc(0.5 + var(--blush) * 0.5)) 0 14px, transparent 15px);
     pointer-events: none;
     z-index: 3;
     transition: background 0.10s linear;
@@ -357,88 +371,79 @@
 .welcome-hero h1 {
     color: var(--text);
     text-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.8),
-        0 0 calc(var(--blush) * 16px) rgba(255, 194, 202, calc(var(--blush) * 0.5));
+        0 0 calc(var(--blush) * 14px) rgba(255, 154, 172, calc(var(--blush) * 0.4));
     transition: text-shadow 0.10s linear;
     letter-spacing: 0.005em;
+    font-weight: 800;
 }
 
-/* Icono — carita con mejillas que laten */
+/* Icono — carita manga con contorno grueso que rebota */
 .welcome-icon-wrap {
     position: relative;
-    background: linear-gradient(135deg, #FFFFFF 0%, #FFF2EC 100%);
+    background: #FFFDF5;
+    border: 3px solid #5D4037;
     border-radius: 50%;
     box-shadow:
-        0 0 0 3px var(--violet-300),
-        0 0 0 5px #FFFFFF,
-        0 0 0 7px rgba(255, 194, 202, 0.40),
-        0 8px 20px rgba(255, 107, 138, 0.18),
-        0 0 calc(var(--blush) * 20px) rgba(255, 194, 202, calc(var(--blush) * 0.5));
-    animation: silly-bounce 3s ease-in-out infinite;
+        0 4px 0 #5D4037,
+        0 0 calc(var(--blush) * 18px) rgba(255, 154, 172, calc(var(--blush) * 0.5));
+    animation: silly-bob 2.6s ease-in-out infinite;
     transition: box-shadow 0.10s linear;
 }
+
+/* Mejillas rayadas alrededor del icono (efecto simpático) */
 .welcome-icon-wrap::after {
     content: '';
     position: absolute;
-    inset: -12px;
+    inset: -14px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 194, 202, 0.25) 0%, transparent 70%);
+    background:
+        var(--theme-motion) center / 40px 40px no-repeat;
+    opacity: calc(0.5 + var(--blush) * 0.4);
     pointer-events: none;
     z-index: -1;
-    animation: blush-pulse 3.8s ease-in-out infinite;
+    transition: opacity 0.10s linear;
 }
 
 /* ================================================================
-   3. SECCIONES — páginas de cuaderno con caritas
+   3. SECCIONES — cuaderno de bocetos
    ================================================================ */
 .welcome-section {
     position: relative;
-    background:
-        var(--theme-face),
-        linear-gradient(180deg, #FFFFFF 0%, #FFF5F0 100%);
-    background-size: 40px 34px, auto;
-    background-position: 16px 12px, 0 0;
-    background-repeat: no-repeat, no-repeat;
-    border: 1.5px solid var(--violet-200);
-    border-radius: var(--r-lg);
+    background: #FFFDF5;
+    border: 2.5px solid #5D4037;
+    border-radius: var(--r-md);
     padding: 18px 20px;
-    box-shadow:
-        0 4px 12px rgba(255, 107, 138, 0.08),
-        inset 0 0 20px rgba(255, 194, 202, 0.06);
+    box-shadow: 4px 4px 0 #5D4037;
 }
 .welcome-section::before {
     content: '';
     position: absolute;
     top: 8px;
-    left: 60px;
-    right: 16px;
-    height: 1px;
-    background: repeating-linear-gradient(
-        90deg,
-        var(--violet-200) 0 4px,
-        transparent 4px 8px
-    );
-    opacity: 0.5;
+    left: 12px;
+    width: 32px;
+    height: 28px;
+    background: var(--theme-face) center / contain no-repeat;
+    opacity: 0.65;
     pointer-events: none;
 }
 .welcome-section-header h2 {
-    color: var(--violet-700);
-    letter-spacing: 0.02em;
+    color: #3A2B22;
+    letter-spacing: 0.01em;
+    font-weight: 800;
+    padding-left: 40px;
 }
 
 /* ================================================================
-   4. SIDEBAR — mundo pastel con personajes
+   4. SIDEBAR — pasto verde con flores y criaturas
    ================================================================ */
 .sidebar {
     position: relative;
     background:
-        var(--theme-face),
-        var(--theme-heart),
-        linear-gradient(180deg, #FFF5F0 0%, #FFE8E0 100%);
-    background-size: 36px 30px, 24px 22px, auto;
-    background-position: 12px 20px, calc(100% - 12px) 60%, 0 0;
-    background-repeat: no-repeat, no-repeat, no-repeat;
-    border-right: 2px solid var(--violet-200);
+        var(--theme-grass-tile),
+        linear-gradient(180deg, var(--grass-light) 0%, var(--grass-mid) 100%);
+    background-size: 240px 240px, auto;
+    background-repeat: repeat, no-repeat;
+    border-right: 3px solid #5D4037;
     overflow: hidden;
 }
 .sidebar::before {
@@ -447,7 +452,7 @@
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    background: linear-gradient(180deg, rgba(255, 245, 240, 0.70) 0%, rgba(255, 232, 224, 0.85) 100%);
+    background: linear-gradient(180deg, rgba(240, 246, 229, 0.30) 0%, rgba(168, 204, 128, 0.30) 100%);
 }
 .sidebar-comunidad,
 .sidebar-label,
@@ -457,67 +462,50 @@
     z-index: 1;
 }
 .sidebar-mobile-header {
-    background: #FFF5F0;
-    border-bottom: 2px solid var(--violet-200);
+    background: var(--grass-light);
+    border-bottom: 2px solid #5D4037;
 }
 .sidebar-comunidad {
-    background: linear-gradient(180deg, #FFFFFF 0%, #FFF9F5 100%);
-    border: 1.5px solid var(--violet-200);
+    background: #FFFDF5;
+    border: 2.5px solid #5D4037;
     border-radius: var(--r-md);
-    box-shadow: 0 2px 6px rgba(255, 107, 138, 0.06);
+    box-shadow: 3px 3px 0 #5D4037;
 }
 .sidebar-comunidad:hover {
-    border-color: var(--violet-400);
-    box-shadow:
-        0 2px 6px rgba(255, 107, 138, 0.10),
-        0 0 calc(var(--blush) * 12px) rgba(255, 194, 202, calc(var(--blush) * 0.4));
-    transition: box-shadow 0.10s linear;
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 #5D4037;
+    transition: all 0.10s linear;
 }
 
-/* Nav activo con forma de píldora */
+/* Nav activo — pastilla con contorno grueso */
 .nav-item {
     position: relative;
-    border-radius: var(--r-full);
-    transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border-radius: var(--r-md);
+    transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .nav-item:hover {
-    background: rgba(255, 194, 202, 0.20);
+    background: rgba(255, 253, 245, 0.55);
 }
 .nav-item.active {
-    background: linear-gradient(135deg, #FFFFFF 0%, #FFF2EC 100%);
-    color: var(--violet-600);
-    border: 2px solid var(--violet-300);
-    box-shadow:
-        0 2px 8px rgba(255, 107, 138, 0.12),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    background: #FFFDF5;
+    color: #3A2B22;
+    border: 2.5px solid #5D4037;
+    box-shadow: 3px 3px 0 #5D4037;
+    padding: 4px 10px;
 }
 .nav-item.active .nav-icon {
     color: var(--violet-500);
 }
-.nav-item.active::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 25%;
-    bottom: 25%;
-    width: 4px;
-    border-radius: 0 4px 4px 0;
-    background: linear-gradient(180deg, var(--violet-400), var(--violet-600));
-    box-shadow: 0 0 calc(var(--blush) * 8px) rgba(255, 107, 138, 0.50);
-    transition: box-shadow 0.10s linear;
-}
 .nav-item.active::after {
     content: '';
     position: absolute;
-    right: 12px;
+    right: 10px;
     top: 50%;
-    width: 8px;
-    height: 8px;
-    margin-top: -4px;
-    border-radius: 50%;
-    background: var(--violet-300);
-    box-shadow: 0 0 calc(var(--blush) * 6px) rgba(255, 194, 202, 0.6);
-    transition: box-shadow 0.10s linear;
+    width: 10px;
+    height: 10px;
+    margin-top: -5px;
+    background: var(--theme-sparkle) center / contain no-repeat;
+    pointer-events: none;
 }
 
 @media (max-width: 768px) {
@@ -525,243 +513,189 @@
 }
 
 /* ================================================================
-   5. ACCESOS RÁPIDOS — tarjetas con caritas y estrellas al hover
+   5. ACCESOS RÁPIDOS — tarjetas manga con contorno grueso
    ================================================================ */
 .acceso-item {
     position: relative;
-    background:
-        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.9) 0%, transparent 50%),
-        linear-gradient(180deg, #FFFFFF 0%, #FFF9F5 100%);
-    border: 1.5px solid var(--violet-200);
-    border-radius: var(--r-lg);
-    box-shadow:
-        0 4px 12px rgba(255, 107, 138, 0.08),
-        inset 0 0 20px rgba(255, 194, 202, 0.06);
-    overflow: hidden;
+    background: #FFFDF5;
+    border: 2.5px solid #5D4037;
+    border-radius: var(--r-md);
+    box-shadow: 4px 4px 0 #5D4037;
+    overflow: visible;
     transition:
         transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
-        box-shadow 0.10s linear,
-        border-color 0.22s ease;
+        box-shadow 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Estrellas deslizándose al hover */
+/* Estrellitas de fondo al hover */
 .acceso-item::before {
     content: '';
     position: absolute;
-    inset: 0;
-    background: var(--theme-stars);
-    background-size: 160px 160px;
-    background-repeat: repeat;
+    inset: 6px;
+    background:
+        var(--theme-sparkle-line),
+        var(--theme-sparkle-line),
+        var(--theme-sparkle);
+    background-size: 14px 14px, 12px 12px, 16px 16px;
+    background-position: 12% 20%, 82% 30%, 60% 78%;
+    background-repeat: no-repeat;
     opacity: 0;
     pointer-events: none;
     z-index: 2;
-    transition: opacity 0.35s ease;
+    transition: opacity 0.30s ease;
 }
 .acceso-item:hover::before {
-    opacity: 0.7;
-    animation: star-drift 2.2s linear infinite;
+    opacity: 1;
 }
 
-/* Estrella grande en la esquina al hover */
+/* Bracito nub asomando arriba al hover */
 .acceso-item::after {
     content: '';
     position: absolute;
-    top: 8px;
-    right: 10px;
-    width: 16px;
-    height: 16px;
-    background: var(--theme-star) center / contain no-repeat;
+    top: -12px;
+    left: 50%;
+    width: 22px;
+    height: 18px;
+    margin-left: -11px;
+    background: var(--theme-paw) center / contain no-repeat;
     opacity: 0;
-    transform: scale(0.4) rotate(-30deg);
+    transform: translateY(6px) scale(0.5);
     transition:
         opacity 0.28s ease,
         transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
     pointer-events: none;
     z-index: 3;
-    filter: drop-shadow(0 0 5px rgba(255, 217, 61, 0.7));
+    filter: drop-shadow(2px 2px 0 rgba(93, 64, 55, 0.30));
 }
 .acceso-item:hover::after {
     opacity: 1;
-    transform: scale(1) rotate(0deg);
+    transform: translateY(0) scale(1);
 }
 
 .acceso-item:hover {
-    transform: translateY(-4px);
-    border-color: var(--violet-400);
-    box-shadow:
-        0 10px 24px rgba(255, 107, 138, 0.16),
-        0 0 calc(var(--blush) * 16px) rgba(255, 194, 202, calc(var(--blush) * 0.5));
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 #5D4037;
 }
 
-/* Icono con mejilla rosada */
 .acceso-icon-wrap {
-    background: linear-gradient(135deg, #FFF2EC 0%, #FFE8E0 100%);
-    color: var(--violet-500);
-    border: 1.5px solid var(--violet-200);
+    background: var(--violet-100);
+    color: var(--violet-600);
+    border: 2.5px solid #5D4037;
     border-radius: 50%;
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.9),
-        0 2px 6px rgba(255, 107, 138, 0.10);
+    box-shadow: 0 2px 0 #5D4037;
     transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .acceso-item:hover .acceso-icon-wrap {
     background: var(--accent-gradient);
     color: #FFFFFF;
-    border-color: var(--violet-500);
-    box-shadow:
-        0 0 0 3px rgba(255, 194, 202, 0.30),
-        0 4px 12px rgba(255, 107, 138, 0.35);
     transform: rotate(-6deg);
+    box-shadow:
+        0 2px 0 #5D4037,
+        0 0 calc(var(--blush) * 10px) rgba(255, 154, 172, calc(var(--blush) * 0.5));
 }
 
 /* ================================================================
-   6. WIDGETS — mismo lenguaje + estrellas al hover
+   6. WIDGETS — mismo lenguaje manga
    ================================================================ */
 .widget-item {
     position: relative;
-    background:
-        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.8) 0%, transparent 50%),
-        linear-gradient(180deg, #FFFFFF 0%, #FFF9F5 100%);
-    border: 1.5px solid var(--violet-200);
-    border-radius: var(--r-lg);
-    box-shadow:
-        0 4px 12px rgba(255, 107, 138, 0.07),
-        inset 0 0 20px rgba(255, 194, 202, 0.05);
+    background: #FFFDF5;
+    border: 2.5px solid #5D4037;
+    border-radius: var(--r-md);
+    box-shadow: 4px 4px 0 #5D4037;
     overflow: hidden;
-    transition:
-        transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
-        box-shadow 0.10s linear,
-        border-color 0.22s ease;
-}
-.widget-item::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--theme-stars);
-    background-size: 140px 140px;
-    background-repeat: repeat;
-    opacity: 0;
-    pointer-events: none;
-    z-index: 2;
-    transition: opacity 0.35s ease;
-}
-.widget-item:hover::before {
-    opacity: 0.6;
-    animation: star-drift 2.2s linear infinite;
+    transition: all 0.18s linear;
 }
 .widget-item:hover {
-    transform: translateY(-3px);
-    border-color: var(--violet-400);
-    box-shadow:
-        0 8px 20px rgba(255, 107, 138, 0.12),
-        0 0 calc(var(--blush) * 14px) rgba(255, 194, 202, calc(var(--blush) * 0.4));
+    transform: translate(-1px, -1px);
+    box-shadow: 5px 5px 0 #5D4037;
 }
 
 /* ================================================================
-   7. PESTAÑAS — orejas largas en la activa
+   7. PESTAÑAS — orejitas asomando en la activa
    ================================================================ */
 .tab-item.active {
     position: relative;
-    background: linear-gradient(180deg, #FFFFFF 0%, #FFF5F0 100%);
-    color: var(--violet-700);
-    border-color: var(--violet-300);
-    box-shadow:
-        inset 0 -2px 0 var(--violet-400),
-        0 0 0 1px var(--violet-200) inset;
+    background: #FFFDF5;
+    color: #3A2B22;
+    border: 2.5px solid #5D4037;
+    border-bottom: none;
+    box-shadow: 0 -3px 0 #5D4037 inset;
 }
-/* Orejas largas */
+/* Orejitas amarillas asomando arriba */
 .tab-item.active::before {
     content: '';
     position: absolute;
-    top: -12px;
+    top: -14px;
     left: 50%;
     transform: translateX(-50%);
-    width: 32px;
+    width: 30px;
     height: 14px;
     background:
-        radial-gradient(ellipse at 30% 100%, var(--accent-yellow-light) 0 6px, transparent 7px),
-        radial-gradient(ellipse at 70% 100%, var(--accent-yellow-light) 0 6px, transparent 7px);
+        radial-gradient(ellipse at 25% 100%, var(--ear-yellow) 0 40%, transparent 42%),
+        radial-gradient(ellipse at 75% 100%, var(--ear-yellow) 0 40%, transparent 42%);
+    filter: drop-shadow(0 -1px 0 #5D4037);
     pointer-events: none;
     z-index: 3;
-    opacity: 0.85;
-}
-.tab-item.active::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 10px;
-    right: 10px;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, var(--violet-400), var(--violet-500), var(--violet-400), transparent);
-    border-radius: 2px 2px 0 0;
-    box-shadow: 0 0 calc(var(--blush) * 12px) rgba(255, 107, 138, calc(var(--blush) * 0.5));
-    pointer-events: none;
-    transition: box-shadow 0.10s linear;
 }
 .tab-item.active [data-lucide] {
     color: var(--violet-500);
 }
 
 /* ================================================================
-   8. MODALES — tarjeta con marco de caritas
+   8. MODALES — página de manga con marco grueso
    ================================================================ */
 .config-card,
 .modal-todas-card {
     position: relative;
     overflow: hidden;
-    background:
-        radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.95) 0%, transparent 60%),
-        linear-gradient(180deg, #FFFFFF 0%, #FFF5F0 100%);
-    border: 2px solid var(--violet-300);
-    border-radius: var(--r-xl);
+    background: #FFFDF5;
+    border: 3px solid #5D4037;
+    border-radius: var(--r-lg);
     box-shadow:
-        0 0 0 4px rgba(255, 194, 202, 0.20),
-        0 16px 40px rgba(255, 107, 138, 0.18),
-        0 0 calc(var(--blush) * 32px) rgba(255, 194, 202, calc(var(--blush) * 0.4));
+        6px 6px 0 #5D4037,
+        0 0 calc(var(--blush) * 24px) rgba(255, 154, 172, calc(var(--blush) * 0.35));
     transition: box-shadow 0.10s linear;
 }
 
-/* Carita en la esquina superior */
+/* Carita en esquina superior izquierda */
 .config-card::before,
 .modal-todas-card::before {
     content: '';
     position: absolute;
-    top: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 44px;
-    height: 37px;
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 36px;
     background: var(--theme-face) center / contain no-repeat;
-    opacity: 0.6;
+    opacity: 0.85;
     pointer-events: none;
     z-index: 3;
-    filter: drop-shadow(0 1px 2px rgba(255, 107, 138, 0.20));
 }
 
-/* Corazón en la esquina inferior */
+/* Estrellita en esquina inferior derecha */
 .config-card::after,
 .modal-todas-card::after {
     content: '';
     position: absolute;
-    bottom: 12px;
-    right: 12px;
-    width: 20px;
-    height: 18px;
-    background: var(--theme-heart) center / contain no-repeat;
-    opacity: 0.45;
+    bottom: 10px;
+    left: 10px;
+    width: 22px;
+    height: 22px;
+    background: var(--theme-sparkle) center / contain no-repeat;
+    opacity: 0.85;
     pointer-events: none;
     z-index: 4;
-    filter: drop-shadow(0 0 4px rgba(255, 107, 138, 0.4));
 }
 
 .config-header,
 .modal-todas-header {
-    background: linear-gradient(180deg, #FFF5F0 0%, #FFE8E0 100%);
-    border-bottom: 2px solid var(--violet-300);
+    background: var(--violet-100);
+    border-bottom: 2.5px solid #5D4037;
 }
 
 /* ================================================================
-   9. BOTÓN PRIMARIO — glossy suave con destellos
+   9. BOTÓN PRIMARIO — botón manga con sombra dura
    ================================================================ */
 .btn-primario {
     position: relative;
@@ -769,117 +703,94 @@
     background: var(--accent-gradient);
     color: #FFFFFF;
     font-weight: 800;
-    border: 2px solid var(--violet-500);
-    border-radius: var(--r-full);
-    text-shadow: 0 1px 0 rgba(196, 61, 90, 0.40);
+    border: 2.5px solid #5D4037;
+    border-radius: var(--r-md);
+    text-shadow: 1px 1px 0 rgba(93, 64, 55, 0.40);
     box-shadow:
-        inset 0 2px 0 rgba(255, 255, 255, 0.35),
-        inset 0 -2px 0 rgba(0, 0, 0, 0.15),
-        0 4px 12px rgba(255, 107, 138, 0.35),
-        0 0 calc(var(--blush) * 16px) rgba(255, 194, 202, calc(var(--blush) * 0.5));
+        3px 3px 0 #5D4037,
+        0 0 calc(var(--blush) * 12px) rgba(255, 154, 172, calc(var(--blush) * 0.45));
     transition:
         transform 0.12s ease,
-        box-shadow 0.10s linear,
-        background 0.15s ease;
+        box-shadow 0.10s linear;
 }
+/* Estrellitas al hover */
 .btn-primario::before {
     content: '';
     position: absolute;
-    top: 2px;
-    left: 4px;
-    right: 4px;
-    height: 45%;
-    border-radius: var(--r-full) var(--r-full) 0 0;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 100%);
-    pointer-events: none;
-}
-/* Estrellas deslizándose al hover */
-.btn-primario::after {
-    content: '';
-    position: absolute;
     inset: 0;
-    background: var(--theme-stars);
-    background-size: 140px 140px;
-    background-repeat: repeat;
+    background:
+        var(--theme-sparkle-line),
+        var(--theme-sparkle-line);
+    background-size: 12px 12px, 10px 10px;
+    background-position: 20% 30%, 78% 70%;
+    background-repeat: no-repeat;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.30s ease;
-    mix-blend-mode: screen;
+    transition: opacity 0.25s ease;
 }
-.btn-primario:hover::after {
-    opacity: 0.50;
-    animation: star-drift 1.8s linear infinite;
+.btn-primario:hover::before {
+    opacity: 1;
 }
 .btn-primario:hover {
-    background: var(--accent-gradient-hover);
-    transform: translateY(-2px);
+    transform: translate(-1px, -1px);
     box-shadow:
-        inset 0 2px 0 rgba(255, 255, 255, 0.45),
-        inset 0 -2px 0 rgba(0, 0, 0, 0.15),
-        0 6px 18px rgba(255, 107, 138, 0.45),
-        0 0 calc(var(--blush) * 22px) rgba(255, 194, 202, calc(var(--blush) * 0.6));
+        4px 4px 0 #5D4037,
+        0 0 calc(var(--blush) * 18px) rgba(255, 154, 172, calc(var(--blush) * 0.55));
 }
 .btn-primario:active {
-    transform: translateY(1px);
+    transform: translate(2px, 2px);
     box-shadow:
-        inset 0 2px 0 rgba(255, 255, 255, 0.25),
-        inset 0 -2px 0 rgba(0, 0, 0, 0.20),
-        0 2px 6px rgba(255, 107, 138, 0.25);
+        1px 1px 0 #5D4037;
 }
 
 /* ================================================================
-   10. INPUTS — campos suaves y redondeados
+   10. INPUTS
    ================================================================ */
 .config-field input,
 .config-field select,
 .config-select {
-    background: linear-gradient(180deg, #FFF9F5 0%, #FFFFFF 100%);
-    border: 1.5px solid var(--violet-200);
+    background: #FFFDF5;
+    border: 2px solid #5D4037;
     color: var(--text);
-    border-radius: var(--r-md);
-    box-shadow:
-        inset 0 1px 2px rgba(255, 107, 138, 0.06),
-        0 1px 3px rgba(255, 107, 138, 0.04);
+    border-radius: var(--r-sm);
+    box-shadow: 2px 2px 0 rgba(93, 64, 55, 0.20);
 }
 .config-field input:focus,
 .config-field select:focus,
 .config-select:focus {
-    border-color: var(--violet-400);
+    border-color: var(--violet-500);
     box-shadow:
-        inset 0 1px 2px rgba(255, 107, 138, 0.06),
-        0 0 0 3px rgba(255, 194, 202, 0.25);
+        2px 2px 0 rgba(93, 64, 55, 0.20),
+        0 0 0 3px rgba(255, 154, 172, 0.30);
 }
 
 /* ================================================================
    11. AVATAR Y NOTIFICACIONES
    ================================================================ */
 .avatar-config {
-    background: linear-gradient(135deg, #FFFFFF 0%, #FFF2EC 100%);
-    border: 2px solid var(--violet-300);
+    background: #FFFDF5;
+    border: 2.5px solid #5D4037;
     box-shadow:
-        0 0 0 2px #FFFFFF,
-        0 0 0 4px rgba(255, 194, 202, calc(0.3 + var(--blush) * 0.4)),
-        0 4px 12px rgba(255, 107, 138, 0.15);
-    transition: box-shadow 0.10s linear, transform 0.12s ease;
+        2px 2px 0 #5D4037,
+        0 0 calc(var(--blush) * 10px) rgba(255, 154, 172, calc(var(--blush) * 0.4));
+    transition: all 0.12s ease;
 }
 .avatar-config:hover {
-    transform: translateY(-2px);
+    transform: translate(-1px, -1px);
     box-shadow:
-        0 0 0 2px #FFFFFF,
-        0 0 0 4px rgba(255, 194, 202, calc(0.5 + var(--blush) * 0.5)),
-        0 6px 18px rgba(255, 107, 138, 0.25);
+        3px 3px 0 #5D4037,
+        0 0 calc(var(--blush) * 14px) rgba(255, 154, 172, calc(var(--blush) * 0.5));
 }
 
 .noti-btn.tiene-no-leidas {
-    background: rgba(255, 194, 202, 0.20);
+    background: var(--violet-100);
     color: var(--violet-600);
 }
 
 .search-bar:focus-within {
-    border-color: var(--violet-400);
+    border-color: var(--violet-500);
     box-shadow:
-        var(--shadow-glow),
-        0 0 calc(var(--blush) * 12px) rgba(255, 194, 202, calc(var(--blush) * 0.4));
+        0 0 0 3px rgba(255, 154, 172, 0.30);
 }
 .search-bar:focus-within .search-icon {
     color: var(--violet-500);
@@ -893,18 +804,15 @@
         animation: none !important;
         --blush: 0.7;
     }
-    .welcome-placeholder,
-    .welcome-placeholder::before,
-    .welcome-placeholder::after,
     .welcome-hero,
     .welcome-icon-wrap,
-    .welcome-icon-wrap::after,
+    .sidebar-comunidad:hover,
+    .acceso-item,
     .acceso-item::before,
-    .widget-item::before,
-    .btn-primario::after {
+    .acceso-item::after,
+    .widget-item,
+    .btn-primario {
         animation: none !important;
         transition: none !important;
     }
-    .welcome-placeholder::before { background-position: 10% 40%; opacity: 0.7; }
-    .welcome-placeholder::after  { background-position: 80% 60%; opacity: 0.5; }
 }
