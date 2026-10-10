@@ -55,6 +55,7 @@ let dibujoVotandoId = null;
 // Timers
 let toastTimer = null;
 let tickTimer = null;
+let tickSegTimer = null;
 
 // Canvas refs (se asignan en init)
 let canvas = null;
@@ -242,41 +243,46 @@ function cargarTemasDisponibles() {
         .sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
 }
 
+// FIX 1: solo 6 colores — hasta 4 del tema + negro + blanco.
 async function obtenerColoresDelTema(temaId) {
     if (cacheVarsTemas[temaId]) return cacheVarsTemas[temaId];
 
     const tema = temasDisponibles.find(t => t.id === temaId);
-    if (!tema) return null;
+    if (!tema) return ['#000000', '#FFFFFF'];
 
-    const colores = new Set();
+    const fuente = tema.colores || {};
+    // Priorizamos 4 variables que suelen dar variedad visual
+    const claves = ['--violet-500', '--violet-700', '--violet-300', '--gray-600'];
+    const elegidos = [];
 
-    // Colores declarados en el tema (objeto plano)
-    if (tema.colores && typeof tema.colores === 'object') {
-        Object.values(tema.colores).forEach(v => {
-            if (typeof v === 'string' && /^#[0-9a-fA-F]{3,8}$/.test(v.trim())) {
-                colores.add(v.trim());
-            }
-        });
+    for (const k of claves) {
+        const v = fuente[k];
+        if (typeof v === 'string' && /^#[0-9a-fA-F]{3,8}$/.test(v.trim())) {
+            const hex = v.trim().toUpperCase();
+            if (!elegidos.includes(hex)) elegidos.push(hex);
+        }
     }
 
-    // Además, leer el CSS del tema y extraer colores
-    if (tema.ruta) {
+    // Si faltan, buscar más colores en el CSS del tema
+    if (elegidos.length < 4 && tema.ruta) {
         try {
-            const url = '../../' + tema.ruta;
-            const res = await fetch(url);
+            const res = await fetch('../../' + tema.ruta);
             if (res.ok) {
                 const css = await res.text();
-                const matches = css.match(/#[0-9a-fA-F]{3,8}/g) || [];
-                matches.forEach(c => colores.add(c));
+                const matches = css.match(/#[0-9a-fA-F]{6}\b/g) || [];
+                for (const m of matches) {
+                    const hex = m.toUpperCase();
+                    if (!elegidos.includes(hex) && elegidos.length < 4) {
+                        elegidos.push(hex);
+                    }
+                    if (elegidos.length >= 4) break;
+                }
             }
         } catch (e) { /* silencioso */ }
     }
 
-    // Base siempre disponible
-    colores.add('#000000');
-    colores.add('#FFFFFF');
-
-    const lista = [...colores].slice(0, 28);
+    // 6 exactos: hasta 4 del tema + negro + blanco
+    const lista = [...elegidos.slice(0, 4), '#000000', '#FFFFFF'];
     cacheVarsTemas[temaId] = lista;
     return lista;
 }
@@ -472,10 +478,6 @@ async function subirDibujo() {
 
         const dataURL = exportarDataURL();
         const pesoKB = Math.round(dataURL.length / 1024 * 0.75); // aprox bytes reales del base64
-        if (pesoKB > 55) {
-            // Forzamos un poco más agresivo
-            toast('Comprimiendo más...', 'info');
-        }
 
         const nuevo = {
             id: generarId('d'),
@@ -1043,8 +1045,6 @@ function renderAvisoPremios() {
     if (!aviso) return;
 
     const hoyStr = fechaSantiagoHoy();
-    // Buscar un día reciente donde yo haya ganado y no lo haya visto aún
-    // Por simplicidad: mostrar si el día ANTERIOR existió y gané
     const fechas = Object.keys(dibujos.porFecha)
         .filter(f => f < hoyStr)
         .sort((a, b) => b.localeCompare(a));
@@ -1086,6 +1086,8 @@ function initTabs() {
 // ============================================================
 function iniciarTick() {
     if (tickTimer) clearInterval(tickTimer);
+    if (tickSegTimer) clearInterval(tickSegTimer);
+
     tickTimer = setInterval(async () => {
         const hoyAhora = fechaSantiagoHoy();
         if (hoyAhora !== fechaHoy) {
@@ -1097,12 +1099,13 @@ function iniciarTick() {
             renderContador();
         }
     }, 15000);
-    renderContador();
-    // Actualizar cada segundo para suavizar el contador
-    setInterval(() => {
+
+    tickSegTimer = setInterval(() => {
         const hoyAhora = fechaSantiagoHoy();
         if (hoyAhora === fechaHoy) renderContador();
     }, 1000);
+
+    renderContador();
 }
 
 // ============================================================
@@ -1172,6 +1175,7 @@ async function inicializar() {
 
     window.addEventListener('pagehide', () => {
         if (tickTimer) clearInterval(tickTimer);
+        if (tickSegTimer) clearInterval(tickSegTimer);
     });
 
     if (window.lucide) window.lucide.createIcons();
