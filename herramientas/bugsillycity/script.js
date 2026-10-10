@@ -1,6 +1,7 @@
 // ============================================================
 //  BugSillyCity v6 — Isométrico + tema dinámico
-//  NUEVO: CREDITOS_MULTIPLICADOR = 3 (balance de créditos x3)
+//  - Fix: la selección del nido ya no se borra cada 400ms.
+//  - Nuevo: CREDITOS_MULTIPLICADOR = 3 (créditos x3).
 // ============================================================
 
 'use strict';
@@ -16,10 +17,7 @@ const MAX_CRIATURAS = 40;
 const CREDITOS_INICIALES = 500;
 
 // ── NUEVO: multiplicador global de créditos ──
-//   1 = balance original
-//   2 = doble
-//   3 = triple  ← actual (54 créditos en 2h con 4 criaturas base)
-//   5 = x5
+//   1 = original, 2 = doble, 3 = triple (actual), 5 = x5
 const CREDITOS_MULTIPLICADOR = 3;
 
 // ==== CANVAS ====
@@ -346,16 +344,23 @@ function chequearResetDiario() {
 // ============================================================
 function criaturaPorId(id) { return estado.criaturas.find(c => c.id === id) || null; }
 
+// ── FIX: aplicar multiplicador de créditos + defensivo ──
 function calcularAcumulado(criatura, ahora) {
     const def = CRIATURAS[criatura.tipo];
     if (!def) return { os:0, creditos:0 };
+
     const uc = (typeof criatura.ultimaCosecha === 'number' && isFinite(criatura.ultimaCosecha))
         ? criatura.ultimaCosecha : ahora;
+
     let horas = (ahora - uc) / 3600000;
     if (!isFinite(horas) || horas < 0) horas = 0;
+
     const os = Math.min(horas, MAX_ACCUMULATION_HOURS) * (def.osRate || 0);
-    // ── NUEVO: aplicar multiplicador de créditos ──
-    const cred = horas * (def.creditosRate || 0) * CREDITOS_MULTIPLICADOR;
+
+    const mult = (typeof CREDITOS_MULTIPLICADOR === 'number' && isFinite(CREDITOS_MULTIPLICADOR))
+        ? CREDITOS_MULTIPLICADOR : 1;
+    const cred = horas * (def.creditosRate || 0) * mult;
+
     return {
         os: isFinite(os) ? os : 0,
         creditos: isFinite(cred) ? cred : 0
