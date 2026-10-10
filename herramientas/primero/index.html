@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Primero</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<div class="pm-app">
+
+    <!-- ============ LOBBY ============ -->
+    <div class="screen active" id="screenLobby">
+        <div class="lobby-card">
+            <div class="hero-icon"><i data-lucide="layers"></i></div>
+            <h1>Primero</h1>
+            <p class="subtitle">Vacía tu mano antes que el rival. Combiná color o valor.</p>
+
+            <button class="mode-card" data-mode="real">
+                <div class="mode-icon mode-icon-you"><i data-lucide="users"></i></div>
+                <div class="mode-info">
+                    <strong>Contra un amigo</strong>
+                    <small>1 vs 1 · Sincronizado en vivo</small>
+                </div>
+                <div class="mode-reward"><i data-lucide="coins"></i><span>+30</span></div>
+            </button>
+
+            <button class="mode-card" data-mode="cpu">
+                <div class="mode-icon mode-icon-cpu"><i data-lucide="cpu"></i></div>
+                <div class="mode-info">
+                    <strong>Contra la CPU</strong>
+                    <small>IA simple · Sin conexión</small>
+                </div>
+                <div class="mode-reward"><i data-lucide="coins"></i><span>+35</span></div>
+            </button>
+        </div>
+    </div>
+
+    <!-- ============ JOIN ============ -->
+    <div class="screen" id="screenJoin">
+        <div class="join-card">
+            <button class="back-btn" id="btnBack"><i data-lucide="arrow-left"></i></button>
+            <div class="hero-icon hero-icon-small"><i data-lucide="users"></i></div>
+            <h2>Conectar con un amigo</h2>
+            <p class="subtitle small">Ambos escriben el mismo código</p>
+
+            <div class="form-group">
+                <label for="roomInput">Código de sala</label>
+                <input type="text" id="roomInput" maxlength="20" autocomplete="off" spellcheck="false">
+            </div>
+
+            <div class="form-group">
+                <label>Tu rol</label>
+                <div class="role-grid">
+                    <label class="role-card">
+                        <input type="radio" name="role" value="host" checked>
+                        <span class="role-inner">
+                            <i data-lucide="crown"></i>
+                            <strong>Crear</strong>
+                            <small>Esperar rival</small>
+                        </span>
+                    </label>
+                    <label class="role-card">
+                        <input type="radio" name="role" value="guest">
+                        <span class="role-inner">
+                            <i data-lucide="log-in"></i>
+                            <strong>Unirme</strong>
+                            <small>A sala existente</small>
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <button class="btn-primary" id="btnConnect">
+                <i data-lucide="zap"></i><span>Conectar</span>
+            </button>
+            <div id="joinStatus" class="status-msg"></div>
+        </div>
+    </div>
+
+    <!-- ============ GAME ============ -->
+    <div class="screen" id="screenGame">
+        <div class="game-header">
+            <button class="icon-btn" id="btnExit"><i data-lucide="x"></i></button>
+            <div class="room-badge" id="roomBadge" hidden></div>
+            <div class="color-indicator" id="colorIndicator" data-color="red"></div>
+        </div>
+
+        <div class="opponent-bar">
+            <div class="opp-info">
+                <div class="opp-avatar"><i data-lucide="user"></i></div>
+                <span id="rivalName">Rival</span>
+            </div>
+            <div class="opp-cards" id="oppCards">
+                <i data-lucide="layers"></i>
+                <span id="oppCount">7</span>
+            </div>
+        </div>
+
+        <div class="table-area">
+            <button class="deck-pile" id="deckPile">
+                <i data-lucide="layers"></i>
+                <span class="deck-count" id="deckCount">0</span>
+            </button>
+            <div class="discard-pile" id="discardPile"></div>
+        </div>
+
+        <div class="status-bar" id="statusBar">
+            <i data-lucide="hand-pointer" id="statusIcon"></i>
+            <span id="statusText">Tu turno</span>
+        </div>
+
+        <div class="my-hand-wrap">
+            <div class="my-hand" id="myHand"></div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Modal: elegir color (para wilds) -->
+<div class="pm-modal" id="modalColor" hidden>
+    <div class="pm-modal-card pm-modal-sm">
+        <h3>Elegí un color</h3>
+        <div class="color-options">
+            <button class="color-opt" data-color="red"><i data-lucide="droplet"></i></button>
+            <button class="color-opt" data-color="blue"><i data-lucide="droplet"></i></button>
+            <button class="color-opt" data-color="green"><i data-lucide="droplet"></i></button>
+            <button class="color-opt" data-color="yellow"><i data-lucide="droplet"></i></button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: fin de partida -->
+<div class="pm-modal" id="modalFin" hidden>
+    <div class="pm-modal-card">
+        <div class="end-icon" id="endIcon"><i data-lucide="trophy"></i></div>
+        <h2 id="endTitle">¡Ganaste!</h2>
+        <p id="endSubtitle">Vaciaste tu mano primero.</p>
+        <div class="end-actions">
+            <button class="btn-sec" id="btnSalirMenu"><i data-lucide="home"></i><span>Menú</span></button>
+            <button class="btn-primary" id="btnRevancha"><i data-lucide="rotate-ccw"></i><span id="btnRevanchaText">Revancha</span></button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+<script src="script.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>
