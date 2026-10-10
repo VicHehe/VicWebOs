@@ -818,13 +818,14 @@
 }
 
 /* ================================================
-   Re-Made in · PARCHE v3 — Vida de 16 bits
+   Re-Made in · PARCHE v4 — Vida de 16 bits
    Se pega al FINAL del archivo original.
-   · Grid 3D pegado abajo (movimiento pendular)
-   · Estrella voladora cruzando el lobby
-   · Bloque con "V" de VicWebOs flotando
-   · Cursor ▼ parpadeando en secciones
-   · Nave espacial pendiendo del chip comunidad
+   · Grid 3D pegado al fondo del VIEWPORT (fixed)
+   · Bloque con "V" de VicWebOs
+   · Estrella voladora en el lobby
+   · Cursor ▼ en secciones
+   · Nave espacial horizontal colgando de un hilo
+     como juguete péndulo (oscila como el reloj de steampunk)
    ================================================ */
 
 /* ------------------------------------------------------------
@@ -834,35 +835,36 @@
     /* Estrella de 4 puntas con doble contorno */
     --theme-power-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M20,4 L23,17 L36,20 L23,23 L20,36 L17,23 L4,20 L17,17 Z' fill='%23FFE066' stroke='%232E1F52' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M20,11 L21.5,18.5 L29,20 L21.5,21.5 L20,29 L18.5,21.5 L11,20 L18.5,18.5 Z' fill='%23FFF5B8'/%3E%3C/svg%3E");
 
-    /* Grid de perspectiva — solo líneas horizontales repetibles */
+    /* Grid de perspectiva — horizontales repetibles */
     --theme-mode7-lines: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 60' preserveAspectRatio='none'%3E%3Cg stroke='%236B46A8' stroke-width='1.2' fill='none' opacity='0.55'%3E%3Cline x1='0' y1='8' x2='400' y2='8'/%3E%3Cline x1='0' y1='18' x2='400' y2='18'/%3E%3Cline x1='0' y1='30' x2='400' y2='30'/%3E%3Cline x1='0' y1='44' x2='400' y2='44'/%3E%3Cline x1='0' y1='60' x2='400' y2='60'/%3E%3C/g%3E%3C/svg%3E");
 
-    /* Grid de perspectiva — líneas verticales convergentes (estáticas) */
+    /* Grid de perspectiva — verticales convergentes */
     --theme-mode7-cols: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 100' preserveAspectRatio='none'%3E%3Cg stroke='%236B46A8' stroke-width='1.2' fill='none' opacity='0.55'%3E%3Cline x1='200' y1='0' x2='200' y2='100'/%3E%3Cline x1='190' y1='0' x2='160' y2='100'/%3E%3Cline x1='210' y1='0' x2='240' y2='100'/%3E%3Cline x1='180' y1='0' x2='120' y2='100'/%3E%3Cline x1='220' y1='0' x2='280' y2='100'/%3E%3Cline x1='165' y1='0' x2='60' y2='100'/%3E%3Cline x1='235' y1='0' x2='340' y2='100'/%3E%3Cline x1='145' y1='0' x2='-20' y2='100'/%3E%3Cline x1='255' y1='0' x2='420' y2='100'/%3E%3C/g%3E%3C/svg%3E");
 
-    /* Bloque con "V" de VicWebOs */
+    /* Bloque con "V" */
     --theme-v-block: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect x='2' y='2' width='36' height='36' rx='3' fill='%23FFD93D' stroke='%232E1F52' stroke-width='2'/%3E%3Crect x='5' y='5' width='30' height='3' fill='%23FFF5B8' opacity='0.75'/%3E%3Crect x='5' y='32' width='30' height='3' fill='%23B8860B' opacity='0.55'/%3E%3Ccircle cx='8' cy='8' r='1.8' fill='%232E1F52'/%3E%3Ccircle cx='32' cy='8' r='1.8' fill='%232E1F52'/%3E%3Ccircle cx='8' cy='32' r='1.8' fill='%232E1F52'/%3E%3Ccircle cx='32' cy='32' r='1.8' fill='%232E1F52'/%3E%3Cpath d='M13,12 L20,27 L27,12' fill='none' stroke='%232E1F52' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 
     /* Flechita ▼ de diálogo */
     --theme-dialog-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 12'%3E%3Cpath d='M2,2 L8,9 L14,2' fill='none' stroke='%236B46A8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 
-    /* Nave espacial estilo retro — con llama de motor */
-    --theme-spaceship: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 60'%3E%3Cpath d='M20,2 L26,14 L34,20 L34,32 L28,32 L28,42 L24,42 L24,52 L16,52 L16,42 L12,42 L12,32 L6,32 L6,20 L14,14 Z' fill='%23D8D2E0' stroke='%232E1F52' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M20,2 L26,14 L14,14 Z' fill='%237B5EA7'/%3E%3Ccircle cx='20' cy='22' r='5' fill='%234A90E2' stroke='%232E1F52' stroke-width='1.5'/%3E%3Ccircle cx='20' cy='22' r='2' fill='%23B8E0FF'/%3E%3Crect x='14' y='30' width='12' height='3' fill='%236B46A8'/%3E%3Crect x='14' y='36' width='12' height='3' fill='%236B46A8'/%3E%3Cpath d='M17,52 L18,58 L20,54 L22,58 L23,52 Z' fill='%23FFD93D' stroke='%232E1F52' stroke-width='1.2' stroke-linejoin='round'/%3E%3C/svg%3E");
+    /* Nave espacial horizontal colgando de un hilo (juguete péndulo) */
+    --theme-spaceship-toy: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 70'%3E%3Ccircle cx='50' cy='6' r='3.5' fill='%232E1F52'/%3E%3Cline x1='50' y1='10' x2='50' y2='36' stroke='%232E1F52' stroke-width='1.5'/%3E%3Cpath d='M6,42 L1,46 L6,50 Z' fill='%23FFD93D' stroke='%232E1F52' stroke-width='1.2' stroke-linejoin='round'/%3E%3Cpath d='M14,42 L60,38 L72,46 L60,54 L14,50 Z' fill='%23D8D2E0' stroke='%232E1F52' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M60,38 L72,46 L60,54 Z' fill='%237B5EA7' stroke='%232E1F52' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M25,42 L25,36 L35,42 Z' fill='%236B46A8' stroke='%232E1F52' stroke-width='1.2' stroke-linejoin='round'/%3E%3Cpath d='M25,50 L25,56 L35,50 Z' fill='%236B46A8' stroke='%232E1F52' stroke-width='1.2' stroke-linejoin='round'/%3E%3Ccircle cx='42' cy='46' r='5' fill='%234A90E2' stroke='%232E1F52' stroke-width='1.5'/%3E%3Ccircle cx='42' cy='46' r='2' fill='%23B8E0FF'/%3E%3Crect x='28' y='43' width='4' height='6' fill='%236B46A8'/%3E%3Crect x='48' y='43' width='4' height='6' fill='%236B46A8'/%3E%3C/svg%3E");
 }
 
 /* ================================================================
-   1. GRID DE PERSPECTIVA — pegado abajo del lobby
-   Dos capas: horizontales que se mueven + verticales estáticas
+   1. GRID 3D — pegado al FONDO DEL VIEWPORT
+   Uso position: fixed para que quede siempre pegado abajo
+   (como las olas de break of dawn, pero resistente al scroll)
    ================================================================ */
 
-/* Capa 1: líneas verticales convergentes (estáticas) */
+/* Capa 1: columnas convergentes (estáticas) */
 .welcome-placeholder::after {
     content: '';
-    position: absolute;
+    position: fixed;
     left: 0;
     right: 0;
     bottom: 0;
-    height: 30%;
+    height: 32vh;
     pointer-events: none;
     z-index: 0;
     background-image: var(--theme-mode7-cols);
@@ -870,25 +872,25 @@
     background-repeat: no-repeat;
     -webkit-mask-image: linear-gradient(180deg,
         transparent 0%,
-        rgba(0, 0, 0, 0.40) 25%,
-        rgba(0, 0, 0, 0.85) 60%,
+        rgba(0, 0, 0, 0.30) 30%,
+        rgba(0, 0, 0, 0.85) 65%,
         #000 100%);
     mask-image: linear-gradient(180deg,
         transparent 0%,
-        rgba(0, 0, 0, 0.40) 25%,
-        rgba(0, 0, 0, 0.85) 60%,
+        rgba(0, 0, 0, 0.30) 30%,
+        rgba(0, 0, 0, 0.85) 65%,
         #000 100%);
     opacity: 0.65;
 }
 
-/* Capa 2: líneas horizontales que suben (movimiento pendular sin glitch) */
+/* Capa 2: horizontales que suben (movimiento pendular sin glitch) */
 .welcome-placeholder::before {
     content: '';
-    position: absolute;
+    position: fixed;
     left: 0;
     right: 0;
     bottom: 0;
-    height: 30%;
+    height: 32vh;
     pointer-events: none;
     z-index: 0;
     background-image: var(--theme-mode7-lines);
@@ -897,13 +899,13 @@
     background-position: 0 0;
     -webkit-mask-image: linear-gradient(180deg,
         transparent 0%,
-        rgba(0, 0, 0, 0.40) 25%,
-        rgba(0, 0, 0, 0.85) 60%,
+        rgba(0, 0, 0, 0.30) 30%,
+        rgba(0, 0, 0, 0.85) 65%,
         #000 100%);
     mask-image: linear-gradient(180deg,
         transparent 0%,
-        rgba(0, 0, 0, 0.40) 25%,
-        rgba(0, 0, 0, 0.85) 60%,
+        rgba(0, 0, 0, 0.30) 30%,
+        rgba(0, 0, 0, 0.85) 65%,
         #000 100%);
     opacity: 0.55;
     animation: mode7-drift 3.6s ease-in-out infinite alternate;
@@ -915,14 +917,8 @@
 }
 
 /* ================================================================
-   2. ESTRELLA VOLADORA — cruza el lobby dejando estela
-   Uso ::marker del hero para liberar ::before del welcome
+   2. ESTRELLA VOLADORA — cruza el lobby en diagonal
    ================================================================ */
-.welcome-hero::marker {
-    content: none;
-}
-
-/* La estrella va en el glow del welcome (que ya existe y está libre) */
 .welcome-glow::before {
     content: '';
     position: absolute;
@@ -967,7 +963,7 @@
 }
 
 /* ================================================================
-   4. CURSOR ▼ PARPADEANTE — diálogo de RPG en las secciones
+   4. CURSOR ▼ — diálogo de RPG en las secciones
    ================================================================ */
 .welcome-section::after {
     content: '';
@@ -988,8 +984,8 @@
 }
 
 /* ================================================================
-   5. NAVE ESPACIAL — pende del chip comunidad
-   Igual que el péndulo de steampunk pero flotando hacia arriba
+   5. NAVE ESPACIAL — juguete péndulo colgando del chip comunidad
+   Horizontal, con hilo, oscila como el reloj de steampunk
    ================================================================ */
 .sidebar-comunidad {
     position: relative;
@@ -998,21 +994,21 @@
 .sidebar-comunidad::after {
     content: '';
     position: absolute;
-    top: calc(100% + 8px);
-    right: 24px;
-    width: 32px;
-    height: 48px;
-    background: var(--theme-spaceship) center/contain no-repeat;
+    top: calc(100% + 6px);
+    right: 22px;
+    width: 52px;
+    height: 36px;
+    background: var(--theme-spaceship-toy) center / contain no-repeat;
     pointer-events: none;
     z-index: 5;
-    animation: spaceship-float 4s ease-in-out infinite;
-    filter: drop-shadow(0 4px 6px rgba(46, 31, 82, 0.35));
-    transform-origin: 50% 0;
+    transform-origin: 50% 8px;
+    animation: spaceship-pendulum 3.4s ease-in-out infinite;
+    filter: drop-shadow(0 4px 6px rgba(46, 31, 82, 0.30));
 }
 
-@keyframes spaceship-float {
-    0%, 100% { transform: translateY(0) rotate(-3deg); }
-    50%      { transform: translateY(-4px) rotate(3deg); }
+@keyframes spaceship-pendulum {
+    0%, 100% { transform: rotate(-7deg); }
+    50%      { transform: rotate(7deg); }
 }
 
 /* ================================================================
@@ -1021,7 +1017,6 @@
 @media (prefers-reduced-motion: reduce) {
     .welcome-glow::before,
     .welcome-placeholder::before,
-    .welcome-placeholder::after,
     .welcome-icon-wrap::before,
     .welcome-section::after,
     .sidebar-comunidad::after {
@@ -1031,8 +1026,7 @@
         background-position: 30% 30%;
         opacity: 0.7;
     }
-    .welcome-placeholder::after { opacity: 0.40; }
-    .welcome-placeholder::before { opacity: 0.35; }
     .welcome-icon-wrap::before { transform: rotate(-4deg); }
     .welcome-section::after { opacity: 1; }
+    .sidebar-comunidad::after { transform: rotate(-4deg); }
 }
