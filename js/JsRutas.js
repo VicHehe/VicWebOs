@@ -366,6 +366,17 @@ const RUTAS_HERRAMIENTAS = [
     espacio: 2,
     monedas: 0
 },
+    {
+        id: 'dibujodeldia',
+        nombre: 'Dibujo del día',
+        icono: 'pencil',
+        ruta: 'herramientas/dibujodeldia/index.html',
+        descripcion: 'Un dibujo simple por día. Votá los de otros y esperá los resultados. Top 3 gana monedas.',
+        categoria: 'Juegos',
+        esBase: false,
+        espacio: 4,
+        monedas: 5
+    },
         {
     id: 'caloluty',
     nombre: 'Caloluty',
