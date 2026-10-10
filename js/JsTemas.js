@@ -1376,4 +1376,22 @@ const TEMAS_DISPONIBLES = [
             '--white':      '#1A1112'
         }
     },
+        {
+        id: 're-made-in',
+        nombre: 'Re-Made in',
+        icono: 'package',
+        descripcion: 'consola de 16 bits. Cuerpo lavanda-gris, púrpura icónico, LED que late y cartucho siempre insertado. Plumas cayendo, scanlines CRT y botones que brotan al pasar el mouse.',
+        categoria: 'Cultura Pop',
+        ruta: 'Temas/re-made-in.css',
+        espacio: 6,
+        monedas: 55,
+        colores: {
+            '--violet-100': '#E0D8EC',
+            '--violet-300': '#9B7EC0',
+            '--violet-500': '#6B46A8',
+            '--bg':         '#E8E3EE',
+            '--bg-alt':     '#D8D2E0',
+            '--white':      '#FFFFFF'
+        }
+    },
 ];
