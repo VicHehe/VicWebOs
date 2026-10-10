@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>Dibujo del día</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<div class="dd-app">
+
+    <header class="dd-header">
+        <div class="dd-logo">
+            <div class="dd-logo-mark"><i data-lucide="pencil"></i></div>
+            <div class="dd-logo-text">
+                <h1>Dibujo del día</h1>
+                <p id="ddUserBadge">—</p>
+            </div>
+        </div>
+    </header>
+
+    <nav class="dd-tabs">
+        <button class="dd-tab active" data-tab="hoy">
+            <i data-lucide="sparkles"></i><span>Hoy</span>
+        </button>
+        <button class="dd-tab" data-tab="historial">
+            <i data-lucide="history"></i><span>Historial</span>
+        </button>
+    </nav>
+
+    <main class="dd-main">
+
+        <!-- ============ VISTA HOY ============ -->
+        <section class="dd-vista active" data-vista="hoy">
+
+            <div class="dd-contador">
+                <div class="dd-contador-header">
+                    <div class="dd-contador-tiempo">
+                        <i data-lucide="hourglass"></i>
+                        <span>Quedan <strong id="ddTiempoRestante">—</strong></span>
+                    </div>
+                    <span class="dd-contador-fecha" id="ddFechaHoy">—</span>
+                </div>
+                <div class="dd-barra">
+                    <div class="dd-barra-fill" id="ddBarraFill"></div>
+                </div>
+            </div>
+
+            <div class="dd-aviso" id="ddAvisoPremios" hidden>
+                <i data-lucide="trophy"></i>
+                <span id="ddAvisoPremiosTxt">—</span>
+            </div>
+
+            <section class="dd-seccion">
+                <div class="dd-seccion-header">
+                    <h2><i data-lucide="pencil-line"></i> Tu dibujo de hoy</h2>
+                </div>
+                <div id="ddMiDibujo"></div>
+            </section>
+
+            <section class="dd-seccion">
+                <div class="dd-seccion-header">
+                    <h2><i data-lucide="vote"></i> Votar</h2>
+                    <span class="dd-seccion-meta" id="ddContadorVotos">—</span>
+                </div>
+                <div id="ddDibujosHoy" class="dd-grid-dibujos"></div>
+            </section>
+
+        </section>
+
+        <!-- ============ VISTA HISTORIAL ============ -->
+        <section class="dd-vista" data-vista="historial">
+            <div id="ddHistorial" class="dd-historial"></div>
+            <div class="dd-empty" id="ddHistorialVacio" hidden>
+                <div class="dd-empty-icon"><i data-lucide="history"></i></div>
+                <h3>Aún no hay historial</h3>
+                <p>Cuando participes en algún día, aparecerá acá.</p>
+            </div>
+        </section>
+
+    </main>
+
+</div>
+
+<!-- ============ MODAL: DIBUJAR ============ -->
+<div class="dd-modal" id="ddModalDibujar" hidden>
+    <div class="dd-modal-card dd-modal-full">
+        <div class="dd-modal-header">
+            <button class="dd-icon-btn" id="ddDibujarCerrar" title="Cerrar">
+                <i data-lucide="x"></i>
+            </button>
+            <div class="dd-tema-picker">
+                <i data-lucide="palette"></i>
+                <select id="ddTemaSelect" title="Tema de tu dibujo"></select>
+            </div>
+            <button class="dd-btn-pri" id="ddDibujarGuardar">
+                <i data-lucide="check"></i>
+                <span>Subir</span>
+            </button>
+        </div>
+
+        <div class="dd-canvas-zone">
+            <div class="dd-canvas-wrap">
+                <canvas id="ddCanvas" width="400" height="400"></canvas>
+            </div>
+        </div>
+
+        <div class="dd-paleta-wrap">
+            <div class="dd-paleta" id="ddPaleta"></div>
+        </div>
+
+        <div class="dd-dibujar-acciones">
+            <button class="dd-btn-sec" id="ddDibujarDeshacer" title="Deshacer">
+                <i data-lucide="undo-2"></i>
+                <span>Deshacer</span>
+            </button>
+            <button class="dd-btn-sec" id="ddDibujarBorrar" title="Borrar todo">
+                <i data-lucide="trash-2"></i>
+                <span>Borrar</span>
+            </button>
+            <div class="dd-tamanio-slider">
+                <i data-lucide="circle"></i>
+                <input type="range" id="ddTamanio" min="2" max="24" value="6">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ MODAL: VOTAR ============ -->
+<div class="dd-modal" id="ddModalVotar" hidden>
+    <div class="dd-modal-card">
+        <div class="dd-modal-header">
+            <h2><i data-lucide="star"></i> Votar</h2>
+            <button class="dd-modal-cerrar" id="ddVotarCerrar">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <div class="dd-votar-body">
+            <div class="dd-votar-img-wrap">
+                <img id="ddVotarImg" alt="">
+            </div>
+            <div class="dd-votar-meta">
+                <div class="dd-votar-autor">
+                    <div class="dd-votar-avatar" id="ddVotarAvatar"><i data-lucide="user"></i></div>
+                    <span id="ddVotarAutorNombre">—</span>
+                </div>
+            </div>
+            <div class="dd-votar-puntajes" id="ddVotarPuntajes"></div>
+            <div class="dd-votar-hint" id="ddVotarHint"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ MODAL: DETALLE HISTÓRICO ============ -->
+<div class="dd-modal" id="ddModalDia" hidden>
+    <div class="dd-modal-card dd-modal-grande">
+        <div class="dd-modal-header">
+            <h2 id="ddDiaTitulo"><i data-lucide="calendar"></i> <span>—</span></h2>
+            <button class="dd-modal-cerrar" id="ddDiaCerrar">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <div class="dd-dia-body" id="ddDiaBody"></div>
+    </div>
+</div>
+
+<div class="dd-toast" id="ddToast"></div>
+
+<script src="script.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>
