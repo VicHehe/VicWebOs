@@ -832,9 +832,6 @@
    Variables nuevas
    ------------------------------------------------------------ */
 :root {
-    /* Estrella de 4 puntas con doble contorno */
-    --theme-power-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M20,4 L23,17 L36,20 L23,23 L20,36 L17,23 L4,20 L17,17 Z' fill='%23FFE066' stroke='%232E1F52' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M20,11 L21.5,18.5 L29,20 L21.5,21.5 L20,29 L18.5,21.5 L11,20 L18.5,18.5 Z' fill='%23FFF5B8'/%3E%3C/svg%3E");
-
     /* Grid de perspectiva — horizontales repetibles */
     --theme-mode7-lines: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 60' preserveAspectRatio='none'%3E%3Cg stroke='%236B46A8' stroke-width='1.2' fill='none' opacity='0.55'%3E%3Cline x1='0' y1='8' x2='400' y2='8'/%3E%3Cline x1='0' y1='18' x2='400' y2='18'/%3E%3Cline x1='0' y1='30' x2='400' y2='30'/%3E%3Cline x1='0' y1='44' x2='400' y2='44'/%3E%3Cline x1='0' y1='60' x2='400' y2='60'/%3E%3C/g%3E%3C/svg%3E");
 
@@ -914,29 +911,6 @@
 @keyframes mode7-drift {
     0%   { background-position: 0 0; }
     100% { background-position: 0 -60px; }
-}
-
-/* ================================================================
-   2. ESTRELLA VOLADORA — cruza el lobby en diagonal
-   ================================================================ */
-.welcome-glow::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 2;
-    background: var(--theme-power-star) no-repeat;
-    background-size: 34px 34px;
-    animation: star-fly-across 12s linear infinite;
-    filter: drop-shadow(0 0 10px rgba(255, 224, 102, 0.70));
-}
-
-@keyframes star-fly-across {
-    0%   { background-position: -80px 42%; opacity: 0; }
-    4%   { opacity: 1; }
-    50%  { background-position: 50% 26%; opacity: 1; }
-    96%  { opacity: 1; }
-    100% { background-position: calc(100% + 80px) 42%; opacity: 0; }
 }
 
 /* ================================================================
