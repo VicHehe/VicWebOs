@@ -13,13 +13,13 @@
      · Botones y logo púrpura  → acento principal
      · LED de encendido        → pulso azul (@property)
      · Ranura del cartucho     → marcos de hero/modales
-     · D-pad                   → cruz en nav activo
-     · Cuatro botones A/B/X/Y  → patrón al hover
+     · Cruz direccional        → indicador de nav activo
+     · Cuatro botones en cruz  → patrón al hover
      · Scanlines CRT           → overlay global
      · Dithering Bayer 4x4     → fondo pixelado
      · Cartucho rotante        → icono del hero
      · Plumas                  → partículas en welcome
-     · Trifuerza               → decoración sutil
+     · Triángulos              → decoración sutil
      · Tetrominós              → patrón del sidebar
    ================================================ */
 
@@ -60,9 +60,10 @@
     50%      { transform: translateY(-5px) rotate(3deg); }
 }
 
+/* Solo opacidad — sin zoom */
 @keyframes snes-triforce-twinkle {
-    0%, 100% { opacity: 0.30; transform: scale(0.85) rotate(0deg); }
-    50%      { opacity: 0.85; transform: scale(1.10) rotate(8deg); }
+    0%, 100% { opacity: 0.30; }
+    50%      { opacity: 0.85; }
 }
 
 @keyframes snes-vinyl-spin {
@@ -83,7 +84,7 @@
     --snes-led: 0.5;
     animation: snes-led-pulse 3.2s ease-in-out infinite;
 
-    /* Púrpuras SNES (logo + botones) */
+    /* Púrpuras protagonistas (logo + botones) */
     --violet-50:  #F0EDF5;
     --violet-100: #E0D8EC;
     --violet-200: #C8B8E0;
@@ -155,22 +156,22 @@
         transparent 1px 3px
     );
 
-    /* Pluma — guiño Mario */
+    /* Pluma */
     --theme-feather: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M20,4 C28,10 32,20 26,32 L20,36 L14,32 C8,20 12,10 20,4 Z' fill='%23FFFFFF' stroke='%236B46A8' stroke-width='1.5'/%3E%3Cpath d='M20,8 L20,34 M20,14 L15,12 M20,20 L14,18 M20,26 L15,25 M20,14 L25,12 M20,20 L26,18 M20,26 L25,25' stroke='%236B46A8' stroke-width='0.7' fill='none'/%3E%3C/svg%3E");
 
-    /* Trifuerza — guiño Zelda */
+    /* Triángulos */
     --theme-triforce: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 36'%3E%3Cpath d='M20,2 L30,18 L10,18 Z M10,18 L20,34 L0,34 Z M30,18 L40,34 L20,34 Z' fill='none' stroke='%236B46A8' stroke-width='1.5' opacity='0.6'/%3E%3C/svg%3E");
 
-    /* Tetrominó — guiño puzzle de bloques */
+    /* Tetrominó */
     --theme-tetromino: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg fill='%236B46A8' fill-opacity='0.18' stroke='%234A3A8A' stroke-width='0.6'%3E%3Crect x='12' y='4' width='10' height='10'/%3E%3Crect x='4' y='14' width='10' height='10'/%3E%3Crect x='14' y='14' width='10' height='10'/%3E%3Crect x='24' y='14' width='10' height='10'/%3E%3C/g%3E%3C/svg%3E");
 
-    /* Cuatro botones A/B/X/Y */
+    /* Cuatro botones en cruz */
     --theme-buttons: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Ccircle cx='30' cy='14' r='8' fill='%237B5EA7' stroke='%232E1F52' stroke-width='1'/%3E%3Ccircle cx='14' cy='30' r='8' fill='%236B46A8' stroke='%232E1F52' stroke-width='1'/%3E%3Ccircle cx='46' cy='30' r='8' fill='%236B46A8' stroke='%232E1F52' stroke-width='1'/%3E%3Ccircle cx='30' cy='46' r='8' fill='%237B5EA7' stroke='%232E1F52' stroke-width='1'/%3E%3C/svg%3E");
 
     /* Cartucho */
     --theme-cartridge: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 100'%3E%3Cpath d='M8,4 L72,4 L72,60 L60,70 L60,96 L20,96 L20,70 L8,60 Z' fill='%23D8D2E0' stroke='%232E1F52' stroke-width='2'/%3E%3Crect x='16' y='14' width='48' height='32' fill='%236B46A8'/%3E%3Crect x='20' y='18' width='40' height='4' fill='%23F0EDF5' opacity='0.5'/%3E%3Crect x='20' y='26' width='40' height='2' fill='%23F0EDF5' opacity='0.3'/%3E%3Crect x='22' y='38' width='36' height='4' fill='%23F0EDF5' opacity='0.6'/%3E%3Ccircle cx='40' cy='58' r='4' fill='%232E1F52'/%3E%3Crect x='28' y='76' width='24' height='12' fill='%232E1F52' opacity='0.4'/%3E%3C/svg%3E");
 
-    /* D-pad */
+    /* Cruz direccional */
     --theme-dpad: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath d='M11,3 L19,3 L19,11 L27,11 L27,19 L19,19 L19,27 L11,27 L11,19 L3,19 L3,11 L11,11 Z' fill='%233A3A44' stroke='%231A1626' stroke-width='1'/%3E%3C/svg%3E");
 }
 
@@ -455,7 +456,7 @@
 }
 
 /* ================================================================
-   4. SIDEBAR — cuerpo lavanda con tetrominós y nav D-pad
+   4. SIDEBAR — cuerpo lavanda con tetrominós y nav con cruz direccional
    ================================================================ */
 .sidebar {
     position: relative;
@@ -614,7 +615,7 @@
 }
 
 .acceso-item:hover {
-    transform: translateY(-4px) scale(1.02);
+    transform: translateY(-4px);
     box-shadow:
         inset 0 0 0 1px var(--violet-200),
         inset 0 0 0 3px #FFFFFF,
@@ -644,7 +645,7 @@
         inset 0 -2px 0 rgba(0, 0, 0, 0.25),
         0 3px 0 var(--violet-700),
         0 0 calc(var(--snes-led) * 14px) rgba(107, 70, 168, calc(var(--snes-led) * 0.50));
-    transform: scale(1.08) rotate(-4deg);
+    transform: rotate(-4deg);
 }
 
 /* ================================================================
@@ -775,7 +776,7 @@
     z-index: 3;
 }
 
-/* Cuatro botones A/B/X/Y en la esquina inferior derecha */
+/* Cuatro botones en cruz, esquina inferior derecha */
 .config-card::after,
 .modal-todas-card::after {
     content: '';
@@ -810,7 +811,7 @@
 }
 
 /* ================================================================
-   9. BOTÓN PRIMARIO — glossy absoluto, estilo botón púrpura SNES
+   9. BOTÓN PRIMARIO — glossy absoluto, botón púrpura
    ================================================================ */
 .btn-primario {
     position: relative;
@@ -897,7 +898,7 @@
         0 3px 0 var(--violet-700);
 }
 .avatar-config:hover {
-    transform: translateY(-1px) scale(1.05);
+    transform: translateY(-1px);
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.35),
         0 0 0 1px var(--violet-700),
