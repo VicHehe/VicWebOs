@@ -1,413 +1,243 @@
 /* ================================================
-   Tema: Silly Hamster
-   Cultura Pop · 55 monedas · espacio 6
-
-   Estética "kawaii de cuaderno": criaturitas blancas
-   y redonditas con orejas mínimas, mejillas rosadas,
-   trazo fino marrón grisáceo, paleta pastel, cielo
-   celeste con nubes y prado verde con florcitas.
-   Suave, tierno y dibujado a mano.
-
-   Personajes originales (mochi, conejito, hámster)
-   dibujados como SVG inline: no hay imágenes externas.
-
-   Guiños traducidos a CSS:
-     · Trazo fino de lápiz      → bordes 2px marrón suave
-     · Sombra de sticker        → sombra dura rosa pálido
-     · Mochi / conejito         → ilustraciones en el hero
-     · Hámster asomándose       → cabecita sobre las secciones
-     · Prado con florcitas      → colinas al pie de la bienvenida
-     · Cielo con nubes          → degradé celeste + nubes
-     · Brillitos y corazones    → destellos al pasar el mouse
-     · Costura punteada         → borde discontinuo en modales
-
-   Notas de robustez (por qué este tema no se rompe):
-     · Ningún icono/texto del layout se tapa: lo decorativo
-       va en capas de fondo o en pseudo-elementos con
-       pointer-events: none y z-index por debajo del contenido.
-     · No se cambian paddings ni bordes de elementos
-       estructurales (los anillos se hacen con box-shadow inset),
-       así no hay saltos de layout.
-     · Sin animaciones sobre :root; solo transform/opacity
-       en cosas pequeñas.
+   Tema: Silly Hamster — PARCHE v3
+   Correcciones sobre v2:
+     · Header y tabs: crema elegante, SIN cielo
+       ni pasto (para no competir con el lobby).
+     · Sidebar: blanco limpio, sin puntos.
+     · Apps internas: marrón de línea + fondo
+       crema cálido en vez de rosa.
+     · Pills internos de app (Apps/Temas/Widgets):
+       se mantienen como estaban, funcionan bien.
+   El lobby no se toca.
    ================================================ */
 
-@keyframes chii-bob {
-    0%, 100% { transform: translateY(0); }
-    50%      { transform: translateY(-4px); }
-}
-
-@keyframes chii-twinkle {
-    0%, 100% { opacity: 0.45; }
-    50%      { opacity: 1; }
-}
-
-@keyframes chii-pop {
-    0%   { transform: scale(0.6); }
-    60%  { transform: scale(1.12); }
-    100% { transform: scale(1); }
-}
-
 /* ------------------------------------------------------------
-   :root — paleta pastel + arte SVG
+   Nuevas variables para apps
    ------------------------------------------------------------ */
 :root {
-    /* Rosa mejillas */
-    --violet-50:  #FFF4F7;
-    --violet-100: #FFE4EC;
-    --violet-200: #FFCFDC;
-    --violet-300: #FFB3C6;
-    --violet-400: #FF97B1;
-    --violet-500: #F27C9B;
-    --violet-600: #D95F83;
-    --violet-700: #AD4363;
-
-    /* Papel crema y marrones suaves */
-    --white:   #FFFDF8;
-    --bg:      #FAF8F1;
-    --bg-alt:  #F2F3E3;
-    --gray-50:  #FBF9F4;
-    --gray-100: #F3EFE7;
-    --gray-200: #E6DFD4;
-    --gray-300: #CFC4B7;
-    --gray-400: #A89A8F;
-    --gray-500: #85746C;
-    --gray-600: #6B5A56;
-    --gray-700: #4D3E3B;
-    --gray-800: #3A2E2B;
-    --gray-900: #271E1C;
-
-    --border:  #E8DCD1;
-    --text:    #4D3E3B;
-    --text-2:  #7A6761;
-    --text-3:  #A4928B;
-
-    /* Trazo y sombra de sticker */
-    --line:      #6B5A56;
-    --line-soft: #DCCBC0;
-    --sh:        #F6D3DD;
-
-    --shadow-xs: 0 1px 0 rgba(107, 90, 86, 0.14);
-    --shadow-sm: 0 2px 0 rgba(107, 90, 86, 0.16), 0 3px 8px rgba(107, 90, 86, 0.07);
-    --shadow-md: 0 3px 0 rgba(107, 90, 86, 0.16), 0 6px 14px rgba(107, 90, 86, 0.09);
-    --shadow-lg: 0 4px 0 rgba(107, 90, 86, 0.16), 0 10px 24px rgba(107, 90, 86, 0.11);
-    --shadow-xl: 0 6px 0 rgba(107, 90, 86, 0.16), 0 18px 40px rgba(107, 90, 86, 0.14);
-    --shadow-glow: 0 0 0 4px rgba(255, 179, 198, 0.38);
-
-    --accent-gradient: linear-gradient(135deg, #FF8FAE 0%, #E8658A 100%);
-    --accent-gradient-hover: linear-gradient(135deg, #FFA3BB 0%, #F27C9B 100%);
-    --accent-shadow: rgba(217, 95, 131, 0.28);
-    --accent-shadow-hover: rgba(217, 95, 131, 0.42);
-    --accent-text-gradient: linear-gradient(135deg, #C94A6E, #F27C9B);
-
-    /* Acentos del reparto */
-    --ear-orange: #F4C38E;
-    --bunny-cream: #FFF3C9;
-    --sky-top:  #DCEFFB;
-    --sky-mid:  #C9E7F8;
-    --sky-low:  #BFE1F5;
-
-    /* Radios redonditos */
-    --r-sm: 8px;
-    --r-md: 12px;
-    --r-lg: 18px;
-    --r-xl: 24px;
-    --r-full: 999px;
-
-    /* ============================================================
-       ILUSTRACIONES SVG (inline, sin archivos externos)
-       ============================================================ */
-    --theme-mochi:        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cellipse cx='37' cy='90' rx='9' ry='5' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cellipse cx='63' cy='90' rx='9' ry='5' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cpath d='M21,40 C14,22 22,8 38,19 C34,27 29,34 21,40 Z' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cpath d='M79,40 C86,22 78,8 62,19 C66,27 71,34 79,40 Z' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cpath d='M50,17 C73,16 88,32 87,55 C86,77 74,90 50,90 C27,90 13,78 13,55 C12,32 28,18 50,17 Z' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cellipse cx='12' cy='66' rx='6' ry='4.4' transform='rotate(-25 12 66)' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cellipse cx='88' cy='66' rx='6' ry='4.4' transform='rotate(25 88 66)' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cellipse cx='28' cy='63' rx='6.5' ry='4' fill='%23FFB3C6' opacity='.9'/%3E%3Cellipse cx='72' cy='63' rx='6.5' ry='4' fill='%23FFB3C6' opacity='.9'/%3E%3Cellipse cx='37' cy='54' rx='3.2' ry='4.2' fill='%236B5A56'/%3E%3Ccircle cx='38.2' cy='52.3' r='1.15' fill='%23fff'/%3E%3Cellipse cx='63' cy='54' rx='3.2' ry='4.2' fill='%236B5A56'/%3E%3Ccircle cx='64.2' cy='52.3' r='1.15' fill='%23fff'/%3E%3Cpath d='M45,60 Q50,65.5 55,60' fill='none' stroke='%236B5A56' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
-    --theme-mochi-cheer:  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cellipse cx='37' cy='90' rx='9' ry='5' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cellipse cx='63' cy='90' rx='9' ry='5' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cpath d='M21,40 C14,22 22,8 38,19 C34,27 29,34 21,40 Z' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cpath d='M79,40 C86,22 78,8 62,19 C66,27 71,34 79,40 Z' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cpath d='M50,17 C73,16 88,32 87,55 C86,77 74,90 50,90 C27,90 13,78 13,55 C12,32 28,18 50,17 Z' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cellipse cx='11' cy='50' rx='6.5' ry='4.6' transform='rotate(-55 11 50)' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cellipse cx='89' cy='50' rx='6.5' ry='4.6' transform='rotate(55 89 50)' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cellipse cx='28' cy='63' rx='6.5' ry='4' fill='%23FFB3C6' opacity='.9'/%3E%3Cellipse cx='72' cy='63' rx='6.5' ry='4' fill='%23FFB3C6' opacity='.9'/%3E%3Cellipse cx='37' cy='54' rx='3.2' ry='4.2' fill='%236B5A56'/%3E%3Ccircle cx='38.2' cy='52.3' r='1.15' fill='%23fff'/%3E%3Cellipse cx='63' cy='54' rx='3.2' ry='4.2' fill='%236B5A56'/%3E%3Ccircle cx='64.2' cy='52.3' r='1.15' fill='%23fff'/%3E%3Cpath d='M43,60 Q50,76 57,60 Z' fill='%23FF9DB2' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round'/%3E%3C/svg%3E");
-    --theme-mochi-badge:  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M27,34 C22,22 28,12 40,20 C37,26 33,31 27,34 Z' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='3.6' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cpath d='M73,34 C78,22 72,12 60,20 C63,26 67,31 73,34 Z' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='3.6' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cpath d='M50,22 C70,22 83,36 82,56 C81,75 69,86 50,86 C31,86 19,75 18,56 C17,36 30,22 50,22 Z' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='3.6' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cellipse cx='30' cy='62' rx='6.5' ry='4' fill='%23FFB3C6' opacity='.9'/%3E%3Cellipse cx='70' cy='62' rx='6.5' ry='4' fill='%23FFB3C6' opacity='.9'/%3E%3Cellipse cx='38' cy='54' rx='3.4' ry='4.6' fill='%236B5A56'/%3E%3Ccircle cx='39.2' cy='52.3' r='1.15' fill='%23fff'/%3E%3Cellipse cx='62' cy='54' rx='3.4' ry='4.6' fill='%236B5A56'/%3E%3Ccircle cx='63.2' cy='52.3' r='1.15' fill='%23fff'/%3E%3Cpath d='M45,61 Q50,66.5 55,61' fill='none' stroke='%236B5A56' stroke-width='2.8800000000000003' stroke-linecap='round'/%3E%3C/svg%3E");
-    --theme-bunny:        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 130'%3E%3Cellipse cx='36' cy='119' rx='9' ry='5' fill='%23FFF3C9' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cellipse cx='64' cy='119' rx='9' ry='5' fill='%23FFF3C9' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cg transform='rotate(-7 38 44)'%3E%3Cpath d='M33,46 C21,30 22,6 34,4 C46,3 48,30 44,46 Z' fill='%23FFF3C9' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cpath d='M34,40 C28,29 28,13 34,10 C40,10 41,29 39,40 Z' fill='%23FFC3D2'/%3E%3C/g%3E%3Cg transform='rotate(7 62 44)'%3E%3Cpath d='M67,46 C79,30 78,6 66,4 C54,3 52,30 56,46 Z' fill='%23FFF3C9' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cpath d='M66,40 C72,29 72,13 66,10 C60,10 59,29 61,40 Z' fill='%23FFC3D2'/%3E%3C/g%3E%3Cpath d='M50,36 C76,36 91,52 90,77 C89,103 74,120 50,120 C26,120 11,103 10,77 C9,52 24,36 50,36 Z' fill='%23FFF3C9' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cellipse cx='11' cy='88' rx='6' ry='4.4' transform='rotate(-25 11 88)' fill='%23FFF3C9' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cellipse cx='89' cy='88' rx='6' ry='4.4' transform='rotate(25 89 88)' fill='%23FFF3C9' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cellipse cx='24' cy='86' rx='6.5' ry='4' fill='%23FFB3C6' opacity='.9'/%3E%3Cellipse cx='76' cy='86' rx='6.5' ry='4' fill='%23FFB3C6' opacity='.9'/%3E%3Cellipse cx='36' cy='74' rx='3.1' ry='4.6' fill='%236B5A56'/%3E%3Ccircle cx='37.2' cy='72.3' r='1.15' fill='%23fff'/%3E%3Cellipse cx='64' cy='74' rx='3.1' ry='4.6' fill='%236B5A56'/%3E%3Ccircle cx='65.2' cy='72.3' r='1.15' fill='%23fff'/%3E%3Cpath d='M42,81 Q50,100 58,81 Z' fill='%23FF9DB2' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round'/%3E%3Cpath d='M46,91 Q50,87 54,91 Q50,96 46,91 Z' fill='%23FF7F9B'/%3E%3C/svg%3E");
-    --theme-hamster:      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 110 100'%3E%3Cellipse cx='36' cy='94' rx='9' ry='4.8' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cellipse cx='74' cy='94' rx='9' ry='4.8' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Ccircle cx='27' cy='25' r='11' fill='%23F4C38E' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Ccircle cx='27' cy='25' r='5.5' fill='%23FFC3D2'/%3E%3Ccircle cx='83' cy='25' r='11' fill='%23F4C38E' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Ccircle cx='83' cy='25' r='5.5' fill='%23FFC3D2'/%3E%3Cpath d='M55,16 C86,16 105,35 105,58 C105,82 86,95 55,95 C24,95 5,82 5,58 C5,35 24,16 55,16 Z' fill='%23FFFDF8'/%3E%3Cpath d='M18,42 C22,26 38,16 55,16 C72,16 88,26 92,42 C81,35 69,32 55,32 C41,32 29,35 18,42 Z' fill='%23F4C38E'/%3E%3Cpath d='M55,16 C86,16 105,35 105,58 C105,82 86,95 55,95 C24,95 5,82 5,58 C5,35 24,16 55,16 Z' fill='none' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round'/%3E%3Cellipse cx='23' cy='68' rx='8' ry='5' fill='%23FFB3C6' opacity='.9'/%3E%3Cellipse cx='87' cy='68' rx='8' ry='5' fill='%23FFB3C6' opacity='.9'/%3E%3Cellipse cx='40' cy='54' rx='3.2' ry='4.2' fill='%236B5A56'/%3E%3Ccircle cx='41.2' cy='52.3' r='1.15' fill='%23fff'/%3E%3Cellipse cx='70' cy='54' rx='3.2' ry='4.2' fill='%236B5A56'/%3E%3Ccircle cx='71.2' cy='52.3' r='1.15' fill='%23fff'/%3E%3Cellipse cx='55' cy='58' rx='2.4' ry='1.8' fill='%23F29CB0'/%3E%3Cpath d='M49.5,63 Q52.2,67.5 55,63 Q57.8,67.5 60.5,63' fill='none' stroke='%236B5A56' stroke-width='1.7600000000000002' stroke-linecap='round'/%3E%3Cellipse cx='55' cy='82' rx='8.5' ry='5.2' transform='rotate(-8 55 82)' fill='%23F1D79A' stroke='%236B5A56' stroke-width='1.87' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cpath d='M49,80 L61,83.5' stroke='%236B5A56' stroke-width='1.2' stroke-linecap='round'/%3E%3Cellipse cx='44' cy='80' rx='5.2' ry='4' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='1.9800000000000002' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cellipse cx='66' cy='80' rx='5.2' ry='4' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='1.9800000000000002' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E");
-    --theme-peek-hamster: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 70 42'%3E%3Ccircle cx='14' cy='14' r='8' fill='%23F4C38E' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Ccircle cx='14' cy='14' r='3.6' fill='%23FFC3D2'/%3E%3Ccircle cx='56' cy='14' r='8' fill='%23F4C38E' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Ccircle cx='56' cy='14' r='3.6' fill='%23FFC3D2'/%3E%3Cpath d='M6,40 C5,19 19,9 35,9 C51,9 65,19 64,40 L6,40 Z' fill='%23FFFDF8'/%3E%3Cpath d='M8,26 C11,16 22,9 35,9 C48,9 59,16 62,26 C54,21 45,19 35,19 C25,19 16,21 8,26 Z' fill='%23F4C38E'/%3E%3Cpath d='M6,40 C5,19 19,9 35,9 C51,9 65,19 64,40' fill='none' stroke='%236B5A56' stroke-width='2.2' stroke-linecap='round'/%3E%3Cellipse cx='15' cy='33' rx='5.5' ry='3.4' fill='%23FFB3C6' opacity='.9'/%3E%3Cellipse cx='55' cy='33' rx='5.5' ry='3.4' fill='%23FFB3C6' opacity='.9'/%3E%3Cellipse cx='25' cy='29' rx='2.5' ry='3.3' fill='%236B5A56'/%3E%3Ccircle cx='26.2' cy='27.3' r='1.15' fill='%23fff'/%3E%3Cellipse cx='45' cy='29' rx='2.5' ry='3.3' fill='%236B5A56'/%3E%3Ccircle cx='46.2' cy='27.3' r='1.15' fill='%23fff'/%3E%3Cellipse cx='35' cy='32' rx='1.9' ry='1.4' fill='%23F29CB0'/%3E%3Cellipse cx='19' cy='39' rx='6' ry='3.2' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='1.87' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cellipse cx='51' cy='39' rx='6' ry='3.2' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='1.87' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E");
-    --theme-peek-mochi:   url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 70 42'%3E%3Cpath d='M10,24 C5,12 12,3 25,10 C22,16 17,21 10,24 Z' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cpath d='M60,24 C65,12 58,3 45,10 C48,16 53,21 60,24 Z' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cpath d='M5,42 C4,20 18,9 35,9 C52,9 66,20 65,42 L5,42 Z' fill='%23FFFDF8'/%3E%3Cpath d='M5,42 C4,20 18,9 35,9 C52,9 66,20 65,42' fill='none' stroke='%236B5A56' stroke-width='2.2' stroke-linecap='round'/%3E%3Cellipse cx='15' cy='33' rx='5.5' ry='3.4' fill='%23FFB3C6' opacity='.9'/%3E%3Cellipse cx='55' cy='33' rx='5.5' ry='3.4' fill='%23FFB3C6' opacity='.9'/%3E%3Cellipse cx='26' cy='28' rx='2.6' ry='3.5' fill='%236B5A56'/%3E%3Ccircle cx='27.2' cy='26.3' r='1.15' fill='%23fff'/%3E%3Cellipse cx='44' cy='28' rx='2.6' ry='3.5' fill='%236B5A56'/%3E%3Ccircle cx='45.2' cy='26.3' r='1.15' fill='%23fff'/%3E%3Cpath d='M32,34 Q35,37 38,34' fill='none' stroke='%236B5A56' stroke-width='1.87' stroke-linecap='round'/%3E%3Cellipse cx='19' cy='40' rx='6' ry='3.2' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='1.87' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cellipse cx='51' cy='40' rx='6' ry='3.2' fill='%23FFFDF8' stroke='%236B5A56' stroke-width='1.87' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E");
-    --theme-cloud:        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 122 52'%3E%3Cpath d='M22,46 C8,46 4,30 18,26 C18,12 36,8 44,18 C50,4 74,4 80,18 C94,10 112,20 104,34 C118,36 116,46 102,46 Z' fill='%23FFFFFF' stroke='%236B5A56' stroke-opacity='0.55' stroke-width='1.8' stroke-linejoin='round'/%3E%3C/svg%3E");
-    --theme-flower:       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cg transform='translate(15 15) scale(1.0)'%3E%3Ccircle cx='0' cy='-8' r='4.7' fill='%23FFFFFF' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='7.6' cy='-2.5' r='4.7' fill='%23FFFFFF' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='4.7' cy='6.4' r='4.7' fill='%23FFFFFF' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='-4.7' cy='6.4' r='4.7' fill='%23FFFFFF' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='-7.6' cy='-2.5' r='4.7' fill='%23FFFFFF' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='0' cy='0' r='3.5' fill='%23FFE27A' stroke='%236B5A56' stroke-width='1.2'/%3E%3C/g%3E%3C/svg%3E");
-    --theme-flower-pink:  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cg transform='translate(15 15) scale(1.0)'%3E%3Ccircle cx='0' cy='-8' r='4.7' fill='%23FFC9D8' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='7.6' cy='-2.5' r='4.7' fill='%23FFC9D8' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='4.7' cy='6.4' r='4.7' fill='%23FFC9D8' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='-4.7' cy='6.4' r='4.7' fill='%23FFC9D8' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='-7.6' cy='-2.5' r='4.7' fill='%23FFC9D8' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='0' cy='0' r='3.5' fill='%23FFE27A' stroke='%236B5A56' stroke-width='1.2'/%3E%3C/g%3E%3C/svg%3E");
-    --theme-sparkle:      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath d='M15,3 Q17,13 27,15 Q17,17 15,27 Q13,17 3,15 Q13,13 15,3 Z' fill='%23FFE27A' stroke='%236B5A56' stroke-width='1.3' stroke-linejoin='round'/%3E%3C/svg%3E");
-    --theme-sparkle-pink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath d='M15,3 Q17,13 27,15 Q17,17 15,27 Q13,17 3,15 Q13,13 15,3 Z' fill='%23FFC9D8' stroke='%236B5A56' stroke-width='1.3' stroke-linejoin='round'/%3E%3C/svg%3E");
-    --theme-heart:        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 28'%3E%3Cpath d='M15,25 C4,17 2,10 7,6 C11,3 15,6 15,9 C15,6 19,3 23,6 C28,10 26,17 15,25 Z' fill='%23FFB3C6' stroke='%236B5A56' stroke-width='1.3' stroke-linejoin='round'/%3E%3C/svg%3E");
-    --theme-tuft:         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 18'%3E%3Cg transform='translate(10 16) scale(1.0)' fill='none' stroke='%2386B260' stroke-width='1.7' stroke-linecap='round'%3E%3Cpath d='M0,0 Q-2,-7 -6,-11'/%3E%3Cpath d='M0,0 Q0,-9 1,-14'/%3E%3Cpath d='M0,0 Q3,-7 8,-10'/%3E%3C/g%3E%3C/svg%3E");
-    --theme-hill-front:   url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 480 150'%3E%3Cpath d='M0,44 C48.0,44 91.2,24 148.8,28 C220.8,34 249.60000000000002,58 321.6,54 C388.8,50 422.4,44 480,44 L480,150 L0,150 Z' fill='%23CBE5A8'/%3E%3Cpath d='M0,44 C48.0,44 91.2,24 148.8,28 C220.8,34 249.60000000000002,58 321.6,54 C388.8,50 422.4,44 480,44' fill='none' stroke='%237FA85C' stroke-opacity='0.9' stroke-width='1.6' stroke-linecap='round'/%3E%3Cg transform='translate(36 62) scale(1)' fill='none' stroke='%2386B260' stroke-width='1.7' stroke-linecap='round'%3E%3Cpath d='M0,0 Q-2,-7 -6,-11'/%3E%3Cpath d='M0,0 Q0,-9 1,-14'/%3E%3Cpath d='M0,0 Q3,-7 8,-10'/%3E%3C/g%3E%3Cg transform='translate(118 52) scale(0.9)' fill='none' stroke='%2386B260' stroke-width='1.7' stroke-linecap='round'%3E%3Cpath d='M0,0 Q-2,-7 -6,-11'/%3E%3Cpath d='M0,0 Q0,-9 1,-14'/%3E%3Cpath d='M0,0 Q3,-7 8,-10'/%3E%3C/g%3E%3Cg transform='translate(190 84) scale(1.1)' fill='none' stroke='%2386B260' stroke-width='1.7' stroke-linecap='round'%3E%3Cpath d='M0,0 Q-2,-7 -6,-11'/%3E%3Cpath d='M0,0 Q0,-9 1,-14'/%3E%3Cpath d='M0,0 Q3,-7 8,-10'/%3E%3C/g%3E%3Cg transform='translate(262 70) scale(0.9)' fill='none' stroke='%2386B260' stroke-width='1.7' stroke-linecap='round'%3E%3Cpath d='M0,0 Q-2,-7 -6,-11'/%3E%3Cpath d='M0,0 Q0,-9 1,-14'/%3E%3Cpath d='M0,0 Q3,-7 8,-10'/%3E%3C/g%3E%3Cg transform='translate(330 96) scale(1.0)' fill='none' stroke='%2386B260' stroke-width='1.7' stroke-linecap='round'%3E%3Cpath d='M0,0 Q-2,-7 -6,-11'/%3E%3Cpath d='M0,0 Q0,-9 1,-14'/%3E%3Cpath d='M0,0 Q3,-7 8,-10'/%3E%3C/g%3E%3Cg transform='translate(402 60) scale(1.1)' fill='none' stroke='%2386B260' stroke-width='1.7' stroke-linecap='round'%3E%3Cpath d='M0,0 Q-2,-7 -6,-11'/%3E%3Cpath d='M0,0 Q0,-9 1,-14'/%3E%3Cpath d='M0,0 Q3,-7 8,-10'/%3E%3C/g%3E%3Cg transform='translate(452 90) scale(0.9)' fill='none' stroke='%2386B260' stroke-width='1.7' stroke-linecap='round'%3E%3Cpath d='M0,0 Q-2,-7 -6,-11'/%3E%3Cpath d='M0,0 Q0,-9 1,-14'/%3E%3Cpath d='M0,0 Q3,-7 8,-10'/%3E%3C/g%3E%3Cg transform='translate(84 104) scale(1.0)' fill='none' stroke='%2386B260' stroke-width='1.7' stroke-linecap='round'%3E%3Cpath d='M0,0 Q-2,-7 -6,-11'/%3E%3Cpath d='M0,0 Q0,-9 1,-14'/%3E%3Cpath d='M0,0 Q3,-7 8,-10'/%3E%3C/g%3E%3Cg transform='translate(232 118) scale(0.9)' fill='none' stroke='%2386B260' stroke-width='1.7' stroke-linecap='round'%3E%3Cpath d='M0,0 Q-2,-7 -6,-11'/%3E%3Cpath d='M0,0 Q0,-9 1,-14'/%3E%3Cpath d='M0,0 Q3,-7 8,-10'/%3E%3C/g%3E%3Cg transform='translate(372 126) scale(1.0)' fill='none' stroke='%2386B260' stroke-width='1.7' stroke-linecap='round'%3E%3Cpath d='M0,0 Q-2,-7 -6,-11'/%3E%3Cpath d='M0,0 Q0,-9 1,-14'/%3E%3Cpath d='M0,0 Q3,-7 8,-10'/%3E%3C/g%3E%3Cg transform='translate(64 82) scale(0.8)'%3E%3Ccircle cx='0' cy='-8' r='4.7' fill='%23FFFFFF' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='7.6' cy='-2.5' r='4.7' fill='%23FFFFFF' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='4.7' cy='6.4' r='4.7' fill='%23FFFFFF' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='-4.7' cy='6.4' r='4.7' fill='%23FFFFFF' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='-7.6' cy='-2.5' r='4.7' fill='%23FFFFFF' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='0' cy='0' r='3.5' fill='%23FFE27A' stroke='%236B5A56' stroke-width='1.2'/%3E%3C/g%3E%3Cg transform='translate(150 100) scale(0.75)'%3E%3Ccircle cx='0' cy='-8' r='4.7' fill='%23FFC9D8' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='7.6' cy='-2.5' r='4.7' fill='%23FFC9D8' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='4.7' cy='6.4' r='4.7' fill='%23FFC9D8' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='-4.7' cy='6.4' r='4.7' fill='%23FFC9D8' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='-7.6' cy='-2.5' r='4.7' fill='%23FFC9D8' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='0' cy='0' r='3.5' fill='%23FFE27A' stroke='%236B5A56' stroke-width='1.2'/%3E%3C/g%3E%3Cg transform='translate(214 56) scale(0.7)'%3E%3Ccircle cx='0' cy='-8' r='4.7' fill='%23FFFFFF' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='7.6' cy='-2.5' r='4.7' fill='%23FFFFFF' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='4.7' cy='6.4' r='4.7' fill='%23FFFFFF' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='-4.7' cy='6.4' r='4.7' fill='%23FFFFFF' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='-7.6' cy='-2.5' r='4.7' fill='%23FFFFFF' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='0' cy='0' r='3.5' fill='%23FFE27A' stroke='%236B5A56' stroke-width='1.2'/%3E%3C/g%3E%3Cg transform='translate(300 82) scale(0.85)'%3E%3Ccircle cx='0' cy='-8' r='4.7' fill='%23FFC9D8' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='7.6' cy='-2.5' r='4.7' fill='%23FFC9D8' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='4.7' cy='6.4' r='4.7' fill='%23FFC9D8' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='-4.7' cy='6.4' r='4.7' fill='%23FFC9D8' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='-7.6' cy='-2.5' r='4.7' fill='%23FFC9D8' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='0' cy='0' r='3.5' fill='%23FFE27A' stroke='%236B5A56' stroke-width='1.2'/%3E%3C/g%3E%3Cg transform='translate(352 60) scale(0.7)'%3E%3Ccircle cx='0' cy='-8' r='4.7' fill='%23FFFFFF' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='7.6' cy='-2.5' r='4.7' fill='%23FFFFFF' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='4.7' cy='6.4' r='4.7' fill='%23FFFFFF' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='-4.7' cy='6.4' r='4.7' fill='%23FFFFFF' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='-7.6' cy='-2.5' r='4.7' fill='%23FFFFFF' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='0' cy='0' r='3.5' fill='%23FFE27A' stroke='%236B5A56' stroke-width='1.2'/%3E%3C/g%3E%3Cg transform='translate(426 108) scale(0.8)'%3E%3Ccircle cx='0' cy='-8' r='4.7' fill='%23FFFFFF' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='7.6' cy='-2.5' r='4.7' fill='%23FFFFFF' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='4.7' cy='6.4' r='4.7' fill='%23FFFFFF' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='-4.7' cy='6.4' r='4.7' fill='%23FFFFFF' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='-7.6' cy='-2.5' r='4.7' fill='%23FFFFFF' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='0' cy='0' r='3.5' fill='%23FFE27A' stroke='%236B5A56' stroke-width='1.2'/%3E%3C/g%3E%3Cg transform='translate(18 120) scale(0.7)'%3E%3Ccircle cx='0' cy='-8' r='4.7' fill='%23FFC9D8' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='7.6' cy='-2.5' r='4.7' fill='%23FFC9D8' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='4.7' cy='6.4' r='4.7' fill='%23FFC9D8' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='-4.7' cy='6.4' r='4.7' fill='%23FFC9D8' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='-7.6' cy='-2.5' r='4.7' fill='%23FFC9D8' stroke='%236B5A56' stroke-width='1.2'/%3E%3Ccircle cx='0' cy='0' r='3.5' fill='%23FFE27A' stroke='%236B5A56' stroke-width='1.2'/%3E%3C/g%3E%3C/svg%3E");
-    --theme-hill-back:    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 700 190'%3E%3Cpath d='M0,70 C70.0,70 133.0,50 217.0,54 C322.0,60 364.0,84 469.0,80 C567.0,76 616.0,70 700,70 L700,190 L0,190 Z' fill='%23DDEFC4'/%3E%3Cpath d='M0,70 C70.0,70 133.0,50 217.0,54 C322.0,60 364.0,84 469.0,80 C567.0,76 616.0,70 700,70' fill='none' stroke='%239DC27C' stroke-opacity='0.6' stroke-width='1.4' stroke-linecap='round'/%3E%3Cg transform='translate(120 110) scale(0.9)' fill='none' stroke='%23A6C98A' stroke-width='1.4' stroke-linecap='round'%3E%3Cpath d='M0,0 Q-2,-7 -6,-11'/%3E%3Cpath d='M0,0 Q0,-9 1,-14'/%3E%3Cpath d='M0,0 Q3,-7 8,-10'/%3E%3C/g%3E%3Cg transform='translate(330 130) scale(0.9)' fill='none' stroke='%23A6C98A' stroke-width='1.4' stroke-linecap='round'%3E%3Cpath d='M0,0 Q-2,-7 -6,-11'/%3E%3Cpath d='M0,0 Q0,-9 1,-14'/%3E%3Cpath d='M0,0 Q3,-7 8,-10'/%3E%3C/g%3E%3Cg transform='translate(560 118) scale(0.9)' fill='none' stroke='%23A6C98A' stroke-width='1.4' stroke-linecap='round'%3E%3Cpath d='M0,0 Q-2,-7 -6,-11'/%3E%3Cpath d='M0,0 Q0,-9 1,-14'/%3E%3Cpath d='M0,0 Q3,-7 8,-10'/%3E%3C/g%3E%3C/svg%3E");
-    --theme-grass-header: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 16'%3E%3Cpath d='M0,7 Q7,1 14,7 T28,7 T42,7 T56,7 V16 H0 Z' fill='%23B9DB93'/%3E%3Cpath d='M0,7 Q7,1 14,7 T28,7 T42,7 T56,7' fill='none' stroke='%237FA85C' stroke-width='1.5' stroke-linecap='round'/%3E%3Crect x='0' y='14.4' width='56' height='1.6' fill='%237FA85C'/%3E%3Cg transform='translate(8 13.5) scale(0.5)' fill='none' stroke='%237FA85C' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M0,0 Q-2,-7 -6,-11'/%3E%3Cpath d='M0,0 Q0,-9 1,-14'/%3E%3Cpath d='M0,0 Q3,-7 8,-10'/%3E%3C/g%3E%3Cg transform='translate(30 13.5) scale(0.5)' fill='none' stroke='%237FA85C' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M0,0 Q-2,-7 -6,-11'/%3E%3Cpath d='M0,0 Q0,-9 1,-14'/%3E%3Cpath d='M0,0 Q3,-7 8,-10'/%3E%3C/g%3E%3Cg transform='translate(49 13.5) scale(0.5)' fill='none' stroke='%237FA85C' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M0,0 Q-2,-7 -6,-11'/%3E%3Cpath d='M0,0 Q0,-9 1,-14'/%3E%3Cpath d='M0,0 Q3,-7 8,-10'/%3E%3C/g%3E%3C/svg%3E");
-    --theme-grass-edge:   url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 22'%3E%3Cg transform='translate(8 20) scale(1.0)' fill='none' stroke='%238DB66A' stroke-width='1.7' stroke-linecap='round'%3E%3Cpath d='M0,0 Q-2,-7 -6,-11'/%3E%3Cpath d='M0,0 Q0,-9 1,-14'/%3E%3Cpath d='M0,0 Q3,-7 8,-10'/%3E%3C/g%3E%3Cg transform='translate(30 20) scale(0.8)' fill='none' stroke='%238DB66A' stroke-width='1.7' stroke-linecap='round'%3E%3Cpath d='M0,0 Q-2,-7 -6,-11'/%3E%3Cpath d='M0,0 Q0,-9 1,-14'/%3E%3Cpath d='M0,0 Q3,-7 8,-10'/%3E%3C/g%3E%3Cg transform='translate(52 20) scale(1.1)' fill='none' stroke='%238DB66A' stroke-width='1.7' stroke-linecap='round'%3E%3Cpath d='M0,0 Q-2,-7 -6,-11'/%3E%3Cpath d='M0,0 Q0,-9 1,-14'/%3E%3Cpath d='M0,0 Q3,-7 8,-10'/%3E%3C/g%3E%3Cg transform='translate(66 20) scale(0.7)' fill='none' stroke='%238DB66A' stroke-width='1.7' stroke-linecap='round'%3E%3Cpath d='M0,0 Q-2,-7 -6,-11'/%3E%3Cpath d='M0,0 Q0,-9 1,-14'/%3E%3Cpath d='M0,0 Q3,-7 8,-10'/%3E%3C/g%3E%3C/svg%3E");
-    --theme-dots-pink:    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Ccircle cx='9' cy='9' r='1.7' fill='%23FFC3D3' fill-opacity='.7'/%3E%3Ccircle cx='27' cy='27' r='1.7' fill='%23FFC3D3' fill-opacity='.7'/%3E%3C/svg%3E");
-    --theme-dots-white:   url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='8' cy='10' r='2.2' fill='%23fff' fill-opacity='.65'/%3E%3Ccircle cx='28' cy='26' r='2.2' fill='%23fff' fill-opacity='.65'/%3E%3Ccircle cx='34' cy='6' r='1.4' fill='%23fff' fill-opacity='.55'/%3E%3Ccircle cx='14' cy='34' r='1.4' fill='%23fff' fill-opacity='.55'/%3E%3C/svg%3E");
+    /* Crema cálida tipo papel de cuaderno */
+    --app-cream:       #FBF5E5;
+    --app-cream-deep:  #F5EDD8;
+    --app-brown:       #6B5A56;
+    --app-brown-soft:  #8B7568;
+    --app-brown-light: #A69284;
+    --app-brown-line:  #D4C7BB;
+    --app-peach:       #F4E4D0;
+    --app-peach-deep:  #EBD5B8;
 }
 
 /* ================================================================
-   1. HEADER — cielo celeste con nubes (lejos del logo y los chips)
-   Las nubes son capas de fondo: siempre quedan DETRÁS del contenido.
+   1. HEADER — crema elegante, sin cielo, sin pasto
+   Sutil, limpio, deja que el lobby sea el protagonista.
    ================================================================ */
 .app-header {
-    position: relative;
-    background:
-        var(--theme-cloud) 54% 28% / 74px 31px no-repeat,
-        var(--theme-cloud) 64% 66% / 52px 22px no-repeat,
-        var(--theme-cloud) 72% 22% / 62px 26px no-repeat,
-        linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 100%);
+    background: linear-gradient(180deg, #FFFDF8 0%, #FBF5E8 100%);
     border-bottom: 2px solid var(--line);
-    box-shadow: none;
+    box-shadow:
+        inset 0 -1px 0 rgba(255, 255, 255, 0.9),
+        0 2px 0 rgba(107, 90, 86, 0.06);
 }
 
-/* Franja de pasto bajo el header */
+/* ADIÓS al pasto bajo el header */
 .app-header::after {
+    display: none;
+}
+
+/* Nubes sutiles en el header: quedan como acentos muy tenues */
+.app-header::before {
     content: '';
     position: absolute;
-    left: 0;
-    right: 0;
-    top: calc(100% - 4px);
-    height: 16px;
-    background: var(--theme-grass-header) left top / 56px 16px repeat-x;
+    inset: 0;
     pointer-events: none;
+    z-index: 0;
+    background:
+        var(--theme-cloud) 58% 30% / 70px 30px no-repeat,
+        var(--theme-cloud) 72% 55% / 50px 21px no-repeat;
+    opacity: 0.30;
+}
+.app-header > * {
+    position: relative;
     z-index: 1;
 }
 
-/* Logo: carita de mochi (el ícono original se oculta para que no
-   quede blanco sobre blanco) */
+/* Búsqueda: misma píldora con trazo, pero fondo blanco puro */
+.search-bar {
+    background: #FFFFFF;
+    border: 2px solid var(--line);
+    border-radius: var(--r-full);
+    box-shadow:
+        2px 3px 0 var(--sh),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.search-bar:hover {
+    transform: translateY(-1px);
+    box-shadow: 3px 4px 0 var(--sh);
+}
+.search-bar:focus-within {
+    border-color: var(--violet-400);
+    box-shadow:
+        2px 3px 0 var(--sh),
+        0 0 0 4px rgba(255, 179, 198, 0.35);
+}
+.search-bar .search-icon {
+    color: var(--violet-500);
+}
+
+/* Logo: le damos un halo suave para que respire sobre crema */
 .logo-mark {
-    position: relative;
-    background:
-        var(--theme-mochi-badge) center / 90% 90% no-repeat,
-        var(--violet-100);
-    border-radius: 50%;
     box-shadow:
         inset 0 0 0 2px var(--line),
-        0 2px 0 rgba(107, 90, 86, 0.30);
-    color: transparent;
-    font-size: 0;
+        0 3px 0 rgba(107, 90, 86, 0.35),
+        0 0 0 3px rgba(255, 255, 255, 0.95);
 }
-.logo-mark > * {
-    opacity: 0;
+
+/* Chips del header (reloj, clima): blanco puro con trazo */
+.header-info,
+.header-status,
+.clock-widget,
+.weather-widget {
+    background: #FFFFFF;
+    border: 2px solid var(--line);
+    border-radius: var(--r-full);
+    box-shadow: 2px 3px 0 var(--sh);
+    padding: 4px 12px;
+}
+
+/* Monedas: dorado suave, mismo lenguaje */
+.coins-widget,
+.header-coins {
+    background: linear-gradient(180deg, #FFF8E0 0%, #FFEFB8 100%);
+    border: 2px solid var(--line);
+    border-radius: var(--r-full);
+    box-shadow: 2px 3px 0 var(--sh);
+    padding: 4px 12px;
+}
+
+/* Notis: círculo blanco con trazo */
+.noti-btn {
+    background: #FFFFFF;
+    border: 2px solid var(--line);
+    border-radius: 50%;
+    box-shadow: 2px 3px 0 var(--sh);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.noti-btn:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 4px 0 var(--sh);
+}
+.noti-btn.tiene-no-leidas {
+    background: var(--violet-100);
+    color: var(--violet-600);
+    animation: chii-bob 2s ease-in-out infinite;
+}
+.noti-badge {
+    background: var(--violet-500);
+    color: #FFFDF8;
+    border: 2px solid var(--line);
+    box-shadow: 1px 1px 0 var(--line);
+}
+
+/* Avatar */
+.avatar-config {
+    background: #FFFFFF;
+    border: 2px solid var(--line);
+    box-shadow:
+        2px 3px 0 var(--sh),
+        0 0 0 3px rgba(255, 255, 255, 0.95);
 }
 
 /* ================================================================
-   2. WELCOME — cielo arriba, colinas con florcitas abajo
-   isolation: crea un contexto de apilamiento para que las capas
-   decorativas (z-index -1) queden SIEMPRE debajo del contenido.
+   2. TABS SUPERIORES — crema elegante (Inicio / Stor-He / ...)
+   Sin cielo, sin pasto. Solo crema con detalles rosa.
    ================================================================ */
-.welcome-placeholder {
-    position: relative;
-    isolation: isolate;
+.tab-bar,
+.tabs-container {
     background:
-        var(--theme-hill-front) left bottom / 480px 150px repeat-x,
-        var(--theme-hill-back) 140px bottom / 700px 190px repeat-x,
-        linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 60%, var(--sky-low) 100%);
-    scrollbar-width: thin;
-    scrollbar-color: #F3A9BE transparent;
-}
-
-/* Nubes en el cielo */
-.welcome-placeholder::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: -1;
-    background-image:
-        var(--theme-cloud),
-        var(--theme-cloud),
-        var(--theme-cloud),
-        var(--theme-cloud),
-        var(--theme-cloud);
-    background-size:
-        112px 47px,
-        84px 36px,
-        98px 41px,
-        66px 28px,
-        76px 32px;
-    background-position:
-        3% 9%,
-        41% 1%,
-        93% 8%,
-        11% 36%,
-        88% 40%;
-    background-repeat: no-repeat;
-}
-
-/* Brillitos y corazones que titilan suavemente */
-.welcome-placeholder::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: -1;
-    background-image:
-        var(--theme-sparkle),
-        var(--theme-heart),
-        var(--theme-sparkle-pink),
-        var(--theme-sparkle),
-        var(--theme-heart);
-    background-size:
-        20px 20px,
-        16px 15px,
-        14px 14px,
-        18px 18px,
-        14px 13px;
-    background-position:
-        9% 20%,
-        62% 2%,
-        95% 24%,
-        89% 55%,
-        5% 52%;
-    background-repeat: no-repeat;
-    animation: chii-twinkle 3.6s ease-in-out infinite;
-}
-
-.welcome-glow {
-    background: radial-gradient(
-        circle at 50% 38%,
-        rgba(255, 255, 255, 0.55) 0%,
-        rgba(255, 228, 236, 0.25) 40%,
-        transparent 68%
-    );
-}
-
-.welcome-hero,
-.welcome-section {
-    position: relative;
-    z-index: 2;
-}
-
-/* Hero — tarjeta de sticker: trazo fino + sombra rosa pálido */
-.welcome-hero {
-    position: relative;
-    padding: 42px 30px 36px;
-    background:
-        var(--theme-sparkle) 39% 21% / 17px 17px no-repeat,
-        var(--theme-heart) 61% 17% / 14px 13px no-repeat,
-        var(--theme-sparkle-pink) 35% 31% / 11px 11px no-repeat,
         var(--theme-dots-pink) 0 0 / 36px 36px repeat,
-        linear-gradient(180deg, #FFFFFF 0%, #FFFAF3 100%);
-    border: 2px solid var(--line);
-    border-radius: var(--r-xl);
-    box-shadow:
-        5px 6px 0 var(--sh),
-        0 16px 34px rgba(107, 90, 86, 0.10);
-    max-width: 660px;
-    margin-left: auto;
-    margin-right: auto;
+        linear-gradient(180deg, #FFFDF8 0%, #FBF5E8 100%);
+    border-bottom: 2px solid var(--line);
+    padding-bottom: 0;
 }
 
-/* Mochi saludando (abajo a la izquierda, dentro de la tarjeta) */
-.welcome-hero::before {
-    content: '';
-    position: absolute;
-    left: 22px;
-    bottom: 14px;
-    width: 78px;
-    height: 78px;
-    background: var(--theme-mochi-cheer) center bottom / contain no-repeat;
-    pointer-events: none;
-    z-index: 0;
-    animation: chii-bob 3.4s ease-in-out infinite;
-}
-
-/* Conejito (abajo a la derecha) */
-.welcome-hero::after {
-    content: '';
-    position: absolute;
-    right: 24px;
-    bottom: 14px;
-    width: 62px;
-    height: 80px;
-    background: var(--theme-bunny) center bottom / contain no-repeat;
-    pointer-events: none;
-    z-index: 0;
-    animation: chii-bob 3.4s ease-in-out 0.7s infinite;
-}
-
-.welcome-hero > * {
+.tab-item {
     position: relative;
-    z-index: 1;
+    background: transparent;
+    border: 2px solid transparent;
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+    color: var(--gray-600);
+    transition: all 0.15s ease;
 }
-
-.welcome-hero h1 {
-    letter-spacing: 0.01em;
-    font-weight: 800;
-}
-
-/* Ícono del hero: carita de mochi con anillo de trazo fino */
-.welcome-icon-wrap {
-    position: relative;
-    background:
-        var(--theme-mochi-badge) center / 88% 88% no-repeat,
-        var(--violet-100);
-    border-radius: 50%;
-    box-shadow:
-        inset 0 0 0 2px var(--line),
-        0 4px 0 rgba(107, 90, 86, 0.28),
-        0 0 0 6px rgba(255, 255, 255, 0.75);
-    color: transparent;
-    font-size: 0;
-    animation: chii-bob 3s ease-in-out infinite;
-}
-.welcome-icon-wrap > * {
-    opacity: 0;
-}
-
-/* ================================================================
-   3. SECCIONES — tarjetas de cuaderno con un hámster asomándose
-   ================================================================ */
-.welcome-section {
-    position: relative;
-    background: #FFFDF8;
-    border: 2px solid var(--line);
-    border-radius: var(--r-lg);
-    padding: 18px 20px;
-    box-shadow:
-        4px 5px 0 var(--sh),
-        0 10px 24px rgba(107, 90, 86, 0.08);
-}
-
-/* Cabecita asomándose por el borde superior (queda FUERA, sin tapar nada) */
-.welcome-section::before {
-    content: '';
-    position: absolute;
-    right: 38px;
-    bottom: calc(100% - 2px);
-    width: 66px;
-    height: 40px;
-    background: var(--theme-peek-hamster) center bottom / contain no-repeat;
-    pointer-events: none;
-    z-index: 3;
-}
-.welcome-section:nth-child(even)::before {
-    background-image: var(--theme-peek-mochi);
-}
-
-.welcome-section-header h2 {
+.tab-item:hover {
+    background: rgba(255, 253, 248, 0.85);
     color: var(--gray-700);
-    letter-spacing: 0.01em;
-    font-weight: 800;
+}
+
+/* Activa: crema blanca con trazo + florcita + subrayado rosa */
+.tab-item.active {
+    background: #FFFFFF;
+    color: var(--gray-800);
+    font-weight: 700;
+    border: 2px solid var(--line);
+    border-bottom: none;
+    box-shadow:
+        inset 0 -3px 0 var(--violet-300),
+        2px 0 0 var(--sh),
+        -2px 0 0 var(--sh);
+    position: relative;
+}
+.tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    width: 12px;
+    height: 12px;
+    background: var(--theme-flower-pink) center / contain no-repeat;
+    opacity: 0.85;
+    pointer-events: none;
+}
+.tab-item.active::after {
+    content: '';
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: -2px;
+    height: 3px;
+    background: linear-gradient(90deg, #FFB3C6, #F27C9B, #FFB3C6);
+    border-radius: 3px 3px 0 0;
+    pointer-events: none;
+}
+.tab-item.active [data-lucide] {
+    color: var(--violet-500);
+}
+.tab-item .tab-close,
+.tab-item [data-lucide="x"] {
+    color: var(--gray-400);
+    transition: color 0.15s ease;
+}
+.tab-item:hover .tab-close,
+.tab-item:hover [data-lucide="x"] {
+    color: var(--violet-500);
 }
 
 /* ================================================================
-   4. SIDEBAR — pradera pálida con puntitos y pastito al pie
-   (sin flores detrás del texto: se lee perfecto)
+   3. SIDEBAR — blanco limpio, sin puntos
    ================================================================ */
 .sidebar {
-    background:
-        var(--theme-grass-edge) left bottom / 72px 22px repeat-x,
-        var(--theme-dots-white) 0 0 / 40px 40px repeat,
-        linear-gradient(180deg, #EAF5DC 0%, #D8EBBF 100%);
+    background: #FFFDF8;
     border-right: 2px solid var(--line);
+    box-shadow: inset -1px 0 0 rgba(107, 90, 86, 0.06);
 }
-.sidebar-nav {
-    scrollbar-width: thin;
-    scrollbar-color: #F3A9BE transparent;
-}
+
 .sidebar-mobile-header {
-    background: #EAF5DC;
+    background: #FFFDF8;
     border-bottom: 2px solid var(--line);
 }
 
+/* Chip de comunidad: mismo lenguaje */
 .sidebar-comunidad {
-    background: #FFFDF8;
+    background: #FFFFFF;
     border: 2px solid var(--line);
     border-radius: var(--r-lg);
     box-shadow: 3px 4px 0 var(--sh);
@@ -418,34 +248,58 @@
     box-shadow: 4px 5px 0 var(--sh);
 }
 
-/* Navegación */
+/* Items del nav: pastilla con circulito de icono */
 .nav-item {
     position: relative;
-    border-radius: var(--r-md);
+    border-radius: var(--r-full);
+    padding: 6px 12px 6px 8px;
+    color: var(--gray-700);
     transition:
         background 0.15s ease,
         box-shadow 0.15s ease,
         transform 0.15s ease;
 }
 .nav-item:hover {
-    background: rgba(255, 253, 248, 0.65);
+    background: rgba(255, 245, 240, 0.9);
+    transform: translateX(2px);
 }
-/* Activo: pastilla blanca con trazo fino (el anillo es un box-shadow,
-   así no se mueve nada del layout) */
+
+/* Circulito blanco detrás de cada icono */
+.nav-item .nav-icon {
+    background: #FFFFFF;
+    border: 2px solid var(--line);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-600);
+    box-shadow: 1px 2px 0 rgba(107, 90, 86, 0.18);
+    transition: all 0.15s ease;
+}
+.nav-item:hover .nav-icon {
+    background: var(--violet-100);
+    color: var(--violet-600);
+}
+
+/* Activo: pastilla blanca con trazo + circulito rosa */
 .nav-item.active {
-    background: #FFFDF8;
-    color: var(--gray-700);
+    background: #FFFFFF;
+    color: var(--gray-800);
+    font-weight: 700;
     box-shadow:
         inset 0 0 0 2px var(--line),
-        2px 3px 0 var(--sh);
-}
-.nav-item.active::before {
-    background: linear-gradient(180deg, #FFB3C6, #F27C9B);
-    width: 4px;
-    border-radius: 4px;
+        3px 4px 0 var(--sh);
 }
 .nav-item.active .nav-icon {
-    color: var(--violet-500);
+    background: var(--accent-gradient);
+    border-color: var(--line);
+    color: #FFFDF8;
+    box-shadow: 1px 2px 0 rgba(107, 90, 86, 0.30);
+}
+.nav-item.active::before {
+    display: none;
 }
 .nav-item.active::after {
     content: '';
@@ -460,238 +314,340 @@
 }
 
 /* ================================================================
-   5. ACCESOS RÁPIDOS — tarjetas sticker
+   4. APPS — fondo crema cálido + marrón de línea
    ================================================================ */
-.acceso-item {
-    position: relative;
-    background: #FFFDF8;
-    border: 2px solid var(--line);
-    border-radius: var(--r-lg);
-    box-shadow: 3px 4px 0 var(--sh);
-    overflow: visible;
-    transition:
-        transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
-        box-shadow 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
 
-/* Brillitos y corazón dentro de la tarjeta al pasar el mouse */
-.acceso-item::before {
-    content: '';
-    position: absolute;
-    inset: 0;
+/* Área de contenido de apps: fondo crema como el papel */
+.app-content,
+.app-view,
+.page-content {
     background:
-        var(--theme-sparkle) 12% 22% / 12px 12px no-repeat,
-        var(--theme-heart) 87% 20% / 12px 11px no-repeat,
-        var(--theme-sparkle-pink) 82% 78% / 10px 10px no-repeat;
-    opacity: 0;
-    pointer-events: none;
-    z-index: 2;
-    transition: opacity 0.25s ease;
-}
-.acceso-item:hover::before {
-    opacity: 1;
+        radial-gradient(circle at 20% 10%, rgba(255, 253, 248, 0.6) 0%, transparent 40%),
+        radial-gradient(circle at 80% 90%, rgba(244, 228, 208, 0.4) 0%, transparent 45%),
+        var(--app-cream);
 }
 
-.acceso-item:hover {
-    transform: translateY(-3px) rotate(-0.8deg);
-    box-shadow: 4px 8px 0 var(--sh);
-}
-
-.acceso-icon-wrap {
-    background: var(--violet-100);
-    color: var(--violet-600);
-    border: 2px solid var(--line);
-    border-radius: 50%;
-    box-shadow: 0 2px 0 rgba(107, 90, 86, 0.30);
-    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.acceso-item:hover .acceso-icon-wrap {
-    background: var(--accent-gradient);
-    color: #FFFFFF;
-    transform: rotate(-8deg) scale(1.06);
-}
-
-/* ================================================================
-   6. WIDGETS
-   ================================================================ */
-.widget-item {
-    position: relative;
+/* Header interno de cada app (Stor-He, Chequera, etc.) */
+.app-header-inner,
+.app-page-header,
+.app-title-bar {
     background: #FFFDF8;
-    border: 2px solid var(--line);
-    border-radius: var(--r-lg);
-    box-shadow: 3px 4px 0 var(--sh);
-    overflow: hidden;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-.widget-item:hover {
-    transform: translate(-1px, -2px);
-    box-shadow: 4px 6px 0 var(--sh);
-}
-
-/* ================================================================
-   7. PESTAÑAS
-   ================================================================ */
-.tab-item.active {
+    border-bottom: 2px dashed var(--app-brown-line);
+    padding: 16px 20px;
     position: relative;
-    background: #FFFDF8;
-    color: var(--gray-700);
-    /* tres lados de trazo fino (sin borde inferior) sin alterar medidas */
-    box-shadow:
-        inset 2px 0 0 var(--line),
-        inset -2px 0 0 var(--line),
-        inset 0 2px 0 var(--line);
-}
-.tab-item.active::before {
-    content: '';
-    position: absolute;
-    left: 14px;
-    right: 14px;
-    bottom: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #FFB3C6, #F27C9B, #FFB3C6);
-    border-radius: 3px 3px 0 0;
-    pointer-events: none;
-}
-.tab-item.active [data-lucide] {
-    color: var(--violet-500);
 }
 
-/* ================================================================
-   8. MODALES — hoja de cuaderno con costura punteada
-   ================================================================ */
-.config-card,
-.modal-todas-card {
-    position: relative;
-    overflow: hidden;
-    background: #FFFDF8;
-    border: 2px solid var(--line);
-    border-radius: var(--r-xl);
-    box-shadow:
-        6px 8px 0 var(--sh),
-        0 24px 48px rgba(107, 90, 86, 0.20);
-}
-
-.config-header,
-.modal-todas-header {
-    background:
-        var(--theme-sparkle) 74% 38% / 14px 14px no-repeat,
-        var(--theme-heart) 80% 62% / 11px 10px no-repeat,
-        var(--theme-sparkle-pink) 68% 66% / 10px 10px no-repeat,
-        var(--theme-dots-pink) 0 0 / 36px 36px repeat,
-        var(--violet-50);
-    border-bottom: 2px dashed var(--violet-300);
-}
-
-/* ================================================================
-   9. BOTÓN PRIMARIO — botón de goma con sombra inferior
-   ================================================================ */
-.btn-primario {
-    position: relative;
-    overflow: hidden;
-    background: var(--accent-gradient);
-    color: #FFFFFF;
+/* Título principal del header interno: marrón */
+.app-header-inner h1,
+.app-page-header h1 {
+    color: var(--app-brown);
     font-weight: 800;
-    border: 2px solid var(--line);
-    border-radius: var(--r-full);
-    text-shadow: 0 1px 0 rgba(166, 50, 82, 0.45);
-    box-shadow: 0 3px 0 var(--line);
-    transition:
-        transform 0.12s ease,
-        box-shadow 0.12s ease;
+    letter-spacing: 0.005em;
 }
-.btn-primario::before {
+
+/* Subtítulo del header interno */
+.app-header-inner p,
+.app-page-header p {
+    color: var(--app-brown-soft);
+}
+
+/* Ícono grande del header interno: marrón con trazo (antes rosa) */
+.app-header-inner .app-icon,
+.app-page-header .app-icon,
+.app-icon-large {
+    background: linear-gradient(180deg, var(--app-brown-soft) 0%, var(--app-brown) 100%);
+    border: 2px solid var(--line);
+    border-radius: var(--r-lg);
+    box-shadow:
+        3px 4px 0 var(--app-peach-deep),
+        0 0 0 3px rgba(255, 253, 248, 0.95);
+    color: #FFFDF8;
+}
+
+/* Búsqueda interna de la app */
+.app-search,
+.app-header-inner .search-bar {
+    background: #FFFFFF;
+    border: 2px solid var(--app-brown-line);
+    border-radius: var(--r-full);
+    box-shadow: 2px 3px 0 var(--app-peach);
+}
+
+/* Stats (Espacio, Monedas): fondo crema con marrón */
+.app-stat,
+.app-header-inner .stat,
+.app-stat-box {
+    background: #FFFDF8;
+    border: 2px solid var(--app-brown-line);
+    border-radius: var(--r-lg);
+    box-shadow: 2px 3px 0 var(--app-peach);
+    color: var(--app-brown);
+}
+.app-stat .stat-label,
+.app-stat-box .stat-label {
+    color: var(--app-brown-soft);
+}
+.app-stat .stat-value,
+.app-stat-box .stat-value {
+    color: var(--app-brown);
+    font-weight: 800;
+}
+
+/* ------------------------------------------------------------
+   Pills internos de app (Apps / Temas / Widgets / PromoZione)
+   Se mantienen como estaban — funcionan bien.
+   ------------------------------------------------------------ */
+/* (sin cambios respecto a v2) */
+
+/* ================================================================
+   5. BANNER "Ampliar espacio" y packs (+5, +15, +50, +100)
+   Mismo tratamiento: crema + marrón.
+   ================================================================ */
+.upgrade-banner,
+.space-banner,
+.promo-banner {
+    background:
+        radial-gradient(circle at 85% 20%, rgba(255, 253, 248, 0.7) 0%, transparent 40%),
+        linear-gradient(180deg, #FFFCF0 0%, var(--app-cream-deep) 100%);
+    border: 2px solid var(--app-brown-line);
+    border-radius: var(--r-xl);
+    box-shadow: 4px 5px 0 var(--app-peach-deep);
+    position: relative;
+    overflow: visible;
+    color: var(--app-brown);
+}
+.upgrade-banner::after,
+.space-banner::after {
     content: '';
     position: absolute;
-    inset: 0;
-    background:
-        var(--theme-sparkle) 12% 50% / 12px 12px no-repeat,
-        var(--theme-sparkle) 88% 50% / 10px 10px no-repeat;
-    opacity: 0;
+    top: 12px;
+    right: 14px;
+    width: 22px;
+    height: 22px;
+    background: var(--theme-sparkle) center / contain no-repeat;
+    opacity: 0.85;
     pointer-events: none;
-    transition: opacity 0.2s ease;
-}
-.btn-primario:hover::before {
-    opacity: 1;
-}
-.btn-primario:hover {
-    background: var(--accent-gradient-hover);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 0 var(--line);
-}
-.btn-primario:active {
-    transform: translateY(2px);
-    box-shadow: 0 1px 0 var(--line);
 }
 
-/* ================================================================
-   10. INPUTS
-   ================================================================ */
-.config-field input,
-.config-field select,
-.config-select {
+/* Cards de packs */
+.pack-card,
+.space-pack,
+.upgrade-pack {
+    position: relative;
     background: #FFFDF8;
-    border: 2px solid var(--line-soft);
-    color: var(--text);
-    border-radius: var(--r-md);
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-.config-field input:focus,
-.config-field select:focus,
-.config-select:focus {
-    border-color: var(--violet-400);
-    box-shadow: var(--shadow-glow);
-    outline: none;
-}
-
-/* ================================================================
-   11. AVATAR, NOTIFICACIONES Y BÚSQUEDA
-   ================================================================ */
-.avatar-config {
-    background: #FFFDF8;
-    border: 2px solid var(--line);
-    box-shadow: 0 2px 0 rgba(107, 90, 86, 0.30);
+    border: 2px solid var(--app-brown-line);
+    border-radius: var(--r-lg);
+    box-shadow: 3px 4px 0 var(--app-peach);
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.avatar-config:hover {
-    transform: translateY(-1px) scale(1.06);
-    box-shadow: 0 4px 0 rgba(107, 90, 86, 0.30);
+.pack-card:hover,
+.space-pack:hover,
+.upgrade-pack:hover {
+    transform: translate(-1px, -2px);
+    box-shadow: 4px 6px 0 var(--app-peach-deep);
 }
 
-.noti-btn.tiene-no-leidas {
-    background: var(--violet-100);
-    color: var(--violet-600);
+/* Texto de precio */
+.pack-price,
+.pack-cost {
+    color: var(--app-brown);
+    font-weight: 700;
 }
 
-.search-bar:focus-within {
-    border-color: var(--violet-400);
-    box-shadow: var(--shadow-glow);
-}
-.search-bar:focus-within .search-icon {
-    color: var(--violet-500);
+/* Badge del descuento (-50, -200, -350) */
+.pack-save,
+.pack-discount {
+    background: var(--app-brown-soft);
+    color: #FFFDF8;
+    border: 2px solid var(--line);
+    box-shadow: 1px 1px 0 var(--line);
+    border-radius: var(--r-full);
+    font-weight: 800;
 }
 
 /* ================================================================
-   12. RESPONSIVE — en pantallas chicas los personajes del hero
-   se esconden para no pisar el texto
+   6. CARDS DE APP internas (SISTEMA, CREATIVIDAD)
+   ================================================================ */
+.app-card,
+.system-card,
+.creativity-card {
+    position: relative;
+    background: #FFFDF8;
+    border: 2px solid var(--app-brown-line);
+    border-radius: var(--r-lg);
+    box-shadow: 3px 4px 0 var(--app-peach);
+    transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.app-card:hover,
+.system-card:hover,
+.creativity-card:hover {
+    transform: translate(-1px, -3px) rotate(-0.4deg);
+    box-shadow: 5px 7px 0 var(--app-peach-deep);
+}
+
+/* Ícono de la card: crema con marrón */
+.app-card .app-card-icon,
+.system-card .app-card-icon {
+    background: var(--app-cream);
+    border: 2px solid var(--app-brown-line);
+    border-radius: var(--r-md);
+    box-shadow: 0 2px 0 rgba(107, 90, 86, 0.25);
+    color: var(--app-brown);
+}
+
+/* Badge "SISTEMA" */
+.app-card .app-badge,
+.system-badge {
+    background: var(--app-cream);
+    color: var(--app-brown);
+    border: 2px solid var(--app-brown-line);
+    box-shadow: 1px 1px 0 var(--app-brown-line);
+    border-radius: var(--r-full);
+    font-weight: 700;
+    font-size: 0.65rem;
+    padding: 1px 8px;
+}
+
+/* Estado ACTIVA */
+.app-card .app-status,
+.app-status-active {
+    color: #4A8A4A;
+    font-weight: 700;
+}
+.app-card .app-status [data-lucide],
+.app-status-active [data-lucide] {
+    color: #4A8A4A;
+}
+
+/* Botón "Abrir" */
+.app-card .app-open-btn,
+.app-open-btn {
+    background: #FFFDF8;
+    border: 2px solid var(--app-brown-line);
+    border-radius: var(--r-full);
+    box-shadow: 2px 2px 0 var(--app-peach);
+    color: var(--app-brown);
+    font-weight: 700;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.app-card .app-open-btn:hover,
+.app-open-btn:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 var(--app-peach-deep);
+    background: var(--app-cream);
+    color: var(--app-brown);
+}
+
+/* ================================================================
+   7. CARDS DE LOGROS / PROGRESO — crema + marrón
+   ================================================================ */
+.achievement-card,
+.progress-card {
+    background:
+        radial-gradient(circle at 15% 20%, rgba(255, 253, 248, 0.8) 0%, transparent 45%),
+        linear-gradient(180deg, #FFFCF0 0%, var(--app-cream-deep) 100%);
+    border: 2px solid var(--app-brown-line);
+    border-radius: var(--r-lg);
+    box-shadow: 3px 4px 0 var(--app-peach-deep);
+    position: relative;
+    color: var(--app-brown);
+}
+.achievement-card::after,
+.progress-card::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    width: 18px;
+    height: 18px;
+    background: var(--theme-sparkle) center / contain no-repeat;
+    opacity: 0.8;
+    pointer-events: none;
+}
+
+/* Ícono trofeo: marrón */
+.achievement-card .achievement-icon,
+.progress-card .progress-icon {
+    background: linear-gradient(180deg, var(--app-brown-soft) 0%, var(--app-brown) 100%);
+    border: 2px solid var(--line);
+    border-radius: var(--r-md);
+    box-shadow: 2px 2px 0 rgba(107, 90, 86, 0.30);
+    color: #FFFDF8;
+}
+
+/* Barra de progreso: marrón sobre crema */
+.progress-bar,
+.achievement-bar {
+    background: rgba(107, 90, 86, 0.10);
+    border: 2px solid var(--app-brown-line);
+    border-radius: var(--r-full);
+    overflow: hidden;
+}
+.progress-bar-fill,
+.achievement-bar-fill {
+    background: linear-gradient(90deg, var(--app-brown-light), var(--app-brown));
+    height: 100%;
+    border-radius: var(--r-full);
+    transition: width 0.4s ease;
+}
+
+/* ================================================================
+   8. BOTONES GENÉRICOS DE LA UI
+   ================================================================ */
+.btn-secundario,
+.btn-ghost {
+    background: #FFFDF8;
+    border: 2px solid var(--app-brown-line);
+    border-radius: var(--r-full);
+    box-shadow: 2px 2px 0 var(--app-peach);
+    color: var(--app-brown);
+    font-weight: 700;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.btn-secundario:hover,
+.btn-ghost:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 var(--app-peach-deep);
+    background: var(--app-cream);
+}
+
+/* Link "Ver todas →" */
+.ver-todas,
+.see-all,
+.link-ver-todas {
+    color: var(--app-brown);
+    font-weight: 700;
+    transition: color 0.15s ease, transform 0.15s ease;
+}
+.ver-todas:hover,
+.see-all:hover {
+    color: var(--app-brown-soft);
+    transform: translateX(2px);
+}
+
+/* ================================================================
+   9. RESPONSIVE
    ================================================================ */
 @media (max-width: 640px) {
-    .welcome-hero::before,
-    .welcome-hero::after {
-        display: none;
+    .nav-item .nav-icon {
+        width: 24px;
+        height: 24px;
     }
-    .welcome-section::before {
-        right: 22px;
+    .header-info,
+    .header-status,
+    .clock-widget,
+    .weather-widget,
+    .coins-widget {
+        padding: 3px 8px;
     }
 }
 
 /* ================================================================
-   13. prefers-reduced-motion
+   10. prefers-reduced-motion
    ================================================================ */
 @media (prefers-reduced-motion: reduce) {
-    .welcome-placeholder::after,
-    .welcome-hero::before,
-    .welcome-hero::after,
-    .welcome-icon-wrap {
+    .noti-btn.tiene-no-leidas {
         animation: none !important;
     }
     .acceso-item,
@@ -700,7 +656,16 @@
     .widget-item,
     .btn-primario,
     .sidebar-comunidad,
-    .nav-item {
+    .nav-item,
+    .search-bar,
+    .noti-btn,
+    .pack-card,
+    .app-card,
+    .system-card,
+    .creativity-card,
+    .app-open-btn,
+    .btn-secundario,
+    .btn-ghost {
         transition: none !important;
     }
 }
