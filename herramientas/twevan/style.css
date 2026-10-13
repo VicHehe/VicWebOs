@@ -804,7 +804,6 @@ body {
     background: var(--white, #FFFFFF);
 }
 
-/* Contenedor principal de dos columnas */
 .tv-ver-layout {
     display: flex;
     flex: 1;
@@ -831,7 +830,6 @@ body {
     flex: 1;
 }
 
-/* Autor */
 .tv-ver-autor { display: flex; align-items: center; gap: 12px; }
 .tv-ver-autor-info { min-width: 0; }
 .tv-ver-autor-nombre {
@@ -849,7 +847,6 @@ body {
     margin-top: 2px;
 }
 
-/* Texto */
 .tv-ver-texto {
     font-size: 16px;
     line-height: 1.55;
@@ -859,7 +856,6 @@ body {
     word-break: break-word;
 }
 
-/* Imagen: contenida y con proporción correcta */
 .tv-ver-imagen {
     border-radius: 16px;
     overflow: hidden;
@@ -881,7 +877,6 @@ body {
 }
 .tv-ver-imagen:empty { display: none; }
 
-/* Meta (tiempo) */
 .tv-ver-meta {
     font-size: 13px;
     color: var(--gray-500, #71717A);
@@ -889,7 +884,6 @@ body {
     padding-bottom: 4px;
 }
 
-/* Acciones (like, comentarios, editar/borrar) */
 .tv-ver-acciones {
     display: flex;
     align-items: center;
@@ -949,7 +943,6 @@ body {
     stroke-width: 1.5;
 }
 
-/* Comentario individual */
 .tv-comentario { display: flex; gap: 10px; align-items: flex-start; }
 .tv-comentario-cuerpo { flex: 1; min-width: 0; }
 .tv-comentario-autor {
@@ -974,7 +967,6 @@ body {
     margin-top: 3px;
 }
 
-/* Botón responder */
 .tv-btn-responder {
     display: inline-flex;
     align-items: center;
@@ -999,7 +991,6 @@ body {
 }
 .tv-btn-responder [data-lucide] { width: 12px; height: 12px; }
 
-/* Respuesta anidada */
 .tv-respuesta {
     display: flex;
     gap: 8px;
@@ -1011,7 +1002,6 @@ body {
 }
 .tv-respuesta-cuerpo { flex: 1; min-width: 0; }
 
-/* Input de respuesta anidada */
 .tv-input-respuesta {
     display: flex;
     gap: 6px;
@@ -1035,7 +1025,6 @@ body {
     box-shadow: 0 0 0 3px var(--shadow-glow, rgba(139,92,246,0.10));
 }
 
-/* Input de comentario principal (dentro de la columna derecha) */
 .tv-ver-input-wrap {
     display: flex;
     gap: 8px;
@@ -1254,36 +1243,56 @@ body {
     .tv-ver-imagen img { max-height: 380px; }
 }
 
-/* Tablet / móvil: apilado vertical (una sola columna) */
+/* Tablet / móvil: apilado vertical (una sola columna)
+   Cada panel tiene su propio scroll para que el input quede SIEMPRE visible. */
 @media (max-width: 780px) {
     .tv-ver-layout {
         flex-direction: column;
-        overflow-y: auto;
+        overflow: hidden;   /* NO scrollea el layout, scrollean los paneles */
     }
+
+    /* Panel superior: el tweet. Altura máxima y scroll propio. */
     .tv-ver-tweet-panel {
-        flex: none;
+        flex: 0 0 auto;
         max-width: 100%;
+        max-height: 45dvh;
         border-right: none;
         border-bottom: 1px solid var(--border, #E8E8EE);
-        overflow: visible;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
+
     .tv-ver-tweet {
-        padding: 16px;
+        padding: 14px 16px;
+        gap: 10px;
     }
+
+    /* Panel inferior: respuestas. Ocupa el resto y el input queda fijo abajo. */
     .tv-ver-replies-panel {
-        flex: 1;
+        flex: 1 1 auto;
         min-height: 0;
         overflow: hidden;
     }
+
     .tv-ver-comentarios {
-        padding: 14px 16px;
-    }
-    .tv-ver-input-wrap {
         padding: 12px 16px;
+        gap: 14px;
     }
+
+    /* Input pegado al fondo, con respeto del safe-area del iPhone */
+    .tv-ver-input-wrap {
+        padding: 10px 14px;
+        padding-bottom: max(10px, env(safe-area-inset-bottom));
+    }
+
+    /* La imagen ya no ocupa tanto para dejar lugar a las respuestas */
     .tv-ver-imagen,
     .tv-ver-imagen img {
-        max-height: 280px;
+        max-height: 200px;
+    }
+
+    .tv-ver-texto {
+        font-size: 14.5px;
     }
 }
 
@@ -1321,11 +1330,7 @@ body {
     .tv-banco-btn-sec span { display: none; }
 
     .tv-ver-imagen,
-    .tv-ver-imagen img { max-height: 260px; }
-    .tv-ver-tweet { padding: 14px; }
-    .tv-ver-texto { font-size: 14.5px; }
-    .tv-ver-comentarios { padding: 12px 14px; gap: 14px; }
-    .tv-ver-input-wrap { padding: 10px 14px; }
+    .tv-ver-imagen img { max-height: 180px; }
 }
 
 @media (max-width: 400px) {
