@@ -49,6 +49,15 @@ var CUADROS_DISPONIBLES = [
         categoria: 'Frutas',
         monedas: 5
     },
+    {
+        id: 'suculenta',
+        nombre: 'Suculenta Roseta',
+        icono: 'shrub',
+        ruta: 'Cuadros/suculenta/index.html',
+        descripcion: 'Una suculenta en maceta que se mece con brillos en sus hojas.',
+        categoria: 'Plantas',
+        monedas: 5
+    },
 
     // ─── Nivel 10: básico ─────────────────────────────────────
     {
@@ -107,6 +116,15 @@ var CUADROS_DISPONIBLES = [
         ruta: 'Cuadros/gatito-bebe/index.html',
         descripcion: 'Un gatito cabezón de grandes ojos con mariposa.',
         categoria: 'Animales',
+        monedas: 20
+    },
+    {
+        id: 'helecho',
+        nombre: 'Helecho Arqueado',
+        icono: 'leaf',
+        ruta: 'Cuadros/helecho/index.html',
+        descripcion: 'Un helecho en maceta cuyas frondas se mecen con la brisa.',
+        categoria: 'Plantas',
         monedas: 20
     },
 
