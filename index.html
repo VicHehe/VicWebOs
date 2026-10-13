@@ -147,6 +147,41 @@
                             </div>
                             <div id="widgetsZona" class="widgets-zona"></div>
                         </div>
+
+                        <!-- ============================================================
+                             PUBLIC MINI ZONE — chat público portátil del lobby
+                             Muestra los últimos 8 mensajes del chat público global.
+                             Se oculta si no hay sesión o comunidad conectada.
+                             ============================================================ -->
+                        <div class="welcome-section" id="welcomePublicZoneSection" style="display:none;">
+                            <div class="welcome-section-header">
+                                <h2><i data-lucide="megaphone"></i> Public Mini Zone</h2>
+                                <button class="btn-ver-todas" id="btnAbrirPublicZone">
+                                    Abrir completo <i data-lucide="arrow-right"></i>
+                                </button>
+                            </div>
+
+                            <div class="pmz-card" id="pmzCard">
+                                <div class="pmz-mensajes" id="pmzMensajes">
+                                    <div class="pmz-vacio">
+                                        <i data-lucide="message-circle"></i>
+                                        <span>Cargando mensajes…</span>
+                                    </div>
+                                </div>
+
+                                <div class="pmz-input-bar">
+                                    <input type="text"
+                                           id="pmzInput"
+                                           maxlength="120"
+                                           placeholder="Escribí algo para la comunidad..."
+                                           autocomplete="off">
+                                    <button class="pmz-btn-enviar" id="pmzBtnEnviar" disabled title="Enviar">
+                                        <i data-lucide="send"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </main>
@@ -940,6 +975,7 @@
     <script src="js/JsIndex.js"></script>
     <script src="js/Notificaciones.js"></script>
     <script src="js/MobileUI.js"></script>
+    <script src="js/PublicZone.js"></script>
     <script>lucide.createIcons();</script>
 </body>
 </html>
