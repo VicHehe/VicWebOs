@@ -523,101 +523,110 @@ function renderVerPost() {
     const esMio = post.autor === usuarioActual.codigo;
 
     cont.innerHTML = `
-        <div class="tv-ver-tweet">
-            <div class="tv-ver-autor">
-                <div class="tv-avatar">
-                    ${foto ? `<img src="${foto}" alt="">` : `<span>${escapar((nombre || '?').charAt(0).toUpperCase())}</span>`}
-                </div>
-                <div class="tv-ver-autor-info">
-                    <div class="tv-ver-autor-nombre">
-                        ${escapar(nombre)}
-                        ${verif ? '<i data-lucide="badge-check" class="tv-verif"></i>' : ''}
+        <div class="tv-ver-layout">
+            <!-- Columna izquierda: el tweet -->
+            <div class="tv-ver-tweet-panel">
+                <div class="tv-ver-tweet">
+                    <div class="tv-ver-autor">
+                        <div class="tv-avatar">
+                            ${foto ? `<img src="${foto}" alt="">` : `<span>${escapar((nombre || '?').charAt(0).toUpperCase())}</span>`}
+                        </div>
+                        <div class="tv-ver-autor-info">
+                            <div class="tv-ver-autor-nombre">
+                                ${escapar(nombre)}
+                                ${verif ? '<i data-lucide="badge-check" class="tv-verif"></i>' : ''}
+                            </div>
+                            <div class="tv-ver-autor-handle">${escapar(handle)}</div>
+                        </div>
                     </div>
-                    <div class="tv-ver-autor-handle">${escapar(handle)}</div>
+                    <div class="tv-ver-texto">${escapar(post.texto || '')}</div>
+                    <div class="tv-ver-imagen" id="tvVerImagen"></div>
+                    <div class="tv-ver-meta">${tiempoRelativo(post.creado)}${post.editado ? ' · editado' : ''}</div>
+                    <div class="tv-ver-acciones">
+                        <button class="tv-btn-like ${liked ? 'liked' : ''}" id="tvVerBtnLike">
+                            <i data-lucide="heart"></i><span>${likes}</span>
+                        </button>
+                        <span class="tv-ver-comentarios-meta">
+                            <i data-lucide="message-circle"></i>
+                            <span>${comLista.length} ${comLista.length === 1 ? 'comentario' : 'comentarios'}</span>
+                        </span>
+                        ${esMio ? `
+                            <div class="tv-ver-acciones-der">
+                                <button class="tv-icon-btn" id="tvVerBtnEditar" title="Editar"><i data-lucide="pencil"></i></button>
+                                <button class="tv-icon-btn tv-icon-btn-danger" id="tvVerBtnBorrar" title="Eliminar"><i data-lucide="trash-2"></i></button>
+                            </div>` : ''}
+                    </div>
                 </div>
             </div>
-            <div class="tv-ver-texto">${escapar(post.texto || '')}</div>
-            <div class="tv-ver-imagen" id="tvVerImagen"></div>
-            <div class="tv-ver-meta">${tiempoRelativo(post.creado)}${post.editado ? ' · editado' : ''}</div>
-            <div class="tv-ver-acciones">
-                <button class="tv-btn-like ${liked ? 'liked' : ''}" id="tvVerBtnLike">
-                    <i data-lucide="heart"></i><span>${likes}</span>
-                </button>
-                <span class="tv-ver-comentarios-meta">
-                    <i data-lucide="message-circle"></i>
-                    <span>${comLista.length} ${comLista.length === 1 ? 'comentario' : 'comentarios'}</span>
-                </span>
-                ${esMio ? `
-                    <div class="tv-ver-acciones-der">
-                        <button class="tv-icon-btn" id="tvVerBtnEditar" title="Editar"><i data-lucide="pencil"></i></button>
-                        <button class="tv-icon-btn tv-icon-btn-danger" id="tvVerBtnBorrar" title="Eliminar"><i data-lucide="trash-2"></i></button>
-                    </div>` : ''}
+
+            <!-- Columna derecha: respuestas -->
+            <div class="tv-ver-replies-panel">
+                <div class="tv-ver-comentarios">
+                    ${comLista.length === 0 ? `
+                        <div class="tv-comentarios-vacio">
+                            <i data-lucide="message-circle"></i>
+                            <p>Sé el primero en comentar</p>
+                        </div>` : comLista.map(c => {
+                            const u = usuariosPorCodigo[c.codigo] || {};
+                            const p = data.perfiles[c.codigo] || {};
+                            const n = p.nombre || u.nombre || c.codigo;
+                            const f = u.foto || null;
+                            const vf = tieneTwePlus(c.codigo);
+                            const propio = c.codigo === usuarioActual.codigo;
+                            let respHTML = '';
+                            if (c.respuesta) {
+                                const ur = usuariosPorCodigo[c.respuesta.autor] || {};
+                                const pr = data.perfiles[c.respuesta.autor] || {};
+                                const nr = pr.nombre || ur.nombre || c.respuesta.autor;
+                                const fr = ur.foto || null;
+                                const vfr = tieneTwePlus(c.respuesta.autor);
+                                respHTML = `
+                                    <div class="tv-respuesta">
+                                        <div class="tv-avatar tv-avatar-sm">
+                                            ${fr ? `<img src="${fr}" alt="">` : `<span>${escapar((nr || '?').charAt(0).toUpperCase())}</span>`}
+                                        </div>
+                                        <div class="tv-respuesta-cuerpo">
+                                            <div class="tv-comentario-autor">
+                                                ${escapar(nr)}
+                                                ${vfr ? '<i data-lucide="badge-check" class="tv-verif"></i>' : ''}
+                                            </div>
+                                            <div class="tv-comentario-texto">${escapar(c.respuesta.texto)}</div>
+                                            <div class="tv-comentario-tiempo">${tiempoRelativo(c.respuesta.creado)}</div>
+                                        </div>
+                                    </div>`;
+                            } else {
+                                respHTML = `
+                                    <button class="tv-btn-responder" data-comentario="${escapar(c.codigo)}">
+                                        <i data-lucide="corner-down-right"></i> Responder
+                                    </button>`;
+                            }
+                            return `
+                                <div class="tv-comentario ${propio ? 'propio' : ''}">
+                                    <div class="tv-avatar tv-avatar-sm">
+                                        ${f ? `<img src="${f}" alt="">` : `<span>${escapar((n || '?').charAt(0).toUpperCase())}</span>`}
+                                    </div>
+                                    <div class="tv-comentario-cuerpo">
+                                        <div class="tv-comentario-autor">
+                                            ${escapar(n)}${propio ? ' (vos)' : ''}
+                                            ${vf ? '<i data-lucide="badge-check" class="tv-verif"></i>' : ''}
+                                        </div>
+                                        <div class="tv-comentario-texto">${escapar(c.texto)}</div>
+                                        <div class="tv-comentario-tiempo">${tiempoRelativo(c.creado)}</div>
+                                        ${respHTML}
+                                    </div>
+                                </div>`;
+                        }).join('')}
+                </div>
+                <div class="tv-ver-input-wrap">
+                    <input type="text" id="tvVerInputComentario"
+                           maxlength="${MAX_COMENTARIO}"
+                           placeholder="${miComentario ? 'Actualizá tu comentario...' : 'Escribí un comentario...'}"
+                           value="${escapar(miComentario?.texto || '')}">
+                    <button class="tv-btn-enviar" id="tvVerBtnEnviar"><i data-lucide="send"></i></button>
+                </div>
+                ${miComentario ? `<div class="tv-ver-input-aviso">Ya comentaste. Podés actualizar tu comentario.</div>` : ''}
             </div>
         </div>
-        <div class="tv-ver-comentarios">
-            ${comLista.length === 0 ? `
-                <div class="tv-comentarios-vacio">
-                    <i data-lucide="message-circle"></i>
-                    <p>Sé el primero en comentar</p>
-                </div>` : comLista.map(c => {
-                    const u = usuariosPorCodigo[c.codigo] || {};
-                    const p = data.perfiles[c.codigo] || {};
-                    const n = p.nombre || u.nombre || c.codigo;
-                    const f = u.foto || null;
-                    const vf = tieneTwePlus(c.codigo);
-                    const propio = c.codigo === usuarioActual.codigo;
-                    let respHTML = '';
-                    if (c.respuesta) {
-                        const ur = usuariosPorCodigo[c.respuesta.autor] || {};
-                        const pr = data.perfiles[c.respuesta.autor] || {};
-                        const nr = pr.nombre || ur.nombre || c.respuesta.autor;
-                        const fr = ur.foto || null;
-                        const vfr = tieneTwePlus(c.respuesta.autor);
-                        respHTML = `
-                            <div class="tv-respuesta">
-                                <div class="tv-avatar tv-avatar-sm">
-                                    ${fr ? `<img src="${fr}" alt="">` : `<span>${escapar((nr || '?').charAt(0).toUpperCase())}</span>`}
-                                </div>
-                                <div class="tv-respuesta-cuerpo">
-                                    <div class="tv-comentario-autor">
-                                        ${escapar(nr)}
-                                        ${vfr ? '<i data-lucide="badge-check" class="tv-verif"></i>' : ''}
-                                    </div>
-                                    <div class="tv-comentario-texto">${escapar(c.respuesta.texto)}</div>
-                                    <div class="tv-comentario-tiempo">${tiempoRelativo(c.respuesta.creado)}</div>
-                                </div>
-                            </div>`;
-                    } else {
-                        respHTML = `
-                            <button class="tv-btn-responder" data-comentario="${escapar(c.codigo)}">
-                                <i data-lucide="corner-down-right"></i> Responder
-                            </button>`;
-                    }
-                    return `
-                        <div class="tv-comentario ${propio ? 'propio' : ''}">
-                            <div class="tv-avatar tv-avatar-sm">
-                                ${f ? `<img src="${f}" alt="">` : `<span>${escapar((n || '?').charAt(0).toUpperCase())}</span>`}
-                            </div>
-                            <div class="tv-comentario-cuerpo">
-                                <div class="tv-comentario-autor">
-                                    ${escapar(n)}${propio ? ' (vos)' : ''}
-                                    ${vf ? '<i data-lucide="badge-check" class="tv-verif"></i>' : ''}
-                                </div>
-                                <div class="tv-comentario-texto">${escapar(c.texto)}</div>
-                                <div class="tv-comentario-tiempo">${tiempoRelativo(c.creado)}</div>
-                                ${respHTML}
-                            </div>
-                        </div>`;
-                }).join('')}
-        </div>
-        <div class="tv-ver-input-wrap">
-            <input type="text" id="tvVerInputComentario"
-                   maxlength="${MAX_COMENTARIO}"
-                   placeholder="${miComentario ? 'Actualizá tu comentario...' : 'Escribí un comentario...'}"
-                   value="${escapar(miComentario?.texto || '')}">
-            <button class="tv-btn-enviar" id="tvVerBtnEnviar"><i data-lucide="send"></i></button>
-        </div>
-        ${miComentario ? `<div class="tv-ver-input-aviso">Ya comentaste. Podés actualizar tu comentario.</div>` : ''}
     `;
 
     if (post.imagenId) {
