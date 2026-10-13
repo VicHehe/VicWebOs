@@ -91,16 +91,16 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 0
     },
     {
-        id: 'delantedelmuro',
-        nombre: 'Delante del muro',
-        icono: 'book-user',
-        ruta: 'herramientas/delantedelmuro/index.html',
-        descripcion: 'Dejá un mensaje en el muro de tus amigos. Escribí, likear y comentá. Simple y directo.',
-        categoria: 'Sistema',
-        esBase: true,
-        esDefault: true,
-        espacio: 0,
-        monedas: 0
+    id: 'delantedelmuro',
+    nombre: 'Delante del muro',
+    icono: 'message-square-quote',
+    ruta: 'herramientas/delantedelmuro/index.html',
+    descripcion: 'Dejá un mensaje en el muro de tus amigos. Escribí, likear y comentá. Simple y directo.',
+    categoria: 'Sistema',
+    esBase: true,
+    esDefault: true,
+    espacio: 0,
+    monedas: 0
     },
     {
         id: 'public-zone',
