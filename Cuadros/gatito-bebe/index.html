@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gatito Bebé</title>
+    <style>
+        html, body {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 40%, #FFF5F8 0%, #FCE7F3 55%, #FBCFE8 100%);
+        }
+        svg { display: block; width: 100%; height: 100%; }
+
+        /* Todo el gatito flota suavemente */
+        .gato {
+            transform-box: view-box;
+            transform-origin: 45px 100px;
+            animation: flotar 4s ease-in-out infinite;
+        }
+        @keyframes flotar {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-2.5px); }
+        }
+
+        /* Orejas */
+        .oreja-izq {
+            transform-box: view-box;
+            transform-origin: 33px 72px;
+            animation: orejaIzq 3s ease-in-out infinite;
+        }
+        .oreja-der {
+            transform-box: view-box;
+            transform-origin: 57px 72px;
+            animation: orejaDer 3.3s ease-in-out infinite;
+        }
+        @keyframes orejaIzq {
+            0%, 100% { transform: rotate(0deg); }
+            50%      { transform: rotate(-6deg); }
+        }
+        @keyframes orejaDer {
+            0%, 100% { transform: rotate(0deg); }
+            50%      { transform: rotate(6deg); }
+        }
+
+        /* Ojos que parpadean cada 4 segundos */
+        .parpado {
+            transform-box: view-box;
+            animation: parpadeo 5s ease-in-out infinite;
+        }
+        @keyframes parpadeo {
+            0%, 45%, 55%, 100% { transform: scaleY(0); }
+            50%                { transform: scaleY(1); }
+        }
+
+        /* Cola oscilando */
+        .cola {
+            transform-box: view-box;
+            transform-origin: 62px 120px;
+            animation: cola 2.5s ease-in-out infinite;
+        }
+        @keyframes cola {
+            0%, 100% { transform: rotate(-4deg); }
+            50%      { transform: rotate(6deg); }
+        }
+
+        /* Bigotes temblorosos */
+        .bigotes {
+            animation: bigoteTic 3s ease-in-out infinite;
+        }
+        @keyframes bigoteTic {
+            0%, 100% { opacity: 0.7; }
+            50%      { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+<svg viewBox="0 0 90 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <radialGradient id="gt-body" cx="0.4" cy="0.35" r="0.7">
+            <stop offset="0" stop-color="#FFEDD5"/>
+            <stop offset="1" stop-color="#FED7AA"/>
+        </radialGradient>
+        <radialGradient id="gt-head" cx="0.4" cy="0.35" r="0.75">
+            <stop offset="0" stop-color="#FFF7ED"/>
+            <stop offset="1" stop-color="#FED7AA"/>
+        </radialGradient>
+    </defs>
+
+    <!-- Sombra -->
+    <ellipse cx="45" cy="140" rx="20" ry="2.5" fill="#9A3412" opacity="0.15"/>
+
+    <g class="gato">
+
+        <!-- Cola (detrás) -->
+        <path class="cola"
+              d="M62,120 C68,122 74,120 76,114 C78,108 74,104 70,106"
+              fill="none" stroke="#FED7AA" stroke-width="4" stroke-linecap="round"/>
+        <path class="cola"
+              d="M62,120 C68,122 74,120 76,114 C78,108 74,104 70,106"
+              fill="none" stroke="#FB923C" stroke-width="1.2" stroke-linecap="round"
+              opacity="0.5"/>
+
+        <!-- Cuerpo (gordito) -->
+        <ellipse cx="45" cy="115" rx="19" ry="20" fill="url(#gt-body)"/>
+
+        <!-- Patitas delanteras -->
+        <ellipse cx="37" cy="130" rx="5" ry="4" fill="#FFEDD5"/>
+        <ellipse cx="53" cy="130" rx="5" ry="4" fill="#FFEDD5"/>
+        <circle cx="35.5" cy="131" r="0.7" fill="#9A3412" opacity="0.6"/>
+        <circle cx="38.5" cy="131" r="0.7" fill="#9A3412" opacity="0.6"/>
+        <circle cx="51.5" cy="131" r="0.7" fill="#9A3412" opacity="0.6"/>
+        <circle cx="54.5" cy="131" r="0.7" fill="#9A3412" opacity="0.6"/>
+
+        <!-- Oreja izquierda -->
+        <g class="oreja-izq">
+            <path d="M33,80 L29,64 L42,72 Z" fill="#FED7AA"/>
+            <path d="M33,78 L31,68 L39,73 Z" fill="#FBCFE8"/>
+        </g>
+        <!-- Oreja derecha -->
+        <g class="oreja-der">
+            <path d="M57,80 L61,64 L48,72 Z" fill="#FED7AA"/>
+            <path d="M57,78 L59,68 L51,73 Z" fill="#FBCFE8"/>
+        </g>
+
+        <!-- Cabeza (grande, cabezón) -->
+        <ellipse cx="45" cy="90" rx="19" ry="18" fill="url(#gt-head)"/>
+
+        <!-- Mejillas rosadas -->
+        <ellipse cx="34" cy="94" rx="3.5" ry="2.2" fill="#FBCFE8" opacity="0.75"/>
+        <ellipse cx="56" cy="94" rx="3.5" ry="2.2" fill="#FBCFE8" opacity="0.75"/>
+
+        <!-- Ojos grandes -->
+        <ellipse cx="38" cy="88" rx="3.5" ry="4" fill="#1F2937"/>
+        <ellipse cx="52" cy="88" rx="3.5" ry="4" fill="#1F2937"/>
+        <!-- Brillo del ojo -->
+        <circle cx="37" cy="86.5" r="1.2" fill="white"/>
+        <circle cx="51" cy="86.5" r="1.2" fill="white"/>
+        <circle cx="39" cy="89.5" r="0.6" fill="white" opacity="0.7"/>
+        <circle cx="53" cy="89.5" r="0.6" fill="white" opacity="0.7"/>
+        <!-- Párpados que bajan al parpadear -->
+        <rect class="parpado" x="34" y="83" width="8" height="8"
+              fill="#FED7AA" style="animation-delay:0s"/>
+        <rect class="parpado" x="48" y="83" width="8" height="8"
+              fill="#FED7AA" style="animation-delay:0s"/>
+
+        <!-- Naricita -->
+        <path d="M43,95 L45,97 L47,95 Z" fill="#FB7185"/>
+        <line x1="45" y1="97" x2="45" y2="100"
+              stroke="#FB7185" stroke-width="0.6"/>
+        <path d="M42,100 Q45,102 48,100" fill="none"
+              stroke="#FB7185" stroke-width="0.6" stroke-linecap="round"/>
+
+        <!-- Bigotes -->
+        <g class="bigotes" stroke="#9A3412" stroke-width="0.4" stroke-linecap="round">
+            <line x1="30" y1="95" x2="24" y2="93"/>
+            <line x1="30" y1="97" x2="24" y2="97"/>
+            <line x1="30" y1="99" x2="24" y2="101"/>
+            <line x1="60" y1="95" x2="66" y2="93"/>
+            <line x1="60" y1="97" x2="66" y2="97"/>
+            <line x1="60" y1="99" x2="66" y2="101"/>
+        </g>
+
+        <!-- Rayas de la frente -->
+        <path d="M41,78 L43,82 M45,76 L45,82 M49,78 L47,82"
+              stroke="#FB923C" stroke-width="0.6" opacity="0.5" stroke-linecap="round"/>
+    </g>
+</svg>
+</body>
+</html>
