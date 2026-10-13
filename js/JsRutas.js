@@ -12,7 +12,7 @@
 //    8  → app compleja (polling, editor, picker, multi-vista)
 //    10 → app muy compleja (WebRTC, MediaRecorder, multi-vista)
 //    12 → app muy compleja pero gratuitas
-
+//
 //  ESCALA DE PRECIO (0 a 250):
 //    0     → base del SO (un SO lo trae por defecto)
 //    0     → juegos gratis (excepción: son la base económica)
@@ -78,22 +78,46 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 0,
         monedas: 0
     },
+    {
+        id: 'camara',
+        nombre: 'Cámara',
+        icono: 'camera',
+        ruta: 'herramientas/camara/index.html',
+        descripcion: 'Saca fotos con filtros y marcos. Descárgalas o mándalas a la galería.',
+        categoria: 'Sistema',
+        esBase: true,
+        esDefault: true,
+        espacio: 0,
+        monedas: 0
+    },
+    {
+        id: 'delantedelmuro',
+        nombre: 'Delante del muro',
+        icono: 'message-square-quote',
+        ruta: 'herramientas/delantedelmuro/index.html',
+        descripcion: 'Dejá un mensaje en el muro de tus amigos. Escribí, likear y comentá. Simple y directo.',
+        categoria: 'Sistema',
+        esBase: true,
+        esDefault: true,
+        espacio: 0,
+        monedas: 0
+    },
 
     // ============================================================
     //  CREATIVIDAD
     // ============================================================
     {
-    id: 'memevics',
-    nombre: 'Meme Sculptor',
-    icono: 'laugh',
-    ruta: 'herramientas/memevics/index.html',
-    descripcion: 'Creá memes en segundos. Elegí imagen de tu galería o subí una, escribí los textos y exportá a PNG o Galería.',
-    categoria: 'Creatividad',
-    esBase: false,
-    espacio: 4,
-    monedas: 20
-},
-        {
+        id: 'memevics',
+        nombre: 'Meme Sculptor',
+        icono: 'laugh',
+        ruta: 'herramientas/memevics/index.html',
+        descripcion: 'Creá memes en segundos. Elegí imagen de tu galería o subí una, escribí los textos y exportá a PNG o Galería.',
+        categoria: 'Creatividad',
+        esBase: false,
+        espacio: 4,
+        monedas: 20
+    },
+    {
         id: 'piano',
         nombre: 'Piano Virtual',
         icono: 'piano',
@@ -105,17 +129,17 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 40
     },
     {
-    id: 'tillyporgrafo',
-    nombre: 'TillyPorgrafo',
-    icono: 'type',
-    ruta: 'herramientas/tillyporgrafo/index.html',
-    descripcion: 'Diseñá tu propia fuente letra por letra. Guías tipográficas, vista previa en vivo y export a TTF instalable.',
-    categoria: 'Creatividad',
-    esBase: false,
-    espacio: 6,
-    monedas: 65
-},
-        {
+        id: 'tillyporgrafo',
+        nombre: 'TillyPorgrafo',
+        icono: 'type',
+        ruta: 'herramientas/tillyporgrafo/index.html',
+        descripcion: 'Diseñá tu propia fuente letra por letra. Guías tipográficas, vista previa en vivo y export a TTF instalable.',
+        categoria: 'Creatividad',
+        esBase: false,
+        espacio: 6,
+        monedas: 65
+    },
+    {
         id: 'ocs',
         nombre: 'Mis OCs',
         icono: 'sparkles',
@@ -127,20 +151,20 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 90
     },
     {
-    id: 'flipovics',
-    nombre: 'FlipoVics',
-    icono: 'film',
-    ruta: 'herramientas/flipovics/index.html',
-    descripcion: 'Animá tus dibujos cuadro a cuadro. Onion skin para ver los frames previos, loop en vivo y export a GIF o WebM animado.',
-    categoria: 'Creatividad',
-    esBase: false,
-    espacio: 6,
-    monedas: 110
-},
+        id: 'flipovics',
+        nombre: 'FlipoVics',
+        icono: 'film',
+        ruta: 'herramientas/flipovics/index.html',
+        descripcion: 'Animá tus dibujos cuadro a cuadro. Onion skin para ver los frames previos, loop en vivo y export a GIF o WebM animado.',
+        categoria: 'Creatividad',
+        esBase: false,
+        espacio: 6,
+        monedas: 110
+    },
     {
         id: 'pixevan',
         nombre: 'PixEvan',
-        icono: 'grid-2x2',                 // ← CAMBIO: era grid-3x3 (chocaba con tres-en-raya)
+        icono: 'grid-2x2',
         ruta: 'herramientas/pixevan/index.html',
         descripcion: 'Editor de pixel art por capas y frames. Exporta spritesheets.',
         categoria: 'Creatividad',
@@ -160,16 +184,16 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 220
     },
     {
-    id: 'sill3dy',
-    nombre: 'Sill3Dy',
-    icono: 'box',
-    ruta: 'herramientas/sill3dy/index.html',
-    descripcion: 'Escultor de voxels en 3D. Modelá con cubos, pintá con paletas y exportá como OBJ o PNG.',
-    categoria: 'Creatividad',
-    esBase: false,
-    espacio: 10,
-    monedas: 240
-},
+        id: 'sill3dy',
+        nombre: 'Sill3Dy',
+        icono: 'box',
+        ruta: 'herramientas/sill3dy/index.html',
+        descripcion: 'Escultor de voxels en 3D. Modelá con cubos, pintá con paletas y exportá como OBJ o PNG.',
+        categoria: 'Creatividad',
+        esBase: false,
+        espacio: 10,
+        monedas: 240
+    },
 
     // ============================================================
     //  HERRAMIENTAS PRÁCTICAS
@@ -197,17 +221,6 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 0
     },
     {
-        id: 'camara',
-        nombre: 'Cámara',
-        icono: 'camera',
-        ruta: 'herramientas/camara/index.html',
-        descripcion: 'Saca fotos con filtros y marcos. Descárgalas o mándalas a la galería.',
-        categoria: 'Herramientas Prácticas',
-        esBase: false,
-        espacio: 4,
-        monedas: 5
-    },
-    {
         id: 'lector-pdf',
         nombre: 'Lector PDF',
         icono: 'file-text',
@@ -229,7 +242,7 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 2,
         monedas: 15
     },
-        {
+    {
         id: 'ocr',
         nombre: 'Vicsion',
         icono: 'scan-text',
@@ -240,7 +253,7 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 4,
         monedas: 20
     },
-        {
+    {
         id: 'evrec',
         nombre: 'EvRec',
         icono: 'screen-share',
@@ -251,7 +264,7 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 6,
         monedas: 30
     },
-        {
+    {
         id: 'calendario',
         nombre: 'VicsCal',
         icono: 'calendar-days',
@@ -262,7 +275,7 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 4,
         monedas: 35
     },
-        {
+    {
         id: 'traductor',
         nombre: 'Vicslate',
         icono: 'languages',
@@ -287,7 +300,7 @@ const RUTAS_HERRAMIENTAS = [
     {
         id: 'gastos',
         nombre: 'Gestor de Gastos',
-        icono: 'receipt',                  // ← CAMBIO: era wallet (chocaba con chequera)
+        icono: 'receipt',
         ruta: 'herramientas/gastos/index.html',
         descripcion: 'Controlá tus ingresos, gastos y simulá escenarios antes de gastar.',
         categoria: 'Herramientas Prácticas',
@@ -295,7 +308,7 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 6,
         monedas: 70
     },
-        {
+    {
         id: 'cv',
         nombre: 'Currículum',
         icono: 'file-user',
@@ -306,7 +319,6 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 6,
         monedas: 75
     },
-
 
     // ============================================================
     //  JUEGOS
@@ -366,28 +378,28 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 4,
         monedas: 5
     },
-        {
-    id: 'caloluty',
-    nombre: 'Caloluty',
-    icono: 'crosshair',
-    ruta: 'herramientas/caloluty/index.html',
-    descripcion: 'Galería de tiro en 3D. 40 dianas, 60 segundos. Comprá armas y demostrá tu puntería.',
-    categoria: 'Juegos',
-    esBase: false,
-    espacio: 6,
-    monedas: 10
-},
     {
-    id: 'blackjack',
-    nombre: 'Blackjack',
-    icono: 'spade',
-    ruta: 'herramientas/blackjack/index.html',
-    descripcion: 'El clásico 21 contra el crupier. Apuestas monedas OS reales.',
-    categoria: 'Juegos',
-    esBase: false,
-    espacio: 2,
-    monedas: 20
-},
+        id: 'caloluty',
+        nombre: 'Caloluty',
+        icono: 'crosshair',
+        ruta: 'herramientas/caloluty/index.html',
+        descripcion: 'Galería de tiro en 3D. 40 dianas, 60 segundos. Comprá armas y demostrá tu puntería.',
+        categoria: 'Juegos',
+        esBase: false,
+        espacio: 6,
+        monedas: 10
+    },
+    {
+        id: 'blackjack',
+        nombre: 'Blackjack',
+        icono: 'spade',
+        ruta: 'herramientas/blackjack/index.html',
+        descripcion: 'El clásico 21 contra el crupier. Apuestas monedas OS reales.',
+        categoria: 'Juegos',
+        esBase: false,
+        espacio: 2,
+        monedas: 20
+    },
     {
         id: 'metrorun',
         nombre: 'The MetroRun',
@@ -399,18 +411,17 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 6,
         monedas: 35
     },
-        {
-    id: 'minicity',
-    nombre: 'MiniCity',
-    icono: 'building',
-    ruta: 'herramientas/minicity/index.html',
-    descripcion: 'Construí tu ciudad, producí créditos y convertilos en Monedas OS reales.',
-    categoria: 'Juegos',
-    esBase: false,
-    espacio: 10,
-    monedas: 40
-},
-
+    {
+        id: 'minicity',
+        nombre: 'MiniCity',
+        icono: 'building',
+        ruta: 'herramientas/minicity/index.html',
+        descripcion: 'Construí tu ciudad, producí créditos y convertilos en Monedas OS reales.',
+        categoria: 'Juegos',
+        esBase: false,
+        espacio: 10,
+        monedas: 40
+    },
 
     // ============================================================
     //  SOCIAL
@@ -438,17 +449,6 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 0
     },
     {
-    id: 'delantedelmuro',
-    nombre: 'Delante del muro',
-    icono: 'book-user',
-    ruta: 'herramientas/delantedelmuro/index.html',
-    descripcion: 'Dejá un mensaje en el muro de tus amigos. Escribí, likear y comentá. Simple y directo.',
-    categoria: 'Social',
-    esBase: false,
-    espacio: 2,
-    monedas: 20
-},
-        {
         id: 'confesionario',
         nombre: 'El Confesionario',
         icono: 'drama',
@@ -459,7 +459,7 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 4,
         monedas: 45
     },
-        {
+    {
         id: 'encuestas',
         nombre: 'Encuestas',
         icono: 'vote',
@@ -473,7 +473,7 @@ const RUTAS_HERRAMIENTAS = [
     {
         id: 'vicsgram',
         nombre: 'VicsGram',
-        icono: 'aperture',                 // ← CAMBIO: era camera (chocaba con camara)
+        icono: 'aperture',
         ruta: 'herramientas/vicsgram/index.html',
         descripcion: 'Mini-Instagram de la comunidad. Compartí fotos, likes y comentarios.',
         categoria: 'Social',
@@ -507,7 +507,7 @@ const RUTAS_HERRAMIENTAS = [
     // ============================================================
     //  CODIGO
     // ============================================================
-        {
+    {
         id: 'hypertext',
         nombre: 'HyperText',
         icono: 'file-archive',
@@ -529,7 +529,7 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 10,
         monedas: 250
     },
-        {
+    {
         id: 'silly-ql',
         nombre: 'Silly-QL',
         icono: 'database',
@@ -552,8 +552,6 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 55
     },
 
-
-    
     // ============================================================
     //  BIENESTAR
     // ============================================================
@@ -568,7 +566,7 @@ const RUTAS_HERRAMIENTAS = [
         espacio: 4,
         monedas: 35
     },
-        {
+    {
         id: 'animo',
         nombre: 'Ánimo',
         icono: 'activity',
