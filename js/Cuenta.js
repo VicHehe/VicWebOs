@@ -203,14 +203,16 @@ const CONFIG_CUENTA_DEFAULT = {
     monedas: MONEDAS_INICIALES,
     // Apps destacadas por defecto en el lobby de inicio.
     // Incluye las apps base del sistema: almacén, chequera,
-    // galería, contactos, cámara y muro.
+    // galería, contactos, cámara, muro, chat público y dino.
     accesosRapidos: [
         'stor-he',
         'chequera',
         'galeria',
         'contactos',
         'camara',
-        'delantedelmuro'
+        'delantedelmuro',
+        'public-zone',
+        'dino'
     ]
 };
 
@@ -290,7 +292,8 @@ async function guardarConfigCuenta(codigo, configOrMutador) {
 //  ------------------------------------------------------------
 //  Añade automáticamente a cuentas viejas:
 //    • Apps base / default que no tengan instaladas.
-//    • Accesos rápidos promovidos (camara, delantedelmuro).
+//    • Accesos rápidos promovidos (camara, delantedelmuro,
+//      public-zone, dino).
 // ============================================================
 async function migrarAppsPorDefecto(codigo) {
     const catalogo = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
@@ -303,7 +306,7 @@ async function migrarAppsPorDefecto(codigo) {
 
     // Apps base que ahora van por defecto en accesos rápidos.
     // Si en el futuro promovés otra, agregala acá.
-    const accesosPromovidos = ['camara', 'delantedelmuro'];
+    const accesosPromovidos = ['camara', 'delantedelmuro', 'public-zone', 'dino'];
     const accesosActuales = Array.isArray(configCuentaActual.accesosRapidos)
         ? configCuentaActual.accesosRapidos
         : [];
