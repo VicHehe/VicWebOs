@@ -13,9 +13,13 @@
 //    15  → bonito    (bien elaborado)
 //    20  → premium   (con animación CSS)
 //    25  → raro      (arte detallado + animación)
+//
+//  IMPORTANTE: se declara con `var` (no `const`) para que
+//  quede expuesto como window.CUADROS_DISPONIBLES, que es
+//  lo que consulta LogicCuadros.
 // ============================================================
 
-const CUADROS_DISPONIBLES = [
+var CUADROS_DISPONIBLES = [
     {
         id: 'rosa-querida',
         nombre: 'Rosa Querida',
