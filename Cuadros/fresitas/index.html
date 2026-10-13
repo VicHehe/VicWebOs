@@ -14,7 +14,7 @@
 
         .fresa {
             transform-box: view-box;
-            transform-origin: 45px 130px;
+            transform-origin: 45px 100px;
             animation: balanceo 4s ease-in-out infinite;
         }
         @keyframes balanceo {
@@ -23,7 +23,7 @@
         }
         .hojita {
             transform-box: view-box;
-            transform-origin: 45px 55px;
+            transform-origin: 45px 62px;
             animation: hoja 3.5s ease-in-out infinite;
         }
         @keyframes hoja {
@@ -42,56 +42,55 @@
         </radialGradient>
     </defs>
 
-    <!-- Sombra -->
-    <ellipse cx="45" cy="148" rx="22" ry="3" fill="#9F1239" opacity="0.15"/>
+    <!-- Sombra elíptica en el piso -->
+    <ellipse cx="45" cy="130" rx="24" ry="3" fill="#9F1239" opacity="0.15"/>
 
     <g class="fresa">
-        <!-- Cuerpo de la fresa -->
-        <path d="M45,140
-                 C22,130 18,105 22,88
-                 C26,72 34,62 45,60
-                 C56,62 64,72 68,88
-                 C72,105 68,130 45,140 Z"
+        <!-- Cuerpo ANCHO Y REDONDEADO (no estirado) -->
+        <path d="M45,128
+                 C25,122 15,100 18,80
+                 C21,66 32,58 45,58
+                 C58,58 69,66 72,80
+                 C75,100 65,122 45,128 Z"
               fill="url(#fr-body)"/>
 
-        <!-- Brillo superior -->
-        <ellipse cx="35" cy="80" rx="6" ry="4" fill="white" opacity="0.28"
-                 transform="rotate(-25 35 80)"/>
-        <ellipse cx="32" cy="92" rx="3" ry="5" fill="white" opacity="0.18"
-                 transform="rotate(-15 32 92)"/>
+        <!-- Brillo superior izquierdo -->
+        <ellipse cx="34" cy="76" rx="5" ry="4" fill="white" opacity="0.3"
+                 transform="rotate(-25 34 76)"/>
+        <ellipse cx="32" cy="86" rx="2.5" ry="3.5" fill="white" opacity="0.2"
+                 transform="rotate(-15 32 86)"/>
 
-        <!-- Semillitas (puntos amarillos) -->
+        <!-- Semillitas amarillas -->
         <g fill="#FCD34D" opacity="0.9">
-            <ellipse cx="38" cy="80" rx="1" ry="0.7"/>
-            <ellipse cx="50" cy="78" rx="1" ry="0.7"/>
-            <ellipse cx="55" cy="88" rx="1" ry="0.7"/>
-            <ellipse cx="30" cy="92" rx="1" ry="0.7"/>
-            <ellipse cx="45" cy="90" rx="1" ry="0.7"/>
-            <ellipse cx="60" cy="100" rx="1" ry="0.7"/>
-            <ellipse cx="25" cy="104" rx="1" ry="0.7"/>
-            <ellipse cx="38" cy="102" rx="1" ry="0.7"/>
-            <ellipse cx="52" cy="105" rx="1" ry="0.7"/>
-            <ellipse cx="45" cy="115" rx="1" ry="0.7"/>
-            <ellipse cx="32" cy="118" rx="1" ry="0.7"/>
-            <ellipse cx="58" cy="118" rx="1" ry="0.7"/>
-            <ellipse cx="38" cy="128" rx="1" ry="0.7"/>
-            <ellipse cx="52" cy="128" rx="1" ry="0.7"/>
-            <ellipse cx="45" cy="135" rx="1" ry="0.7"/>
+            <ellipse cx="38" cy="76" rx="1" ry="0.7"/>
+            <ellipse cx="52" cy="74" rx="1" ry="0.7"/>
+            <ellipse cx="58" cy="84" rx="1" ry="0.7"/>
+            <ellipse cx="28" cy="86" rx="1" ry="0.7"/>
+            <ellipse cx="45" cy="86" rx="1" ry="0.7"/>
+            <ellipse cx="62" cy="94" rx="1" ry="0.7"/>
+            <ellipse cx="24" cy="98" rx="1" ry="0.7"/>
+            <ellipse cx="36" cy="96" rx="1" ry="0.7"/>
+            <ellipse cx="54" cy="98" rx="1" ry="0.7"/>
+            <ellipse cx="45" cy="104" rx="1" ry="0.7"/>
+            <ellipse cx="30" cy="108" rx="1" ry="0.7"/>
+            <ellipse cx="60" cy="108" rx="1" ry="0.7"/>
+            <ellipse cx="38" cy="116" rx="1" ry="0.7"/>
+            <ellipse cx="52" cy="116" rx="1" ry="0.7"/>
+            <ellipse cx="45" cy="122" rx="1" ry="0.7"/>
         </g>
 
         <!-- Hojitas en la corona -->
         <g class="hojita">
-            <path d="M45,60 C38,52 30,50 26,54 C32,60 40,62 45,60 Z"
+            <path d="M45,60 C38,52 28,50 24,54 C30,60 40,62 45,60 Z"
                   fill="#16A34A"/>
-            <path d="M45,60 C52,52 60,50 64,54 C58,60 50,62 45,60 Z"
+            <path d="M45,60 C52,52 62,50 66,54 C60,60 50,62 45,60 Z"
                   fill="#15803D"/>
             <path d="M45,60 C42,48 42,40 46,36 C50,42 48,54 45,60 Z"
                   fill="#22C55E"/>
-            <path d="M45,60 C48,50 54,44 58,44 C56,52 50,58 45,60 Z"
+            <path d="M45,60 C48,50 56,44 60,44 C58,52 50,58 45,60 Z"
                   fill="#16A34A"/>
-            <path d="M45,60 C42,50 36,44 32,44 C34,52 40,58 45,60 Z"
+            <path d="M45,60 C42,50 34,44 30,44 C32,52 40,58 45,60 Z"
                   fill="#15803D"/>
-            <!-- Tallito -->
             <path d="M45,58 L45,48" stroke="#166534" stroke-width="1.2"
                   stroke-linecap="round"/>
         </g>
