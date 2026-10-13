@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Fantasmia</title>
+    <style>
+        html, body {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 55%, #1E1B4B 0%, #0A0A20 65%, #000000 100%);
+        }
+        svg { display: block; width: 100%; height: 100%; }
+
+        /* Luna flotando */
+        .luna {
+            animation: lunaFloat 6s ease-in-out infinite;
+        }
+        @keyframes lunaFloat {
+            0%, 100% { transform: translate(0, 0); opacity: 0.9; }
+            50%      { transform: translate(-2px, -2px); opacity: 1; }
+        }
+
+        /* Fantasmita flotando */
+        .fantasma {
+            transform-box: view-box;
+            transform-origin: 45px 100px;
+            animation: fantasmaFloat 3.5s ease-in-out infinite;
+        }
+        @keyframes fantasmaFloat {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.92; }
+            50%      { transform: translateY(-4px) scale(1.02); opacity: 1; }
+        }
+
+        /* Ojos parpadeando */
+        .ojo {
+            animation: parpadeo 4s ease-in-out infinite;
+            transform-box: view-box;
+            transform-origin: center;
+        }
+        .ojo-izq { transform-origin: 40px 90px; }
+        .ojo-der { transform-origin: 50px 90px; }
+        @keyframes parpadeo {
+            0%, 42%, 58%, 100% { transform: scaleY(1); }
+            50%                { transform: scaleY(0.05); }
+        }
+
+        /* Partículas del script */
+        .particula {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 8px 2px rgba(196,181,253,0.9);
+            animation: subir 4s linear forwards;
+            pointer-events: none;
+        }
+        @keyframes subir {
+            0% {
+                transform: translateY(0) scale(0.5);
+                opacity: 0;
+            }
+            15% { opacity: 0.9; }
+            100% {
+                transform: translateY(-120px) scale(1.3);
+                opacity: 0;
+            }
+        }
+
+        /* Estrellas fijas */
+        .estrella {
+            position: absolute;
+            width: 1.5px;
+            height: 1.5px;
+            background: white;
+            border-radius: 50%;
+            animation: titilar 3s ease-in-out infinite;
+        }
+        @keyframes titilar {
+            0%, 100% { opacity: 0.25; }
+            50%      { opacity: 0.9; }
+        }
+    </style>
+</head>
+<body>
+<svg viewBox="0 0 90 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <radialGradient id="fg-glow" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0" stop-color="#C4B5FD" stop-opacity="0.35"/>
+            <stop offset="0.5" stop-color="#8B5CF6" stop-opacity="0.12"/>
+            <stop offset="1" stop-color="#4C1D95" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="fg-body" cx="0.5" cy="0.35" r="0.75">
+            <stop offset="0" stop-color="#FFFFFF"/>
+            <stop offset="0.7" stop-color="#E9D5FF"/>
+            <stop offset="1" stop-color="#C4B5FD"/>
+        </radialGradient>
+    </defs>
+
+    <!-- Luna en la esquina -->
+    <g class="luna">
+        <circle cx="72" cy="30" r="9" fill="#FEF3C7" opacity="0.9"/>
+        <circle cx="76" cy="28" r="8" fill="#0A0A20"/>
+        <circle cx="70" cy="26" r="0.6" fill="#D97706" opacity="0.4"/>
+        <circle cx="75" cy="32" r="0.5" fill="#D97706" opacity="0.3"/>
+    </g>
+
+    <!-- Halo del fantasma -->
+    <circle cx="45" cy="100" r="38" fill="url(#fg-glow)"/>
+
+    <!-- Fantasma -->
+    <g class="fantasma">
+        <!-- Cuerpo con onda abajo -->
+        <path d="M20,80
+                 C20,62 32,52 45,52
+                 C58,52 70,62 70,80
+                 L70,118
+                 C67,124 62,120 58,124
+                 C55,128 50,124 45,127
+                 C40,124 35,128 32,124
+                 C28,120 23,124 20,118
+                 Z"
+              fill="url(#fg-body)"/>
+
+        <!-- Sombra interna suave -->
+        <ellipse cx="45" cy="70" rx="18" ry="12" fill="white" opacity="0.4"/>
+
+        <!-- Ojos oscuros -->
+        <ellipse class="ojo ojo-izq" cx="40" cy="90" rx="3" ry="3.5" fill="#1E1B4B"/>
+        <ellipse class="ojo ojo-der" cx="50" cy="90" rx="3" ry="3.5" fill="#1E1B4B"/>
+        <!-- Brillos -->
+        <circle cx="39" cy="88.5" r="1" fill="white"/>
+        <circle cx="49" cy="88.5" r="1" fill="white"/>
+
+        <!-- Boquita -->
+        <ellipse cx="45" cy="100" rx="2" ry="2.5" fill="#7C3AED" opacity="0.6"/>
+
+        <!-- Mejillas tenues -->
+        <ellipse cx="34" cy="98" rx="2.5" ry="1.5" fill="#F9A8D4" opacity="0.35"/>
+        <ellipse cx="56" cy="98" rx="2.5" ry="1.5" fill="#F9A8D4" opacity="0.35"/>
+
+        <!-- Brazos pequeños -->
+        <ellipse cx="20" cy="92" rx="4" ry="2.5" fill="#E9D5FF" opacity="0.85"/>
+        <ellipse cx="70" cy="92" rx="4" ry="2.5" fill="#E9D5FF" opacity="0.85"/>
+    </g>
+</svg>
+
+<script>
+    // === ESTRELLAS FIJAS ===
+    // Se generan 25 estrellas al azar arriba
+    for (let i = 0; i < 25; i++) {
+        const e = document.createElement('div');
+        e.className = 'estrella';
+        e.style.left = Math.random() * 100 + '%';
+        e.style.top = (Math.random() * 55) + '%';
+        e.style.animationDelay = (Math.random() * 3) + 's';
+        document.body.appendChild(e);
+    }
+
+    // === PARTÍCULAS QUE SUBEN ===
+    // Cada 700 ms aparece una partícula mágica
+    setInterval(() => {
+        const p = document.createElement('div');
+        p.className = 'particula';
+        p.style.left = (30 + Math.random() * 40) + '%';
+        p.style.top = (65 + Math.random() * 15) + '%';
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 4200);
+    }, 700);
+
+    // === APARICIÓN ALEATORIA DEL FANTASMA ===
+    // Cada 8 segundos, el fantasma se desvanece y reaparece en otra posición
+    const fantasma = document.querySelector('.fantasma');
+    setInterval(() => {
+        fantasma.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        fantasma.style.opacity = '0';
+        fantasma.style.transform = 'scale(0.3) rotate(20deg)';
+
+        setTimeout(() => {
+            // Reposiciona un poco arriba o abajo, o gira
+            const desplazamiento = (Math.random() - 0.5) * 10;
+            const giro = (Math.random() - 0.5) * 15;
+            fantasma.style.transform = `translate(${desplazamiento}px, ${desplazamiento * 0.6}px) scale(1) rotate(${giro}deg)`;
+            fantasma.style.opacity = '0.92';
+        }, 700);
+    }, 8000);
+</script>
+</body>
+</html>
