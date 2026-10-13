@@ -16,8 +16,9 @@
 //  base / default del sistema) aparecen al menos una vez.
 //
 //  Verificación de cobertura:
-//    • Apps:    stor-he, chequera, contactos, galeria son base.
-//               Las otras 46 apps están cubiertas.
+//    • Apps:    stor-he, chequera, contactos, galeria, camara,
+//               delantedelmuro, public-zone y dino son base.
+//               Las otras 41 apps están cubiertas.
 //    • Temas:   violeta es base. Los otros 69 están cubiertos.
 //    • Widgets: los 30 están cubiertos.
 // ============================================================
@@ -183,32 +184,34 @@ const PAQUETES_PROMO = [
         ]
     },
 
-    // 10 — catálogo: 55 → 40 (27% off)
+    // 10 — catálogo: 45 → 35 (22% off)
+    //  (reemplazadas las apps eliminadas 'rps' y 'primero')
     {
         id: 'pack_casual',
         nombre: 'Juegos Casual',
         icono: 'spade',
         descripcion: 'Para partidas rápidas con amigos.',
-        precio: 40,
+        precio: 35,
         items: [
-            { tipo: 'app', id: 'rps' },
+            { tipo: 'app', id: 'tres-en-raya' },
             { tipo: 'app', id: 'blackjack' },
-            { tipo: 'app', id: 'primero' },
+            { tipo: 'app', id: 'whack-a-mole' },
             { tipo: 'app', id: 'caloluty' }
         ]
     },
 
-    // 11 — catálogo: 125 → 85 (32% off)
+    // 11 — catálogo: 85 → 60 (29% off)
+    //  (reemplazada la app eliminada 'bugsillycity')
     {
         id: 'pack_estrategia',
-        nombre: 'Estrategia y Construcción',
+        nombre: 'Construcción y Puntería',
         icono: 'blocks',
-        descripcion: 'Construí ciudades, criá bichos y corré por el metro.',
-        precio: 85,
+        descripcion: 'Construí tu ciudad, corré por el metro y demostrá puntería.',
+        precio: 60,
         items: [
             { tipo: 'app', id: 'minicity' },
-            { tipo: 'app', id: 'bugsillycity' },
             { tipo: 'app', id: 'metrorun' },
+            { tipo: 'app', id: 'caloluty' },
             { tipo: 'app', id: 'dibujodeldia' }
         ]
     },
@@ -824,22 +827,24 @@ const PAQUETES_PROMO = [
     //  BLOQUE 13 — PACKS DE JUEGOS (packs 50-51)
     // ========================================================
 
-    // 50 — catálogo: 155 → 105 (32% off)
+    // 50 — catálogo: 100 → 70 (30% off)
+    //  (reemplazada la app eliminada 'primero')
     {
         id: 'pack_noche_juegos',
         nombre: 'Noche de Juegos',
         icono: 'spade',
-        descripcion: 'Cartas, apuestas y ruleta.',
-        precio: 105,
+        descripcion: 'Cartas, palabras y ruleta.',
+        precio: 70,
         items: [
             { tipo: 'app',    id: 'blackjack' },
-            { tipo: 'app',    id: 'primero' },
+            { tipo: 'app',    id: 'wordle' },
             { tipo: 'widget', id: 'ajedrez-puzzle' },
             { tipo: 'widget', id: 'ruleta' }
         ]
     },
 
     // 51 — catálogo: 85 → 60 (29% off)
+    //  (reemplazada la app eliminada 'rps')
     {
         id: 'pack_puzzles',
         nombre: 'Puzzles',
@@ -850,7 +855,7 @@ const PAQUETES_PROMO = [
             { tipo: 'app',    id: 'wordle' },
             { tipo: 'app',    id: 'tres-en-raya' },
             { tipo: 'widget', id: 'ajedrez-puzzle' },
-            { tipo: 'app',    id: 'rps' }
+            { tipo: 'widget', id: 'dados' }
         ]
     },
 
@@ -1039,7 +1044,7 @@ const PAQUETES_PROMO = [
         ]
     }
 ];
-    
+
     // ========================================================
     //  Constantes de ofertas
     // ========================================================
