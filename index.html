@@ -182,6 +182,19 @@
                             </div>
                         </div>
 
+                        <!-- ============================================================
+                             CUADROS — Decoración pura del lobby
+                             Máximo 10 activos. No consumen espacio ni dan monedas.
+                             Se oculta si no hay cuadros activos.
+                             ============================================================ -->
+                        <div class="welcome-section" id="welcomeCuadrosSection" style="display:none;">
+                            <div class="welcome-section-header">
+                                <h2><i data-lucide="frame"></i> Decoración</h2>
+                                <span class="cdr-contador" id="cdrContador">0 / 10</span>
+                            </div>
+                            <div id="cuadrosZona" class="cdr-zona"></div>
+                        </div>
+
                     </div>
                 </div>
             </main>
@@ -961,6 +974,7 @@
     <script src="js/JsTemas.js"></script>
     <script src="js/JsWidgets.js"></script>
     <script src="js/PaquetePromo.js"></script>
+    <script src="js/JsCuadros.js"></script>
     <script src="js/ConfigBD.js"></script>
     <script src="js/ConfigBD.binarios.js"></script>
     <script src="js/MasterHad.js"></script>
@@ -976,6 +990,7 @@
     <script src="js/Notificaciones.js"></script>
     <script src="js/MobileUI.js"></script>
     <script src="js/PublicZone.js"></script>
+    <script src="js/LogicCuadros.js"></script>
     <script>lucide.createIcons();</script>
 </body>
 </html>
