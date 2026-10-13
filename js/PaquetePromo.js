@@ -8,6 +8,18 @@
 //  Las ofertas del día son 3 (1 tema + 1 app + 1 widget) y se
 //  generan UNA VEZ al abrir la tienda, guardándose en IndexedDB
 //  hasta la próxima medianoche hora de Santiago.
+//
+//  ------------------------------------------------------------
+//  COBERTURA — 62 paquetes
+//  ------------------------------------------------------------
+//  TODAS las apps, temas y widgets del catálogo (excepto los
+//  base / default del sistema) aparecen al menos una vez.
+//
+//  Verificación de cobertura:
+//    • Apps:    stor-he, chequera, contactos, galeria son base.
+//               Las otras 46 apps están cubiertas.
+//    • Temas:   violeta es base. Los otros 69 están cubiertos.
+//    • Widgets: los 30 están cubiertos.
 // ============================================================
 
 (function () {
@@ -32,68 +44,758 @@
     // ========================================================
 const PAQUETES_PROMO = [
 
-    // 1 — catálogo: 34 → 25 (25% off)
+    // ========================================================
+    //  BLOQUE 1 — SISTEMA Y UTILIDADES (packs 1-20)
+    // ========================================================
+
+    // 1 — catálogo: 0 → 0
     {
-        id: 'pack_orgullo_nacional',
-        nombre: 'Orgullo Nacional',
-        icono: 'flag',
-        descripcion: 'Chile y México de fiesta. Los dos temas patrios en un solo combo.',
-        precio: 25,
+        id: 'pack_inicio_gratis',
+        nombre: 'Inicio Gratis',
+        icono: 'gift',
+        descripcion: 'Lo esencial para arrancar sin gastar nada.',
+        precio: 0,
         items: [
-            { tipo: 'tema', id: 'consentido' },
-            { tipo: 'tema', id: 'mucho-besame' }
+            { tipo: 'app',    id: 'calculadora' },
+            { tipo: 'app',    id: 'notas' },
+            { tipo: 'widget', id: 'mi-estado' },
+            { tipo: 'widget', id: 'account-info' }
         ]
     },
 
-    // 2 — catálogo: 485 → 290 (40% off)
+    // 2 — catálogo: 120 → 75 (38% off)
     {
-        id: 'pack_taller_creativo',
-        nombre: 'Taller Creativo',
-        icono: 'paintbrush',
-        descripcion: 'OCs, pixel art, dibujo y un taller steampunk. Todo para crear.',
-        precio: 290,
-        items: [
-            { tipo: 'app',  id: 'ocs' },
-            { tipo: 'app',  id: 'pixevan' },
-            { tipo: 'app',  id: 'arte-flash' },
-            { tipo: 'tema', id: 'steampunk' }
-        ]
-    },
-
-    // 3 — catálogo: 110 → 75 (30% off)
-    {
-        id: 'pack_visual_time',
-        nombre: 'Visual Time',
-        icono: 'image',
-        descripcion: 'Cámara, editor y dos widgets para mostrar tus fotos.',
+        id: 'pack_info_tiempo',
+        nombre: 'Info y Tiempo',
+        icono: 'clock',
+        descripcion: 'Clima, fechas y relojes para tener todo a mano.',
         precio: 75,
         items: [
-            { tipo: 'app',    id: 'camara' },
-            { tipo: 'app',    id: 'photo-shinny' },
-            { tipo: 'widget', id: 'bubble-image' },
-            { tipo: 'widget', id: 'diapositivas' }
+            { tipo: 'widget', id: 'contador-dias' },
+            { tipo: 'widget', id: 'viclima' },
+            { tipo: 'widget', id: 'reloj' },
+            { tipo: 'widget', id: 'reloj-mundial' }
         ]
     },
 
-    // 4 — catálogo: 40 → 30 (25% off)
+    // 3 — catálogo: 150 → 100 (33% off)
+    {
+        id: 'pack_productividad',
+        nombre: 'Productividad',
+        icono: 'target',
+        descripcion: 'Pomodoro, tareas y herramientas de concentración.',
+        precio: 100,
+        items: [
+            { tipo: 'widget', id: 'pomodoro' },
+            { tipo: 'widget', id: 'to-do-list' },
+            { tipo: 'widget', id: 'gen-pass' },
+            { tipo: 'widget', id: 'metronomo' }
+        ]
+    },
+
+    // 4 — catálogo: 210 → 140 (33% off)
+    {
+        id: 'pack_texto',
+        nombre: 'Amante del Texto',
+        icono: 'book-open',
+        descripcion: 'Analizá, escuchá y leé cualquier texto.',
+        precio: 140,
+        items: [
+            { tipo: 'widget', id: 'analizador-texto' },
+            { tipo: 'widget', id: 'lector' },
+            { tipo: 'widget', id: 'evanparla' },
+            { tipo: 'widget', id: 'wiki_lector' }
+        ]
+    },
+
+    // 5 — catálogo: 65 → 45 (31% off)
     {
         id: 'pack_azar',
         nombre: 'Pack Azar',
         icono: 'dices',
-        descripcion: 'Ruleta y dados. Todo al azar en un solo pack.',
-        precio: 30,
+        descripcion: 'Ruleta, dados, moneda y generador de nombres.',
+        precio: 45,
         items: [
+            { tipo: 'widget', id: 'cara-cruz' },
+            { tipo: 'widget', id: 'dados' },
             { tipo: 'widget', id: 'ruleta' },
-            { tipo: 'widget', id: 'dados' }
+            { tipo: 'widget', id: 'generador-nombres' }
         ]
     },
 
-    // 5 — catálogo: 175 → 115 (35% off)
+    // 6 — catálogo: 65 → 45 (31% off)
     {
-        id: 'pack_lectura',
-        nombre: 'Fan de la lectura',
+        id: 'pack_foto_basica',
+        nombre: 'Foto Básica',
+        icono: 'image',
+        descripcion: 'Cámara y widgets para mostrar tus fotos.',
+        precio: 45,
+        items: [
+            { tipo: 'app',    id: 'camara' },
+            { tipo: 'widget', id: 'bubble-image' },
+            { tipo: 'widget', id: 'mini-moodboard' },
+            { tipo: 'widget', id: 'diapositivas' }
+        ]
+    },
+
+    // 7 — catálogo: 200 → 130 (35% off)
+    {
+        id: 'pack_visual_pro',
+        nombre: 'Visual Pro',
+        icono: 'wand-2',
+        descripcion: 'Editor, extractor de colores, GIF y pizarra.',
+        precio: 130,
+        items: [
+            { tipo: 'app',    id: 'photo-shinny' },
+            { tipo: 'widget', id: 'palevan' },
+            { tipo: 'widget', id: 'silly-gif' },
+            { tipo: 'widget', id: 'pizarra' }
+        ]
+    },
+
+    // 8 — catálogo: 205 → 135 (34% off)
+    {
+        id: 'pack_redes_sociales',
+        nombre: 'Redes Sociales',
+        icono: 'users',
+        descripcion: 'Publicá, opiná y dejá mensajes en el muro.',
+        precio: 135,
+        items: [
+            { tipo: 'app', id: 'vicsgram' },
+            { tipo: 'app', id: 'encuestas' },
+            { tipo: 'app', id: 'delantedelmuro' },
+            { tipo: 'app', id: 'confesionario' }
+        ]
+    },
+
+    // 9 — catálogo: 0 → 0
+    {
+        id: 'pack_arcade',
+        nombre: 'Arcade Clásico',
+        icono: 'gamepad-2',
+        descripcion: 'Los juegos rápidos de siempre, todos gratis.',
+        precio: 0,
+        items: [
+            { tipo: 'app', id: 'dino' },
+            { tipo: 'app', id: 'whack-a-mole' },
+            { tipo: 'app', id: 'tres-en-raya' },
+            { tipo: 'app', id: 'wordle' }
+        ]
+    },
+
+    // 10 — catálogo: 55 → 40 (27% off)
+    {
+        id: 'pack_casual',
+        nombre: 'Juegos Casual',
+        icono: 'spade',
+        descripcion: 'Para partidas rápidas con amigos.',
+        precio: 40,
+        items: [
+            { tipo: 'app', id: 'rps' },
+            { tipo: 'app', id: 'blackjack' },
+            { tipo: 'app', id: 'primero' },
+            { tipo: 'app', id: 'caloluty' }
+        ]
+    },
+
+    // 11 — catálogo: 125 → 85 (32% off)
+    {
+        id: 'pack_estrategia',
+        nombre: 'Estrategia y Construcción',
+        icono: 'blocks',
+        descripcion: 'Construí ciudades, criá bichos y corré por el metro.',
+        precio: 85,
+        items: [
+            { tipo: 'app', id: 'minicity' },
+            { tipo: 'app', id: 'bugsillycity' },
+            { tipo: 'app', id: 'metrorun' },
+            { tipo: 'app', id: 'dibujodeldia' }
+        ]
+    },
+
+    // 12 — catálogo: 460 → 300 (35% off)
+    {
+        id: 'pack_pixel_arte',
+        nombre: 'Pixel y Arte Digital',
+        icono: 'palette',
+        descripcion: 'Dibujá, esculpí y creá a tus personajes.',
+        precio: 300,
+        items: [
+            { tipo: 'app', id: 'pixevan' },
+            { tipo: 'app', id: 'arte-flash' },
+            { tipo: 'app', id: 'ocs' },
+            { tipo: 'app', id: 'memevics' }
+        ]
+    },
+
+    // 13 — catálogo: 415 → 270 (35% off)
+    {
+        id: 'pack_animacion',
+        nombre: 'Animación',
+        icono: 'film',
+        descripcion: 'Animá cuadro a cuadro y diseñá tipografías.',
+        precio: 270,
+        items: [
+            { tipo: 'app', id: 'flipovics' },
+            { tipo: 'app', id: 'tillyporgrafo' },
+            { tipo: 'app', id: 'sill3dy' }
+        ]
+    },
+
+    // 14 — catálogo: 235 → 155 (34% off)
+    {
+        id: 'pack_musica_creativa',
+        nombre: 'Música Creativa',
+        icono: 'piano',
+        descripcion: 'Piano, música y sonidos para crear.',
+        precio: 155,
+        items: [
+            { tipo: 'app',    id: 'piano' },
+            { tipo: 'widget', id: 'spotivic' },
+            { tipo: 'widget', id: 'sonidos-fondo' }
+        ]
+    },
+
+    // 15 — catálogo: 410 → 280 (32% off)
+    {
+        id: 'pack_comunicacion',
+        nombre: 'Comunicación Total',
+        icono: 'message-circle',
+        descripcion: 'Correo, chat, publicaciones y videollamadas.',
+        precio: 280,
+        items: [
+            { tipo: 'app', id: 'evmail' },
+            { tipo: 'app', id: 'whatthehay' },
+            { tipo: 'app', id: 'silly-calls' },
+            { tipo: 'app', id: 'twevan' }
+        ]
+    },
+
+    // 16 — catálogo: 540 → 360 (33% off)
+    {
+        id: 'pack_programador',
+        nombre: 'Programador',
+        icono: 'file-code',
+        descripcion: 'Editor, SQL, JSON y conversor de proyectos.',
+        precio: 360,
+        items: [
+            { tipo: 'app', id: 'hypertext' },
+            { tipo: 'app', id: 'vicscode' },
+            { tipo: 'app', id: 'silly-ql' },
+            { tipo: 'app', id: 'vicsjson' }
+        ]
+    },
+
+    // 17 — catálogo: 225 → 150 (33% off)
+    {
+        id: 'pack_bienestar',
+        nombre: 'Bienestar',
+        icono: 'heart',
+        descripcion: 'Registrá tu sueño, tu ánimo y cuidá una mascota.',
+        precio: 150,
+        items: [
+            { tipo: 'app',    id: 'sueno' },
+            { tipo: 'app',    id: 'animo' },
+            { tipo: 'widget', id: 'mascota' },
+            { tipo: 'widget', id: 'ajedrez-puzzle' }
+        ]
+    },
+
+    // 18 — catálogo: 190 → 125 (34% off)
+    {
+        id: 'pack_documentos',
+        nombre: 'Documentos',
+        icono: 'file-text',
+        descripcion: 'PDF, CV, gastos y calendario.',
+        precio: 125,
+        items: [
+            { tipo: 'app', id: 'lector-pdf' },
+            { tipo: 'app', id: 'cv' },
+            { tipo: 'app', id: 'gastos' },
+            { tipo: 'app', id: 'calendario' }
+        ]
+    },
+
+    // 19 — catálogo: 110 → 75 (32% off)
+    {
+        id: 'pack_herramientas_pro',
+        nombre: 'Herramientas Pro',
+        icono: 'wrench',
+        descripcion: 'QR, OCR, grabación y traducción.',
+        precio: 75,
+        items: [
+            { tipo: 'app', id: 'qr' },
+            { tipo: 'app', id: 'ocr' },
+            { tipo: 'app', id: 'evrec' },
+            { tipo: 'app', id: 'traductor' }
+        ]
+    },
+
+    // 20 — catálogo: 250 → 175 (30% off)
+    {
+        id: 'pack_premium_widgets',
+        nombre: 'Widgets Premium',
+        icono: 'link',
+        descripcion: 'Atajos web y radio mundial.',
+        precio: 175,
+        items: [
+            { tipo: 'widget', id: 'acceso-directo' },
+            { tipo: 'widget', id: 'radio' }
+        ]
+    },
+
+    // ========================================================
+    //  BLOQUE 2 — TEMAS BÁSICOS (packs 21-24)
+    // ========================================================
+
+    // 21 — catálogo: 0 → 0
+    {
+        id: 'pack_colores_suaves',
+        nombre: 'Colores Suaves',
+        icono: 'flower-2',
+        descripcion: 'Paletas pastel para cada día, todas gratis.',
+        precio: 0,
+        items: [
+            { tipo: 'tema', id: 'rosa' },
+            { tipo: 'tema', id: 'oceano' },
+            { tipo: 'tema', id: 'bosque' },
+            { tipo: 'tema', id: 'atardecer' }
+        ]
+    },
+
+    // 22 — catálogo: 5 → 5
+    {
+        id: 'pack_colores_calidos',
+        nombre: 'Colores Cálidos',
+        icono: 'flame',
+        descripcion: 'Rojos, dorados y turquesas vibrantes.',
+        precio: 5,
+        items: [
+            { tipo: 'tema', id: 'rojizo' },
+            { tipo: 'tema', id: 'golden' },
+            { tipo: 'tema', id: 'turquesa' },
+            { tipo: 'tema', id: 'terracota' }
+        ]
+    },
+
+    // 23 — catálogo: 15 → 12 (20% off)
+    {
+        id: 'pack_tonos_apagados',
+        nombre: 'Tonos Apagados',
+        icono: 'leaf',
+        descripcion: 'Paletas maduras y desaturadas.',
+        precio: 12,
+        items: [
+            { tipo: 'tema', id: 'salvia' },
+            { tipo: 'tema', id: 'rosa-polvorienta' },
+            { tipo: 'tema', id: 'mostaza' }
+        ]
+    },
+
+    // 24 — catálogo: 30 → 20 (33% off)
+    {
+        id: 'pack_dark_trio',
+        nombre: 'Dark Trio',
+        icono: 'moon',
+        descripcion: 'Modo oscuro con tres personalidades.',
+        precio: 20,
+        items: [
+            { tipo: 'tema', id: 'noche' },
+            { tipo: 'tema', id: 'ocean' },
+            { tipo: 'tema', id: 'pumkin' }
+        ]
+    },
+
+    // ========================================================
+    //  BLOQUE 3 — TEMAS RETRO Y COSMOS (packs 25-27)
+    // ========================================================
+
+    // 25 — catálogo: 50 → 35 (30% off)
+    {
+        id: 'pack_retro_oscuro',
+        nombre: 'Retro Oscuro',
+        icono: 'terminal',
+        descripcion: 'Hacker, vaporwave, salón y GitHub oscuro.',
+        precio: 35,
+        items: [
+            { tipo: 'tema', id: 'github-lover' },
+            { tipo: 'tema', id: 'hacker' },
+            { tipo: 'tema', id: 'vapor' },
+            { tipo: 'tema', id: 'salon' }
+        ]
+    },
+
+    // 26 — catálogo: 85 → 60 (29% off)
+    {
+        id: 'pack_cosmos',
+        nombre: 'Cosmos',
+        icono: 'sparkle',
+        descripcion: 'Auroras, nebulosas, eclipses y cometas.',
+        precio: 60,
+        items: [
+            { tipo: 'tema', id: 'aurora-boreal' },
+            { tipo: 'tema', id: 'nebulosa' },
+            { tipo: 'tema', id: 'eclipse-solar' },
+            { tipo: 'tema', id: 'cometa-errante' }
+        ]
+    },
+
+    // 27 — catálogo: 85 → 60 (29% off)
+    {
+        id: 'pack_liminal',
+        nombre: 'Espacios Liminales',
+        icono: 'door-closed',
+        descripcion: 'Lugares vacíos y nostálgicos.',
+        precio: 60,
+        items: [
+            { tipo: 'tema', id: 'piscina-vacia' },
+            { tipo: 'tema', id: 'pasillo-hotel' },
+            { tipo: 'tema', id: 'centro-comercial' },
+            { tipo: 'tema', id: 'cuartos-traseros' }
+        ]
+    },
+
+    // ========================================================
+    //  BLOQUE 4 — TEMAS FESTIVOS Y FORMALES (packs 28-29)
+    // ========================================================
+
+    // 28 — catálogo: 90 → 65 (28% off)
+    {
+        id: 'pack_fiestas',
+        nombre: 'Fiestas del Año',
+        icono: 'gift',
+        descripcion: 'Navidad, carnaval y fiestas patrias.',
+        precio: 65,
+        items: [
+            { tipo: 'tema', id: 'mucho-besame' },
+            { tipo: 'tema', id: 'consentido' },
+            { tipo: 'tema', id: 'navidad-cozy' },
+            { tipo: 'tema', id: 'carnaval-veneciano' }
+        ]
+    },
+
+    // 29 — catálogo: 90 → 65 (28% off)
+    {
+        id: 'pack_formal',
+        nombre: 'Formal',
+        icono: 'briefcase',
+        descripcion: 'Oficina de día y de noche, ventanas y cielo.',
+        precio: 65,
+        items: [
+            { tipo: 'tema', id: 'oficina' },
+            { tipo: 'tema', id: 'oficina-dark' },
+            { tipo: 'tema', id: 'ventanas' },
+            { tipo: 'tema', id: 'celeste' }
+        ]
+    },
+
+    // ========================================================
+    //  BLOQUE 5 — TEMAS CINE Y ATMÓSFERAS (packs 30-31)
+    // ========================================================
+
+    // 30 — catálogo: 120 → 85 (29% off)
+    {
+        id: 'pack_cine',
+        nombre: 'Cine',
+        icono: 'film',
+        descripcion: 'Cuatro géneros cinematográficos.',
+        precio: 85,
+        items: [
+            { tipo: 'tema', id: 'cine-romance-escolar' },
+            { tipo: 'tema', id: 'cine-ciencia-ficcion' },
+            { tipo: 'tema', id: 'cine-jazzystreet' },
+            { tipo: 'tema', id: 'cine-terror' }
+        ]
+    },
+
+    // 31 — catálogo: 150 → 105 (30% off)
+    {
+        id: 'pack_atmosferas',
+        nombre: 'Atmósferas',
+        icono: 'cloud',
+        descripcion: 'Acuarela, café, flores y tormenta.',
+        precio: 105,
+        items: [
+            { tipo: 'tema', id: 'acuarela' },
+            { tipo: 'tema', id: 'cafe-latte' },
+            { tipo: 'tema', id: 'floral' },
+            { tipo: 'tema', id: 'tormenta' }
+        ]
+    },
+
+    // ========================================================
+    //  BLOQUE 6 — TEMAS FANTASÍA Y ESTACIONES (packs 32-33)
+    // ========================================================
+
+    // 32 — catálogo: 170 → 120 (29% off)
+    {
+        id: 'pack_fantasia',
+        nombre: 'Fantasía',
+        icono: 'book-open',
+        descripcion: 'Libros antiguos, runas, desierto y vapor.',
+        precio: 120,
+        items: [
+            { tipo: 'tema', id: 'libro' },
+            { tipo: 'tema', id: 'runas' },
+            { tipo: 'tema', id: 'mil-y-una-noches' },
+            { tipo: 'tema', id: 'steampunk' }
+        ]
+    },
+
+    // 33 — catálogo: 175 → 120 (31% off)
+    {
+        id: 'pack_estaciones',
+        nombre: 'Cuatro Estaciones',
+        icono: 'sun',
+        descripcion: 'Verano, otoño, invierno y primavera.',
+        precio: 120,
+        items: [
+            { tipo: 'tema', id: 'invierno' },
+            { tipo: 'tema', id: 'primavera' },
+            { tipo: 'tema', id: 'verano' },
+            { tipo: 'tema', id: 'otono' }
+        ]
+    },
+
+    // ========================================================
+    //  BLOQUE 7 — TEMAS 3D Y CONSOLAS (packs 34-35)
+    // ========================================================
+
+    // 34 — catálogo: 200 → 140 (30% off)
+    {
+        id: 'pack_3d',
+        nombre: 'Pack 3D',
+        icono: 'box',
+        descripcion: 'Arcade retro, origami, ciudad isométrica y terreno.',
+        precio: 140,
+        items: [
+            { tipo: 'tema', id: 'retro-3d-arcade' },
+            { tipo: 'tema', id: 'origami' },
+            { tipo: 'tema', id: 'isometric-city' },
+            { tipo: 'tema', id: 'low-poly-terrain' }
+        ]
+    },
+
+    // 35 — catálogo: 100 → 70 (30% off)
+    {
+        id: 'pack_consolas',
+        nombre: 'Consolas',
+        icono: 'gamepad',
+        descripcion: 'Chiptune, Switch y Wuu.',
+        precio: 70,
+        items: [
+            { tipo: 'tema', id: 'chiptune' },
+            { tipo: 'tema', id: 'switch' },
+            { tipo: 'tema', id: 'wuu' }
+        ]
+    },
+
+    // ========================================================
+    //  BLOQUE 8 — TEMAS CULTURA POP (packs 36-38)
+    // ========================================================
+
+    // 36 — catálogo: 145 → 100 (31% off)
+    {
+        id: 'pack_pop_1',
+        nombre: 'Pop Culture 1',
+        icono: 'sparkles',
+        descripcion: 'Sueños, gemas, amanecer y mensajería.',
+        precio: 100,
+        items: [
+            { tipo: 'tema', id: 'dreams' },
+            { tipo: 'tema', id: 'cuarzo-rosado' },
+            { tipo: 'tema', id: 'break-of-dawn' },
+            { tipo: 'tema', id: 'charla' }
+        ]
+    },
+
+    // 37 — catálogo: 185 → 130 (30% off)
+    {
+        id: 'pack_pop_2',
+        nombre: 'Pop Culture 2',
+        icono: 'star',
+        descripcion: 'Amigos, exploración, manga y pop.',
+        precio: 130,
+        items: [
+            { tipo: 'tema', id: 'friend' },
+            { tipo: 'tema', id: 'busca-tema-perdido' },
+            { tipo: 'tema', id: 'bizzaras-desventuras' },
+            { tipo: 'tema', id: 'pop-owner' }
+        ]
+    },
+
+    // 38 — catálogo: 210 → 145 (31% off)
+    {
+        id: 'pack_pop_3',
+        nombre: 'Pop Culture 3',
+        icono: 'monitor',
+        descripcion: 'Stream, pizzería, retro y hamsters.',
+        precio: 145,
+        items: [
+            { tipo: 'tema', id: 'stream' },
+            { tipo: 'tema', id: 'pizzeria-robotica' },
+            { tipo: 'tema', id: 're-made-in' },
+            { tipo: 'tema', id: 'silly-hamster' }
+        ]
+    },
+
+    // ========================================================
+    //  BLOQUE 9 — PACKS MIXTOS CREADOR (packs 39-40)
+    // ========================================================
+
+    // 39 — catálogo: 450 → 300 (33% off)
+    {
+        id: 'pack_creador_visual',
+        nombre: 'Creador Visual',
+        icono: 'paintbrush',
+        descripcion: 'Apps y temas para artistas visuales.',
+        precio: 300,
+        items: [
+            { tipo: 'app',  id: 'photo-shinny' },
+            { tipo: 'app',  id: 'pixevan' },
+            { tipo: 'app',  id: 'arte-flash' },
+            { tipo: 'tema', id: 'acuarela' }
+        ]
+    },
+
+    // 40 — catálogo: 335 → 230 (31% off)
+    {
+        id: 'pack_ciberpunk',
+        nombre: 'Cyberpunk Total',
+        icono: 'rocket',
+        descripcion: 'Temas y apps para sentirte en el futuro.',
+        precio: 230,
+        items: [
+            { tipo: 'tema', id: 'cine-ciencia-ficcion' },
+            { tipo: 'tema', id: 'hacker' },
+            { tipo: 'tema', id: 'isometric-city' },
+            { tipo: 'app',  id: 'vicscode' }
+        ]
+    },
+
+    // ========================================================
+    //  BLOQUE 10 — PACKS COZY Y TEMÁTICOS (packs 41-44)
+    // ========================================================
+
+    // 41 — catálogo: 165 → 115 (30% off)
+    {
+        id: 'pack_cozy_lectura',
+        nombre: 'Rincón Cozy de Lectura',
+        icono: 'coffee',
+        descripcion: 'Café, acuarela y todo para leer.',
+        precio: 115,
+        items: [
+            { tipo: 'tema',   id: 'cafe-latte' },
+            { tipo: 'tema',   id: 'acuarela' },
+            { tipo: 'widget', id: 'lector' },
+            { tipo: 'widget', id: 'pizarra' }
+        ]
+    },
+
+    // 42 — catálogo: 135 → 95 (30% off)
+    {
+        id: 'pack_terror_noche',
+        nombre: 'Noche de Terror',
+        icono: 'skull',
+        descripcion: 'Terror, cuartos abandonados y tormenta.',
+        precio: 95,
+        items: [
+            { tipo: 'tema', id: 'cine-terror' },
+            { tipo: 'tema', id: 'cuartos-traseros' },
+            { tipo: 'tema', id: 'pumkin' },
+            { tipo: 'tema', id: 'tormenta' }
+        ]
+    },
+
+    // 43 — catálogo: 155 → 110 (29% off)
+    {
+        id: 'pack_arcoiris',
+        nombre: 'Arcoíris Pop',
+        icono: 'rainbow',
+        descripcion: 'Muchos colores vivos en uno.',
+        precio: 110,
+        items: [
+            { tipo: 'tema', id: 'dreams' },
+            { tipo: 'tema', id: 'cuarzo-rosado' },
+            { tipo: 'tema', id: 'friend' },
+            { tipo: 'tema', id: 'stream' }
+        ]
+    },
+
+    // 44 — catálogo: 225 → 155 (31% off)
+    {
+        id: 'pack_alta_fantasia',
+        nombre: 'Alta Fantasía',
+        icono: 'shield',
+        descripcion: 'Para los que sueñan con aventuras.',
+        precio: 155,
+        items: [
+            { tipo: 'tema', id: 'runas' },
+            { tipo: 'tema', id: 'mil-y-una-noches' },
+            { tipo: 'tema', id: 'steampunk' },
+            { tipo: 'app',  id: 'ocs' }
+        ]
+    },
+
+    // ========================================================
+    //  BLOQUE 11 — PACKS DE PRODUCTIVIDAD (packs 45-47)
+    // ========================================================
+
+    // 45 — catálogo: 155 → 105 (32% off)
+    {
+        id: 'pack_tiempo',
+        nombre: 'Gestión del Tiempo',
+        icono: 'calendar-days',
+        descripcion: 'Calendario, pomodoro y contadores.',
+        precio: 105,
+        items: [
+            { tipo: 'widget', id: 'pomodoro' },
+            { tipo: 'app',    id: 'calendario' },
+            { tipo: 'widget', id: 'contador-dias' },
+            { tipo: 'widget', id: 'reloj' }
+        ]
+    },
+
+    // 46 — catálogo: 205 → 140 (32% off)
+    {
+        id: 'pack_concentracion',
+        nombre: 'Deep Work',
+        icono: 'target',
+        descripcion: 'Todo para concentrarte al máximo.',
+        precio: 140,
+        items: [
+            { tipo: 'widget', id: 'to-do-list' },
+            { tipo: 'app',    id: 'notas' },
+            { tipo: 'widget', id: 'pomodoro' },
+            { tipo: 'widget', id: 'sonidos-fondo' }
+        ]
+    },
+
+    // 47 — catálogo: 60 → 45 (25% off)
+    {
+        id: 'pack_nocturno',
+        nombre: 'Noctámbulo',
+        icono: 'moon-star',
+        descripcion: 'Modo oscuro para trabajar de noche.',
+        precio: 45,
+        items: [
+            { tipo: 'tema', id: 'oficina-dark' },
+            { tipo: 'tema', id: 'noche' },
+            { tipo: 'tema', id: 'ocean' },
+            { tipo: 'tema', id: 'github-lover' }
+        ]
+    },
+
+    // ========================================================
+    //  BLOQUE 12 — PACKS DE LECTURA Y AUDIO (packs 48-49)
+    // ========================================================
+
+    // 48 — catálogo: 165 → 115 (30% off)
+    {
+        id: 'pack_bibliofilo',
+        nombre: 'Bibliofílico',
         icono: 'library',
-        descripcion: 'Lector, wiki, PDF y un tema de libro. Todo lo que necesitás para leer.',
+        descripcion: 'Para el que ama leer de todo.',
         precio: 115,
         items: [
             { tipo: 'widget', id: 'lector' },
@@ -103,188 +805,236 @@ const PAQUETES_PROMO = [
         ]
     },
 
-    // 6 — catálogo: 210 → 135 (35% off)
+    // 49 — catálogo: 385 → 260 (32% off)
     {
-        id: 'pack_musica',
-        nombre: 'Fan de la música',
+        id: 'pack_audio',
+        nombre: 'Amante del Audio',
         icono: 'music-3',
-        descripcion: 'Pop Owner, Salón de Noche y radio. Para los que viven con música.',
-        precio: 135,
+        descripcion: 'Radio, música, piano y sonidos.',
+        precio: 260,
         items: [
-            { tipo: 'tema',   id: 'pop-owner' },
-            { tipo: 'tema',   id: 'salon' },
-            { tipo: 'widget', id: 'radio' }
+            { tipo: 'widget', id: 'radio' },
+            { tipo: 'widget', id: 'spotivic' },
+            { tipo: 'app',    id: 'piano' },
+            { tipo: 'widget', id: 'sonidos-fondo' }
         ]
     },
 
-    // 7 — catálogo: 550 → 330 (40% off)
-    {
-        id: 'pack_social_club',
-        nombre: 'Social Club',
-        icono: 'users',
-        descripcion: 'Encuestas, VicsGram, videollamadas y chat. Todo lo social en uno.',
-        precio: 330,
-        items: [
-            { tipo: 'app', id: 'encuestas' },
-            { tipo: 'app', id: 'vicsgram' },
-            { tipo: 'app', id: 'silly-calls' },
-            { tipo: 'app', id: 'whatthehay' }
-        ]
-    },
+    // ========================================================
+    //  BLOQUE 13 — PACKS DE JUEGOS (packs 50-51)
+    // ========================================================
 
-    // 8 — catálogo: 195 → 125 (35% off)
+    // 50 — catálogo: 155 → 105 (32% off)
     {
-        id: 'pack_gamer',
-        nombre: 'Gamer',
-        icono: 'joystick',
-        descripcion: 'Chiptune, ajedrez, MetroRun y Wuu. Kit jugador completo.',
-        precio: 125,
-        items: [
-            { tipo: 'tema',   id: 'chiptune' },
-            { tipo: 'widget', id: 'ajedrez-puzzle' },
-            { tipo: 'app',    id: 'metrorun' },
-            { tipo: 'tema',   id: 'wuu' }
-        ]
-    },
-
-    // 9 — catálogo: 190 → 125 (35% off)
-    {
-        id: 'pack_gestor_economico',
-        nombre: 'Gestor Económico',
-        icono: 'banknote',
-        descripcion: 'Gastos, tareas y lector para tus anotaciones. Todo bajo control.',
-        precio: 125,
-        items: [
-            { tipo: 'app',    id: 'gastos' },
-            { tipo: 'widget', id: 'to-do-list' },
-            { tipo: 'widget', id: 'lector' }
-        ]
-    },
-
-    // 10 — catálogo: 160 → 105 (35% off)
-    {
-        id: 'pack_dulce_amanecer',
-        nombre: 'Dulce Amanecer',
-        icono: 'clock',
-        descripcion: 'Reloj, reloj mundial y Break of Dawn. Empezar el día con calma.',
+        id: 'pack_noche_juegos',
+        nombre: 'Noche de Juegos',
+        icono: 'spade',
+        descripcion: 'Cartas, apuestas y ruleta.',
         precio: 105,
         items: [
-            { tipo: 'widget', id: 'reloj' },
-            { tipo: 'widget', id: 'reloj-mundial' },
-            { tipo: 'tema',   id: 'break-of-dawn' }
+            { tipo: 'app',    id: 'blackjack' },
+            { tipo: 'app',    id: 'primero' },
+            { tipo: 'widget', id: 'ajedrez-puzzle' },
+            { tipo: 'widget', id: 'ruleta' }
         ]
     },
 
-    // 11 — catálogo: 155 → 100 (35% off)
+    // 51 — catálogo: 85 → 60 (29% off)
     {
-        id: 'pack_familias',
-        nombre: 'Para familias',
-        icono: 'home',
-        descripcion: 'Una mascota y tres temas suaves. Tierno y cálido para el hogar.',
+        id: 'pack_puzzles',
+        nombre: 'Puzzles',
+        icono: 'puzzle',
+        descripcion: 'Palabras, ajedrez y deducción.',
+        precio: 60,
+        items: [
+            { tipo: 'app',    id: 'wordle' },
+            { tipo: 'app',    id: 'tres-en-raya' },
+            { tipo: 'widget', id: 'ajedrez-puzzle' },
+            { tipo: 'app',    id: 'rps' }
+        ]
+    },
+
+    // ========================================================
+    //  BLOQUE 14 — PACKS SOCIALES (packs 52-53)
+    // ========================================================
+
+    // 52 — catálogo: 145 → 100 (31% off)
+    {
+        id: 'pack_social_total',
+        nombre: 'Mariposa Social',
+        icono: 'users',
+        descripcion: 'Todo para conectar con tu comunidad.',
         precio: 100,
         items: [
-            { tipo: 'widget', id: 'mascota' },
-            { tipo: 'tema',   id: 'acuarela' },
-            { tipo: 'tema',   id: 'floral' },
-            { tipo: 'tema',   id: 'cuarzo-rosado' }
+            { tipo: 'app', id: 'twevan' },
+            { tipo: 'app', id: 'vicsgram' },
+            { tipo: 'app', id: 'delantedelmuro' },
+            { tipo: 'app', id: 'confesionario' }
         ]
     },
 
-    // 12 — catálogo: 205 → 135 (35% off)
+    // 53 — catálogo: 175 → 120 (31% off)
     {
-        id: 'pack_whatthehay_gold',
-        nombre: 'WhatTheHay GOLD',
-        icono: 'message-square',
-        descripcion: 'Chat interno con el tema Charla. Como estar en casa.',
-        precio: 135,
+        id: 'pack_fiesta',
+        nombre: 'Modo Fiesta',
+        icono: 'martini',
+        descripcion: 'Encuestas, secretos y mucho color.',
+        precio: 120,
         items: [
-            { tipo: 'app',  id: 'whatthehay' },
-            { tipo: 'tema', id: 'charla' }
+            { tipo: 'app',  id: 'encuestas' },
+            { tipo: 'app',  id: 'confesionario' },
+            { tipo: 'app',  id: 'delantedelmuro' },
+            { tipo: 'tema', id: 'pop-owner' }
         ]
     },
 
-    // 13 — catálogo: 130 → 90 (30% off)
+    // ========================================================
+    //  BLOQUE 15 — PACKS RELAX Y CREATIVOS (packs 54-55)
+    // ========================================================
+
+    // 54 — catálogo: 210 → 145 (31% off)
     {
-        id: 'pack_hombre_negocios',
-        nombre: 'Hombre de negocios',
-        icono: 'tie',
-        descripcion: 'Oficina día, oficina noche, PDF y tareas. Kit formal completo.',
+        id: 'pack_relax',
+        nombre: 'Zona Relax',
+        icono: 'leaf',
+        descripcion: 'Flores, acuarela y sonidos para descansar.',
+        precio: 145,
+        items: [
+            { tipo: 'tema',   id: 'floral' },
+            { tipo: 'tema',   id: 'acuarela' },
+            { tipo: 'widget', id: 'sonidos-fondo' },
+            { tipo: 'widget', id: 'mascota' }
+        ]
+    },
+
+    // 55 — catálogo: 525 → 350 (33% off)
+    {
+        id: 'pack_estudio',
+        nombre: 'Estudio Creativo',
+        icono: 'palette',
+        descripcion: 'Dibujo, pixel art, tipografía y animación.',
+        precio: 350,
+        items: [
+            { tipo: 'app', id: 'arte-flash' },
+            { tipo: 'app', id: 'pixevan' },
+            { tipo: 'app', id: 'tillyporgrafo' },
+            { tipo: 'app', id: 'flipovics' }
+        ]
+    },
+
+    // ========================================================
+    //  BLOQUE 16 — PACKS DE ESTACIÓN Y COZY (packs 56-57)
+    // ========================================================
+
+    // 56 — catálogo: 160 → 110 (31% off)
+    {
+        id: 'pack_primavera',
+        nombre: 'Espíritu de Primavera',
+        icono: 'flower-2',
+        descripcion: 'Flores, color y criaturas adorables.',
+        precio: 110,
+        items: [
+            { tipo: 'tema', id: 'primavera' },
+            { tipo: 'tema', id: 'floral' },
+            { tipo: 'tema', id: 'silly-hamster' },
+            { tipo: 'tema', id: 'cuarzo-rosado' }
+        ]
+    },
+
+    // 57 — catálogo: 130 → 90 (31% off)
+    {
+        id: 'pack_invierno_cozy',
+        nombre: 'Invierno Cozy',
+        icono: 'snowflake',
+        descripcion: 'Nieve, chocolate caliente y buenos libros.',
         precio: 90,
         items: [
-            { tipo: 'tema',   id: 'oficina' },
-            { tipo: 'tema',   id: 'oficina-dark' },
-            { tipo: 'app',    id: 'lector-pdf' },
-            { tipo: 'widget', id: 'to-do-list' }
+            { tipo: 'tema', id: 'invierno' },
+            { tipo: 'tema', id: 'navidad-cozy' },
+            { tipo: 'tema', id: 'cafe-latte' },
+            { tipo: 'tema', id: 'libro' }
         ]
     },
 
-    // 14 — catálogo: 300 → 180 (40% off)
+    // ========================================================
+    //  BLOQUE 17 — PACKS RETRO GAMER Y ESCRITORIO (packs 58-59)
+    // ========================================================
+
+    // 58 — catálogo: 115 → 80 (30% off)
     {
-        id: 'pack_streamer',
-        nombre: 'Streamer de profesión',
-        icono: 'tv',
-        descripcion: 'Videollamadas y tema Stream. Para transmitir con estilo.',
-        precio: 180,
+        id: 'pack_retro_gamer',
+        nombre: 'Retro Gamer',
+        icono: 'joystick',
+        descripcion: 'Arcade, chiptune y consolas clásicas.',
+        precio: 80,
         items: [
-            { tipo: 'app',  id: 'silly-calls' },
-            { tipo: 'tema', id: 'stream' }
+            { tipo: 'tema', id: 'retro-3d-arcade' },
+            { tipo: 'tema', id: 'chiptune' },
+            { tipo: 'tema', id: 'switch' },
+            { tipo: 'app',  id: 'caloluty' }
         ]
     },
 
-    // 15 — catálogo: 150 → 100 (35% off)
+    // 59 — catálogo: 140 → 95 (32% off)
     {
-        id: 'pack_pc_lover',
-        nombre: 'PC Lover',
+        id: 'pack_escritorio',
+        nombre: 'Escritorio Total',
         icono: 'monitor',
-        descripcion: 'Hacker, QR, accesos directos y Ventanas. Todo lo de la PC en uno.',
-        precio: 100,
+        descripcion: 'Todo para un setup completo.',
+        precio: 95,
         items: [
-            { tipo: 'tema',   id: 'hacker' },
+            { tipo: 'app',    id: 'calculadora' },
             { tipo: 'app',    id: 'qr' },
             { tipo: 'widget', id: 'acceso-directo' },
             { tipo: 'tema',   id: 'ventanas' }
         ]
     },
 
-    // 16 — catálogo: 125 → 90 (30% off)
+    // ========================================================
+    //  BLOQUE 18 — PACKS FINALES (packs 60-62)
+    // ========================================================
+
+    // 60 — catálogo: 50 → 35 (30% off)
     {
-        id: 'pack_lectura_tarde',
-        nombre: 'Lectura de la tarde',
-        icono: 'bookmark',
-        descripcion: 'Wiki, PDF y Café Latte. Para leer con algo caliente al lado.',
-        precio: 90,
+        id: 'pack_dark_completo',
+        nombre: 'Dark Mode Completo',
+        icono: 'moon',
+        descripcion: 'Oscuros para todos los gustos.',
+        precio: 35,
         items: [
-            { tipo: 'widget', id: 'wiki_lector' },
-            { tipo: 'app',    id: 'lector-pdf' },
-            { tipo: 'tema',   id: 'cafe-latte' }
+            { tipo: 'tema', id: 'oficina-dark' },
+            { tipo: 'tema', id: 'noche' },
+            { tipo: 'tema', id: 'ocean' },
+            { tipo: 'tema', id: 'hacker' }
         ]
     },
 
-    // 17 — catálogo: 20 → 15 (25% off)
+    // 61 — catálogo: 85 → 60 (29% off)
     {
-        id: 'pack_first',
-        nombre: 'First Pack',
-        icono: 'circle-dot',
-        descripcion: 'Lo más accesible de cada categoría. Ideal para arrancar.',
-        precio: 15,
+        id: 'pack_texto_y_notas',
+        nombre: 'Texto y Notas',
+        icono: 'notebook-pen',
+        descripcion: 'Para anotar, leer y analizar todo.',
+        precio: 60,
         items: [
-            { tipo: 'app',    id: 'camara' },
-            { tipo: 'widget', id: 'bubble-image' },
-            { tipo: 'tema',   id: 'noche' }
+            { tipo: 'app',    id: 'notas' },
+            { tipo: 'widget', id: 'analizador-texto' },
+            { tipo: 'widget', id: 'lector' },
+            { tipo: 'widget', id: 'gen-pass' }
         ]
     },
 
-    // 18 — catálogo: 500 → 300 (40% off)
+    // 62 — catálogo: 700 → 450 (36% off) — flagship
     {
-        id: 'pack_trinidad_dorada',
-        nombre: 'Trinidad Dorada',
-        icono: 'trophy',
-        descripcion: 'Lo más caro de cada categoría. Exclusividad máxima.',
-        precio: 300,
+        id: 'pack_clasico_epico',
+        nombre: 'Clásico Épico',
+        icono: 'crown',
+        descripcion: 'Lo mejor del catálogo en un solo pack. Exclusividad máxima.',
+        precio: 450,
         items: [
             { tipo: 'app',    id: 'silly-calls' },
+            { tipo: 'app',    id: 'vicscode' },
             { tipo: 'tema',   id: 'stream' },
-            { tipo: 'tema',   id: 'pop-owner' },
             { tipo: 'widget', id: 'radio' }
         ]
     }
