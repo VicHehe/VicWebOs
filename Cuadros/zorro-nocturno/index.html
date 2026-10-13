@@ -12,150 +12,205 @@
         }
         svg { display: block; width: 100%; height: 100%; }
 
+        /* Todo el zorro flota */
         .zorro {
             transform-box: view-box;
-            transform-origin: 45px 130px;
+            transform-origin: 45px 132px;
             animation: flotar 4s ease-in-out infinite;
         }
         @keyframes flotar {
             0%, 100% { transform: translateY(0); }
             50%      { transform: translateY(-3px); }
         }
+
+        /* Orejas: rotan sobre su propia base (fill-box) */
         .oreja-izq {
-            transform-box: view-box;
-            transform-origin: 34px 90px;
+            transform-box: fill-box;
+            transform-origin: 50% 100%;
             animation: orejaIzq 3s ease-in-out infinite;
         }
         .oreja-der {
-            transform-box: view-box;
-            transform-origin: 56px 90px;
+            transform-box: fill-box;
+            transform-origin: 50% 100%;
             animation: orejaDer 3.3s ease-in-out infinite;
         }
         @keyframes orejaIzq {
             0%, 100% { transform: rotate(0deg); }
-            45%      { transform: rotate(-10deg); }
+            45%      { transform: rotate(-9deg); }
         }
         @keyframes orejaDer {
             0%, 100% { transform: rotate(0deg); }
-            45%      { transform: rotate(10deg); }
+            45%      { transform: rotate(9deg); }
         }
+
+        /* Cola: rota sobre su unión al cuerpo */
         .cola {
-            transform-box: view-box;
-            transform-origin: 65px 120px;
-            animation: cola 2.5s ease-in-out infinite;
+            transform-box: fill-box;
+            transform-origin: 0% 15%;
+            animation: colaOsc 2.5s ease-in-out infinite;
         }
-        @keyframes cola {
-            0%, 100% { transform: rotate(-8deg); }
-            50%      { transform: rotate(10deg); }
+        @keyframes colaOsc {
+            0%, 100% { transform: rotate(-6deg); }
+            50%      { transform: rotate(9deg); }
         }
+
+        /* Ojos: parpadean escalando sobre sí mismos */
         .ojo {
-            transform-box: view-box;
+            transform-box: fill-box;
+            transform-origin: center;
             animation: parpadeo 5s ease-in-out infinite;
         }
         @keyframes parpadeo {
-            0%, 45%, 55%, 100% { transform: scaleY(1); }
+            0%, 44%, 56%, 100% { transform: scaleY(1); }
             50%                { transform: scaleY(0.05); }
         }
+
         .luna {
-            animation: lunaLatir 5s ease-in-out infinite;
+            transform-box: fill-box;
+            transform-origin: center;
+            animation: lunaPulso 5s ease-in-out infinite;
         }
-        @keyframes lunaLatir {
-            0%, 100% { opacity: 0.9; }
-            50%      { opacity: 1; }
+        @keyframes lunaPulso {
+            0%, 100% { opacity: 0.9; transform: scale(1); }
+            50%      { opacity: 1;   transform: scale(1.05); }
+        }
+
+        .estrella {
+            animation: titilar 3s ease-in-out infinite;
+        }
+        .estrella:nth-child(2n) { animation-duration: 4s; animation-delay: 0.5s; }
+        .estrella:nth-child(3n) { animation-duration: 3.5s; animation-delay: 1.2s; }
+        @keyframes titilar {
+            0%, 100% { opacity: 0.25; }
+            50%      { opacity: 0.95; }
         }
     </style>
 </head>
 <body>
 <svg viewBox="0 0 90 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
     <defs>
-        <radialGradient id="zx-fox" cx="0.4" cy="0.35" r="0.75">
-            <stop offset="0" stop-color="#FB923C"/>
-            <stop offset="1" stop-color="#C2410C"/>
-        </radialGradient>
-        <radialGradient id="zx-fox-head" cx="0.4" cy="0.35" r="0.75">
-            <stop offset="0" stop-color="#FB923C"/>
-            <stop offset="1" stop-color="#D97706"/>
-        </radialGradient>
         <radialGradient id="zx-moon" cx="0.5" cy="0.5" r="0.5">
-            <stop offset="0" stop-color="#FFFBEB"/>
-            <stop offset="1" stop-color="#FCD34D"/>
+            <stop offset="0"   stop-color="#FFFBEB"/>
+            <stop offset="0.7" stop-color="#FEF3C7"/>
+            <stop offset="1"   stop-color="#FCD34D"/>
         </radialGradient>
         <radialGradient id="zx-moon-glow" cx="0.5" cy="0.5" r="0.5">
-            <stop offset="0" stop-color="#FCD34D" stop-opacity="0.5"/>
+            <stop offset="0" stop-color="#FCD34D" stop-opacity="0.4"/>
             <stop offset="1" stop-color="#FCD34D" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="zx-body" cx="0.4" cy="0.35" r="0.75">
+            <stop offset="0" stop-color="#FB923C"/>
+            <stop offset="0.7" stop-color="#EA580C"/>
+            <stop offset="1" stop-color="#C2410C"/>
         </radialGradient>
     </defs>
 
-    <circle cx="68" cy="35" r="20" fill="url(#zx-moon-glow)"/>
-    <circle class="luna" cx="68" cy="35" r="9" fill="url(#zx-moon)"/>
-    <circle cx="65" cy="32" r="1.5" fill="#D97706" opacity="0.3"/>
-    <circle cx="71" cy="38" r="1" fill="#D97706" opacity="0.25"/>
+    <!-- Halo luna -->
+    <circle cx="68" cy="35" r="22" fill="url(#zx-moon-glow)"/>
+    <circle class="luna" cx="68" cy="35" r="10" fill="url(#zx-moon)"/>
+    <circle cx="65" cy="32" r="1.6" fill="#D97706" opacity="0.28"/>
+    <circle cx="71" cy="38" r="1"   fill="#D97706" opacity="0.22"/>
 
+    <!-- Estrellas -->
     <g fill="#FEF3C7">
-        <circle cx="12" cy="20" r="0.6"/>
-        <circle cx="25" cy="14" r="0.5"/>
-        <circle cx="48" cy="25" r="0.6"/>
-        <circle cx="82" cy="18" r="0.5"/>
-        <circle cx="15" cy="45" r="0.5"/>
-        <circle cx="38" cy="40" r="0.4"/>
-        <circle cx="72" cy="55" r="0.4"/>
+        <circle class="estrella" cx="12" cy="22" r="0.7"/>
+        <circle class="estrella" cx="26" cy="15" r="0.55"/>
+        <circle class="estrella" cx="46" cy="24" r="0.65"/>
+        <circle class="estrella" cx="82" cy="18" r="0.6"/>
+        <circle class="estrella" cx="16" cy="46" r="0.5"/>
+        <circle class="estrella" cx="38" cy="42" r="0.45"/>
+        <circle class="estrella" cx="8"  cy="62" r="0.5"/>
+        <circle class="estrella" cx="60" cy="58" r="0.45"/>
     </g>
 
-    <path d="M0,120 L8,110 L12,118 L20,108 L26,118 L34,112 L40,120 L48,114 L56,120 L64,112 L72,120 L80,116 L90,120 L90,160 L0,160 Z"
-          fill="#050510" opacity="0.6"/>
+    <!-- Silueta de bosque -->
+    <path d="M0,124 L6,118 L10,124 L16,114 L22,122 L30,116 L36,122 L44,114
+             L52,122 L58,116 L66,122 L74,114 L82,122 L88,118 L90,122
+             L90,160 L0,160 Z"
+          fill="#050510" opacity="0.85"/>
 
-    <ellipse cx="45" cy="140" rx="22" ry="2.5" fill="#000000" opacity="0.4"/>
+    <!-- Suelo -->
+    <ellipse cx="45" cy="142" rx="24" ry="2.5" fill="#000000" opacity="0.45"/>
 
     <g class="zorro">
 
+        <!-- ============ COLA (detrás del cuerpo) ============ -->
         <g class="cola">
-            <path d="M60,118 C72,114 82,116 86,124 C88,130 84,136 78,136 C72,136 68,130 66,124"
-                  fill="#C2410C"/>
-            <path d="M78,136 C74,134 72,130 76,126 C80,122 84,124 86,128 C86,132 82,136 78,136 Z"
+            <path d="M58,124 C70,116 82,116 86,126 C88,133 84,140 76,140
+                     C70,140 64,136 62,128"
+                  fill="url(#zx-body)"/>
+            <!-- Punta blanca -->
+            <path d="M74,139 C69,138 66,134 67,129 C69,124 75,124 79,128
+                     C82,132 80,138 74,139 Z"
                   fill="#FFF7ED"/>
         </g>
 
-        <ellipse cx="32" cy="138" rx="5" ry="3" fill="#C2410C"/>
-        <ellipse cx="58" cy="138" rx="5" ry="3" fill="#C2410C"/>
+        <!-- ============ PATAS TRASERAS ============ -->
+        <ellipse cx="31" cy="134" rx="6.5" ry="4" fill="#C2410C"/>
+        <ellipse cx="59" cy="134" rx="6.5" ry="4" fill="#C2410C"/>
 
-        <ellipse cx="45" cy="122" rx="16" ry="18" fill="url(#zx-fox)"/>
-        <ellipse cx="45" cy="124" rx="10" ry="13" fill="#FFF7ED" opacity="0.9"/>
+        <!-- ============ CUERPO ============ -->
+        <ellipse cx="45" cy="120" rx="18" ry="18" fill="url(#zx-body)"/>
+        <!-- Panza clara -->
+        <ellipse cx="45" cy="124" rx="11" ry="12" fill="#FFF7ED" opacity="0.92"/>
 
-        <ellipse cx="38" cy="135" rx="4" ry="3.5" fill="#FB923C"/>
-        <ellipse cx="52" cy="135" rx="4" ry="3.5" fill="#FB923C"/>
-        <circle cx="37" cy="136" r="0.5" fill="#7C2D12" opacity="0.5"/>
-        <circle cx="39" cy="136" r="0.5" fill="#7C2D12" opacity="0.5"/>
-        <circle cx="51" cy="136" r="0.5" fill="#7C2D12" opacity="0.5"/>
-        <circle cx="53" cy="136" r="0.5" fill="#7C2D12" opacity="0.5"/>
+        <!-- ============ PATAS DELANTERAS ============ -->
+        <ellipse cx="34" cy="136" rx="5" ry="3.5" fill="#F97316"/>
+        <ellipse cx="56" cy="136" rx="5" ry="3.5" fill="#F97316"/>
+        <!-- Dedos -->
+        <circle cx="32" cy="137" r="0.6" fill="#7C2D12" opacity="0.65"/>
+        <circle cx="34" cy="137" r="0.6" fill="#7C2D12" opacity="0.65"/>
+        <circle cx="36" cy="137" r="0.6" fill="#7C2D12" opacity="0.65"/>
+        <circle cx="54" cy="137" r="0.6" fill="#7C2D12" opacity="0.65"/>
+        <circle cx="56" cy="137" r="0.6" fill="#7C2D12" opacity="0.65"/>
+        <circle cx="58" cy="137" r="0.6" fill="#7C2D12" opacity="0.65"/>
 
+        <!-- ============ OREJAS ============ -->
         <g class="oreja-izq">
-            <path d="M34,90 L28,72 L42,82 Z" fill="#C2410C"/>
-            <path d="M34,86 L31,76 L40,83 Z" fill="#FBCFE8"/>
+            <path d="M33,90 L26,68 L42,80 Z" fill="#C2410C"/>
+            <path d="M33,86 L28,72 L40,81 Z" fill="#FBCFE8"/>
         </g>
         <g class="oreja-der">
-            <path d="M56,90 L62,72 L48,82 Z" fill="#C2410C"/>
-            <path d="M56,86 L59,76 L50,83 Z" fill="#FBCFE8"/>
+            <path d="M57,90 L64,68 L48,80 Z" fill="#C2410C"/>
+            <path d="M57,86 L62,72 L50,81 Z" fill="#FBCFE8"/>
         </g>
 
-        <ellipse cx="45" cy="98" rx="14" ry="13" fill="url(#zx-fox-head)"/>
+        <!-- ============ CABEZA (con hocico puntiagudo) ============ -->
+        <path d="M29,88
+                 C29,78 35,73 45,73
+                 C55,73 61,78 61,88
+                 C61,96 53,104 45,112
+                 C37,104 29,96 29,88 Z"
+              fill="url(#zx-body)"/>
 
-        <path d="M45,108 C40,108 36,104 36,100 L54,100 C54,104 50,108 45,108 Z"
-              fill="#FFF7ED"/>
+        <!-- Mejillas -->
+        <ellipse cx="34" cy="100" rx="3" ry="1.8" fill="#FBCFE8" opacity="0.55"/>
+        <ellipse cx="56" cy="100" rx="3" ry="1.8" fill="#FBCFE8" opacity="0.55"/>
 
-        <ellipse class="ojo" cx="40" cy="95" rx="1.8" ry="2.2" fill="#1F2937"/>
-        <ellipse class="ojo" cx="50" cy="95" rx="1.8" ry="2.2" fill="#1F2937"/>
-        <circle cx="39.3" cy="94.3" r="0.6" fill="white"/>
-        <circle cx="49.3" cy="94.3" r="0.6" fill="white"/>
-
-        <ellipse cx="45" cy="103" rx="1.5" ry="1.1" fill="#1F2937"/>
-        <ellipse cx="44.6" cy="102.7" rx="0.4" ry="0.25" fill="white" opacity="0.7"/>
-
-        <ellipse cx="35" cy="102" rx="2" ry="1.2" fill="#FBCFE8" opacity="0.5"/>
-        <ellipse cx="55" cy="102" rx="2" ry="1.2" fill="#FBCFE8" opacity="0.5"/>
-
-        <path d="M42,88 L43,92 M45,87 L45,92 M48,88 L47,92"
-              stroke="#7C2D12" stroke-width="0.5" opacity="0.4"
+        <!-- Rayas de frente -->
+        <path d="M42,78 L43,84 M45,77 L45,84 M48,78 L47,84"
+              stroke="#7C2D12" stroke-width="0.5" opacity="0.5"
               stroke-linecap="round"/>
+
+        <!-- Ojos -->
+        <ellipse class="ojo" cx="39" cy="91" rx="1.9" ry="2.3" fill="#1F2937"/>
+        <ellipse class="ojo" cx="51" cy="91" rx="1.9" ry="2.3" fill="#1F2937"/>
+        <!-- Brillo en los ojos -->
+        <circle cx="38.2" cy="90.2" r="0.6" fill="white"/>
+        <circle cx="50.2" cy="90.2" r="0.6" fill="white"/>
+
+        <!-- ============ HOCICO (marca blanca + nariz) ============ -->
+        <ellipse cx="45" cy="103" rx="8" ry="6" fill="#FFF7ED"/>
+        <ellipse cx="45" cy="107" rx="2" ry="1.4" fill="#1F2937"/>
+        <ellipse cx="44.4" cy="106.5" rx="0.6" ry="0.35" fill="white" opacity="0.55"/>
+
+        <!-- ============ BIGOTES ============ -->
+        <g stroke="#7C2D12" stroke-width="0.35" stroke-linecap="round" opacity="0.7">
+            <line x1="39" y1="101" x2="34" y2="99"/>
+            <line x1="39" y1="103" x2="33" y2="103"/>
+            <line x1="51" y1="101" x2="56" y2="99"/>
+            <line x1="51" y1="103" x2="57" y2="103"/>
+        </g>
     </g>
 </svg>
 </body>
