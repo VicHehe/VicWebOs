@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>El Ojo</title>
+    <style>
+        html, body {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 50%, #1A0A0A 0%, #080202 60%, #000000 100%);
+        }
+        svg { display: block; width: 100%; height: 100%; }
+
+        .iris {
+            transform-box: view-box;
+            animation: mirar 6s ease-in-out infinite;
+        }
+        @keyframes mirar {
+            0%   { transform: translate(0, 0); }
+            15%  { transform: translate(-2px, -1px); }
+            30%  { transform: translate(2px, 0); }
+            45%  { transform: translate(0, 1px); }
+            60%  { transform: translate(-1px, 1px); }
+            75%  { transform: translate(1px, -1px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        .parpado {
+            transform-box: view-box;
+            transform-origin: 45px 80px;
+            animation: parpadear 7s ease-in-out infinite;
+        }
+        @keyframes parpadear {
+            0%, 45%, 55%, 100% { transform: scaleY(0); }
+            48%, 52%           { transform: scaleY(1); }
+        }
+
+        .pulso {
+            transform-box: view-box;
+            transform-origin: 45px 80px;
+            animation: latir 3s ease-in-out infinite;
+        }
+        @keyframes latir {
+            0%, 100% { opacity: 0.9; transform: scale(1); }
+            50%      { opacity: 1;    transform: scale(1.05); }
+        }
+
+        .aura {
+            animation: auraPulso 4s ease-in-out infinite;
+        }
+        @keyframes auraPulso {
+            0%, 100% { opacity: 0.3; }
+            50%      { opacity: 0.6; }
+        }
+
+        .flash {
+            animation: flashOcas 9s ease-in-out infinite;
+        }
+        @keyframes flashOcas {
+            0%, 88%, 100% { opacity: 0; }
+            91%           { opacity: 0.15; }
+            93%           { opacity: 0.05; }
+            95%           { opacity: 0.2; }
+        }
+    </style>
+</head>
+<body>
+<svg viewBox="0 0 90 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <radialGradient id="oj-halo" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0"   stop-color="#DC2626" stop-opacity="0.5"/>
+            <stop offset="0.5" stop-color="#991B1B" stop-opacity="0.2"/>
+            <stop offset="1"   stop-color="#450A0A" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="oj-iris" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0"   stop-color="#000000"/>
+            <stop offset="0.5" stop-color="#7F1D1D"/>
+            <stop offset="0.85" stop-color="#DC2626"/>
+            <stop offset="1"   stop-color="#450A0A"/>
+        </radialGradient>
+        <radialGradient id="oj-pupila" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0" stop-color="#000000"/>
+            <stop offset="1" stop-color="#1F1F1F"/>
+        </radialGradient>
+        <radialGradient id="oj-esclerotica" cx="0.4" cy="0.35" r="0.75">
+            <stop offset="0" stop-color="#FEF2F2"/>
+            <stop offset="0.7" stop-color="#FCA5A5"/>
+            <stop offset="1" stop-color="#7F1D1D"/>
+        </radialGradient>
+    </defs>
+
+    <circle class="aura" cx="45" cy="80" r="55" fill="url(#oj-halo)"/>
+
+    <g class="pulso">
+        <path d="M8,80 C18,58 32,52 45,52 C58,52 72,58 82,80 C72,102 58,108 45,108 C32,108 18,102 8,80 Z"
+              fill="#1A0505"/>
+        <path d="M12,74 Q20,68 28,70" stroke="#7F1D1D" stroke-width="0.4" fill="none" opacity="0.7"/>
+        <path d="M78,74 Q70,68 62,70" stroke="#7F1D1D" stroke-width="0.4" fill="none" opacity="0.7"/>
+        <path d="M15,88 Q22,92 30,90" stroke="#7F1D1D" stroke-width="0.4" fill="none" opacity="0.6"/>
+        <path d="M75,88 Q68,92 60,90" stroke="#7F1D1D" stroke-width="0.4" fill="none" opacity="0.6"/>
+
+        <ellipse cx="45" cy="80" rx="30" ry="20" fill="url(#oj-esclerotica)"/>
+        <path d="M22,72 Q26,76 22,80" stroke="#DC2626" stroke-width="0.3" fill="none" opacity="0.5"/>
+        <path d="M68,72 Q64,76 68,80" stroke="#DC2626" stroke-width="0.3" fill="none" opacity="0.5"/>
+        <path d="M25,88 Q30,86 28,90" stroke="#DC2626" stroke-width="0.3" fill="none" opacity="0.4"/>
+        <path d="M65,88 Q60,86 62,90" stroke="#DC2626" stroke-width="0.3" fill="none" opacity="0.4"/>
+
+        <g class="iris">
+            <circle cx="45" cy="80" r="12" fill="url(#oj-iris)"/>
+            <g opacity="0.6">
+                <line x1="45" y1="68" x2="45" y2="74" stroke="#7F1D1D" stroke-width="0.4"/>
+                <line x1="45" y1="86" x2="45" y2="92" stroke="#7F1D1D" stroke-width="0.4"/>
+                <line x1="33" y1="80" x2="39" y2="80" stroke="#7F1D1D" stroke-width="0.4"/>
+                <line x1="51" y1="80" x2="57" y2="80" stroke="#7F1D1D" stroke-width="0.4"/>
+                <line x1="37" y1="72" x2="41" y2="76" stroke="#7F1D1D" stroke-width="0.3"/>
+                <line x1="53" y1="72" x2="49" y2="76" stroke="#7F1D1D" stroke-width="0.3"/>
+                <line x1="37" y1="88" x2="41" y2="84" stroke="#7F1D1D" stroke-width="0.3"/>
+                <line x1="53" y1="88" x2="49" y2="84" stroke="#7F1D1D" stroke-width="0.3"/>
+            </g>
+            <circle cx="45" cy="80" r="5" fill="url(#oj-pupila)"/>
+            <circle cx="42" cy="77" r="1.8" fill="white" opacity="0.9"/>
+            <circle cx="48" cy="82" r="0.8" fill="white" opacity="0.4"/>
+        </g>
+
+        <ellipse class="parpado" cx="45" cy="80" rx="30" ry="20" fill="#1A0505"/>
+        <path d="M22,68 Q45,60 68,68" stroke="#FCA5A5" stroke-width="0.3" fill="none" opacity="0.4"/>
+    </g>
+
+    <g fill="#DC2626" opacity="0.6">
+        <circle cx="12" cy="30" r="0.5"/>
+        <circle cx="78" cy="25" r="0.6"/>
+        <circle cx="20" cy="140" r="0.5"/>
+        <circle cx="72" cy="135" r="0.5"/>
+        <circle cx="30" cy="20" r="0.4"/>
+    </g>
+
+    <rect class="flash" x="0" y="0" width="90" height="160" fill="#DC2626" opacity="0"/>
+</svg>
+</body>
+</html>
