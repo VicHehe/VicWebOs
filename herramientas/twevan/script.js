@@ -374,7 +374,8 @@ function crearTweetCard(post) {
 
         const mh = MH();
         if (mh) {
-            mh.galeria.leerImagenURL(post.imagenId).then(url => {
+            // FIX: pasar el código del autor para leer la imagen de su galería
+            mh.galeria.leerImagenURL(post.imagenId, post.autor).then(url => {
                 if (!url) return;
                 urlsActivas.push(url);
                 const img = document.createElement('img');
@@ -620,7 +621,8 @@ function renderVerPost() {
     `;
 
     if (post.imagenId) {
-        MH()?.galeria.leerImagenURL(post.imagenId).then(url => {
+        // FIX: pasar el código del autor para leer la imagen de su galería
+        MH()?.galeria.leerImagenURL(post.imagenId, post.autor).then(url => {
             if (!url) return;
             const el = document.getElementById('tvVerImagen');
             if (el) {
@@ -697,7 +699,8 @@ function abrirEditor(postId = null) {
         ta.value = post.texto || '';
         imagenPendienteId = post.imagenId || null;
         if (imagenPendienteId) {
-            MH()?.galeria.leerImagenURL(imagenPendienteId).then(url => {
+            // FIX: pasar el código del autor (acá sos vos, pero por consistencia)
+            MH()?.galeria.leerImagenURL(imagenPendienteId, usuarioActual.codigo).then(url => {
                 if (!url) return;
                 prev.src = url; prev.onload = () => URL.revokeObjectURL(url);
                 wrap.hidden = false;
@@ -733,7 +736,8 @@ async function elegirImagenEditor() {
         const id = await mh.galeria.abrirPicker({ multiple: false, titulo: 'Elegí una imagen' });
         if (!id) return;
         imagenPendienteId = id;
-        const url = await mh.galeria.leerImagenURL(id);
+        // FIX: pasar el código del autor (acá sos vos, pero por consistencia)
+        const url = await mh.galeria.leerImagenURL(id, usuarioActual.codigo);
         if (url) {
             const prev = document.getElementById('tvEditorImagenPreview');
             prev.src = url; prev.onload = () => URL.revokeObjectURL(url);
