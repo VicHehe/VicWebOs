@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Sandía</title>
+    <style>
+        html, body {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 45%, #FEF2F2 0%, #FCE7F3 55%, #FBCFE8 100%);
+        }
+        svg { display: block; width: 100%; height: 100%; }
+        .sandia {
+            transform-box: view-box;
+            transform-origin: 45px 90px;
+            animation: flotar 4s ease-in-out infinite;
+        }
+        @keyframes flotar {
+            0%, 100% { transform: translateY(0) rotate(-1deg); }
+            50%      { transform: translateY(-3px) rotate(1deg); }
+        }
+        .semilla {
+            animation: brilloSemilla 3s ease-in-out infinite;
+        }
+        .semilla:nth-child(odd) { animation-delay: 0.5s; }
+        @keyframes brilloSemilla {
+            0%, 100% { opacity: 0.85; }
+            50%      { opacity: 1; }
+        }
+        .gota {
+            animation: gotaPulso 2s ease-in-out infinite;
+        }
+        @keyframes gotaPulso {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50%      { opacity: 1; transform: scale(1.1); }
+        }
+    </style>
+</head>
+<body>
+<svg viewBox="0 0 90 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="sd-rind" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#16A34A"/>
+            <stop offset="1" stop-color="#15803D"/>
+        </linearGradient>
+        <linearGradient id="sd-flesh" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#FB7185"/>
+            <stop offset="1" stop-color="#E11D48"/>
+        </linearGradient>
+    </defs>
+
+    <ellipse cx="45" cy="142" rx="30" ry="3" fill="#BE123C" opacity="0.15"/>
+
+    <g class="sandia">
+        <path d="M10,80 C10,80 45,140 80,80 C80,80 45,90 10,80 Z"
+              fill="url(#sd-rind)"/>
+        <path d="M13,82 C13,82 45,136 77,82 C77,82 45,88 13,82 Z"
+              fill="#DCFCE7"/>
+        <path d="M16,84 C16,84 45,132 74,84 C74,84 45,86 16,84 Z"
+              fill="url(#sd-flesh)"/>
+
+        <g fill="#1F2937">
+            <ellipse class="semilla" cx="30" cy="96" rx="1.2" ry="1.6"/>
+            <ellipse class="semilla" cx="45" cy="100" rx="1.2" ry="1.6"/>
+            <ellipse class="semilla" cx="60" cy="96" rx="1.2" ry="1.6"/>
+            <ellipse class="semilla" cx="37" cy="108" rx="1.2" ry="1.6"/>
+            <ellipse class="semilla" cx="53" cy="108" rx="1.2" ry="1.6"/>
+            <ellipse class="semilla" cx="45" cy="116" rx="1.1" ry="1.5"/>
+            <ellipse class="semilla" cx="26" cy="104" rx="1" ry="1.4"/>
+            <ellipse class="semilla" cx="64" cy="104" rx="1" ry="1.4"/>
+        </g>
+
+        <g fill="#FDA4AF" opacity="0.9">
+            <circle class="gota" cx="20" cy="82" r="1.2"/>
+            <circle class="gota" cx="70" cy="82" r="1.2"/>
+            <circle class="gota" cx="30" cy="86" r="0.8" style="animation-delay:0.3s"/>
+        </g>
+
+        <ellipse cx="35" cy="92" rx="5" ry="2" fill="white" opacity="0.35"
+                 transform="rotate(-20 35 92)"/>
+        <ellipse cx="58" cy="96" rx="3" ry="1.2" fill="white" opacity="0.25"
+                 transform="rotate(15 58 96)"/>
+    </g>
+</svg>
+</body>
+</html>
