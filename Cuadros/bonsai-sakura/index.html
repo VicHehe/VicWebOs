@@ -2,126 +2,164 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bonsái de Sakura</title>
     <style>
         html, body {
             margin: 0; padding: 0;
             width: 100%; height: 100%;
             overflow: hidden;
-            background: linear-gradient(180deg, #FCE7F3 0%, #FBCFE8 60%, #F9A8D4 100%);
+            background: linear-gradient(180deg, #FCE7F3 0%, #FBCFE8 55%, #F9A8D4 100%);
         }
         svg { display: block; width: 100%; height: 100%; }
 
         .bonsai {
             transform-box: view-box;
-            transform-origin: 45px 130px;
+            transform-origin: 45px 132px;
             animation: respirar 6s ease-in-out infinite;
         }
+        @keyframes respirar {
+            0%, 100% { transform: scale(1); }
+            50%      { transform: scale(1.015); }
+        }
+
         .copa {
             transform-box: view-box;
-            transform-origin: 46px 62px;
+            transform-origin: 45px 65px;
             animation: copaMecer 5s ease-in-out infinite;
         }
-        .flor-grupo {
+        @keyframes copaMecer {
+            0%, 100% { transform: rotate(-1.2deg); }
+            50%      { transform: rotate(1.2deg); }
+        }
+
+        .flor-brillo {
             animation: florBrillo 3s ease-in-out infinite;
         }
-        .flor-grupo:nth-child(2n) { animation-duration: 3.8s; animation-delay: 0.6s; }
-        .flor-grupo:nth-child(3n) { animation-duration: 4.4s; animation-delay: 1.2s; }
-
-        @keyframes respirar { 0%,100% { transform: scale(1); } 50% { transform: scale(1.01); } }
-        @keyframes copaMecer { 0%,100% { transform: rotate(-1.2deg); } 50% { transform: rotate(1.2deg); } }
-        @keyframes florBrillo { 0%,100% { opacity: 0.8; } 50% { opacity: 1; } }
-
-        /* Pétalos que caen */
-        .petalo {
-            position: fixed;
-            top: -10px;
-            width: 6px;
-            height: 5px;
-            background: #FBCFE8;
-            border-radius: 50% 0 50% 0;
-            box-shadow: 0 0 3px rgba(255,255,255,0.6);
-            animation: caer linear forwards;
-            pointer-events: none;
+        .flor-brillo:nth-child(2n) { animation-delay: 0.7s; }
+        .flor-brillo:nth-child(3n) { animation-delay: 1.4s; }
+        @keyframes florBrillo {
+            0%, 100% { opacity: 0.75; }
+            50%      { opacity: 1; }
         }
-        @keyframes caer {
+
+        /* Pétalos SVG cayendo dentro del cuadro (fix del bug) */
+        .petalo-falling {
+            transform-box: fill-box;
+            transform-origin: center;
+            animation: petaloCaer linear infinite;
+        }
+        @keyframes petaloCaer {
             0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-            10%  { opacity: 1; }
-            50%  { transform: translate(14px, 50vh) rotate(180deg); }
-            100% { transform: translate(-10px, 110vh) rotate(360deg); opacity: 0.6; }
+            10%  { opacity: 0.95; }
+            85%  { opacity: 0.7; }
+            100% { transform: translate(-14px, 105px) rotate(360deg); opacity: 0; }
         }
     </style>
 </head>
 <body>
-<svg viewBox="0 0 90 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<svg id="sk-svg" viewBox="0 0 90 160"
+     preserveAspectRatio="xMidYMid slice"
+     xmlns="http://www.w3.org/2000/svg">
     <defs>
-        <radialGradient id="sk-sol" cx="0.5" cy="0.5" r="0.5">
-            <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.9"/>
+        <radialGradient id="sk-luz" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.85"/>
             <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
         </radialGradient>
     </defs>
 
-    <!-- Luz suave de fondo -->
-    <circle cx="45" cy="60" r="40" fill="url(#sk-sol)" opacity="0.6"/>
+    <!-- Luz suave detrás del árbol -->
+    <circle cx="45" cy="65" r="42" fill="url(#sk-luz)" opacity="0.7"/>
 
-    <!-- Suelo -->
-    <path d="M0,138 Q25,132 45,136 T90,134 L90,160 L0,160 Z" fill="#BE185D" opacity="0.35"/>
+    <!-- Suelo rosa -->
+    <path d="M0,138 Q25,132 45,136 T90,134 L90,160 L0,160 Z"
+          fill="#BE185D" opacity="0.35"/>
 
+    <!-- ============ BONSÁI ============ -->
     <g class="bonsai">
-        <!-- Tronco -->
-        <path d="M40,122 Q35,104 44,90 Q51,78 46,66"
-              stroke="#78350F" stroke-width="5" fill="none" stroke-linecap="round"/>
-        <path d="M44,90 Q56,86 62,74"
-              stroke="#78350F" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-        <path d="M36,110 Q30,102 32,94"
-              stroke="#78350F" stroke-width="2" fill="none" stroke-linecap="round"/>
 
-        <!-- Copa de flores -->
+        <!-- Tronco principal con S-curve más marcada -->
+        <path d="M40,122 C36,110 42,98 44,88 C47,78 50,72 46,66"
+              stroke="#78350F" stroke-width="4.5"
+              fill="none" stroke-linecap="round"/>
+        <!-- Rama derecha -->
+        <path d="M44,92 C52,88 60,84 64,76"
+              stroke="#78350F" stroke-width="2.2"
+              fill="none" stroke-linecap="round"/>
+        <!-- Rama izquierda -->
+        <path d="M38,108 C32,104 28,98 28,92"
+              stroke="#78350F" stroke-width="2"
+              fill="none" stroke-linecap="round"/>
+        <!-- Rama baja -->
+        <path d="M41,116 C36,114 32,116 28,120"
+              stroke="#78350F" stroke-width="1.6"
+              fill="none" stroke-linecap="round"/>
+
+        <!-- Copa: capas de follaje rosa -->
         <g class="copa">
-            <g fill="#F9A8D4" opacity="0.95">
-                <circle class="flor-grupo" cx="46" cy="60" r="11"/>
-                <circle class="flor-grupo" cx="34" cy="68" r="8"/>
-                <circle class="flor-grupo" cx="62" cy="70" r="8"/>
-                <circle class="flor-grupo" cx="54" cy="52" r="7"/>
-                <circle class="flor-grupo" cx="36" cy="54" r="6"/>
-                <circle class="flor-grupo" cx="22" cy="76" r="5"/>
+            <!-- Capa base: manchas grandes -->
+            <g fill="#F9A8D4">
+                <circle class="flor-brillo" cx="45" cy="60" r="12"/>
+                <circle class="flor-brillo" cx="32" cy="70" r="9"/>
+                <circle class="flor-brillo" cx="60" cy="72" r="9"/>
+                <circle class="flor-brillo" cx="54" cy="54" r="8"/>
+                <circle class="flor-brillo" cx="36" cy="56" r="7"/>
             </g>
-            <g fill="#FBCFE8" opacity="0.9">
-                <circle class="flor-grupo" cx="42" cy="58" r="3"/>
-                <circle class="flor-grupo" cx="58" cy="64" r="3"/>
-                <circle class="flor-grupo" cx="30" cy="66" r="2.5"/>
-                <circle class="flor-grupo" cx="66" cy="78" r="2.5"/>
+            <!-- Capa media: manchitas más claras -->
+            <g fill="#FBCFE8">
+                <circle class="flor-brillo" cx="42" cy="58" r="4"/>
+                <circle class="flor-brillo" cx="56" cy="62" r="4"/>
+                <circle class="flor-brillo" cx="30" cy="68" r="3.5"/>
+                <circle class="flor-brillo" cx="64" cy="74" r="3.5"/>
+                <circle class="flor-brillo" cx="48" cy="52" r="3"/>
+                <circle class="flor-brillo" cx="36" cy="72" r="3"/>
             </g>
-            <g fill="#FFF1F2" opacity="0.8">
-                <circle cx="50" cy="50" r="1.2"/>
-                <circle cx="40" cy="62" r="1"/>
-                <circle cx="62" cy="58" r="1"/>
+            <!-- Capa alta: florecitas individuales -->
+            <g fill="#FFF1F2" opacity="0.95">
+                <circle cx="46" cy="50" r="1.5"/>
+                <circle cx="40" cy="60" r="1.3"/>
+                <circle cx="54" cy="56" r="1.4"/>
+                <circle cx="62" cy="66" r="1.2"/>
+                <circle cx="28" cy="72" r="1.2"/>
+                <circle cx="50" cy="68" r="1.1"/>
+                <circle cx="36" cy="48" r="1.1"/>
             </g>
         </g>
 
         <!-- Maceta -->
-        <path d="M28,122 H64 L60,134 H32 Z" fill="#92400E"/>
-        <rect x="26" y="120" width="40" height="4" rx="1.5" fill="#B45309"/>
-        <ellipse cx="46" cy="120" rx="18" ry="1.5" fill="#451A03"/>
+        <path d="M28,122 H64 L60,136 H32 Z" fill="#92400E"/>
+        <rect x="26" y="119" width="40" height="5" rx="2" fill="#B45309"/>
+        <ellipse cx="46" cy="119" rx="20" ry="1.8" fill="#451A03" opacity="0.75"/>
+        <!-- Tierra dentro de la maceta -->
+        <ellipse cx="46" cy="121" rx="17" ry="1.4" fill="#3F1A03"/>
     </g>
 </svg>
 
 <script>
+    // ============================================================
+    //  Pétalos cayendo (SVG-based, dentro del cuadro)
+    // ============================================================
     (function () {
         'use strict';
-        // Pétalos cayendo de forma continua
-        function crearPetalo() {
-            const p = document.createElement('div');
-            p.className = 'petalo';
-            p.style.left = Math.random() * 100 + '%';
-            const dur = 5 + Math.random() * 4;
-            p.style.animationDuration = dur + 's';
-            document.body.appendChild(p);
-            setTimeout(() => p.remove(), dur * 1000);
+
+        const svg = document.getElementById('sk-svg');
+        if (!svg) return;
+
+        const NS = 'http://www.w3.org/2000/svg';
+        const TOTAL = 12;
+
+        for (let i = 0; i < TOTAL; i++) {
+            const p = document.createElementNS(NS, 'ellipse');
+            p.setAttribute('cx', 15 + Math.random() * 60);
+            p.setAttribute('cy', 45 + Math.random() * 25);
+            p.setAttribute('rx', 1.4 + Math.random() * 0.7);
+            p.setAttribute('ry', 0.9 + Math.random() * 0.4);
+            p.setAttribute('fill', i % 2 === 0 ? '#FBCFE8' : '#F9A8D4');
+            p.setAttribute('opacity', '0.9');
+            p.classList.add('petalo-falling');
+            p.style.animationDelay = (Math.random() * 10) + 's';
+            p.style.animationDuration = (5 + Math.random() * 4) + 's';
+            svg.appendChild(p);
         }
-        setInterval(crearPetalo, 450);
-        for (let i = 0; i < 6; i++) setTimeout(crearPetalo, i * 300);
     })();
 </script>
 </body>
