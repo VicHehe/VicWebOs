@@ -5,6 +5,10 @@
 //  Los colores se obtienen haciendo fetch del CSS de
 //  Temas/{id}.css y parseando el :root (funciona aunque
 //  JsTemas.js no exponga TEMAS_DISPONIBLES en window).
+//
+//  FIX: si un tema no define --white, se fuerza un fondo
+//  claro (--bg del tema o #FFFFFF) para evitar que la
+//  tarjeta herede el --white oscuro del shell en modo oscuro.
 // ============================================================
 
 'use strict';
@@ -229,10 +233,23 @@ async function obtenerVariablesTema(temaId) {
     }
 }
 
+// ------------------------------------------------------------
+//  Aplicar variables del tema a un elemento.
+//  Si el tema NO define --white, forzamos un fondo claro:
+//  usamos --bg del tema si existe, si no, #FFFFFF puro.
+//  Así evitamos que la tarjeta herede --white oscuro del shell.
+// ------------------------------------------------------------
 function aplicarTemaATarjeta(el, vars) {
-    if (!el || !vars) return;
+    if (!el) return;
+    vars = vars || {};
+
     for (const [key, value] of Object.entries(vars)) {
         try { el.style.setProperty(key, value); } catch (e) { /* ignorar */ }
+    }
+
+    if (!vars['--white']) {
+        const fondoClaro = vars['--bg'] || '#FFFFFF';
+        el.style.setProperty('--white', fondoClaro);
     }
 }
 
@@ -351,7 +368,9 @@ function render() {
     grid.innerHTML = ordenados.map(u => renderTarjeta(u)).join('');
     if (window.lucide) window.lucide.createIcons();
 
-    // Aplicar tema a cada tarjeta (ya está cacheado)
+    // Aplicar tema a cada tarjeta (ya está cacheado).
+    // Siempre llamamos a aplicarTemaATarjeta: si vars es null,
+    // forzará --white = #FFFFFF para que no se vea "sin fondo".
     grid.querySelectorAll('.ct-card').forEach(card => {
         const codigo = card.dataset.codigo;
         if (!codigo) return;
@@ -360,11 +379,7 @@ function render() {
         const temaId = (cfg && cfg.temaActivo) ? cfg.temaActivo : TEMA_POR_DEFECTO;
         const vars = _temasCache.get(temaId);
 
-        if (vars) {
-            aplicarTemaATarjeta(card, vars);
-        } else {
-            console.warn('[Contactos] Sin vars para @' + codigo + ' (tema: ' + temaId + ')');
-        }
+        aplicarTemaATarjeta(card, vars);
     });
 
     // Cablear clicks
@@ -484,13 +499,15 @@ function abrirPerfil(codigo) {
         txtRegalar.textContent = 'Regalar monedas';
     }
 
-    // Aplicar tema del usuario al modal
+    // Aplicar tema del usuario al modal.
+    // Siempre llamamos a aplicarTemaATarjeta: si vars es null,
+    // forzará --white = #FFFFFF para evitar fondo heredado oscuro.
     const card = document.getElementById('ctPerfilCard');
     card.removeAttribute('style');
     const cfg = configsGlobales[codigo];
     const temaId = (cfg && cfg.temaActivo) ? cfg.temaActivo : TEMA_POR_DEFECTO;
     const vars = _temasCache.get(temaId);
-    if (vars) aplicarTemaATarjeta(card, vars);
+    aplicarTemaATarjeta(card, vars);
 
     document.getElementById('ctModalPerfil').hidden = false;
     if (window.lucide) window.lucide.createIcons();
