@@ -5,9 +5,9 @@
 //  Compatible con TODOS los temas (var() con fallbacks).
 //  Sin emojis.
 //
-//  Cuadros: decoración pura del lobby. Su estado vive en
-//  window.parent.LogicCuadros (archivo propio). Aquí solo
-//  los mostramos, los agregamos al carrito y los compramos.
+//  Cuadros: decoración pura. Su estado vive en LogicCuadros.
+//  Acá SOLO se compran. La activación/desactivación se hace
+//  desde Configuración → Cuadros (igual que los widgets).
 // ============================================================
 
 const API = () => window.parent.__vicwebos || null;
@@ -628,9 +628,9 @@ function _botonesNoInstalado(tipo, item, bloqueado, motivo) {
     const textoPrincipal = enCarrito ? 'En carrito' : 'Agregar';
 
     let accionInstalar = 'instalarWidget';
-    if (tipo === 'app')      accionInstalar = 'instalar';
-    else if (tipo === 'tema')    accionInstalar = 'instalarTema';
-    else if (tipo === 'cuadro')  accionInstalar = 'comprarCuadro';
+    if (tipo === 'app')           accionInstalar = 'instalar';
+    else if (tipo === 'tema')     accionInstalar = 'instalarTema';
+    else if (tipo === 'cuadro')   accionInstalar = 'comprarCuadro';
 
     return `
         <div class="sh-acciones">
@@ -873,45 +873,9 @@ function renderWidgets() {
 //  TAB: CUADROS
 //  ------------------------------------------------------------
 //  Decoración pura. No consumen espacio.
-//  Estados por cuadro:
-//    • No comprado → Agregar al carrito + Comprar ya
-//    • Comprado y activo → badge "Activo" + Desactivar + Desinstalar
-//    • Comprado e inactivo → Activar + Desinstalar
-//  Límite: MAX_ACTIVOS activos simultáneos (por defecto 10).
+//  Solo se COMPRAN acá. La activación/desactivación se hace
+//  desde Configuración → Cuadros (igual que los widgets).
 // ============================================================
-function renderCuadroLimite(lc) {
-    const cont = document.getElementById('shCuadroLimite');
-    if (!cont || !lc) { if (cont) cont.innerHTML = ''; return; }
-
-    const max     = lc.MAX_ACTIVOS || 10;
-    const activos = lc.obtenerActivos() || [];
-    const usados  = activos.length;
-    const pct     = Math.min(100, Math.round((usados / max) * 100));
-    const lleno   = usados >= max;
-
-    cont.innerHTML = `
-        <div class="sh-cuadro-limite">
-            <div class="sh-cuadro-limite-icono">
-                <i data-lucide="frame"></i>
-            </div>
-            <div class="sh-cuadro-limite-info">
-                <div class="sh-cuadro-limite-titulo">Cuadros activos</div>
-                <div class="sh-cuadro-limite-desc">
-                    Usás <strong>${usados}</strong> de <strong>${max}</strong>.
-                    ${lleno
-                        ? 'Desactivá uno para poder activar otro.'
-                        : `Podés activar ${max - usados} más.`}
-                </div>
-            </div>
-            <div class="sh-cuadro-limite-barra">
-                <div class="sh-cuadro-limite-fill ${lleno ? 'lleno' : ''}"
-                     style="width:${pct}%"></div>
-            </div>
-        </div>
-    `;
-    lucide.createIcons();
-}
-
 async function renderCuadros() {
     const cont = document.getElementById('cuadrosContenido');
     if (!cont) return;
@@ -934,10 +898,29 @@ async function renderCuadros() {
     const catalogo   = lc.obtenerCatalogo() || [];
     const instalados = lc.obtenerInstalados() || [];
     const activos    = lc.obtenerActivos() || [];
+    const maxActivos = lc.MAX_ACTIVOS || 10;
 
     document.getElementById('countCuadros').textContent = catalogo.length;
 
-    renderCuadroLimite(lc);
+    // Banner informativo arriba
+    const banner = document.getElementById('shCuadroLimite');
+    if (banner) {
+        banner.innerHTML = `
+            <div class="sh-cuadro-limite">
+                <div class="sh-cuadro-limite-icono">
+                    <i data-lucide="frame"></i>
+                </div>
+                <div class="sh-cuadro-limite-info">
+                    <div class="sh-cuadro-limite-titulo">Cuadros en el lobby</div>
+                    <div class="sh-cuadro-limite-desc">
+                        Tenés <strong>${activos.length}</strong> activos de <strong>${maxActivos}</strong>.
+                        Compra más abajo, y activalos desde <strong>Configuración → Cuadros</strong>.
+                    </div>
+                </div>
+            </div>
+        `;
+        lucide.createIcons();
+    }
 
     if (catalogo.length === 0) {
         cont.innerHTML = `
@@ -958,9 +941,8 @@ async function renderCuadros() {
 
     renderGrid(cont, filtrado, (cuadro) => {
         const instalado = instalados.includes(cuadro.id);
-        const activo    = activos.includes(cuadro.id);
 
-        // Bloqueo: solo si no está instalado y no alcanzan las monedas
+        // Bloqueo: solo si no está comprado y no alcanzan las monedas
         const api = API();
         const monedasDisp = api ? (api.obtenerMonedas() ?? 0) : 0;
         const sinMonedas  = !instalado && (cuadro.monedas || 0) > monedasDisp;
@@ -972,28 +954,14 @@ async function renderCuadros() {
         if (!instalado) {
             footerHTML = _botonesNoInstalado('cuadro', cuadro, sinMonedas, motivo);
         } else {
-            const badge = activo
-                ? `<span class="sh-badge sh-badge-instalada"><i data-lucide="check"></i> Activo</span>`
-                : `<span class="sh-badge sh-badge-inactivo"><i data-lucide="eye-off"></i> Inactivo</span>`;
-
-            const botonToggle = activo
-                ? `<button class="sh-btn sh-btn-aplicar"
-                           data-accion="desactivarCuadro"
-                           data-id="${cuadro.id}"
-                           title="Ocultar del lobby">
-                       <i data-lucide="eye-off"></i> Desactivar
-                   </button>`
-                : `<button class="sh-btn sh-btn-cuadro-activar"
-                           data-accion="activarCuadro"
-                           data-id="${cuadro.id}"
-                           title="Mostrar en el lobby">
-                       <i data-lucide="eye"></i> Activar
-                   </button>`;
-
             footerHTML = `
-                ${badge}
+                <span class="sh-badge sh-badge-instalada">
+                    <i data-lucide="check"></i> Comprado
+                </span>
                 <div class="sh-acciones">
-                    ${botonToggle}
+                    <small style="font-size:11px;color:var(--gray-500);margin-right:6px;">
+                        Actívalo en Configuración
+                    </small>
                     <button class="sh-btn sh-btn-icono"
                             data-accion="desinstalarCuadro"
                             data-id="${cuadro.id}"
@@ -1429,7 +1397,7 @@ async function manejarAccion(accion, id, btnOrigen, extra) {
                 const res = await lc.comprar(id);
                 toast(res.activado
                     ? '¡Cuadro comprado y activado!'
-                    : '¡Cuadro comprado! Activalo cuando quieras.',
+                    : '¡Cuadro comprado! Activalo en Configuración.',
                     'success');
                 break;
             }
@@ -1437,18 +1405,6 @@ async function manejarAccion(accion, id, btnOrigen, extra) {
                 if (!lc) throw new Error('Cuadros no disponible.');
                 await lc.desinstalar(id);
                 toast('Cuadro desinstalado', 'success');
-                break;
-            }
-            case 'activarCuadro': {
-                if (!lc) throw new Error('Cuadros no disponible.');
-                await lc.activar(id);
-                toast('Cuadro activado', 'success');
-                break;
-            }
-            case 'desactivarCuadro': {
-                if (!lc) throw new Error('Cuadros no disponible.');
-                await lc.desactivar(id);
-                toast('Cuadro desactivado', 'info');
                 break;
             }
             case 'comprarPaquete':
@@ -1613,62 +1569,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const btnVaciar = document.getElementById('shCartVaciar');
-    if (btnVaciar) {
-        btnVaciar.addEventListener('click', () => {
-            if (!confirm('¿Vaciar el carrito? Se van a quitar todos los items.')) return;
-            carritoVaciar();
-            renderCarritoBar();
-            renderCarritoModal();
-            if (_tabActual === 'apps')    renderApps();
-            if (_tabActual === 'temas')   renderTemas();
-            if (_tabActual === 'widgets') renderWidgets();
-            if (_tabActual === 'cuadros') renderCuadros();
-            toast('Carrito vaciado', 'info');
-        });
-    }
-
-    const btnComprar = document.getElementById('shCartComprar');
-    if (btnComprar) btnComprar.addEventListener('click', comprarCarrito);
-
-    // -------- Modal de ampliación --------
-    const btnCloseAmp     = document.getElementById('shAmpClose');
-    const btnCancelarAmp  = document.getElementById('shAmpCancelar');
-    const btnConfirmarAmp = document.getElementById('shAmpConfirmar');
-    const btnExitoCerrar  = document.getElementById('shAmpExitoCerrar');
-    const modalAmp        = document.getElementById('shAmpModal');
-
-    if (btnCloseAmp)      btnCloseAmp.addEventListener('click', cerrarModalEspacio);
-    if (btnCancelarAmp)   btnCancelarAmp.addEventListener('click', cerrarModalEspacio);
-    if (btnExitoCerrar)   btnExitoCerrar.addEventListener('click', cerrarModalEspacio);
-    if (btnConfirmarAmp)  btnConfirmarAmp.addEventListener('click', ejecutarCompraEspacio);
-
-    if (modalAmp) {
-        modalAmp.addEventListener('click', (e) => {
-            if (e.target === modalAmp && !_ampEnProgreso) cerrarModalEspacio();
-        });
-    }
-
-    // -------- ESC --------
-    document.addEventListener('keydown', (e) => {
-        if (e.key !== 'Escape') return;
-
-        const cartModal = document.getElementById('shCartModal');
-        if (cartModal && cartModal.style.display === 'flex') {
-            cerrarCarrito();
-            return;
-        }
-
-        if (!_ampEnProgreso) {
-            const ampModal = document.getElementById('shAmpModal');
-            if (ampModal && ampModal.style.display === 'flex') cerrarModalEspacio();
-        }
-    });
-
-    actualizarBuscadorVisibilidad(_tabActual);
-
-    setTimeout(() => {
-        refrescarTodo();
-        renderCarritoBar();
-    }, 100);
-});
+    const btnVac
