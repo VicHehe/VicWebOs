@@ -7,6 +7,7 @@
 //  - Estadísticas (ganadas + racha) persisten por usuario
 //    en IndexedDB.
 //  - Diccionario propio en español (sin tildes ni Ñ).
+//  - SOLO palabras de 5 letras (verificado con regex).
 // ============================================================
 
 'use strict';
@@ -23,80 +24,126 @@ const MONEDAS_VICTORIA = 25;
 
 // ============================================================
 //  DICCIONARIO
-//  ~350 palabras comunes de 5 letras en español.
+//  ~500 palabras comunes de 5 letras en español.
 //  Todas sin tildes ni Ñ, en mayúsculas.
 // ============================================================
-const PALABRAS = [
-    'ABRIR','ACASO','ACERO','ACIDO','AGUJA','AJENO','ALBUM','ALDEA','ALTAR','AMIGO',
-    'ANDAR','ANGEL','ANIMO','ANCHO','APOYO','ARBOL','ARDER','ARENA','ARMAR','ARROZ',
-    'ASADO','ASTRO','ATOMO','AUTOR','AVISO','BANCO','BANDO','BARCO','BAJAR','BAZAR',
-    'BELLO','BESAR','BICHO','BINGO','BLUSA','BOLSA','BOMBA','BORDE','BOTON','BRAZO',
-    'BREVE','BRISA','BUENO','BULTO','BURRO','CABRA','CAIDA','CAJON','CALMA','CALOR',
-    'CALLE','CAMPO','CANAL','CANTO','CARGA','CARNE','CARRO','CARTA','CASCO','CAUSA',
-    'CAZAR','CEBRA','CEDER','CELDA','CENAR','CERCA','CERDO','CESAR','CHICO','CHILE',
-    'CHINO','CICLO','CIELO','CIEGO','CINCO','CIRCO','CLARO','CLASE','CLIMA','COBRA',
-    'COCER','COCHE','COFRE','COGER','COLAR','COLOR','COMER','CONDE','COPIA','CORAL',
-    'CORTO','COSER','COSTA','CREER','CRUDO','CRUEL','CUBO','CUERO','CULPA','CUOTA',
-    'DARDO','DATOS','DEBER','DECIR','DEDOS','DEJAR','DESEO','DEUDA','DICHO','DIETA',
-    'DISCO','DIVAN','DOLOR','DONDE','DORSO','DOSIS','DUCHA','DUELO','DULCE','DUQUE',
-    'DURAR','ECHAR','EDAD','EDITO','ELEVO','ENANO','ENCIA','ENERO','ENVIO','ERROR',
-    'ESPIA','ESPOSO','ESTAR','ETICA','EXITO','EXTRA','FACIL','FAENA','FALDA','FALSO',
-    'FALTA','FANGO','FECHA','FELIZ','FERIA','FEROZ','FIBRA','FIERA','FIJAR','FINAL',
-    'FIRMA','FIRME','FLACO','FLEMA','FLOR','FLOTA','FOCO','FONDO','FORMA','FORRO',
-    'FRASE','FRENO','FRIO','FRUTA','FUEGO','FUERA','FUMAR','FURIA','GALLO','GANAR',
-    'GANSO','GARRA','GASTO','GENTE','GESTO','GIRAR','GLOBO','GOLPE','GORDO','GORRA',
-    'GOTA','GOZAR','GRADO','GRANO','GRASA','GRAVE','GRITO','GRUPO','GUAPO','GUIA',
-    'GUSTO','HABER','HACHA','HACER','HARTO','HASTA','HECHO','HELIO','HERIDA','HIELO',
-    'HIJO','HILO','HOGAR','HOJA','HONDO','HONGO','HONOR','HORNO','HOTEL','HUECO',
-    'HUESO','HUEVO','HUIR','HUMOR','IDEAL','IGUAL','IMAN','IMPAR','INDIO','ISLA',
-    'JABON','JAMON','JARRA','JAULA','JEFE','JOVEN','JOYA','JUEZ','JUGAR','JUNIO',
-    'JUNTO','JURAR','JUSTO','LABIO','LADO','LAGO','LANA','LANCE','LARGO','LARVA',
-    'LATA','LAVAR','LAZO','LECHE','LECHO','LEGAL','LEJOS','LENTO','LEON','LETRA',
-    'LIBRE','LIBRO','LIDER','LIGA','LIMON','LINDO','LINEA','LIRIO','LISTA','LISTO',
-    'LITRO','LLAVE','LLENO','LOBO','LODO','LOGRO','LOMA','LORO','LUCHA','LUEGO',
-    'LUGAR','LUJO','LUNA','MACHO','MADRE','MAGIA','MAGO','MAIZ','MANGO','MANSO',
-    'MANTA','MAPA','MARCA','MAREA','MAYOR','MECHA','MEDIA','MEDIO','MEJOR','MELON',
-    'MENOR','MENOS','MENTE','MESA','META','METAL','MIEDO','MIEL','MILLA','MINA',
-    'MIRAR','MISIL','MISMA','MISMO','MITAD','MITO','MODO','MOLDE','MONJE','MONTE',
-    'MORAL','MORIR','MOSCA','MOTOR','MOVER','MUCHO','MUJER','MUNDO','MURO','MUSEO',
-    'MUSLO','MUTUO','NACER','NADAR','NAIPE','NARIZ','NAVAL','NAVE','NEGAR','NEGRO',
-    'NENE','NEVAR','NIDO','NIETO','NIEVE','NIVEL','NOBLE','NOCHE','NORTE','NOTAR',
-    'NOVIO','NUBE','NUEVE','NUEVO','NUNCA','OBRA','OBVIO','OCIO','OESTE','OIDO',
-    'OLIVO','OLOR','ONDA','OPACO','OPERA','OPTAR','ORDEN','OREJA','ORINA','ORUGA',
-    'OVEJA','PADRE','PAGAR','PAJARO','PALMA','PALO','PANAL','PANDA','PANEL','PANZA',
-    'PAPEL','PARAR','PARED','PARIR','PARRA','PARTE','PASAR','PASTA','PASTO','PATIO',
-    'PECHO','PEDIR','PEGAR','PEINE','PELO','PEOR','PERA','PERLA','PERRO','PESCA',
-    'PESO','PIANO','PICAR','PICO','PIEDRA','PIEL','PIEZA','PILA','PINO','PINTA',
-    'PINTAR','PINTOR','PINZA','PISO','PISTA','PITAR','PLACA','PLANO','PLANTA','PLATA',
-    'PLAYA','PLAZA','PLENO','PLOMO','PLUMA','POBRE','PODER','PODIO','POEMA','POLEN',
-    'POLVO','POLLO','PONER','PORTE','POSTE','POZO','PRECIO','PRESO','PRIMA','PRISA',
-    'PROSA','PRUEBA','PUEBLO','PUENTE','PUERTA','PULPO','PULSO','PUNTA','PUNTO','QUEDAR',
-    'QUEJA','QUEMA','QUESO','QUIEN','QUINCE','QUINTO','RADAR','RADIO','RAMA','RAMO',
-    'RANA','RAPAZ','RASGO','RATA','RATO','RATON','RAYA','RAYO','RAZON','REAL',
-    'REINA','REIR','REJA','RELOJ','REMAR','REMO','RENO','RENTA','RESTO','RETAR',
-    'REVES','REY','REZAR','RICO','RIEGO','RIMA','RISCO','RITMO','RIVAL','ROBAR',
-    'ROBLE','ROBOT','ROCA','RODAR','RODEO','ROJO','ROLLO','ROMBO','RONDA','ROSA',
-    'ROSCA','ROTO','RUBIO','RUEDA','RUEGO','RUIDO','RUINA','RUMBO','RUMOR','RUTA',
-    'SABER','SABIO','SABLE','SABOR','SACAR','SACO','SALIR','SALSA','SALTO','SALUD',
-    'SALVAR','SANAR','SANTO','SECAR','SEGUIR','SEGURO','SELVA','SELLO','SERIE','SERIO',
-    'SESION','SETA','SEXO','SIGLO','SIGNO','SILLA','SILBAR','SIMPLE','SIRENA','SITIO',
-    'SOBRE','SOCIO','SOLAR','SOLTAR','SONAR','SONIDO','SOPA','SORDO','SUAVE','SUBIR',
-    'SUCIO','SUDAR','SUDOR','SUELO','SUERTE','SUFRIR','SUMAR','SUSTO','SUTIL','TABLA',
-    'TACO','TALLA','TALLE','TALLO','TALON','TANQUE','TAPA','TAPIZ','TARDE','TARRO',
-    'TARTA','TAZA','TECHO','TECLA','TEJER','TELA','TELAR','TEMA','TEMOR','TENIS',
-    'TERCO','TERMO','TERROR','TESTA','TIBIO','TIEMPO','TIENDA','TIENE','TIGRE','TINTA',
-    'TIPO','TIRAR','TIRO','TITAN','TIZA','TOCAR','TODO','TOLDO','TOMAR','TONO',
-    'TONTO','TOPE','TOPO','TOQUE','TORO','TORPE','TORRE','TORTA','TOSER','TRAGO',
-    'TRAJE','TRAMPA','TRAPO','TRATO','TRECE','TREN','TRIBU','TRIGO','TRINO','TROPA',
-    'TROZO','TRUCO','TUMBA','TURNO','TUTOR','UNICO','UNIDAD','UNIR','USADO','USAR',
-    'UTIL','VACA','VACIO','VAGAR','VALLE','VALOR','VAPOR','VARA','VASO','VASTO',
-    'VELA','VELOZ','VENDA','VENDER','VENIR','VENTA','VERBO','VERDE','VERSO','VIAJE',
-    'VIDRIO','VIGOR','VILLA','VINO','VIRGEN','VISTA','VISTO','VITAL','VOCAL','VOLAR',
-    'VOTAR','VOTO','VUELO','VULGAR'
+const PALABRAS_BRUTAS = [
+    // A
+    'ABONO','ABRIR','ABUSO','ACASO','ACERO','ACIDO','ACOSO','ADIOS','AGUJA','AHORA',
+    'AJENO','ALBUM','ALDEA','ALEJA','ALETA','ALGUN','ALTAR','AMBAS','AMIGO','ANCHO',
+    'ANDAR','ANGEL','ANEXO','ANIMO','APODO','APOYO','ARBOL','ARDER','ARENA','ARMAR',
+    'ARROZ','ASADO','ASILO','ASTRO','ATOMO','ATLAS','AUTOR','AVISO','AZOTE',
+    // B
+    'BACHE','BAGRE','BAJAR','BANCO','BANDO','BARBA','BARCO','BASTA','BATEA','BAZAR',
+    'BEBER','BELLO','BEODO','BESAR','BICHO','BINGO','BIRRA','BIZCO','BLUSA','BOCAL',
+    'BODAS','BOGAR','BOLSA','BOLSO','BOMBA','BONGO','BORDE','BOTAR','BOTON','BRAZO',
+    'BREVE','BRISA','BRUJA','BRUMA','BUCLE','BUENO','BULTO','BUQUE','BURLA','BURRO',
+    // C
+    'CABRA','CABLE','CACAO','CACHO','CAFRE','CAIDA','CAJON','CALMA','CALOR','CALLE',
+    'CALVO','CAMPO','CANAL','CANOA','CANTO','CAPAZ','CARGA','CARGO','CARNE','CARPA',
+    'CARRO','CARTA','CASCO','CASPA','CASTA','CAUSA','CAVAR','CAZAR','CEBRA','CEDER',
+    'CEJAS','CELDA','CENAR','CEPAS','CERCA','CERDO','CESAR','CHAPA','CHICA','CHICO',
+    'CHILE','CHINO','CHIVO','CHOZA','CHULO','CICLO','CIELO','CIEGO','CIFRA','CINCO',
+    'CIRCO','CIRIO','CLARO','CLASE','CLERO','CLIMA','COBAS','COBRA','COBRO','COCER',
+    'COCHE','COFIA','COFRE','COGER','COITO','COLAR','COLMO','COLOR','COMBO','COMER',
+    'COMUN','CONDE','CONGA','COPIA','CORAL','CORTE','CORTO','COSER','COSTA','CREER',
+    'CREMA','CREDO','CROMO','CRUCE','CRUDO','CRUEL','CUERO','CULPA','CUNAS','CUOTA',
+    'CURAR','CURVA',
+    // D
+    'DANZA','DARDO','DATIL','DATOS','DEBER','DEBUT','DECIR','DEDOS','DEJAR','DELTA',
+    'DESDE','DESEO','DEUDA','DICHA','DICHO','DIETA','DINGO','DIOSA','DISCO','DIVAN',
+    'DOBLE','DOGMA','DOLER','DOLOR','DOMAR','DONAR','DONDE','DOPAR','DORAR','DORSO',
+    'DOSIS','DOTAR','DRAMA','DUCHA','DUDAR','DUELO','DULCE','DUPLA','DUQUE','DURAR',
+    // E
+    'ECHAR','EDITO','EJIDO','ELEVO','ENANO','ENCIA','ENEMA','ENERO','ENVES','ENVIO',
+    'ERRAR','ERROR','ESPIA','ESTAR','ETICA','EXITO','EXTRA',
+    // F
+    'FACIL','FAENA','FALDA','FALSA','FALSO','FALTA','FANGO','FAROL','FATAL','FAUNA',
+    'FAVOR','FECHA','FELIZ','FEMUR','FERIA','FEROZ','FIBRA','FICHA','FIERA','FIJAR',
+    'FINAL','FINCA','FIRMA','FIRME','FLACO','FLAMA','FLECO','FLEMA','FLETE','FLORA',
+    'FLOTA','FLOTE','FLUIR','FOBIA','FOCAS','FOLIO','FONDO','FORJA','FORMA','FORRO',
+    'FOSIL','FRASE','FRENO','FRESA','FRITO','FRUTA','FRUTO','FUEGO','FUERA','FUMAR',
+    'FURIA','FUROR',
+    // G
+    'GAFAS','GALAN','GALLO','GAMBA','GANAR','GANSO','GARBO','GARRA','GARZA','GASTO',
+    'GEMIR','GENIO','GENTE','GESTA','GESTO','GIRAR','GLOBO','GOLPE','GORDO','GORRA',
+    'GOZAR','GRADO','GRANO','GRASA','GRAVE','GRIFO','GRITO','GRUPO','GUAPO','GUION',
+    'GUSTO',
+    // H
+    'HABER','HACHA','HACER','HARTO','HASTA','HECHO','HELIO','HEROE','HIELO','HIMNO',
+    'HOGAR','HONDO','HONGO','HONOR','HORCA','HORNO','HOTEL','HUECO','HUESO','HUEVO',
+    'HUIDA','HUMOR','HURTO',
+    // I
+    'IDEAL','IDOLO','IGUAL','IMPAR','INDIO',
+    // J
+    'JABON','JAMON','JARRA','JASPE','JAULA','JERGA','JOVEN','JUDIA','JUGAR','JUNIO',
+    'JUNTA','JUNTO','JURAR','JUSTO',
+    // L
+    'LABIO','LABOR','LACRA','LAMER','LANCE','LANZA','LAPIZ','LARGO','LARVA','LASER',
+    'LAVAR','LECHE','LECHO','LEGAL','LEJOS','LENTE','LENTO','LEPRA','LETAL','LETRA',
+    'LIBRA','LIBRE','LIBRO','LICOR','LIDER','LIMBO','LIMON','LINDO','LINEA','LIRIO',
+    'LIRON','LISTA','LISTO','LITIO','LITRO','LLAVE','LLAMA','LLENO','LOBOS','LOGRO',
+    'LONJA','LUCHA','LUCIR','LUEGO','LUGAR','LUNES',
+    // M
+    'MACHO','MADRE','MAGIA','MAGMA','MANGO','MANIA','MANSO','MANTA','MARCA','MAREA',
+    'MAYOR','MECHA','MEDIA','MEDIO','MEJOR','MELON','MENOR','MENOS','MENTA','MENTE',
+    'MERMA','MESON','METAL','METER','MIEDO','MILLA','MIRAR','MISIL','MISMA','MISMO',
+    'MITAD','MOLDE','MOMIA','MONJA','MONJE','MONTE','MORAL','MORIR','MOSCA','MOTIN',
+    'MOTOR','MOVER','MUCHO','MUELA','MUJER','MUNDO','MUSEO','MUSGO','MUSLO','MUTUO',
+    // N
+    'NACER','NADAR','NAIPE','NARIZ','NATAL','NAVAL','NEGAR','NEGRO','NEVAR','NIETO',
+    'NIEVE','NIVEL','NOBLE','NOCHE','NORTE','NOTAR','NOVIO','NUEVE','NUEVO','NUNCA',
+    // O
+    'OBVIO','OCASO','OESTE','OJALA','OLIVO','OPACO','OPERA','OPTAR','ORDEN','OREJA',
+    'ORINA','ORUGA','OVEJA','OVULO',
+    // P
+    'PADRE','PAGAR','PALMA','PANAL','PANDA','PANEL','PANZA','PAPEL','PARAR','PARED',
+    'PARIR','PARRA','PARTE','PASAR','PASTA','PASTO','PATIO','PAUSA','PECHO','PEDIR',
+    'PEGAR','PEINE','PERLA','PERRO','PESCA','PIANO','PICAR','PIEZA','PINTA','PINZA',
+    'PISTA','PITAR','PLACA','PLANO','PLATA','PLAYA','PLAZA','PLENO','PLOMO','PLUMA',
+    'POBRE','PODER','PODIO','POEMA','POLEN','POLVO','POLLO','PONER','PORNO','PORTE',
+    'POSTE','PRESO','PRIMA','PRISA','PROSA','PULPO','PULSO','PUNTA','PUNTO',
+    // Q
+    'QUEJA','QUEMA','QUESO','QUIEN',
+    // R
+    'RADAR','RADIO','RAPAZ','RASGO','RATON','RAZON','RECTA','REGAR','REGIO','REINA',
+    'RELOJ','REMAR','RENTA','RESTO','RETAR','REVES','REZAR','RIEGO','RISCO','RITMO',
+    'RIVAL','ROBAR','ROBLE','ROBOT','RODAR','RODEO','ROLLO','ROMBO','RONDA','ROSCA',
+    'ROTAR','RUBIO','RUEDA','RUEGO','RUIDO','RUINA','RUMBO','RUMOR',
+    // S
+    'SABER','SABIO','SABLE','SABOR','SACAR','SACRO','SAETA','SALIR','SALON','SALSA',
+    'SALTO','SALUD','SANAR','SANTO','SECAR','SELVA','SELLO','SENDA','SERIE','SERIO',
+    'SIGLO','SIGNO','SILLA','SITIO','SOBRE','SOCIO','SOLAR','SONAR','SORDO','SUAVE',
+    'SUBIR','SUCIO','SUDAR','SUDOR','SUELO','SUMAR','SUPER','SUSTO','SUTIL',
+    // T
+    'TABLA','TALLA','TALLE','TALLO','TALON','TAMIZ','TAPIA','TAPIZ','TARDE','TARRO',
+    'TARTA','TECHO','TECLA','TEJER','TELAR','TEMOR','TENAZ','TENIS','TERCO','TERMO',
+    'TESIS','TESTA','TIBIO','TIENE','TIGRE','TINTA','TIRAR','TITAN','TOCAR','TOLDO',
+    'TOMAR','TONTO','TOQUE','TORPE','TORRE','TORTA','TOSER','TOTAL','TRAGO','TRAJE',
+    'TRAPO','TRATO','TRECE','TRIBU','TRIGO','TRINO','TRONO','TROPA','TROZO','TRUCO',
+    'TUMBA','TUNEL','TURNO','TUTOR',
+    // U
+    'UNICO','USADO',
+    // V
+    'VACIO','VAGAR','VAINA','VALLE','VALOR','VAPOR','VARON','VASTO','VELOZ','VENDA',
+    'VENIR','VENTA','VERBO','VERDE','VERSO','VIAJE','VIGOR','VILLA','VIUDA','VISTA',
+    'VISTO','VITAL','VOCAL','VOLAR','VOTAR','VUELO'
 ];
+
+// ------------------------------------------------------------
+//  FILTRO DE SEGURIDAD
+//  Descarta cualquier palabra que no tenga EXACTAMENTE 5 letras
+//  de la A a la Z (sin tildes, sin Ñ, sin espacios).
+// ------------------------------------------------------------
+const PALABRAS = PALABRAS_BRUTAS.filter(p =>
+    typeof p === 'string' && /^[A-Z]{5}$/.test(p)
+);
 
 // Set para validación rápida
 const SET_PALABRAS = new Set(PALABRAS);
+
+// Sanity check en consola
+console.log(`[Wordle] Diccionario cargado: ${PALABRAS.length} palabras válidas de 5 letras.`);
 
 // ============================================================
 //  ESTADO
@@ -321,7 +368,15 @@ function actualizarTecla(letra, estado) {
 //  LÓGICA DEL JUEGO
 // ============================================================
 function elegirPalabra() {
-    return PALABRAS[Math.floor(Math.random() * PALABRAS.length)];
+    // Doble verificación: la palabra secreta SIEMPRE debe tener 5 letras A-Z
+    let intentosSeguridad = 0;
+    let p;
+    do {
+        p = PALABRAS[Math.floor(Math.random() * PALABRAS.length)];
+        intentosSeguridad++;
+        if (intentosSeguridad > 50) return 'AMIGO'; // fallback imposible de fallar
+    } while (!p || p.length !== LARGO || !/^[A-Z]+$/.test(p));
+    return p;
 }
 
 function nuevaPartida() {
@@ -344,7 +399,8 @@ function nuevaPartida() {
         b.classList.remove('correcta', 'presente', 'ausente');
     });
 
-    document.getElementById('wdOverlayFin').hidden = true;
+    const overlay = document.getElementById('wdOverlayFin');
+    if (overlay) overlay.hidden = true;
 
     // Debug: descomenta para ver la palabra en consola
     // console.log('[Wordle] Palabra secreta:', palabraSecreta);
@@ -384,7 +440,8 @@ function enviarIntento() {
         palabra += (c.textContent || '').toUpperCase();
     }
 
-    if (!SET_PALABRAS.has(palabra)) {
+    // Validación extra: la palabra debe tener 5 letras y estar en el diccionario
+    if (palabra.length !== LARGO || !/^[A-Z]{5}$/.test(palabra) || !SET_PALABRAS.has(palabra)) {
         mostrarMensaje('Palabra no válida');
         sacudirGrid();
         return;
@@ -485,8 +542,10 @@ function alGanar() {
 
     // Overlay
     const icono = document.getElementById('wdFinIcono');
-    icono.className = 'wd-overlay-icono';
-    icono.innerHTML = '<i data-lucide="trophy"></i>';
+    if (icono) {
+        icono.className = 'wd-overlay-icono';
+        icono.innerHTML = '<i data-lucide="trophy"></i>';
+    }
     document.getElementById('wdFinTitulo').textContent = '¡Ganaste!';
     document.getElementById('wdFinSubtitulo').textContent = mensajeVictoria(filaActual);
     document.getElementById('wdFinPalabra').textContent = palabraSecreta;
@@ -506,8 +565,10 @@ function alPerder() {
     renderStats();
 
     const icono = document.getElementById('wdFinIcono');
-    icono.className = 'wd-overlay-icono perdiste';
-    icono.innerHTML = '<i data-lucide="x"></i>';
+    if (icono) {
+        icono.className = 'wd-overlay-icono perdiste';
+        icono.innerHTML = '<i data-lucide="x"></i>';
+    }
     document.getElementById('wdFinTitulo').textContent = '¡Perdiste!';
     document.getElementById('wdFinSubtitulo').textContent = 'Vuelve a intentarlo con otra palabra.';
     document.getElementById('wdFinPalabra').textContent = palabraSecreta;
