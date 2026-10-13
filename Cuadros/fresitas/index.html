@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Fresitas</title>
+    <style>
+        html, body {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 45%, #FFF5F8 0%, #FCE7F3 55%, #FBCFE8 100%);
+        }
+        svg { display: block; width: 100%; height: 100%; }
+
+        .fresa {
+            transform-box: view-box;
+            transform-origin: 45px 130px;
+            animation: balanceo 4s ease-in-out infinite;
+        }
+        @keyframes balanceo {
+            0%, 100% { transform: rotate(-2deg); }
+            50%      { transform: rotate(2deg); }
+        }
+        .hojita {
+            transform-box: view-box;
+            transform-origin: 45px 55px;
+            animation: hoja 3.5s ease-in-out infinite;
+        }
+        @keyframes hoja {
+            0%, 100% { transform: rotate(0deg); }
+            50%      { transform: rotate(-4deg); }
+        }
+    </style>
+</head>
+<body>
+<svg viewBox="0 0 90 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <radialGradient id="fr-body" cx="0.4" cy="0.35" r="0.75">
+            <stop offset="0" stop-color="#FB7185"/>
+            <stop offset="0.6" stop-color="#E11D48"/>
+            <stop offset="1" stop-color="#9F1239"/>
+        </radialGradient>
+    </defs>
+
+    <!-- Sombra -->
+    <ellipse cx="45" cy="148" rx="22" ry="3" fill="#9F1239" opacity="0.15"/>
+
+    <g class="fresa">
+        <!-- Cuerpo de la fresa -->
+        <path d="M45,140
+                 C22,130 18,105 22,88
+                 C26,72 34,62 45,60
+                 C56,62 64,72 68,88
+                 C72,105 68,130 45,140 Z"
+              fill="url(#fr-body)"/>
+
+        <!-- Brillo superior -->
+        <ellipse cx="35" cy="80" rx="6" ry="4" fill="white" opacity="0.28"
+                 transform="rotate(-25 35 80)"/>
+        <ellipse cx="32" cy="92" rx="3" ry="5" fill="white" opacity="0.18"
+                 transform="rotate(-15 32 92)"/>
+
+        <!-- Semillitas (puntos amarillos) -->
+        <g fill="#FCD34D" opacity="0.9">
+            <ellipse cx="38" cy="80" rx="1" ry="0.7"/>
+            <ellipse cx="50" cy="78" rx="1" ry="0.7"/>
+            <ellipse cx="55" cy="88" rx="1" ry="0.7"/>
+            <ellipse cx="30" cy="92" rx="1" ry="0.7"/>
+            <ellipse cx="45" cy="90" rx="1" ry="0.7"/>
+            <ellipse cx="60" cy="100" rx="1" ry="0.7"/>
+            <ellipse cx="25" cy="104" rx="1" ry="0.7"/>
+            <ellipse cx="38" cy="102" rx="1" ry="0.7"/>
+            <ellipse cx="52" cy="105" rx="1" ry="0.7"/>
+            <ellipse cx="45" cy="115" rx="1" ry="0.7"/>
+            <ellipse cx="32" cy="118" rx="1" ry="0.7"/>
+            <ellipse cx="58" cy="118" rx="1" ry="0.7"/>
+            <ellipse cx="38" cy="128" rx="1" ry="0.7"/>
+            <ellipse cx="52" cy="128" rx="1" ry="0.7"/>
+            <ellipse cx="45" cy="135" rx="1" ry="0.7"/>
+        </g>
+
+        <!-- Hojitas en la corona -->
+        <g class="hojita">
+            <path d="M45,60 C38,52 30,50 26,54 C32,60 40,62 45,60 Z"
+                  fill="#16A34A"/>
+            <path d="M45,60 C52,52 60,50 64,54 C58,60 50,62 45,60 Z"
+                  fill="#15803D"/>
+            <path d="M45,60 C42,48 42,40 46,36 C50,42 48,54 45,60 Z"
+                  fill="#22C55E"/>
+            <path d="M45,60 C48,50 54,44 58,44 C56,52 50,58 45,60 Z"
+                  fill="#16A34A"/>
+            <path d="M45,60 C42,50 36,44 32,44 C34,52 40,58 45,60 Z"
+                  fill="#15803D"/>
+            <!-- Tallito -->
+            <path d="M45,58 L45,48" stroke="#166534" stroke-width="1.2"
+                  stroke-linecap="round"/>
+        </g>
+    </g>
+</svg>
+</body>
+</html>
