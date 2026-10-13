@@ -201,7 +201,17 @@ const CONFIG_CUENTA_DEFAULT = {
     widgetsActivos: [],
     espacioMaximo: ESPACIO_INICIAL,
     monedas: MONEDAS_INICIALES,
-    accesosRapidos: ['stor-he', 'chequera', 'galeria', 'contactos']
+    // Apps destacadas por defecto en el lobby de inicio.
+    // Incluye las apps base del sistema: almacén, chequera,
+    // galería, contactos, cámara y muro.
+    accesosRapidos: [
+        'stor-he',
+        'chequera',
+        'galeria',
+        'contactos',
+        'camara',
+        'delantedelmuro'
+    ]
 };
 
 function clonarConfigDefault() {
@@ -277,6 +287,10 @@ async function guardarConfigCuenta(codigo, configOrMutador) {
 
 // ============================================================
 //  MIGRACIÓN
+//  ------------------------------------------------------------
+//  Añade automáticamente a cuentas viejas:
+//    • Apps base / default que no tengan instaladas.
+//    • Accesos rápidos promovidos (camara, delantedelmuro).
 // ============================================================
 async function migrarAppsPorDefecto(codigo) {
     const catalogo = typeof RUTAS_HERRAMIENTAS !== 'undefined' ? RUTAS_HERRAMIENTAS : [];
@@ -286,13 +300,28 @@ async function migrarAppsPorDefecto(codigo) {
 
     const instaladas = configCuentaActual.appsInstaladas || [];
     const faltantes = requeridas.filter(id => !instaladas.includes(id));
-    if (faltantes.length === 0) return;
+
+    // Apps base que ahora van por defecto en accesos rápidos.
+    // Si en el futuro promovés otra, agregala acá.
+    const accesosPromovidos = ['camara', 'delantedelmuro'];
+    const accesosActuales = Array.isArray(configCuentaActual.accesosRapidos)
+        ? configCuentaActual.accesosRapidos
+        : [];
+    const faltanAccesos = accesosPromovidos.filter(id => !accesosActuales.includes(id));
+
+    if (faltantes.length === 0 && faltanAccesos.length === 0) return;
 
     await guardarConfigCuenta(codigo, (cfg) => {
         if (!Array.isArray(cfg.appsInstaladas)) cfg.appsInstaladas = [];
         faltantes.forEach(id => {
             if (!cfg.appsInstaladas.includes(id)) cfg.appsInstaladas.push(id);
         });
+
+        if (!Array.isArray(cfg.accesosRapidos)) cfg.accesosRapidos = [];
+        faltanAccesos.forEach(id => {
+            if (!cfg.accesosRapidos.includes(id)) cfg.accesosRapidos.push(id);
+        });
+
         return cfg;
     });
 
