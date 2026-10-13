@@ -1,0 +1,408 @@
+/* ================================================
+   Public Zone — Chat público de la comunidad
+   ================================================ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+[hidden] { display: none !important; }
+
+html, body { height: 100%; overflow: hidden; }
+
+body {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg, #FBFBFD);
+    color: var(--text, #18181B);
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+    color-scheme: light dark;
+    -webkit-tap-highlight-color: transparent;
+}
+
+[data-lucide] { width: 18px; height: 18px; stroke-width: 2; flex-shrink: 0; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: var(--gray-200, #E8E8EE);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+.pz-app {
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg, #FBFBFD);
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.pz-header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 20px;
+    background: var(--white, #FFFFFF);
+    border-bottom: 1px solid var(--border, #E8E8EE);
+}
+
+.pz-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+.pz-logo-mark {
+    width: 40px;
+    height: 40px;
+    background: var(--accent-gradient, linear-gradient(135deg, #8B5CF6, #6D28D9));
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 6px 14px var(--accent-shadow, rgba(139,92,246,0.28));
+    flex-shrink: 0;
+}
+.pz-logo-mark [data-lucide] { width: 20px; height: 20px; stroke-width: 2.5; }
+
+.pz-logo-text { min-width: 0; }
+.pz-logo-text h1 {
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: var(--accent-text-gradient, linear-gradient(135deg, #18181B, #7C3AED));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+    line-height: 1.15;
+}
+.pz-logo-text p {
+    font-size: 11px;
+    color: var(--gray-500, #71717A);
+    font-weight: 600;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 240px;
+}
+
+.pz-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 11px;
+    background: var(--gray-100, #F4F4F7);
+    border-radius: 999px;
+    flex-shrink: 0;
+}
+.pz-live-dot {
+    width: 7px;
+    height: 7px;
+    background: #10B981;
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    animation: pzPulseLive 1.6s ease-in-out infinite;
+}
+@keyframes pzPulseLive {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2); }
+    50%      { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.05); }
+}
+.pz-live-text {
+    font-size: 11px;
+    font-weight: 800;
+    color: #065F46;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ============================================================
+   MAIN
+   ============================================================ */
+.pz-main {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.pz-mensajes {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 18px 22px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    scroll-behavior: smooth;
+}
+
+/* Empty state */
+.pz-vacio {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 40px 24px;
+    text-align: center;
+    color: var(--gray-500, #71717A);
+}
+.pz-vacio-icon {
+    width: 76px;
+    height: 76px;
+    background: var(--violet-50, #F5F3FF);
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--violet-500, #8B5CF6);
+    margin-bottom: 6px;
+    box-shadow: inset 0 0 0 1px var(--violet-200, #DDD6FE);
+}
+.pz-vacio-icon [data-lucide] { width: 36px; height: 36px; stroke-width: 1.75; }
+.pz-vacio h3 {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--gray-900, #18181B);
+    margin: 0;
+}
+.pz-vacio p {
+    font-size: 13px;
+    line-height: 1.5;
+    max-width: 320px;
+    margin: 0;
+    font-weight: 600;
+}
+
+/* Divisor de fecha */
+.pz-fecha-divisor {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 14px 0;
+    flex-shrink: 0;
+}
+.pz-fecha-divisor span {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--gray-500, #71717A);
+    background: var(--gray-100, #F4F4F7);
+    padding: 4px 12px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ============================================================
+   MENSAJES
+   ============================================================ */
+.pz-msg {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    max-width: 78%;
+    margin-bottom: 2px;
+    flex-shrink: 0;
+    animation: pzMsgIn 0.2s ease;
+}
+@keyframes pzMsgIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.pz-msg.propio {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+.pz-msg.ajeno {
+    align-self: flex-start;
+}
+
+.pz-msg-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--violet-400, #A78BFA), var(--violet-600, #7C3AED));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    overflow: hidden;
+    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 800;
+    align-self: flex-end;
+}
+.pz-msg-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.pz-msg-burbuja {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.pz-msg-autor {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--violet-600, #7C3AED);
+    padding: 0 10px;
+}
+.pz-msg.propio .pz-msg-autor {
+    display: none;
+}
+
+.pz-msg-contenido {
+    padding: 8px 12px;
+    border-radius: 16px;
+    font-size: 13.5px;
+    font-weight: 500;
+    line-height: 1.45;
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+
+.pz-msg.ajeno .pz-msg-contenido {
+    background: var(--white, #FFFFFF);
+    color: var(--gray-900, #18181B);
+    border: 1px solid var(--border, #E8E8EE);
+    border-bottom-left-radius: 5px;
+}
+.pz-msg.propio .pz-msg-contenido {
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: white;
+    border-bottom-right-radius: 5px;
+    box-shadow: 0 2px 8px var(--accent-shadow, rgba(139,92,246,0.20));
+}
+
+.pz-msg-tiempo {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: var(--gray-400, #A1A1AD);
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.pz-msg.propio .pz-msg-tiempo { justify-content: flex-end; }
+
+/* ============================================================
+   INPUT BAR
+   ============================================================ */
+.pz-input-bar {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: var(--white, #FFFFFF);
+    border-top: 1px solid var(--border, #E8E8EE);
+}
+
+.pz-input-bar input[type="text"] {
+    flex: 1;
+    min-width: 0;
+    padding: 11px 16px;
+    background: var(--gray-100, #F4F4F7);
+    border: 1.5px solid transparent;
+    border-radius: var(--r-md, 12px);
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--gray-900, #18181B);
+    outline: none;
+    transition: var(--t-fast, 0.15s);
+}
+.pz-input-bar input[type="text"]:focus {
+    background: var(--white, #FFFFFF);
+    border-color: var(--violet-400, #A78BFA);
+    box-shadow: 0 0 0 3px var(--shadow-glow, rgba(139,92,246,0.10));
+}
+.pz-input-bar input::placeholder { color: var(--gray-400, #A1A1AD); }
+
+.pz-btn-enviar {
+    width: 42px;
+    height: 42px;
+    border: none;
+    border-radius: var(--r-md, 12px);
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
+    transition: var(--t-fast, 0.15s);
+}
+.pz-btn-enviar:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+.pz-btn-enviar:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px var(--accent-shadow-hover, rgba(139,92,246,0.38));
+}
+.pz-btn-enviar [data-lucide] { width: 16px; height: 16px; }
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+.pz-toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--gray-900, #18181B);
+    color: white;
+    padding: 11px 20px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: 3000;
+    max-width: calc(100% - 40px);
+    white-space: nowrap;
+}
+.pz-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+.pz-toast.success { background: #065F46; }
+.pz-toast.error   { background: #991B1B; }
+.pz-toast.info    { background: var(--violet-700, #6D28D9); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 480px) {
+    .pz-header { padding: 12px 14px; }
+    .pz-logo-mark { width: 36px; height: 36px; border-radius: 10px; }
+    .pz-logo-mark [data-lucide] { width: 18px; height: 18px; }
+    .pz-logo-text h1 { font-size: 15px; }
+    .pz-logo-text p { font-size: 10.5px; max-width: 140px; }
+    .pz-mensajes { padding: 14px 14px 10px; }
+    .pz-msg { max-width: 88%; }
+    .pz-input-bar { padding: 10px 14px; }
+    .pz-btn-enviar { width: 40px; height: 40px; }
+    .pz-header-actions { padding: 4px 9px; }
+    .pz-live-text { font-size: 10px; }
+}
