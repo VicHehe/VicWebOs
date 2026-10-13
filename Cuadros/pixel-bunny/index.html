@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pixel Bunny</title>
     <style>
         html, body {
@@ -29,23 +30,24 @@
             to   { transform: translateX(-90px); }
         }
 
-        /* Grupo del conejo: acá va el salto */
+        /* Conejo: la altura del salto llega por la variable --altura */
         #conejo {
             transform-box: view-box;
             transform-origin: 45px 130px;
+            --altura: -14px;
         }
         #conejo.saltando {
             animation: saltar 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         @keyframes saltar {
-            0%   { transform: translateY(0)    scaleY(1)    scaleX(1); }
-            15%  { transform: translateY(0)    scaleY(0.75) scaleX(1.12); }
-            45%  { transform: translateY(-14px) scaleY(1.15) scaleX(0.92); }
-            75%  { transform: translateY(0)    scaleY(0.85) scaleX(1.08); }
-            100% { transform: translateY(0)    scaleY(1)    scaleX(1); }
+            0%   { transform: translateY(0) scaleY(1) scaleX(1); }
+            15%  { transform: translateY(0) scaleY(0.75) scaleX(1.12); }
+            45%  { transform: translateY(var(--altura)) scaleY(1.15) scaleX(0.92); }
+            75%  { transform: translateY(0) scaleY(0.85) scaleX(1.08); }
+            100% { transform: translateY(0) scaleY(1) scaleX(1); }
         }
 
-        /* Orejas oscilando (coordenadas absolutas) */
+        /* Orejas oscilando */
         .orejas {
             transform-box: view-box;
             transform-origin: 45px 108px;
@@ -124,68 +126,54 @@
     <!-- Sombra debajo del conejo -->
     <ellipse class="sombra-conejo" cx="45" cy="130" rx="16" ry="2.5" fill="#000000" opacity="0.35"/>
 
-    <!-- =========================================================
-         CONEJO — todas las coordenadas ABSOLUTAS
-         Área reservada: x=27..63, y=86..130
-         ========================================================= -->
+    <!-- CONEJO -->
     <g id="conejo">
 
-        <!-- OREJAS (van dentro del grupo que oscila) -->
+        <!-- OREJAS -->
         <g class="orejas">
-            <!-- Oreja izquierda -->
-            <!-- Contorno negro -->
             <rect x="38" y="86" width="6" height="22" fill="#000000"/>
-            <!-- Relleno blanco -->
             <rect x="40" y="88" width="2" height="18" fill="#F8F8F8"/>
-            <!-- Interior rosa -->
             <rect x="40" y="90" width="2" height="12" fill="#F8B8F8"/>
 
-            <!-- Oreja derecha -->
             <rect x="46" y="86" width="6" height="22" fill="#000000"/>
             <rect x="48" y="88" width="2" height="18" fill="#F8F8F8"/>
             <rect x="48" y="90" width="2" height="12" fill="#F8B8F8"/>
         </g>
 
         <!-- CABEZA -->
-        <!-- Contorno -->
         <rect x="34" y="106" width="22" height="18" fill="#000000"/>
-        <!-- Relleno blanco -->
         <rect x="36" y="108" width="18" height="14" fill="#F8F8F8"/>
 
-        <!-- OJOS (negros con brillo) -->
+        <!-- OJOS -->
         <rect x="38" y="112" width="4" height="4" fill="#000000"/>
         <rect x="48" y="112" width="4" height="4" fill="#000000"/>
         <rect x="38" y="112" width="2" height="2" fill="#FFFFFF"/>
         <rect x="48" y="112" width="2" height="2" fill="#FFFFFF"/>
 
-        <!-- NARIZ rosa -->
+        <!-- NARIZ y bigotes -->
         <rect x="43" y="118" width="4" height="2" fill="#F8B8F8"/>
-        <!-- Bigotes negros (líneas finas) -->
         <rect x="30" y="118" width="4" height="1" fill="#000000" opacity="0.7"/>
         <rect x="56" y="118" width="4" height="1" fill="#000000" opacity="0.7"/>
 
-        <!-- Mejillas suaves -->
+        <!-- Mejillas -->
         <rect x="36" y="116" width="2" height="2" fill="#F8B8F8" opacity="0.7"/>
         <rect x="52" y="116" width="2" height="2" fill="#F8B8F8" opacity="0.7"/>
 
         <!-- CUERPO -->
-        <!-- Contorno -->
         <rect x="32" y="124" width="26" height="6" fill="#000000"/>
-        <!-- Relleno -->
         <rect x="34" y="125" width="22" height="4" fill="#F8F8F8"/>
 
-        <!-- Patitas delanteras (dos rectángulos inferiores) -->
+        <!-- Patitas delanteras -->
         <rect x="32" y="128" width="4" height="2" fill="#000000"/>
         <rect x="54" y="128" width="4" height="2" fill="#000000"/>
         <rect x="34" y="128" width="2" height="2" fill="#F8F8F8"/>
         <rect x="54" y="128" width="2" height="2" fill="#F8F8F8"/>
 
-        <!-- Colita pom-pom (lado derecho) -->
+        <!-- Colita pom-pom -->
         <rect x="58" y="122" width="2" height="2" fill="#F8F8F8"/>
         <rect x="60" y="124" width="2" height="2" fill="#F8F8F8"/>
         <rect x="58" y="126" width="2" height="2" fill="#F8F8F8"/>
 
-        <!-- Cola a rayas (opcional, sutil) -->
         <rect x="30" y="120" width="4" height="4" fill="#F8F8F8"/>
         <rect x="56" y="120" width="4" height="4" fill="#F8F8F8"/>
     </g>
@@ -200,17 +188,38 @@
 
         let saltando = false;
 
+        // Altura del salto según la hora del dispositivo
+        function alturaSegunHora() {
+            const h = new Date().getHours();
+            if (h >= 7 && h < 18) return -14;                    // día: salta alto
+            if ((h >= 18 && h < 20) || (h >= 5 && h < 7)) return -9; // atardecer / amanecer
+            return -4;                                           // noche: salta poco
+        }
+
         function saltar() {
             if (saltando) return;
             saltando = true;
+            conejo.style.setProperty('--altura', alturaSegunHora() + 'px');
             conejo.classList.add('saltando');
-
-            conejo.addEventListener('animationend', () => {
-                conejo.classList.remove('saltando');
-                saltando = false;
-            }, { once: true });
         }
 
+        // Al terminar la animación, lo dejamos listo para el siguiente salto
+        conejo.addEventListener('animationend', (e) => {
+            if (e.target !== conejo) return;
+            conejo.classList.remove('saltando');
+            saltando = false;
+        });
+
+        // Salto automático con un ritmo algo irregular
+        function programarSalto() {
+            setTimeout(() => {
+                saltar();
+                programarSalto();
+            }, 1800 + Math.random() * 1200);
+        }
+        programarSalto();
+
+        // Si lo tocan, también salta
         document.addEventListener('click', saltar);
         document.addEventListener('touchstart', (e) => {
             e.preventDefault();
