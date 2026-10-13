@@ -356,17 +356,6 @@ const RUTAS_HERRAMIENTAS = [
         monedas: 0
     },
     {
-    id: 'rps',
-    nombre: 'Piedra Papel Tijera',
-    icono: 'scissors',
-    ruta: 'herramientas/rps/index.html',
-    descripcion: 'El clásico duelo de manos. Desafiá a un amigo por WebRTC (mejor de 3) o jugá 6 rondas contra la CPU. +2 monedas contra humanos, +4 contra la máquina.',
-    categoria: 'Juegos',
-    esBase: false,
-    espacio: 2,
-    monedas: 0
-},
-    {
         id: 'dibujodeldia',
         nombre: 'Dibujo del día',
         icono: 'pencil',
@@ -399,17 +388,6 @@ const RUTAS_HERRAMIENTAS = [
     espacio: 2,
     monedas: 20
 },
-        {
-        id: 'primero',
-        nombre: 'Primero',
-        icono: 'layers',
-        ruta: 'herramientas/primero/index.html',
-        descripcion: 'El clásico de cartas de colores. Combiná color o valor, usá +2, reverse y wild. 1v1 por WebRTC o contra la CPU.',
-        categoria: 'Juegos',
-        esBase: false,
-        espacio: 4,
-        monedas: 25
-    },
     {
         id: 'metrorun',
         nombre: 'The MetroRun',
@@ -431,17 +409,6 @@ const RUTAS_HERRAMIENTAS = [
     esBase: false,
     espacio: 10,
     monedas: 40
-},
-{
-    id: 'bugsillycity',
-    nombre: 'BugSillyCity',
-    icono: 'egg',
-    ruta: 'herramientas/bugsillycity/index.html',
-    descripcion: 'Criá bichos exóticos, mejora sus hábitats y cosechá Monedas OS. Combiná especies para descubrir 12 criaturas únicas.',
-    categoria: 'Juegos',
-    esBase: false,
-    espacio: 8,
-    monedas: 45
 },
 
 
