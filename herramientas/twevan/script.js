@@ -513,9 +513,9 @@ function renderVerPost() {
     const nombre = post.autorNombre || perfil.nombre || usuario.nombre || post.autor;
     const handle = '@' + (perfil.usuario || post.autor.toLowerCase());
     const verif = tieneTwePlus(post.autor);
-    const likes = contarLikes(postId);
-    const liked = yoDiLike(postId);
-    const comPost = social.comentarios[postId] || {};
+    const likes = contarLikes(postViendoId);
+    const liked = yoDiLike(postViendoId);
+    const comPost = social.comentarios[postViendoId] || {};
     const comLista = Object.entries(comPost).map(([c, d]) => ({ codigo: c, ...d }))
         .sort((a, b) => new Date(a.creado) - new Date(b.creado));
     const miComentario = comPost[usuarioActual.codigo];
@@ -634,20 +634,20 @@ function renderVerPost() {
 
     if (window.lucide) window.lucide.createIcons();
 
-    document.getElementById('tvVerBtnLike')?.addEventListener('click', () => toggleLike(postId));
-    document.getElementById('tvVerBtnEditar')?.addEventListener('click', () => { cerrarVerPost(); abrirEditor(postId); });
-    document.getElementById('tvVerBtnBorrar')?.addEventListener('click', () => borrarPost(postId));
+    document.getElementById('tvVerBtnLike')?.addEventListener('click', () => toggleLike(postViendoId));
+    document.getElementById('tvVerBtnEditar')?.addEventListener('click', () => { cerrarVerPost(); abrirEditor(postViendoId); });
+    document.getElementById('tvVerBtnBorrar')?.addEventListener('click', () => borrarPost(postViendoId));
 
     const input = document.getElementById('tvVerInputComentario');
     const btn = document.getElementById('tvVerBtnEnviar');
     const actualizar = () => { if (btn) btn.disabled = !input.value.trim(); };
     input?.addEventListener('input', actualizar);
-    input?.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); enviarComentario(postId, input.value); } });
-    btn?.addEventListener('click', () => enviarComentario(postId, input.value));
+    input?.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); enviarComentario(postViendoId, input.value); } });
+    btn?.addEventListener('click', () => enviarComentario(postViendoId, input.value));
     actualizar();
 
     cont.querySelectorAll('.tv-btn-responder').forEach(b => {
-        b.addEventListener('click', () => abrirInputRespuesta(postId, b.dataset.comentario, b));
+        b.addEventListener('click', () => abrirInputRespuesta(postViendoId, b.dataset.comentario, b));
     });
 }
 
