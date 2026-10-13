@@ -114,6 +114,7 @@
                             <p id="welcomeSubtitulo">Sistema operativo web centrado en el uso personal o grupal de grupos de amistades.</p>
                         </div>
 
+                        <!-- 1. ACCESOS RÁPIDOS -->
                         <div class="welcome-section" id="welcomeAppsSection">
                             <div class="welcome-section-header">
                                 <h2><i data-lucide="sparkles"></i> Accesos rápidos</h2>
@@ -124,6 +125,24 @@
                             <div class="accesos-rapidos" id="accesosRapidos"></div>
                         </div>
 
+                        <!-- 2. CUADROS — Decoración pura del lobby -->
+                        <div class="welcome-section" id="welcomeCuadrosSection" style="display:none;">
+                            <div class="welcome-section-header">
+                                <h2><i data-lucide="frame"></i> Decoración</h2>
+                                <span class="cdr-contador" id="cdrContador">0 / 10</span>
+                            </div>
+                            <div id="cuadrosZona" class="cdr-zona"></div>
+                        </div>
+
+                        <!-- 3. WIDGETS -->
+                        <div class="welcome-section" id="welcomeWidgetsSection" style="display:none;">
+                            <div class="welcome-section-header">
+                                <h2><i data-lucide="layout-grid"></i> Widgets</h2>
+                            </div>
+                            <div id="widgetsZona" class="widgets-zona"></div>
+                        </div>
+
+                        <!-- 4. LOGROS -->
                         <div class="welcome-section" id="welcomeLogrosSection" style="display:none;">
                             <button class="logros-banner" id="btnLogrosBanner">
                                 <div class="logros-banner-icono"><i data-lucide="trophy"></i></div>
@@ -141,16 +160,7 @@
                             </button>
                         </div>
 
-                        <div class="welcome-section" id="welcomeWidgetsSection" style="display:none;">
-                            <div class="welcome-section-header">
-                                <h2><i data-lucide="layout-grid"></i> Widgets</h2>
-                            </div>
-                            <div id="widgetsZona" class="widgets-zona"></div>
-                        </div>
-
-                        <!-- ============================================================
-                             PUBLIC MINI ZONE — chat público portátil del lobby
-                             ============================================================ -->
+                        <!-- 5. PUBLIC MINI ZONE — Chat público portátil -->
                         <div class="welcome-section" id="welcomePublicZoneSection" style="display:none;">
                             <div class="welcome-section-header">
                                 <h2><i data-lucide="megaphone"></i> Public Mini Zone</h2>
@@ -178,18 +188,6 @@
                                     </button>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- ============================================================
-                             CUADROS — Decoración pura del lobby
-                             Máximo 10 activos. No consumen espacio ni dan monedas.
-                             ============================================================ -->
-                        <div class="welcome-section" id="welcomeCuadrosSection" style="display:none;">
-                            <div class="welcome-section-header">
-                                <h2><i data-lucide="frame"></i> Decoración</h2>
-                                <span class="cdr-contador" id="cdrContador">0 / 10</span>
-                            </div>
-                            <div id="cuadrosZona" class="cdr-zona"></div>
                         </div>
 
                     </div>
