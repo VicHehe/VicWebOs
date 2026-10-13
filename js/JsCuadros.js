@@ -87,6 +87,15 @@ var CUADROS_DISPONIBLES = [
         categoria: 'Plantas',
         monedas: 10
     },
+    {
+        id: 'sandia',
+        nombre: 'Sandía',
+        icono: 'cherry',
+        ruta: 'Cuadros/sandia/index.html',
+        descripcion: 'Una rodaja de sandía con semillas brillantes y gotitas de jugo.',
+        categoria: 'Frutas',
+        monedas: 10
+    },
 
     // ─── Nivel 15: estándar ───────────────────────────────────
     {
@@ -127,6 +136,15 @@ var CUADROS_DISPONIBLES = [
         categoria: 'Plantas',
         monedas: 20
     },
+    {
+        id: 'zorro-nocturno',
+        nombre: 'Zorro Nocturno',
+        icono: 'wolf',
+        ruta: 'Cuadros/zorro-nocturno/index.html',
+        descripcion: 'Un zorro que vela la noche bajo la luna, con cola y orejas en movimiento.',
+        categoria: 'Animales',
+        monedas: 20
+    },
 
     // ─── Nivel 25: premium ────────────────────────────────────
     {
@@ -163,6 +181,15 @@ var CUADROS_DISPONIBLES = [
         ruta: 'Cuadros/bonsai-sakura/index.html',
         descripcion: 'Un bonsái en flor con pétalos que caen sin parar.',
         categoria: 'Plantas',
+        monedas: 25
+    },
+    {
+        id: 'el-ojo',
+        nombre: 'El Ojo',
+        icono: 'eye',
+        ruta: 'Cuadros/el-ojo/index.html',
+        descripcion: 'Un ojo que te sigue con la mirada desde la oscuridad.',
+        categoria: 'Horror',
         monedas: 25
     },
 
