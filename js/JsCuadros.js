@@ -69,6 +69,15 @@ var CUADROS_DISPONIBLES = [
         categoria: 'Paisajes',
         monedas: 10
     },
+    {
+        id: 'cactus',
+        nombre: 'Cactus Sonriente',
+        icono: 'sprout',
+        ruta: 'Cuadros/cactus/index.html',
+        descripcion: 'Un cactus contento con flor rosada y dunas al sol.',
+        categoria: 'Plantas',
+        monedas: 10
+    },
 
     // ─── Nivel 15: estándar ───────────────────────────────────
     {
@@ -78,6 +87,15 @@ var CUADROS_DISPONIBLES = [
         ruta: 'Cuadros/escarabajo/index.html',
         descripcion: 'Un escarabajo iridiscente que flota entre las hojas.',
         categoria: 'Insectos',
+        monedas: 15
+    },
+    {
+        id: 'girasol',
+        nombre: 'Girasol',
+        icono: 'sun',
+        ruta: 'Cuadros/girasol/index.html',
+        descripcion: 'Un girasol que se mece al viento y gira despacio.',
+        categoria: 'Plantas',
         monedas: 15
     },
 
@@ -120,6 +138,15 @@ var CUADROS_DISPONIBLES = [
         categoria: 'Horror',
         monedas: 25
     },
+    {
+        id: 'bonsai-sakura',
+        nombre: 'Bonsái de Sakura',
+        icono: 'tree-deciduous',
+        ruta: 'Cuadros/bonsai-sakura/index.html',
+        descripcion: 'Un bonsái en flor con pétalos que caen sin parar.',
+        categoria: 'Plantas',
+        monedas: 25
+    },
 
     // ─── Nivel 30: raro (script) ──────────────────────────────
     {
@@ -136,7 +163,7 @@ var CUADROS_DISPONIBLES = [
         nombre: 'Pixel Bunny',
         icono: 'rabbit',
         ruta: 'Cuadros/pixel-bunny/index.html',
-        descripcion: 'Conejo pixel art retro que salta cuando lo tocás.',
+        descripcion: 'Conejo pixel art retro que salta solo y también cuando lo tocás.',
         categoria: 'Pixel Art',
         monedas: 30
     }
