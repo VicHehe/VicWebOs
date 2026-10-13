@@ -1,5 +1,5 @@
 // ============================================================
-//  configuracion.js — Modal + navegación + Apps + Temas + Widgets
+//  configuracion.js — Modal + navegación + Apps + Temas + Widgets + Cuadros
 // ============================================================
 
 const CONFIG_KEY = 'vicwebos_config';
@@ -42,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (seccion === 'temas')   renderApariencia();
             if (seccion === 'widgets') renderApariencia();
+            if (seccion === 'cuadros') renderCuadrosConfig();
             if (seccion === 'apps') {
                 renderAppsInstaladas();
                 renderApariencia();
@@ -279,6 +280,90 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // ---------- RENDER: CUADROS ----------
+    // Igual que Widgets: solo activar/desactivar con toggle.
+    // La compra se hace en Stor-He.
+    async function renderCuadrosConfig() {
+        const cont = document.getElementById('configCuadrosLista');
+        if (!cont) return;
+
+        const lc = window.LogicCuadros;
+        if (!lc) {
+            cont.innerHTML = `
+                <div class="config-empty" style="padding: 30px 12px;">
+                    <div class="config-empty-icon"><i data-lucide="alert-triangle"></i></div>
+                    <h4>Cuadros no disponible</h4>
+                    <p>Falta cargar <code>js/LogicCuadros.js</code> en el shell.</p>
+                </div>`;
+            lucide.createIcons();
+            return;
+        }
+
+        if (!ConfigBD.estaConectado() || !cuentaActual) {
+            cont.innerHTML = `
+                <div class="config-empty" style="padding: 30px 12px;">
+                    <div class="config-empty-icon"><i data-lucide="user-circle"></i></div>
+                    <h4>Necesitas una cuenta</h4>
+                    <p>Crea una cuenta o entra con tu código.</p>
+                </div>`;
+            lucide.createIcons();
+            return;
+        }
+
+        // Refrescar estado fresco desde el archivo
+        try { await lc.recargar(); } catch (e) { /* silencioso */ }
+
+        const catalogo   = lc.obtenerCatalogo() || [];
+        const instalados = lc.obtenerInstalados() || [];
+        const activos    = lc.obtenerActivos() || [];
+
+        if (instalados.length === 0) {
+            cont.innerHTML = `
+                <div class="config-empty" style="padding: 30px 12px;">
+                    <div class="config-empty-icon"><i data-lucide="frame"></i></div>
+                    <h4>Sin cuadros comprados</h4>
+                    <p>Compra cuadros en <strong>Stor-He</strong> para decorar tu lobby.</p>
+                </div>`;
+            lucide.createIcons();
+            return;
+        }
+
+        cont.innerHTML = '';
+        instalados.forEach(id => {
+            const cuadro = catalogo.find(x => x.id === id);
+            if (!cuadro) return;
+
+            const activo = activos.includes(id);
+            const item = document.createElement('div');
+            item.className = 'config-widget-item' + (activo ? ' activo' : '');
+            item.innerHTML = `
+                <div class="config-widget-icono"><i data-lucide="${cuadro.icono || 'frame'}"></i></div>
+                <div class="config-widget-info">
+                    <span class="config-widget-nombre">${cuadro.nombre}</span>
+                    <span class="config-widget-desc">${cuadro.descripcion || ''}</span>
+                </div>
+                <button class="config-widget-toggle" data-id="${id}" data-activo="${activo}" title="${activo ? 'Desactivar' : 'Activar'}">
+                    <i data-lucide="${activo ? 'toggle-right' : 'toggle-left'}"></i>
+                </button>
+            `;
+            cont.appendChild(item);
+        });
+
+        lucide.createIcons();
+
+        cont.querySelectorAll('.config-widget-toggle').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const id = btn.dataset.id;
+                const activo = btn.dataset.activo === 'true';
+                try {
+                    if (activo) await lc.desactivar(id);
+                    else        await lc.activar(id);
+                    renderCuadrosConfig();
+                } catch (err) { alert('❌ ' + err.message); }
+            });
+        });
+    }
+
     // ---------- ABRIR ----------
     btnConfig.addEventListener('click', () => {
         document.querySelectorAll('.config-nav-item').forEach(b => b.classList.remove('active'));
@@ -308,6 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Exponer para que JsIndex pueda re-renderizar
     window.__renderApariencia = renderApariencia;
+    window.__renderCuadrosConfig = renderCuadrosConfig;
 });
 
 // ---------- ABRIR CONFIG DIRECTO ----------
