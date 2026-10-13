@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Espirales</title>
+    <style>
+        html, body {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 50%, #1A0A1A 0%, #0A0008 60%, #000000 100%);
+        }
+        svg { display: block; width: 100%; height: 100%; }
+
+        /* Todas las espirales rotan alrededor del centro */
+        .spin {
+            transform-box: view-box;
+            transform-origin: 45px 80px;
+        }
+
+        /* 6 capas, distintas velocidades y direcciones */
+        .spin-1 { animation: rotar 12s linear infinite; }
+        .spin-2 { animation: rotarRev 15s linear infinite; }
+        .spin-3 { animation: rotar 10s linear infinite; }
+        .spin-4 { animation: rotarRev 18s linear infinite; }
+        .spin-5 { animation: rotar 22s linear infinite; }
+        .spin-6 { animation: rotarRev 28s linear infinite; }
+
+        @keyframes rotar    { to { transform: rotate(360deg); } }
+        @keyframes rotarRev { to { transform: rotate(-360deg); } }
+
+        /* Pulso global del brillo */
+        .pulso {
+            animation: pulso 4s ease-in-out infinite;
+            transform-box: view-box;
+            transform-origin: 45px 80px;
+        }
+        @keyframes pulso {
+            0%, 100% { opacity: 0.9; transform: scale(1); }
+            50%      { opacity: 1;    transform: scale(1.08); }
+        }
+
+        /* Flash rojo ocasional (efecto inquietante) */
+        .flash {
+            animation: flashRaro 8s ease-in-out infinite;
+        }
+        @keyframes flashRaro {
+            0%, 85%, 100% { opacity: 0; }
+            88%           { opacity: 0.35; }
+            90%           { opacity: 0.1; }
+            92%           { opacity: 0.4; }
+            94%           { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+<svg viewBox="0 0 90 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <radialGradient id="es-core" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0"   stop-color="#FFFFFF"/>
+            <stop offset="0.3" stop-color="#A855F7"/>
+            <stop offset="1"   stop-color="#4C1D95"/>
+        </radialGradient>
+        <radialGradient id="es-bg" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0" stop-color="#3B0764" stop-opacity="0.4"/>
+            <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+        </radialGradient>
+    </defs>
+
+    <!-- Halo de fondo -->
+    <ellipse cx="45" cy="80" rx="50" ry="50" fill="url(#es-bg)"/>
+
+    <g class="pulso">
+
+        <!-- Capa 6 (la más externa, más lenta) -->
+        <g class="spin spin-6">
+            <path d="M45,80 m-42,0 a42,42 0 1,1 2,0 a40,40 0 1,0 -2,0
+                     a38,38 0 1,1 2,0 a36,36 0 1,0 -2,0
+                     a34,34 0 1,1 2,0 a32,32 0 1,0 -2,0"
+                  fill="none" stroke="#4C1D95" stroke-width="0.4" opacity="0.6"/>
+        </g>
+
+        <!-- Capa 5 -->
+        <g class="spin spin-5">
+            <path d="M45,80 m-36,0 a36,36 0 1,1 2,0 a34,34 0 1,0 -2,0
+                     a32,32 0 1,1 2,0 a30,30 0 1,0 -2,0
+                     a28,28 0 1,1 2,0 a26,26 0 1,0 -2,0"
+                  fill="none" stroke="#6D28D9" stroke-width="0.5" opacity="0.7"/>
+        </g>
+
+        <!-- Capa 4 -->
+        <g class="spin spin-4">
+            <path d="M45,80 m-30,0 a30,30 0 1,1 2,0 a28,28 0 1,0 -2,0
+                     a26,26 0 1,1 2,0 a24,24 0 1,0 -2,0
+                     a22,22 0 1,1 2,0 a20,20 0 1,0 -2,0"
+                  fill="none" stroke="#7C3AED" stroke-width="0.6" opacity="0.8"/>
+        </g>
+
+        <!-- Capa 3 -->
+        <g class="spin spin-3">
+            <path d="M45,80 m-24,0 a24,24 0 1,1 2,0 a22,22 0 1,0 -2,0
+                     a20,20 0 1,1 2,0 a18,18 0 1,0 -2,0
+                     a16,16 0 1,1 2,0 a14,14 0 1,0 -2,0"
+                  fill="none" stroke="#9333EA" stroke-width="0.7" opacity="0.85"/>
+        </g>
+
+        <!-- Capa 2 -->
+        <g class="spin spin-2">
+            <path d="M45,80 m-18,0 a18,18 0 1,1 2,0 a16,16 0 1,0 -2,0
+                     a14,14 0 1,1 2,0 a12,12 0 1,0 -2,0
+                     a10,10 0 1,1 2,0 a8,8 0 1,0 -2,0"
+                  fill="none" stroke="#A855F7" stroke-width="0.8" opacity="0.9"/>
+        </g>
+
+        <!-- Capa 1 (interior, la más rápida) -->
+        <g class="spin spin-1">
+            <path d="M45,80 m-11,0 a11,11 0 1,1 2,0 a9,9 0 1,0 -2,0
+                     a7,7 0 1,1 2,0 a5,5 0 1,0 -2,0"
+                  fill="none" stroke="#C084FC" stroke-width="0.9"/>
+        </g>
+
+        <!-- Centro con brillo -->
+        <circle cx="45" cy="80" r="3" fill="url(#es-core)"/>
+        <circle cx="45" cy="80" r="1.5" fill="white" opacity="0.9"/>
+
+        <!-- Puntitos orbitando (partículas) -->
+        <g fill="#E9D5FF">
+            <circle cx="45" cy="36" r="0.7" opacity="0.9"/>
+            <circle cx="45" cy="124" r="0.7" opacity="0.9"/>
+            <circle cx="5"  cy="80" r="0.6" opacity="0.7"/>
+            <circle cx="85" cy="80" r="0.6" opacity="0.7"/>
+            <circle cx="17" cy="52" r="0.5" opacity="0.6"/>
+            <circle cx="73" cy="108" r="0.5" opacity="0.6"/>
+            <circle cx="73" cy="52" r="0.5" opacity="0.6"/>
+            <circle cx="17" cy="108" r="0.5" opacity="0.6"/>
+        </g>
+
+    </g>
+
+    <!-- Flash rojo ocasional (efecto inquietante) -->
+    <rect class="flash" x="0" y="0" width="90" height="160" fill="#DC2626" opacity="0"/>
+</svg>
+</body>
+</html>
