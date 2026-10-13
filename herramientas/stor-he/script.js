@@ -1569,4 +1569,62 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const btnVac
+    const btnVaciar = document.getElementById('shCartVaciar');
+    if (btnVaciar) {
+        btnVaciar.addEventListener('click', () => {
+            if (!confirm('¿Vaciar el carrito? Se van a quitar todos los items.')) return;
+            carritoVaciar();
+            renderCarritoBar();
+            renderCarritoModal();
+            if (_tabActual === 'apps')    renderApps();
+            if (_tabActual === 'temas')   renderTemas();
+            if (_tabActual === 'widgets') renderWidgets();
+            if (_tabActual === 'cuadros') renderCuadros();
+            toast('Carrito vaciado', 'info');
+        });
+    }
+
+    const btnComprar = document.getElementById('shCartComprar');
+    if (btnComprar) btnComprar.addEventListener('click', comprarCarrito);
+
+    // -------- Modal de ampliación --------
+    const btnCloseAmp     = document.getElementById('shAmpClose');
+    const btnCancelarAmp  = document.getElementById('shAmpCancelar');
+    const btnConfirmarAmp = document.getElementById('shAmpConfirmar');
+    const btnExitoCerrar  = document.getElementById('shAmpExitoCerrar');
+    const modalAmp        = document.getElementById('shAmpModal');
+
+    if (btnCloseAmp)      btnCloseAmp.addEventListener('click', cerrarModalEspacio);
+    if (btnCancelarAmp)   btnCancelarAmp.addEventListener('click', cerrarModalEspacio);
+    if (btnExitoCerrar)   btnExitoCerrar.addEventListener('click', cerrarModalEspacio);
+    if (btnConfirmarAmp)  btnConfirmarAmp.addEventListener('click', ejecutarCompraEspacio);
+
+    if (modalAmp) {
+        modalAmp.addEventListener('click', (e) => {
+            if (e.target === modalAmp && !_ampEnProgreso) cerrarModalEspacio();
+        });
+    }
+
+    // -------- ESC --------
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+
+        const cartModal = document.getElementById('shCartModal');
+        if (cartModal && cartModal.style.display === 'flex') {
+            cerrarCarrito();
+            return;
+        }
+
+        if (!_ampEnProgreso) {
+            const ampModal = document.getElementById('shAmpModal');
+            if (ampModal && ampModal.style.display === 'flex') cerrarModalEspacio();
+        }
+    });
+
+    actualizarBuscadorVisibilidad(_tabActual);
+
+    setTimeout(() => {
+        refrescarTodo();
+        renderCarritoBar();
+    }, 100);
+});
