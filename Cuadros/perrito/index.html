@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Perrito</title>
+    <style>
+        html, body {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 45%, #FFFBEB 0%, #FEF3C7 55%, #FDE68A 100%);
+        }
+        svg { display: block; width: 100%; height: 100%; }
+
+        .perro {
+            transform-box: view-box;
+            transform-origin: 45px 100px;
+            animation: saltito 1.8s ease-in-out infinite;
+        }
+        @keyframes saltito {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-2px); }
+        }
+
+        .oreja-izq {
+            transform-box: view-box;
+            transform-origin: 32px 72px;
+            animation: orejaIzq 1.6s ease-in-out infinite;
+        }
+        .oreja-der {
+            transform-box: view-box;
+            transform-origin: 58px 72px;
+            animation: orejaDer 1.6s ease-in-out infinite;
+        }
+        @keyframes orejaIzq {
+            0%, 100% { transform: rotate(0deg); }
+            40%      { transform: rotate(-12deg); }
+        }
+        @keyframes orejaDer {
+            0%, 100% { transform: rotate(0deg); }
+            40%      { transform: rotate(12deg); }
+        }
+
+        .cola {
+            transform-box: view-box;
+            transform-origin: 63px 118px;
+            animation: cola 0.5s ease-in-out infinite;
+        }
+        @keyframes cola {
+            0%, 100% { transform: rotate(-15deg); }
+            50%      { transform: rotate(15deg); }
+        }
+
+        .lengua {
+            animation: lengua 1.5s ease-in-out infinite;
+        }
+        @keyframes lengua {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(1.5px); }
+        }
+    </style>
+</head>
+<body>
+<svg viewBox="0 0 90 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <radialGradient id="pr-body" cx="0.4" cy="0.35" r="0.7">
+            <stop offset="0" stop-color="#FDE68A"/>
+            <stop offset="1" stop-color="#D97706"/>
+        </radialGradient>
+        <radialGradient id="pr-head" cx="0.4" cy="0.35" r="0.75">
+            <stop offset="0" stop-color="#FEF3C7"/>
+            <stop offset="1" stop-color="#D97706"/>
+        </radialGradient>
+    </defs>
+
+    <ellipse cx="45" cy="140" rx="22" ry="2.5" fill="#78350F" opacity="0.15"/>
+
+    <g class="perro">
+
+        <!-- Cola moviéndose -->
+        <path class="cola"
+              d="M63,118 C70,116 74,110 73,104"
+              fill="none" stroke="#D97706" stroke-width="3.5" stroke-linecap="round"/>
+        <circle cx="73" cy="104" r="3" fill="#FEF3C7"/>
+
+        <!-- Cuerpo -->
+        <ellipse cx="45" cy="118" rx="20" ry="18" fill="url(#pr-body)"/>
+
+        <!-- Panza clara -->
+        <ellipse cx="45" cy="122" rx="12" ry="10" fill="#FEF3C7" opacity="0.7"/>
+
+        <!-- Patitas -->
+        <ellipse cx="35" cy="134" rx="5" ry="3.5" fill="#D97706"/>
+        <ellipse cx="55" cy="134" rx="5" ry="3.5" fill="#D97706"/>
+        <ellipse cx="35" cy="135" rx="3" ry="2" fill="#78350F" opacity="0.5"/>
+        <ellipse cx="55" cy="135" rx="3" ry="2" fill="#78350F" opacity="0.5"/>
+
+        <!-- Oreja izquierda (colgante) -->
+        <g class="oreja-izq">
+            <path d="M32,76 C26,80 24,90 28,96 C32,98 36,90 36,82 Z"
+                  fill="#B45309"/>
+            <path d="M32,80 C29,84 28,90 30,93"
+                  fill="none" stroke="#78350F" stroke-width="0.5" opacity="0.5"/>
+        </g>
+        <!-- Oreja derecha -->
+        <g class="oreja-der">
+            <path d="M58,76 C64,80 66,90 62,96 C58,98 54,90 54,82 Z"
+                  fill="#B45309"/>
+            <path d="M58,80 C61,84 62,90 60,93"
+                  fill="none" stroke="#78350F" stroke-width="0.5" opacity="0.5"/>
+        </g>
+
+        <!-- Cabeza -->
+        <ellipse cx="45" cy="90" rx="20" ry="18" fill="url(#pr-head)"/>
+
+        <!-- Mancha marrón alrededor del ojo derecho -->
+        <ellipse cx="53" cy="86" rx="7" ry="8" fill="#B45309" opacity="0.55"/>
+
+        <!-- Hocico -->
+        <ellipse cx="45" cy="100" rx="10" ry="7" fill="#FEF3C7"/>
+        <!-- Nariz -->
+        <ellipse cx="45" cy="97" rx="3" ry="2" fill="#1F2937"/>
+        <ellipse cx="44" cy="96.5" rx="1" ry="0.6" fill="white" opacity="0.6"/>
+
+        <!-- Lengua -->
+        <path class="lengua"
+              d="M45,101 C45,105 42,106 42,103 C42,101 44,100.5 45,101 Z"
+              fill="#FB7185"/>
+        <line x1="43.5" y1="102" x2="44" y2="105"
+              stroke="#BE123C" stroke-width="0.4" opacity="0.6"/>
+
+        <!-- Ojos -->
+        <ellipse cx="38" cy="86" rx="2.8" ry="3.2" fill="#1F2937"/>
+        <ellipse cx="53" cy="86" rx="2.8" ry="3.2" fill="#1F2937"/>
+        <circle cx="37" cy="85" r="1" fill="white"/>
+        <circle cx="52" cy="85" r="1" fill="white"/>
+
+        <!-- Ceja expresiva -->
+        <path d="M34,80 Q38,78 41,80" fill="none"
+              stroke="#78350F" stroke-width="0.6" stroke-linecap="round"/>
+        <path d="M50,80 Q53,78 57,80" fill="none"
+              stroke="#78350F" stroke-width="0.6" stroke-linecap="round"/>
+
+        <!-- Collar con chapita -->
+        <path d="M30,104 Q45,110 60,104"
+              stroke="#DC2626" stroke-width="2.5" fill="none"/>
+        <circle cx="45" cy="109" r="3.2" fill="#FCD34D" stroke="#B45309" stroke-width="0.4"/>
+        <circle cx="45" cy="109" r="1.2" fill="#B45309" opacity="0.5"/>
+    </g>
+</svg>
+</body>
+</html>
