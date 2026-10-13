@@ -1,13 +1,18 @@
 // ============================================================
 //  Stor-He — Lógica
-//  Tabs: Apps / Temas / Widgets / PromoZione
+//  Tabs: Apps / Temas / Widgets / Cuadros / PromoZione
 //  + Carrito · Buscador · Ampliación con progreso
 //  Compatible con TODOS los temas (var() con fallbacks).
 //  Sin emojis.
+//
+//  Cuadros: decoración pura del lobby. Su estado vive en
+//  window.parent.LogicCuadros (archivo propio). Aquí solo
+//  los mostramos, los agregamos al carrito y los compramos.
 // ============================================================
 
 const API = () => window.parent.__vicwebos || null;
 const PZ  = () => window.parent.PromoZione || null;
+const LC  = () => window.parent.LogicCuadros || null;
 const MENSAJE_TEMA = 'vicwebos_tema_cambio';
 
 const _accionesEnVuelo = new Set();
@@ -160,16 +165,19 @@ function carritoTotal() {
 
 function limpiarCarritoInstalados() {
     const api = API();
+    const lc  = LC();
     if (!api) return;
     const apps    = api.obtenerInstaladas() || [];
     const temas   = api.obtenerTemasInstalados() || [];
     const widgets = api.obtenerWidgetsInstalados() || [];
+    const cuadros = lc ? (lc.obtenerInstalados() || []) : [];
     let cambio = false;
     _carrito.forEach((x, k) => {
         const yaEsta =
             (x.tipo === 'app'    && apps.includes(x.id)) ||
             (x.tipo === 'tema'   && temas.includes(x.id)) ||
-            (x.tipo === 'widget' && widgets.includes(x.id));
+            (x.tipo === 'widget' && widgets.includes(x.id)) ||
+            (x.tipo === 'cuadro' && cuadros.includes(x.id));
         if (yaEsta) { _carrito.delete(k); cambio = true; }
     });
     if (cambio) guardarCarrito();
@@ -179,6 +187,7 @@ function _tipoNombreSimple(tipo) {
     if (tipo === 'app')    return 'App';
     if (tipo === 'tema')   return 'Tema';
     if (tipo === 'widget') return 'Widget';
+    if (tipo === 'cuadro') return 'Cuadro';
     return '';
 }
 
@@ -213,7 +222,7 @@ function renderCarritoModal() {
             <div class="sh-cart-vacio">
                 <i data-lucide="shopping-cart"></i>
                 <h3>Tu carrito está vacío</h3>
-                <p>Agregá apps, temas o widgets desde el catálogo.</p>
+                <p>Agregá apps, temas, widgets o cuadros desde el catálogo.</p>
             </div>`;
         lucide.createIcons();
     } else {
@@ -283,6 +292,7 @@ function cerrarCarrito() {
 
 async function comprarCarrito() {
     const api = API();
+    const lc  = LC();
     if (!api) return;
     const items = Array.from(_carrito.values());
     if (items.length === 0) return;
@@ -302,6 +312,10 @@ async function comprarCarrito() {
             if (x.tipo === 'app')         await api.instalar(x.id);
             else if (x.tipo === 'tema')   await api.instalarTema(x.id);
             else if (x.tipo === 'widget') await api.instalarWidget(x.id);
+            else if (x.tipo === 'cuadro') {
+                if (!lc) throw new Error('Cuadros no disponible.');
+                await lc.comprar(x.id);
+            }
             carritoQuitar(x.tipo, x.id);
             ok++;
         } catch (e) {
@@ -346,6 +360,7 @@ function _placeholderBusqueda(tab) {
     if (tab === 'apps')    return 'Buscar apps...';
     if (tab === 'temas')   return 'Buscar temas...';
     if (tab === 'widgets') return 'Buscar widgets...';
+    if (tab === 'cuadros') return 'Buscar cuadros...';
     return 'Buscar...';
 }
 
@@ -612,9 +627,10 @@ function _botonesNoInstalado(tipo, item, bloqueado, motivo) {
     const iconoPrincipal = enCarrito ? 'check' : 'shopping-cart';
     const textoPrincipal = enCarrito ? 'En carrito' : 'Agregar';
 
-    const accionInstalar = tipo === 'app' ? 'instalar'
-                         : tipo === 'tema' ? 'instalarTema'
-                         : 'instalarWidget';
+    let accionInstalar = 'instalarWidget';
+    if (tipo === 'app')      accionInstalar = 'instalar';
+    else if (tipo === 'tema')    accionInstalar = 'instalarTema';
+    else if (tipo === 'cuadro')  accionInstalar = 'comprarCuadro';
 
     return `
         <div class="sh-acciones">
@@ -632,7 +648,7 @@ function _botonesNoInstalado(tipo, item, bloqueado, motivo) {
                         data-accion="${accionInstalar}"
                         data-id="${item.id}"
                         ${bloqueado ? `disabled title="${motivo}"` : ''}
-                        title="Instalar ahora">
+                        title="Comprar ahora">
                     <i data-lucide="zap"></i>
                 </button>
             ` : ''}
@@ -854,12 +870,164 @@ function renderWidgets() {
 }
 
 // ============================================================
+//  TAB: CUADROS
+//  ------------------------------------------------------------
+//  Decoración pura. No consumen espacio.
+//  Estados por cuadro:
+//    • No comprado → Agregar al carrito + Comprar ya
+//    • Comprado y activo → badge "Activo" + Desactivar + Desinstalar
+//    • Comprado e inactivo → Activar + Desinstalar
+//  Límite: MAX_ACTIVOS activos simultáneos (por defecto 10).
+// ============================================================
+function renderCuadroLimite(lc) {
+    const cont = document.getElementById('shCuadroLimite');
+    if (!cont || !lc) { if (cont) cont.innerHTML = ''; return; }
+
+    const max     = lc.MAX_ACTIVOS || 10;
+    const activos = lc.obtenerActivos() || [];
+    const usados  = activos.length;
+    const pct     = Math.min(100, Math.round((usados / max) * 100));
+    const lleno   = usados >= max;
+
+    cont.innerHTML = `
+        <div class="sh-cuadro-limite">
+            <div class="sh-cuadro-limite-icono">
+                <i data-lucide="frame"></i>
+            </div>
+            <div class="sh-cuadro-limite-info">
+                <div class="sh-cuadro-limite-titulo">Cuadros activos</div>
+                <div class="sh-cuadro-limite-desc">
+                    Usás <strong>${usados}</strong> de <strong>${max}</strong>.
+                    ${lleno
+                        ? 'Desactivá uno para poder activar otro.'
+                        : `Podés activar ${max - usados} más.`}
+                </div>
+            </div>
+            <div class="sh-cuadro-limite-barra">
+                <div class="sh-cuadro-limite-fill ${lleno ? 'lleno' : ''}"
+                     style="width:${pct}%"></div>
+            </div>
+        </div>
+    `;
+    lucide.createIcons();
+}
+
+async function renderCuadros() {
+    const cont = document.getElementById('cuadrosContenido');
+    if (!cont) return;
+
+    const lc = LC();
+    if (!lc) {
+        cont.innerHTML = `
+            <div class="sh-empty">
+                <i data-lucide="alert-triangle"></i>
+                <h3>Cuadros no está disponible</h3>
+                <p>Falta cargar <code>js/LogicCuadros.js</code> en el shell.</p>
+            </div>`;
+        lucide.createIcons();
+        return;
+    }
+
+    // Asegurar estado fresco
+    try { await lc.recargar(); } catch (e) { /* silencioso */ }
+
+    const catalogo   = lc.obtenerCatalogo() || [];
+    const instalados = lc.obtenerInstalados() || [];
+    const activos    = lc.obtenerActivos() || [];
+
+    document.getElementById('countCuadros').textContent = catalogo.length;
+
+    renderCuadroLimite(lc);
+
+    if (catalogo.length === 0) {
+        cont.innerHTML = `
+            <div class="sh-empty">
+                <i data-lucide="frame"></i>
+                <h3>No hay cuadros todavía</h3>
+                <p>Cuando agregues cuadros en <code>js/JsCuadros.js</code> aparecerán acá.</p>
+            </div>`;
+        lucide.createIcons();
+        return;
+    }
+
+    const filtrado = catalogo.filter(c => _coincide(c, _busquedaActual));
+    if (filtrado.length === 0 && _busquedaActual) {
+        renderBusquedaVacia(cont, _busquedaActual);
+        return;
+    }
+
+    renderGrid(cont, filtrado, (cuadro) => {
+        const instalado = instalados.includes(cuadro.id);
+        const activo    = activos.includes(cuadro.id);
+
+        // Bloqueo: solo si no está instalado y no alcanzan las monedas
+        const api = API();
+        const monedasDisp = api ? (api.obtenerMonedas() ?? 0) : 0;
+        const sinMonedas  = !instalado && (cuadro.monedas || 0) > monedasDisp;
+        const motivo = sinMonedas
+            ? `Te faltan ${cuadro.monedas - monedasDisp} monedas`
+            : '';
+
+        let footerHTML = '';
+        if (!instalado) {
+            footerHTML = _botonesNoInstalado('cuadro', cuadro, sinMonedas, motivo);
+        } else {
+            const badge = activo
+                ? `<span class="sh-badge sh-badge-instalada"><i data-lucide="check"></i> Activo</span>`
+                : `<span class="sh-badge sh-badge-inactivo"><i data-lucide="eye-off"></i> Inactivo</span>`;
+
+            const botonToggle = activo
+                ? `<button class="sh-btn sh-btn-aplicar"
+                           data-accion="desactivarCuadro"
+                           data-id="${cuadro.id}"
+                           title="Ocultar del lobby">
+                       <i data-lucide="eye-off"></i> Desactivar
+                   </button>`
+                : `<button class="sh-btn sh-btn-cuadro-activar"
+                           data-accion="activarCuadro"
+                           data-id="${cuadro.id}"
+                           title="Mostrar en el lobby">
+                       <i data-lucide="eye"></i> Activar
+                   </button>`;
+
+            footerHTML = `
+                ${badge}
+                <div class="sh-acciones">
+                    ${botonToggle}
+                    <button class="sh-btn sh-btn-icono"
+                            data-accion="desinstalarCuadro"
+                            data-id="${cuadro.id}"
+                            title="Desinstalar cuadro">
+                        <i data-lucide="trash-2"></i>
+                    </button>
+                </div>`;
+        }
+
+        return `
+            <div class="sh-card ${instalado ? 'instalada' : ''}" data-id="${cuadro.id}">
+                <div class="sh-card-header">
+                    <div class="sh-card-icono"><i data-lucide="${cuadro.icono || 'frame'}"></i></div>
+                    <div class="sh-card-info">
+                        <div class="sh-card-nombre">
+                            ${cuadro.nombre}
+                        </div>
+                        <div class="sh-card-desc">${cuadro.descripcion || ''}</div>
+                        ${etiquetaCosto(cuadro)}
+                    </div>
+                </div>
+                <div class="sh-card-footer">${footerHTML}</div>
+            </div>`;
+    });
+}
+
+// ============================================================
 //  TAB: PROMOZIONE
 // ============================================================
 function _tipoIcono(tipo) {
     if (tipo === 'app')    return 'package';
     if (tipo === 'tema')   return 'palette';
     if (tipo === 'widget') return 'layout-grid';
+    if (tipo === 'cuadro') return 'frame';
     return 'circle';
 }
 
@@ -867,6 +1035,7 @@ function _tipoNombre(tipo) {
     if (tipo === 'app')    return 'App';
     if (tipo === 'tema')   return 'Tema';
     if (tipo === 'widget') return 'Widget';
+    if (tipo === 'cuadro') return 'Cuadro';
     return '';
 }
 
@@ -1157,7 +1326,8 @@ function detenerTimerOfertas() {
 // ============================================================
 async function manejarAccion(accion, id, btnOrigen, extra) {
     const api = API();
-    const pz = PZ();
+    const pz  = PZ();
+    const lc  = LC();
     if (!api) return;
 
     // --- Abrir modal de ampliación (no async) ---
@@ -1190,6 +1360,7 @@ async function manejarAccion(accion, id, btnOrigen, extra) {
         if (tipo === 'app')    renderApps();
         if (tipo === 'tema')   renderTemas();
         if (tipo === 'widget') renderWidgets();
+        if (tipo === 'cuadro') renderCuadros();
         return;
     }
 
@@ -1201,6 +1372,7 @@ async function manejarAccion(accion, id, btnOrigen, extra) {
         if (tipo === 'app')    renderApps();
         if (tipo === 'tema')   renderTemas();
         if (tipo === 'widget') renderWidgets();
+        if (tipo === 'cuadro') renderCuadros();
         return;
     }
 
@@ -1252,6 +1424,33 @@ async function manejarAccion(accion, id, btnOrigen, extra) {
                 await api.desinstalarWidget(id);
                 toast('Widget desinstalado', 'success');
                 break;
+            case 'comprarCuadro': {
+                if (!lc) throw new Error('Cuadros no disponible.');
+                const res = await lc.comprar(id);
+                toast(res.activado
+                    ? '¡Cuadro comprado y activado!'
+                    : '¡Cuadro comprado! Activalo cuando quieras.',
+                    'success');
+                break;
+            }
+            case 'desinstalarCuadro': {
+                if (!lc) throw new Error('Cuadros no disponible.');
+                await lc.desinstalar(id);
+                toast('Cuadro desinstalado', 'success');
+                break;
+            }
+            case 'activarCuadro': {
+                if (!lc) throw new Error('Cuadros no disponible.');
+                await lc.activar(id);
+                toast('Cuadro activado', 'success');
+                break;
+            }
+            case 'desactivarCuadro': {
+                if (!lc) throw new Error('Cuadros no disponible.');
+                await lc.desactivar(id);
+                toast('Cuadro desactivado', 'info');
+                break;
+            }
             case 'comprarPaquete':
                 if (!pz) throw new Error('PromoZione no disponible.');
                 await pz.comprarPaquete(id);
@@ -1279,6 +1478,11 @@ async function manejarAccion(accion, id, btnOrigen, extra) {
 // Busca un item en el catálogo del shell por tipo+id
 function _buscarItemPorId(tipo, id) {
     const api = API();
+    const lc  = LC();
+    if (tipo === 'cuadro') {
+        if (!lc) return null;
+        return (lc.obtenerCatalogo() || []).find(x => x.id === id) || null;
+    }
     if (!api) return null;
     if (tipo === 'app')    return (api.obtenerCatalogo() || []).find(x => x.id === id);
     if (tipo === 'tema')   return (api.obtenerTemas()    || []).find(x => x.id === id);
@@ -1293,6 +1497,7 @@ function refrescarTodo() {
     renderApps();
     renderTemas();
     renderWidgets();
+    renderCuadros();
     renderCarritoBar();
 
     const panelPromo = document.querySelector('.sh-panel[data-panel="promozione"]');
@@ -1333,6 +1538,7 @@ function inicializarTabs() {
                 if (_tabActual === 'apps')    renderApps();
                 if (_tabActual === 'temas')   renderTemas();
                 if (_tabActual === 'widgets') renderWidgets();
+                if (_tabActual === 'cuadros') renderCuadros();
             }
         });
     });
@@ -1375,6 +1581,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (_tabActual === 'apps')    renderApps();
                 if (_tabActual === 'temas')   renderTemas();
                 if (_tabActual === 'widgets') renderWidgets();
+                if (_tabActual === 'cuadros') renderCuadros();
             }, 120);
         });
     }
@@ -1388,6 +1595,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (_tabActual === 'apps')    renderApps();
             if (_tabActual === 'temas')   renderTemas();
             if (_tabActual === 'widgets') renderWidgets();
+            if (_tabActual === 'cuadros') renderCuadros();
         });
     }
 
@@ -1415,6 +1623,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (_tabActual === 'apps')    renderApps();
             if (_tabActual === 'temas')   renderTemas();
             if (_tabActual === 'widgets') renderWidgets();
+            if (_tabActual === 'cuadros') renderCuadros();
             toast('Carrito vaciado', 'info');
         });
     }
@@ -1444,21 +1653,18 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', (e) => {
         if (e.key !== 'Escape') return;
 
-        // Prioridad: carrito primero si está abierto
         const cartModal = document.getElementById('shCartModal');
         if (cartModal && cartModal.style.display === 'flex') {
             cerrarCarrito();
             return;
         }
 
-        // Ampliación
         if (!_ampEnProgreso) {
             const ampModal = document.getElementById('shAmpModal');
             if (ampModal && ampModal.style.display === 'flex') cerrarModalEspacio();
         }
     });
 
-    // Visibilidad inicial del buscador
     actualizarBuscadorVisibilidad(_tabActual);
 
     setTimeout(() => {
