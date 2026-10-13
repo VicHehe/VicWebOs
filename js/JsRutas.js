@@ -12,7 +12,7 @@
 //    8  → app compleja (polling, editor, picker, multi-vista)
 //    10 → app muy compleja (WebRTC, MediaRecorder, multi-vista)
 //    12 → app muy compleja pero gratuitas
-//
+
 //  ESCALA DE PRECIO (0 a 250):
 //    0     → base del SO (un SO lo trae por defecto)
 //    0     → juegos gratis (excepción: son la base económica)
@@ -93,9 +93,33 @@ const RUTAS_HERRAMIENTAS = [
     {
         id: 'delantedelmuro',
         nombre: 'Delante del muro',
-        icono: 'message-square-quote',
+        icono: 'book-user',
         ruta: 'herramientas/delantedelmuro/index.html',
         descripcion: 'Dejá un mensaje en el muro de tus amigos. Escribí, likear y comentá. Simple y directo.',
+        categoria: 'Sistema',
+        esBase: true,
+        esDefault: true,
+        espacio: 0,
+        monedas: 0
+    },
+    {
+        id: 'public-zone',
+        nombre: 'Public Zone',
+        icono: 'megaphone',
+        ruta: 'herramientas/public-zone/index.html',
+        descripcion: 'Chat público de la comunidad. Un solo canal para todos, sin privados ni grupos.',
+        categoria: 'Sistema',
+        esBase: true,
+        esDefault: true,
+        espacio: 0,
+        monedas: 0
+    },
+    {
+        id: 'dino',
+        nombre: 'Mezosoic Run',
+        icono: 'gamepad-2',
+        ruta: 'herramientas/dino/index.html',
+        descripcion: 'El clásico runner. Gana monedas mientras corres.',
         categoria: 'Sistema',
         esBase: true,
         esDefault: true,
@@ -323,17 +347,6 @@ const RUTAS_HERRAMIENTAS = [
     // ============================================================
     //  JUEGOS
     // ============================================================
-    {
-        id: 'dino',
-        nombre: 'Mezosoic Run',
-        icono: 'gamepad-2',
-        ruta: 'herramientas/dino/index.html',
-        descripcion: 'El clásico runner. Gana monedas mientras corres.',
-        categoria: 'Juegos',
-        esBase: false,
-        espacio: 2,
-        monedas: 0
-    },
     {
         id: 'tres-en-raya',
         nombre: 'Tres en Raya',
