@@ -8,137 +8,151 @@
             margin: 0; padding: 0;
             width: 100%; height: 100%;
             overflow: hidden;
-            background: radial-gradient(circle at 50% 50%, #1A0A1A 0%, #0A0008 60%, #000000 100%);
+            background: radial-gradient(circle at 50% 45%, #1A0A2E 0%, #0A0014 60%, #000000 100%);
         }
         svg { display: block; width: 100%; height: 100%; }
 
-        /* Todas las espirales rotan alrededor del centro */
+        /* Capas rotando en direcciones alternas */
         .spin {
             transform-box: view-box;
             transform-origin: 45px 80px;
         }
-
-        /* 6 capas, distintas velocidades y direcciones */
-        .spin-1 { animation: rotar 12s linear infinite; }
-        .spin-2 { animation: rotarRev 15s linear infinite; }
-        .spin-3 { animation: rotar 10s linear infinite; }
-        .spin-4 { animation: rotarRev 18s linear infinite; }
-        .spin-5 { animation: rotar 22s linear infinite; }
-        .spin-6 { animation: rotarRev 28s linear infinite; }
+        .spin-a { animation: rotar  20s linear infinite; }
+        .spin-b { animation: rotarRev 30s linear infinite; }
+        .spin-c { animation: rotar  14s linear infinite; }
 
         @keyframes rotar    { to { transform: rotate(360deg); } }
         @keyframes rotarRev { to { transform: rotate(-360deg); } }
 
-        /* Pulso global del brillo */
-        .pulso {
-            animation: pulso 4s ease-in-out infinite;
+        /* El núcleo late */
+        .nucleo {
             transform-box: view-box;
             transform-origin: 45px 80px;
+            animation: latir 3s ease-in-out infinite;
         }
-        @keyframes pulso {
-            0%, 100% { opacity: 0.9; transform: scale(1); }
-            50%      { opacity: 1;    transform: scale(1.08); }
+        @keyframes latir {
+            0%, 100% { opacity: 0.85; transform: scale(1); }
+            50%      { opacity: 1;    transform: scale(1.15); }
         }
 
-        /* Flash rojo ocasional (efecto inquietante) */
-        .flash {
-            animation: flashRaro 8s ease-in-out infinite;
+        /* Estrellas de fondo */
+        .estrella {
+            animation: titilar 3s ease-in-out infinite;
         }
-        @keyframes flashRaro {
-            0%, 85%, 100% { opacity: 0; }
-            88%           { opacity: 0.35; }
-            90%           { opacity: 0.1; }
-            92%           { opacity: 0.4; }
-            94%           { opacity: 0; }
+        .estrella:nth-child(odd) { animation-duration: 4s; }
+        @keyframes titilar {
+            0%, 100% { opacity: 0.2; }
+            50%      { opacity: 0.9; }
         }
     </style>
 </head>
 <body>
 <svg viewBox="0 0 90 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
     <defs>
-        <radialGradient id="es-core" cx="0.5" cy="0.5" r="0.5">
-            <stop offset="0"   stop-color="#FFFFFF"/>
-            <stop offset="0.3" stop-color="#A855F7"/>
-            <stop offset="1"   stop-color="#4C1D95"/>
+        <radialGradient id="es-halo" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0" stop-color="#A855F7" stop-opacity="0.35"/>
+            <stop offset="0.5" stop-color="#7C3AED" stop-opacity="0.12"/>
+            <stop offset="1" stop-color="#4C1D95" stop-opacity="0"/>
         </radialGradient>
-        <radialGradient id="es-bg" cx="0.5" cy="0.5" r="0.5">
-            <stop offset="0" stop-color="#3B0764" stop-opacity="0.4"/>
-            <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+        <radialGradient id="es-core" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0" stop-color="#FFFFFF"/>
+            <stop offset="0.3" stop-color="#E9D5FF"/>
+            <stop offset="1" stop-color="#A855F7"/>
         </radialGradient>
     </defs>
 
-    <!-- Halo de fondo -->
-    <ellipse cx="45" cy="80" rx="50" ry="50" fill="url(#es-bg)"/>
-
-    <g class="pulso">
-
-        <!-- Capa 6 (la más externa, más lenta) -->
-        <g class="spin spin-6">
-            <path d="M45,80 m-42,0 a42,42 0 1,1 2,0 a40,40 0 1,0 -2,0
-                     a38,38 0 1,1 2,0 a36,36 0 1,0 -2,0
-                     a34,34 0 1,1 2,0 a32,32 0 1,0 -2,0"
-                  fill="none" stroke="#4C1D95" stroke-width="0.4" opacity="0.6"/>
-        </g>
-
-        <!-- Capa 5 -->
-        <g class="spin spin-5">
-            <path d="M45,80 m-36,0 a36,36 0 1,1 2,0 a34,34 0 1,0 -2,0
-                     a32,32 0 1,1 2,0 a30,30 0 1,0 -2,0
-                     a28,28 0 1,1 2,0 a26,26 0 1,0 -2,0"
-                  fill="none" stroke="#6D28D9" stroke-width="0.5" opacity="0.7"/>
-        </g>
-
-        <!-- Capa 4 -->
-        <g class="spin spin-4">
-            <path d="M45,80 m-30,0 a30,30 0 1,1 2,0 a28,28 0 1,0 -2,0
-                     a26,26 0 1,1 2,0 a24,24 0 1,0 -2,0
-                     a22,22 0 1,1 2,0 a20,20 0 1,0 -2,0"
-                  fill="none" stroke="#7C3AED" stroke-width="0.6" opacity="0.8"/>
-        </g>
-
-        <!-- Capa 3 -->
-        <g class="spin spin-3">
-            <path d="M45,80 m-24,0 a24,24 0 1,1 2,0 a22,22 0 1,0 -2,0
-                     a20,20 0 1,1 2,0 a18,18 0 1,0 -2,0
-                     a16,16 0 1,1 2,0 a14,14 0 1,0 -2,0"
-                  fill="none" stroke="#9333EA" stroke-width="0.7" opacity="0.85"/>
-        </g>
-
-        <!-- Capa 2 -->
-        <g class="spin spin-2">
-            <path d="M45,80 m-18,0 a18,18 0 1,1 2,0 a16,16 0 1,0 -2,0
-                     a14,14 0 1,1 2,0 a12,12 0 1,0 -2,0
-                     a10,10 0 1,1 2,0 a8,8 0 1,0 -2,0"
-                  fill="none" stroke="#A855F7" stroke-width="0.8" opacity="0.9"/>
-        </g>
-
-        <!-- Capa 1 (interior, la más rápida) -->
-        <g class="spin spin-1">
-            <path d="M45,80 m-11,0 a11,11 0 1,1 2,0 a9,9 0 1,0 -2,0
-                     a7,7 0 1,1 2,0 a5,5 0 1,0 -2,0"
-                  fill="none" stroke="#C084FC" stroke-width="0.9"/>
-        </g>
-
-        <!-- Centro con brillo -->
-        <circle cx="45" cy="80" r="3" fill="url(#es-core)"/>
-        <circle cx="45" cy="80" r="1.5" fill="white" opacity="0.9"/>
-
-        <!-- Puntitos orbitando (partículas) -->
-        <g fill="#E9D5FF">
-            <circle cx="45" cy="36" r="0.7" opacity="0.9"/>
-            <circle cx="45" cy="124" r="0.7" opacity="0.9"/>
-            <circle cx="5"  cy="80" r="0.6" opacity="0.7"/>
-            <circle cx="85" cy="80" r="0.6" opacity="0.7"/>
-            <circle cx="17" cy="52" r="0.5" opacity="0.6"/>
-            <circle cx="73" cy="108" r="0.5" opacity="0.6"/>
-            <circle cx="73" cy="52" r="0.5" opacity="0.6"/>
-            <circle cx="17" cy="108" r="0.5" opacity="0.6"/>
-        </g>
-
+    <!-- Estrellas fijas -->
+    <g fill="#C4B5FD">
+        <circle class="estrella" cx="12" cy="20" r="0.6"/>
+        <circle class="estrella" cx="78" cy="14" r="0.7"/>
+        <circle class="estrella" cx="18" cy="145" r="0.5"/>
+        <circle class="estrella" cx="76" cy="150" r="0.6"/>
+        <circle class="estrella" cx="8"  cy="80" r="0.5"/>
+        <circle class="estrella" cx="82" cy="80" r="0.6"/>
+        <circle class="estrella" cx="30" cy="12" r="0.5"/>
+        <circle class="estrella" cx="60" cy="150" r="0.5"/>
     </g>
 
-    <!-- Flash rojo ocasional (efecto inquietante) -->
-    <rect class="flash" x="0" y="0" width="90" height="160" fill="#DC2626" opacity="0"/>
+    <!-- Halo de fondo -->
+    <ellipse cx="45" cy="80" rx="55" ry="55" fill="url(#es-halo)"/>
+
+    <!-- ESPIRAL A — brazos largos que van hacia afuera (sentido horario) -->
+    <g class="spin spin-a">
+        <!-- Brazo 1: espiral limpia con curvas suaves -->
+        <path d="M45,80
+                 Q50,80 50,75
+                 Q50,68 42,68
+                 Q30,68 30,82
+                 Q30,98 46,98
+                 Q64,98 64,80
+                 Q64,60 45,60
+                 Q24,60 24,82"
+              fill="none" stroke="#C084FC" stroke-width="1.2"
+              stroke-linecap="round" opacity="0.9"/>
+        <!-- Brazo 2: reflejado (180°) -->
+        <path d="M45,80
+                 Q40,80 40,85
+                 Q40,92 48,92
+                 Q60,92 60,78
+                 Q60,62 44,62
+                 Q26,62 26,80
+                 Q26,100 45,100
+                 Q66,100 66,78"
+              fill="none" stroke="#C084FC" stroke-width="1.2"
+              stroke-linecap="round" opacity="0.9"/>
+    </g>
+
+    <!-- ESPIRAL B — brazos medianos (sentido antihorario) -->
+    <g class="spin spin-b">
+        <path d="M45,80
+                 Q48,80 48,77
+                 Q48,72 42,72
+                 Q34,72 34,80
+                 Q34,90 45,90
+                 Q57,90 57,80
+                 Q57,68 45,68
+                 Q32,68 32,80"
+              fill="none" stroke="#A855F7" stroke-width="1.4"
+              stroke-linecap="round" opacity="0.95"/>
+        <path d="M45,80
+                 Q42,80 42,83
+                 Q42,88 48,88
+                 Q56,88 56,80
+                 Q56,70 45,70
+                 Q33,70 33,80
+                 Q33,92 45,92
+                 Q58,92 58,80"
+              fill="none" stroke="#A855F7" stroke-width="1.4"
+              stroke-linecap="round" opacity="0.95"/>
+    </g>
+
+    <!-- ESPIRAL C — brazos cortos internos (sentido horario, más rápida) -->
+    <g class="spin spin-c">
+        <path d="M45,80
+                 Q47,80 47,78
+                 Q47,75 44,75
+                 Q40,75 40,80
+                 Q40,86 45,86
+                 Q51,86 51,80
+                 Q51,73 45,73"
+              fill="none" stroke="#E9D5FF" stroke-width="1.2"
+              stroke-linecap="round"/>
+        <path d="M45,80
+                 Q43,80 43,82
+                 Q43,85 46,85
+                 Q50,85 50,80
+                 Q50,74 45,74
+                 Q39,74 39,80
+                 Q39,87 45,87"
+              fill="none" stroke="#E9D5FF" stroke-width="1.2"
+              stroke-linecap="round"/>
+    </g>
+
+    <!-- Núcleo brillante -->
+    <g class="nucleo">
+        <circle cx="45" cy="80" r="5" fill="url(#es-core)"/>
+        <circle cx="45" cy="80" r="2.5" fill="white"/>
+    </g>
 </svg>
 </body>
 </html>
