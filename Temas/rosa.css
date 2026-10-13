@@ -12,8 +12,24 @@
     --violet-600: #DB2777;
     --violet-700: #BE185D;
 
-    --bg:     #FFFAFB;
-    --bg-alt: #FFF5F7;
+    --white:   #FFFFFF;
+    --bg:      #FFFAFB;
+    --bg-alt:  #FFF5F7;
+    --gray-50:  #FFF8FA;
+    --gray-100: #FFEFF3;
+    --gray-200: #FFD9E3;
+    --gray-300: #F5B8C8;
+    --gray-400: #C88FA0;
+    --gray-500: #8E5F70;
+    --gray-600: #6B4553;
+    --gray-700: #4A2F38;
+    --gray-800: #2E1D23;
+    --gray-900: #18100F;
+
+    --border:  #FFD9E3;
+    --text:    #18100F;
+    --text-2:  #6B4553;
+    --text-3:  #8E5F70;
 
     --shadow-glow: 0 0 0 4px rgba(236, 72, 153, 0.10);
 
