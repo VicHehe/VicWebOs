@@ -176,13 +176,4 @@ var CUADROS_DISPONIBLES = [
         categoria: 'Horror',
         monedas: 30
     },
-    {
-        id: 'pixel-bunny',
-        nombre: 'Pixel Bunny',
-        icono: 'rabbit',
-        ruta: 'Cuadros/pixel-bunny/index.html',
-        descripcion: 'Conejo pixel art retro que salta solo y también cuando lo tocás.',
-        categoria: 'Pixel Art',
-        monedas: 30
-    }
 ];
