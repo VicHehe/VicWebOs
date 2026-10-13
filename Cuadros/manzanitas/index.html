@@ -14,7 +14,7 @@
 
         .manzana {
             transform-box: view-box;
-            transform-origin: 45px 130px;
+            transform-origin: 45px 100px;
             animation: balanceo 4s ease-in-out infinite;
         }
         @keyframes balanceo {
@@ -23,12 +23,12 @@
         }
         .hojita {
             transform-box: view-box;
-            transform-origin: 48px 58px;
+            transform-origin: 50px 56px;
             animation: hoja 3.5s ease-in-out infinite;
         }
         @keyframes hoja {
             0%, 100% { transform: rotate(0deg); }
-            50%      { transform: rotate(5deg); }
+            50%      { transform: rotate(6deg); }
         }
     </style>
 </head>
@@ -46,37 +46,36 @@
         </linearGradient>
     </defs>
 
-    <!-- Sombra -->
-    <ellipse cx="45" cy="148" rx="22" ry="3" fill="#7F1D1D" opacity="0.15"/>
+    <ellipse cx="45" cy="132" rx="24" ry="3" fill="#7F1D1D" opacity="0.15"/>
 
     <g class="manzana">
-        <!-- Cuerpo de la manzana (dos lóbulos) -->
+        <!-- Cuerpo ANCHO Y REDONDO (degradado de dos lóbulos arriba, curvas redondas abajo) -->
         <path d="M45,68
-                 C38,60 28,58 22,66
-                 C14,78 16,100 24,118
-                 C30,132 40,140 45,140
-                 C50,140 60,132 66,118
-                 C74,100 76,78 68,66
-                 C62,58 52,60 45,68 Z"
+                 C40,60 30,58 24,66
+                 C16,78 16,100 22,116
+                 C28,128 38,134 45,134
+                 C52,134 62,128 68,116
+                 C74,100 74,78 66,66
+                 C60,58 50,60 45,68 Z"
               fill="url(#mn-body)"/>
 
         <!-- Hendidura superior -->
-        <path d="M45,68 C43,72 43,74 45,76 C47,74 47,72 45,68 Z"
-              fill="#7F1D1D" opacity="0.4"/>
+        <path d="M45,68 C44,72 44,74 45,76 C46,74 46,72 45,68 Z"
+              fill="#7F1D1D" opacity="0.45"/>
 
         <!-- Reflejo brillante -->
-        <ellipse cx="32" cy="90" rx="6" ry="9" fill="white" opacity="0.28"
-                 transform="rotate(-20 32 90)"/>
-        <ellipse cx="30" cy="86" rx="2.5" ry="4" fill="white" opacity="0.4"
-                 transform="rotate(-20 30 86)"/>
+        <ellipse cx="30" cy="88" rx="5" ry="7" fill="white" opacity="0.28"
+                 transform="rotate(-20 30 88)"/>
+        <ellipse cx="28" cy="84" rx="2" ry="3.5" fill="white" opacity="0.45"
+                 transform="rotate(-20 28 84)"/>
 
         <!-- Puntitos de textura -->
-        <g fill="#7F1D1D" opacity="0.2">
-            <circle cx="55" cy="95" r="0.8"/>
-            <circle cx="58" cy="110" r="0.8"/>
-            <circle cx="35" cy="115" r="0.8"/>
-            <circle cx="50" cy="125" r="0.8"/>
-            <circle cx="40" cy="105" r="0.7"/>
+        <g fill="#7F1D1D" opacity="0.22">
+            <circle cx="56" cy="92" r="0.8"/>
+            <circle cx="58" cy="106" r="0.8"/>
+            <circle cx="36" cy="112" r="0.8"/>
+            <circle cx="52" cy="120" r="0.8"/>
+            <circle cx="40" cy="100" r="0.7"/>
         </g>
 
         <!-- Tallito -->
@@ -86,9 +85,9 @@
 
         <!-- Hojita con vena -->
         <g class="hojita">
-            <path d="M48,55 C54,48 62,48 65,54 C60,60 52,60 48,55 Z"
+            <path d="M50,56 C56,48 66,48 70,54 C64,60 54,60 50,56 Z"
                   fill="url(#mn-leaf)"/>
-            <path d="M48,55 C54,54 60,54 65,54"
+            <path d="M50,56 C57,55 64,55 70,54"
                   stroke="#166534" stroke-width="0.4" fill="none"
                   opacity="0.7"/>
         </g>
