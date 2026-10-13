@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Zorro Nocturno</title>
+    <style>
+        html, body {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background: linear-gradient(180deg, #0A0A20 0%, #1E1B4B 55%, #312E81 100%);
+        }
+        svg { display: block; width: 100%; height: 100%; }
+
+        .zorro {
+            transform-box: view-box;
+            transform-origin: 45px 130px;
+            animation: flotar 4s ease-in-out infinite;
+        }
+        @keyframes flotar {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-3px); }
+        }
+        .oreja-izq {
+            transform-box: view-box;
+            transform-origin: 34px 90px;
+            animation: orejaIzq 3s ease-in-out infinite;
+        }
+        .oreja-der {
+            transform-box: view-box;
+            transform-origin: 56px 90px;
+            animation: orejaDer 3.3s ease-in-out infinite;
+        }
+        @keyframes orejaIzq {
+            0%, 100% { transform: rotate(0deg); }
+            45%      { transform: rotate(-10deg); }
+        }
+        @keyframes orejaDer {
+            0%, 100% { transform: rotate(0deg); }
+            45%      { transform: rotate(10deg); }
+        }
+        .cola {
+            transform-box: view-box;
+            transform-origin: 65px 120px;
+            animation: cola 2.5s ease-in-out infinite;
+        }
+        @keyframes cola {
+            0%, 100% { transform: rotate(-8deg); }
+            50%      { transform: rotate(10deg); }
+        }
+        .ojo {
+            transform-box: view-box;
+            animation: parpadeo 5s ease-in-out infinite;
+        }
+        @keyframes parpadeo {
+            0%, 45%, 55%, 100% { transform: scaleY(1); }
+            50%                { transform: scaleY(0.05); }
+        }
+        .luna {
+            animation: lunaLatir 5s ease-in-out infinite;
+        }
+        @keyframes lunaLatir {
+            0%, 100% { opacity: 0.9; }
+            50%      { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+<svg viewBox="0 0 90 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <radialGradient id="zx-fox" cx="0.4" cy="0.35" r="0.75">
+            <stop offset="0" stop-color="#FB923C"/>
+            <stop offset="1" stop-color="#C2410C"/>
+        </radialGradient>
+        <radialGradient id="zx-fox-head" cx="0.4" cy="0.35" r="0.75">
+            <stop offset="0" stop-color="#FB923C"/>
+            <stop offset="1" stop-color="#D97706"/>
+        </radialGradient>
+        <radialGradient id="zx-moon" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0" stop-color="#FFFBEB"/>
+            <stop offset="1" stop-color="#FCD34D"/>
+        </radialGradient>
+        <radialGradient id="zx-moon-glow" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0" stop-color="#FCD34D" stop-opacity="0.5"/>
+            <stop offset="1" stop-color="#FCD34D" stop-opacity="0"/>
+        </radialGradient>
+    </defs>
+
+    <circle cx="68" cy="35" r="20" fill="url(#zx-moon-glow)"/>
+    <circle class="luna" cx="68" cy="35" r="9" fill="url(#zx-moon)"/>
+    <circle cx="65" cy="32" r="1.5" fill="#D97706" opacity="0.3"/>
+    <circle cx="71" cy="38" r="1" fill="#D97706" opacity="0.25"/>
+
+    <g fill="#FEF3C7">
+        <circle cx="12" cy="20" r="0.6"/>
+        <circle cx="25" cy="14" r="0.5"/>
+        <circle cx="48" cy="25" r="0.6"/>
+        <circle cx="82" cy="18" r="0.5"/>
+        <circle cx="15" cy="45" r="0.5"/>
+        <circle cx="38" cy="40" r="0.4"/>
+        <circle cx="72" cy="55" r="0.4"/>
+    </g>
+
+    <path d="M0,120 L8,110 L12,118 L20,108 L26,118 L34,112 L40,120 L48,114 L56,120 L64,112 L72,120 L80,116 L90,120 L90,160 L0,160 Z"
+          fill="#050510" opacity="0.6"/>
+
+    <ellipse cx="45" cy="140" rx="22" ry="2.5" fill="#000000" opacity="0.4"/>
+
+    <g class="zorro">
+
+        <g class="cola">
+            <path d="M60,118 C72,114 82,116 86,124 C88,130 84,136 78,136 C72,136 68,130 66,124"
+                  fill="#C2410C"/>
+            <path d="M78,136 C74,134 72,130 76,126 C80,122 84,124 86,128 C86,132 82,136 78,136 Z"
+                  fill="#FFF7ED"/>
+        </g>
+
+        <ellipse cx="32" cy="138" rx="5" ry="3" fill="#C2410C"/>
+        <ellipse cx="58" cy="138" rx="5" ry="3" fill="#C2410C"/>
+
+        <ellipse cx="45" cy="122" rx="16" ry="18" fill="url(#zx-fox)"/>
+        <ellipse cx="45" cy="124" rx="10" ry="13" fill="#FFF7ED" opacity="0.9"/>
+
+        <ellipse cx="38" cy="135" rx="4" ry="3.5" fill="#FB923C"/>
+        <ellipse cx="52" cy="135" rx="4" ry="3.5" fill="#FB923C"/>
+        <circle cx="37" cy="136" r="0.5" fill="#7C2D12" opacity="0.5"/>
+        <circle cx="39" cy="136" r="0.5" fill="#7C2D12" opacity="0.5"/>
+        <circle cx="51" cy="136" r="0.5" fill="#7C2D12" opacity="0.5"/>
+        <circle cx="53" cy="136" r="0.5" fill="#7C2D12" opacity="0.5"/>
+
+        <g class="oreja-izq">
+            <path d="M34,90 L28,72 L42,82 Z" fill="#C2410C"/>
+            <path d="M34,86 L31,76 L40,83 Z" fill="#FBCFE8"/>
+        </g>
+        <g class="oreja-der">
+            <path d="M56,90 L62,72 L48,82 Z" fill="#C2410C"/>
+            <path d="M56,86 L59,76 L50,83 Z" fill="#FBCFE8"/>
+        </g>
+
+        <ellipse cx="45" cy="98" rx="14" ry="13" fill="url(#zx-fox-head)"/>
+
+        <path d="M45,108 C40,108 36,104 36,100 L54,100 C54,104 50,108 45,108 Z"
+              fill="#FFF7ED"/>
+
+        <ellipse class="ojo" cx="40" cy="95" rx="1.8" ry="2.2" fill="#1F2937"/>
+        <ellipse class="ojo" cx="50" cy="95" rx="1.8" ry="2.2" fill="#1F2937"/>
+        <circle cx="39.3" cy="94.3" r="0.6" fill="white"/>
+        <circle cx="49.3" cy="94.3" r="0.6" fill="white"/>
+
+        <ellipse cx="45" cy="103" rx="1.5" ry="1.1" fill="#1F2937"/>
+        <ellipse cx="44.6" cy="102.7" rx="0.4" ry="0.25" fill="white" opacity="0.7"/>
+
+        <ellipse cx="35" cy="102" rx="2" ry="1.2" fill="#FBCFE8" opacity="0.5"/>
+        <ellipse cx="55" cy="102" rx="2" ry="1.2" fill="#FBCFE8" opacity="0.5"/>
+
+        <path d="M42,88 L43,92 M45,87 L45,92 M48,88 L47,92"
+              stroke="#7C2D12" stroke-width="0.5" opacity="0.4"
+              stroke-linecap="round"/>
+    </g>
+</svg>
+</body>
+</html>
