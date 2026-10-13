@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Public Zone</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="pz-app">
+
+        <header class="pz-header">
+            <div class="pz-logo">
+                <div class="pz-logo-mark">
+                    <i data-lucide="megaphone"></i>
+                </div>
+                <div class="pz-logo-text">
+                    <h1>Public Zone</h1>
+                    <p id="pzUserBadge">—</p>
+                </div>
+            </div>
+            <div class="pz-header-actions">
+                <span class="pz-live-dot" aria-hidden="true"></span>
+                <span class="pz-live-text">En vivo</span>
+            </div>
+        </header>
+
+        <main class="pz-main">
+            <div class="pz-mensajes" id="pzMensajes"></div>
+
+            <footer class="pz-input-bar">
+                <input type="text"
+                       id="pzInput"
+                       maxlength="120"
+                       placeholder="Escribí algo para toda la comunidad..."
+                       autocomplete="off">
+                <button class="pz-btn-enviar" id="pzBtnEnviar" disabled title="Enviar">
+                    <i data-lucide="send"></i>
+                </button>
+            </footer>
+        </main>
+
+    </div>
+
+    <div class="pz-toast" id="pzToast"></div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
