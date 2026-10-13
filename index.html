@@ -281,7 +281,12 @@
                             </div>
                         </div>
 
+                        <!-- ============================================================
+                             SESIÓN ACTIVA — perfil + editar + eliminar
+                             ============================================================ -->
                         <div id="cuentaConSesion" style="display:none;">
+
+                            <!-- Perfil (visible por defecto) -->
                             <div class="cuenta-perfil">
                                 <div class="cuenta-perfil-foto" id="perfilFoto">
                                     <i data-lucide="user"></i>
@@ -292,10 +297,79 @@
                                     <span class="cuenta-perfil-codigo" id="perfilCodigo">—</span>
                                 </div>
                             </div>
-                            <button class="btn-secundario" id="btnCerrarCuenta">
-                                <i data-lucide="log-out"></i>
-                                Cerrar sesión
-                            </button>
+
+                            <!-- Acciones (visibles por defecto) -->
+                            <div class="cuenta-acciones">
+                                <button class="btn-secundario" id="btnEditarCuenta" type="button">
+                                    <i data-lucide="pencil"></i>
+                                    Editar cuenta
+                                </button>
+                                <button class="btn-secundario" id="btnCerrarCuenta" type="button">
+                                    <i data-lucide="log-out"></i>
+                                    Cerrar sesión
+                                </button>
+                            </div>
+
+                            <!-- Editor (oculto por defecto) -->
+                            <div id="cuentaEditarForm" class="cuenta-editar-form" style="display:none;">
+                                <div class="cuenta-editar-header">
+                                    <h4>Editar cuenta</h4>
+                                    <p class="config-help">
+                                        Tu código <strong id="editCodigoMostrado">—</strong> no se puede cambiar.
+                                    </p>
+                                </div>
+
+                                <div class="cuenta-foto-wrap">
+                                    <label for="editCuentaFoto" class="cuenta-foto" id="editCuentaFotoPreview">
+                                        <i data-lucide="camera"></i>
+                                        <span class="cuenta-foto-texto">Cambiar foto</span>
+                                    </label>
+                                    <input type="file" id="editCuentaFoto" accept="image/*" hidden>
+                                </div>
+
+                                <div class="config-field">
+                                    <label>Nombre</label>
+                                    <input type="text" id="editCuentaNombre" placeholder="Ej: Nicolás" maxlength="40">
+                                </div>
+
+                                <div class="config-field">
+                                    <label>Pronombre</label>
+                                    <select id="editCuentaPronombre">
+                                        <option value="el">Él</option>
+                                        <option value="ella">Ella</option>
+                                        <option value="elle">Elle</option>
+                                    </select>
+                                </div>
+
+                                <div class="cuenta-editar-botones">
+                                    <button class="btn-secundario" id="btnCancelarEdicionCuenta" type="button">
+                                        Cancelar
+                                    </button>
+                                    <button class="btn-primario" id="btnGuardarEdicionCuenta" type="button">
+                                        <i data-lucide="save"></i>
+                                        Guardar cambios
+                                    </button>
+                                </div>
+                                <div id="editCuentaMensaje" class="config-status"></div>
+                            </div>
+
+                            <!-- Zona peligrosa (visible por defecto) -->
+                            <div class="cuenta-peligro">
+                                <div class="cuenta-peligro-header">
+                                    <div class="cuenta-peligro-icono">
+                                        <i data-lucide="alert-triangle"></i>
+                                    </div>
+                                    <div class="cuenta-peligro-info">
+                                        <strong>Zona peligrosa</strong>
+                                        <p>Eliminar tu cuenta es <strong>permanente</strong>. Se borrarán tu perfil, tu configuración (apps, temas, widgets), tus monedas y tu chequera. Las imágenes de tu galería quedan en el repositorio por si querés recuperarlas.</p>
+                                    </div>
+                                </div>
+                                <button class="btn-peligro" id="btnEliminarCuenta" type="button">
+                                    <i data-lucide="trash-2"></i>
+                                    Eliminar mi cuenta
+                                </button>
+                            </div>
+
                         </div>
                     </section>
 
@@ -856,6 +930,7 @@
     <script src="js/ConfigBD.binarios.js"></script>
     <script src="js/MasterHad.js"></script>
     <script src="js/Cuenta.js"></script>
+    <script src="js/ModifyAcount.js"></script>
     <script src="js/OnboardingWizard.js"></script>
     <script src="js/Invitaciones.js"></script>
     <script src="Logros/JsLogros1.js"></script>
