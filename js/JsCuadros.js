@@ -136,7 +136,7 @@ var CUADROS_DISPONIBLES = [
         nombre: 'Pixel Bunny',
         icono: 'rabbit',
         ruta: 'Cuadros/pixel-bunny/index.html',
-        descripcion: 'Conejo pixel art estilo NES que salta cuando lo tocás.',
+        descripcion: 'Conejo pixel art retro que salta cuando lo tocás.',
         categoria: 'Pixel Art',
         monedas: 30
     }
