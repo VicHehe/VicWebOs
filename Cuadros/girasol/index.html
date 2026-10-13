@@ -12,108 +12,76 @@
             background: linear-gradient(180deg, #BAE6FD 0%, #E0F2FE 55%, #D9F99D 100%);
         }
         svg { display: block; width: 100%; height: 100%; }
-
-        .tallo {
-            transform-box: view-box;
-            transform-origin: 45px 150px;
-            animation: mecer 4s ease-in-out infinite;
-        }
-        .cabeza {
-            transform-box: view-box;
-            transform-origin: 45px 70px;
-            animation: cabeza 5s ease-in-out infinite;
-        }
-        .petalos {
-            transform-box: view-box;
-            transform-origin: 45px 70px;
-            animation: girar 60s linear infinite;
-        }
-        .hoja-i {
-            transform-box: view-box;
-            transform-origin: 45px 122px;
-            animation: hoja 3s ease-in-out infinite;
-        }
-        .hoja-d {
-            transform-box: view-box;
-            transform-origin: 45px 108px;
-            animation: hoja 3.4s ease-in-out infinite reverse;
-        }
-        .nubes { animation: nubes 20s linear infinite; }
-
-        @keyframes mecer  { 0%,100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
-        @keyframes cabeza { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
-        @keyframes girar  { to { transform: rotate(360deg); } }
-        @keyframes hoja   { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(-5deg); } }
-        @keyframes nubes  { from { transform: translateX(0); } to { transform: translateX(-30px); } }
     </style>
 </head>
 <body>
 <svg viewBox="0 0 90 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
     <defs>
         <radialGradient id="gi-centro" cx="0.5" cy="0.5" r="0.5">
-            <stop offset="0" stop-color="#78350F"/>
+            <stop offset="0" stop-color="#92400E"/>
             <stop offset="1" stop-color="#451A03"/>
         </radialGradient>
-        <linearGradient id="gi-tallo" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stop-color="#15803D"/>
-            <stop offset="1" stop-color="#22C55E"/>
-        </linearGradient>
     </defs>
 
     <!-- Sol de fondo -->
-    <circle cx="78" cy="18" r="8" fill="#FDE68A" opacity="0.8"/>
-
-    <!-- Nubes -->
-    <g class="nubes" fill="white" opacity="0.85">
-        <ellipse cx="18" cy="26" rx="10" ry="3"/>
-        <ellipse cx="14" cy="24" rx="5" ry="2.5"/>
-        <ellipse cx="58" cy="34" rx="8" ry="2.5"/>
-    </g>
+    <circle cx="76" cy="18" r="7" fill="#FDE68A"/>
 
     <!-- Colina -->
-    <path d="M0,130 Q30,118 60,128 T90,126 L90,160 L0,160 Z" fill="#86EFAC" opacity="0.7"/>
+    <path d="M0,128 Q30,118 60,126 T90,124 L90,160 L0,160 Z" fill="#86EFAC" opacity="0.7"/>
 
-    <g class="tallo">
-        <!-- Hojas -->
-        <g class="hoja-i">
-            <path d="M45,122 C34,118 26,112 24,104 C34,106 42,112 45,122 Z" fill="#22C55E"/>
-            <path d="M45,122 C36,116 30,110 26,106" stroke="#15803D" stroke-width="0.5" fill="none"/>
-        </g>
-        <g class="hoja-d">
-            <path d="M45,108 C56,104 64,98 66,88 C56,92 48,98 45,108 Z" fill="#16A34A"/>
-            <path d="M45,108 C54,102 60,96 63,91" stroke="#14532D" stroke-width="0.5" fill="none"/>
-        </g>
+    <!-- Planta completa: se mece desde la base (45,150) -->
+    <g>
+        <animateTransform attributeName="transform" type="rotate"
+            values="-2 45 150;2 45 150;-2 45 150" dur="4s" repeatCount="indefinite"/>
 
         <!-- Tallo -->
-        <line x1="45" y1="70" x2="45" y2="152" stroke="url(#gi-tallo)" stroke-width="2.4" stroke-linecap="round"/>
+        <line x1="45" y1="70" x2="45" y2="150" stroke="#16A34A" stroke-width="2.2" stroke-linecap="round"/>
 
-        <!-- Cabeza del girasol -->
-        <g class="cabeza">
-            <g class="petalos" fill="#FACC15">
-                <ellipse cx="45" cy="54" rx="5.5" ry="13" transform="rotate(0 45 70)"/>
-                <ellipse cx="45" cy="54" rx="5.5" ry="13" transform="rotate(30 45 70)"/>
-                <ellipse cx="45" cy="54" rx="5.5" ry="13" transform="rotate(60 45 70)"/>
-                <ellipse cx="45" cy="54" rx="5.5" ry="13" transform="rotate(90 45 70)"/>
-                <ellipse cx="45" cy="54" rx="5.5" ry="13" transform="rotate(120 45 70)"/>
-                <ellipse cx="45" cy="54" rx="5.5" ry="13" transform="rotate(150 45 70)"/>
-                <ellipse cx="45" cy="54" rx="5.5" ry="13" transform="rotate(180 45 70)"/>
-                <ellipse cx="45" cy="54" rx="5.5" ry="13" transform="rotate(210 45 70)"/>
-                <ellipse cx="45" cy="54" rx="5.5" ry="13" transform="rotate(240 45 70)"/>
-                <ellipse cx="45" cy="54" rx="5.5" ry="13" transform="rotate(270 45 70)"/>
-                <ellipse cx="45" cy="54" rx="5.5" ry="13" transform="rotate(300 45 70)"/>
-                <ellipse cx="45" cy="54" rx="5.5" ry="13" transform="rotate(330 45 70)"/>
+        <!-- Hoja izquierda -->
+        <g>
+            <animateTransform attributeName="transform" type="rotate"
+                values="0 45 124;-5 45 124;0 45 124" dur="3s" repeatCount="indefinite"/>
+            <path d="M45,124 C34,120 26,114 24,104 C34,106 42,112 45,124 Z" fill="#22C55E"/>
+        </g>
+
+        <!-- Hoja derecha -->
+        <g>
+            <animateTransform attributeName="transform" type="rotate"
+                values="0 45 110;5 45 110;0 45 110" dur="3.4s" repeatCount="indefinite"/>
+            <path d="M45,110 C56,106 64,100 66,90 C56,94 48,100 45,110 Z" fill="#16A34A"/>
+        </g>
+
+        <!-- Cabeza: pétalos (giran lento) + centro -->
+        <g>
+            <!-- Pétalos -->
+            <g>
+                <animateTransform attributeName="transform" type="rotate"
+                    values="0 45 66;360 45 66" dur="60s" repeatCount="indefinite"/>
+                <ellipse cx="45" cy="50" rx="4.5" ry="11" fill="#FACC15" transform="rotate(0 45 66)"/>
+                <ellipse cx="45" cy="50" rx="4.5" ry="11" fill="#FACC15" transform="rotate(30 45 66)"/>
+                <ellipse cx="45" cy="50" rx="4.5" ry="11" fill="#FACC15" transform="rotate(60 45 66)"/>
+                <ellipse cx="45" cy="50" rx="4.5" ry="11" fill="#FACC15" transform="rotate(90 45 66)"/>
+                <ellipse cx="45" cy="50" rx="4.5" ry="11" fill="#FACC15" transform="rotate(120 45 66)"/>
+                <ellipse cx="45" cy="50" rx="4.5" ry="11" fill="#FACC15" transform="rotate(150 45 66)"/>
+                <ellipse cx="45" cy="50" rx="4.5" ry="11" fill="#FACC15" transform="rotate(180 45 66)"/>
+                <ellipse cx="45" cy="50" rx="4.5" ry="11" fill="#FACC15" transform="rotate(210 45 66)"/>
+                <ellipse cx="45" cy="50" rx="4.5" ry="11" fill="#FACC15" transform="rotate(240 45 66)"/>
+                <ellipse cx="45" cy="50" rx="4.5" ry="11" fill="#FACC15" transform="rotate(270 45 66)"/>
+                <ellipse cx="45" cy="50" rx="4.5" ry="11" fill="#FACC15" transform="rotate(300 45 66)"/>
+                <ellipse cx="45" cy="50" rx="4.5" ry="11" fill="#FACC15" transform="rotate(330 45 66)"/>
             </g>
-            <circle cx="45" cy="70" r="11" fill="url(#gi-centro)"/>
-            <!-- Semillitas -->
-            <circle cx="41" cy="67" r="1" fill="#A16207"/>
-            <circle cx="47" cy="66" r="1" fill="#A16207"/>
-            <circle cx="44" cy="72" r="1" fill="#A16207"/>
-            <circle cx="50" cy="72" r="1" fill="#A16207"/>
-            <circle cx="39" cy="71" r="0.9" fill="#A16207"/>
+
+            <!-- Centro -->
+            <circle cx="45" cy="66" r="10" fill="url(#gi-centro)"/>
+            <circle cx="41" cy="63" r="1" fill="#A16207"/>
+            <circle cx="47" cy="62" r="1" fill="#A16207"/>
+            <circle cx="44" cy="68" r="1" fill="#A16207"/>
+            <circle cx="50" cy="68" r="1" fill="#A16207"/>
+            <circle cx="39" cy="67" r="0.9" fill="#A16207"/>
             <!-- Carita -->
-            <circle cx="41" cy="69" r="0.9" fill="#FEF3C7"/>
-            <circle cx="49" cy="69" r="0.9" fill="#FEF3C7"/>
-            <path d="M42,74 Q45,76 48,74" stroke="#FEF3C7" stroke-width="0.6" fill="none" stroke-linecap="round"/>
+            <circle cx="41" cy="65" r="0.9" fill="#FEF3C7"/>
+            <circle cx="49" cy="65" r="0.9" fill="#FEF3C7"/>
+            <path d="M42,70 Q45,72 48,70" stroke="#FEF3C7" stroke-width="0.6" fill="none" stroke-linecap="round"/>
         </g>
     </g>
 
