@@ -150,8 +150,6 @@
 
                         <!-- ============================================================
                              PUBLIC MINI ZONE — chat público portátil del lobby
-                             Muestra los últimos 8 mensajes del chat público global.
-                             Se oculta si no hay sesión o comunidad conectada.
                              ============================================================ -->
                         <div class="welcome-section" id="welcomePublicZoneSection" style="display:none;">
                             <div class="welcome-section-header">
@@ -185,7 +183,6 @@
                         <!-- ============================================================
                              CUADROS — Decoración pura del lobby
                              Máximo 10 activos. No consumen espacio ni dan monedas.
-                             Se oculta si no hay cuadros activos.
                              ============================================================ -->
                         <div class="welcome-section" id="welcomeCuadrosSection" style="display:none;">
                             <div class="welcome-section-header">
@@ -241,6 +238,10 @@
                     <button class="config-nav-item" data-section="widgets">
                         <i data-lucide="layout-grid"></i>
                         <span>Widgets</span>
+                    </button>
+                    <button class="config-nav-item" data-section="cuadros">
+                        <i data-lucide="frame"></i>
+                        <span>Cuadros</span>
                     </button>
                     <button class="config-nav-item" data-section="apps">
                         <i data-lucide="package"></i>
@@ -329,12 +330,8 @@
                             </div>
                         </div>
 
-                        <!-- ============================================================
-                             SESIÓN ACTIVA — perfil + editar + eliminar
-                             ============================================================ -->
                         <div id="cuentaConSesion" style="display:none;">
 
-                            <!-- Perfil (visible por defecto) -->
                             <div class="cuenta-perfil">
                                 <div class="cuenta-perfil-foto" id="perfilFoto">
                                     <i data-lucide="user"></i>
@@ -346,7 +343,6 @@
                                 </div>
                             </div>
 
-                            <!-- Acciones (visibles por defecto) -->
                             <div class="cuenta-acciones">
                                 <button class="btn-secundario" id="btnEditarCuenta" type="button">
                                     <i data-lucide="pencil"></i>
@@ -358,7 +354,6 @@
                                 </button>
                             </div>
 
-                            <!-- Editor (oculto por defecto) -->
                             <div id="cuentaEditarForm" class="cuenta-editar-form" style="display:none;">
                                 <div class="cuenta-editar-header">
                                     <h4>Editar cuenta</h4>
@@ -401,7 +396,6 @@
                                 <div id="editCuentaMensaje" class="config-status"></div>
                             </div>
 
-                            <!-- Zona peligrosa (visible por defecto) -->
                             <div class="cuenta-peligro">
                                 <div class="cuenta-peligro-header">
                                     <div class="cuenta-peligro-icono">
@@ -435,6 +429,14 @@
                               <p>Solo los widgets instalados desde Stor-He aparecen aquí. Actívalos para verlos en el inicio. Máximo 6 (recomendamos 3: cada widget consume recursos del navegador, y en PCs o Android antiguos poco potentes puede ralentizar todo el sistema).</p>
                         </div>
                         <div id="configWidgetsLista" class="config-widgets-lista"></div>
+                    </section>
+
+                    <section class="config-panel" data-panel="cuadros">
+                        <div class="config-panel-header">
+                            <h3>Cuadros</h3>
+                            <p>Solo los cuadros comprados aparecen aquí. Actívalos para verlos en el inicio. Máximo 10 (recomendamos 5-6: cada cuadro consume recursos del navegador).</p>
+                        </div>
+                        <div id="configCuadrosLista" class="config-widgets-lista"></div>
                     </section>
 
                     <section class="config-panel" data-panel="apps">
