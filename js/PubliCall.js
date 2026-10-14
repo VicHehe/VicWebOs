@@ -19,13 +19,14 @@
     const MAX_PARTICIPANTES = 4;
     const POLL_MS = 3000;
 
-    // Escala: cada +15 monedas sumás +5 minutos.
-    // 15m = 10min · 30m = 15min · 45m = 20min · 60m = 25min · 90m = 35min
+    // 15m = 10min · 30m = 15min · 45m = 20min
+    // 60m = 25min · 75m = 30min · 90m = 35min
     const DURACIONES = [
         { monedas: 15, minutos: 10 },
         { monedas: 30, minutos: 15 },
         { monedas: 45, minutos: 20 },
         { monedas: 60, minutos: 25 },
+        { monedas: 75, minutos: 30 },
         { monedas: 90, minutos: 35 }
     ];
 
