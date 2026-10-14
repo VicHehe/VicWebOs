@@ -3861,17 +3861,18 @@ body {
 
 /* ============================================================
    Racha diaria — Regalo diario del lobby
+   Usa SOLO variables del tema. Cero hardcodeo.
    ============================================================ */
 
 .racha-badge {
     font-size: 10.5px;
     font-weight: 800;
     font-variant-numeric: tabular-nums;
-    color: #B45309;
-    background: linear-gradient(135deg, #FEF3C7, #FDE68A);
-    border: 1px solid #FCD34D;
+    color: var(--violet-700);
+    background: var(--violet-50);
+    border: 1px solid var(--violet-200);
     padding: 3px 10px;
-    border-radius: var(--r-full, 999px);
+    border-radius: var(--r-full);
     letter-spacing: 0.04em;
     line-height: 1;
 }
@@ -3881,9 +3882,9 @@ body {
     align-items: center;
     gap: 16px;
     padding: 16px 18px;
-    background: linear-gradient(135deg, #FFFBEB, #FEF3C7);
-    border: 1.5px solid #FDE68A;
-    border-radius: var(--r-lg, 16px);
+    background: var(--violet-50);
+    border: 1.5px solid var(--violet-200);
+    border-radius: var(--r-lg);
     box-shadow: var(--shadow-xs);
     transition: var(--t);
     flex-wrap: wrap;
@@ -3896,14 +3897,14 @@ body {
 .racha-card-icono {
     width: 52px;
     height: 52px;
-    background: linear-gradient(135deg, #F59E0B, #D97706);
+    background: var(--accent-gradient);
     border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     flex-shrink: 0;
-    box-shadow: 0 6px 16px rgba(217, 119, 6, 0.35);
+    box-shadow: 0 6px 16px var(--accent-shadow);
 }
 .racha-card-icono [data-lucide] {
     width: 24px;
@@ -3921,17 +3922,17 @@ body {
 .racha-card-titulo {
     font-size: 15px;
     font-weight: 800;
-    color: #78350F;
+    color: var(--gray-900);
     letter-spacing: -0.01em;
 }
 .racha-card-desc {
     font-size: 12.5px;
-    color: #92400E;
+    color: var(--gray-600);
     line-height: 1.45;
     font-weight: 500;
 }
 .racha-card-desc strong {
-    color: #B45309;
+    color: var(--violet-700);
     font-weight: 800;
 }
 
@@ -3947,11 +3948,11 @@ body {
     gap: 4px;
     font-size: 11.5px;
     font-weight: 700;
-    color: #92400E;
-    background: rgba(255, 255, 255, 0.6);
+    color: var(--violet-700);
+    background: var(--white);
     padding: 3px 9px;
-    border-radius: 999px;
-    border: 1px solid #FDE68A;
+    border-radius: var(--r-full);
+    border: 1px solid var(--violet-200);
 }
 .racha-card-stats span [data-lucide] {
     width: 12px;
@@ -3965,14 +3966,14 @@ body {
     gap: 8px;
     padding: 12px 22px;
     border: none;
-    border-radius: var(--r-md, 12px);
+    border-radius: var(--r-md);
     font-family: inherit;
     font-size: 13.5px;
     font-weight: 800;
     cursor: pointer;
-    background: linear-gradient(135deg, #F59E0B, #D97706);
+    background: var(--accent-gradient-hover);
     color: white;
-    box-shadow: 0 6px 16px rgba(217, 119, 6, 0.35);
+    box-shadow: 0 6px 16px var(--accent-shadow);
     transition: var(--t);
     flex-shrink: 0;
     touch-action: manipulation;
@@ -3983,7 +3984,7 @@ body {
 }
 .racha-btn-reclamar:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 10px 24px rgba(217, 119, 6, 0.45);
+    box-shadow: 0 10px 24px var(--accent-shadow-hover);
 }
 .racha-btn-reclamar:disabled {
     opacity: 0.6;
