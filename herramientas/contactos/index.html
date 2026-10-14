@@ -25,7 +25,11 @@
                 </div>
             </div>
             <div class="ct-header-actions">
-                <button class="ct-btn-header" id="ctBtnRegalos" title="Tus regalos">
+                <button class="ct-btn-header ct-btn-buzon" id="ctBtnBuzon" title="Regalos recibidos">
+                    <i data-lucide="inbox"></i>
+                    <span class="ct-buzon-badge" id="ctBuzonBadge" hidden>0</span>
+                </button>
+                <button class="ct-btn-header" id="ctBtnRegalos" title="Historial de regalos">
                     <i data-lucide="history"></i>
                 </button>
                 <button class="ct-btn-header" id="ctBtnRefresh" title="Actualizar">
@@ -100,7 +104,6 @@
 
             <div class="ct-modal-body">
 
-                <!-- Tabs de categoría -->
                 <div class="ct-cat-tabs">
                     <button class="ct-cat-tab active" data-cat="monedas" type="button">
                         <i data-lucide="coins"></i>
@@ -121,6 +124,7 @@
                     <p class="ct-modal-desc">
                         Elegí cuántas monedas querés regalar. Solo
                         <strong>1 vez al día</strong> por usuario en esta categoría.
+                        Se acreditan al instante.
                     </p>
                     <div class="ct-montos">
                         <button class="ct-monto" data-monto="25" type="button">
@@ -143,6 +147,7 @@
                     <p class="ct-modal-desc">
                         Un <strong>WebDrop</strong> le entrega a quien lo reciba
                         <strong>1 widget o cuadro aleatorio</strong> que todavía no tenga.
+                        Le queda <strong>pendiente en su buzón</strong> hasta que lo reclame.
                     </p>
                     <div class="ct-webdrop-preview">
                         <div class="ct-webdrop-icono">
@@ -165,7 +170,8 @@
                 <div class="ct-cat-panel" data-cat-panel="espacio">
                     <p class="ct-modal-desc">
                         Le ampliás a quien lo reciba <strong>+5 de espacio</strong>
-                        en su VicWebOs. Es permanente.
+                        en su VicWebOs. Le queda <strong>pendiente en su buzón</strong>
+                        hasta que lo reclame.
                     </p>
                     <div class="ct-webdrop-preview ct-webdrop-preview-espacio">
                         <div class="ct-webdrop-icono ct-webdrop-icono-espacio">
@@ -202,7 +208,33 @@
     </div>
 
     <!-- ============================================================
-         MODAL PERFIL EXTENDIDO
+         MODAL BUZÓN — Regalos recibidos pendientes
+         ============================================================ -->
+    <div class="ct-modal" id="ctModalBuzon" hidden>
+        <div class="ct-modal-card ct-modal-buzon">
+            <div class="ct-modal-header">
+                <h2>
+                    <i data-lucide="inbox"></i>
+                    <span>Regalos recibidos</span>
+                </h2>
+                <button class="ct-modal-cerrar" id="ctBuzonCerrar" title="Cerrar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="ct-modal-body">
+                <p class="ct-modal-desc">
+                    Acá esperan los regalos que te mandaron.
+                    Las <strong>monedas</strong> se acreditan solas; los
+                    <strong>WebDrops</strong> y el <strong>espacio</strong> necesitan
+                    que los reclames.
+                </p>
+                <div id="ctBuzonLista" class="ct-buzon-lista"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL PERFIL
          ============================================================ -->
     <div class="ct-modal" id="ctModalPerfil" hidden>
         <div class="ct-modal-card ct-modal-perfil" id="ctPerfilCard">
@@ -236,7 +268,6 @@
                     <div class="ct-perfil-seccion-valor" id="ctPerfilCreado">—</div>
                 </div>
 
-                <!-- Stats por categoría -->
                 <div class="ct-perfil-seccion">
                     <div class="ct-perfil-seccion-titulo">
                         <i data-lucide="gift"></i>
@@ -294,14 +325,14 @@
     </div>
 
     <!-- ============================================================
-         MODAL HISTORIAL DE REGALOS — con filtros por categoría
+         MODAL HISTORIAL
          ============================================================ -->
     <div class="ct-modal" id="ctModalHistorial" hidden>
         <div class="ct-modal-card">
             <div class="ct-modal-header">
                 <h2>
                     <i data-lucide="history"></i>
-                    <span>Tus regalos</span>
+                    <span>Historial</span>
                 </h2>
                 <button class="ct-modal-cerrar" id="ctHistorialCerrar" title="Cerrar">
                     <i data-lucide="x"></i>
