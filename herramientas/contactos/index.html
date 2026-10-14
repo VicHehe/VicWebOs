@@ -83,9 +83,11 @@
 
     </div>
 
-    <!-- MODAL REGALO -->
+    <!-- ============================================================
+         MODAL REGALO — 3 categorías
+         ============================================================ -->
     <div class="ct-modal" id="ctModalRegalo" hidden>
-        <div class="ct-modal-card">
+        <div class="ct-modal-card ct-modal-regalo">
             <div class="ct-modal-header">
                 <h2>
                     <i data-lucide="gift"></i>
@@ -95,41 +97,113 @@
                     <i data-lucide="x"></i>
                 </button>
             </div>
+
             <div class="ct-modal-body">
-                <p class="ct-modal-desc">
-                    Elige cuántas monedas quieres regalar.
-                    Solo puedes regalarle <strong>una vez al día</strong> a cada persona.
-                </p>
-                <div class="ct-montos">
-                    <button class="ct-monto" data-monto="5">
+
+                <!-- Tabs de categoría -->
+                <div class="ct-cat-tabs">
+                    <button class="ct-cat-tab active" data-cat="monedas" type="button">
                         <i data-lucide="coins"></i>
-                        <span class="ct-monto-num">5</span>
+                        <span>Monedas</span>
                     </button>
-                    <button class="ct-monto" data-monto="25">
-                        <i data-lucide="coins"></i>
-                        <span class="ct-monto-num">25</span>
+                    <button class="ct-cat-tab" data-cat="webdrop" type="button">
+                        <i data-lucide="package-plus"></i>
+                        <span>WebDrop</span>
                     </button>
-                    <button class="ct-monto" data-monto="50">
-                        <i data-lucide="coins"></i>
-                        <span class="ct-monto-num">50</span>
+                    <button class="ct-cat-tab" data-cat="espacio" type="button">
+                        <i data-lucide="hard-drive"></i>
+                        <span>Espacio</span>
                     </button>
                 </div>
+
+                <!-- Panel: Monedas -->
+                <div class="ct-cat-panel active" data-cat-panel="monedas">
+                    <p class="ct-modal-desc">
+                        Elegí cuántas monedas querés regalar. Solo
+                        <strong>1 vez al día</strong> por usuario en esta categoría.
+                    </p>
+                    <div class="ct-montos">
+                        <button class="ct-monto" data-monto="25" type="button">
+                            <i data-lucide="coins"></i>
+                            <span class="ct-monto-num">25</span>
+                        </button>
+                        <button class="ct-monto" data-monto="50" type="button">
+                            <i data-lucide="coins"></i>
+                            <span class="ct-monto-num">50</span>
+                        </button>
+                        <button class="ct-monto" data-monto="100" type="button">
+                            <i data-lucide="coins"></i>
+                            <span class="ct-monto-num">100</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Panel: WebDrop -->
+                <div class="ct-cat-panel" data-cat-panel="webdrop">
+                    <p class="ct-modal-desc">
+                        Un <strong>WebDrop</strong> le entrega a quien lo reciba
+                        <strong>1 widget o cuadro aleatorio</strong> que todavía no tenga.
+                    </p>
+                    <div class="ct-webdrop-preview">
+                        <div class="ct-webdrop-icono">
+                            <i data-lucide="package-plus"></i>
+                        </div>
+                        <div class="ct-webdrop-info">
+                            <div class="ct-webdrop-titulo">Caja sorpresa</div>
+                            <div class="ct-webdrop-desc" id="ctWebDropDesc">
+                                Se elige al azar del catálogo
+                            </div>
+                        </div>
+                        <div class="ct-webdrop-precio">
+                            <i data-lucide="coins"></i>
+                            <span>135</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel: Espacio -->
+                <div class="ct-cat-panel" data-cat-panel="espacio">
+                    <p class="ct-modal-desc">
+                        Le ampliás a quien lo reciba <strong>+5 de espacio</strong>
+                        en su VicWebOs. Es permanente.
+                    </p>
+                    <div class="ct-webdrop-preview ct-webdrop-preview-espacio">
+                        <div class="ct-webdrop-icono ct-webdrop-icono-espacio">
+                            <i data-lucide="hard-drive"></i>
+                        </div>
+                        <div class="ct-webdrop-info">
+                            <div class="ct-webdrop-titulo">+5 espacio</div>
+                            <div class="ct-webdrop-desc">Ampliación permanente</div>
+                        </div>
+                        <div class="ct-webdrop-precio">
+                            <i data-lucide="coins"></i>
+                            <span>175</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="ct-saldo-info">
                     <i data-lucide="wallet"></i>
-                    <span>Tienes <strong id="ctMiSaldo">0</strong> monedas</span>
+                    <span>Tenés <strong id="ctMiSaldo">0</strong> monedas</span>
                 </div>
+
+                <div class="ct-cat-aviso" id="ctCatAviso" hidden></div>
+
             </div>
+
             <div class="ct-modal-actions">
-                <button class="ct-btn-sec" id="ctRegaloCancelar">Cancelar</button>
-                <button class="ct-btn-pri" id="ctRegaloEnviar" disabled>
+                <button class="ct-btn-sec" id="ctRegaloCancelar" type="button">Cancelar</button>
+                <button class="ct-btn-pri" id="ctRegaloEnviar" disabled type="button">
                     <i data-lucide="send"></i>
-                    Enviar
+                    <span id="ctRegaloEnviarTxt">Enviar</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL PERFIL EXTENDIDO -->
+    <!-- ============================================================
+         MODAL PERFIL EXTENDIDO
+         ============================================================ -->
     <div class="ct-modal" id="ctModalPerfil" hidden>
         <div class="ct-modal-card ct-modal-perfil" id="ctPerfilCard">
             <div class="ct-modal-header">
@@ -162,36 +236,66 @@
                     <div class="ct-perfil-seccion-valor" id="ctPerfilCreado">—</div>
                 </div>
 
-                <div class="ct-perfil-stats">
-                    <div class="ct-perfil-stat">
-                        <div class="ct-perfil-stat-icono ct-stat-dado">
-                            <i data-lucide="gift"></i>
+                <!-- Stats por categoría -->
+                <div class="ct-perfil-seccion">
+                    <div class="ct-perfil-seccion-titulo">
+                        <i data-lucide="gift"></i>
+                        <span>Regalos recibidos</span>
+                    </div>
+                    <div class="ct-perfil-stats-cat">
+                        <div class="ct-perfil-cat-stat">
+                            <i data-lucide="coins"></i>
+                            <span class="ct-perfil-cat-num" id="ctPerfilRecibidosMonedas">0</span>
+                            <span class="ct-perfil-cat-label">monedas</span>
                         </div>
-                        <div class="ct-perfil-stat-info">
-                            <span class="ct-perfil-stat-num" id="ctPerfilRegalosDados">0</span>
-                            <span class="ct-perfil-stat-label">Regalos dados</span>
+                        <div class="ct-perfil-cat-stat">
+                            <i data-lucide="package-plus"></i>
+                            <span class="ct-perfil-cat-num" id="ctPerfilRecibidosWebDrops">0</span>
+                            <span class="ct-perfil-cat-label">webdrops</span>
+                        </div>
+                        <div class="ct-perfil-cat-stat">
+                            <i data-lucide="hard-drive"></i>
+                            <span class="ct-perfil-cat-num" id="ctPerfilRecibidosEspacios">0</span>
+                            <span class="ct-perfil-cat-label">espacios</span>
                         </div>
                     </div>
-                    <div class="ct-perfil-stat">
-                        <div class="ct-perfil-stat-icono ct-stat-recibido">
-                            <i data-lucide="gift"></i>
+                </div>
+
+                <div class="ct-perfil-seccion">
+                    <div class="ct-perfil-seccion-titulo">
+                        <i data-lucide="send"></i>
+                        <span>Regalos dados</span>
+                    </div>
+                    <div class="ct-perfil-stats-cat">
+                        <div class="ct-perfil-cat-stat">
+                            <i data-lucide="coins"></i>
+                            <span class="ct-perfil-cat-num" id="ctPerfilDadosMonedas">0</span>
+                            <span class="ct-perfil-cat-label">monedas</span>
                         </div>
-                        <div class="ct-perfil-stat-info">
-                            <span class="ct-perfil-stat-num" id="ctPerfilRegalosRecibidos">0</span>
-                            <span class="ct-perfil-stat-label">Regalos recibidos</span>
+                        <div class="ct-perfil-cat-stat">
+                            <i data-lucide="package-plus"></i>
+                            <span class="ct-perfil-cat-num" id="ctPerfilDadosWebDrops">0</span>
+                            <span class="ct-perfil-cat-label">webdrops</span>
+                        </div>
+                        <div class="ct-perfil-cat-stat">
+                            <i data-lucide="hard-drive"></i>
+                            <span class="ct-perfil-cat-num" id="ctPerfilDadosEspacios">0</span>
+                            <span class="ct-perfil-cat-label">espacios</span>
                         </div>
                     </div>
                 </div>
 
                 <button class="ct-btn-pri ct-btn-full" id="ctPerfilRegalar">
                     <i data-lucide="gift"></i>
-                    <span id="ctPerfilRegalarTxt">Regalar monedas</span>
+                    <span id="ctPerfilRegalarTxt">Regalar</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL HISTORIAL DE REGALOS -->
+    <!-- ============================================================
+         MODAL HISTORIAL DE REGALOS — con filtros por categoría
+         ============================================================ -->
     <div class="ct-modal" id="ctModalHistorial" hidden>
         <div class="ct-modal-card">
             <div class="ct-modal-header">
@@ -205,15 +309,29 @@
             </div>
             <div class="ct-modal-body">
                 <div class="ct-hist-tabs">
-                    <button class="ct-hist-tab active" data-tab="dados">
+                    <button class="ct-hist-tab active" data-tab="dados" type="button">
                         <i data-lucide="arrow-up-circle"></i>
                         <span>Dados</span>
                     </button>
-                    <button class="ct-hist-tab" data-tab="recibidos">
+                    <button class="ct-hist-tab" data-tab="recibidos" type="button">
                         <i data-lucide="arrow-down-circle"></i>
                         <span>Recibidos</span>
                     </button>
                 </div>
+
+                <div class="ct-hist-filtros">
+                    <button class="ct-hist-filtro active" data-cat="todos" type="button">Todos</button>
+                    <button class="ct-hist-filtro" data-cat="monedas" type="button">
+                        <i data-lucide="coins"></i> Monedas
+                    </button>
+                    <button class="ct-hist-filtro" data-cat="webdrop" type="button">
+                        <i data-lucide="package-plus"></i> WebDrop
+                    </button>
+                    <button class="ct-hist-filtro" data-cat="espacio" type="button">
+                        <i data-lucide="hard-drive"></i> Espacio
+                    </button>
+                </div>
+
                 <div class="ct-hist-lista" id="ctHistLista">
                     <p class="ct-hist-vacio">Cargando...</p>
                 </div>
