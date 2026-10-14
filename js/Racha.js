@@ -3,8 +3,12 @@
 //  ------------------------------------------------------------
 //  · 1 regalo por día (hora de Chile).
 //  · Racha de días consecutivos.
-//  · Mes 1: 10 monedas · Mes 2: 15 · Mes 3: 20 · ... · Mes 6+: 35 (tope).
-//  · Se guarda en app/racha/{codigo}racha.json
+//  · Mes 1: 10 monedas · Mes 2: 15 · ... · Mes 6+: 35 (tope).
+//  · Anti doble-canje:
+//      1) Lock en memoria (evita doble-click local).
+//      2) lectura fresh (salta caché de 5min).
+//      3) mutador atómico dentro de actualizarArchivo (merge real).
+//  · Countdown hasta próxima medianoche de Chile.
 // ============================================================
 
 (function () {
@@ -16,7 +20,8 @@
     const MAX_MONEDAS    = 35;
 
     let _estadoActual = null;
-    let _enCurso = false;
+    let _reclamando = false;
+    let _countdownTimer = null;
 
     const _cuenta  = () => window.cuentaActual || null;
     const _bd      = () => window.ConfigBD || null;
@@ -24,6 +29,9 @@
 
     function _ruta(codigo) { return ARCHIVO_BASE + codigo + 'racha.json'; }
 
+    // ------------------------------------------------------------
+    //  Fechas
+    // ------------------------------------------------------------
     function _hoyChile() {
         return new Intl.DateTimeFormat('en-CA', {
             timeZone: 'America/Santiago',
@@ -31,12 +39,11 @@
         }).format(new Date());
     }
 
-    function _mesChile(fecha) {
-        const d = fecha ? new Date(fecha) : new Date();
+    function _mesChile() {
         return new Intl.DateTimeFormat('en-CA', {
             timeZone: 'America/Santiago',
             year: 'numeric', month: '2-digit'
-        }).format(d);
+        }).format(new Date());
     }
 
     function _mesSiguiente(mesStr) {
@@ -46,6 +53,28 @@
         return `${ny}-${String(nm).padStart(2, '0')}`;
     }
 
+    function _msHastaProximaMedianocheChile() {
+        const partes = new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'America/Santiago',
+            hour: '2-digit', minute: '2-digit', second: '2-digit',
+            hour12: false
+        }).format(new Date()).split(':').map(Number);
+        const transcurridos = partes[0] * 3600 + partes[1] * 60 + partes[2];
+        return Math.max(0, (86400 - transcurridos) * 1000);
+    }
+
+    function _fmtCuenta(ms) {
+        if (ms <= 0) return '00:00:00';
+        const s = Math.floor(ms / 1000);
+        const h  = Math.floor(s / 3600);
+        const m  = Math.floor((s % 3600) / 60);
+        const ss = s % 60;
+        return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(ss).padStart(2, '0')}`;
+    }
+
+    // ------------------------------------------------------------
+    //  Normalización / cálculo
+    // ------------------------------------------------------------
     function _normalizar(data) {
         if (!data || typeof data !== 'object') {
             return {
@@ -82,7 +111,6 @@
         let mesesSeguidos = estado.mesesSeguidos || 0;
         let diasSeguidos = estado.diasSeguidos || 0;
 
-        // Meses consecutivos
         if (!estado.ultimoMes) {
             mesesSeguidos = 1;
         } else if (estado.ultimoMes !== mesActual) {
@@ -90,7 +118,6 @@
             else mesesSeguidos = 1;
         }
 
-        // Días consecutivos
         if (!estado.ultimoReclamo) {
             diasSeguidos = 1;
         } else {
@@ -102,68 +129,119 @@
         return { mesesSeguidos, diasSeguidos };
     }
 
-    async function _leer() {
-        const c = _cuenta();
-        const bd = _bd();
-        if (!c || !bd || !bd.estaConectado()) return null;
-        try {
-            const data = await bd.leerArchivo(_ruta(c.codigo));
-            return _normalizar(data);
-        } catch (e) {
-            return _normalizar(null);
-        }
-    }
-
-    async function _escribir(estado) {
-        const c = _cuenta();
-        const bd = _bd();
-        if (!c || !bd) throw new Error('Necesitás una cuenta.');
-        await bd.escribirArchivo(_ruta(c.codigo), estado);
-        _estadoActual = estado;
-    }
-
+    // ------------------------------------------------------------
+    //  Reclamar (con doble protección)
+    // ------------------------------------------------------------
     async function reclamar() {
-        const c = _cuenta();
+        if (_reclamando) throw new Error('Ya se está procesando…');
+
+        const c   = _cuenta();
+        const bd  = _bd();
         const api = _api();
-        if (!c || !api) throw new Error('Necesitás una cuenta.');
+        if (!c || !bd || !api) throw new Error('Necesitás una cuenta.');
 
-        const estado = await _leer();
-        if (_yaReclamoHoy(estado)) throw new Error('Ya reclamaste tu regalo hoy.');
+        _reclamando = true;
 
-        const nuevos = _proximoEstado(estado);
-        const recompensa = _recompensaPorMes(nuevos.mesesSeguidos);
+        try {
+            const ruta = _ruta(c.codigo);
 
-        // Primero dar monedas (con chequera + notificación)
-        await api.canjear(
-            'gift',
-            'racha',
-            `Regalo diario · racha ${nuevos.diasSeguidos}d · mes ${nuevos.mesesSeguidos}`,
-            recompensa
-        );
+            // 1. Lectura FRESH (salta el caché de 5min)
+            const estadoFresh = await bd.leerArchivoFresh(ruta);
+            const estado = _normalizar(estadoFresh);
 
-        // Después persistir
-        await _escribir({
-            version: 1,
-            ultimoReclamo: new Date().toISOString(),
-            ultimoMes: _mesChile(),
-            mesesSeguidos: nuevos.mesesSeguidos,
-            diasSeguidos: nuevos.diasSeguidos,
-            totalReclamado: (estado.totalReclamado || 0) + recompensa
-        });
+            if (_yaReclamoHoy(estado)) {
+                _estadoActual = estado;
+                _render();
+                throw new Error('Ya reclamaste tu regalo hoy.');
+            }
 
-        return { recompensa };
+            const nuevos = _proximoEstado(estado);
+            const recompensa = _recompensaPorMes(nuevos.mesesSeguidos);
+
+            // 2. Mutador ATÓMICO: re-verifica dentro y escribe con merge real
+            let muto = false;
+            await bd.actualizarArchivo(ruta, (actual) => {
+                actual = _normalizar(actual);
+                if (_yaReclamoHoy(actual)) {
+                    throw new Error('YA_RECLAMADO');
+                }
+                muto = true;
+                return {
+                    version: 1,
+                    ultimoReclamo: new Date().toISOString(),
+                    ultimoMes: _mesChile(),
+                    mesesSeguidos: nuevos.mesesSeguidos,
+                    diasSeguidos: nuevos.diasSeguidos,
+                    totalReclamado: (actual.totalReclamado || 0) + recompensa
+                };
+            });
+
+            if (!muto) {
+                _estadoActual = await bd.leerArchivoFresh(ruta);
+                _render();
+                throw new Error('Ya reclamaste tu regalo hoy.');
+            }
+
+            // 3. Monedas (ya está marcado el reclamo → no hay riesgo de doble canje)
+            try {
+                await api.canjear(
+                    'gift',
+                    'racha',
+                    `Regalo diario · racha ${nuevos.diasSeguidos}d · mes ${nuevos.mesesSeguidos}`,
+                    recompensa
+                );
+            } catch (e) {
+                console.warn('[Racha] No se pudieron acreditar las monedas:', e);
+            }
+
+            _estadoActual = _normalizar(await bd.leerArchivoFresh(ruta));
+            _render();
+            return { recompensa };
+
+        } finally {
+            _reclamando = false;
+        }
     }
 
     // ------------------------------------------------------------
     //  Render
     // ------------------------------------------------------------
+    function _detenerCountdown() {
+        if (_countdownTimer) {
+            clearInterval(_countdownTimer);
+            _countdownTimer = null;
+        }
+    }
+
+    function _arrancarCountdown() {
+        _detenerCountdown();
+        const el = document.getElementById('rachaCountdown');
+        if (!el) return;
+        const tick = () => {
+            const ms = _msHastaProximaMedianocheChile();
+            const elNow = document.getElementById('rachaCountdown');
+            if (elNow) elNow.textContent = _fmtCuenta(ms);
+            if (ms <= 1000) {
+                // Cambió el día: recargar para habilitar el botón
+                _detenerCountdown();
+                recargar();
+            }
+        };
+        tick();
+        _countdownTimer = setInterval(tick, 1000);
+    }
+
     function _render() {
         const seccion = document.getElementById('welcomeRachaSection');
         const card    = document.getElementById('rachaCard');
         const badge   = document.getElementById('rachaBadge');
         if (!seccion || !card) return;
 
-        if (!_cuenta()) { seccion.style.display = 'none'; return; }
+        if (!_cuenta()) {
+            seccion.style.display = 'none';
+            _detenerCountdown();
+            return;
+        }
 
         const estado = _estadoActual || _normalizar(null);
         const reclamadoHoy = _yaReclamoHoy(estado);
@@ -193,6 +271,13 @@
                     <span><i data-lucide="calendar"></i> Mes ${mesMostrado}/6</span>
                     <span><i data-lucide="coins"></i> ${(estado.totalReclamado || 0).toLocaleString('es-CL')} total</span>
                 </div>
+                ${reclamadoHoy ? `
+                    <div class="racha-countdown">
+                        <i data-lucide="timer"></i>
+                        <span>Próximo regalo en</span>
+                        <strong id="rachaCountdown">00:00:00</strong>
+                    </div>
+                ` : ''}
             </div>
             ${!reclamadoHoy ? `
                 <button class="racha-btn-reclamar" id="rachaBtnReclamar" type="button">
@@ -205,32 +290,46 @@
         seccion.style.display = 'flex';
         if (window.lucide) window.lucide.createIcons();
 
+        if (reclamadoHoy) {
+            _arrancarCountdown();
+        } else {
+            _detenerCountdown();
+        }
+
         const btn = document.getElementById('rachaBtnReclamar');
         if (btn) {
             btn.addEventListener('click', async () => {
-                if (_enCurso) return;
-                _enCurso = true;
+                if (btn.disabled) return;
                 btn.disabled = true;
                 const html = btn.innerHTML;
-                btn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> ...';
+                btn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Reclamando…';
                 if (window.lucide) window.lucide.createIcons();
                 try {
                     await reclamar();
-                    await recargar();
                 } catch (e) {
                     alert('❌ ' + (e.message || 'Error al reclamar'));
                     btn.disabled = false;
                     btn.innerHTML = html;
                     if (window.lucide) window.lucide.createIcons();
-                } finally {
-                    _enCurso = false;
                 }
             });
         }
     }
 
     async function recargar() {
-        _estadoActual = await _leer();
+        const c = _cuenta();
+        const bd = _bd();
+        if (!c || !bd || !bd.estaConectado()) {
+            _estadoActual = null;
+            _render();
+            return;
+        }
+        try {
+            const data = await bd.leerArchivoFresh(_ruta(c.codigo));
+            _estadoActual = _normalizar(data);
+        } catch (e) {
+            _estadoActual = _normalizar(null);
+        }
         _render();
     }
 
