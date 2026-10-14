@@ -11,6 +11,9 @@
    Las tarjetas heredan las vars del tema del usuario via
    aplicarTemaATarjeta() → por eso el borde usa var(--violet-*)
    y cada perfil se ve con SU color.
+
+   SCROLL: un único scroll en .ct-container. Nada de scroll
+   interno con margen negativo (eso cortaba la última card).
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -31,26 +34,36 @@ body {
 
 [data-lucide] { width: 18px; height: 18px; stroke-width: 2; flex-shrink: 0; }
 
-::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
     background: var(--gray-200, #E8E8EE);
     border-radius: 999px;
-    border: 2px solid transparent;
+    border: 3px solid transparent;
     background-clip: content-box;
 }
+::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-300, #D4D4DD);
+    background-clip: content-box;
+    border: 3px solid transparent;
+}
 
-/* ========== LAYOUT ========== */
+/* ============================================================
+   LAYOUT — el container completo scrollea.
+   Un solo scroll para todo: header, resumen, yo, grid.
+   ============================================================ */
 .ct-container {
-    height: 100%;
     height: 100dvh;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px 24px;
+    padding: 20px 24px 60px;
     display: flex;
     flex-direction: column;
     gap: 14px;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
 }
 
 /* ========== HEADER ========== */
@@ -285,31 +298,27 @@ body {
 .ct-yo-btn[data-estado="desconectado"].active { background: linear-gradient(135deg, #9CA3AF, #71717A); box-shadow: 0 4px 12px rgba(113, 113, 122, 0.35); }
 .ct-yo-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* ========== MAIN ========== */
+/* ============================================================
+   MAIN — ahora es solo un contenedor normal.
+   Sin flex:1, sin overflow, sin margen negativo.
+   El scroll lo maneja .ct-container.
+   ============================================================ */
 .ct-main {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 8px 6px 6px 2px;
-    margin: -8px -6px -6px -2px;
+    min-width: 0;
+    padding-bottom: 8px; /* un pelín extra para que la última fila no toque el borde */
 }
 
 /* ========== GRID ========== */
 .ct-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 12px;
-    padding: 4px;
-    margin: -4px;
+    gap: 14px;
+    padding: 6px;
+    margin: -6px;
 }
 
 /* ============================================================
    TARJETA — borde personalizado por tema del usuario
-   ------------------------------------------------------------
-   Las vars --violet-* fueron aplicadas inline en cada card
-   por aplicarTemaATarjeta(), así que el borde toma el color
-   del tema de CADA contacto, no del tema global.
    ============================================================ */
 .ct-card {
     display: flex;
@@ -1484,7 +1493,7 @@ body {
    RESPONSIVE
    ============================================================ */
 @media (max-width: 640px) {
-    .ct-container { padding: 14px 14px 12px; gap: 10px; }
+    .ct-container { padding: 14px 14px 40px; gap: 10px; }
     .ct-logo-mark { width: 38px; height: 38px; border-radius: 11px; }
     .ct-logo-mark [data-lucide] { width: 19px; height: 19px; }
     .ct-logo-text h1 { font-size: 18px; }
@@ -1502,8 +1511,6 @@ body {
     .ct-yo-nombre { font-size: 14px; }
     .ct-yo-estados { width: 100%; order: 3; }
     .ct-yo-btn { flex: 1; min-width: 0; padding: 8px 4px; }
-
-    .ct-main { padding: 6px 4px 4px 0; margin: -6px -4px -4px 0; }
 
     .ct-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
