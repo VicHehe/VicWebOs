@@ -1,14 +1,15 @@
 // ============================================================
 //  Racha.js — Regalo diario con racha
 //  ------------------------------------------------------------
-//  · 1 regalo por día (hora de Chile).
+//  · 1 regalo por día (hora LOCAL del navegador).
 //  · Racha de días consecutivos.
 //  · Mes 1: 10 monedas · Mes 2: 15 · ... · Mes 6+: 35 (tope).
 //  · Anti doble-canje:
 //      1) Lock en memoria (evita doble-click local).
 //      2) lectura fresh (salta caché de 5min).
 //      3) mutador atómico dentro de actualizarArchivo (merge real).
-//  · Countdown hasta próxima medianoche de Chile.
+//  · Fecha de reclamo guardada en HORA LOCAL DEL USUARIO.
+//  · Countdown hasta la próxima medianoche LOCAL.
 // ============================================================
 
 (function () {
@@ -30,20 +31,21 @@
     function _ruta(codigo) { return ARCHIVO_BASE + codigo + 'racha.json'; }
 
     // ------------------------------------------------------------
-    //  Fechas
+    //  Fechas (hora LOCAL del navegador)
     // ------------------------------------------------------------
-    function _hoyChile() {
-        return new Intl.DateTimeFormat('en-CA', {
-            timeZone: 'America/Santiago',
-            year: 'numeric', month: '2-digit', day: '2-digit'
-        }).format(new Date());
+    function _hoyLocal() {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
     }
 
-    function _mesChile() {
-        return new Intl.DateTimeFormat('en-CA', {
-            timeZone: 'America/Santiago',
-            year: 'numeric', month: '2-digit'
-        }).format(new Date());
+    function _mesLocal() {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        return `${y}-${m}`;
     }
 
     function _mesSiguiente(mesStr) {
@@ -53,13 +55,9 @@
         return `${ny}-${String(nm).padStart(2, '0')}`;
     }
 
-    function _msHastaProximaMedianocheChile() {
-        const partes = new Intl.DateTimeFormat('en-CA', {
-            timeZone: 'America/Santiago',
-            hour: '2-digit', minute: '2-digit', second: '2-digit',
-            hour12: false
-        }).format(new Date()).split(':').map(Number);
-        const transcurridos = partes[0] * 3600 + partes[1] * 60 + partes[2];
+    function _msHastaProximaMedianocheLocal() {
+        const d = new Date();
+        const transcurridos = d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
         return Math.max(0, (86400 - transcurridos) * 1000);
     }
 
@@ -80,11 +78,27 @@
             return {
                 version: 1,
                 ultimoReclamo: null,
+                ultimoDiaLocal: null,
                 ultimoMes: null,
                 mesesSeguidos: 0,
                 diasSeguidos: 0,
                 totalReclamado: 0
             };
+        }
+        // Compatibilidad: si viene de una versión vieja con otro campo, migramos.
+        if (!data.ultimoDiaLocal) {
+            if (data.ultimoDiaChile) {
+                data.ultimoDiaLocal = data.ultimoDiaChile;
+            } else if (data.ultimoReclamo) {
+                // Derivar del ISO en la zona LOCAL actual del navegador.
+                try {
+                    const d = new Date(data.ultimoReclamo);
+                    const y = d.getFullYear();
+                    const m = String(d.getMonth() + 1).padStart(2, '0');
+                    const day = String(d.getDate()).padStart(2, '0');
+                    data.ultimoDiaLocal = `${y}-${m}-${day}`;
+                } catch (e) { data.ultimoDiaLocal = null; }
+            }
         }
         return data;
     }
@@ -95,19 +109,19 @@
     }
 
     function _yaReclamoHoy(estado) {
-        if (!estado || !estado.ultimoReclamo) return false;
-        return String(estado.ultimoReclamo).slice(0, 10) === _hoyChile();
+        if (!estado) return false;
+        return estado.ultimoDiaLocal === _hoyLocal();
     }
 
-    function _diffDias(desde, hasta) {
-        const d1 = new Date(desde + 'T00:00:00Z');
-        const d2 = new Date(hasta + 'T00:00:00Z');
+    function _diffDias(desdeDiaLocal, hastaDiaLocal) {
+        const d1 = new Date(desdeDiaLocal + 'T00:00:00');
+        const d2 = new Date(hastaDiaLocal + 'T00:00:00');
         return Math.round((d2 - d1) / 86400000);
     }
 
     function _proximoEstado(estado) {
-        const hoy = _hoyChile();
-        const mesActual = _mesChile();
+        const hoy = _hoyLocal();
+        const mesActual = _mesLocal();
         let mesesSeguidos = estado.mesesSeguidos || 0;
         let diasSeguidos = estado.diasSeguidos || 0;
 
@@ -118,10 +132,10 @@
             else mesesSeguidos = 1;
         }
 
-        if (!estado.ultimoReclamo) {
+        if (!estado.ultimoDiaLocal) {
             diasSeguidos = 1;
         } else {
-            const diff = _diffDias(estado.ultimoReclamo.slice(0, 10), hoy);
+            const diff = _diffDias(estado.ultimoDiaLocal, hoy);
             if (diff === 1) diasSeguidos++;
             else if (diff > 1) diasSeguidos = 1;
         }
@@ -130,7 +144,7 @@
     }
 
     // ------------------------------------------------------------
-    //  Reclamar (con doble protección)
+    //  Reclamar (con triple protección)
     // ------------------------------------------------------------
     async function reclamar() {
         if (_reclamando) throw new Error('Ya se está procesando…');
@@ -157,6 +171,8 @@
 
             const nuevos = _proximoEstado(estado);
             const recompensa = _recompensaPorMes(nuevos.mesesSeguidos);
+            const ahoraISO = new Date().toISOString();
+            const hoyLocal = _hoyLocal();
 
             // 2. Mutador ATÓMICO: re-verifica dentro y escribe con merge real
             let muto = false;
@@ -168,8 +184,9 @@
                 muto = true;
                 return {
                     version: 1,
-                    ultimoReclamo: new Date().toISOString(),
-                    ultimoMes: _mesChile(),
+                    ultimoReclamo: ahoraISO,
+                    ultimoDiaLocal: hoyLocal,
+                    ultimoMes: _mesLocal(),
                     mesesSeguidos: nuevos.mesesSeguidos,
                     diasSeguidos: nuevos.diasSeguidos,
                     totalReclamado: (actual.totalReclamado || 0) + recompensa
@@ -177,7 +194,7 @@
             });
 
             if (!muto) {
-                _estadoActual = await bd.leerArchivoFresh(ruta);
+                _estadoActual = _normalizar(await bd.leerArchivoFresh(ruta));
                 _render();
                 throw new Error('Ya reclamaste tu regalo hoy.');
             }
@@ -218,11 +235,10 @@
         const el = document.getElementById('rachaCountdown');
         if (!el) return;
         const tick = () => {
-            const ms = _msHastaProximaMedianocheChile();
+            const ms = _msHastaProximaMedianocheLocal();
             const elNow = document.getElementById('rachaCountdown');
             if (elNow) elNow.textContent = _fmtCuenta(ms);
             if (ms <= 1000) {
-                // Cambió el día: recargar para habilitar el botón
                 _detenerCountdown();
                 recargar();
             }
