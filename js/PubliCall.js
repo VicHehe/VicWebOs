@@ -1,15 +1,32 @@
 // ============================================================
-//  PubliCall.js — Teléfono público con PeerJS
+//  PubliCall.js — Teléfono público con PeerJS (v2 simplificado)
 //  ------------------------------------------------------------
-//  · Llamadas PÚBLICAS. Cualquiera de la comunidad puede unirse.
-//  · Máx. 4 participantes por llamada.
-//  · Se paga por adelantado: 15m = 10min, +15m = +5min.
-//  · NO reemplaza a SillyCalls (que es privado y con video).
-//  · Solo audio. Sin chat. Sin transferir llamada.
-//  · Múltiples llamadas simultáneas (cada una con su propio id).
+//  · Cada llamada = una entrada en llamadas.json.
+//  · El HOST paga por adelantado y usa su CÓDIGO DE USUARIO como
+//    peer ID (con prefijo del repo para evitar colisiones).
+//  · Los GUESTS no pagan: clickean "Unirse" y listo, sin escribir
+//    nada. PeerJS usa el código del host para conectarse.
+//  · Máx 4 participantes.
+//  · Solo audio. Sin chat. Sin transferencia. Sin video.
+//  · Múltiples llamadas simultáneas: cada host tiene su propio ID.
 //
-//  Archivo compartido:
-//      app/publi-call/llamadas.json
+//  Estructura de llamadas.json:
+//    {
+//      version: 1,
+//      actualizado: ISO,
+//      llamadas: [
+//        {
+//          hostCodigo: "0308V",
+//          hostNombre: "VicHe",
+//          iniciada: "ISO",
+//          expira: "ISO",
+//          duracionMin: 10,
+//          participantes: [
+//            { codigo: "0308V", nombre: "VicHe", unido: "ISO" }
+//          ]
+//        }
+//      ]
+//    }
 // ============================================================
 
 (function () {
@@ -19,8 +36,7 @@
     const MAX_PARTICIPANTES = 4;
     const POLL_MS = 3000;
 
-    // 15m = 10min · 30m = 15min · 45m = 20min
-    // 60m = 25min · 75m = 30min · 90m = 35min
+    // Escala: cada +15 monedas sumás +5 minutos.
     const DURACIONES = [
         { monedas: 15, minutos: 10 },
         { monedas: 30, minutos: 15 },
@@ -33,15 +49,44 @@
     let _llamadas = [];
     let _pollTimer = null;
     let _timerTimer = null;
+    let _heartbeatTimer = null;
     let _enCurso = false;
     let _etag = null;
 
+    // Sesión activa (yo en llamada)
     let _sesion = null;
-    // { callId, peer, localStream, remotos: Map<codigo, {call, audio}>, mutado: bool }
+    // {
+    //   rol: 'host' | 'guest',
+    //   hostCodigo,
+    //   peer,
+    //   localStream,
+    //   dataConns: Map<codigo, DataConnection>,
+    //   remotos: Map<codigo, { call, audio }>,
+    //   mutado: bool,
+    //   miCodigo,
+    //   expira
+    // }
 
     const _cuenta = () => window.cuentaActual || null;
     const _bd     = () => window.ConfigBD || null;
     const _api    = () => window.__vicwebos || null;
+
+    // ------------------------------------------------------------
+    //  Prefijo del peer ID (comunidad + código)
+    // ------------------------------------------------------------
+    function _slugRepo() {
+        try {
+            const com = window.obtenerComunidadActiva ? window.obtenerComunidadActiva() : null;
+            if (com && com.githubRepo) {
+                return String(com.githubRepo).toLowerCase().replace(/[^a-z0-9]/g, '-');
+            }
+        } catch (e) { /* silencioso */ }
+        return 'x';
+    }
+
+    function _peerIdDe(codigo) {
+        return `vwopc-${_slugRepo()}-${String(codigo).toLowerCase()}`;
+    }
 
     // ------------------------------------------------------------
     //  Utilidades
@@ -50,14 +95,6 @@
         return String(s == null ? '' : s)
             .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-    }
-
-    function _id(prefix) {
-        return prefix + '_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
-    }
-
-    function _peerId(callId, codigo) {
-        return `vwopc-${callId}-${codigo}`.toLowerCase();
     }
 
     function _fmtTiempo(seg) {
@@ -73,9 +110,33 @@
         return data;
     }
 
+    function _viva(ll, ahora) {
+        if (!ll || !ll.expira) return false;
+        const exp = new Date(ll.expira).getTime();
+        if (!isFinite(exp) || exp <= (ahora || Date.now())) return false;
+        if (!Array.isArray(ll.participantes) || ll.participantes.length === 0) return false;
+        return true;
+    }
+
+    function _limpiar(lista) {
+        const ahora = Date.now();
+        return (lista || []).filter(ll => _viva(ll, ahora));
+    }
+
     // ------------------------------------------------------------
-    //  Lectura con ETag (para polling barato)
+    //  Lectura/escritura del archivo compartido
     // ------------------------------------------------------------
+    async function _leerLlamadas(fresh) {
+        const bd = _bd();
+        if (!bd || !bd.estaConectado()) return [];
+        try {
+            const data = fresh
+                ? await bd.leerArchivoFresh(ARCHIVO)
+                : await bd.leerArchivo(ARCHIVO);
+            return _normalizar(data).llamadas;
+        } catch (e) { return []; }
+    }
+
     async function _leerConETag() {
         const com = (typeof window.obtenerComunidadActiva === 'function')
             ? window.obtenerComunidadActiva() : null;
@@ -107,17 +168,6 @@
         }
     }
 
-    async function _leerLlamadas(fresh) {
-        const bd = _bd();
-        if (!bd || !bd.estaConectado()) return [];
-        try {
-            const data = fresh
-                ? await bd.leerArchivoFresh(ARCHIVO)
-                : await bd.leerArchivo(ARCHIVO);
-            return _normalizar(data).llamadas;
-        } catch (e) { return []; }
-    }
-
     async function _mutar(mutador) {
         const bd = _bd();
         if (!bd) throw new Error('ConfigBD no disponible.');
@@ -129,139 +179,15 @@
             return actual;
         });
         _etag = null;
-        return res.llamadas || [];
+        return _normalizar(res).llamadas;
     }
 
     // ------------------------------------------------------------
-    //  Limpieza de llamadas caducadas / vacías
+    //  Sesión PeerJS
     // ------------------------------------------------------------
-    function _limpiar(actuales) {
-        const ahora = Date.now();
-        return (actuales || []).filter(ll => {
-            if (!ll) return false;
-            const exp = new Date(ll.expira).getTime();
-            if (!isFinite(exp) || exp <= ahora) return false;
-            const activos = (ll.participantes || []).filter(p => p && p.codigo);
-            return activos.length > 0;
-        });
-    }
-
-    async function _purgarVencidas() {
-        if (!_bd() || !_bd().estaConectado()) return;
-        const actuales = await _leerLlamadas(false);
-        const limpias = _limpiar(actuales);
-        if (limpias.length !== actuales.length) {
-            try {
-                await _mutar((d) => {
-                    d.llamadas = limpias;
-                    return d;
-                });
-            } catch (e) { /* silencioso */ }
-        }
-    }
-
-    // ------------------------------------------------------------
-    //  Crear llamada
-    // ------------------------------------------------------------
-    async function _crearYUnirme(duracion) {
-        const c = _cuenta();
-        const api = _api();
-        if (!c || !api) throw new Error('Necesitás una cuenta.');
-
-        const monedas = api.obtenerMonedas ? api.obtenerMonedas() : 0;
-        if (monedas < duracion.monedas) {
-            throw new Error(`Te faltan ${duracion.monedas - monedas} monedas.`);
-        }
-
-        const callId = _id('call');
-        const expira = new Date(Date.now() + duracion.minutos * 60000).toISOString();
-        const miCodigo = c.codigo;
-        const miNombre = c.nombre || miCodigo;
-
-        // Cobrar
-        await api.gastoBoleta(
-            'phone-call',
-            'publi-call',
-            `Llamada pública de ${duracion.minutos} min`,
-            duracion.monedas
-        );
-
-        // Registrar la llamada
-        const nueva = {
-            id: callId,
-            titulo: `Llamada de ${miNombre}`,
-            creador: miCodigo,
-            creado: new Date().toISOString(),
-            expira: expira,
-            duracionMin: duracion.minutos,
-            participantes: []
-        };
-
-        try {
-            await _mutar((d) => {
-                d.llamadas.push(nueva);
-                return d;
-            });
-        } catch (e) {
-            throw new Error('No se pudo registrar la llamada en el servidor.');
-        }
-
-        return callId;
-    }
-
-    // ------------------------------------------------------------
-    //  Unirse a llamada
-    // ------------------------------------------------------------
-    async function _registrarme(callId) {
-        const c = _cuenta();
-        if (!c) throw new Error('Necesitás una cuenta.');
-
-        await _mutar((d) => {
-            const ll = d.llamadas.find(x => x.id === callId);
-            if (!ll) throw new Error('Llamada no encontrada.');
-            if (!Array.isArray(ll.participantes)) ll.participantes = [];
-
-            const yaEsta = ll.participantes.find(p => p.codigo === c.codigo);
-            if (yaEsta) return d;
-
-            if (ll.participantes.length >= MAX_PARTICIPANTES) {
-                throw new Error('La llamada está llena (máx 4).');
-            }
-
-            ll.participantes.push({
-                codigo: c.codigo,
-                nombre: c.nombre || c.codigo,
-                unido: new Date().toISOString()
-            });
-            return d;
-        });
-    }
-
-    async function _desregistrarme(callId) {
-        const c = _cuenta();
-        if (!c) return;
-        try {
-            await _mutar((d) => {
-                const ll = d.llamadas.find(x => x.id === callId);
-                if (!ll) return d;
-                ll.participantes = (ll.participantes || []).filter(p => p.codigo !== c.codigo);
-                if (ll.participantes.length === 0) {
-                    d.llamadas = d.llamadas.filter(x => x.id !== callId);
-                }
-                return d;
-            });
-        } catch (e) { /* silencioso */ }
-    }
-
-    // ------------------------------------------------------------
-    //  Sesión PeerJS (mesh)
-    // ------------------------------------------------------------
-    async function _iniciarSesionPeer(callId) {
-        const c = _cuenta();
-        if (!c) throw new Error('Necesitás una cuenta.');
+    async function _abrirPeer() {
         if (!window.Peer) throw new Error('PeerJS no está cargado.');
 
-        // Pedir micrófono
         let stream;
         try {
             stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
@@ -269,10 +195,13 @@
             throw new Error('No se pudo acceder al micrófono. Revisá los permisos.');
         }
 
-        const myPeerId = _peerId(callId, c.codigo);
-        const peer = new Peer(myPeerId, { debug: 0 });
+        const c = _cuenta();
+        if (!c) throw new Error('Necesitás una cuenta.');
+
+        const myPeerId = _peerIdDe(c.codigo);
 
         return new Promise((resolve, reject) => {
+            const peer = new Peer(myPeerId, { debug: 0 });
             const timeout = setTimeout(() => {
                 try { peer.destroy(); } catch (e) {}
                 stream.getTracks().forEach(t => t.stop());
@@ -281,25 +210,21 @@
 
             peer.on('open', () => {
                 clearTimeout(timeout);
-                _sesion = {
-                    callId,
-                    peer,
-                    localStream: stream,
-                    remotos: new Map(),
-                    mutado: false,
-                    miCodigo: c.codigo
-                };
-                _configurarPeer();
-                resolve(_sesion);
+                resolve({ peer, stream, myPeerId });
             });
 
             peer.on('error', (err) => {
-                console.warn('[PubliCall] PeerJS error:', err);
                 clearTimeout(timeout);
+                if (err && err.type === 'unavailable-id') {
+                    try { peer.destroy(); } catch (e) {}
+                    stream.getTracks().forEach(t => t.stop());
+                    reject(new Error('Ya hay una sesión tuya abierta. Cerrá la otra pestaña.'));
+                    return;
+                }
                 if (!_sesion) {
                     try { peer.destroy(); } catch (e) {}
                     stream.getTracks().forEach(t => t.stop());
-                    reject(new Error(err.message || 'Error de conexión P2P.'));
+                    reject(new Error(err && err.message ? err.message : 'Error de conexión P2P.'));
                 }
             });
         });
@@ -309,44 +234,100 @@
         if (!_sesion) return;
         const { peer, localStream } = _sesion;
 
+        // Cuando alguien me llama (media)
         peer.on('call', (call) => {
-            // Alguien nos llama. Contestamos con nuestro micrófono.
             try {
                 call.answer(localStream);
             } catch (e) {
-                console.warn('[PubliCall] Error al contestar:', e);
                 return;
             }
             const codigoRemoto = _codigoDesdePeerId(call.peer);
             if (codigoRemoto) _agregarRemoto(codigoRemoto, call);
         });
+
+        // Cuando alguien me abre un data channel
+        peer.on('connection', (conn) => {
+            _manejarDataEntrante(conn);
+        });
     }
 
     function _codigoDesdePeerId(peerId) {
-        if (!_sesion) return null;
-        const prefijo = `vwopc-${_sesion.callId}-`;
+        const prefijo = `vwopc-${_slugRepo()}-`;
         if (!peerId.startsWith(prefijo)) return null;
         return peerId.slice(prefijo.length).toUpperCase();
+    }
+
+    function _manejarDataEntrante(conn) {
+        if (!_sesion) return;
+
+        conn.on('open', () => {
+            const codigoRemoto = _codigoDesdePeerId(conn.peer);
+            if (!codigoRemoto) return;
+            if (!_sesion.dataConns.has(codigoRemoto)) {
+                _sesion.dataConns.set(codigoRemoto, conn);
+            }
+
+            // Si soy host, le paso la lista de participantes
+            if (_sesion.rol === 'host') {
+                const llamada = _llamadas.find(l => l.hostCodigo === _sesion.miCodigo);
+                const partes = llamada ? llamada.participantes.map(p => p.codigo) : [];
+                try {
+                    conn.send({ type: 'participantes', codigos: partes });
+                } catch (e) { /* silencioso */ }
+            }
+        });
+
+        conn.on('data', (msg) => _manejarData(msg, conn));
+        conn.on('close', () => {
+            const codigoRemoto = _codigoDesdePeerId(conn.peer);
+            if (codigoRemoto) {
+                _sesion.dataConns.delete(codigoRemoto);
+            }
+        });
+        conn.on('error', () => {
+            const codigoRemoto = _codigoDesdePeerId(conn.peer);
+            if (codigoRemoto) _sesion.dataConns.delete(codigoRemoto);
+        });
+    }
+
+    async function _manejarData(msg, conn) {
+        if (!_sesion || !msg) return;
+
+        if (msg.type === 'participantes' && Array.isArray(msg.codigos)) {
+            // El host me dijo quiénes están. Me conecto con todos.
+            for (const cod of msg.codigos) {
+                if (cod === _sesion.miCodigo) continue;
+                await _conectarCon(cod);
+            }
+        }
+
+        if (msg.type === 'nuevo_participante' && msg.codigo) {
+            // El host me avisa que llegó alguien nuevo
+            if (msg.codigo !== _sesion.miCodigo) {
+                await _conectarCon(msg.codigo);
+            }
+        }
+
+        if (msg.type === 'host_se_va') {
+            _colgarLocal(true);
+        }
     }
 
     function _agregarRemoto(codigo, call) {
         if (!_sesion) return;
         if (_sesion.remotos.has(codigo)) return;
 
-        // Crear Audio element para reproducir
         const audio = new Audio();
         audio.autoplay = true;
 
         call.on('stream', (remoteStream) => {
             audio.srcObject = remoteStream;
         });
-
         call.on('close', () => {
             audio.srcObject = null;
             _sesion.remotos.delete(codigo);
             _renderParticipantes();
         });
-
         call.on('error', () => {
             _sesion.remotos.delete(codigo);
             _renderParticipantes();
@@ -361,10 +342,10 @@
         if (codigoRemoto === _sesion.miCodigo) return;
         if (_sesion.remotos.has(codigoRemoto)) return;
 
-        // Regla anti-duplicado: solo el código MENOR inicia la llamada.
+        // Regla anti-duplicado: solo el de código MENOR inicia la media call.
         if (_sesion.miCodigo > codigoRemoto) return;
 
-        const peerIdRemoto = _peerId(_sesion.callId, codigoRemoto);
+        const peerIdRemoto = _peerIdDe(codigoRemoto);
         try {
             const call = _sesion.peer.call(peerIdRemoto, _sesion.localStream);
             if (call) _agregarRemoto(codigoRemoto, call);
@@ -374,98 +355,200 @@
     }
 
     // ------------------------------------------------------------
-    //  Sincronización de participantes
+    //  FLUJO: CREAR (host)
     // ------------------------------------------------------------
-    async function _sincronizarParticipantes() {
-        if (!_sesion) return;
-        const callId = _sesion.callId;
+    async function crearLlamada(duracion) {
+        if (_sesion) throw new Error('Ya estás en una llamada. Colgá primero.');
 
-        const todas = await _leerLlamadas(true);
-        const ll = todas.find(x => x.id === callId);
-        if (!ll) {
-            // La llamada desapareció (todos salieron o venció)
-            _colgar(true);
-            return;
+        const c = _cuenta();
+        const api = _api();
+        if (!c || !api) throw new Error('Necesitás una cuenta.');
+
+        // Validar que no haya una llamada con mi código ya activa
+        const actuales = await _leerLlamadas(true);
+        const existente = actuales.find(l => l.hostCodigo === c.codigo && _viva(l));
+        if (existente) throw new Error('Ya tenés una llamada activa.');
+
+        const monedas = api.obtenerMonedas ? api.obtenerMonedas() : 0;
+        if (monedas < duracion.monedas) {
+            throw new Error(`Te faltan ${duracion.monedas - monedas} monedas.`);
         }
 
-        const partes = ll.participantes || [];
-        for (const p of partes) {
-            if (p.codigo === _sesion.miCodigo) continue;
-            if (!_sesion.remotos.has(p.codigo)) {
-                await _conectarCon(p.codigo);
-            }
+        // Cobrar
+        await api.gastoBoleta(
+            'phone-call',
+            'publi-call',
+            `Llamada pública de ${duracion.minutos} min`,
+            duracion.monedas
+        );
+
+        const expira = new Date(Date.now() + duracion.minutos * 60000).toISOString();
+
+        // Abrir PeerJS
+        let peerInfo;
+        try {
+            peerInfo = await _abrirPeer();
+        } catch (e) {
+            // Devolver monedas si falla
+            try {
+                await api.canjear('phone-call', 'publi-call', 'Reembolso: no se pudo abrir la llamada', duracion.monedas);
+            } catch (_) { /* silencioso */ }
+            throw e;
         }
+
+        _sesion = {
+            rol: 'host',
+            hostCodigo: c.codigo,
+            peer: peerInfo.peer,
+            localStream: peerInfo.stream,
+            dataConns: new Map(),
+            remotos: new Map(),
+            mutado: false,
+            miCodigo: c.codigo,
+            expira: expira
+        };
+
+        _configurarPeer();
+
+        // Escribir la llamada en el archivo
+        await _mutar((d) => {
+            d.llamadas = _limpiar(d.llamadas);
+            d.llamadas.push({
+                hostCodigo: c.codigo,
+                hostNombre: c.nombre || c.codigo,
+                iniciada: new Date().toISOString(),
+                expira: expira,
+                duracionMin: duracion.minutos,
+                participantes: [
+                    { codigo: c.codigo, nombre: c.nombre || c.codigo, unido: new Date().toISOString() }
+                ]
+            });
+            return d;
+        });
+
+        _llamadas = await _leerLlamadas(true);
+
+        _mostrarOverlay(_llamadas.find(l => l.hostCodigo === c.codigo));
+        _arrancarTimers(expira);
+        _render();
     }
 
     // ------------------------------------------------------------
-    //  Unirse / salir
+    //  FLUJO: UNIRSE (guest)
     // ------------------------------------------------------------
-    async function unirseALlamada(callId) {
+    async function unirseALlamada(hostCodigo) {
         if (_sesion) throw new Error('Ya estás en una llamada. Colgá primero.');
+
         const c = _cuenta();
         if (!c) throw new Error('Necesitás una cuenta.');
 
-        // ¿Existe y tiene lugar?
-        const todas = await _leerLlamadas(true);
-        const ll = todas.find(x => x.id === callId);
+        const actuales = await _leerLlamadas(true);
+        const ll = actuales.find(l => l.hostCodigo === hostCodigo && _viva(l));
         if (!ll) throw new Error('Esta llamada ya no existe.');
-        if (new Date(ll.expira).getTime() <= Date.now()) throw new Error('Esta llamada ya venció.');
-        const partes = ll.participantes || [];
-        if (partes.length >= MAX_PARTICIPANTES) throw new Error('La llamada está llena (máx 4).');
+        if (ll.participantes.length >= MAX_PARTICIPANTES) throw new Error('La llamada está llena (máx 4).');
+        if (ll.participantes.some(p => p.codigo === c.codigo)) throw new Error('Ya estás en esta llamada.');
 
-        // Registrar
-        await _registrarme(callId);
+        // Abrir PeerJS
+        const peerInfo = await _abrirPeer();
 
-        // Iniciar peer
+        _sesion = {
+            rol: 'guest',
+            hostCodigo: hostCodigo,
+            peer: peerInfo.peer,
+            localStream: peerInfo.stream,
+            dataConns: new Map(),
+            remotos: new Map(),
+            mutado: false,
+            miCodigo: c.codigo,
+            expira: ll.expira
+        };
+
+        _configurarPeer();
+
+        // Registrarme en el archivo
         try {
-            await _iniciarSesionPeer(callId);
+            await _mutar((d) => {
+                const t = d.llamadas.find(x => x.hostCodigo === hostCodigo);
+                if (!t) throw new Error('La llamada ya no existe.');
+                if (t.participantes.length >= MAX_PARTICIPANTES) throw new Error('La llamada se llenó.');
+                if (t.participantes.some(p => p.codigo === c.codigo)) return d;
+                t.participantes.push({
+                    codigo: c.codigo,
+                    nombre: c.nombre || c.codigo,
+                    unido: new Date().toISOString()
+                });
+                return d;
+            });
         } catch (e) {
-            await _desregistrarme(callId);
+            _colgarLocal(false);
             throw e;
         }
 
-        // Descubrir a los demás y conectar
-        await _sincronizarParticipantes();
-
-        _mostrarOverlay(ll);
-        _arrancarPolling();
-        _arrancarTimer(ll.expira);
-    }
-
-    async function crearLlamada(duracion) {
-        if (_sesion) throw new Error('Ya estás en una llamada. Colgá primero.');
-        const callId = await _crearYUnirme(duracion);
-        await _registrarme(callId);
+        // Conectar al host por DataConnection
         try {
-            await _iniciarSesionPeer(callId);
+            const hostPeerId = _peerIdDe(hostCodigo);
+            const conn = _sesion.peer.connect(hostPeerId, { reliable: true });
+            _sesion.dataConns.set(hostCodigo, conn);
+
+            conn.on('open', () => {
+                // El host ya me va a mandar la lista por _manejarDataEntrante
+            });
+            conn.on('data', (msg) => _manejarData(msg, conn));
+            conn.on('close', () => {
+                // Si el host se va, salgo
+                if (_sesion && _sesion.rol === 'guest') _colgarLocal(true);
+            });
         } catch (e) {
-            await _desregistrarme(callId);
-            throw e;
+            await _salirDelArchivo();
+            _colgarLocal(false);
+            throw new Error('No se pudo contactar al host.');
         }
-        await _sincronizarParticipantes();
-        const todas = await _leerLlamadas(true);
-        const ll = todas.find(x => x.id === callId);
-        if (ll) {
-            _mostrarOverlay(ll);
-            _arrancarPolling();
-            _arrancarTimer(ll.expira);
-        }
+
+        _llamadas = await _leerLlamadas(true);
+
+        _mostrarOverlay(_llamadas.find(l => l.hostCodigo === hostCodigo));
+        _arrancarTimers(ll.expira);
+        _render();
     }
 
-    async function _colgar(auto) {
+    // ------------------------------------------------------------
+    //  SALIR
+    // ------------------------------------------------------------
+    async function _salirDelArchivo() {
+        if (!_sesion) return;
+        const c = _cuenta();
+        if (!c) return;
+        const hostCodigo = _sesion.hostCodigo;
+
+        try {
+            await _mutar((d) => {
+                const t = d.llamadas.find(x => x.hostCodigo === hostCodigo);
+                if (!t) return d;
+                t.participantes = t.participantes.filter(p => p.codigo !== c.codigo);
+                if (t.participantes.length === 0) {
+                    d.llamadas = d.llamadas.filter(x => x.hostCodigo !== hostCodigo);
+                }
+                return d;
+            });
+        } catch (e) { /* silencioso */ }
+    }
+
+    function _colgarLocal(silencioso) {
         const ses = _sesion;
         _sesion = null;
-        _detenerPolling();
-        _detenerTimer();
+        _detenerTimers();
 
-        // Ocultar overlay
         const ov = document.getElementById('pcallOverlay');
         if (ov) ov.style.display = 'none';
 
         if (!ses) { _render(); return; }
 
-        // Desregistrar en el JSON
-        if (!auto) await _desregistrarme(ses.callId);
+        // Avisar a todos por data
+        if (ses.rol === 'host') {
+            ses.dataConns.forEach(conn => {
+                try { conn.send({ type: 'host_se_va' }); } catch (e) {}
+            });
+        }
 
         // Cerrar remotos
         ses.remotos.forEach(({ call, audio }) => {
@@ -473,64 +556,91 @@
             try { audio.srcObject = null; audio.pause(); } catch (e) {}
         });
 
-        // Cerrar peer y stream
+        // Cerrar data
+        ses.dataConns.forEach(conn => {
+            try { conn.close(); } catch (e) {}
+        });
+
         try { ses.peer.destroy(); } catch (e) {}
-        if (ses.localStream) {
-            ses.localStream.getTracks().forEach(t => t.stop());
+        if (ses.localStream) ses.localStream.getTracks().forEach(t => t.stop());
+
+        if (!silencioso) {
+            // Aviso asíncrono al archivo
+            Promise.resolve().then(() => _salirDelArchivoCon(ses.hostCodigo, ses.miCodigo));
         }
 
         _render();
     }
 
-    // ------------------------------------------------------------
-    //  Polling de participantes (solo mientras estoy en llamada)
-    // ------------------------------------------------------------
-    function _arrancarPolling() {
-        _detenerPolling();
-        _pollTimer = setInterval(async () => {
-            if (document.hidden || !_sesion) return;
-            if (_enCurso) return;
-            _enCurso = true;
-            try {
-                await _sincronizarParticipantes();
-            } catch (e) { /* silencioso */ }
-            finally { _enCurso = false; }
-        }, POLL_MS);
-    }
-
-    function _detenerPolling() {
-        if (_pollTimer) { clearInterval(_pollTimer); _pollTimer = null; }
-        _enCurso = false;
+    async function _salirDelArchivoCon(hostCodigo, codigo) {
+        try {
+            await _mutar((d) => {
+                const t = d.llamadas.find(x => x.hostCodigo === hostCodigo);
+                if (!t) return d;
+                t.participantes = t.participantes.filter(p => p.codigo !== codigo);
+                if (t.participantes.length === 0) {
+                    d.llamadas = d.llamadas.filter(x => x.hostCodigo !== hostCodigo);
+                }
+                return d;
+            });
+            _llamadas = await _leerLlamadas(true);
+            _render(_llamadas);
+        } catch (e) { /* silencioso */ }
     }
 
     // ------------------------------------------------------------
-    //  Timer de vencimiento
+    //  TIMERS (expiración + heartbeat + polling)
     // ------------------------------------------------------------
-    function _arrancarTimer(expiraISO) {
-        _detenerTimer();
+    function _arrancarTimers(expiraISO) {
+        _detenerTimers();
         const exp = new Date(expiraISO).getTime();
+
         const tick = () => {
             const restante = exp - Date.now();
             const el = document.getElementById('pcallOverlayTiempo');
             if (el) el.textContent = _fmtTiempo(Math.max(0, restante / 1000));
             if (restante <= 0) {
-                _detenerTimer();
+                _detenerTimers();
                 if (_sesion) {
                     alert('⏰ Se acabó el tiempo de la llamada.');
-                    _colgar(true);
+                    _colgarLocal(false);
                 }
             }
         };
         tick();
         _timerTimer = setInterval(tick, 1000);
+
+        // Polling del archivo (solo si soy host o guest, para reaccionar a cambios)
+        _pollTimer = setInterval(async () => {
+            if (document.hidden || !_sesion) return;
+            if (_enCurso) return;
+            _enCurso = true;
+            try {
+                const res = await _leerConETag();
+                if (res.cambio) {
+                    _llamadas = _normalizar(res.data).llamadas;
+                    const mia = _llamadas.find(l => l.hostCodigo === _sesion.hostCodigo);
+                    if (!mia || !_viva(mia)) {
+                        alert('La llamada se cerró.');
+                        _colgarLocal(true);
+                    } else {
+                        _renderParticipantes();
+                    }
+                }
+            } catch (e) { /* silencioso */ }
+            finally { _enCurso = false; }
+        }, POLL_MS);
     }
 
-    function _detenerTimer() {
+    function _detenerTimers() {
+        if (_pollTimer)  { clearInterval(_pollTimer);  _pollTimer = null; }
         if (_timerTimer) { clearInterval(_timerTimer); _timerTimer = null; }
+        if (_heartbeatTimer) { clearInterval(_heartbeatTimer); _heartbeatTimer = null; }
+        _enCurso = false;
     }
 
     // ------------------------------------------------------------
-    //  Overlay de llamada
+    //  RENDER: overlay de llamada
     // ------------------------------------------------------------
     function _mostrarOverlay(ll) {
         const ov = document.getElementById('pcallOverlay');
@@ -538,26 +648,24 @@
         const sub = document.getElementById('pcallOverlaySub');
         if (!ov) return;
 
-        if (tit) tit.textContent = ll.titulo || 'Llamada pública';
-        if (sub) sub.textContent = `${ll.participantes.length}/${MAX_PARTICIPANTES} participantes`;
+        if (tit) tit.textContent = `Llamada de ${ll ? (ll.hostNombre || ll.hostCodigo) : '…'}`;
+        if (sub) sub.textContent = `${ll ? ll.participantes.length : 0}/${MAX_PARTICIPANTES} participantes`;
 
         ov.style.display = 'flex';
         _renderParticipantes();
         if (window.lucide) window.lucide.createIcons();
     }
 
-    async function _renderParticipantes() {
+    function _renderParticipantes() {
         const cont = document.getElementById('pcallParticipantes');
         if (!cont || !_sesion) return;
 
         const c = _cuenta();
         if (!c) return;
 
-        const todas = await _leerLlamadas(false);
-        const ll = todas.find(x => x.id === _sesion.callId);
+        const ll = _llamadas.find(x => x.hostCodigo === _sesion.hostCodigo);
         const partes = ll ? (ll.participantes || []) : [];
 
-        // Asegurar que yo estoy listado
         if (!partes.some(p => p.codigo === c.codigo)) {
             partes.push({ codigo: c.codigo, nombre: c.nombre || c.codigo });
         }
@@ -568,10 +676,10 @@
             return `
                 <div class="pcall-participante ${propio ? 'propio' : ''}">
                     <div class="pcall-participante-avatar">
-                        ${_escapar((p.nombre || p.codigo).charAt(0).toUpperCase())}
+                        ${_esc((p.nombre || p.codigo).charAt(0).toUpperCase())}
                     </div>
                     <div class="pcall-participante-nombre">
-                        ${_escapar(p.nombre || p.codigo)}${propio ? ' (vos)' : ''}
+                        ${_esc(p.nombre || p.codigo)}${propio ? ' (vos)' : ''}
                     </div>
                     <div class="pcall-participante-estado">
                         <i data-lucide="${conectado ? 'wifi' : 'loader-2'}"></i>
@@ -581,7 +689,6 @@
             `;
         }).join('');
 
-        // Subtítulo actualizado
         const sub = document.getElementById('pcallOverlaySub');
         if (sub) sub.textContent = `${partes.length}/${MAX_PARTICIPANTES} participantes`;
 
@@ -605,9 +712,9 @@
     }
 
     // ------------------------------------------------------------
-    //  Render del lobby
+    //  RENDER: lobby
     // ------------------------------------------------------------
-    async function _render() {
+    async function _render(dataPrecargada) {
         const seccion = document.getElementById('welcomePubliCallSection');
         const cont = document.getElementById('pcallLista');
         if (!seccion || !cont) return;
@@ -615,10 +722,10 @@
         if (!_cuenta()) { seccion.style.display = 'none'; return; }
         seccion.style.display = 'flex';
 
-        // Purga vencidas (una vez por render, de forma silenciosa)
+        // Purgar vencidas (silencioso)
         _purgarVencidas().catch(() => {});
 
-        const todas = await _leerLlamadas(false);
+        const todas = dataPrecargada || await _leerLlamadas(true);
         const vivas = _limpiar(todas);
 
         const c = _cuenta();
@@ -638,6 +745,7 @@
             const partes = ll.participantes || [];
             const llena = partes.length >= MAX_PARTICIPANTES;
             const yaDentro = partes.some(p => p.codigo === c.codigo);
+            const soyHost = ll.hostCodigo === c.codigo;
 
             let btnHTML;
             if (yaDentro) {
@@ -653,7 +761,7 @@
                     <i data-lucide="lock"></i> Llena
                 </button>`;
             } else {
-                btnHTML = `<button class="pcall-btn-unirse" data-callid="${_escapar(ll.id)}">
+                btnHTML = `<button class="pcall-btn-unirse" data-host="${_esc(ll.hostCodigo)}">
                     <i data-lucide="phone"></i> Unirse
                 </button>`;
             }
@@ -662,10 +770,11 @@
                 <div class="pcall-card">
                     <div class="pcall-icono"><i data-lucide="phone-call"></i></div>
                     <div class="pcall-info">
-                        <div class="pcall-titulo">${_escapar(ll.titulo || 'Llamada pública')}</div>
+                        <div class="pcall-titulo">Llamada de ${_esc(ll.hostNombre || ll.hostCodigo)}</div>
                         <div class="pcall-meta">
                             <span><i data-lucide="users"></i> ${partes.length}/${MAX_PARTICIPANTES}</span>
                             <span><i data-lucide="clock"></i> ${ll.duracionMin}min</span>
+                            <span><i data-lucide="at-sign"></i> ${_esc(ll.hostCodigo)}</span>
                         </div>
                     </div>
                     ${btnHTML}
@@ -675,14 +784,14 @@
 
         if (window.lucide) window.lucide.createIcons();
 
-        cont.querySelectorAll('.pcall-btn-unirse[data-callid]').forEach(btn => {
+        cont.querySelectorAll('.pcall-btn-unirse[data-host]').forEach(btn => {
             btn.addEventListener('click', async () => {
                 btn.disabled = true;
                 const html = btn.innerHTML;
                 btn.innerHTML = '<i data-lucide="loader-2" class="spin"></i>';
                 if (window.lucide) window.lucide.createIcons();
                 try {
-                    await unirseALlamada(btn.dataset.callid);
+                    await unirseALlamada(btn.dataset.host);
                 } catch (e) {
                     alert('❌ ' + (e.message || 'No se pudo unir a la llamada'));
                     btn.disabled = false;
@@ -691,6 +800,18 @@
                 }
             });
         });
+    }
+
+    async function _purgarVencidas() {
+        const bd = _bd();
+        if (!bd || !bd.estaConectado()) return;
+        const actuales = await _leerLlamadas(false);
+        const limpias = _limpiar(actuales);
+        if (limpias.length !== actuales.length) {
+            try {
+                await _mutar((d) => { d.llamadas = limpias; return d; });
+            } catch (e) { /* silencioso */ }
+        }
     }
 
     // ------------------------------------------------------------
@@ -719,51 +840,43 @@
 
         if (window.lucide) window.lucide.createIcons();
 
-        let elegida = null;
-        grid.querySelectorAll('.pcall-duracion:not(:disabled)').forEach(b => {
-            b.addEventListener('click', () => {
-                grid.querySelectorAll('.pcall-duracion').forEach(x => x.classList.remove('elegida'));
-                b.classList.add('elegida');
-                elegida = {
-                    monedas: Number(b.dataset.monedas),
-                    minutos: Number(b.dataset.minutos)
-                };
-            });
-        });
-
-        modal.style.display = 'flex';
-
-        // Confirmación implícita: doble click sobre uno
-        grid.querySelectorAll('.pcall-duracion:not(:disabled)').forEach(b => {
-            b.addEventListener('dblclick', () => b.click());
-        });
-
-        // Auto-confirmar al elegir (más simple)
         grid.querySelectorAll('.pcall-duracion:not(:disabled)').forEach(b => {
             b.addEventListener('click', async () => {
-                if (!elegida) return;
-                // Si ya estaba elegido este mismo, crear
-                if (b.classList.contains('elegida')) {
-                    // Esperar un tick por si es doble click
-                    if (b.dataset._confirm === '1') return;
-                    b.dataset._confirm = '1';
-                    try {
-                        modal.style.display = 'none';
-                        await crearLlamada({
-                            monedas: Number(b.dataset.monedas),
-                            minutos: Number(b.dataset.minutos)
-                        });
-                    } catch (e) {
-                        alert('❌ ' + (e.message || 'No se pudo crear'));
-                        b.dataset._confirm = '0';
-                    }
+                if (b.dataset._confirm === '1') return;
+                b.dataset._confirm = '1';
+                try {
+                    modal.style.display = 'none';
+                    await crearLlamada({
+                        monedas: Number(b.dataset.monedas),
+                        minutos: Number(b.dataset.minutos)
+                    });
+                } catch (e) {
+                    alert('❌ ' + (e.message || 'No se pudo crear'));
+                    b.dataset._confirm = '0';
                 }
             });
         });
 
-        // Botón: crear directamente al elegir (un solo click)
-        // Lo dejamos así: click selecciona, y si ya está seleccionado, crea.
-        // Pero mejor UX: un segundo click en el mismo botón.
+        modal.style.display = 'flex';
+    }
+
+    // ------------------------------------------------------------
+    //  Polling del lobby (lista de llamadas)
+    // ------------------------------------------------------------
+    function _arrancarPollLista() {
+        setInterval(async () => {
+            if (document.hidden) return;
+            const seccion = document.getElementById('welcomePubliCallSection');
+            if (!seccion || seccion.style.display === 'none') return;
+            if (_sesion) return;   // Si estoy en llamada, no refresco la lista
+            try {
+                const res = await _leerConETag();
+                if (res.cambio) {
+                    _llamadas = _normalizar(res.data).llamadas;
+                    _render(_llamadas);
+                }
+            } catch (e) { /* silencioso */ }
+        }, POLL_MS);
     }
 
     // ------------------------------------------------------------
@@ -777,10 +890,7 @@
 
         if (btnNueva) {
             btnNueva.addEventListener('click', () => {
-                if (_sesion) {
-                    alert('Ya estás en una llamada. Colgá primero.');
-                    return;
-                }
+                if (_sesion) { alert('Ya estás en una llamada. Colgá primero.'); return; }
                 _abrirModalNueva();
             });
         }
@@ -795,33 +905,16 @@
         const btnMute = document.getElementById('pcallBtnMute');
         const btnColgar = document.getElementById('pcallBtnColgar');
         if (btnMute) btnMute.addEventListener('click', _toggleMute);
-        if (btnColgar) btnColgar.addEventListener('click', () => _colgar(false));
-    }
-
-    // Polling global (no de participantes): refresca la LISTA de llamadas
-    function _arrancarPollLista() {
-        setInterval(async () => {
-            if (document.hidden) return;
-            const seccion = document.getElementById('welcomePubliCallSection');
-            if (!seccion || seccion.style.display === 'none') return;
-            if (_sesion) return;   // Si estoy en llamada, no refresco la lista
-            try {
-                const res = await _leerConETag();
-                if (res.cambio) {
-                    _llamadas = _normalizar(res.data).llamadas;
-                    _render();
-                }
-            } catch (e) { /* silencioso */ }
-        }, POLL_MS);
+        if (btnColgar) btnColgar.addEventListener('click', () => _colgarLocal(false));
     }
 
     window.addEventListener('vicwebos:sesion', () => {
-        if (_sesion) _colgar(true);
+        if (_sesion) _colgarLocal(true);
         _etag = null;
         _render();
     });
     window.addEventListener('vicwebos:comunidad', () => {
-        if (_sesion) _colgar(true);
+        if (_sesion) _colgarLocal(true);
         _etag = null;
         _render();
     });
