@@ -7,6 +7,10 @@
    (verde activo / ámbar descanso / gris off / dorado monedas
     / azul espacio), que no pertenecen a ningún tema en
     particular y necesitan ser universales.
+
+   Las tarjetas heredan las vars del tema del usuario via
+   aplicarTemaATarjeta() → por eso el borde usa var(--violet-*)
+   y cada perfil se ve con SU color.
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -128,7 +132,6 @@ body {
 .ct-btn-header.spin [data-lucide] { animation: ctSpin 0.8s linear infinite; }
 @keyframes ctSpin { to { transform: rotate(360deg); } }
 
-/* Buzón con pendientes — usa el acento del tema */
 .ct-btn-buzon.tiene-pendientes {
     background: var(--violet-50, #F5F3FF);
     border-color: var(--violet-300, #C4B5FD);
@@ -210,7 +213,9 @@ body {
     overflow: hidden;
     flex-shrink: 0;
     border: 2px solid var(--white, #FFFFFF);
-    box-shadow: 0 4px 10px var(--accent-shadow, rgba(139,92,246,0.25));
+    box-shadow:
+        0 0 0 2px var(--violet-200, #DDD6FE),
+        0 4px 10px var(--accent-shadow, rgba(139,92,246,0.25));
 }
 .ct-yo-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .ct-yo-avatar [data-lucide] { width: 22px; height: 22px; stroke-width: 2; }
@@ -299,7 +304,13 @@ body {
     margin: -4px;
 }
 
-/* ========== TARJETA ========== */
+/* ============================================================
+   TARJETA — borde personalizado por tema del usuario
+   ------------------------------------------------------------
+   Las vars --violet-* fueron aplicadas inline en cada card
+   por aplicarTemaATarjeta(), así que el borde toma el color
+   del tema de CADA contacto, no del tema global.
+   ============================================================ */
 .ct-card {
     display: flex;
     flex-direction: column;
@@ -307,17 +318,45 @@ body {
     gap: 10px;
     padding: 18px 14px 14px;
     background: var(--white, #FFFFFF);
-    border: 1.5px solid var(--border, #E8E8EE);
+    border: 1.5px solid var(--violet-200, #DDD6FE);
     border-radius: 16px;
     transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     text-align: center;
     cursor: pointer;
+    overflow: hidden;
 }
+
+/* Línea de acento arriba — se expande al hover */
+.ct-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 20%;
+    right: 20%;
+    height: 2.5px;
+    background: var(--accent-gradient, linear-gradient(90deg, #A78BFA, #7C3AED));
+    border-radius: 0 0 4px 4px;
+    opacity: 0.65;
+    transition: left 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                right 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.22s ease,
+                height 0.22s ease;
+}
+
 .ct-card:hover {
-    border-color: var(--violet-300, #C4B5FD);
-    box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.08));
+    border-color: var(--violet-400, #A78BFA);
+    box-shadow:
+        0 10px 26px var(--accent-shadow, rgba(139, 92, 246, 0.18)),
+        0 2px 6px rgba(0, 0, 0, 0.04);
     transform: translateY(-2px);
+}
+
+.ct-card:hover::before {
+    left: 0;
+    right: 0;
+    opacity: 1;
+    height: 3px;
 }
 
 .ct-avatar-wrap { position: relative; width: 64px; height: 64px; flex-shrink: 0; }
@@ -332,7 +371,9 @@ body {
     color: white;
     overflow: hidden;
     border: 2.5px solid var(--white, #FFFFFF);
-    box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.20));
+    box-shadow:
+        0 0 0 2px var(--violet-200, #DDD6FE),
+        0 4px 12px var(--accent-shadow, rgba(139,92,246,0.20));
 }
 .ct-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .ct-avatar-inicial { font-size: 26px; font-weight: 800; color: white; line-height: 1; }
@@ -356,7 +397,6 @@ body {
 
 /* ============================================================
    COLORES SEMÁNTICOS DE ESTADO — SOLO SOBRE EL PUNTO
-   (no sobre la etiqueta de abajo, que va con colores del tema)
    ============================================================ */
 .ct-estado-dot.estado-activo,
 .ct-estado-dot-mini.estado-activo   { background: #10B981; }
@@ -392,10 +432,6 @@ body {
 
 /* ============================================================
    ETIQUETA DE ESTADO — píldora neutra del tema
-   ------------------------------------------------------------
-   align-self: center evita que el padre flex (column) la estire
-   a todo el ancho. El fondo sale de var(--gray-100).
-   El color semántico SOLO va en el ícono (chiquito, universal).
    ============================================================ */
 .ct-estado-label {
     display: inline-flex;
@@ -465,7 +501,6 @@ body {
 }
 .ct-btn-regalar [data-lucide] { width: 15px; height: 15px; }
 
-/* Monedas — dorado semántico */
 .ct-btn-regalar-monedas {
     background: linear-gradient(135deg, #FBBF24, #F59E0B);
     color: white;
@@ -476,7 +511,6 @@ body {
     box-shadow: 0 6px 14px rgba(245, 158, 11, 0.42);
 }
 
-/* WebDrop — usa el acento del tema */
 .ct-btn-regalar-webdrop {
     background: var(--accent-gradient-hover, linear-gradient(135deg, #A78BFA, #7C3AED));
     color: var(--white, #FFFFFF);
@@ -488,7 +522,6 @@ body {
     box-shadow: 0 6px 14px var(--accent-shadow-hover, rgba(139, 92, 246, 0.42));
 }
 
-/* Espacio — azul semántico */
 .ct-btn-regalar-espacio {
     background: linear-gradient(135deg, #60A5FA, #3B82F6);
     color: white;
@@ -1076,8 +1109,8 @@ body {
     overflow: hidden;
     border: 3px solid var(--white, #FFFFFF);
     box-shadow:
-        0 8px 20px var(--accent-shadow, rgba(139,92,246,0.25)),
-        0 0 0 1px var(--border, #E8E8EE);
+        0 0 0 2px var(--violet-200, #DDD6FE),
+        0 8px 20px var(--accent-shadow, rgba(139,92,246,0.25));
     margin-bottom: 4px;
 }
 .ct-perfil-avatar img { width: 100%; height: 100%; object-fit: cover; }
@@ -1284,7 +1317,6 @@ body {
     flex-shrink: 0;
 }
 .ct-hist-icono [data-lucide] { width: 17px; height: 17px; stroke-width: 2; }
-/* Categorías — semánticas */
 .ct-hist-icono-monedas { background: #FEF3C7; color: #B45309; }
 .ct-hist-icono-webdrop { background: var(--violet-100, #EDE9FE); color: var(--violet-700, #6D28D9); }
 .ct-hist-icono-espacio { background: #DBEAFE; color: #1D4ED8; }
@@ -1442,7 +1474,6 @@ body {
     white-space: nowrap;
 }
 .ct-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-/* Semántico universal */
 .ct-toast.success { background: #065F46; color: #FFFFFF; }
 .ct-toast.error   { background: #991B1B; color: #FFFFFF; }
 .ct-toast.info    { background: var(--violet-700, #6D28D9); color: #FFFFFF; }
