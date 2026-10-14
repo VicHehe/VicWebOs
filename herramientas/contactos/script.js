@@ -1,20 +1,18 @@
 // ============================================================
-//  Contactos — Directorio + regalos + estado + temas
+//  Contactos — Directorio + regalos + buzón + estado + temas
 //  ------------------------------------------------------------
 //  3 CATEGORÍAS DE REGALO (1 por categoría al día por usuario):
-//    · monedas  → 25 / 50 / 100
-//    · webdrop  → 135 monedas → 1 widget o cuadro aleatorio
-//    · espacio  → 175 monedas → +5 espacio permanente
+//    · monedas  → 25 / 50 / 100   → se acreditan AL INSTANTE
+//    · webdrop  → 135 monedas     → queda PENDIENTE en buzón
+//    · espacio  → 175 monedas     → queda PENDIENTE en buzón
 //
-//  Cada tarjeta se tinta con el TEMA ACTIVO del usuario.
-//  Los colores se obtienen haciendo fetch del CSS de
-//  Temas/{id}.css y parseando el :root.
+//  El buzón se abre con el botón de la bandeja en el header.
+//  El receptor reclama cuando quiere: recién ahí se aplica.
 // ============================================================
 
 'use strict';
 
 const MENSAJE_TEMA = 'vicwebos_tema_cambio';
-const APP_ID = 'contactos';
 const ARCHIVO_PRESENCIA = 'app/contactos/presencia.json';
 const ARCHIVO_REGALOS   = 'app/contactos/regalos.json';
 const CUENTAS_FILE      = 'cuenta.json';
@@ -23,14 +21,12 @@ const MAX_MOVIMIENTOS_CHEQUERA = 500;
 const ESTADOS_VALIDOS = ['activo', 'descansando', 'desconectado'];
 const TEMA_POR_DEFECTO = 'violeta';
 
-// -------- Categorías y precios --------
-const CATEGORIAS_REGALO = ['monedas', 'webdrop', 'espacio'];
-const MONTOS_MONEDAS    = [25, 50, 100];
-const PRECIO_WEBDROP    = 135;
-const PRECIO_ESPACIO    = 175;
+const CATEGORIAS_REGALO  = ['monedas', 'webdrop', 'espacio'];
+const MONTOS_MONEDAS     = [25, 50, 100];
+const PRECIO_WEBDROP     = 135;
+const PRECIO_ESPACIO     = 175;
 const ESPACIO_POR_REGALO = 5;
 
-// -------- Estado global --------
 let usuarioActual = null;
 let usuarios = [];
 let presencia = {};
@@ -62,12 +58,11 @@ const LC = () => {
 };
 
 // ============================================================
-//  TEMA DEL SHELL
+//  TEMA
 // ============================================================
 function aplicarTemaDelPadre() {
     try {
-        const rootPadre = window.parent.document.documentElement;
-        const stylePadre = getComputedStyle(rootPadre);
+        const stylePadre = getComputedStyle(window.parent.document.documentElement);
         const vars = [
             '--violet-50','--violet-100','--violet-200','--violet-300',
             '--violet-400','--violet-500','--violet-600','--violet-700',
@@ -118,17 +113,17 @@ function escapar(s) {
 }
 
 function estadoInfo(estado) {
-    if (estado === 'activo')       return { label: 'Activo',       icono: 'circle-dot',    clase: 'estado-activo' };
-    if (estado === 'descansando')  return { label: 'Descansando',  icono: 'coffee',        clase: 'estado-descanso' };
-    if (estado === 'desconectado') return { label: 'Desconectado', icono: 'circle-off',    clase: 'estado-off' };
+    if (estado === 'activo')       return { label: 'Activo',       icono: 'circle-dot',  clase: 'estado-activo' };
+    if (estado === 'descansando')  return { label: 'Descansando',  icono: 'coffee',      clase: 'estado-descanso' };
+    if (estado === 'desconectado') return { label: 'Desconectado', icono: 'circle-off',  clase: 'estado-off' };
     return { label: 'Sin estado', icono: 'circle-dashed', clase: 'estado-sin' };
 }
 
 function categoriaInfo(cat) {
-    if (cat === 'monedas') return { label: 'Monedas',  icono: 'coins',         color: 'cat-monedas' };
-    if (cat === 'webdrop') return { label: 'WebDrop',  icono: 'package-plus',  color: 'cat-webdrop' };
-    if (cat === 'espacio') return { label: 'Espacio',  icono: 'hard-drive',    color: 'cat-espacio' };
-    return { label: 'Regalo', icono: 'gift', color: '' };
+    if (cat === 'monedas') return { label: 'Monedas', icono: 'coins' };
+    if (cat === 'webdrop') return { label: 'WebDrop', icono: 'package-plus' };
+    if (cat === 'espacio') return { label: 'Espacio', icono: 'hard-drive' };
+    return { label: 'Regalo', icono: 'gift' };
 }
 
 function tiempoRelativo(iso) {
@@ -198,7 +193,7 @@ async function cargarConfigs() {
 }
 
 // ============================================================
-//  TEMAS — parsear CSS del tema y aplicar variables
+//  TEMAS
 // ============================================================
 function parsearRootVariables(css) {
     const vars = {};
@@ -208,9 +203,7 @@ function parsearRootVariables(css) {
         const body = match[1];
         const varRe = /(--[\w-]+)\s*:\s*([^;]+);/g;
         let m;
-        while ((m = varRe.exec(body)) !== null) {
-            vars[m[1]] = m[2].trim();
-        }
+        while ((m = varRe.exec(body)) !== null) vars[m[1]] = m[2].trim();
     }
     return vars;
 }
@@ -218,9 +211,7 @@ function parsearRootVariables(css) {
 async function obtenerVariablesTema(temaId) {
     if (!temaId) return null;
     if (_temasCache.has(temaId)) return _temasCache.get(temaId);
-
     _temasCache.set(temaId, null);
-
     try {
         let base = window.location.href;
         try { base = window.parent.location.href; } catch (e) { /* fallback */ }
@@ -232,9 +223,7 @@ async function obtenerVariablesTema(temaId) {
         if (Object.keys(vars).length === 0) return null;
         _temasCache.set(temaId, vars);
         return vars;
-    } catch (e) {
-        return null;
-    }
+    } catch (e) { return null; }
 }
 
 function aplicarTemaATarjeta(el, vars) {
@@ -255,7 +244,7 @@ async function precargarTemasDeUsuarios() {
 }
 
 // ============================================================
-//  VALIDACIÓN DIARIA POR CATEGORÍA
+//  REGLAS DIARIAS
 // ============================================================
 function yaRegaleCategoriaHoy(codigoDestino, categoria) {
     const hoy = new Date().toDateString();
@@ -272,12 +261,50 @@ function categoriasDisponiblesHoy(codigoDestino) {
 }
 
 // ============================================================
+//  PENDIENTES EN EL BUZÓN
+//  ------------------------------------------------------------
+//  Un regalo está pendiente si: es para mí, no está reclamado,
+//  y NO es de monedas (las monedas se acreditan solas).
+// ============================================================
+function contarPendientes() {
+    return regalos.filter(r =>
+        r.para === usuarioActual.codigo &&
+        !r.reclamado &&
+        (r.categoria || 'monedas') !== 'monedas'
+    ).length;
+}
+
+function obtenerPendientes() {
+    return regalos
+        .filter(r =>
+            r.para === usuarioActual.codigo &&
+            !r.reclamado &&
+            (r.categoria || 'monedas') !== 'monedas'
+        )
+        .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+}
+
+function actualizarBadgeBuzon() {
+    const badge = document.getElementById('ctBuzonBadge');
+    const btn   = document.getElementById('ctBtnBuzon');
+    if (!badge || !btn) return;
+    const n = contarPendientes();
+    if (n > 0) {
+        badge.hidden = false;
+        badge.textContent = n > 99 ? '99+' : String(n);
+        btn.classList.add('tiene-pendientes');
+    } else {
+        badge.hidden = true;
+        btn.classList.remove('tiene-pendientes');
+    }
+}
+
+// ============================================================
 //  MI BLOQUE
 // ============================================================
 function renderMiBloque() {
     const avatarEl = document.getElementById('ctYoAvatar');
     const nombreEl = document.getElementById('ctYoNombre');
-
     if (nombreEl) nombreEl.textContent = usuarioActual.nombre || 'Sin nombre';
 
     if (avatarEl) {
@@ -301,7 +328,6 @@ async function cambiarMiEstado(nuevoEstado) {
 
     const bd = BD();
     if (!bd) { toast('Sin conexión', 'error'); return; }
-
     document.querySelectorAll('.ct-yo-btn').forEach(b => b.disabled = true);
 
     try {
@@ -309,10 +335,7 @@ async function cambiarMiEstado(nuevoEstado) {
         await bd.actualizarArchivo(ARCHIVO_PRESENCIA, (actual) => {
             if (!actual || typeof actual !== 'object') actual = { version: 1, usuarios: {} };
             if (!actual.usuarios || typeof actual.usuarios !== 'object') actual.usuarios = {};
-            actual.usuarios[usuarioActual.codigo] = {
-                estado: nuevoEstado,
-                desde: ahora
-            };
+            actual.usuarios[usuarioActual.codigo] = { estado: nuevoEstado, desde: ahora };
             actual.actualizado = ahora;
             return actual;
         });
@@ -343,13 +366,9 @@ function render() {
 
     const otros = usuarios.filter(u => u.codigo !== usuarioActual.codigo);
 
-    if (totalEl) {
-        totalEl.textContent = `${otros.length} ${otros.length === 1 ? 'usuario' : 'usuarios'}`;
-    }
+    if (totalEl) totalEl.textContent = `${otros.length} ${otros.length === 1 ? 'usuario' : 'usuarios'}`;
     const activos = otros.filter(u => presencia[u.codigo]?.estado === 'activo').length;
-    if (activosEl) {
-        activosEl.textContent = `${activos} ${activos === 1 ? 'activo' : 'activos'}`;
-    }
+    if (activosEl) activosEl.textContent = `${activos} ${activos === 1 ? 'activo' : 'activos'}`;
 
     if (otros.length === 0) {
         grid.innerHTML = '';
@@ -384,11 +403,9 @@ function render() {
         if (vars) aplicarTemaATarjeta(card, vars);
     });
 
-    // Cablear clicks
     grid.querySelectorAll('.ct-card').forEach(card => {
         const codigo = card.dataset.codigo;
 
-        // 3 botones de regalo (uno por categoría)
         card.querySelectorAll('.ct-btn-regalar[data-cat]').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -457,7 +474,7 @@ function renderAvatar(u) {
 }
 
 // ============================================================
-//  PERFIL EXTENDIDO
+//  PERFIL
 // ============================================================
 function abrirPerfil(codigo) {
     const u = usuarios.find(x => x.codigo === codigo);
@@ -488,7 +505,6 @@ function abrirPerfil(codigo) {
 
     document.getElementById('ctPerfilCreado').textContent = formatearFechaLarga(u.creado);
 
-    // Stats por categoría
     document.getElementById('ctPerfilRecibidosMonedas').textContent =
         regalos.filter(r => r.para === codigo && (r.categoria || 'monedas') === 'monedas').length;
     document.getElementById('ctPerfilRecibidosWebDrops').textContent =
@@ -503,7 +519,6 @@ function abrirPerfil(codigo) {
     document.getElementById('ctPerfilDadosEspacios').textContent =
         regalos.filter(r => r.de === codigo && r.categoria === 'espacio').length;
 
-    // Botón regalar
     const btnRegalar = document.getElementById('ctPerfilRegalar');
     const txtRegalar = document.getElementById('ctPerfilRegalarTxt');
     const disponibles = categoriasDisponiblesHoy(codigo);
@@ -515,7 +530,6 @@ function abrirPerfil(codigo) {
         txtRegalar.textContent = `Regalar (${disponibles.length} disponibles)`;
     }
 
-    // Aplicar tema del usuario al modal
     const card = document.getElementById('ctPerfilCard');
     card.removeAttribute('style');
     const cfg = configsGlobales[codigo];
@@ -533,7 +547,166 @@ function cerrarPerfil() {
 }
 
 // ============================================================
-//  HISTORIAL DE REGALOS (con filtros)
+//  BUZÓN — Regalos recibidos pendientes
+// ============================================================
+function abrirBuzon() {
+    renderBuzon();
+    document.getElementById('ctModalBuzon').hidden = false;
+    if (window.lucide) window.lucide.createIcons();
+}
+
+function cerrarBuzon() {
+    document.getElementById('ctModalBuzon').hidden = true;
+}
+
+function renderBuzon() {
+    const lista = document.getElementById('ctBuzonLista');
+    if (!lista) return;
+
+    const pendientes = obtenerPendientes();
+
+    if (pendientes.length === 0) {
+        lista.innerHTML = `
+            <div class="ct-buzon-vacio">
+                <i data-lucide="inbox"></i>
+                <h4>Sin regalos pendientes</h4>
+                <p>Cuando alguien te mande un WebDrop o espacio, aparecerá acá para que lo reclames.</p>
+            </div>`;
+        if (window.lucide) window.lucide.createIcons();
+        return;
+    }
+
+    lista.innerHTML = pendientes.map(r => renderBuzonItem(r)).join('');
+    if (window.lucide) window.lucide.createIcons();
+
+    // Cablear botones reclamar
+    lista.querySelectorAll('[data-reclamar-id]').forEach(btn => {
+        btn.addEventListener('click', () => reclamarRegalo(btn.dataset.reclamarId, btn));
+    });
+}
+
+function renderBuzonItem(r) {
+    const cat = r.categoria;
+    const info = categoriaInfo(cat);
+    const emisor = usuarios.find(u => u.codigo === r.de);
+    const nombreEmisor = emisor ? (emisor.nombre || r.de) : r.de;
+
+    let detalleHTML = '';
+    if (cat === 'webdrop') {
+        const drop = r.drop || {};
+        const tipoLabel = drop.tipo === 'cuadro' ? 'Cuadro' : 'Widget';
+        detalleHTML = `
+            <div class="ct-buzon-detalle ct-buzon-detalle-webdrop">
+                <i data-lucide="${drop.itemIcono || 'package-plus'}"></i>
+                <span><strong>${escapar(drop.itemNombre || '—')}</strong> · ${tipoLabel}</span>
+            </div>`;
+    } else if (cat === 'espacio') {
+        detalleHTML = `
+            <div class="ct-buzon-detalle ct-buzon-detalle-espacio">
+                <i data-lucide="hard-drive"></i>
+                <span><strong>+${r.espacio || ESPACIO_POR_REGALO}</strong> de espacio permanente</span>
+            </div>`;
+    }
+
+    return `
+        <div class="ct-buzon-item ct-buzon-item-${cat}">
+            <div class="ct-buzon-icono ct-buzon-icono-${cat}">
+                <i data-lucide="${info.icono}"></i>
+            </div>
+            <div class="ct-buzon-cuerpo">
+                <div class="ct-buzon-cabecera">
+                    <span class="ct-buzon-de">De <strong>${escapar(nombreEmisor)}</strong></span>
+                    <span class="ct-buzon-tiempo">${tiempoRelativo(r.fecha)}</span>
+                </div>
+                <div class="ct-buzon-cat">${info.label}</div>
+                ${detalleHTML}
+            </div>
+            <button class="ct-buzon-reclamar"
+                    data-reclamar-id="${escapar(r.id)}"
+                    data-cat="${cat}">
+                <i data-lucide="gift"></i>
+                Reclamar
+            </button>
+        </div>`;
+}
+
+async function reclamarRegalo(idRegalo, btn) {
+    const bd = BD();
+    if (!bd) { toast('Sin conexión', 'error'); return; }
+
+    const regalo = regalos.find(r => r.id === idRegalo);
+    if (!regalo) { toast('Ese regalo ya no existe', 'error'); return; }
+    if (regalo.reclamado) { toast('Ese regalo ya fue reclamado', 'info'); return; }
+    if (regalo.para !== usuarioActual.codigo) return;
+
+    const cat = regalo.categoria || 'monedas';
+    if (cat === 'monedas') { toast('Las monedas se acreditan solas', 'info'); return; }
+
+    btn.disabled = true;
+    const original = btn.innerHTML;
+    btn.innerHTML = '<i data-lucide="loader-2" class="spin"></i>';
+    if (window.lucide) window.lucide.createIcons();
+
+    try {
+        // ---- Aplicar el efecto según categoría ----
+        if (cat === 'webdrop') {
+            const drop = regalo.drop;
+            if (!drop || !drop.itemId) throw new Error('Regalo corrupto: falta info del drop.');
+            await aplicarWebDropAlReceptor(usuarioActual.codigo, drop);
+            await escribirChequeraReceptor(
+                usuarioActual.codigo,
+                regalo.de,
+                'gift',
+                regalo.monto,
+                `WebDrop reclamado: ${drop.itemNombre} (${drop.tipo})`
+            );
+            toast(`¡${drop.itemNombre} desbloqueado!`, 'success');
+        } else if (cat === 'espacio') {
+            const cant = regalo.espacio || ESPACIO_POR_REGALO;
+            await aplicarEspacioAlReceptor(usuarioActual.codigo, cant);
+            await escribirChequeraReceptor(
+                usuarioActual.codigo,
+                regalo.de,
+                'canje',
+                regalo.monto,
+                `+${cant} espacio reclamado`
+            );
+            toast(`¡+${cant} espacio desbloqueado!`, 'success');
+        }
+
+        // ---- Marcar como reclamado en el archivo ----
+        const ahora = new Date().toISOString();
+        await bd.actualizarArchivo(ARCHIVO_REGALOS, (actual) => {
+            if (!actual || typeof actual !== 'object') return actual;
+            if (!Array.isArray(actual.regalos)) return actual;
+            const idx = actual.regalos.findIndex(r => r.id === idRegalo);
+            if (idx >= 0) {
+                actual.regalos[idx].reclamado = true;
+                actual.regalos[idx].reclamadoFecha = ahora;
+            }
+            actual.actualizado = ahora;
+            return actual;
+        });
+
+        // ---- Refrescar cache local y UI ----
+        regalos = await cargarRegalos();
+        // Actualizar configs porque puede haber cambiado el espacio / instalados
+        configsGlobales = await cargarConfigs();
+
+        actualizarBadgeBuzon();
+        renderBuzon();
+        render();
+
+    } catch (e) {
+        toast(e.message || 'No se pudo reclamar', 'error');
+        btn.disabled = false;
+        btn.innerHTML = original;
+        if (window.lucide) window.lucide.createIcons();
+    }
+}
+
+// ============================================================
+//  HISTORIAL
 // ============================================================
 function abrirHistorial() {
     histTab = 'dados';
@@ -601,6 +774,7 @@ function renderHistItem(r) {
 
     let montoTxt = '';
     let detalleTxt = '';
+    let estadoBadge = '';
 
     if (cat === 'monedas') {
         const signo = histTab === 'dados' ? '−' : '+';
@@ -616,12 +790,23 @@ function renderHistItem(r) {
                </span>`
             : '';
         montoTxt = `<span class="ct-hist-monto negativo">−${r.monto} <i data-lucide="coins"></i></span>`;
+        // En recibidos, mostrar si está pendiente o reclamado
+        if (histTab === 'recibidos') {
+            estadoBadge = r.reclamado
+                ? `<span class="ct-hist-estado ct-hist-estado-ok"><i data-lucide="check"></i> Reclamado</span>`
+                : `<span class="ct-hist-estado ct-hist-estado-pendiente"><i data-lucide="clock"></i> Pendiente</span>`;
+        }
     } else if (cat === 'espacio') {
         detalleTxt = `<span class="ct-hist-badge ct-hist-badge-${cat}">
                         <i data-lucide="hard-drive"></i>
                         +${r.espacio || ESPACIO_POR_REGALO} espacio
                       </span>`;
         montoTxt = `<span class="ct-hist-monto negativo">−${r.monto} <i data-lucide="coins"></i></span>`;
+        if (histTab === 'recibidos') {
+            estadoBadge = r.reclamado
+                ? `<span class="ct-hist-estado ct-hist-estado-ok"><i data-lucide="check"></i> Reclamado</span>`
+                : `<span class="ct-hist-estado ct-hist-estado-pendiente"><i data-lucide="clock"></i> Pendiente</span>`;
+        }
     }
 
     return `
@@ -633,6 +818,7 @@ function renderHistItem(r) {
                 <div class="ct-hist-nombre">
                     ${prefijo} ${escapar(nombreOtro)}
                     <span class="ct-hist-cat-label">${info.label}</span>
+                    ${estadoBadge}
                 </div>
                 <div class="ct-hist-meta">
                     <span>@${escapar(otroCodigo)}</span>
@@ -646,13 +832,12 @@ function renderHistItem(r) {
 }
 
 // ============================================================
-//  MODAL DE REGALO — 3 categorías
+//  MODAL REGALO
 // ============================================================
 function abrirModalRegalo(codigo, categoriaInicial) {
     const u = usuarios.find(x => x.codigo === codigo);
     if (!u) return;
 
-    // Si la categoría inicial ya está bloqueada, ofrecer la primera disponible
     const disponibles = categoriasDisponiblesHoy(codigo);
     let cat = categoriaInicial;
     if (!disponibles.includes(cat)) {
@@ -666,7 +851,6 @@ function abrirModalRegalo(codigo, categoriaInicial) {
     document.getElementById('ctRegaloTitulo').textContent = `Regalar a ${u.nombre || u.codigo}`;
     document.getElementById('ctMiSaldo').textContent = monedasPropias;
 
-    // Tabs
     document.querySelectorAll('.ct-cat-tab').forEach(tab => {
         tab.classList.toggle('active', tab.dataset.cat === cat);
         tab.classList.toggle('bloqueada', yaRegaleCategoriaHoy(codigo, tab.dataset.cat));
@@ -710,7 +894,6 @@ function seleccionarMonto(monto) {
     refrescarBotonesRegalo();
 }
 
-// Actualiza disponibilidad de los montos + botón Enviar + avisos
 function refrescarBotonesRegalo() {
     if (!destinatarioRegalo) return;
     const codigo = destinatarioRegalo.codigo;
@@ -721,7 +904,6 @@ function refrescarBotonesRegalo() {
     const txtEnviar = document.getElementById('ctRegaloEnviarTxt');
     const aviso = document.getElementById('ctCatAviso');
 
-    // ---- Bloqueo global por categoría ya regalada hoy ----
     if (yaRegalado) {
         if (aviso) {
             aviso.hidden = false;
@@ -735,13 +917,11 @@ function refrescarBotonesRegalo() {
         return;
     }
 
-    // ---- Costos por categoría ----
     let costo = 0;
     if (cat === 'monedas') costo = montoSeleccionado || 0;
     if (cat === 'webdrop') costo = PRECIO_WEBDROP;
     if (cat === 'espacio') costo = PRECIO_ESPACIO;
 
-    // ---- Habilitar montos según saldo ----
     if (cat === 'monedas') {
         document.querySelectorAll('.ct-monto').forEach(btn => {
             const m = parseInt(btn.dataset.monto, 10);
@@ -749,7 +929,6 @@ function refrescarBotonesRegalo() {
         });
     }
 
-    // ---- Validación saldo ----
     if (costo > monedasPropias) {
         if (aviso) {
             aviso.hidden = false;
@@ -763,7 +942,6 @@ function refrescarBotonesRegalo() {
         return;
     }
 
-    // ---- Caso especial: WebDrop sin pool disponible ----
     if (cat === 'webdrop') {
         const pool = calcularPoolWebDrop(codigo);
         if (!pool || pool.length === 0) {
@@ -778,18 +956,16 @@ function refrescarBotonesRegalo() {
             if (window.lucide) window.lucide.createIcons();
             return;
         }
-        // Mostrar cuántos candidatos hay
         if (aviso) {
             aviso.hidden = false;
             aviso.className = 'ct-cat-aviso ct-cat-aviso-info';
             aviso.innerHTML = `<i data-lucide="sparkles"></i>
-                <span>Hay <strong>${pool.length}</strong> ${pool.length === 1 ? 'item' : 'items'} posibles para regalar. Se elegirá al azar.</span>`;
+                <span>Hay <strong>${pool.length}</strong> ${pool.length === 1 ? 'item' : 'items'} posibles. Se elegirá al azar.</span>`;
         }
     } else {
         if (aviso) aviso.hidden = true;
     }
 
-    // ---- Habilitar botón ----
     const necesitaMonto = (cat === 'monedas');
     const habilitado = necesitaMonto ? !!montoSeleccionado : true;
     btnEnviar.disabled = !habilitado;
@@ -806,10 +982,7 @@ function refrescarBotonesRegalo() {
 }
 
 // ============================================================
-//  WEBDROP — pool aleatorio
-// ============================================================
-//  Combina widgets y cuadros del catálogo del shell, excluyendo
-//  los que el receptor ya tenga instalados.
+//  WEBDROP — pool
 // ============================================================
 function calcularPoolWebDrop(receptorCodigo) {
     const api = API();
@@ -829,7 +1002,6 @@ function calcularPoolWebDrop(receptorCodigo) {
     }
 
     const pool = [];
-
     widgetsCatalogo.forEach(w => {
         if (!w || !w.id) return;
         if (widgetsYa.includes(w.id)) return;
@@ -840,7 +1012,6 @@ function calcularPoolWebDrop(receptorCodigo) {
             itemIcono: w.icono || 'square'
         });
     });
-
     cuadrosCatalogo.forEach(c => {
         if (!c || !c.id) return;
         if (cuadrosYa.includes(c.id)) return;
@@ -862,7 +1033,12 @@ function elegirWebDropAleatorio(receptorCodigo) {
 }
 
 // ============================================================
-//  REGISTRO DE REGALO (helper común)
+//  REGISTRO DE REGALO
+//  ------------------------------------------------------------
+//  Reglas de "reclamado":
+//    · monedas → reclamado = true  (efecto ya aplicado al enviar)
+//    · webdrop → reclamado = false (queda pendiente)
+//    · espacio → reclamado = false (queda pendiente)
 // ============================================================
 async function registrarRegalo(datos) {
     const bd = BD();
@@ -871,7 +1047,7 @@ async function registrarRegalo(datos) {
     const id = 'g_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
 
     await bd.actualizarArchivo(ARCHIVO_REGALOS, (actual) => {
-        if (!actual || typeof actual !== 'object') actual = { version: 2, regalos: [] };
+        if (!actual || typeof actual !== 'object') actual = { version: 3, regalos: [] };
         if (!Array.isArray(actual.regalos)) actual.regalos = [];
         actual.regalos.unshift({
             id,
@@ -879,11 +1055,13 @@ async function registrarRegalo(datos) {
             para: datos.para,
             categoria: datos.categoria,
             monto: datos.monto,
+            reclamado: (datos.categoria === 'monedas'),
+            reclamadoFecha: (datos.categoria === 'monedas') ? ahora : null,
             ...(datos.extra || {}),
             fecha: ahora
         });
         if (actual.regalos.length > 500) actual.regalos = actual.regalos.slice(0, 500);
-        actual.version = 2;
+        actual.version = 3;
         actual.actualizado = ahora;
         return actual;
     });
@@ -892,7 +1070,7 @@ async function registrarRegalo(datos) {
 }
 
 // ============================================================
-//  ENVÍO DE REGALO — switch por categoría
+//  ENVÍO
 // ============================================================
 async function enviarRegalo() {
     if (!destinatarioRegalo) return;
@@ -901,7 +1079,6 @@ async function enviarRegalo() {
     if (_catRegaloActual === 'espacio') return enviarRegaloEspacio();
 }
 
-// -------- MONEDAS --------
 async function enviarRegaloMonedas() {
     if (!montoSeleccionado || !MONTOS_MONEDAS.includes(montoSeleccionado)) return;
     const monto = montoSeleccionado;
@@ -917,9 +1094,9 @@ async function enviarRegaloMonedas() {
     _setBotonCargando(btnEnviar, 'Enviando...');
 
     try {
+        // Monedas: efecto al instante
         await api.gastoBoleta('gift', 'contactos', `Regalo a @${receptor.codigo}`, monto);
 
-        // Sumar monedas al receptor
         await bd.actualizarArchivo(CONFIG_FILE, (all) => {
             if (!all || typeof all !== 'object') all = {};
             if (!all[receptor.codigo]) all[receptor.codigo] = {};
@@ -927,10 +1104,8 @@ async function enviarRegaloMonedas() {
             return all;
         });
 
-        // Chequera del receptor
         await escribirChequeraReceptor(receptor.codigo, emisor.codigo, 'gift', monto, `Regalo de @${emisor.codigo}`);
 
-        // Registro global
         await registrarRegalo({
             para: receptor.codigo,
             categoria: 'monedas',
@@ -945,7 +1120,6 @@ async function enviarRegaloMonedas() {
     }
 }
 
-// -------- WEBDROP --------
 async function enviarRegaloWebDrop() {
     const receptor = destinatarioRegalo;
     const emisor = usuarioActual;
@@ -954,7 +1128,6 @@ async function enviarRegaloWebDrop() {
     const bd = BD();
     if (!api || !bd) { toast('Sin conexión al sistema', 'error'); return; }
 
-    // Elegir ANTES de gastar (para no gastar si no hay pool)
     const drop = elegirWebDropAleatorio(receptor.codigo);
     if (!drop) {
         toast('No hay widgets/cuadros que el receptor no tenga', 'error');
@@ -968,25 +1141,12 @@ async function enviarRegaloWebDrop() {
     try {
         // 1. Gasto al emisor
         await api.gastoBoleta(
-            'gift',
-            'contactos',
+            'gift', 'contactos',
             `WebDrop a @${receptor.codigo} (${drop.itemNombre})`,
             PRECIO_WEBDROP
         );
 
-        // 2. Instalar el item al receptor (escribe en su config)
-        await aplicarWebDropAlReceptor(receptor.codigo, drop);
-
-        // 3. Chequera del receptor (registro del obsequio en especie)
-        await escribirChequeraReceptor(
-            receptor.codigo,
-            emisor.codigo,
-            'gift',
-            PRECIO_WEBDROP,
-            `WebDrop de @${emisor.codigo}: ${drop.itemNombre} (${drop.tipo})`
-        );
-
-        // 4. Registro global
+        // 2. Registrar PENDIENTE (no se aplica todavía)
         await registrarRegalo({
             para: receptor.codigo,
             categoria: 'webdrop',
@@ -1001,19 +1161,18 @@ async function enviarRegaloWebDrop() {
             }
         });
 
-        const tipoLabel = drop.tipo === 'cuadro' ? 'cuadro' : 'widget';
+        // 3. Avisar
         await notificar(
             receptor.codigo,
-            `${emisor.nombre}: te regaló un WebDrop — ¡${drop.itemNombre} (${tipoLabel})!`
+            `${emisor.nombre}: te regaló un WebDrop pendiente. ¡Reclamalo en tu buzón!`
         );
 
-        _postEnvioExitoso(receptor, `WebDrop enviado: ${drop.itemNombre}`);
+        _postEnvioExitoso(receptor, `WebDrop enviado (pendiente de reclamo)`);
     } catch (e) {
         _postEnvioError(btnEnviar, e);
     }
 }
 
-// -------- ESPACIO --------
 async function enviarRegaloEspacio() {
     const receptor = destinatarioRegalo;
     const emisor = usuarioActual;
@@ -1028,24 +1187,12 @@ async function enviarRegaloEspacio() {
 
     try {
         await api.gastoBoleta(
-            'gift',
-            'contactos',
+            'gift', 'contactos',
             `+5 espacio a @${receptor.codigo}`,
             PRECIO_ESPACIO
         );
 
-        // Sumar espacio al receptor
-        await aplicarEspacioAlReceptor(receptor.codigo, ESPACIO_POR_REGALO);
-
-        // Chequera del receptor
-        await escribirChequeraReceptor(
-            receptor.codigo,
-            emisor.codigo,
-            'canje',
-            PRECIO_ESPACIO,
-            `+${ESPACIO_POR_REGALO} espacio de @${emisor.codigo}`
-        );
-
+        // Registrar PENDIENTE (no se aplica todavía)
         await registrarRegalo({
             para: receptor.codigo,
             categoria: 'espacio',
@@ -1055,21 +1202,19 @@ async function enviarRegaloEspacio() {
 
         await notificar(
             receptor.codigo,
-            `${emisor.nombre}: te regaló +${ESPACIO_POR_REGALO} de espacio`
+            `${emisor.nombre}: te regaló +${ESPACIO_POR_REGALO} de espacio pendiente. ¡Reclamalo en tu buzón!`
         );
 
-        _postEnvioExitoso(receptor, `+${ESPACIO_POR_REGALO} espacio enviado a ${receptor.nombre}`);
+        _postEnvioExitoso(receptor, `+${ESPACIO_POR_REGALO} espacio enviado (pendiente de reclamo)`);
     } catch (e) {
         _postEnvioError(btnEnviar, e);
     }
 }
 
 // ============================================================
-//  APLICAR WEBDROP AL RECEPTOR
+//  APLICAR AL RECEPTOR
 //  ------------------------------------------------------------
-//  Escribe en cuentaConfig.json del receptor, agregando el
-//  item a su lista de instalados.
-//  ⚠️ AJUSTAR los nombres de campos si tu shell usa otros.
+//  ⚠️ Ajustá los nombres de campos si tu shell usa otros.
 // ============================================================
 async function aplicarWebDropAlReceptor(receptorCodigo, drop) {
     const bd = BD();
@@ -1093,11 +1238,6 @@ async function aplicarWebDropAlReceptor(receptorCodigo, drop) {
     });
 }
 
-// ============================================================
-//  APLICAR ESPACIO AL RECEPTOR
-//  ⚠️ AJUSTAR el nombre del campo (espacioMaximo) si tu shell
-//     usa otro (ej: "espacioTotal", "spaceMax", etc.).
-// ============================================================
 async function aplicarEspacioAlReceptor(receptorCodigo, cantidad) {
     const bd = BD();
     await bd.actualizarArchivo(CONFIG_FILE, (all) => {
@@ -1137,7 +1277,7 @@ async function escribirChequeraReceptor(receptorCodigo, emisorCodigo, tipo, cant
             return actual;
         });
     } catch (e) {
-        console.warn('[Contactos] No se pudo escribir chequera del receptor:', e);
+        console.warn('[Contactos] No se pudo escribir chequera:', e);
     }
 }
 
@@ -1199,6 +1339,7 @@ async function refrescar() {
         await precargarTemasDeUsuarios();
         renderMiBloque();
         render();
+        actualizarBadgeBuzon();
     } finally {
         if (btn) setTimeout(() => btn.classList.remove('spin'), 400);
     }
@@ -1227,28 +1368,25 @@ async function inicializar() {
 
     await refrescar();
 
-    // Header
     document.getElementById('ctBtnRefresh')?.addEventListener('click', refrescar);
     document.getElementById('ctBtnRegalos')?.addEventListener('click', abrirHistorial);
+    document.getElementById('ctBtnBuzon')?.addEventListener('click', abrirBuzon);
 
     // Modal regalo
     document.getElementById('ctRegaloCerrar')?.addEventListener('click', cerrarModalRegalo);
     document.getElementById('ctRegaloCancelar')?.addEventListener('click', cerrarModalRegalo);
     document.getElementById('ctRegaloEnviar')?.addEventListener('click', enviarRegalo);
 
-    // Tabs de categoría
     document.querySelectorAll('.ct-cat-tab').forEach(tab => {
         tab.addEventListener('click', () => {
             if (tab.classList.contains('bloqueada')) {
-                const cat = tab.dataset.cat;
-                toast(`Ya le regalaste ${categoriaInfo(cat).label} hoy`, 'info');
+                toast(`Ya le regalaste ${categoriaInfo(tab.dataset.cat).label} hoy`, 'info');
                 return;
             }
             seleccionarCategoriaRegalo(tab.dataset.cat);
         });
     });
 
-    // Montos
     document.querySelectorAll('.ct-monto').forEach(btn => {
         btn.addEventListener('click', () => {
             if (btn.disabled) return;
@@ -1270,6 +1408,9 @@ async function inicializar() {
         abrirModalRegalo(codigo, disponibles[0]);
     });
 
+    // Buzón
+    document.getElementById('ctBuzonCerrar')?.addEventListener('click', cerrarBuzon);
+
     // Historial
     document.getElementById('ctHistorialCerrar')?.addEventListener('click', cerrarHistorial);
     document.querySelectorAll('.ct-hist-tab').forEach(tab => {
@@ -1289,7 +1430,7 @@ async function inicializar() {
         });
     });
 
-    // Mi estado
+    // Estado
     document.querySelectorAll('.ct-yo-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             if (btn.disabled) return;
@@ -1297,8 +1438,8 @@ async function inicializar() {
         });
     });
 
-    // Click fuera de modales
-    ['ctModalRegalo', 'ctModalPerfil', 'ctModalHistorial'].forEach(id => {
+    // Click fuera
+    ['ctModalRegalo', 'ctModalPerfil', 'ctModalHistorial', 'ctModalBuzon'].forEach(id => {
         const m = document.getElementById(id);
         if (!m) return;
         m.addEventListener('click', (e) => {
@@ -1306,6 +1447,7 @@ async function inicializar() {
             if (id === 'ctModalRegalo') cerrarModalRegalo();
             if (id === 'ctModalPerfil') cerrarPerfil();
             if (id === 'ctModalHistorial') cerrarHistorial();
+            if (id === 'ctModalBuzon') cerrarBuzon();
         });
     });
 
@@ -1314,6 +1456,7 @@ async function inicializar() {
         if (!document.getElementById('ctModalRegalo').hidden) { cerrarModalRegalo(); return; }
         if (!document.getElementById('ctModalPerfil').hidden) { cerrarPerfil(); return; }
         if (!document.getElementById('ctModalHistorial').hidden) { cerrarHistorial(); return; }
+        if (!document.getElementById('ctModalBuzon').hidden) { cerrarBuzon(); return; }
     });
 
     if (window.lucide) window.lucide.createIcons();
