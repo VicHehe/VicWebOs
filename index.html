@@ -14,7 +14,6 @@
     <link rel="stylesheet" href="Logros/shell.css">
 
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 </head>
 <body>
 
@@ -200,62 +199,14 @@
                             </button>
                         </div>
 
+                    </div>
+                </div>
+            </main>
+        </div>
+
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
         <div class="noti-panel" id="notiPanel"></div>
-    </div>
-
-    <!-- ===== MODAL NUEVA LLAMADA ===== -->
-    <div class="pcall-modal" id="pcallModalNueva" style="display:none;">
-        <div class="pcall-modal-card">
-            <div class="pcall-modal-header">
-                <div>
-                    <h3><i data-lucide="phone-call"></i> Nueva llamada pública</h3>
-                    <p class="pcall-modal-sub">Cualquiera de la comunidad podrá unirse</p>
-                </div>
-                <button class="pcall-cerrar" id="pcallNuevaCerrar" aria-label="Cerrar"><i data-lucide="x"></i></button>
-            </div>
-
-            <p class="pcall-modal-desc">
-                Pagás la duración total de la llamada. Si querés más minutos, poné más monedas:
-                <strong>15 monedas = 10 min</strong>, y cada 15 monedas extra sumás 5 minutos.
-            </p>
-
-            <div class="pcall-duraciones" id="pcallDuraciones"></div>
-
-            <div class="pcall-modal-footer">
-                <button class="btn-secundario" id="pcallNuevaCancelar" type="button">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== OVERLAY DE LLAMADA ACTIVA ===== -->
-    <div class="pcall-overlay" id="pcallOverlay" style="display:none;">
-        <div class="pcall-overlay-card">
-            <div class="pcall-overlay-header">
-                <div class="pcall-overlay-pulso"></div>
-                <div class="pcall-overlay-header-texto">
-                    <div class="pcall-overlay-titulo" id="pcallOverlayTitulo">Llamada pública</div>
-                    <div class="pcall-overlay-sub" id="pcallOverlaySub">—</div>
-                </div>
-            </div>
-
-            <div class="pcall-overlay-tiempo" id="pcallOverlayTiempo">--:--</div>
-            <div class="pcall-overlay-tiempo-label">tiempo restante</div>
-
-            <div class="pcall-participantes" id="pcallParticipantes"></div>
-
-            <div class="pcall-overlay-controles">
-                <button class="pcall-btn-control" id="pcallBtnMute" type="button">
-                    <i data-lucide="mic"></i>
-                    <span>Mutear</span>
-                </button>
-                <button class="pcall-btn-control pcall-btn-peligro" id="pcallBtnColgar" type="button">
-                    <i data-lucide="phone-off"></i>
-                    <span>Colgar</span>
-                </button>
-            </div>
-        </div>
     </div>
 
     <div id="modalTodas" class="modal-todas-overlay" style="display:none;">
@@ -1050,7 +1001,6 @@
     <script src="js/PublicZone.js"></script>
     <script src="js/LogicCuadros.js"></script>
     <script src="js/Racha.js"></script>
-    <script src="js/PubliCall.js"></script>
     <script>lucide.createIcons();</script>
 </body>
 </html>
