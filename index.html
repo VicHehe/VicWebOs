@@ -126,7 +126,7 @@
                             <div class="accesos-rapidos" id="accesosRapidos"></div>
                         </div>
 
-                                                <!-- 2. CUADROS — Decoración pura del lobby -->
+                        <!-- 2. CUADROS — Decoración pura del lobby -->
                         <div class="welcome-section" id="welcomeCuadrosSection" style="display:none;">
                             <div class="welcome-section-header">
                                 <h2><i data-lucide="frame"></i> Decoración</h2>
@@ -200,7 +200,33 @@
                             </button>
                         </div>
 
-    <!-- ===== MODAL NUEVA LLAMADA (duración) ===== -->
+                        <!-- 7. TELÉFONO PÚBLICO -->
+                        <div class="welcome-section" id="welcomePubliCallSection" style="display:none;">
+                            <div class="welcome-section-header">
+                                <h2><i data-lucide="phone-call"></i> Teléfono Público</h2>
+                                <button class="btn-ver-todas" id="btnNuevaLlamada">
+                                    Nueva llamada <i data-lucide="plus"></i>
+                                </button>
+                            </div>
+                            <div class="pcall-lista" id="pcallLista">
+                                <div class="pcall-vacio">
+                                    <i data-lucide="phone-off"></i>
+                                    <span>Cargando llamadas…</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <div class="noti-panel" id="notiPanel"></div>
+    </div>
+
+    <!-- ===== MODAL NUEVA LLAMADA ===== -->
     <div class="pcall-modal" id="pcallModalNueva" style="display:none;">
         <div class="pcall-modal-card">
             <div class="pcall-modal-header">
