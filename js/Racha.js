@@ -85,12 +85,10 @@
                 totalReclamado: 0
             };
         }
-        // Compatibilidad: si viene de una versión vieja con otro campo, migramos.
         if (!data.ultimoDiaLocal) {
             if (data.ultimoDiaChile) {
                 data.ultimoDiaLocal = data.ultimoDiaChile;
             } else if (data.ultimoReclamo) {
-                // Derivar del ISO en la zona LOCAL actual del navegador.
                 try {
                     const d = new Date(data.ultimoReclamo);
                     const y = d.getFullYear();
@@ -106,6 +104,23 @@
     function _recompensaPorMes(mesesSeguidos) {
         const n = Math.max(1, Number(mesesSeguidos) || 1);
         return Math.min(MAX_MONEDAS, MONEDAS_BASE + (n - 1) * INCREMENTO_MES);
+    }
+
+    // Simula qué recompensa tocaría mañana, teniendo en cuenta
+    // si mañana ya es otro mes calendario.
+    function _recompensaManana(estado) {
+        const manana = new Date();
+        manana.setDate(manana.getDate() + 1);
+        const y = manana.getFullYear();
+        const m = String(manana.getMonth() + 1).padStart(2, '0');
+        const mesManana = `${y}-${m}`;
+
+        let mesesSeguidos = estado.mesesSeguidos || 1;
+        if (estado.ultimoMes && estado.ultimoMes !== mesManana) {
+            if (mesManana === _mesSiguiente(estado.ultimoMes)) mesesSeguidos++;
+            else mesesSeguidos = 1;
+        }
+        return _recompensaPorMes(mesesSeguidos);
     }
 
     function _yaReclamoHoy(estado) {
@@ -159,7 +174,6 @@
         try {
             const ruta = _ruta(c.codigo);
 
-            // 1. Lectura FRESH (salta el caché de 5min)
             const estadoFresh = await bd.leerArchivoFresh(ruta);
             const estado = _normalizar(estadoFresh);
 
@@ -174,7 +188,6 @@
             const ahoraISO = new Date().toISOString();
             const hoyLocal = _hoyLocal();
 
-            // 2. Mutador ATÓMICO: re-verifica dentro y escribe con merge real
             let muto = false;
             await bd.actualizarArchivo(ruta, (actual) => {
                 actual = _normalizar(actual);
@@ -199,7 +212,6 @@
                 throw new Error('Ya reclamaste tu regalo hoy.');
             }
 
-            // 3. Monedas (ya está marcado el reclamo → no hay riesgo de doble canje)
             try {
                 await api.canjear(
                     'gift',
@@ -263,7 +275,7 @@
         const reclamadoHoy = _yaReclamoHoy(estado);
         const mesMostrado = Math.min(6, Math.max(1, estado.mesesSeguidos || 1));
         const recompensaHoy = _recompensaPorMes(mesMostrado);
-        const recompensaProx = _recompensaPorMes(mesMostrado + 1);
+        const recompensaProx = _recompensaManana(estado);
 
         if (badge) {
             badge.textContent = `${estado.diasSeguidos || 0} día${estado.diasSeguidos === 1 ? '' : 's'}`;
