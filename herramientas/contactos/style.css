@@ -1,6 +1,12 @@
 /* ================================================
    Contactos — App del sistema
    Directorio + regalos (3 categorías) + buzón + estado
+   ------------------------------------------------------------
+   REGLA: los elementos de UI usan SOLO variables del tema.
+   Los únicos colores hardcodeados son los SEMÁNTICOS
+   (verde activo / ámbar descanso / gris off / dorado monedas
+    / azul espacio), que no pertenecen a ningún tema en
+    particular y necesitan ser universales.
    ================================================ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -67,7 +73,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: var(--white, #FFFFFF);
     box-shadow: 0 8px 20px var(--accent-shadow, rgba(139,92,246,0.28));
     flex-shrink: 0;
 }
@@ -122,7 +128,7 @@ body {
 .ct-btn-header.spin [data-lucide] { animation: ctSpin 0.8s linear infinite; }
 @keyframes ctSpin { to { transform: rotate(360deg); } }
 
-/* Botón del buzón con badge */
+/* Buzón con pendientes — usa el acento del tema */
 .ct-btn-buzon.tiene-pendientes {
     background: var(--violet-50, #F5F3FF);
     border-color: var(--violet-300, #C4B5FD);
@@ -135,8 +141,8 @@ body {
     min-width: 18px;
     height: 18px;
     padding: 0 5px;
-    background: #EF4444;
-    color: white;
+    background: var(--violet-500, #8B5CF6);
+    color: var(--white, #FFFFFF);
     font-size: 10px;
     font-weight: 800;
     border-radius: 999px;
@@ -145,7 +151,7 @@ body {
     justify-content: center;
     border: 2px solid var(--white, #FFFFFF);
     line-height: 1;
-    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.35);
+    box-shadow: 0 2px 6px var(--accent-shadow, rgba(139, 92, 246, 0.35));
     animation: ctBadgePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 @keyframes ctBadgePop {
@@ -348,10 +354,18 @@ body {
 }
 .ct-estado-dot [data-lucide] { width: 12px; height: 12px; stroke-width: 3; color: white; }
 
-.estado-activo   { background: #10B981 !important; }
-.estado-descanso { background: #F59E0B !important; }
-.estado-off      { background: #71717A !important; }
-.estado-sin      { background: var(--gray-300, #D4D4DD) !important; }
+/* ============================================================
+   COLORES SEMÁNTICOS DE ESTADO — SOLO SOBRE EL PUNTO
+   (no sobre la etiqueta de abajo, que va con colores del tema)
+   ============================================================ */
+.ct-estado-dot.estado-activo,
+.ct-estado-dot-mini.estado-activo   { background: #10B981; }
+.ct-estado-dot.estado-descanso,
+.ct-estado-dot-mini.estado-descanso { background: #F59E0B; }
+.ct-estado-dot.estado-off,
+.ct-estado-dot-mini.estado-off      { background: var(--gray-500, #71717A); }
+.ct-estado-dot.estado-sin,
+.ct-estado-dot-mini.estado-sin      { background: var(--gray-300, #D4D4DD); }
 
 .ct-info { display: flex; flex-direction: column; gap: 2px; width: 100%; min-width: 0; }
 .ct-nombre {
@@ -375,24 +389,50 @@ body {
     align-self: center;
     letter-spacing: 0.04em;
 }
+
+/* ============================================================
+   ETIQUETA DE ESTADO — píldora neutra del tema
+   ------------------------------------------------------------
+   align-self: center evita que el padre flex (column) la estire
+   a todo el ancho. El fondo sale de var(--gray-100).
+   El color semántico SOLO va en el ícono (chiquito, universal).
+   ============================================================ */
 .ct-estado-label {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    gap: 4px;
-    font-size: 11px;
+    gap: 5px;
+    align-self: center;
+    padding: 3px 10px 3px 8px;
+    background: var(--gray-100, #F4F4F7);
+    border-radius: 999px;
+    font-size: 10.5px;
     font-weight: 700;
-    margin-top: 3px;
-    color: var(--gray-500, #71717A);
+    color: var(--gray-600, #52525B);
+    margin-top: 4px;
+    max-width: 100%;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.005em;
 }
-.ct-estado-label [data-lucide] { width: 11px; height: 11px; color: var(--gray-400, #A1A1AD); }
-.ct-estado-label.estado-activo   { color: #065F46; }
-.ct-estado-label.estado-activo [data-lucide] { color: #10B981; }
-.ct-estado-label.estado-descanso { color: #92400E; }
+.ct-estado-label [data-lucide] {
+    width: 11px;
+    height: 11px;
+    flex-shrink: 0;
+    stroke-width: 2.5;
+    color: var(--gray-400, #A1A1AD);
+}
+.ct-estado-label.estado-activo   [data-lucide] { color: #10B981; }
 .ct-estado-label.estado-descanso [data-lucide] { color: #F59E0B; }
-.ct-estado-label.estado-off      { color: var(--gray-600, #52525B); }
-.ct-estado-label.estado-off [data-lucide] { color: #71717A; }
-.ct-estado-tiempo { font-weight: 600; opacity: 0.75; margin-left: 2px; }
+.ct-estado-label.estado-off      [data-lucide] { color: var(--gray-500, #71717A); }
+.ct-estado-label.estado-sin      [data-lucide] { color: var(--gray-400, #A1A1AD); }
+
+.ct-estado-tiempo {
+    font-weight: 600;
+    opacity: 0.7;
+    margin-left: 1px;
+}
 
 /* ============================================================
    3 BOTONES DE REGALO
@@ -425,6 +465,7 @@ body {
 }
 .ct-btn-regalar [data-lucide] { width: 15px; height: 15px; }
 
+/* Monedas — dorado semántico */
 .ct-btn-regalar-monedas {
     background: linear-gradient(135deg, #FBBF24, #F59E0B);
     color: white;
@@ -434,15 +475,20 @@ body {
     transform: translateY(-1px);
     box-shadow: 0 6px 14px rgba(245, 158, 11, 0.42);
 }
+
+/* WebDrop — usa el acento del tema */
 .ct-btn-regalar-webdrop {
-    background: linear-gradient(135deg, #A78BFA, #7C3AED);
-    color: white;
-    box-shadow: 0 4px 10px rgba(139, 92, 246, 0.32);
+    background: var(--accent-gradient-hover, linear-gradient(135deg, #A78BFA, #7C3AED));
+    color: var(--white, #FFFFFF);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.18);
+    box-shadow: 0 4px 10px var(--accent-shadow, rgba(139, 92, 246, 0.32));
 }
 .ct-btn-regalar-webdrop:hover:not(:disabled) {
     transform: translateY(-1px);
-    box-shadow: 0 6px 14px rgba(139, 92, 246, 0.42);
+    box-shadow: 0 6px 14px var(--accent-shadow-hover, rgba(139, 92, 246, 0.42));
 }
+
+/* Espacio — azul semántico */
 .ct-btn-regalar-espacio {
     background: linear-gradient(135deg, #60A5FA, #3B82F6);
     color: white;
@@ -452,6 +498,7 @@ body {
     transform: translateY(-1px);
     box-shadow: 0 6px 14px rgba(59, 130, 246, 0.42);
 }
+
 .ct-btn-regalar.bloqueado,
 .ct-btn-regalar:disabled {
     background: var(--gray-100, #F4F4F7);
@@ -568,7 +615,7 @@ body {
     transition: all 0.15s;
     flex-shrink: 0;
 }
-.ct-modal-cerrar:hover { background: #FEE2E2; color: #991B1B; }
+.ct-modal-cerrar:hover { background: var(--gray-200, #E8E8EE); color: var(--gray-900, #18181B); }
 
 .ct-modal-body {
     padding: 20px;
@@ -675,30 +722,26 @@ body {
     align-items: center;
     gap: 14px;
     padding: 16px;
-    background: linear-gradient(135deg,
-        rgba(167, 139, 250, 0.12),
-        rgba(124, 58, 237, 0.06));
+    background: var(--violet-50, #F5F3FF);
     border: 1.5px solid var(--violet-200, #DDD6FE);
     border-radius: 14px;
     margin-bottom: 12px;
 }
 .ct-webdrop-preview-espacio {
-    background: linear-gradient(135deg,
-        rgba(96, 165, 250, 0.12),
-        rgba(59, 130, 246, 0.06));
-    border-color: rgba(96, 165, 250, 0.4);
+    background: #EFF6FF;
+    border-color: #BFDBFE;
 }
 .ct-webdrop-icono {
     width: 52px;
     height: 52px;
-    background: linear-gradient(135deg, #A78BFA, #7C3AED);
+    background: var(--accent-gradient, linear-gradient(135deg, #A78BFA, #7C3AED));
     border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: var(--white, #FFFFFF);
     flex-shrink: 0;
-    box-shadow: 0 6px 16px rgba(139, 92, 246, 0.32);
+    box-shadow: 0 6px 16px var(--accent-shadow, rgba(139, 92, 246, 0.32));
 }
 .ct-webdrop-icono [data-lucide] { width: 26px; height: 26px; stroke-width: 2; }
 .ct-webdrop-icono-espacio {
@@ -757,12 +800,24 @@ body {
 }
 .ct-cat-aviso [data-lucide] { width: 15px; height: 15px; flex-shrink: 0; margin-top: 1px; }
 .ct-cat-aviso strong { font-weight: 800; }
-.ct-cat-aviso-info      { background: var(--violet-50, #F5F3FF); color: var(--violet-700, #6D28D9); border: 1px solid var(--violet-200, #DDD6FE); }
+.ct-cat-aviso-info {
+    background: var(--violet-50, #F5F3FF);
+    color: var(--violet-700, #6D28D9);
+    border: 1px solid var(--violet-200, #DDD6FE);
+}
 .ct-cat-aviso-info [data-lucide] { color: var(--violet-600, #7C3AED); }
-.ct-cat-aviso-bloqueado { background: #FFFBEB; color: #92400E; border: 1px solid #FDE68A; }
-.ct-cat-aviso-bloqueado [data-lucide] { color: #D97706; }
-.ct-cat-aviso-error     { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
-.ct-cat-aviso-error [data-lucide] { color: #DC2626; }
+.ct-cat-aviso-bloqueado {
+    background: var(--gray-100, #F4F4F7);
+    color: var(--gray-700, #3F3F46);
+    border: 1px solid var(--border, #E8E8EE);
+}
+.ct-cat-aviso-bloqueado [data-lucide] { color: var(--gray-500, #71717A); }
+.ct-cat-aviso-error {
+    background: var(--gray-100, #F4F4F7);
+    color: var(--gray-700, #3F3F46);
+    border: 1px solid var(--border, #E8E8EE);
+}
+.ct-cat-aviso-error [data-lucide] { color: var(--gray-500, #71717A); }
 
 .ct-modal-actions {
     display: flex;
@@ -796,7 +851,7 @@ body {
 .ct-btn-sec:hover { background: var(--gray-100, #F4F4F7); }
 .ct-btn-pri {
     background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
-    color: white;
+    color: var(--white, #FFFFFF);
     box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
 }
 .ct-btn-pri:hover:not(:disabled) {
@@ -808,7 +863,7 @@ body {
 .ct-btn-full { width: 100%; }
 
 /* ============================================================
-   MODAL BUZÓN — Regalos recibidos pendientes
+   MODAL BUZÓN
    ============================================================ */
 .ct-buzon-lista {
     display: flex;
@@ -865,7 +920,7 @@ body {
     bottom: 0;
     width: 4px;
 }
-.ct-buzon-item-webdrop::before { background: linear-gradient(180deg, #A78BFA, #7C3AED); }
+.ct-buzon-item-webdrop::before { background: var(--accent-gradient, linear-gradient(180deg, #A78BFA, #7C3AED)); }
 .ct-buzon-item-espacio::before { background: linear-gradient(180deg, #60A5FA, #3B82F6); }
 
 .ct-buzon-item:hover {
@@ -881,12 +936,12 @@ body {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    color: white;
+    color: var(--white, #FFFFFF);
 }
 .ct-buzon-icono [data-lucide] { width: 22px; height: 22px; stroke-width: 2; }
 .ct-buzon-icono-webdrop {
-    background: linear-gradient(135deg, #A78BFA, #7C3AED);
-    box-shadow: 0 6px 14px rgba(139, 92, 246, 0.28);
+    background: var(--accent-gradient, linear-gradient(135deg, #A78BFA, #7C3AED));
+    box-shadow: 0 6px 14px var(--accent-shadow, rgba(139, 92, 246, 0.28));
 }
 .ct-buzon-icono-espacio {
     background: linear-gradient(135deg, #60A5FA, #3B82F6);
@@ -954,7 +1009,7 @@ body {
 }
 .ct-buzon-detalle-webdrop [data-lucide] { color: var(--violet-600, #7C3AED); }
 .ct-buzon-detalle-espacio {
-    background: #DBEAFE;
+    background: #EFF6FF;
     color: #1D4ED8;
     border: 1px solid #BFDBFE;
 }
@@ -972,7 +1027,8 @@ body {
     font-weight: 800;
     cursor: pointer;
     background: var(--accent-gradient-hover, linear-gradient(135deg, #8B5CF6, #7C3AED));
-    color: white;
+    color: var(--white, #FFFFFF);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.18);
     box-shadow: 0 4px 12px var(--accent-shadow, rgba(139,92,246,0.28));
     transition: all 0.15s;
     flex-shrink: 0;
@@ -1190,10 +1246,10 @@ body {
 }
 .ct-hist-filtro.active {
     background: var(--violet-500, #8B5CF6);
-    color: white;
+    color: var(--white, #FFFFFF);
     border-color: var(--violet-500, #8B5CF6);
 }
-.ct-hist-filtro.active [data-lucide] { color: white; }
+.ct-hist-filtro.active [data-lucide] { color: var(--white, #FFFFFF); }
 
 .ct-hist-lista {
     display: flex;
@@ -1228,8 +1284,9 @@ body {
     flex-shrink: 0;
 }
 .ct-hist-icono [data-lucide] { width: 17px; height: 17px; stroke-width: 2; }
+/* Categorías — semánticas */
 .ct-hist-icono-monedas { background: #FEF3C7; color: #B45309; }
-.ct-hist-icono-webdrop { background: #EDE9FE; color: #6D28D9; }
+.ct-hist-icono-webdrop { background: var(--violet-100, #EDE9FE); color: var(--violet-700, #6D28D9); }
 .ct-hist-icono-espacio { background: #DBEAFE; color: #1D4ED8; }
 
 .ct-hist-info {
@@ -1278,11 +1335,11 @@ body {
 }
 .ct-hist-estado-ok [data-lucide] { color: #10B981; }
 .ct-hist-estado-pendiente {
-    background: #FFFBEB;
-    color: #92400E;
-    border: 1px solid #FDE68A;
+    background: var(--gray-100, #F4F4F7);
+    color: var(--gray-700, #3F3F46);
+    border: 1px solid var(--border, #E8E8EE);
 }
-.ct-hist-estado-pendiente [data-lucide] { color: #D97706; }
+.ct-hist-estado-pendiente [data-lucide] { color: var(--gray-500, #71717A); }
 
 .ct-hist-meta {
     display: flex;
@@ -1311,7 +1368,7 @@ body {
     white-space: nowrap;
 }
 .ct-hist-badge [data-lucide] { width: 11px; height: 11px; flex-shrink: 0; }
-.ct-hist-badge-webdrop { background: #EDE9FE; color: #6D28D9; }
+.ct-hist-badge-webdrop { background: var(--violet-100, #EDE9FE); color: var(--violet-700, #6D28D9); }
 .ct-hist-badge-espacio { background: #DBEAFE; color: #1D4ED8; }
 
 .ct-hist-monto {
@@ -1371,7 +1428,7 @@ body {
     left: 50%;
     transform: translateX(-50%) translateY(100px);
     background: var(--gray-900, #18181B);
-    color: white;
+    color: var(--bg, #FFFFFF);
     padding: 12px 22px;
     border-radius: 999px;
     font-size: 13px;
@@ -1385,9 +1442,10 @@ body {
     white-space: nowrap;
 }
 .ct-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.ct-toast.success { background: #065F46; }
-.ct-toast.error   { background: #991B1B; }
-.ct-toast.info    { background: var(--violet-700, #6D28D9); }
+/* Semántico universal */
+.ct-toast.success { background: #065F46; color: #FFFFFF; }
+.ct-toast.error   { background: #991B1B; color: #FFFFFF; }
+.ct-toast.info    { background: var(--violet-700, #6D28D9); color: #FFFFFF; }
 
 .spin { animation: ctSpin 1s linear infinite; }
 
@@ -1427,7 +1485,8 @@ body {
     .ct-estado-dot [data-lucide] { width: 11px; height: 11px; }
     .ct-nombre { font-size: 13px; }
     .ct-codigo { font-size: 10.5px; }
-    .ct-estado-label { font-size: 10.5px; }
+    .ct-estado-label { font-size: 10px; padding: 3px 8px 3px 7px; }
+    .ct-estado-label [data-lucide] { width: 10px; height: 10px; }
 
     .ct-regalar-botones { gap: 5px; }
     .ct-btn-regalar { padding: 8px 4px; }
