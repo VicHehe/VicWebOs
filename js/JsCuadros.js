@@ -99,15 +99,6 @@ var CUADROS_DISPONIBLES = [
 
     // ─── Nivel 15: estándar ───────────────────────────────────
     {
-        id: 'escarabajo',
-        nombre: 'Escarabajo Joya',
-        icono: 'bug',
-        ruta: 'Cuadros/escarabajo/index.html',
-        descripcion: 'Un escarabajo iridiscente que flota entre las hojas.',
-        categoria: 'Insectos',
-        monedas: 15
-    },
-    {
         id: 'girasol',
         nombre: 'Girasol',
         icono: 'sun',
@@ -139,7 +130,7 @@ var CUADROS_DISPONIBLES = [
     {
         id: 'zorro-nocturno',
         nombre: 'Zorro Nocturno',
-        icono: 'wolf',
+        icono: 'paw-print',
         ruta: 'Cuadros/zorro-nocturno/index.html',
         descripcion: 'Un zorro que vela la noche bajo la luna, con cola y orejas en movimiento.',
         categoria: 'Animales',
@@ -202,5 +193,25 @@ var CUADROS_DISPONIBLES = [
         descripcion: 'Un fantasmita tierno que aparece, desaparece y llena el aire de magia.',
         categoria: 'Horror',
         monedas: 30
+    },
+
+    // ─── Bichos (última categoría, siempre al final) ──────────
+    {
+        id: 'escarabajo',
+        nombre: 'Escarabajo Joya',
+        icono: 'bug',
+        ruta: 'Cuadros/escarabajo/index.html',
+        descripcion: 'Un escarabajo iridiscente que flota entre las hojas.',
+        categoria: 'Bichos',
+        monedas: 15
+    },
+    {
+        id: 'hormiga',
+        nombre: 'Hormiga',
+        icono: 'worm',
+        ruta: 'Cuadros/hormiga/index.html',
+        descripcion: 'Una fila de hormigas marchando en busca de miguitas.',
+        categoria: 'Bichos',
+        monedas: 15
     },
 ];
