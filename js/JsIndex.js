@@ -616,25 +616,52 @@ function pintarClima(icono, temp) {
     lucide.createIcons();
 }
 
+// Ubicación para el clima: nativa primero, IP como respaldo
+async function ubicacionClima() {
+    try {
+        return await new Promise((res, rej) => {
+            if (!navigator.geolocation) return rej(new Error('sin geo'));
+            navigator.geolocation.getCurrentPosition(
+                p => res({ lat: p.coords.latitude, lon: p.coords.longitude }),
+                () => rej(new Error('denegada')),
+                { timeout: 8000 }
+            );
+        });
+    } catch (e) { /* pasamos a IP */ }
+
+    try {
+        const r = await fetch('https://ipapi.co/json/');
+        const d = await r.json();
+        if (typeof d.latitude === 'number' && typeof d.longitude === 'number') {
+            return { lat: d.latitude, lon: d.longitude };
+        }
+    } catch (e) { /* pasamos al siguiente */ }
+
+    try {
+        const r = await fetch('https://ipwho.is/');
+        const d = await r.json();
+        if (d.success) return { lat: d.latitude, lon: d.longitude };
+    } catch (e) { /* sin ubicación */ }
+
+    return null;
+}
+
 function iniciarClimaLocal() {
     const el = document.getElementById('climaLocal');
     if (!el) return;
-    if (!navigator.geolocation) { pintarClima('cloud-sun', '--'); return; }
 
-    navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-            const c = await obtenerClima(pos.coords.latitude, pos.coords.longitude);
+    ubicacionClima().then(async (pos) => {
+        if (!pos) { pintarClima('cloud-sun', '--'); return; }
+
+        const actualizar = async () => {
+            const c = await obtenerClima(pos.lat, pos.lon);
             if (c) pintarClima(c.icono, c.temp);
             else pintarClima('cloud-sun', '--');
+        };
 
-            setInterval(async () => {
-                const c2 = await obtenerClima(pos.coords.latitude, pos.coords.longitude);
-                if (c2) pintarClima(c2.icono, c2.temp);
-            }, 900000);
-        },
-        () => pintarClima('cloud-sun', '--'),
-        { timeout: 8000 }
-    );
+        await actualizar();
+        setInterval(actualizar, 900000); // cada 15 min
+    });
 }
 
 // ============================================================
