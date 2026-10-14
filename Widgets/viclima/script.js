@@ -8,6 +8,9 @@
 //    - Próximas 12 horas
 //    - Pronóstico de 7 días con min/max y probabilidad de lluvia
 //
+//  Ubicación: primero intenta la geolocalización nativa; si falla
+//  (típico dentro de la app de escritorio), usa la IP como respaldo.
+//
 //  NO persiste nada: el clima es tiempo-real. Se refresca solo
 //  cada 15 minutos (como el header) y con el botón de actualizar.
 // ============================================================
@@ -151,26 +154,75 @@ function setBotonCargando(on) {
 }
 
 // ============================================================
-//  GEOLOCALIZACIÓN (mismo patrón que el header del shell)
+//  GEOLOCALIZACIÓN
+//  1) Nativa (navigator.geolocation)  → precisa, si el navegador la da
+//  2) Respaldo por IP                 → aproximada (ciudad), siempre disponible
 // ============================================================
-function geolocalizar() {
+function geolocalizarNativo() {
     return new Promise((resolve, reject) => {
         if (!navigator.geolocation) {
-            reject(new Error('Tu navegador no soporta geolocalización.'));
+            reject(new Error('Sin soporte de geolocalización.'));
             return;
         }
         navigator.geolocation.getCurrentPosition(
             (pos) => resolve({
                 lat: pos.coords.latitude,
-                lon: pos.coords.longitude
+                lon: pos.coords.longitude,
+                nombre: null,
+                origen: 'nativa'
             }),
-            () => reject(new Error('No se pudo obtener tu ubicación. Actívala para ver el clima.')),
+            () => reject(new Error('Geolocalización nativa no disponible.')),
             { timeout: 8000 }
         );
     });
 }
 
-// Nombre del lugar (best-effort; si falla, quedamos en "Tu ubicación")
+// Proveedores de IP: si uno falla (cuota, error 429...), se prueba el siguiente
+async function ubicacionPorIP() {
+    const proveedores = [
+        async () => {
+            const r = await fetch('https://ipapi.co/json/');
+            const d = await r.json();
+            if (d.error) throw new Error(d.reason || 'ipapi.co');
+            return {
+                lat: d.latitude,
+                lon: d.longitude,
+                nombre: d.city || null,
+                origen: 'ip'
+            };
+        },
+        async () => {
+            const r = await fetch('https://ipwho.is/');
+            const d = await r.json();
+            if (!d.success) throw new Error(d.message || 'ipwho.is');
+            return {
+                lat: d.latitude,
+                lon: d.longitude,
+                nombre: d.city || null,
+                origen: 'ip'
+            };
+        }
+    ];
+
+    for (const proveedor of proveedores) {
+        try {
+            const c = await proveedor();
+            if (typeof c.lat === 'number' && typeof c.lon === 'number') return c;
+        } catch (e) { /* probar el siguiente */ }
+    }
+    throw new Error('No se pudo determinar tu ubicación.');
+}
+
+async function geolocalizar() {
+    try {
+        return await geolocalizarNativo();
+    } catch (e) {
+        // Dentro de la app de escritorio la ubicación nativa suele fallar: usamos la IP
+        return await ubicacionPorIP();
+    }
+}
+
+// Nombre del lugar (best-effort; si falla, quedamos en null)
 async function nombreDeUbicacion(lat, lon) {
     try {
         const res = await fetch(
@@ -363,7 +415,8 @@ async function iniciarFlujo() {
 
         data = await obtenerClima(coords.lat, coords.lon);
 
-        nombreLugar = await nombreDeUbicacion(coords.lat, coords.lon);
+        // Si la IP ya trajo el nombre de la ciudad, no hace falta otra consulta
+        nombreLugar = coords.nombre || await nombreDeUbicacion(coords.lat, coords.lon);
 
         render();
     } catch (e) {
